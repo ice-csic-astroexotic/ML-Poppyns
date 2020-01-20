@@ -10,6 +10,7 @@ dependencies:
   - nb_conda=2.2.1
   - numpy=1.18.1
   - pandas=0.25.3
+  - pre-commit=1.21.0
   - pytest=5.3.2
   - pytest-cov=2.6.1
   - pytest-runner=4.2
