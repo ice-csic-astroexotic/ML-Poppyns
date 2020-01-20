@@ -1,2 +1,2 @@
-# MAGNESIA_population_synthesis
-Populations synthesis code for the MAGNESIA ERC project
+# MAGNESIA Population Synthesis
+Population synthesis code for the ERC project MAGNESIA - The Magnetar Census
