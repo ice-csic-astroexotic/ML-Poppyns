@@ -1,11 +1,13 @@
-"""Structure and stellar surface density in the Milky Way.
+"""
+Initial galactocentric position for the stellar population.
 
 We follow Faucher-Giguère & Kaspi (2006) and choose a galactocentric coordinate system,
 where the galactic centre is located at the origin. In terms of galactic latitude l and
 longitude b, the x-,y-, and z-axes are parallel to (l, b) = (90, 0), (180, 0) and (0,
 90), respectively, forming a right-handed Cartesian frame. Moreover, we define r =
 (x**2 + y**2)**0.5 as the distance from the galactic centre in the galactic plane and
-theta = arctan(y/x)"""
+theta = arctan(y/x)
+"""
 
 
 from typing import Tuple
@@ -164,10 +166,10 @@ def pdf_initial_height(z: float) -> float:
     """
 
     # we use an exponential distribution as given by Wainscoat et al. (1992)
-    # and choose a scale height characteristic for a young distribution as obtained
-    # by Gullon et al. (2006)
+    # and choose a mean scale height characteristic for a young distribution as
+    # obtained by Gullon et al. (2014)
 
-    scale_height = 0.1  # [kpc]
-    rho_z = 1.0 / scale_height * np.exp(-z / scale_height)
+    h_mean = 0.1  # [kpc]
+    p_z = 1.0 / h_mean * np.exp(-z / h_mean)
 
-    return rho_z
+    return p_z
