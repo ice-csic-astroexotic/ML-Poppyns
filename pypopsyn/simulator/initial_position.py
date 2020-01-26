@@ -69,7 +69,7 @@ def stellar_surf_density(r: float) -> float:
 
 def pdf_initial_coordinates(r: float, i: int) -> Tuple[float, float]:
     """
-    Probability distribution function for stellar galactocentric position incorporating
+    Probability density function for stellar galactocentric position incorporating
     the Milky Way's arm structure based on Faucher-Giguère & Kaspi (2006) (see also
     Wainscoat et al. (1992)).
 
@@ -156,7 +156,7 @@ def calculate_noise_for_coordinates(
 
 def pdf_initial_height(z: float) -> float:
     """
-    Probability distribution function for the height from the galactic equatorial plane.
+    Probability density function for the height from the galactic equatorial plane.
 
     Args:
         z (float): distance from the galactic plane in kpc

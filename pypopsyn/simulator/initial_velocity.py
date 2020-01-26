@@ -11,7 +11,7 @@ import numpy as np
 
 def pdf_proper_velocity(v: float) -> float:
     """
-    Probability distribution function for the neutron stars' proper velocities.
+    Probability density function for the neutron stars' proper velocities.
 
     Args:
         v (float): proper velocity in km/s
