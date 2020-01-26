@@ -26,14 +26,14 @@ def check_radial_coordinate(r: float):
         raise ValueError("Radial coordinate is out of range")
 
 
-def check_arm_index(i: int):
+def check_arm_index(arm_index: int):
     """
     Check that the index for the spiral galaxy arms is not <1 or >4.
 
     Args:
-        i (int): index for the respective spiral arms
+        arm_index (int): index for the respective spiral arms
     """
-    if i < 1 or i > 4:
+    if arm_index < 1 or arm_index > 4:
         raise ValueError("Arm index is out of range")
 
 
@@ -67,7 +67,7 @@ def stellar_surf_density(r: float) -> float:
     return rho
 
 
-def pdf_initial_coordinates(r: float, i: int) -> Tuple[float, float]:
+def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:
     """
     Probability density function for stellar galactocentric position incorporating
     the Milky Way's arm structure based on Faucher-Giguère & Kaspi (2006) (see also
@@ -75,7 +75,7 @@ def pdf_initial_coordinates(r: float, i: int) -> Tuple[float, float]:
 
     Args:
         r (float): distance from the galactic centre in kpc
-        i (int): index for the respective spiral arms, 0 < i < 5
+        arm_index (int): index for the respective spiral arms, 0 < arm_index < 5
 
     Returns:
         (float, float): galactocentric coordinates theta [rad], r [kpc] with noise
@@ -83,9 +83,9 @@ def pdf_initial_coordinates(r: float, i: int) -> Tuple[float, float]:
 
     # check range of input
     check_radial_coordinate(r)
-    check_arm_index(i)
+    check_arm_index(arm_index)
 
-    theta = calculate_theta(r, i)
+    theta = calculate_theta(r, arm_index)
     theta_corr, r_corr = calculate_noise_for_coordinates(r)
 
     theta = theta + theta_corr
@@ -94,7 +94,7 @@ def pdf_initial_coordinates(r: float, i: int) -> Tuple[float, float]:
     return theta, r
 
 
-def calculate_theta(r: float, i: int) -> float:
+def calculate_theta(r: float, arm_index: int) -> float:
     """
     Calculating the angular coordinate of a neutron star for a given distance
     from the galactic centre incorporating the Milky Way's arm structure from
@@ -102,7 +102,7 @@ def calculate_theta(r: float, i: int) -> float:
 
     Args:
         r (float): distance from the galactic centre in kpc
-        i (int): index for the respective spiral arms, 0 < i < 5
+        arm_index (int): index for the respective spiral arms, 0 < arm_index < 5
 
     Returns:
         float: galactocentric theta coordinate in rad
@@ -110,7 +110,7 @@ def calculate_theta(r: float, i: int) -> float:
 
     # check range of input
     check_radial_coordinate(r)
-    check_arm_index(i)
+    check_arm_index(arm_index)
 
     # parameters for four spiral arms in the Milky Way according to Table 2 in
     # Faucher-Giguère & Kaspi giving the winding constant k [rad], inner radius r_0
@@ -124,7 +124,10 @@ def calculate_theta(r: float, i: int) -> float:
         4: np.array([4.89, 4.90, 0.95]),
     }
 
-    theta = arm_param[i][0] * np.log(r / arm_param[i][1]) + arm_param[i][2]
+    theta = (
+        arm_param[arm_index][0] * np.log(r / arm_param[arm_index][1])
+        + arm_param[arm_index][2]
+    )
 
     return theta
 

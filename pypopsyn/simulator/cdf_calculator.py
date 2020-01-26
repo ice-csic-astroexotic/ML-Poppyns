@@ -8,9 +8,7 @@ import numpy as np
 import scipy.integrate as integrate
 
 
-def cdf_calculator(
-    x: np.ndarray, pdf: Callable[[np.ndarray], np.ndarray]
-) -> np.ndarray:
+def cdf_calculator(x: np.ndarray, pdf: Callable[[float], float]) -> np.ndarray:
     """
     Calculating the cumulative distribution function for any given probability density
     function evaluated at the points x using the trapezoidal rule.
@@ -23,7 +21,10 @@ def cdf_calculator(
         np.ndarray: normalised cumulative distribution function
     """
 
-    cdf = integrate.cumtrapz(pdf(x), x, initial=0)
+    # vectorising the pdf to take in an array
+    pdf_vect = np.vectorize(pdf)
+
+    cdf = integrate.cumtrapz(pdf_vect(x), x, initial=0)
     cdf = cdf / np.max(cdf)
 
     return cdf
