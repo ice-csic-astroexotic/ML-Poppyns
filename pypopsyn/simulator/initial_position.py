@@ -14,16 +14,7 @@ from typing import Tuple
 
 import numpy as np
 
-
-def check_radial_coordinate(r: float):
-    """
-    Check that the distance from the galactic centre is not negative.
-
-    Args:
-        r (float): distance from the galactic centre in kpc
-    """
-    if r < 0:
-        raise ValueError("Radial coordinate is out of range")
+import pypopsyn.simulator.coordinate_conversions as coco
 
 
 def check_arm_index(arm_index: int):
@@ -50,7 +41,7 @@ def stellar_surf_density(r: float) -> float:
     """
 
     # check range of input
-    check_radial_coordinate(r)
+    coco.check_radial_coordinate(r)
 
     rsun = 8.5  # Sun's distance from the galactic centre [kpc]
     A = 37.6  # +- 1.90 [1/kpc**2]
@@ -82,7 +73,7 @@ def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:
     """
 
     # check range of input
-    check_radial_coordinate(r)
+    coco.check_radial_coordinate(r)
     check_arm_index(arm_index)
 
     theta = calculate_theta(r, arm_index)
@@ -109,7 +100,7 @@ def calculate_theta(r: float, arm_index: int) -> float:
     """
 
     # check range of input
-    check_radial_coordinate(r)
+    coco.check_radial_coordinate(r)
     check_arm_index(arm_index)
 
     # parameters for four spiral arms in the Milky Way according to Table 2 in

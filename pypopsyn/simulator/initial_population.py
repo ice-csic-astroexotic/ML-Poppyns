@@ -7,6 +7,7 @@ from typing import Tuple
 import numpy as np
 
 import pypopsyn.simulator.cdf_calculator as cc
+import pypopsyn.simulator.coordinate_conversions as coco
 import pypopsyn.simulator.initial_position as ip
 import pypopsyn.simulator.initial_velocity as iv
 
@@ -77,8 +78,8 @@ class InitialNeutronStarPopulation:
             )
 
         # position in the galactic plane in Cartesian coordinates
-        x_rand = r_rand * np.cos(theta_rand)
-        y_rand = r_rand * np.sin(theta_rand)
+        polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
+        x_rand, y_rand = polar_to_cartesian_vect(r_rand, theta_rand)
 
         # calculating the cumulative distribution function for the height of the
         # stellar distribution

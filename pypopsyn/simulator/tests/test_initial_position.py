@@ -21,15 +21,6 @@ def test_case_1():
     return data
 
 
-def test_check_radial_coordinate():
-    """
-    Verifying that a ValueError is raised if the radial coordinate is negative.
-    """
-    r = -0.1
-    with pytest.raises(ValueError, match="Radial coordinate is out of range"):
-        ip.check_radial_coordinate(r)
-
-
 def test_check_arm_index_01():
     """
     Verifying that a ValueError is raised if the arm index is out of range.
