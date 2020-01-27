@@ -167,3 +167,40 @@ def pdf_initial_height(z: float) -> float:
     p_z = 1.0 / h_mean * np.exp(-z / h_mean)
 
     return p_z
+
+
+def random_scatter_about_plane(
+    z: np.ndarray, NS_number: int, seed: int = None
+) -> np.ndarray:
+    """
+    Randomly distribute positive height values within z about the galactic plane
+    located at z=0.
+
+    Args:
+        z (np.nparray): array of heights in kpc with positive values
+        NS_number (int): total number of neutron stars created in the simulation
+        seed (int): seed for random number generation,
+                    set to None unless otherwise specified
+
+    Returns:
+        (np.nparray): array of heights in kpc randomly scattered above or below 0
+    """
+
+    np.random.seed(seed)
+
+    # check that z has the length of the number of neutron stars simulated
+    if len(z) != NS_number:
+        raise ValueError("Input array has the wrong length")
+
+    # for each neutron star create a random value 0 or 1 (above or below plane)
+
+    up_down_index = np.random.randint(0, 2, NS_number)
+    z_rand = np.zeros(NS_number)
+
+    for i in range(NS_number):
+        if up_down_index[i] == 0:
+            z_rand[i] = z[i]
+        else:
+            z_rand[i] = -z[i]
+
+    return z_rand

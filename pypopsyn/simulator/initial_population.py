@@ -24,6 +24,7 @@ class InitialNeutronStarPopulation:
         resolution=10000,
         NS_number=50000,
         arm_number=4,
+        seed=None,
     ):
         """
         Predefined values for the simulation
@@ -34,6 +35,8 @@ class InitialNeutronStarPopulation:
             resolution (int): spatial resolution of the simulation grid
             NS_number (int): total number of neutron stars created
             arm_number (int): number of spiral arms in the galaxy
+            seed (int): seed for random number generation,
+                        set to None unless otherwise specified
         """
 
         self.r_extent = r_extent
@@ -41,13 +44,16 @@ class InitialNeutronStarPopulation:
         self.resolution = resolution
         self.NS_number = NS_number
         self.arm_number = arm_number
+        self.seed = seed
+
+        np.random.seed(seed)
 
     def position(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Calculating the position of each random neutron star in Cartesian coordinates.
 
         Returns:
-            (np.nbarray, np.nbarray, np.nbarray): x, y and z coordinate in kpc for each
+            (np.ndarray, np.ndarray, np.ndarray): x, y and z coordinate in kpc for each
             generated neutron stars
         """
 
@@ -94,12 +100,6 @@ class InitialNeutronStarPopulation:
         z_cdf_rand = np.interp(cdf_height_rand, cdf_height, z_grid)
 
         # randomly distribute the stars above and below the galactic plane
-        up_down_index = np.random.randint(0, 2, self.NS_number)
-        z_rand = np.zeros(self.NS_number)
-        for i in range(self.NS_number):
-            if up_down_index[i] == 0:
-                z_rand[i] = -z_cdf_rand[i]
-            else:
-                z_rand[i] = z_cdf_rand[i]
+        z_rand = ip.random_scatter_about_plane(z_cdf_rand, self.NS_number)
 
         return x_rand, y_rand, z_rand
