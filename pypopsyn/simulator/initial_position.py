@@ -14,16 +14,7 @@ from typing import Tuple
 
 import numpy as np
 
-
-def check_radial_coordinate(r: float):
-    """
-    Check that the distance from the galactic centre is not negative.
-
-    Args:
-        r (float): distance from the galactic centre in kpc
-    """
-    if r < 0:
-        raise ValueError("Radial coordinate is out of range")
+import pypopsyn.simulator.coordinate_conversions as coco
 
 
 def check_arm_index(arm_index: int):
@@ -50,7 +41,7 @@ def stellar_surf_density(r: float) -> float:
     """
 
     # check range of input
-    check_radial_coordinate(r)
+    coco.check_radial_coordinate(r)
 
     rsun = 8.5  # Sun's distance from the galactic centre [kpc]
     A = 37.6  # +- 1.90 [1/kpc**2]
@@ -82,7 +73,7 @@ def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:
     """
 
     # check range of input
-    check_radial_coordinate(r)
+    coco.check_radial_coordinate(r)
     check_arm_index(arm_index)
 
     theta = calculate_theta(r, arm_index)
@@ -109,7 +100,7 @@ def calculate_theta(r: float, arm_index: int) -> float:
     """
 
     # check range of input
-    check_radial_coordinate(r)
+    coco.check_radial_coordinate(r)
     check_arm_index(arm_index)
 
     # parameters for four spiral arms in the Milky Way according to Table 2 in
@@ -176,3 +167,40 @@ def pdf_initial_height(z: float) -> float:
     p_z = 1.0 / h_mean * np.exp(-z / h_mean)
 
     return p_z
+
+
+def random_scatter_about_plane(
+    z: np.ndarray, NS_number: int, seed: int = None
+) -> np.ndarray:
+    """
+    Randomly distribute positive height values within z about the galactic plane
+    located at z=0.
+
+    Args:
+        z (np.nparray): array of heights in kpc with positive values
+        NS_number (int): total number of neutron stars created in the simulation
+        seed (int): seed for random number generation,
+                    set to None unless otherwise specified
+
+    Returns:
+        (np.nparray): array of heights in kpc randomly scattered above or below 0
+    """
+
+    np.random.seed(seed)
+
+    # check that z has the length of the number of neutron stars simulated
+    if len(z) != NS_number:
+        raise ValueError("Input array has the wrong length")
+
+    # for each neutron star create a random value 0 or 1 (above or below plane)
+
+    up_down_index = np.random.randint(0, 2, NS_number)
+    z_rand = np.zeros(NS_number)
+
+    for i in range(NS_number):
+        if up_down_index[i] == 0:
+            z_rand[i] = z[i]
+        else:
+            z_rand[i] = -z[i]
+
+    return z_rand

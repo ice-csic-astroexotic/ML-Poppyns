@@ -21,13 +21,16 @@ def test_case_1():
     return data
 
 
-def test_check_radial_coordinate():
-    """
-    Verifying that a ValueError is raised if the radial coordinate is negative.
-    """
-    r = -0.1
-    with pytest.raises(ValueError, match="Radial coordinate is out of range"):
-        ip.check_radial_coordinate(r)
+@pytest.fixture()
+def test_case_2():
+    data = {
+        "NS_number": 5,
+        "z": np.array([0.2, 0.3, 0.1, 0.5, 0.1]),
+        "up_down_index_mock": np.array([0, 1, 0, 1, 0]),
+        "z_expected": np.array([0.2, -0.3, 0.1, -0.5, 0.1]),
+    }
+
+    return data
 
 
 def test_check_arm_index_01():
@@ -95,3 +98,31 @@ def test_pdf_initial_height(test_case_1):
     """
     p_z_out = ip.pdf_initial_height(test_case_1["z"])
     assert np.abs(test_case_1["p_z_expected"] - p_z_out) < TOL
+
+
+def test_random_scatter_about_plane_01(test_case_2):
+    """
+    Verifying that a ValueError is raised when the input array does not have the same
+    length as the number of neutron stars simulated
+    """
+    NS_number = 10
+    with pytest.raises(ValueError, match="Input array has the wrong length"):
+        ip.random_scatter_about_plane(test_case_2["z"], NS_number)
+
+
+def test_random_scatter_about_plane_02(monkeypatch, test_case_2):
+    """
+    Verifying that height values are correctly scattered about the z=0 axis given a
+    specific up_down_index array.
+    """
+
+    def mock_index(*args, **kwargs):
+        return np.array([0, 1, 0, 1, 0])
+
+    monkeypatch.setattr(np.random, "randint", mock_index)
+
+    z_out = ip.random_scatter_about_plane(
+        test_case_2["z"], test_case_2["NS_number"]
+    )
+
+    assert np.isclose(test_case_2["z_expected"], z_out).all()
