@@ -21,6 +21,7 @@ class InitialNeutronStarPopulation:
         self,
         r_extent=20.0,  # [kpc]
         z_extent=5.0,  # [kpc]
+        vp_extent=2000.0,  # [km s^(-1)]
         resolution=10000,
         NS_number=50000,
         arm_number=4,
@@ -32,6 +33,7 @@ class InitialNeutronStarPopulation:
         Args:
             r_extent (float): total radial extent from the galactic centre in kpc
             z_extent (float): total vertical extent from the galactic plane in kpc
+            vp_extent (float): maximum proper velocity magnitude
             resolution (int): spatial resolution of the simulation grid
             NS_number (int): total number of neutron stars created
             arm_number (int): number of spiral arms in the galaxy
@@ -41,6 +43,7 @@ class InitialNeutronStarPopulation:
 
         self.r_extent = r_extent
         self.z_extent = z_extent
+        self.vp_extent = vp_extent
         self.resolution = resolution
         self.NS_number = NS_number
         self.arm_number = arm_number
@@ -103,3 +106,43 @@ class InitialNeutronStarPopulation:
         z_rand = ip.random_scatter_about_plane(z_cdf_rand, self.NS_number)
 
         return x_rand, y_rand, z_rand
+
+    def proper_velocity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Calculating the proper velocity of each random neutron star in Cartesian coordinates.
+
+        Returns:
+            (np.ndarray, np.ndarray, np.ndarray): vp_x, vp_y and vp_z proper velocities in km / s for each
+            generated neutron stars
+        """
+
+        # calculating the cumulative distribution function for the proper velocity magnitude
+        vp_grid = np.linspace(0.0, self.vp_extent, self.resolution)
+        cdf_pdfvp = cc.cdf_calculator(vp_grid, iv.pdf_proper_velocity)
+
+        # uniformly drawing a random number of NS_number from the cdf
+        # to produce random proper velocities in km / s for each of the neutron stars
+        cdf_pdfvp_rand = np.random.uniform(0, 1, self.NS_number)
+        vp_rand = np.interp(cdf_pdfvp_rand, cdf_pdfvp, vp_grid)
+
+        # generate a random direction for the speed
+        # theta angle [0,np.pi] [rad]
+        # calculating the cumulative distribution function for the polar angle theta
+        theta_grid = np.linspace(0.0, np.pi, self.resolution)
+        cdf_sin = cc.cdf_calculator(theta_grid, np.sin)
+
+        # uniformly drawing a random number of NS_number from the cdf
+        # to produce random theta in rad for each of the neutron stars
+        cdf_sin_rand = np.random.uniform(0, 1, self.NS_number)
+        theta_rand = np.interp(cdf_sin_rand, cdf_sin, theta_grid)
+
+        # psi angle [0,2np.pi] [rad]
+        psi_rand = np.random.uniform(0, 2 * np.pi, self.NS_number)
+
+        # project the velocity on the cartesian axes
+        spherical_to_cartesian_vect = np.vectorize(coco.spherical_to_cartesian)
+        vp_x_rand, vp_y_rand, vp_z_rand = spherical_to_cartesian_vect(
+            vp_rand, theta_rand, psi_rand
+        )
+
+        return vp_x_rand, vp_y_rand, vp_z_rand
