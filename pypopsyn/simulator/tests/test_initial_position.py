@@ -33,6 +33,18 @@ def test_case_2():
     return data
 
 
+@pytest.fixture()
+def test_case_3():
+    data = {
+        "r": 1.2,
+        "uniform_noise_mock": 2.0,
+        "theta_corr_expected": 1.31409,
+        "r_corr_expected": 0.02,
+    }
+
+    return data
+
+
 def test_check_arm_index_01():
     """
     Verifying that a ValueError is raised if the arm index is out of range.
@@ -89,6 +101,29 @@ def test_calculate_theta(test_case_1):
     theta_out = ip.calculate_theta(test_case_1["r"], test_case_1["arm_index"])
 
     assert np.abs(test_case_1["theta_no_noise_expected"] - theta_out) < TOL
+
+
+def test_calculate_noise_for_coordinates(monkeypatch, test_case_3):
+    """
+    Verifying that the noise is correctly calculated
+    """
+
+    def mock_noise_uniform(*args, **kwargs):
+        return test_case_3["uniform_noise_mock"]
+
+    monkeypatch.setattr(np.random, "uniform", mock_noise_uniform)
+
+    def mock_noise_normal(*args, **kwargs):
+        return test_case_3["r_corr_expected"]
+
+    monkeypatch.setattr(np.random, "normal", mock_noise_normal)
+
+    theta_corr_out, r_corr_out = ip.calculate_noise_for_coordinates(
+        test_case_3["r"]
+    )
+
+    assert np.abs(test_case_3["theta_corr_expected"] - theta_corr_out) < TOL
+    assert np.abs(test_case_3["r_corr_expected"] - r_corr_out) < TOL
 
 
 def test_pdf_initial_height(test_case_1):
