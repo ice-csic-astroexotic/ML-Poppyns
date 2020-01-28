@@ -152,7 +152,7 @@ def test_random_scatter_about_plane_02(monkeypatch, test_case_2):
     """
 
     def mock_index(*args, **kwargs):
-        return np.array([0, 1, 0, 1, 0])
+        return test_case_2["up_down_index_mock"]
 
     monkeypatch.setattr(np.random, "randint", mock_index)
 
