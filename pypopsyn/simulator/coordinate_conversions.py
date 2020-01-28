@@ -24,13 +24,35 @@ def polar_to_cartesian(r: float, theta: float) -> Tuple[float, float]:
 
     Args:
         r (float): radius in plane polar coordinates, r>0
-        theta (float): angular coordinate
+        theta (float): angular coordinate, [0, 2*pi]
 
     Returns:
-        (float, float): x and y coordinate in a Cartesian system
+        (float, float): x and y coordinates in a Cartesian system
     """
 
     x = r * np.cos(theta)
     y = r * np.sin(theta)
 
     return x, y
+
+
+def spherical_to_cartesian(
+    r: float, theta: float, psi: float
+) -> Tuple[float, float, float]:
+    """
+    Calculating the Cartesian x, y and z coordinates from spherical coordinates r, theta and psi.
+
+    Args:
+        r (float): radius in spherical coordinates, r>0
+        theta (float): polar angle, [0, pi]
+        psi (float): azimuthal angle, [0, 2*pi]
+
+    Returns:
+        (float, float): x, y and z coordinates in a Cartesian System
+    """
+
+    x = r * np.sin(theta) * np.cos(psi)
+    y = r * np.sin(theta) * np.sin(psi)
+    z = r * np.cos(theta)
+
+    return x, y, z
