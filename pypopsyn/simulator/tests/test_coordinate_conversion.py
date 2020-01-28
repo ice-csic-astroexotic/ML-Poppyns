@@ -18,6 +18,20 @@ def test_case_1():
     return data
 
 
+@pytest.fixture()
+def test_case_2():
+    data = {
+        "r": 1.5,
+        "theta": 2.0,
+        "psi": 3.0,
+        "x_expected": -1.35029,
+        "y_expected": 0.19248,
+        "z_expected": -0.62422,
+    }
+
+    return data
+
+
 def test_check_radial_coordinate():
     """
     Verifying that a ValueError is raised if the radial coordinate is negative.
@@ -36,3 +50,15 @@ def test_polar_to_cartesian(test_case_1):
     )
     assert np.abs(test_case_1["x_expected"] - x_out) < TOL
     assert np.abs(test_case_1["y_expected"] - y_out) < TOL
+
+
+def test_spherical_to_cartesian(test_case_2):
+    """
+    Verifying that the conversion from spherical to Cartesian coordinates is correct.
+    """
+    x_out, y_out, z_out = coco.spherical_to_cartesian(
+        test_case_2["r"], test_case_2["theta"], test_case_2["psi"]
+    )
+    assert np.abs(test_case_2["x_expected"] - x_out) < TOL
+    assert np.abs(test_case_2["y_expected"] - y_out) < TOL
+    assert np.abs(test_case_2["z_expected"] - z_out) < TOL
