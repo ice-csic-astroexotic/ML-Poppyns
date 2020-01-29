@@ -33,7 +33,7 @@ class InitialNeutronStarPopulation:
         Args:
             r_extent (float): total radial extent from the galactic centre in kpc
             z_extent (float): total vertical extent from the galactic plane in kpc
-            vp_extent (float): maximum proper velocity magnitude
+            vp_extent (float): maximum proper velocity magnitude in km / s
             resolution (int): spatial resolution of the simulation grid
             NS_number (int): total number of neutron stars created
             arm_number (int): number of spiral arms in the galaxy
