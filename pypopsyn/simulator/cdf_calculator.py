@@ -28,3 +28,25 @@ def cdf_calculator(x: np.ndarray, pdf: Callable[[float], float]) -> np.ndarray:
     cdf = cdf / np.max(cdf)
 
     return cdf
+
+
+def random_from_cdf(
+    x: np.ndarray, cdf: np.ndarray, num_draw: (int)
+) -> np.ndarray:
+    """
+    Drawing a random number value from a given normalized cumulative distribution
+    function corresponding to any given probability density function.
+
+    Args:
+        x (np.ndarray): discrete set of values at which the pdf, cdf is evaluated
+        cdf (np.ndarray): normalized cumulative probability distribution function
+        num_draw (int): number of values to draw
+
+    Returns:
+        np.ndarray: random values drawn from the pdf
+    """
+
+    cdf_rand = np.random.uniform(0, 1, num_draw)
+    x_rand = np.interp(cdf_rand, cdf, x)
+
+    return x_rand
