@@ -107,7 +107,9 @@ class InitialNeutronStarPopulation:
 
         return x_rand, y_rand, z_rand
 
-    def proper_velocity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def initial_proper_velocity(
+        self,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Calculating the proper velocity of each random neutron star in Cartesian coordinates.
 
