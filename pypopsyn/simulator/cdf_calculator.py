@@ -50,3 +50,24 @@ def random_from_cdf(
     x_rand = np.interp(cdf_rand, cdf, x)
 
     return x_rand
+
+
+def random_from_pdf(
+    x: np.ndarray, pdf: Callable[[float], float], num_draw: (int)
+) -> np.ndarray:
+    """
+    Drawing a random number value from a given probability density function.
+
+    Args:
+        x (np.ndarray): discrete set of values at which the pdf is evaluated
+        pdf (Callable): probability distribution function
+        num_draw (int): number of values to draw
+
+    Returns:
+        np.ndarray: random values drawn from the pdf
+    """
+
+    cdf = cdf_calculator(x, pdf)
+    x_rand = random_from_cdf(x, cdf, num_draw)
+
+    return x_rand
