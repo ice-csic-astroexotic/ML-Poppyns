@@ -55,7 +55,9 @@ def stellar_surf_density(r: float) -> float:
         * np.exp(-b * (r - rsun) / (rsun + r1))
     )
 
-    return rho
+    pdf_r = 2 * np.pi * r * rho
+
+    return pdf_r
 
 
 def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:

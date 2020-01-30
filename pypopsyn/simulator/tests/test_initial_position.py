@@ -68,9 +68,9 @@ def test_stellar_surf_density():
     Verifying that the stellar surface density is correctly calculated.
     """
     r = 1
-    rho_expected = 57.76669
-    rho_out = ip.stellar_surf_density(r)
-    assert np.abs(rho_out - rho_expected) < TOL
+    pdf_r_expected = 362.95883
+    pdf_r_out = ip.stellar_surf_density(r)
+    assert np.abs(pdf_r_out - pdf_r_expected) < TOL
 
 
 def test_pdf_initial_coordinates(monkeypatch, test_case_1):
