@@ -63,13 +63,13 @@ def test_check_arm_index_02():
         ip.check_arm_index(arm_index)
 
 
-def test_stellar_surf_density():
+def test_pdf_radial_stellar_density():
     """
-    Verifying that the stellar surface density is correctly calculated.
+    Verifying that the pdf for the stellar radial density is correctly calculated.
     """
     r = 1
     pdf_r_expected = 362.95883
-    pdf_r_out = ip.stellar_surf_density(r)
+    pdf_r_out = ip.pdf_radial_stellar_density(r)
     assert np.abs(pdf_r_out - pdf_r_expected) < TOL
 
 

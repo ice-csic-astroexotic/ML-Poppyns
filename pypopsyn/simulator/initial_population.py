@@ -60,17 +60,17 @@ class InitialNeutronStarPopulation:
             generated neutron stars
         """
 
-        # calculating the cumulative distribution function for the stellar density
-        # distribution in the galactic plane
+        # calculating the cumulative distribution function for the stellar radial
+        # density distribution in the galactic plane
         r_grid = np.logspace(
             np.log10(0.0001), np.log10(self.r_extent), self.resolution
         )
-        cdf_rho = cc.cdf_calculator(r_grid, ip.stellar_surf_density)
+        cdf_r = cc.cdf_calculator(r_grid, ip.pdf_radial_stellar_density)
 
         # uniformly drawing a random number of NS_number from the cdf
         # to produce random distances in kpc for each of the neutron stars
-        cdf_rho_rand = np.random.uniform(0, 1, self.NS_number)
-        r_cdf_rand = np.interp(cdf_rho_rand, cdf_rho, r_grid)
+        cdf_r_rand = np.random.uniform(0, 1, self.NS_number)
+        r_cdf_rand = np.interp(cdf_r_rand, cdf_r, r_grid)
 
         # randomly select one of the four spiral arms for the neutron star sample
         arm_index_rand = np.random.randint(
