@@ -28,16 +28,16 @@ def check_arm_index(arm_index: int):
         raise ValueError("Arm index is out of range")
 
 
-def stellar_surf_density(r: float) -> float:
+def pdf_radial_stellar_density(r: float) -> float:
     """
-    Milky Way's stellar surface density in the galactic plane according to Eqn. (15)
-    of Yusifov & Küçük (2004).
+    The Milky Way's stellar radial density in the galactic plane according to
+    Eqn. (15) of Yusifov & Küçük (2004).
 
     Args:
         r (float): distance from the galactic centre in kpc
 
     Returns:
-        float: stellar surface density in 1/kpc**2
+        float: stellar radial density in 1/kpc
     """
 
     # check range of input
@@ -49,13 +49,17 @@ def stellar_surf_density(r: float) -> float:
     b = 4.01  # +-0.24
     r1 = 0.55  # +- 0.10 [kpc]
 
+    # stellar surface density (Eqn. (15) of Yusifov & Küçük (2004))
     rho = (
         A
         * ((r + r1) / (rsun + r1)) ** a
         * np.exp(-b * (r - rsun) / (rsun + r1))
     )
 
-    return rho
+    # multiply the stellar surface density for the element of area in polar coordinates
+    pdf_r = 2 * np.pi * r * rho
+
+    return pdf_r
 
 
 def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:
