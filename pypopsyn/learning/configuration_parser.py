@@ -103,6 +103,11 @@ class ConfigurationParser:
         logger.setLevel(learning_logger.LOG_LEVELS[verbosity])
         return logger
 
+    def __getitem__(self, name: str):
+
+        """ Dictionary-like access to the configuration class. """
+        return self._configuration[name]
+
     def _update_configuration(self, configuration, modifications):
 
         """ Helper function to update configuration dictionary.
