@@ -23,6 +23,7 @@
 import argparse
 
 import pypopsyn.learning.configuration_parser as configuration_parser
+import pypopsyn.learning.models.models as learning_models
 
 
 def main(config):
@@ -35,7 +36,9 @@ def main(config):
     # TODO.
 
     # Build model --------------------------------------------------------------
-    # TODO.
+    logger.info("Building model...")
+    model = config.init_object("arch", learning_models)
+    logger.info(model)
 
     # Get handles for loss criterion -------------------------------------------
     # TODO.
