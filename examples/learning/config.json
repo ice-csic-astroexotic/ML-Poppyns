@@ -32,9 +32,10 @@
       "args": {}
   },
 
-  "metrics": [
-    "accuracy", "top_k_acc"
-  ],
+  "metric": {
+      "type": "MetricAccuracy",
+      "args": {}
+  },
 
   "lr_scheduler": {
     "type": "StepLR",

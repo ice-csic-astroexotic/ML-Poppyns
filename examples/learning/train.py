@@ -24,6 +24,7 @@ import argparse
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.losses.losses as learning_losses
+import pypopsyn.learning.metrics.metrics as learning_metrics
 import pypopsyn.learning.models.models as learning_models
 
 
@@ -41,12 +42,15 @@ def main(config):
     model = config.init_object("arch", learning_models)
     logger.info("Model architecture: {}".format(model))
 
-    # Get handles for loss criterion -------------------------------------------
+    # Get handle for loss criterion --------------------------------------------
     logger.info("Creating loss criterion...")
     loss_criterion = config.init_object("loss", learning_losses)
     logger.info("Loss criterion: {}".format(loss_criterion))
 
-    # Get handle for metric ----------------------------------------------------
+    # Get handles for metric ---------------------------------------------------
+    logger.info("Creating metrics...")
+    metrics = config.init_object("metric", learning_metrics)
+    logger.info("Metric: {}".format(metrics))
     # TODO.
 
     # Construct optimizer and scheduler ----------------------------------------

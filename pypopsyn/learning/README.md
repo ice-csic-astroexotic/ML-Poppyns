@@ -25,6 +25,20 @@ loss class to be used in the `losses.py` module by importing it.
 An example Negative Log-Likelihood is already implemented in `loss_nll.py` and
 also registered in the `losses.py` file.
 
+## Metrics
+
+Metrics live in the `/metrics` folder and its corresponding `metrics` module thus
+following the same structure as the modules and losses. All metrics must derive
+from the base class `MetricBase` in `metric_base.py`, the basic interface.
+Note that metrics themselves are callable classes.
+
+To create a new metric, just create a new `metric_xxxx.py` file inside the 
+`/metrics` folder, create a new class which inherits from `MetricBase` and
+register your metric class to be used in the `metrics.py` module by importing it.
+
+An example Accuracy metric is already implemented in `metric_accuracy.py` and
+also registered in the `metrics.py` file.
+
 ## Disclaimer
 
 Huge thanks to Victor Huang and Seonkyu Park for their contributions in the 
