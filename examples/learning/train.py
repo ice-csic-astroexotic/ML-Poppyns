@@ -22,6 +22,8 @@
 
 import argparse
 
+import torch
+
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.losses.losses as learning_losses
 import pypopsyn.learning.metrics.metrics as learning_metrics
@@ -54,7 +56,21 @@ def main(config):
     # TODO.
 
     # Construct optimizer and scheduler ----------------------------------------
-    # TODO.
+    trainable_parameters = filter(
+        lambda p: p.requires_grad, model.parameters()
+    )
+
+    logger.info("Creating optimizer...")
+    optimizer = config.init_object(
+        "optimizer", torch.optim, trainable_parameters
+    )
+    logger.info("Optimizer {}".format(optimizer))
+
+    logger.info("Creating scheduler...")
+    scheduler = config.init_object(
+        "lr_scheduler", torch.optim.lr_scheduler, optimizer
+    )
+    logger.info("Scheduler {}".format(scheduler))
 
     # Train the model ----------------------------------------------------------
     # TODO.
