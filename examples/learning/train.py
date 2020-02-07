@@ -25,6 +25,7 @@ import argparse
 import torch
 
 import pypopsyn.learning.configuration_parser as configuration_parser
+import pypopsyn.learning.loaders.loaders as learning_loaders
 import pypopsyn.learning.losses.losses as learning_losses
 import pypopsyn.learning.metrics.metrics as learning_metrics
 import pypopsyn.learning.models.models as learning_models
@@ -37,7 +38,9 @@ def main(config):
     logger.info("Logger initialized...")
 
     # Setup data loaders -------------------------------------------------------
-    # TODO.
+    logger.info("Creating data loaders...")
+    loader = config.init_object("data_loader", learning_loaders)
+    logger.info("Loader: {}".format(loader))
 
     # Build model --------------------------------------------------------------
     logger.info("Building model...")
