@@ -24,7 +24,9 @@ class ConfigurationParser:
 
     """ ConfigurationParser """
 
-    def __init__(self, configuration, options=None, resume=None) -> None:
+    def __init__(
+        self, configuration, options=None, resume=None, run_id=None
+    ) -> None:
 
         """ Initialize instance. """
 
@@ -33,17 +35,30 @@ class ConfigurationParser:
             configuration, options
         )
 
+        self.resume = resume
+
+        # Set save directory where the trained model will be saved.
+        save_dir = pathlib.Path(self._configuration["trainer"]["save_dir"])
+
         # Generate a name for the experiment/run.
         run_name = self._configuration["name"]
-        run_id = datetime.datetime.now().strftime(r"%m%d_%H%M%S")
+        if run_id is None:
+            run_id = datetime.datetime.now().strftime(r"%m%d_%H%M%S")
+
+        # Create directory for the save dir.
+        self.save_dir = pathlib.Path().joinpath(
+            save_dir, "models", run_name, run_id
+        )
+        self.save_dir.mkdir(parents=True, exist_ok=True)
 
         # Create directory for saving the log file.
-        # self._log_dir = os.path.join("logs", run_name, run_id)
-        self._log_dir = pathlib.Path().joinpath("logs", run_name, run_id)
-        self._log_dir.mkdir(parents=True, exist_ok=True)
+        self.log_dir = pathlib.Path().joinpath(
+            save_dir, "logs", run_name, run_id
+        )
+        self.log_dir.mkdir(parents=True, exist_ok=True)
 
         # Configure logging module.
-        learning_logger.setup_logging(self._log_dir)
+        learning_logger.setup_logging(self.log_dir)
 
     @classmethod
     def from_args(cls, args):

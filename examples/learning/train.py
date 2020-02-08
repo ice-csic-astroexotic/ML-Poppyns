@@ -29,6 +29,7 @@ import pypopsyn.learning.loaders.loaders as learning_loaders
 import pypopsyn.learning.losses.losses as learning_losses
 import pypopsyn.learning.metrics.metrics as learning_metrics
 import pypopsyn.learning.models.models as learning_models
+import pypopsyn.learning.trainers.trainer_basic as learning_trainer
 
 
 def main(config):
@@ -56,7 +57,7 @@ def main(config):
     logger.info("Creating metrics...")
     metrics = config.init_object("metric", learning_metrics)
     logger.info("Metric: {}".format(metrics))
-    # TODO.
+    # TODO: Handle multiple metrics.
 
     # Construct optimizer and scheduler ----------------------------------------
     trainable_parameters = filter(
@@ -76,7 +77,22 @@ def main(config):
     logger.info("Scheduler {}".format(scheduler))
 
     # Train the model ----------------------------------------------------------
-    # TODO.
+    logger.info("Creating trainer...")
+    trainer = learning_trainer.TrainerBasic(
+        model,
+        loss_criterion,
+        metrics,
+        optimizer,
+        configuration=config,
+        data_loader=loader,
+        validation_data_loader=None,
+        lr_scheduler=scheduler,
+    )
+
+    logger.info("{}".format(config))
+
+    logger.info("Training model...")
+    trainer.train()
 
 
 if __name__ == "__main__":
