@@ -1,5 +1,9 @@
 """ Logger.
 
+    Utility functions for setting up and dealing with the logging subsystem in
+    order to generate messages both to the console and to log useful info of
+    the process to output files.
+
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
@@ -23,7 +27,18 @@ def setup_logging(
     default_level=logging.INFO,
 ) -> None:
     """
-    Setup logging configuration
+    Setup logging configuration.
+
+    Sets up the logging subsystem by reading its configuration from a JSON
+    configuration file.
+
+    Args:
+        log_dir: The directory to output the log files to.
+        log_config_file: Path to the JSON configuration file.
+        default_level: Default logging level.
+
+    Returns:
+        Nothing.
 
     """
 
@@ -43,4 +58,5 @@ def setup_logging(
     else:
 
         print("Warning: logging configuration file is not found!")
+        print("Falling back to defaults...")
         logging.basicConfig(level=default_level)

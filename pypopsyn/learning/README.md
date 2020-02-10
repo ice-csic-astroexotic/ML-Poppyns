@@ -1,3 +1,43 @@
+# Population Synthesis Learning
+
+This is the learning subpackage for the population synthesis code. It contains
+all the needed tools to construct machine learning pipelines with PyTorch to
+deal with data coming form the simulator subpackage which in turn has been
+previously processed by the generator subpackage.
+
+In particular, this learning package contains (or provides the means to
+implement):
+
+* Custom layers to be used in the network.
+* Data loaders to fetch any kind of data.
+* A logging subsystem to produce messages to file and console.
+* Losses to use during the training process.
+* Metrics to evaluate the results with.
+* Models that make use of custom or standard layers.
+* Trainers that drive the training process.
+* Various utils that help during the process.
+* A configuration parser class for customizing the experiments.
+
+An example that makes use of this subpackage to create a network and train it
+by feeding data through a data loader is located in `examples/learning/train.py`.
+
+## Loaders
+
+Loaders provide data to the training pipeline while supporting batching,
+transforms and other complex operations.
+
+They live in the `/loaders` folder and its corresponding `loaders` module. All
+loaders derive from the abstract base class `LoaderBase` in `loader_base.py`
+which in turn derives from `torch.utils.data.DataLoader`; this ensures that
+it can be seamlessly used in any PyTorch pipeline for data loading.
+
+To create a new data loader, just create a new `loader_xxxx.py` file inside the
+`/loaders` folder, inside it create a new class which inherits from `LoaderBase`
+and register the loader to be used in the `loaders.py`.
+
+As an example, we provide the `loader_mnist.py` to fetch and load the MNIST
+dataset for image classification.
+
 ## Models
 
 Models live in the `/models` folder and its corresponding `models` module. All
@@ -38,6 +78,10 @@ register your metric class to be used in the `metrics.py` module by importing it
 
 An example Accuracy metric is already implemented in `metric_accuracy.py` and
 also registered in the `metrics.py` file.
+
+## Trainers
+
+TODO
 
 ## Disclaimer
 

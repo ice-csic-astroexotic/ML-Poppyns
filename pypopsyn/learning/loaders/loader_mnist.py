@@ -17,14 +17,26 @@ from .loader_base import LoaderBase
 class LoaderMNIST(LoaderBase):
     def __init__(
         self,
-        data_dir,
-        batch_size,
-        shuffle=True,
-        validation_split=0.0,
-        num_workers=1,
-        training=True,
+        data_dir: str,
+        batch_size: int,
+        num_workers: int = 1,
+        training: bool = True,
     ):
+        """
+        Example data loader for the MNIST dataset.
 
+        Args:
+            data_dir: Directory to download the data.
+            batch_size: Number of samples per batch.
+            num_workers: Workers to load the data.
+            training: Load in training mode.
+
+        Returns:
+            Nothing
+
+        """
+
+        # Apply MNIST normalization transformation.
         transformations = torchvision.transforms.Compose(
             [
                 torchvision.transforms.ToTensor(),
@@ -40,6 +52,4 @@ class LoaderMNIST(LoaderBase):
             transform=transformations,
         )
 
-        super().__init__(
-            self.dataset, batch_size, shuffle, validation_split, num_workers
-        )
+        super().__init__(self.dataset, batch_size, num_workers)

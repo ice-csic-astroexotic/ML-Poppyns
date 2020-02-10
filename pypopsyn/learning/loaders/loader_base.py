@@ -1,5 +1,7 @@
 """ Base Loader.
 
+    Base abstract class for any custom data loader.
+
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
@@ -8,6 +10,8 @@
 
 """
 
+import typing
+
 import numpy as np
 import torch.utils.data
 import torch.utils.data.dataloader
@@ -15,54 +19,44 @@ import torch.utils.data.sampler
 
 
 class LoaderBase(torch.utils.data.DataLoader):
+    """
+    Base loader abstract class.
+
+    """
+
     def __init__(
         self,
-        dataset,
-        batch_size,
-        shuffle,
-        validation_split,
-        num_workers,
+        dataset: torch.utils.data.Dataset,
+        batch_size: int,
+        num_workers: int,
         collate_fn=torch.utils.data.dataloader.default_collate,
     ):
+        """
+        Initialization of base loader.
 
-        self.shuffle = shuffle
-        self.validation_split = validation_split
+        Args:
+            dataset: Dataset to load.
+            batch_size: Batch size for the samplers.
+            num_workers: Number of workers (threads) to read data.
+            collate_fn: Function to process the list of samples to pack a batch.
 
-        self.batch_idx = 0
+        Returns:
+            Nothing.
+
+        """
+
         self.n_samples = len(dataset)
 
-        self.sampler, self.validation_sampler = self._split_sampler(
-            self.validation_split
-        )
+        train_idx = np.arange(self.n_samples)
+        self.sampler = torch.utils.data.sampler.SubsetRandomSampler(train_idx)
 
+        # Initialize base loader with the provided arguments.
         self.init_kwargs = {
             "dataset": dataset,
             "batch_size": batch_size,
-            "shuffle": self.shuffle,
+            "shuffle": False,
             "collate_fn": collate_fn,
             "num_workers": num_workers,
         }
 
         super().__init__(sampler=self.sampler, **self.init_kwargs)
-
-    def _split_sampler(self, split):
-
-        idx_full = np.arange(self.n_samples)
-
-        np.random.seed(0)
-        np.random.shuffle(idx_full)
-
-        len_validation = int(self.n_samples * split)
-
-        validation_idx = idx_full[0:len_validation]
-        train_idx = np.delete(idx_full, np.arange(0, len_validation))
-
-        train_sampler = torch.utils.data.sampler.SubsetRandomSampler(train_idx)
-        validation_sampler = torch.utils.data.sampler.SubsetRandomSampler(
-            validation_idx
-        )
-
-        self.shuffle = False
-        self.n_samples = len(train_idx)
-
-        return train_sampler, validation_sampler
