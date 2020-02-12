@@ -14,6 +14,9 @@
 
 """
 
+import pathlib
+import sys
+
 import numpy as np
 import pandas as pd
 
@@ -21,9 +24,17 @@ from pypopsyn.generator.density_map import generate_density_map
 
 if __name__ == "__main__":
 
+    POPULATION_PATH = pathlib.Path("./examples/data/initial_population.txt")
+
+    # Check if initial population file exists as a precondition.
+    if not POPULATION_PATH.exists():
+        print("Population file not found in {}".format(POPULATION_PATH))
+        sys.exit()
+
     df_initial = pd.read_csv(
         "./examples/data/initial_population.txt", skiprows=[1]
     )
+
     generate_density_map(
         df_initial["x_initial"],
         (np.min(df_initial["x_initial"]), np.max(df_initial["x_initial"])),

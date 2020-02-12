@@ -1,11 +1,26 @@
+""" Request Device.
+
+    Authors:
+
+        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+
+    Copyright (c) MAGNESIA (ICE-CSIC)
+
+"""
+
+import typing
+
 import torch
 
 
-def request_device(self, num_gpu: int = 0):
+def request_device(
+    logger, num_gpu: int = 0
+) -> typing.Tuple[torch.device, list]:
     """
     Selects the requested devices for training/testing.
 
-    Args:
+    Args
+        logger: A logger to log information to.
         num_gpu: Number of GPUs requested.
 
     Returns:
@@ -22,7 +37,7 @@ def request_device(self, num_gpu: int = 0):
     # Check if GPUs are requested but no GPUs are available.
     if num_gpu > 0 and num_available_gpus == 0:
 
-        self.logger.warning(
+        logger.warning(
             "Warning: There's no GPU available on this machine,"
             "training will be performed on CPU."
         )
@@ -31,7 +46,7 @@ def request_device(self, num_gpu: int = 0):
     # Check if the number of requested GPUs exceeds the available.
     if num_gpu > num_available_gpus:
 
-        self.logger.warning(
+        logger.warning(
             "Warning: The number of GPU's configured to use is {} "
             "but only {} are available "
             "on this machine.".format(num_gpu, num_available_gpus)

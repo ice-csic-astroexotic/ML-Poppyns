@@ -13,6 +13,7 @@ from abc import abstractmethod
 import torch
 from numpy import inf
 
+from pypopsyn.learning.configuration_parser import ConfigurationParser
 from pypopsyn.learning.logger.tensorboard_writer import TensorboardWriter
 from pypopsyn.learning.utils.request_device import request_device
 
@@ -29,7 +30,7 @@ class BaseTrainer:
         criterion,
         metric,
         optimizer,
-        configuration: dict,
+        configuration: ConfigurationParser,
     ):
         """
         Trainer initialization.
@@ -57,7 +58,9 @@ class BaseTrainer:
         self.optimizer = optimizer
 
         # Setup GPU device if available, move model into configured device.
-        self.device, device_ids = request_device(configuration["n_gpu"])
+        self.device, device_ids = request_device(
+            self.logger, configuration["n_gpu"]
+        )
         self.model = model.to(self.device)
         if len(device_ids) > 1:
             self.model = torch.nn.DataParallel(model, device_ids=device_ids)
