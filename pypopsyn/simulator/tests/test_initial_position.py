@@ -45,6 +45,17 @@ def test_case_3():
     return data
 
 
+@pytest.fixture()
+def test_case_4():
+    data = {
+        "theta0": 0.0,
+        "t": 1.0e8,
+        "theta_t_expected": 2.51327,
+    }
+
+    return data
+
+
 def test_check_arm_index_01():
     """
     Verifying that a ValueError is raised if the arm index is out of range.
@@ -98,9 +109,22 @@ def test_calculate_theta(test_case_1):
     """
     Verifying that the angular coordinate theta is correctly calculated.
     """
+
     theta_out = ip.calculate_theta(test_case_1["r"], test_case_1["arm_index"])
 
     assert np.abs(test_case_1["theta_no_noise_expected"] - theta_out) < TOL
+
+
+def test_spiral_arm_time_evol(test_case_4):
+    """
+    Verifying that the the spiral structure evolve in time in the correct way
+    """
+
+    theta_t_out = ip.spiral_arm_time_evol(
+        test_case_4["theta0"], test_case_4["t"]
+    )
+
+    assert np.abs(test_case_4["theta_t_expected"] - theta_t_out) < TOL
 
 
 def test_calculate_noise_for_coordinates(monkeypatch, test_case_3):

@@ -127,6 +127,32 @@ def calculate_theta(r: float, arm_index: int) -> float:
     return theta
 
 
+def spiral_arm_time_evol(theta0: float, t: float) -> float:
+    """
+    Evolving the spiral arm position backward of a time t. We assume that the
+    Galactic spiral structure rotates rigidly in the clockwise direction with a
+    period of 250 Myr (see 'A guided map to the spiral arms in the galactic disk of the
+    Milky Way' by Vallée 2017).
+
+    Args:
+        theta0 (float): current angular position in rad for the current spiral pattern
+        t (float): backward time in years
+
+    Returns:
+        (float): angular position in rad for the spiral pattern as it was t years ago
+    """
+
+    # evaluate the angular velocity of rotation of the spiral pattern
+    # T is the period of rotation in years
+    T = 2.5e8
+    omega_spiral_arms = 2.0 * np.pi / T
+
+    # find the value of theta t years ago
+    theta_t = theta0 + omega_spiral_arms * t
+
+    return theta_t
+
+
 def calculate_noise_for_coordinates(
     r: float, seed: int = None
 ) -> Tuple[float, float]:
