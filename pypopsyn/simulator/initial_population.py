@@ -11,6 +11,10 @@ import pypopsyn.simulator.coordinate_conversions as coco
 import pypopsyn.simulator.initial_position as ip
 import pypopsyn.simulator.initial_velocity as iv
 
+# unit convertions
+kpc_to_km = 3.08567758e16  # convert from kpc to km
+yr_to_s = 3600 * 24 * 365  # convert from yr to s
+
 
 class InitialNeutronStarPopulation:
     """
@@ -83,21 +87,21 @@ class InitialNeutronStarPopulation:
             1, self.arm_number + 1, self.NS_number
         )
 
-        # evaluate the angular theta coordinate for each neutron star taking into
+        # evaluate the angular phi coordinate for each neutron star taking into
         # account that at its birth the arm was in a different position due to the
         # spiral pattern rotation and add noise to both galactocentric coordinates
-        theta_rand = np.zeros(self.NS_number)
+        phi_rand = np.zeros(self.NS_number)
         r_rand = np.zeros(self.NS_number)
         for i in range(self.NS_number):
-            theta_rand[i], r_rand[i] = ip.pdf_initial_coordinates(
+            phi_rand[i], r_rand[i] = ip.pdf_initial_coordinates(
                 r_pdf_rand[i], arm_index_rand[i]
             )
 
-            theta_rand[i] = ip.spiral_arm_time_evol(theta_rand[i], t_age[i])
+            phi_rand[i] = ip.spiral_arm_time_evol(phi_rand[i], t_age[i])
 
         # position in the galactic plane in Cartesian coordinates
         polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
-        x_rand, y_rand = polar_to_cartesian_vect(r_rand, theta_rand)
+        x_rand, y_rand = polar_to_cartesian_vect(r_rand, phi_rand)
 
         # drawing a random height from the galactic plane in kpc for each neutron
         # star according to the height stellar density
@@ -113,13 +117,15 @@ class InitialNeutronStarPopulation:
 
         return x_rand, y_rand, z_rand
 
-    def proper_velocity(self,) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def cartesian_proper_velocity(
+        self,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Calculating the proper velocity of each random neutron star in Cartesian coordinates.
 
         Returns:
-            (np.ndarray, np.ndarray, np.ndarray): vp_x, vp_y and vp_z proper velocities in km / s for each
-            generated neutron stars
+            (np.ndarray, np.ndarray, np.ndarray): vp_x, vp_y and vp_z proper
+            velocities in kpc / yr for each generated neutron stars
         """
 
         # drawing a random magnitude of the proper velocity in km / s for each neutron
@@ -128,6 +134,8 @@ class InitialNeutronStarPopulation:
         vp_rand = cc.random_from_pdf(
             vp_grid, iv.pdf_proper_velocity, self.NS_number
         )
+        # convert from km / s to kpc / yr
+        vp_rand = vp_rand * yr_to_s / kpc_to_km
 
         # drawing a random direction for the speed
         # drawing a random polar angle [0,np.pi] [rad]
@@ -144,3 +152,45 @@ class InitialNeutronStarPopulation:
         )
 
         return vp_x_rand, vp_y_rand, vp_z_rand
+
+    def cylindrical_proper_velocity(
+        self,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Calculating the proper velocity of each random neutron star in a cylindrical
+        galactocentric coordinate system.
+
+        Returns:
+            (np.ndarray, np.ndarray, np.ndarray): vp_r, vp_phi and vp_z proper
+            velocities in kpc / yr for each generated neutron stars. In particular
+            vp_r is the component of the proper velocity along the galactocentric
+            radial direction, vp_phi is the component along the azimuthal phi
+            direction and vp_z is the component along the z direction.
+        """
+
+        # drawing a random magnitude of the proper velocity in km / s for each neutron
+        # star according to the proper velocity probability distribution
+        vp_grid = np.linspace(0.0, self.vp_extent, self.resolution)
+        vp_rand = cc.random_from_pdf(
+            vp_grid, iv.pdf_proper_velocity, self.NS_number
+        )
+        # convert from km / s to kpc / yr
+        vp_rand = vp_rand * yr_to_s / kpc_to_km
+
+        # drawing a random direction for the speed
+        # drawing a random polar angle [0,np.pi] [rad]
+        theta_grid = np.linspace(0.0, np.pi, self.resolution)
+        theta_rand = cc.random_from_pdf(theta_grid, np.sin, self.NS_number)
+
+        # drawing a random psi angle [0,2np.pi] [rad]
+        psi_rand = np.random.uniform(0, 2 * np.pi, self.NS_number)
+
+        # project the velocity on a cartesian reference frame comoving with the star
+        # where the x axis points always in the r direction, the y axis in the
+        # azimuthal phi direction and the z axes coincide
+        spherical_to_cartesian_vect = np.vectorize(coco.spherical_to_cartesian)
+        vp_r_rand, vp_phi_rand, vp_z_rand = spherical_to_cartesian_vect(
+            vp_rand, theta_rand, psi_rand
+        )
+
+        return vp_r_rand, vp_phi_rand, vp_z_rand

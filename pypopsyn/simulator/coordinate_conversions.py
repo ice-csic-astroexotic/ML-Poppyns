@@ -18,20 +18,20 @@ def check_radial_coordinate(r: float):
         raise ValueError("Radial coordinate is out of range")
 
 
-def polar_to_cartesian(r: float, theta: float) -> Tuple[float, float]:
+def polar_to_cartesian(r: float, phi: float) -> Tuple[float, float]:
     """
-    Calculating the Cartesian x and y coordinates from plane polar r and theta.
+    Calculating the Cartesian x and y coordinates from plane polar r and phi.
 
     Args:
         r (float): radius in plane polar coordinates, r>0
-        theta (float): angular coordinate, [0, 2*pi]
+        phi (float): angular coordinate, [0, 2*pi]
 
     Returns:
         (float, float): x and y coordinates in a Cartesian system
     """
 
-    x = r * np.cos(theta)
-    y = r * np.sin(theta)
+    x = r * np.cos(phi)
+    y = r * np.sin(phi)
 
     return x, y
 

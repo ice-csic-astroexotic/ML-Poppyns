@@ -10,7 +10,7 @@ TOL = 1e-5
 def test_case_1():
     data = {
         "r": 1.5,
-        "theta": 2.0,
+        "phi": 2.0,
         "x_expected": -0.62422,
         "y_expected": 1.36395,
     }
@@ -46,7 +46,7 @@ def test_polar_to_cartesian(test_case_1):
     Verifying that the conversion from polar to Cartesian coordinates is correct.
     """
     x_out, y_out = coco.polar_to_cartesian(
-        test_case_1["r"], test_case_1["theta"]
+        test_case_1["r"], test_case_1["phi"]
     )
     assert np.abs(test_case_1["x_expected"] - x_out) < TOL
     assert np.abs(test_case_1["y_expected"] - y_out) < TOL

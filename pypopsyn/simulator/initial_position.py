@@ -6,7 +6,7 @@ where the galactic centre is located at the origin. In terms of galactic latitud
 longitude b, the x-,y-, and z-axes are parallel to (l, b) = (90, 0), (180, 0) and (0,
 90), respectively, forming a right-handed Cartesian frame. Moreover, we define r =
 (x**2 + y**2)**0.5 as the distance from the galactic centre in the galactic plane and
-theta = arctan(y/x)
+phi = arctan(y/x). Here the angle phi is the same as theta in Faucher-Giguère & Kaspi (2006).
 """
 
 
@@ -73,23 +73,23 @@ def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:
         arm_index (int): index for the respective spiral arms, 0 < arm_index < 5
 
     Returns:
-        (float, float): galactocentric coordinates theta [rad], r [kpc] with noise
+        (float, float): galactocentric coordinates phi [rad], r [kpc] with noise
     """
 
     # check range of input
     coco.check_radial_coordinate(r)
     check_arm_index(arm_index)
 
-    theta = calculate_theta(r, arm_index)
-    theta_corr, r_corr = calculate_noise_for_coordinates(r)
+    phi = calculate_phi(r, arm_index)
+    phi_corr, r_corr = calculate_noise_for_coordinates(r)
 
-    theta = theta + theta_corr
+    phi = phi + phi_corr
     r = r + r_corr
 
-    return theta, r
+    return phi, r
 
 
-def calculate_theta(r: float, arm_index: int) -> float:
+def calculate_phi(r: float, arm_index: int) -> float:
     """
     Calculating the angular coordinate of a neutron star for a given distance
     from the galactic centre incorporating the Milky Way's arm structure from
@@ -100,7 +100,7 @@ def calculate_theta(r: float, arm_index: int) -> float:
         arm_index (int): index for the respective spiral arms, 0 < arm_index < 5
 
     Returns:
-        float: galactocentric theta coordinate in rad
+        float: galactocentric phi coordinate in rad
     """
 
     # check range of input
@@ -109,7 +109,7 @@ def calculate_theta(r: float, arm_index: int) -> float:
 
     # parameters for four spiral arms in the Milky Way according to Table 2 in
     # Faucher-Giguère & Kaspi giving the winding constant k [rad], inner radius r_0
-    # [kpc] and inner angle theta_min [rad] for the Norma, Carina-Sagittarius,
+    # [kpc] and inner angle phi_min [rad] for the Norma, Carina-Sagittarius,
     # Perseus and Crux-Scutum arm
 
     arm_param = {
@@ -119,15 +119,15 @@ def calculate_theta(r: float, arm_index: int) -> float:
         4: np.array([4.89, 4.90, 0.95]),
     }
 
-    theta = (
+    phi = (
         arm_param[arm_index][0] * np.log(r / arm_param[arm_index][1])
         + arm_param[arm_index][2]
     )
 
-    return theta
+    return phi
 
 
-def spiral_arm_time_evol(theta0: float, t: float) -> float:
+def spiral_arm_time_evol(phi0: float, t: float) -> float:
     """
     Evolving the spiral arm position backward of a time t. We assume that the
     Galactic spiral structure rotates rigidly in the clockwise direction with a
@@ -135,7 +135,7 @@ def spiral_arm_time_evol(theta0: float, t: float) -> float:
     Milky Way' by Vallée 2017).
 
     Args:
-        theta0 (float): current angular position in rad for the current spiral pattern
+        phi0 (float): current angular position in rad for the current spiral pattern
         t (float): backward time in years
 
     Returns:
@@ -148,9 +148,9 @@ def spiral_arm_time_evol(theta0: float, t: float) -> float:
     omega_spiral_arms = 2.0 * np.pi / T
 
     # find the value of theta t years ago
-    theta_t = theta0 + omega_spiral_arms * t
+    phi_t = phi0 + omega_spiral_arms * t
 
-    return theta_t
+    return phi_t
 
 
 def calculate_noise_for_coordinates(
@@ -167,15 +167,15 @@ def calculate_noise_for_coordinates(
                     set to None unless otherwise specified
 
     Returns:
-        (float, float): noise for galactocentric coordinates theta [rad], r [kpc]
+        (float, float): noise for galactocentric coordinates phi [rad], r [kpc]
     """
 
     np.random.seed(seed)
 
-    theta_corr = np.random.uniform(0, 2 * np.pi) * np.exp(-0.35 * r)
+    phi_corr = np.random.uniform(0, 2 * np.pi) * np.exp(-0.35 * r)
     r_corr = np.random.normal(0, 0.07 * r)
 
-    return theta_corr, r_corr
+    return phi_corr, r_corr
 
 
 def pdf_initial_height(z: float) -> float:
