@@ -11,7 +11,7 @@ import pypopsyn.simulator.coordinate_conversions as coco
 import pypopsyn.simulator.initial_position as ip
 import pypopsyn.simulator.initial_velocity as iv
 
-# unit convertions
+# unit conversions
 kpc_to_km = 3.08567758e16  # convert from kpc to km
 yr_to_s = 3600 * 24 * 365  # convert from yr to s
 

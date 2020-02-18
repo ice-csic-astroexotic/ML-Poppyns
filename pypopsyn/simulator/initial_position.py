@@ -207,13 +207,13 @@ def random_scatter_about_plane(
     located at z=0.
 
     Args:
-        z (np.nparray): array of heights in kpc with positive values
+        z (np.ndarray): array of heights in kpc with positive values
         NS_number (int): total number of neutron stars created in the simulation
         seed (int): seed for random number generation,
                     set to None unless otherwise specified
 
     Returns:
-        (np.nparray): array of heights in kpc randomly scattered above or below 0
+        (np.ndarray): array of heights in kpc randomly scattered above or below 0
     """
 
     np.random.seed(seed)
