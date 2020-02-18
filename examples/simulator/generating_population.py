@@ -10,7 +10,7 @@ x_initial, y_initial, z_initial = NS_population_initial.position()
     vp_x_initial,
     vp_y_initial,
     vp_z_initial,
-) = NS_population_initial.proper_velocity()
+) = NS_population_initial.cartesian_proper_velocity()
 
 
 # adding the coordinates to a data frame for export
@@ -28,7 +28,7 @@ df_initial = pd.DataFrame(
 df_initial.columns = pd.MultiIndex.from_tuples(
     zip(
         df_initial.columns,
-        ["[kpc]", "[kpc]", "[kpc]", "[km / s]", "[km / s]", "[km / s]"],
+        ["[kpc]", "[kpc]", "[kpc]", "[kpc / yr]", "[kpc / yr]", "[kpc / yr]"],
     )
 )
 
