@@ -22,6 +22,7 @@ class InitialNeutronStarPopulation:
         r_extent=20.0,  # [kpc]
         z_extent=5.0,  # [kpc]
         vp_extent=2000.0,  # [km s^(-1)]
+        t_age_range=np.array([1.0, 1.0e9]),  # [years]
         resolution=10000,
         NS_number=50000,
         arm_number=4,
@@ -34,6 +35,7 @@ class InitialNeutronStarPopulation:
             r_extent (float): total radial extent from the galactic centre in kpc
             z_extent (float): total vertical extent from the galactic plane in kpc
             vp_extent (float): maximum proper velocity magnitude in km / s
+            t_age_range (float): range of neutron stars age in years
             resolution (int): spatial resolution of the simulation grid
             NS_number (int): total number of neutron stars created
             arm_number (int): number of spiral arms in the galaxy
@@ -44,6 +46,7 @@ class InitialNeutronStarPopulation:
         self.r_extent = r_extent
         self.z_extent = z_extent
         self.vp_extent = vp_extent
+        self.t_age_range = t_age_range
         self.resolution = resolution
         self.NS_number = NS_number
         self.arm_number = arm_number
@@ -53,12 +56,18 @@ class InitialNeutronStarPopulation:
 
     def position(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        Calculating the position of each random neutron star in Cartesian coordinates.
+        Calculating the position at birth of each random neutron star in Cartesian
+        coordinates.
 
         Returns:
             (np.ndarray, np.ndarray, np.ndarray): x, y and z coordinate in kpc for each
             generated neutron stars
         """
+
+        # drawing a random age for each neutron star from a uniform distribution
+        t_age = np.random.uniform(
+            self.t_age_range[0], self.t_age_range[1], self.NS_number
+        )
 
         # drawing a random distance from the galactic center in kpc for each neutron
         # star according to the radial stellar density
@@ -74,14 +83,17 @@ class InitialNeutronStarPopulation:
             1, self.arm_number + 1, self.NS_number
         )
 
-        # evaluate the angular theta coordinate for each neutron star and add noise
-        # to both galactocentric coordinates
+        # evaluate the angular theta coordinate for each neutron star taking into
+        # account that at its birth the arm was in a different position due to the
+        # spiral pattern rotation and add noise to both galactocentric coordinates
         theta_rand = np.zeros(self.NS_number)
         r_rand = np.zeros(self.NS_number)
         for i in range(self.NS_number):
             theta_rand[i], r_rand[i] = ip.pdf_initial_coordinates(
                 r_pdf_rand[i], arm_index_rand[i]
             )
+
+            theta_rand[i] = ip.spiral_arm_time_evol(theta_rand[i], t_age[i])
 
         # position in the galactic plane in Cartesian coordinates
         polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
