@@ -18,7 +18,6 @@ def test_case_1():
         "dpot_b_dr_expected": 3.83448e-14,
         "dpot_n_dr_expected": 7.70712e-15,
         "gradient_mw_expected": np.array([4.83765e-14, 0.0, 7.77990e-15]),
-        "v_virial_expected": 2.19947e-7,
     }
 
     return data
@@ -114,19 +113,5 @@ def test_cylind_coord_gradient_mw_potential(test_case_1):
             test_case_1["gradient_mw_expected"][2] * 1.0e15
             - gradient_mw_out[2] * 1.0e15
         )
-        < TOL
-    )
-
-
-def test_virial_orbital_velocity(test_case_1):
-    """
-    Verifying that the orbital virial velocity is evaluated correctly
-    """
-    v_virial_out = gm.virial_orbital_velocity(
-        test_case_1["r"], test_case_1["z"]
-    )
-
-    assert (
-        np.abs(test_case_1["v_virial_expected"] * 1.0e7 - v_virial_out * 1.0e7)
         < TOL
     )

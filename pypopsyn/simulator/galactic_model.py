@@ -156,21 +156,3 @@ def cylind_coord_gradient_mw_potential(r: float, z: float) -> np.ndarray:
     pot_mw_gradient = np.array([dpot_mw_dr, dpot_mw_dphi, dpot_mw_dz])
 
     return pot_mw_gradient
-
-
-def virial_orbital_velocity(r: float, z: float) -> float:
-    """
-    Orbital virial velocity in kpc / yr for a circular orbit at a distance r from the galactic
-    center and at an height z from the galactic plain. This velocity is evaluated by
-    assuming equilibrium between the gravitational acceleration in the r direction
-    due to the galactic potential and the centrifugal acceleration due to rotation.
-    Args:
-        r (float): distance in the galactic disk from the galactic centre in kpc
-        z (float): height from the galactic disk in kpc
-
-    Returns: value of the orbital virial velocity in kpc / yr
-    """
-    pot_mw_gradient = cylind_coord_gradient_mw_potential(r, z)
-    v_virial = np.sqrt(r * pot_mw_gradient[0])
-
-    return v_virial
