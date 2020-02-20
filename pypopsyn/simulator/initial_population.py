@@ -58,20 +58,35 @@ class InitialNeutronStarPopulation:
 
         np.random.seed(seed)
 
-    def position(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def age(self) -> np.ndarray:
         """
-        Calculating the position at birth of each random neutron star in Cartesian
-        coordinates.
+        Drawing a random age in years for each neutron star from a uniform probability
+        distribution in a given range of time.
 
         Returns:
-            (np.ndarray, np.ndarray, np.ndarray): x, y and z coordinate in kpc for each
-            generated neutron stars
+            np.array : array of ages in years
         """
 
-        # drawing a random age for each neutron star from a uniform distribution
         t_age = np.random.uniform(
             self.t_age_range[0], self.t_age_range[1], self.NS_number
         )
+        return t_age
+
+    def position(
+        self, t_age: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Calculating the position at birth of each random neutron star in
+        cylindrical and Cartesian coordinates in a galactocentric reference frame.
+
+        Args:
+            t_age (np.ndarray): array of ages in years of each neutron star
+
+        Returns:
+            (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
+            polar r and phi coordinates in kpc and rad and Cartesian x, y and z
+            coordinates in kpc for each generated neutron star
+        """
 
         # drawing a random distance from the galactic center in kpc for each neutron
         # star according to the radial stellar density
@@ -115,47 +130,9 @@ class InitialNeutronStarPopulation:
         # randomly distribute the stars above and below the galactic plane
         z_rand = ip.random_scatter_about_plane(z_pdf_rand, self.NS_number)
 
-        return x_rand, y_rand, z_rand
+        return r_rand, phi_rand, x_rand, y_rand, z_rand
 
-    def cartesian_proper_velocity(
-        self,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """
-        Calculating the proper velocity of each random neutron star in Cartesian coordinates.
-
-        Returns:
-            (np.ndarray, np.ndarray, np.ndarray): vp_x, vp_y and vp_z proper
-            velocities in kpc / yr for each generated neutron stars
-        """
-
-        # drawing a random magnitude of the proper velocity in km / s for each neutron
-        # star according to the proper velocity probability distribution
-        vp_grid = np.linspace(0.0, self.vp_extent, self.resolution)
-        vp_rand = cc.random_from_pdf(
-            vp_grid, iv.pdf_proper_velocity, self.NS_number
-        )
-        # convert from km / s to kpc / yr
-        vp_rand = vp_rand * yr_to_s / kpc_to_km
-
-        # drawing a random direction for the speed
-        # drawing a random polar angle [0,np.pi] [rad]
-        theta_grid = np.linspace(0.0, np.pi, self.resolution)
-        theta_rand = cc.random_from_pdf(theta_grid, np.sin, self.NS_number)
-
-        # drawing a random psi angle [0,2np.pi] [rad]
-        psi_rand = np.random.uniform(0, 2 * np.pi, self.NS_number)
-
-        # project the velocity on the cartesian axes
-        spherical_to_cartesian_vect = np.vectorize(coco.spherical_to_cartesian)
-        vp_x_rand, vp_y_rand, vp_z_rand = spherical_to_cartesian_vect(
-            vp_rand, theta_rand, psi_rand
-        )
-
-        return vp_x_rand, vp_y_rand, vp_z_rand
-
-    def cylindrical_proper_velocity(
-        self,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def proper_velocity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Calculating the proper velocity of each random neutron star in a cylindrical
         galactocentric coordinate system.
@@ -194,3 +171,27 @@ class InitialNeutronStarPopulation:
         )
 
         return vp_r_rand, vp_phi_rand, vp_z_rand
+
+    @staticmethod
+    def orbital_velocity(
+        r: np.ndarray, z: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Calculate the orbital circular velocity of each star in the galactic
+        gravitational potential. In galactocentric cylindrical coordinates,
+        the only non-zero component is the azimuthal phi component. Since the stars
+        in the galaxy rotate in the clockwise direction, i.e towards decreasing phi
+        values, the phi component is negative.
+
+        Args:
+            r (np.ndarray): distance in the galactic disk from the galactic centre
+            in kpc
+            z (np.ndarray): height from the galactic disk in kpc
+
+        Returns:
+            (np.ndarray): array of orbital velocity in kpc / yr
+        """
+        virial_orbital_velocity_vect = np.vectorize(iv.virial_orbital_velocity)
+        v_orb = -virial_orbital_velocity_vect(r, z)
+
+        return v_orb

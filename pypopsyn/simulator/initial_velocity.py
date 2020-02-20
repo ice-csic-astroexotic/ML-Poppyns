@@ -40,7 +40,8 @@ def virial_orbital_velocity(r: float, z: float) -> float:
         r (float): distance in the galactic disk from the galactic centre in kpc
         z (float): height from the galactic disk in kpc
 
-    Returns: value of the orbital virial velocity in kpc / yr
+    Returns:
+        (float): value of the orbital virial velocity in kpc / yr
     """
     pot_mw_gradient = gm.cylind_coord_gradient_mw_potential(r, z)
     v_virial = np.sqrt(r * pot_mw_gradient[0])
