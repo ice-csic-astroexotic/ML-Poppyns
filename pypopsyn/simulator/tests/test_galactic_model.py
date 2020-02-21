@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.Galactic_model as gm
+import pypopsyn.simulator.galactic_model as gm
 
 TOL = 1e-5
 

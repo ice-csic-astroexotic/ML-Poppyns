@@ -189,7 +189,7 @@ class InitialNeutronStarPopulation:
             z (np.ndarray): height from the galactic disk in kpc
 
         Returns:
-            (np.ndarray): array of orbital velocity in kpc / yr
+            (np.ndarray): array of orbital velocities in kpc / yr
         """
         virial_orbital_velocity_vect = np.vectorize(iv.virial_orbital_velocity)
         v_orb = -virial_orbital_velocity_vect(r, z)

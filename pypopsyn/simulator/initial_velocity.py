@@ -8,7 +8,7 @@ For the former, we follow Gullon et al. (2014).
 
 import numpy as np
 
-import pypopsyn.simulator.Galactic_model as gm
+import pypopsyn.simulator.galactic_model as gm
 
 
 def pdf_proper_velocity(v: float) -> float:
