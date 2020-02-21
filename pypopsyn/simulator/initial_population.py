@@ -26,7 +26,7 @@ class InitialNeutronStarPopulation:
         r_extent=20.0,  # [kpc]
         z_extent=5.0,  # [kpc]
         vp_extent=2000.0,  # [km s^(-1)]
-        t_age_range=np.array([1.0, 1.0e9]),  # [years]
+        t_age_range=np.array([1.0, 1.0e8]),  # [years]
         resolution=10000,
         NS_number=50000,
         arm_number=4,

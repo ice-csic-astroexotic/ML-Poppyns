@@ -128,6 +128,6 @@ def dynamical_evolution(
             v_phi_final,
             v_z_final,
         ]
-    )
+    ).T
 
     return final_population

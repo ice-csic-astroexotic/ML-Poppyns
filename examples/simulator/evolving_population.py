@@ -1,3 +1,8 @@
+"""
+Evolving in time an initial population of neutron stars in the Milky Way. For now
+only the dynamical evolution in the galactic potential is considered.
+"""
+
 import numpy as np
 import pandas as pd
 
@@ -8,7 +13,8 @@ NS_population_initial = ipop.InitialNeutronStarPopulation()
 NS_number = NS_population_initial.NS_number
 
 # upload data from the initial population simulation
-data = pd.read_csv("../data/initial_population.txt")
+data = pd.read_csv("./examples/data/initial_population.txt")
+data = data[1:]
 
 t_age = pd.to_numeric(data["age"]).values
 r_initial = pd.to_numeric(data["r_initial"]).values
@@ -30,11 +36,11 @@ initial_cond = np.array(
         omega_initial,
         v_z_initial,
     ]
-)
+).T
 
 # evolve the positions and velocities of the neutron stars in time
 final_population = dyn.dynamical_evolution(
-    NS_number, initial_cond, t_age, time_step=1.0e5
+    NS_number, initial_cond, t_age, time_step=1.0e4
 )
 
 r_final = final_population[:, 0]
