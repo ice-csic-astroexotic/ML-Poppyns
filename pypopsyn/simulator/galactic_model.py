@@ -2,7 +2,7 @@
 Model for the Milky Way gravitational potential
 
 We consider the same galactic structure as in Faucher-Giguère & Kaspi (2006). Their
-model consist of three components: a disk-halo, a bulge and a nucleus.
+model consists of three components: a disk-halo, a bulge and a nucleus.
 The parameters of the model are taken from table B1 in Kuijken & Gilmore (1989).
 """
 
