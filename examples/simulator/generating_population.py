@@ -39,6 +39,10 @@ df_initial = pd.DataFrame(
         "v_r_initial": v_r_initial,
         "v_phi_initial": v_phi_initial,
         "v_z_initial": v_z_initial,
+        "vp_r": vp_r,
+        "vp_phi": vp_phi,
+        "vp_z": vp_z,
+        "v_orb": v_orb,
     }
 )
 
@@ -54,6 +58,10 @@ df_initial.columns = pd.MultiIndex.from_tuples(
             "[kpc]",
             "[kpc / yr]",
             "[kpc /yr]",
+            "[kpc / yr]",
+            "[kpc / yr]",
+            "[kpc /yr]",
+            "[kpc / yr]",
             "[kpc / yr]",
         ],
     )
