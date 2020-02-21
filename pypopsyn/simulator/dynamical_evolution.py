@@ -10,6 +10,7 @@ detection and switching) from the Fortran library ODEPACK.
 import numpy as np
 from scipy.integrate import odeint
 
+import pypopsyn.simulator.coordinate_conversions as coco
 import pypopsyn.simulator.galactic_model as gm
 
 
@@ -76,14 +77,16 @@ def dynamical_evolution(
         time_step (float): time step used for the integration of the system of ODE of motion
 
     Returns:
-        (np.ndarray): two dimensional array of shape (NS_number, 6) defining
-        the final position and velocities of the neutron stars
+        (np.ndarray): two dimensional array of shape (NS_number, 8) defining
+        the final position in Cartesian and cylindrical coordinates and velocities in cylindrical coordinates of the neutron stars
     """
 
     # initialize the arrays that will contain the final positions and velocities of
     # the neutron stars
     r_final = np.zeros(NS_number)
     phi_final = np.zeros(NS_number)
+    x_final = np.zeros(NS_number)
+    y_final = np.zeros(NS_number)
     z_final = np.zeros(NS_number)
     v_r_final = np.zeros(NS_number)
     v_phi_final = np.zeros(NS_number)
@@ -110,8 +113,21 @@ def dynamical_evolution(
         v_phi_final[i] = omega_final * r_final[i]
         v_z_final[i] = evol_output[-1, 5]
 
+        x_final[i], y_final[i] = coco.polar_to_cartesian(
+            r_final[i], phi_final[i]
+        )
+
     final_population = np.array(
-        [r_final, phi_final, z_final, v_r_final, v_phi_final, v_z_final]
+        [
+            r_final,
+            phi_final,
+            x_final,
+            y_final,
+            z_final,
+            v_r_final,
+            v_phi_final,
+            v_z_final,
+        ]
     )
 
     return final_population
