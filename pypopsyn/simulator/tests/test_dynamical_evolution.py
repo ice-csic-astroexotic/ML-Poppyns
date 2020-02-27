@@ -27,33 +27,6 @@ def test_dynamical_eq_system(test_case_1):
         test_case_1["initial_cond"], test_case_1["t"]
     )
 
-    assert (
-        np.abs(test_case_1["derivatives_expected"][0] - derivatives_out[0])
-        < TOL
-    )
-    assert (
-        np.abs(test_case_1["derivatives_expected"][1] - derivatives_out[1])
-        < TOL
-    )
-    assert (
-        np.abs(test_case_1["derivatives_expected"][2] - derivatives_out[2])
-        < TOL
-    )
-    assert (
-        np.abs(
-            test_case_1["derivatives_expected"][3] * 1.0e14
-            - derivatives_out[3] * 1.0e14
-        )
-        < TOL
-    )
-    assert (
-        np.abs(test_case_1["derivatives_expected"][4] - derivatives_out[4])
-        < TOL
-    )
-    assert (
-        np.abs(
-            test_case_1["derivatives_expected"][5] * 1.0e15
-            - derivatives_out[5] * 1.0e15
-        )
-        < TOL
-    )
+    assert np.isclose(
+        test_case_1["derivatives_expected"], derivatives_out
+    ).all()

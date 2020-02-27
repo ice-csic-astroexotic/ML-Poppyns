@@ -36,6 +36,7 @@ def virial_orbital_velocity(r: float, z: float) -> float:
     center and at an height z from the galactic plain. This velocity is evaluated by
     assuming equilibrium between the gravitational acceleration in the r direction
     due to the galactic potential and the centrifugal acceleration due to rotation.
+
     Args:
         r (float): distance in the galactic disk from the galactic centre in kpc
         z (float): height from the galactic disk in kpc

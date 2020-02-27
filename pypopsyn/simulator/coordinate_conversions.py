@@ -23,7 +23,8 @@ def polar_to_cartesian(r: float, phi: float) -> Tuple[float, float]:
     Calculating the Cartesian x and y coordinates from plane polar r and phi.
 
     Args:
-        r (float): radius in plane polar coordinates, r>0
+        r (float): radial component (magnitude of the vector) in plane polar
+        coordinates, r>0
         phi (float): angular coordinate, [0, 2*pi]
 
     Returns:
@@ -43,7 +44,8 @@ def spherical_to_cartesian(
     Calculating the Cartesian x, y and z coordinates from spherical coordinates r, theta and psi.
 
     Args:
-        r (float): radius in spherical coordinates, r>0
+        r (float): radial component (magnitude of the vector) in spherical
+        coordinates, r>0
         theta (float): polar angle, [0, pi]
         psi (float): azimuthal angle, [0, 2*pi]
 

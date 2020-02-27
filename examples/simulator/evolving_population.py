@@ -9,9 +9,6 @@ import pandas as pd
 import pypopsyn.simulator.dynamical_evolution as dyn
 import pypopsyn.simulator.initial_population as ipop
 
-NS_population_initial = ipop.InitialNeutronStarPopulation()
-NS_number = NS_population_initial.NS_number
-
 # upload data from the initial population simulation
 data = pd.read_csv("./examples/data/initial_population.txt")
 data = data[1:]
@@ -25,6 +22,8 @@ v_phi_initial = pd.to_numeric(data["v_phi_initial"]).values
 v_z_initial = pd.to_numeric(data["v_z_initial"]).values
 
 omega_initial = v_phi_initial / r_initial
+
+NS_number = np.len(t_age)
 
 # define the initial conditions
 initial_cond = np.array(

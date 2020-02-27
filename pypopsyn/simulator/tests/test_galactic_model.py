@@ -97,21 +97,6 @@ def test_cylind_coord_gradient_mw_potential(test_case_1):
         test_case_1["r"], test_case_1["z"]
     )
 
-    assert (
-        np.abs(
-            test_case_1["gradient_mw_expected"][0] * 1.0e14
-            - gradient_mw_out[0] * 1.0e14
-        )
-        < TOL
-    )
-    assert (
-        np.abs(test_case_1["gradient_mw_expected"][1] - gradient_mw_out[1])
-        < TOL
-    )
-    assert (
-        np.abs(
-            test_case_1["gradient_mw_expected"][2] * 1.0e15
-            - gradient_mw_out[2] * 1.0e15
-        )
-        < TOL
-    )
+    assert np.isclose(
+        test_case_1["gradient_mw_expected"], gradient_mw_out
+    ).all()

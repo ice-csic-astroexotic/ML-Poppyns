@@ -16,13 +16,14 @@ import pypopsyn.simulator.galactic_model as gm
 
 def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
     """
-    System of dynamical equation to solve to determine the orbits of the neutron
+    System of dynamical equations to solve to determine the orbits of the neutron
     stars in the galactic potential. The differential equation are written in
-    cylindrical coordinates (r, phi, z).
+    cylindrical galactocentric coordinates (r, phi, z).
 
     Args:
         initial_cond (np.ndarray): array of 6 components defining the initial
-        conditions in cylindrical coordinates (r0, phi0, z0, v_r0, v_phi0, v_z0) with
+        conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0,
+        v_z0) with
         the following units (kpc, rad, kpc, kpc/yr, rad/yr, kpc/yr)
 
         t (np.ndarray): time array in yr on which perform the integration
