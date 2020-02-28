@@ -8,12 +8,14 @@ detection and switching) from the Fortran library ODEPACK.
 """
 
 import numpy as np
+from numba import jit
 from scipy.integrate import odeint
 
 import pypopsyn.simulator.coordinate_conversions as coco
 import pypopsyn.simulator.galactic_model as gm
 
 
+@jit
 def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
     """
     System of dynamical equations to solve to determine the orbits of the neutron

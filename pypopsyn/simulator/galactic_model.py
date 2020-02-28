@@ -10,6 +10,7 @@ The parameters of the model are taken from table B1 in Kuijken & Gilmore (1989).
 from typing import Tuple
 
 import numpy as np
+from numba import jit
 
 import pypopsyn.simulator.coordinate_conversions as coco
 
@@ -25,6 +26,7 @@ G_kpc_yr = (
 )  # Gravitational constant [kpc^3 g^-1 s^-2]
 
 
+@jit
 def shape_parameter(z: float) -> Tuple[float, float]:
     """
     Shape parameter for the disk-halo potential from Carlberg & Innamen (1987) and
@@ -62,6 +64,7 @@ def shape_parameter(z: float) -> Tuple[float, float]:
     return K, dK_dz
 
 
+@jit
 def r_z_derivatives_dh_potential(r: float, z: float) -> Tuple[float, float]:
     """
     Derivative with respect to r and z of the disk-halo component gravitational
@@ -93,6 +96,7 @@ def r_z_derivatives_dh_potential(r: float, z: float) -> Tuple[float, float]:
     return dpot_dh_dr, dpot_dh_dz
 
 
+@jit
 def r_derivative_b_potential(r: float) -> float:
     """
     Derivative with respect to r of the bulge component gravitational potential
@@ -112,6 +116,7 @@ def r_derivative_b_potential(r: float) -> float:
     return dpot_b_dr
 
 
+@jit
 def r_derivative_n_potential(r: float) -> float:
     """
     Derivative with respect to r of the nucleus component gravitational potential
@@ -132,6 +137,7 @@ def r_derivative_n_potential(r: float) -> float:
     return dpot_n_dr
 
 
+@jit
 def cylind_coord_gradient_mw_potential(r: float, z: float) -> np.ndarray:
     """
     gradient in cylindrical coordinates of the Milky Way gravitational potential

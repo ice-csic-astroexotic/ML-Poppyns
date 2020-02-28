@@ -23,7 +23,7 @@ v_z_initial = pd.to_numeric(data["v_z_initial"]).values
 
 omega_initial = v_phi_initial / r_initial
 
-NS_number = np.len(t_age)
+NS_number = len(t_age)
 
 # define the initial conditions
 initial_cond = np.array(
