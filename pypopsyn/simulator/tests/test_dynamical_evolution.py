@@ -28,5 +28,8 @@ def test_dynamical_eq_system(test_case_1):
     )
 
     assert np.isclose(
-        test_case_1["derivatives_expected"], derivatives_out
+        derivatives_out,
+        test_case_1["derivatives_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     ).all()

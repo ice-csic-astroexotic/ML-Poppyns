@@ -42,8 +42,18 @@ def test_r_z_derivative_dh_potential(test_case_1):
         test_case_1["r"], test_case_1["z"]
     )
 
-    assert np.isclose(test_case_1["dpot_dh_dr_expected"], dpot_dh_dr_out)
-    assert np.isclose(test_case_1["dpot_dh_dz_expected"], dpot_dh_dz_out)
+    assert np.isclose(
+        dpot_dh_dr_out,
+        test_case_1["dpot_dh_dr_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
+    )
+    assert np.isclose(
+        dpot_dh_dz_out,
+        test_case_1["dpot_dh_dz_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
+    )
 
 
 def test_r_derivative_b_potential(test_case_1):
@@ -53,7 +63,12 @@ def test_r_derivative_b_potential(test_case_1):
     """
     dpot_b_dr_out = gm.r_derivative_b_potential(test_case_1["r"])
 
-    assert np.isclose(test_case_1["dpot_b_dr_expected"], dpot_b_dr_out)
+    assert np.isclose(
+        dpot_b_dr_out,
+        test_case_1["dpot_b_dr_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
+    )
 
 
 def test_r_derivative_n_potential(test_case_1):
@@ -63,7 +78,12 @@ def test_r_derivative_n_potential(test_case_1):
     """
     dpot_n_dr_out = gm.r_derivative_n_potential(test_case_1["r"])
 
-    assert np.isclose(test_case_1["dpot_n_dr_expected"], dpot_n_dr_out)
+    assert np.isclose(
+        dpot_n_dr_out,
+        test_case_1["dpot_n_dr_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
+    )
 
 
 def test_cylind_coord_gradient_mw_potential(test_case_1):
@@ -76,5 +96,8 @@ def test_cylind_coord_gradient_mw_potential(test_case_1):
     )
 
     assert np.isclose(
-        test_case_1["gradient_mw_expected"], gradient_mw_out
+        gradient_mw_out,
+        test_case_1["gradient_mw_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     ).all()

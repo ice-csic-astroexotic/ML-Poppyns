@@ -43,4 +43,6 @@ def test_virial_orbital_velocity(test_case_2):
         test_case_2["r"], test_case_2["z"]
     )
 
-    assert np.isclose(test_case_2["v_virial_expected"], v_virial_out)
+    assert np.isclose(
+        v_virial_out, test_case_2["v_virial_expected"], rtol=TOL, atol=1.0e-30
+    )

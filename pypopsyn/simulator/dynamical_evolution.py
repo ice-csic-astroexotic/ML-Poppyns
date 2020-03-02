@@ -72,7 +72,7 @@ def dynamical_evolution(
         NS_number (int): number of simulated neutron stars
 
         initial_cond (np.ndarray): array of 6 components defining the initial
-        conditions in cylindrical coordinates (r0, phi0, z0, v_r0, v_phi0, v_z0) with
+        conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0) with
         the following units (kpc, rad, kpc, kpc/yr, rad/yr, kpc/yr)
 
         t_age (np.ndarray): array of ages in year of the neutron stars
