@@ -31,7 +31,7 @@ def check_arm_index(arm_index: int):
 def pdf_radial_stellar_density(r: float) -> float:
     """
     The Milky Way's stellar radial density in the galactic plane according to
-    Eqn. (15) of Yusifov & Küçük (2004).
+    Eq. (15) of Yusifov & Küçük (2004).
 
     Args:
         r (float): distance from the galactic centre in kpc
@@ -181,6 +181,7 @@ def calculate_noise_for_coordinates(
 def pdf_initial_height(z: float) -> float:
     """
     Probability density function for the height from the galactic equatorial plane.
+    Eq. (2) in Gullon et al. (2014)
 
     Args:
         z (float): distance from the galactic plane in kpc
@@ -193,7 +194,7 @@ def pdf_initial_height(z: float) -> float:
     # and choose a mean scale height characteristic for a young distribution as
     # obtained by Gullon et al. (2014)
 
-    h_mean = 0.1  # [kpc]
+    h_mean = 0.18  # [kpc]
     p_z = 1.0 / h_mean * np.exp(-z / h_mean)
 
     return p_z

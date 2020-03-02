@@ -30,7 +30,8 @@ G_kpc_yr = (
 def shape_parameter(z: float) -> Tuple[float, float]:
     """
     Shape parameter for the disk-halo potential from Carlberg & Innamen (1987) and
-    its derivative with respect to the height z from the galactic disk
+    its derivative with respect to the height z from the galactic disk.
+    First term in the denominator of eq. (13) in Faucher & Kaspi 2006.
 
     Args:
         z (float): height from the galactic disk in kpc
@@ -68,7 +69,7 @@ def shape_parameter(z: float) -> Tuple[float, float]:
 def r_z_derivatives_dh_potential(r: float, z: float) -> Tuple[float, float]:
     """
     Derivative with respect to r and z of the disk-halo component gravitational
-    potential
+    potential defined in eq. (14) in Faucher & Kaspi 2006.
 
     Args:
         r (float): distance in the galactic disk from the galactic centre in kpc
@@ -100,6 +101,7 @@ def r_z_derivatives_dh_potential(r: float, z: float) -> Tuple[float, float]:
 def r_derivative_b_potential(r: float) -> float:
     """
     Derivative with respect to r of the bulge component gravitational potential
+    defined in eq. (15) in Faucher & Kaspi 2006.
 
     Args:
         r (float): distance in the galactic disk from the galactic centre in kpc
@@ -120,6 +122,7 @@ def r_derivative_b_potential(r: float) -> float:
 def r_derivative_n_potential(r: float) -> float:
     """
     Derivative with respect to r of the nucleus component gravitational potential
+    defined in eq. (15) in Faucher & Kaspi 2006.
 
     Args:
         r (float): distance in the galactic disk from the galactic centre in kpc
@@ -141,6 +144,7 @@ def r_derivative_n_potential(r: float) -> float:
 def cylind_coord_gradient_mw_potential(r: float, z: float) -> np.ndarray:
     """
     gradient in cylindrical coordinates of the Milky Way gravitational potential
+    defined in eq. 13 in Faucher & Kaspi 2006.
 
     Args:
         r (float): distance in the galactic disk from the galactic centre in kpc

@@ -14,6 +14,7 @@ import pypopsyn.simulator.galactic_model as gm
 def pdf_proper_velocity(v: float) -> float:
     """
     Probability density function for the neutron stars' proper velocities.
+    Eq. (3) in Gullon et al. (2014)
 
     Args:
         v (float): proper velocity in km/s
@@ -21,10 +22,7 @@ def pdf_proper_velocity(v: float) -> float:
     Returns:
         float: stellar proper velocity distribution in 1/(km/s)
     """
-
-    # we follow Gullon et al. (2014) and consider an exponential distribution
-
-    v_mean = 600.0  # [km/s]
+    v_mean = 380.0  # [km/s]
     v_p = 1.0 / v_mean * np.exp(-v / v_mean)
 
     return v_p
