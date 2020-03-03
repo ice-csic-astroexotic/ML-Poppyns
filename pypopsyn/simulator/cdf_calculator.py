@@ -1,5 +1,12 @@
 """
 Calculating the cumulative distribution function using the trapezoidal rule
+
+Authors:
+
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+
+    Copyright (c) MAGNESIA (ICE-CSIC)
 """
 
 from typing import Callable

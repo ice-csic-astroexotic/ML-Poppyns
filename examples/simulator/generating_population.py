@@ -1,3 +1,15 @@
+"""
+Generator for the the initial population of neutron stars
+
+    Authors:
+
+        Vanessa Graber (graber @ ice.csic.es)
+        Michele Ronchi (ronchi @ ice.csic.es)
+
+    Copyright(c) MAGNESIA(ICE - CSIC)
+"""
+
+
 import pandas as pd
 
 import pypopsyn.simulator.initial_population as ipop

@@ -1,5 +1,12 @@
 """
 Generating an initial population of neutron stars in the Milky Way with random parameters.
+
+Authors:
+
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+
+    Copyright (c) MAGNESIA (ICE-CSIC)
 """
 
 from typing import Tuple

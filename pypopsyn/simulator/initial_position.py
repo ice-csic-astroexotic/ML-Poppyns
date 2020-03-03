@@ -7,6 +7,13 @@ longitude b, the x-,y-, and z-axes are parallel to (l, b) = (90, 0), (180, 0) an
 90), respectively, forming a right-handed Cartesian frame. Moreover, we define r =
 (x**2 + y**2)**0.5 as the distance from the galactic centre in the galactic plane and
 phi = arctan(y/x). Here the angle phi is the same as theta in Faucher-Giguère & Kaspi (2006).
+
+Authors:
+
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+
+    Copyright (c) MAGNESIA (ICE-CSIC)
 """
 
 

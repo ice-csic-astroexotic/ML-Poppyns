@@ -4,6 +4,14 @@ Initial velocity distribution for the stellar population.
 The velocity is composed of two contributions, the neutron stars' proper motion
 caused by kicks during the supernova as well as the motion of the galaxy itself.
 For the former, we follow Gullon et al. (2014).
+
+Authors:
+
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+
+    Copyright (c) MAGNESIA (ICE-CSIC)
+
 """
 
 import numpy as np

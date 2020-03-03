@@ -5,6 +5,13 @@ We solve the system of dynamical differential equations in cylindrical coordinat
 using a galactocentric reference frame. Here we are using the scipy.integrate.odeint
 package which uses the method 'LSODA' (Adams/BDF method with automatic stiffness
 detection and switching) from the Fortran library ODEPACK.
+
+Authors:
+
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+
+    Copyright (c) MAGNESIA (ICE-CSIC)
 """
 
 import numpy as np

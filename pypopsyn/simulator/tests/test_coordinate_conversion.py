@@ -1,3 +1,15 @@
+"""
+Test for the coordinate_conversion module
+
+    Authors:
+
+        Vanessa Graber (graber @ ice.csic.es)
+        Michele Ronchi (ronchi @ ice.csic.es)
+
+    Copyright(c) MAGNESIA(ICE - CSIC)
+"""
+
+
 import numpy as np
 import pytest
 

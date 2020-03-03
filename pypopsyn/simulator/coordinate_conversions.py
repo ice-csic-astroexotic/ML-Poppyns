@@ -1,5 +1,12 @@
 """
 Conversions between different coordinate systems and related issues
+
+Authors:
+
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+
+    Copyright (c) MAGNESIA (ICE-CSIC)
 """
 
 from typing import Tuple
