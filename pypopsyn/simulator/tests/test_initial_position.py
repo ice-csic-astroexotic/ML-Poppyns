@@ -1,3 +1,14 @@
+"""
+Test for the initial_position module
+
+    Authors:
+
+        Vanessa Graber (graber @ ice.csic.es)
+        Michele Ronchi (ronchi @ ice.csic.es)
+
+    Copyright(c) MAGNESIA(ICE - CSIC)
+"""
+
 import numpy as np
 import pytest
 
@@ -11,9 +22,9 @@ def test_case_1():
     data = {
         "r": 1.5,
         "arm_index": 3,
-        "theta_no_noise_expected": -1.69864,
+        "phi_no_noise_expected": -1.69864,
         "r_with_noise_expected": 1.6,
-        "theta_with_noise_expected": -0.69864,
+        "phi_with_noise_expected": -0.69864,
         "z": 0.01,
         "p_z_expected": 9.04837,
     }
@@ -38,8 +49,19 @@ def test_case_3():
     data = {
         "r": 1.2,
         "uniform_noise_mock": 2.0,
-        "theta_corr_expected": 1.31409,
+        "phi_corr_expected": 1.31409,
         "r_corr_expected": 0.02,
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_4():
+    data = {
+        "phi0": 0.0,
+        "t": 1.0e8,
+        "phi_t_expected": 2.51327,
     }
 
     return data
@@ -76,31 +98,42 @@ def test_pdf_radial_stellar_density():
 def test_pdf_initial_coordinates(monkeypatch, test_case_1):
     """
     Verifying that for a given choice of noise in galactocentric coordinates
-    the resulting theta and r values are correctly calculated.
+    the resulting phi and r values are correctly calculated.
     """
     # mocking the noise parameters that are otherwise randomly determined;
-    # return is the same order as the original function, i.e., theta_corr, r_corr
+    # return is the same order as the original function, i.e., phi_corr, r_corr
 
     def mock_noise(*args, **kwargs):
         return 1.0, 0.1
 
     monkeypatch.setattr(ip, "calculate_noise_for_coordinates", mock_noise)
 
-    theta_out, r_out = ip.pdf_initial_coordinates(
+    phi_out, r_out = ip.pdf_initial_coordinates(
         test_case_1["r"], test_case_1["arm_index"]
     )
 
-    assert np.abs(test_case_1["theta_with_noise_expected"] - theta_out) < TOL
+    assert np.abs(test_case_1["phi_with_noise_expected"] - phi_out) < TOL
     assert np.abs(test_case_1["r_with_noise_expected"] - r_out) < TOL
 
 
-def test_calculate_theta(test_case_1):
+def test_calculate_phi(test_case_1):
     """
-    Verifying that the angular coordinate theta is correctly calculated.
+    Verifying that the angular coordinate phi is correctly calculated.
     """
-    theta_out = ip.calculate_theta(test_case_1["r"], test_case_1["arm_index"])
 
-    assert np.abs(test_case_1["theta_no_noise_expected"] - theta_out) < TOL
+    phi_out = ip.calculate_phi(test_case_1["r"], test_case_1["arm_index"])
+
+    assert np.abs(test_case_1["phi_no_noise_expected"] - phi_out) < TOL
+
+
+def test_spiral_arm_time_evol(test_case_4):
+    """
+    Verifying that the the spiral structure evolve in time in the correct way
+    """
+
+    phi_t_out = ip.spiral_arm_time_evol(test_case_4["phi0"], test_case_4["t"])
+
+    assert np.abs(test_case_4["phi_t_expected"] - phi_t_out) < TOL
 
 
 def test_calculate_noise_for_coordinates(monkeypatch, test_case_3):
@@ -118,11 +151,11 @@ def test_calculate_noise_for_coordinates(monkeypatch, test_case_3):
 
     monkeypatch.setattr(np.random, "normal", mock_noise_normal)
 
-    theta_corr_out, r_corr_out = ip.calculate_noise_for_coordinates(
+    phi_corr_out, r_corr_out = ip.calculate_noise_for_coordinates(
         test_case_3["r"]
     )
 
-    assert np.abs(test_case_3["theta_corr_expected"] - theta_corr_out) < TOL
+    assert np.abs(test_case_3["phi_corr_expected"] - phi_corr_out) < TOL
     assert np.abs(test_case_3["r_corr_expected"] - r_corr_out) < TOL
 
 

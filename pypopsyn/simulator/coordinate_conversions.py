@@ -1,5 +1,12 @@
 """
 Conversions between different coordinate systems and related issues
+
+Authors:
+
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+
+    Copyright (c) MAGNESIA (ICE-CSIC)
 """
 
 from typing import Tuple
@@ -18,20 +25,21 @@ def check_radial_coordinate(r: float):
         raise ValueError("Radial coordinate is out of range")
 
 
-def polar_to_cartesian(r: float, theta: float) -> Tuple[float, float]:
+def polar_to_cartesian(r: float, phi: float) -> Tuple[float, float]:
     """
-    Calculating the Cartesian x and y coordinates from plane polar r and theta.
+    Calculating the Cartesian x and y coordinates from plane polar r and phi.
 
     Args:
-        r (float): radius in plane polar coordinates, r>0
-        theta (float): angular coordinate, [0, 2*pi]
+        r (float): radial component (magnitude of the vector) in plane polar
+        coordinates, r>0
+        phi (float): angular coordinate, [0, 2*pi]
 
     Returns:
         (float, float): x and y coordinates in a Cartesian system
     """
 
-    x = r * np.cos(theta)
-    y = r * np.sin(theta)
+    x = r * np.cos(phi)
+    y = r * np.sin(phi)
 
     return x, y
 
@@ -43,7 +51,8 @@ def spherical_to_cartesian(
     Calculating the Cartesian x, y and z coordinates from spherical coordinates r, theta and psi.
 
     Args:
-        r (float): radius in spherical coordinates, r>0
+        r (float): radial component (magnitude of the vector) in spherical
+        coordinates, r>0
         theta (float): polar angle, [0, pi]
         psi (float): azimuthal angle, [0, 2*pi]
 
