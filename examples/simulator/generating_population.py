@@ -1,3 +1,5 @@
+import os
+
 import hydra
 import pandas as pd
 
@@ -51,9 +53,8 @@ def generate_population(cfg) -> None:
         )
     )
 
-    df_initial.to_csv(
-        "./examples/data/initial_population.txt", index=False, header=True
-    )
+    print(os.getcwd())
+    df_initial.to_csv("initial_population.txt", index=False, header=True)
 
 
 if __name__ == "__main__":
