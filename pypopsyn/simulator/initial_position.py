@@ -6,7 +6,14 @@ where the galactic centre is located at the origin. In terms of galactic latitud
 longitude b, the x-,y-, and z-axes are parallel to (l, b) = (90, 0), (180, 0) and (0,
 90), respectively, forming a right-handed Cartesian frame. Moreover, we define r =
 (x**2 + y**2)**0.5 as the distance from the galactic centre in the galactic plane and
-theta = arctan(y/x)
+phi = arctan(y/x). Here the angle phi is the same as theta in Faucher-Giguère & Kaspi (2006).
+
+Authors:
+
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+
+    Copyright (c) MAGNESIA (ICE-CSIC)
 """
 
 
@@ -31,7 +38,7 @@ def check_arm_index(arm_index: int):
 def pdf_radial_stellar_density(r: float) -> float:
     """
     The Milky Way's stellar radial density in the galactic plane according to
-    Eqn. (15) of Yusifov & Küçük (2004).
+    Eq. (15) of Yusifov & Küçük (2004).
 
     Args:
         r (float): distance from the galactic centre in kpc
@@ -73,23 +80,23 @@ def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:
         arm_index (int): index for the respective spiral arms, 0 < arm_index < 5
 
     Returns:
-        (float, float): galactocentric coordinates theta [rad], r [kpc] with noise
+        (float, float): galactocentric coordinates phi [rad], r [kpc] with noise
     """
 
     # check range of input
     coco.check_radial_coordinate(r)
     check_arm_index(arm_index)
 
-    theta = calculate_theta(r, arm_index)
-    theta_corr, r_corr = calculate_noise_for_coordinates(r)
+    phi = calculate_phi(r, arm_index)
+    phi_corr, r_corr = calculate_noise_for_coordinates(r)
 
-    theta = theta + theta_corr
+    phi = phi + phi_corr
     r = r + r_corr
 
-    return theta, r
+    return phi, r
 
 
-def calculate_theta(r: float, arm_index: int) -> float:
+def calculate_phi(r: float, arm_index: int) -> float:
     """
     Calculating the angular coordinate of a neutron star for a given distance
     from the galactic centre incorporating the Milky Way's arm structure from
@@ -100,7 +107,7 @@ def calculate_theta(r: float, arm_index: int) -> float:
         arm_index (int): index for the respective spiral arms, 0 < arm_index < 5
 
     Returns:
-        float: galactocentric theta coordinate in rad
+        float: galactocentric phi coordinate in rad
     """
 
     # check range of input
@@ -109,7 +116,7 @@ def calculate_theta(r: float, arm_index: int) -> float:
 
     # parameters for four spiral arms in the Milky Way according to Table 2 in
     # Faucher-Giguère & Kaspi giving the winding constant k [rad], inner radius r_0
-    # [kpc] and inner angle theta_min [rad] for the Norma, Carina-Sagittarius,
+    # [kpc] and inner angle phi_min [rad] for the Norma, Carina-Sagittarius,
     # Perseus and Crux-Scutum arm
 
     arm_param = {
@@ -119,12 +126,38 @@ def calculate_theta(r: float, arm_index: int) -> float:
         4: np.array([4.89, 4.90, 0.95]),
     }
 
-    theta = (
+    phi = (
         arm_param[arm_index][0] * np.log(r / arm_param[arm_index][1])
         + arm_param[arm_index][2]
     )
 
-    return theta
+    return phi
+
+
+def spiral_arm_time_evol(phi0: float, t: float) -> float:
+    """
+    Evolving the spiral arm position backward of a time t. We assume that the
+    Galactic spiral structure rotates rigidly in the clockwise direction with a
+    period of 250 Myr (see 'A guided map to the spiral arms in the galactic disk of the
+    Milky Way' by Vallée 2017).
+
+    Args:
+        phi0 (float): current angular position in rad for the current spiral pattern
+        t (float): backward time in years
+
+    Returns:
+        (float): angular position in rad for the spiral pattern as it was t years ago
+    """
+
+    # evaluate the angular velocity of rotation of the spiral pattern
+    # T is the period of rotation in years
+    T = 2.5e8
+    omega_spiral_arms = 2.0 * np.pi / T
+
+    # find the value of theta t years ago
+    phi_t = phi0 + omega_spiral_arms * t
+
+    return phi_t
 
 
 def calculate_noise_for_coordinates(
@@ -141,20 +174,21 @@ def calculate_noise_for_coordinates(
                     set to None unless otherwise specified
 
     Returns:
-        (float, float): noise for galactocentric coordinates theta [rad], r [kpc]
+        (float, float): noise for galactocentric coordinates phi [rad], r [kpc]
     """
 
     np.random.seed(seed)
 
-    theta_corr = np.random.uniform(0, 2 * np.pi) * np.exp(-0.35 * r)
+    phi_corr = np.random.uniform(0, 2 * np.pi) * np.exp(-0.35 * r)
     r_corr = np.random.normal(0, 0.07 * r)
 
-    return theta_corr, r_corr
+    return phi_corr, r_corr
 
 
 def pdf_initial_height(z: float) -> float:
     """
     Probability density function for the height from the galactic equatorial plane.
+    Eq. (2) in Gullon et al. (2014)
 
     Args:
         z (float): distance from the galactic plane in kpc
@@ -167,7 +201,7 @@ def pdf_initial_height(z: float) -> float:
     # and choose a mean scale height characteristic for a young distribution as
     # obtained by Gullon et al. (2014)
 
-    h_mean = 0.1  # [kpc]
+    h_mean = 0.18  # [kpc]
     p_z = 1.0 / h_mean * np.exp(-z / h_mean)
 
     return p_z
@@ -181,13 +215,13 @@ def random_scatter_about_plane(
     located at z=0.
 
     Args:
-        z (np.nparray): array of heights in kpc with positive values
+        z (np.ndarray): array of heights in kpc with positive values
         NS_number (int): total number of neutron stars created in the simulation
         seed (int): seed for random number generation,
                     set to None unless otherwise specified
 
     Returns:
-        (np.nparray): array of heights in kpc randomly scattered above or below 0
+        (np.ndarray): array of heights in kpc randomly scattered above or below 0
     """
 
     np.random.seed(seed)
