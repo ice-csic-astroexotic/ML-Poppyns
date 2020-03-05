@@ -13,24 +13,12 @@ Authors:
     Copyright (c) MAGNESIA (ICE-CSIC)
 """
 
-
 from typing import Tuple
 
 import numpy as np
 from numba import jit
 
-import pypopsyn.simulator.coordinate_conversions as coco
-
-# unit conversions
-kpc_to_cm = 3.08567758e21  # convert from kpc to cm
-yr_to_s = 3600 * 24 * 365  # convert from yr to s
-
-# general parameters
-M_sun = 2.0e33  # Sun mass [g]
-G = 6.67e-8  # Gravitational constant [cm^3 g^-1 s^-2]
-G_kpc_yr = (
-    G / (kpc_to_cm ** 3) * yr_to_s ** 2
-)  # Gravitational constant [kpc^3 g^-1 s^-2]
+import pypopsyn.simulator.constants as const
 
 
 @jit
@@ -86,15 +74,18 @@ def r_z_derivatives_dh_potential(r: float, z: float) -> Tuple[float, float]:
         (float, float): derivative with respect to r and z of the disk-halo potential
     """
     # parameters for the disk-halo potential (Faucher-Giguere & Kaspi 2006, Kuijken & Gilmore 1989)
-    M_dh = 1.45e11 * M_sun  # disk+halo mass in g
+    M_dh = 1.45e11 * const.M_SUN  # disk+halo mass in g
     b_dh = 5.5  # core radius of the halo component in kpc
 
     K, dK_dz = shape_parameter(z)
     dpot_dh_dr = (
-        G_kpc_yr * M_dh * r * (K ** 2 + b_dh ** 2 + r ** 2) ** (-3.0 / 2.0)
+        const.G_KPC_YR
+        * M_dh
+        * r
+        * (K ** 2 + b_dh ** 2 + r ** 2) ** (-3.0 / 2.0)
     )
     dpot_dh_dz = (
-        G_kpc_yr
+        const.G_KPC_YR
         * M_dh
         * (K ** 2 + b_dh ** 2 + r ** 2) ** (-3.0 / 2.0)
         * K
@@ -118,9 +109,9 @@ def r_derivative_b_potential(r: float) -> float:
     """
     # parameters for the bulge potential (Faucher-Giguere & Kaspi 2006, Kuijken &
     # Gilmore 1989)
-    M_b = 9.3e9 * M_sun  # bulge mass in g
+    M_b = 9.3e9 * const.M_SUN  # bulge mass in g
     b_b = 0.25  # core radius of the bulge component in kpc
-    dpot_b_dr = G_kpc_yr * M_b * r * (b_b ** 2 + r ** 2) ** (-3.0 / 2.0)
+    dpot_b_dr = const.G_KPC_YR * M_b * r * (b_b ** 2 + r ** 2) ** (-3.0 / 2.0)
 
     return dpot_b_dr
 
@@ -139,10 +130,10 @@ def r_derivative_n_potential(r: float) -> float:
     """
     # parameters for the nucleus potential (Faucher-Giguere & Kaspi 2006, Kuijken &
     # Gilmore 1989)
-    M_n = 1.0e10 * M_sun  # nucleus mass in g
+    M_n = 1.0e10 * const.M_SUN  # nucleus mass in g
     b_n = 1.5  # core radius of the nucleus component in kpc
 
-    dpot_n_dr = G_kpc_yr * M_n * r * (b_n ** 2 + r ** 2) ** (-3.0 / 2.0)
+    dpot_n_dr = const.G_KPC_YR * M_n * r * (b_n ** 2 + r ** 2) ** (-3.0 / 2.0)
 
     return dpot_n_dr
 

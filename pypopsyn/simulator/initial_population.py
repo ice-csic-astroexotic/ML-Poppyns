@@ -14,14 +14,11 @@ from typing import Tuple
 import numpy as np
 
 import pypopsyn.simulator.cdf_calculator as cc
+import pypopsyn.simulator.constants as const
 import pypopsyn.simulator.coordinate_conversions as coco
 import pypopsyn.simulator.initial_position as ip
 import pypopsyn.simulator.initial_velocity as iv
 from pypopsyn.simulator.configuration import cfg
-
-# unit conversions
-kpc_to_km = 3.08567758e16  # convert from kpc to km
-yr_to_s = 3600 * 24 * 365  # convert from yr to s
 
 
 class InitialNeutronStarPopulation:
@@ -135,7 +132,7 @@ class InitialNeutronStarPopulation:
             vp_grid, iv.pdf_proper_velocity, cfg["NS_number"]
         )
         # convert from km / s to kpc / yr
-        vp_rand = vp_rand * yr_to_s / kpc_to_km
+        vp_rand = vp_rand * const.YR_TO_S / const.KPC_TO_KM
 
         # drawing a random direction for the speed
         # drawing a random polar angle [0,np.pi] [rad]
