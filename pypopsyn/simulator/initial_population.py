@@ -29,19 +29,15 @@ class InitialNeutronStarPopulation:
     Generating a random pulsar population in the Milky Way
     """
 
-    def __init__(
-        self, t_age_range=np.array([1.0, 1.0e8]), seed=None,  # [years]
-    ):
+    def __init__(self, seed=None):
         """
         Initialization for the population synthesis.
 
         Args:
-            t_age_range (np.array): minimum and maximum age of neutron stars
             seed (int): seed for random number generation,
                         set to None unless otherwise specified
         """
 
-        self.t_age_range = t_age_range
         self.seed = seed
 
         np.random.seed(seed)
@@ -56,7 +52,7 @@ class InitialNeutronStarPopulation:
         """
 
         t_age = np.random.uniform(
-            self.t_age_range[0], self.t_age_range[1], cfg["NS_number"]
+            cfg["t_age_min"], cfg["t_age_max"], cfg["NS_number"]
         )
         return t_age
 
