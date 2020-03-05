@@ -31,9 +31,9 @@ def pdf_proper_velocity(v: float) -> float:
         float: stellar proper velocity distribution in 1/(km/s)
     """
     v_mean = 380.0  # [km/s]
-    v_p = 1.0 / v_mean * np.exp(-v / v_mean)
+    pdf_vp = 1.0 / v_mean * np.exp(-v / v_mean)
 
-    return v_p
+    return pdf_vp
 
 
 def virial_orbital_velocity(r: float, z: float) -> float:

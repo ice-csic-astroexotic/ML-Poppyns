@@ -202,9 +202,9 @@ def pdf_initial_height(z: float) -> float:
     # obtained by Gullon et al. (2014)
 
     h_mean = 0.18  # [kpc]
-    p_z = 1.0 / h_mean * np.exp(-z / h_mean)
+    pdf_z = 1.0 / h_mean * np.exp(-z / h_mean)
 
-    return p_z
+    return pdf_z
 
 
 def random_scatter_about_plane(

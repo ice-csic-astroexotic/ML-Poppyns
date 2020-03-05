@@ -26,7 +26,7 @@ def test_case_1():
         "r_with_noise_expected": 1.6,
         "phi_with_noise_expected": -0.69864,
         "z": 0.01,
-        "p_z_expected": 9.04837,
+        "pdf_z_expected": 5.25533,
     }
 
     return data
@@ -164,8 +164,8 @@ def test_pdf_initial_height(test_case_1):
     Verifying that distribution of stars away from the galactic plane is
     correctly calculated.
     """
-    p_z_out = ip.pdf_initial_height(test_case_1["z"])
-    assert np.abs(test_case_1["p_z_expected"] - p_z_out) < TOL
+    pdf_z_out = ip.pdf_initial_height(test_case_1["z"])
+    assert np.abs(test_case_1["pdf_z_expected"] - pdf_z_out) < TOL
 
 
 def test_random_scatter_about_plane_01(test_case_2):

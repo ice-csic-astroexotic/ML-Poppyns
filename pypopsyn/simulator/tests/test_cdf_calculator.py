@@ -23,7 +23,7 @@ TOL = 1e-5
 def test_case_1():
     data = {
         "x": np.array([0.0, 0.1, 0.3, 0.4]),
-        "cdf_expected": np.array([0.0, 0.60224, 0.97002, 1]),
+        "cdf_expected": np.array([0.0, 0.46338, 0.91248, 1.0]),
     }
 
     return data
