@@ -4,6 +4,7 @@ channels:
   - conda-forge
 dependencies:
   - black=19.10b0
+  - hydra-core=0.11.3
   - ipykernel=5.1.0
   - jupyter=1.0.0
   - libtiff=4.1.0

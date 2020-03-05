@@ -5,80 +5,104 @@ Generator for the the initial population of neutron stars
 
         Vanessa Graber (graber @ ice.csic.es)
         Michele Ronchi (ronchi @ ice.csic.es)
+        Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
 
     Copyright(c) MAGNESIA(ICE - CSIC)
 """
 
-
+import hydra
 import pandas as pd
 
+import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population as ipop
 
-# generating an initial neutron star population
 
-NS_population_initial = ipop.InitialNeutronStarPopulation()
+@hydra.main()
+def generate_population(cfg) -> None:
 
-# generating ages
-age = NS_population_initial.age()
+    """ Generate an initial population.
 
-# generating initial positions
-(
-    r_initial,
-    phi_initial,
-    x_initial,
-    y_initial,
-    z_initial,
-) = NS_population_initial.position(t_age=age)
+    Args:
 
-# generating initial velocities summing the proper velocities to the orbital velocities
-(vp_r, vp_phi, vp_z,) = NS_population_initial.proper_velocity()
+        cfg: configuration dictionary for the simulator.
 
-v_orb = NS_population_initial.orbital_velocity(r_initial, z_initial)
+    Returns:
 
-v_r_initial = vp_r
-v_phi_initial = vp_phi + v_orb
-v_z_initial = vp_z
+        Nothing.
 
-# adding the coordinates to a data frame for export
-df_initial = pd.DataFrame(
-    {
-        "age": age,
-        "r_initial": r_initial,
-        "phi_initial": phi_initial,
-        "x_initial": x_initial,
-        "y_initial": y_initial,
-        "z_initial": z_initial,
-        "v_r_initial": v_r_initial,
-        "v_phi_initial": v_phi_initial,
-        "v_z_initial": v_z_initial,
-        "vp_r": vp_r,
-        "vp_phi": vp_phi,
-        "vp_z": vp_z,
-        "v_orb": v_orb,
-    }
-)
+    """
 
-df_initial.columns = pd.MultiIndex.from_tuples(
-    zip(
-        df_initial.columns,
-        [
-            "[yr]",
-            "[kpc]",
-            "[rad]",
-            "[kpc]",
-            "[kpc]",
-            "[kpc]",
-            "[kpc / yr]",
-            "[kpc /yr]",
-            "[kpc / yr]",
-            "[kpc / yr]",
-            "[kpc /yr]",
-            "[kpc / yr]",
-            "[kpc / yr]",
-        ],
+    # Update simulator configuration with the provided parameters.
+    configuration.update_configuration(cfg)
+
+    # generating an initial neutron star population
+    NS_population_initial = ipop.InitialNeutronStarPopulation()
+
+    # Generating ages.
+    age = NS_population_initial.age()
+
+    # Generating initial positions.
+    (
+        r_initial,
+        phi_initial,
+        x_initial,
+        y_initial,
+        z_initial,
+    ) = NS_population_initial.position(t_age=age)
+
+    # Generating initial velocities summing the proper velocities to the orbital
+    # velocities.
+    (vp_r, vp_phi, vp_z,) = NS_population_initial.proper_velocity()
+
+    v_orb = NS_population_initial.orbital_velocity(r_initial, z_initial)
+
+    v_r_initial = vp_r
+    v_phi_initial = vp_phi + v_orb
+    v_z_initial = vp_z
+
+    # Adding the coordinates to a data frame for export.
+    df_initial = pd.DataFrame(
+        {
+            "age": age,
+            "r_initial": r_initial,
+            "phi_initial": phi_initial,
+            "x_initial": x_initial,
+            "y_initial": y_initial,
+            "z_initial": z_initial,
+            "v_r_initial": v_r_initial,
+            "v_phi_initial": v_phi_initial,
+            "v_z_initial": v_z_initial,
+            "vp_r": vp_r,
+            "vp_phi": vp_phi,
+            "vp_z": vp_z,
+            "v_orb": v_orb,
+        }
     )
-)
 
-df_initial.to_csv(
-    "./examples/data/initial_population.txt", index=False, header=True
-)
+    df_initial.columns = pd.MultiIndex.from_tuples(
+        zip(
+            df_initial.columns,
+            [
+                "[yr]",
+                "[kpc]",
+                "[rad]",
+                "[kpc]",
+                "[kpc]",
+                "[kpc]",
+                "[kpc / yr]",
+                "[kpc /yr]",
+                "[kpc / yr]",
+                "[kpc / yr]",
+                "[kpc /yr]",
+                "[kpc / yr]",
+                "[kpc / yr]",
+            ],
+        )
+    )
+
+    df_initial.to_csv("initial_population.txt", index=False, header=True)
+
+
+if __name__ == "__main__":
+
+    generate_population()
