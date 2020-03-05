@@ -60,7 +60,7 @@ be overridden via Hydra by providing a `YAML` configuration file or CLI argument
 For instance, we could run the previous initial population example like this:
 
 ```
-python examples/simulator/generating_populatio.py r_extent=30.0
+python examples/simulator/generating_population.py r_extent=30.0
 ```
 
 to override the value of the `r_extent` to be `30.0` instead of the default
@@ -76,7 +76,7 @@ Another cool feature of Hydra is multi-run. Suppose you want to explore a range
 of parameters, you could do:
 
 ```
-python examples/simulator/generating_populatio.py r_extent=30.0,40.0 -m
+python examples/simulator/generating_population.py r_extent=30.0,40.0 -m
 ```
 
 Hydra will automatically take care of executing the script sweeping all the
