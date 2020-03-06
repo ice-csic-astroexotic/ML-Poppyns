@@ -46,7 +46,7 @@ distribution.
 
 ## Experiment Configuration and Hydra
 
-We are using (Hydra)[https://hydra.cc/docs/intro] for experiment running and (OmegaConf)[https://omegaconf.readthedocs.io/en/latest/usage.html#access-and-manipulation] for configuration files and dictionaries and. Hydra 
+We are using [Hydra](https://hydra.cc/docs/intro) for experiment running and [OmegaConf](https://omegaconf.readthedocs.io/en/latest/usage.html#access-and-manipulation) for configuration files and dictionaries and. Hydra 
 is an open-source Python framework that simplifies the development of research and
 other complex applications. The key feature is the ability to dynamically create a
 hierarchical configuration by composition and override it through config files and
@@ -93,6 +93,59 @@ Updating key r_extent in configuration with value 30.0...
 Updating key r_extent in configuration with value 40.0...
 /home/agarcia/Workspace/magnesia/MAGNESIA_population_synthesis/multirun/2020-03-04/15-54-07/1
 ```
+
+## Logging
+
+For logging informatio to both console and file outputs we make use of Python's
+built-in `logging` module in combination with Hydra.
+
+In each module where the logger needs to be used, you must first import the
+logging module and get it using the `getLogger` function:
+
+```
+import logging
+[...]
+log = logging.getLogger(__name__)
+```
+
+Then you can issue logging messages at the appropriate level:
+
+```
+log.debug("blablabla")
+log.info("blablabla")
+log.warning("blablabla")
+log.error("blablabla")
+```
+
+By default, Hydra configures the loggers automatically to only produce messages
+above `info` level, e.g.:
+
+```
+(pop_syn) agarcia@challenger:~/Workspace/MAGNESIA_population_synthesis$ python examples/simulator/generating_population.py[2020-03-05 18:34:50,742][__main__][INFO] - Randomizing population age...
+[2020-03-05 18:34:50,743][__main__][INFO] - Generating initial positions...
+[2020-03-05 18:34:57,597][__main__][INFO] - Generating initial proper velocities...
+[2020-03-05 18:34:57,796][__main__][INFO] - Computing orbital velocities...
+[2020-03-05 18:34:58,300][__main__][INFO] - Creating data frame for exporting...
+[2020-03-05 18:34:59,036][__main__][INFO] - Output generated in /home/agarcia/Workspace/MAGNESIA_population_synthesis/outputs/2020-03-05/18-34-50/initial_population.txt
+```
+
+We can configure specific modules to output also debug information by overriding
+the `hydra.verbose` field providing a list of module names:
+
+```
+(pop_syn) agarcia@challenger:~/Workspace/MAGNESIA_population_synthesis$ python examples/simulator/generating_population.py hydra.verbose=pypopsyn.simulator.initial_population
+[2020-03-05 18:28:47,080][__main__][INFO] - Randomizing population age...
+[2020-03-05 18:28:47,081][pypopsyn.simulator.initial_population][DEBUG] - Drawing random age in range [1.0,100000000.0]
+[2020-03-05 18:28:47,081][__main__][INFO] - Generating initial positions...
+[2020-03-05 18:28:54,013][__main__][INFO] - Generating initial proper velocities...
+[2020-03-05 18:28:54,216][__main__][INFO] - Computing orbital velocities...
+[2020-03-05 18:28:54,723][__main__][INFO] - Creating data frame for exporting...
+[2020-03-05 18:28:55,462][__main__][INFO] - Output generated in /home/agarcia/Workspace/MAGNESIA_population_synthesis/outputs/2020-03-05/18-28-47/initial_population.txt
+```
+
+A log file containing all the experiment's logged messages will be stored in the
+corresponding folder for the experiments in `outputs` or `multirun` if a multirun
+sweep is scheduled.
 
 ## Tests
 

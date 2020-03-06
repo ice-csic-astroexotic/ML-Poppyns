@@ -9,6 +9,7 @@ Authors:
     Copyright (c) MAGNESIA (ICE-CSIC)
 """
 
+import logging
 from typing import Tuple
 
 import numpy as np
@@ -19,6 +20,8 @@ import pypopsyn.simulator.coordinate_conversions as coco
 import pypopsyn.simulator.initial_position as ip
 import pypopsyn.simulator.initial_velocity as iv
 from pypopsyn.simulator.configuration import cfg
+
+log = logging.getLogger(__name__)
 
 
 class InitialNeutronStarPopulation:
@@ -47,6 +50,12 @@ class InitialNeutronStarPopulation:
         Returns:
             np.array : array of ages in years
         """
+
+        log.debug(
+            "Drawing random age in range [{},{}]".format(
+                cfg["t_age_min"], cfg["t_age_max"]
+            )
+        )
 
         t_age = np.random.uniform(
             cfg["t_age_min"], cfg["t_age_max"], cfg["NS_number"]
