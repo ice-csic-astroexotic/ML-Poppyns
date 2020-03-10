@@ -16,6 +16,7 @@
 """
 
 import argparse
+import logging
 import os
 import pathlib
 import sys
@@ -24,10 +25,16 @@ import pandas as pd
 
 from pypopsyn.generator.density_map import generate_density_map
 
+log = logging.getLogger(__name__)
+
 
 def generate_density_maps(args) -> None:
     pathlib.Path("examples/generator/" + args.dataset_name).mkdir(
         parents=True, exist_ok=True
+    )
+
+    log.info(
+        "Reading database of simulated populations and generating density maps..."
     )
 
     sample_index = 0
@@ -38,11 +45,10 @@ def generate_density_maps(args) -> None:
         for dir_name in dirs:
             dir_path = os.path.join(root, dir_name)
             file_path = pathlib.Path(os.path.join(dir_path, args.file_name))
-            print(file_path)
 
             # Check if final population file exists as a precondition.
             if not file_path.exists():
-                print("Population file not found in {}".format(file_path))
+                log.error("Population file not found in {}".format(file_path))
                 sys.exit()
 
             df_final = pd.read_csv(file_path, skiprows=[1])
@@ -59,6 +65,10 @@ def generate_density_maps(args) -> None:
             )
 
             sample_index += 1
+
+    log.info(
+        "Density maps .png saved in examples/generator/" + args.dataset_name
+    )
 
 
 if __name__ == "__main__":
@@ -87,4 +97,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
     generate_density_maps(args)

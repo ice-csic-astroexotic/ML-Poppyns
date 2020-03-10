@@ -12,9 +12,6 @@ import pathlib
 
 cfg = {}
 
-# number of samples to create
-cfg["n_samples"] = 1
-
 # initial population class parameters
 cfg["r_extent"] = 20.0  # Total radial extent from the galactic centre [kpc].
 cfg["z_extent"] = 5.0  # Total vertical extent from the galactic plane [kpc].
@@ -28,9 +25,6 @@ cfg["t_age_max"] = 1.0e8  # Maximum age for the neutron stars [yr].
 # initial velocity parameters
 cfg["vp_mean"] = 380.0  # characteristic kick velocity in km/s for the proper
 # velocity pdf.
-
-# path where the generated population are stored
-cfg["pop_path"] = pathlib.Path("multiran")
 
 
 def update_configuration(new_configuration) -> None:
