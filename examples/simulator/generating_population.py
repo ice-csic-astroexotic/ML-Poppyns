@@ -10,11 +10,16 @@ Generator for the the initial population of neutron stars
     Copyright(c) MAGNESIA(ICE - CSIC)
 """
 
+import logging
+import os
+
 import hydra
 import pandas as pd
 
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population as ipop
+
+log = logging.getLogger(__name__)
 
 
 @hydra.main()
@@ -39,9 +44,11 @@ def generate_population(cfg) -> None:
     NS_population_initial = ipop.InitialNeutronStarPopulation()
 
     # Generating ages.
+    log.info("Randomizing population age...")
     age = NS_population_initial.age()
 
     # Generating initial positions.
+    log.info("Generating initial positions...")
     (
         r_initial,
         phi_initial,
@@ -52,8 +59,10 @@ def generate_population(cfg) -> None:
 
     # Generating initial velocities summing the proper velocities to the orbital
     # velocities.
+    log.info("Generating initial proper velocities...")
     (vp_r, vp_phi, vp_z,) = NS_population_initial.proper_velocity()
 
+    log.info("Computing orbital velocities...")
     v_orb = NS_population_initial.orbital_velocity(r_initial, z_initial)
 
     v_r_initial = vp_r
@@ -61,6 +70,7 @@ def generate_population(cfg) -> None:
     v_z_initial = vp_z
 
     # Adding the coordinates to a data frame for export.
+    log.info("Creating data frame for exporting...")
     df_initial = pd.DataFrame(
         {
             "age": age,
@@ -101,6 +111,12 @@ def generate_population(cfg) -> None:
     )
 
     df_initial.to_csv("initial_population.txt", index=False, header=True)
+
+    log.info(
+        "Output generated in {}/{}".format(
+            os.getcwd(), "initial_population.txt"
+        )
+    )
 
 
 if __name__ == "__main__":
