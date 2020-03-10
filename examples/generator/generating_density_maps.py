@@ -9,59 +9,82 @@
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC)
 
 """
 
+import argparse
 import os
 import pathlib
 import sys
 
-import hydra
-import numpy as np
 import pandas as pd
 
-import pypopsyn.simulator.configuration as configuration
 from pypopsyn.generator.density_map import generate_density_map
 
 
-@hydra.main()
-def generate_density_maps(cfg) -> None:
+def generate_density_maps(args) -> None:
+    pathlib.Path("examples/generator/" + args.dataset_name).mkdir(
+        parents=True, exist_ok=True
+    )
 
-    n_samples = cfg["n_samples"]
-    pop_path = cfg["pop_path"]
+    sample_index = 0
 
-    # Since hydra is running we are now in a folder multiran/yyyy-mm-dd/hh-mm-ss/0,
-    # therefore we need to move up by three folders to go in multiran
-    rebased_path = os.path.normpath(os.getcwd() + 3 * (os.sep + os.pardir))
+    exclude = set([".hydra"])
+    for root, dirs, files in os.walk(args.root_path):
+        dirs[:] = [d for d in dirs if d not in exclude]
+        for dir_name in dirs:
+            dir_path = os.path.join(root, dir_name)
+            file_path = pathlib.Path(os.path.join(dir_path, args.file_name))
+            print(file_path)
 
-    # loops over all generated final population samples
-    for s in range(n_samples):
-        sample_path = (
-            rebased_path
-            + "/"
-            + pop_path
-            + "/{0}/final_population.txt".format(s)
-        )
-        SAMPLE_PATH = pathlib.Path(sample_path)
+            # Check if final population file exists as a precondition.
+            if not file_path.exists():
+                print("Population file not found in {}".format(file_path))
+                sys.exit()
 
-        # Check if final population file exists as a precondition.
-        if not SAMPLE_PATH.exists():
-            print("Population file not found in {}".format(SAMPLE_PATH))
-            sys.exit()
+            df_final = pd.read_csv(file_path, skiprows=[1])
 
-        df_final = pd.read_csv(SAMPLE_PATH, skiprows=[1])
+            generate_density_map(
+                df_final["x_final"],
+                (-20.0, 20.0),
+                df_final["y_final"],
+                (-20.0, 20.0),
+                "examples/generator/"
+                + args.dataset_name
+                + "/density_map_pop_{0}.png".format(sample_index),
+                log_scale=False,
+            )
 
-        generate_density_map(
-            df_final["x_final"],
-            (-20.0, 20.0),
-            df_final["y_final"],
-            (-20.0, 20.0),
-            "density_map_pop_{0}.png".format(s),
-            log_scale=False,
-        )
+            sample_index += 1
 
 
 if __name__ == "__main__":
-    generate_density_maps()
+    parser = argparse.ArgumentParser(description="Parameters")
+    parser.add_argument(
+        "--root_path",
+        nargs="?",
+        type=str,
+        default="multirun/2020-03-06/17-16-12",
+        help="Path to the directory where the simulated populations "
+        "are stored",
+    )
+    parser.add_argument(
+        "--file_name",
+        nargs="?",
+        type=str,
+        default="final_population.txt",
+        help="Simulated population file name",
+    )
+    parser.add_argument(
+        "--dataset_name",
+        nargs="?",
+        type=str,
+        default="train_set",
+        help="Name of the dataset where the density maps are saved",
+    )
+
+    args = parser.parse_args()
+    generate_density_maps(args)
