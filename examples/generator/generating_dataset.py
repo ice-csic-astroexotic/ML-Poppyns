@@ -39,8 +39,13 @@ def generate_dataset(args) -> None:
     param_dictionary = {}
 
     for root, dirs, files in os.walk(args.root_path):
-        for file_name in files:
+        # os.walk() returns the list of directories in arbitrary order, therefore
+        # sorting them is needed to give the correct association between .png
+        # density map filename and label
+        dirs.sort()
 
+        for file_name in files:
+            # search for the population file
             if file_name == args.file_name:
                 pop_path = pathlib.Path(os.path.join(root, args.file_name))
 
@@ -73,14 +78,13 @@ def generate_dataset(args) -> None:
                 )
 
                 # save filenames into a dictionary
-                density_map_dict = {"filename": density_map_filename}
-                # update the filename dictionary
-                filename_dictionary = dg.merge_dict(
-                    filename_dictionary, density_map_dict
+                filename_dictionary.setdefault("filename", []).append(
+                    density_map_filename
                 )
 
                 sample_index += 1
 
+            # search for the label file
             elif file_name == "config.yaml":
                 label_path = pathlib.Path(os.path.join(root, "config.yaml"))
 
@@ -93,14 +97,14 @@ def generate_dataset(args) -> None:
                     )
                     sys.exit()
 
-                # update the parameters dictionary
+                # save the parameters in a dictionary
                 with open(label_path) as file:
-                    param_dictionary = dg.merge_dict(
-                        param_dictionary, yaml.full_load(file)
-                    )
+                    dictionary = yaml.full_load(file)
+                    for key, val in dictionary.items():
+                        param_dictionary.setdefault(key, []).append(val)
 
     # Merge the filename and parameters dictionaries in a single dictionary
-    dataset_dictionary = dg.merge_dict(filename_dictionary, param_dictionary)
+    dataset_dictionary = {**filename_dictionary, **param_dictionary}
 
     # Write the dataset dictionary into a .csv file
     dataset_filename = "examples/data/{0}/dataset.csv".format(
