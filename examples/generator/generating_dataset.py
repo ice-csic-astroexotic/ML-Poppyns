@@ -49,19 +49,24 @@ def generate_dataset(args) -> None:
             if file_name == args.file_name:
                 pop_path = pathlib.Path(os.path.join(root, args.file_name))
 
-                # Check if the population files exists as a precondition.
                 if not pop_path.exists():
+
                     log.error(
                         "Population file not found in {}".format(pop_path)
                     )
                     sys.exit()
 
-                # generate density map
-                log.info(
-                    "Generating density map .png for sample {0} and saving in "
-                    "examples/data/{1}".format(sample_index, args.dataset_name)
-                )
+                # Check if the population files exists as a precondition.
+                if pop_path == pathlib.Path(
+                    os.path.join(root, "initial_population.txt")
+                ):
+                    log.warning(
+                        "Wrong filename: you inserted the initial population "
+                        "file. Insert the evolved population file."
+                    )
+                    sys.exit()
 
+                # generate density map
                 df_pop = pd.read_csv(pop_path, skiprows=[1])
 
                 density_map_filename = "examples/data/{0}/density_map_pop_{1}.png".format(
@@ -75,6 +80,11 @@ def generate_dataset(args) -> None:
                     (-20.0, 20.0),
                     density_map_filename,
                     log_scale=False,
+                )
+
+                log.info(
+                    "density map .png generated for sample {0} and saved in "
+                    "examples/data/{1}".format(sample_index, args.dataset_name)
                 )
 
                 # save filenames into a dictionary
@@ -114,6 +124,8 @@ def generate_dataset(args) -> None:
         {key: pd.Series(value) for key, value in dataset_dictionary.items()}
     )
     df.to_csv(dataset_filename, encoding="utf-8", index=False)
+
+    log.info("File dataset.csv generated")
 
 
 if __name__ == "__main__":

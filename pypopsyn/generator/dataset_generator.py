@@ -3,7 +3,6 @@
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-        Michele Ronchi (ronchi@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC)
 
