@@ -17,6 +17,7 @@ Authors:
 import numpy as np
 
 import pypopsyn.simulator.galactic_model as gm
+from pypopsyn.simulator.configuration import cfg
 
 
 def pdf_proper_velocity(v: float) -> float:
@@ -30,8 +31,8 @@ def pdf_proper_velocity(v: float) -> float:
     Returns:
         float: stellar proper velocity distribution in 1/(km/s)
     """
-    v_mean = 380.0  # [km/s]
-    pdf_vp = 1.0 / v_mean * np.exp(-v / v_mean)
+    vp_mean = cfg["vp_mean"]
+    pdf_vp = 1.0 / vp_mean * np.exp(-v / vp_mean)
 
     return pdf_vp
 

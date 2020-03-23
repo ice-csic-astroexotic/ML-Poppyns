@@ -1,4 +1,4 @@
-""" Density map generator.
+""" Dataset generator functions
 
     Authors:
 
