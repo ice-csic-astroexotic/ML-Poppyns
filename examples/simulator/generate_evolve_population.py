@@ -81,14 +81,14 @@ def generate_population(cfg) -> None:
     df_initial = pd.DataFrame(
         {
             "age": age,
-            "r_initial": r_initial,
-            "phi_initial": phi_initial,
-            "x_initial": x_initial,
-            "y_initial": y_initial,
-            "z_initial": z_initial,
-            "v_r_initial": v_r_initial,
-            "v_phi_initial": v_phi_initial,
-            "v_z_initial": v_z_initial,
+            "r": r_initial,
+            "phi": phi_initial,
+            "x": x_initial,
+            "y": y_initial,
+            "z": z_initial,
+            "v_r": v_r_initial,
+            "v_phi": v_phi_initial,
+            "v_z": v_z_initial,
             "vp_r": vp_r,
             "vp_phi": vp_phi,
             "vp_z": vp_z,
@@ -162,14 +162,14 @@ def generate_population(cfg) -> None:
     log.info("Creating data frame for exporting...")
     df_final = pd.DataFrame(
         {
-            "r_final": r_final,
-            "phi_final": phi_final,
-            "x_final": x_final,
-            "y_final": y_final,
-            "z_final": z_final,
-            "v_r_final": v_r_final,
-            "v_phi_final": v_phi_final,
-            "v_z_final": v_z_final,
+            "r": r_final,
+            "phi": phi_final,
+            "x": x_final,
+            "y": y_final,
+            "z": z_final,
+            "v_r": v_r_final,
+            "v_phi": v_phi_final,
+            "v_z": v_z_final,
         }
     )
 

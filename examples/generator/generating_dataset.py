@@ -30,15 +30,22 @@ log = logging.getLogger(__name__)
 
 
 def generate_dataset(args) -> None:
-    pathlib.Path("examples/data/" + args.dataset_name).mkdir(
-        parents=True, exist_ok=True
+    dataset_path = "examples/data/{}/{}/{}".format(
+        args.date, args.time, args.dataset_name
     )
+    pathlib.Path(dataset_path).mkdir(parents=True, exist_ok=True)
 
     sample_index = 0
     filename_dictionary = {}
     param_dictionary = {}
 
-    for root, dirs, files in os.walk(args.root_path):
+    root_path = pathlib.Path("multirun/{}/{}".format(args.date, args.time))
+    # Check if the directory exists as a precondition.
+    if not root_path.exists():
+        log.error("directory {} not found".format(root_path))
+        sys.exit()
+
+    for root, dirs, files in os.walk(root_path):
         # os.walk() returns the list of directories in arbitrary order, therefore
         # sorting them is needed to give the correct association between .png
         # density map filename and label
@@ -62,29 +69,30 @@ def generate_dataset(args) -> None:
                 ):
                     log.warning(
                         "Wrong filename: you inserted the initial population "
-                        "file. Insert the evolved population file."
+                        "file instead of the evolved population file."
                     )
                     sys.exit()
 
                 # generate density map
                 df_pop = pd.read_csv(pop_path, skiprows=[1])
 
-                density_map_filename = "examples/data/{0}/density_map_pop_{1}.png".format(
-                    args.dataset_name, sample_index
+                density_map_filename = "{}/density_map_pop_{}.png".format(
+                    dataset_path, sample_index
                 )
 
                 dg.generate_density_map(
-                    df_pop["x_final"],
+                    df_pop["x"],
                     (-20.0, 20.0),
-                    df_pop["y_final"],
+                    df_pop["y"],
                     (-20.0, 20.0),
                     density_map_filename,
                     log_scale=False,
                 )
 
                 log.info(
-                    "density map .png generated for sample {0} and saved in "
-                    "examples/data/{1}".format(sample_index, args.dataset_name)
+                    "density map .png generated for sample {} and saved in {}".format(
+                        sample_index, dataset_path
+                    )
                 )
 
                 # save filenames into a dictionary
@@ -117,9 +125,7 @@ def generate_dataset(args) -> None:
     dataset_dictionary = {**filename_dictionary, **param_dictionary}
 
     # Write the dataset dictionary into a .csv file
-    dataset_filename = "examples/data/{0}/dataset.csv".format(
-        args.dataset_name
-    )
+    dataset_filename = "{}/dataset.csv".format(dataset_path)
     df = pd.DataFrame(
         {key: pd.Series(value) for key, value in dataset_dictionary.items()}
     )
@@ -131,12 +137,20 @@ def generate_dataset(args) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parameters")
     parser.add_argument(
-        "--root_path",
+        "--date",
         nargs="?",
         type=str,
-        default="multirun/2020-03-06/17-16-12",
-        help="Path to the directory where the simulated populations "
-        "are stored",
+        default="2020-03-06",
+        help="Date in the form yyyy-mm-dd when the simulated population files have "
+        "been created",
+    )
+    parser.add_argument(
+        "--time",
+        nargs="?",
+        type=str,
+        default="12-00-00",
+        help="Time in the form hh-mm-ss when the simulated population files have "
+        "been created",
     )
     parser.add_argument(
         "--file_name",
@@ -150,7 +164,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default="train_set",
-        help="Name of the dataset where the density maps are saved",
+        help="Name of the dataset where the density maps will be saved",
     )
 
     args = parser.parse_args()
