@@ -26,10 +26,10 @@ class LoaderMNIST(LoaderBase):
         Example data loader for the MNIST dataset.
 
         Args:
-            data_dir: Directory to download the data.
-            batch_size: Number of samples per batch.
-            num_workers: Workers to load the data.
-            training: Load in training mode.
+            data_dir (str): Directory to download the data.
+            batch_size (int): Number of samples per batch.
+            num_workers (int): Workers to load the data.
+            training (bool): Load in training mode.
 
         Returns:
             Nothing

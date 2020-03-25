@@ -105,7 +105,7 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="config.json",
+        default="examples/learning/config_NN1.json",
         help="Configuration file path",
     )
 

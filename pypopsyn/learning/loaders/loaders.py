@@ -11,3 +11,4 @@
 """
 
 from .loader_mnist import LoaderMNIST
+from .loader_NN1 import LoaderNN1

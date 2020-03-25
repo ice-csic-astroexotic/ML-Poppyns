@@ -35,9 +35,9 @@ class LoaderBase(torch.utils.data.DataLoader):
         Initialization of base loader.
 
         Args:
-            dataset: Dataset to load.
-            batch_size: Batch size for the samplers.
-            num_workers: Number of workers (threads) to read data.
+            dataset: dataset of images and labels to load.
+            batch_size (int): Batch size for the samplers.
+            num_workers (int): Number of workers (threads) to read data.
             collate_fn: Function to process the list of samples to pack a batch.
 
         Returns:

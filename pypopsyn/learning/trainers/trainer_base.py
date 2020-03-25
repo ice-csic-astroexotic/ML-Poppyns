@@ -115,7 +115,7 @@ class BaseTrainer:
 
             result = self._train_epoch(epoch)
 
-            # Save logged informations into logging dictionary.
+            # Save logged information into logging dictionary.
             log = {"epoch": epoch}
             log.update(result)
 
@@ -133,7 +133,7 @@ class BaseTrainer:
                 self.monitor_best, log[self.metric.__class__.__name__]
             ):
 
-                self.current_best = log[self.metric.__class__.__name__]
+                self.monitor_best = log[self.metric.__class__.__name__]
                 not_improved_count = 0
                 best = True
 
