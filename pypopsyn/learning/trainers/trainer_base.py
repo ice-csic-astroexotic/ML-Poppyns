@@ -113,13 +113,15 @@ class BaseTrainer:
 
         for epoch in range(self.start_epoch, self.epochs + 1):
 
+            # Run one training epoch and fetch the results dictionary.
             result = self._train_epoch(epoch)
 
-            # Save logged information into logging dictionary.
+            # Update current epoch logging dictionary with the results from the
+            # training epoch (usually loss and accuracy averages).
             log = {"epoch": epoch}
             log.update(result)
 
-            # Print logged information to the screen.
+            # Print per-epoch logged information to the screen.
             for key, value in log.items():
                 self.logger.info("    {:15s}: {}".format(str(key), value))
 
@@ -171,12 +173,12 @@ class BaseTrainer:
 
         if hasattr(data_loader, "n_samples"):
 
-            current = batch_idx * data_loader.batch_size
+            current = (batch_idx + 1) * data_loader.batch_size
             total = data_loader.n_samples
 
         else:
 
-            current = batch_idx
+            current = batch_idx + 1
             total = len_epoch
 
         return base.format(current, total, 100.0 * current / total)
