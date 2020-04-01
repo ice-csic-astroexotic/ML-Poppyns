@@ -25,5 +25,5 @@ dependencies:
   - pyyaml=5.3
   - scipy=1.3.2
   - zstd=1.3.7
-  - tensorboardx
+  - tensorboard>=1.14.0
   - torchvision>=0.4.0

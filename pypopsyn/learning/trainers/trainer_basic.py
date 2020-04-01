@@ -71,7 +71,7 @@ class TrainerBasic(BaseTrainer):
             "loss", *[self.metric.__class__.__name__], writer=self.writer
         )
 
-    def _train_epoch(self, epoch: int):
+    def _train_epoch(self, epoch: int) -> dict:
         """
         Single-epoch training routine.
 
@@ -79,11 +79,13 @@ class TrainerBasic(BaseTrainer):
             epoch: Current epoch number.
 
         Returns:
-            Nothing.
+            A dictionary containing the results for the epoch, i.e., the average
+            for each tracked metric: usually the loss average for the epoch, and
+            any other specified accuracy metric average.
 
         """
 
-        # Set the model on training mode and reset all tracked metrics.
+        # Set the model on training mode and reset all tracked metrics to zero.
         self.model.train()
         self.train_metrics.reset()
 
@@ -100,15 +102,26 @@ class TrainerBasic(BaseTrainer):
             loss.backward()
             self.optimizer.step()
 
-            # Update logged loss and metric.
+            # Now output all the log information to console and write the
+            # necessary log values for TensorBoard.
+
+            # Set the TensorBoard step.
+            self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
+
+            # Update tracked loss and output to TensorBoard.
             self.train_metrics.update("loss", loss.item())
+            # Update tracked metric and output to TensorBoard.
             self.train_metrics.update(
                 self.metric.__class__.__name__, self.metric(output, target)
             )
+            # Show the input images of this batch on TensorBoard.
+            self.writer.add_image(
+                "input", make_grid(data.cpu(), nrow=8, normalize=True)
+            )
 
-            # Output information to TensorBoard writer and to log file.
-            self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
-
+            # For each specified logging to console step, show the current
+            # epoch training information (batch progress, loss...). Usually
+            # We don't show it every batch because there will be too many.
             if batch_idx % self.log_step == 0:
 
                 self.logger.debug(
@@ -121,13 +134,12 @@ class TrainerBasic(BaseTrainer):
                     )
                 )
 
-                self.writer.add_image(
-                    "input", make_grid(data.cpu(), nrow=8, normalize=True)
-                )
-
             if batch_idx == self.len_epoch:
                 break
 
+        # After a whole epoch has been carried out, store the dictionary of
+        # results for each tracked metrics: usually the average loss and any
+        # other specified accuracy metrics.
         log = self.train_metrics.result()
 
         # If there is a validation set, perform a validation step and update

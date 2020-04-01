@@ -10,8 +10,8 @@
   "data_loader": {
     "type": "LoaderNN1",
     "args": {
-      "data_path": "examples/data/2020-03-23/11-42-24/train_set/dataset.csv",
-      "batch_size": 4,
+      "data_path": "examples/data/2020-03-30/13-02-19/onesample/dataset.csv",
+      "batch_size": 1,
       "num_workers": 1
     }
   },
@@ -46,7 +46,7 @@
   "trainer": {
     "epochs": 200,
 
-    "save_dir": "examples/saved/",
+    "save_dir": "examples/learning/saved",
     "save_period": 1,
     "verbosity": 2,
     "early_stop": 20,
