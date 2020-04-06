@@ -35,6 +35,7 @@ class ConfigurationParser:
             configuration, options
         )
 
+        # TODO: Not used now, will be able to resume training from checkpoint.
         self.resume = resume
 
         # Set save directory where the trained model will be saved.
@@ -61,18 +62,29 @@ class ConfigurationParser:
         learning_logger.setup_logging(self.log_dir)
 
     @classmethod
-    def from_args(cls, args):
+    def from_args(cls, args, options=""):
 
         """ Initialize configuration from command line arguments. """
 
-        # Parse arguments.
+        # Add custom CLI options to arguments.
+        for opt in options:
+            args.add_argument(*opt.flags, default=None, type=opt.type)
+
+        # Parse arguments if they are not already parsed.
         if not isinstance(args, tuple):
             args = args.parse_args()
 
         # Load configuration from JSON file.
-        configuration = learning_utils_json.read_json(args.configuration)
+        configuration = learning_utils_json.read_json(
+            pathlib.Path(args.configuration)
+        )
 
-        return cls(configuration)
+        # Parse custom CLI arguments.
+        modification = {
+            o.target: getattr(args, _get_opt_name(o.flags)) for o in options
+        }
+
+        return cls(configuration, modification)
 
     def init_object(self, name, module, *args, **kwargs):
 
@@ -127,12 +139,14 @@ class ConfigurationParser:
 
         """ Helper function to update configuration dictionary.
 
-            Updates the configuration dictionary with custom CLI options.
+            Updates the configuration dictionary with custom CLI options. If no
+            modifications are provided, the same configuration dictionary is
+            returned.
 
             Args:
 
                 configuration: The configuration dictionary.
-                modifications: Additional command line options.
+                modifications: Additional parsed command line options.
 
             Returns:
 
@@ -149,3 +163,12 @@ class ConfigurationParser:
                 functools.reduce(operator.getitem, keys[:-1], configuration)[
                     keys[-1]
                 ] = v
+
+        return configuration
+
+
+def _get_opt_name(flags):
+    for flg in flags:
+        if flg.startswith("--"):
+            return flg.replace("--", "")
+    return flags[0].replace("--", "")
