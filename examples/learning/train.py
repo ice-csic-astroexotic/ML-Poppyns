@@ -109,6 +109,13 @@ if __name__ == "__main__":
         help="Configuration file path",
     )
 
+    args.add_argument(
+        "--resume",
+        type=str,
+        default=None,
+        help="Path to checkpoint to resume training.",
+    )
+
     configuration = configuration_parser.ConfigurationParser.from_args(args)
 
     main(configuration)
