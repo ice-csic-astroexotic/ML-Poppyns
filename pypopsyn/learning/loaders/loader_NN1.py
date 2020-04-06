@@ -71,7 +71,11 @@ class DatasetUpload:
 
 class LoaderNN1(LoaderBase):
     def __init__(
-        self, data_path: str, batch_size: int, num_workers: int = 1,
+        self,
+        data_path: str,
+        batch_size: int,
+        num_workers: int = 1,
+        shuffle: bool = False,
     ):
         """
         data loader for the density maps dataset. The dataset is expected to be
@@ -81,6 +85,7 @@ class LoaderNN1(LoaderBase):
             data_path (string): path to the dataset.
             batch_size (int): Number of samples per batch.
             num_workers (int): Workers to load the data.
+            shuffle (bool): Shuffle the samples or not.
 
         Returns:
             Nothing
@@ -92,4 +97,4 @@ class LoaderNN1(LoaderBase):
         self.data_path = data_path
         self.dataset = DatasetUpload(self.data_path, transform=transformation)
 
-        super().__init__(self.dataset, batch_size, num_workers)
+        super().__init__(self.dataset, batch_size, num_workers, shuffle)

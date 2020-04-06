@@ -29,6 +29,7 @@ class LoaderBase(torch.utils.data.DataLoader):
         dataset: torch.utils.data.Dataset,
         batch_size: int,
         num_workers: int,
+        shuffle: bool = False,
         collate_fn=torch.utils.data.dataloader.default_collate,
     ):
         """
@@ -38,6 +39,7 @@ class LoaderBase(torch.utils.data.DataLoader):
             dataset: dataset of images and labels to load.
             batch_size (int): Batch size for the samplers.
             num_workers (int): Number of workers (threads) to read data.
+            shuffle (bool): Random shuffle samples or not.
             collate_fn: Function to process the list of samples to pack a batch.
 
         Returns:
@@ -46,6 +48,7 @@ class LoaderBase(torch.utils.data.DataLoader):
         """
 
         self.n_samples = len(dataset)
+        self.shuffle = shuffle
 
         train_idx = np.arange(self.n_samples)
         self.sampler = torch.utils.data.sampler.SubsetRandomSampler(train_idx)
@@ -54,7 +57,7 @@ class LoaderBase(torch.utils.data.DataLoader):
         self.init_kwargs = {
             "dataset": dataset,
             "batch_size": batch_size,
-            "shuffle": False,
+            "shuffle": shuffle,
             "collate_fn": collate_fn,
             "num_workers": num_workers,
         }
