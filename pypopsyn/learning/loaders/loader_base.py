@@ -48,16 +48,22 @@ class LoaderBase(torch.utils.data.DataLoader):
         """
 
         self.n_samples = len(dataset)
-        self.shuffle = shuffle
 
         train_idx = np.arange(self.n_samples)
-        self.sampler = torch.utils.data.sampler.SubsetRandomSampler(train_idx)
+
+        if shuffle:
+            self.sampler = torch.utils.data.sampler.SubsetRandomSampler(
+                train_idx
+            )
+        else:
+            self.sampler = torch.utils.data.sampler.SequentialSampler(
+                train_idx
+            )
 
         # Initialize base loader with the provided arguments.
         self.init_kwargs = {
             "dataset": dataset,
             "batch_size": batch_size,
-            "shuffle": shuffle,
             "collate_fn": collate_fn,
             "num_workers": num_workers,
         }

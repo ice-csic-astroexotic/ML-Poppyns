@@ -35,6 +35,9 @@ from pypopsyn.learning.utils.request_device import request_device
 
 def infer(args, config):
 
+    # Force data to load in a sequential manner without shuffling.
+    config["data_loader"]["args"]["shuffle"] = False
+
     # Get handle for the logger ------------------------------------------------
     logger = config.get_logger("Inference")
     logger.info("Logger initialized...")
@@ -64,14 +67,13 @@ def infer(args, config):
     model.eval()
 
     # Select sample to infer and run inference ---------------------------------
-    logger.info("Inferring sample {}...".format(args.sample))
+    logger.info("Inferring sample {}...".format(args.samples))
 
     with torch.no_grad():
         for i, (data, target) in enumerate(loader):
-            if i != args.sample:
+            if args.samples is not None and i not in args.samples:
                 continue
 
-            logger.info("Sample data {}...".format(data))
             logger.info("Sample labels {}...".format(target))
 
             data, target = data.to(device), target.to(device)
@@ -100,11 +102,7 @@ if __name__ == "__main__":
     parser.add_argument("--resume", type=str, help="Path to pretrained model.")
 
     parser.add_argument(
-        "--sample",
-        nargs="?",
-        type=int,
-        default=0,
-        help="Sample index in the dataset.",
+        "--samples", nargs="*", type=int, help="Sample index in the dataset.",
     )
 
     CustomArgs = collections.namedtuple("CustomArgs", "flags type target")
