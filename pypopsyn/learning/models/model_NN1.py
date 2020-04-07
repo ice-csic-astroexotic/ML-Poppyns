@@ -9,6 +9,7 @@
 
 """
 
+import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -19,21 +20,23 @@ class ModelNN1(ModelBase):
 
     """ A convolutional neural network Model """
 
-    def __init__(self, num_parameters=1) -> None:
+    def __init__(self, input_shape: np.array, num_parameters: int = 1) -> None:
 
         """ CNN Model Initialization.
 
         Args:
+            input_shape: Shape of the input batch (C x H x W).
             num_parameters: Number of parameters to predict.
 
         """
 
         super().__init__()
-        self.conv1 = nn.Conv2d(3, 6, 5)
+        self.conv1 = nn.Conv2d(input_shape[0], 6, 5)
         self.conv2 = nn.Conv2d(6, 16, 5)
         self.conv3 = nn.Conv2d(16, 32, 5)
         self.conv4 = nn.Conv2d(32, 32, 5)
         self.pool = nn.MaxPool2d(2, 2)
+        # TODO: This will need to adapt to different image sizes.
         self.fc1 = nn.Linear(32 * 28 * 28, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, num_parameters)
@@ -54,6 +57,7 @@ class ModelNN1(ModelBase):
         x = self.pool(F.relu(self.conv2(x)))
         x = self.pool(F.relu(self.conv3(x)))
         x = self.pool(F.relu(self.conv4(x)))
+        # TODO: This will need to adapt to different image sizes.
         x = x.view(-1, 32 * 28 * 28)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
