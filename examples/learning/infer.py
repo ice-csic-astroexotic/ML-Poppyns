@@ -3,8 +3,8 @@
 
 """ Inference script.
 
-    This script infers a single sample from a dataset by leveraging a pretrained
-    model and its architecture.
+    This script infers a set of samples sample from a dataset by leveraging a
+    pretrained model and its architecture.
 
     Running the code:
 
@@ -79,7 +79,7 @@ def infer(args, config):
             data, target = data.to(device), target.to(device)
             output = model(data)
 
-            logger.info(output)
+            logger.info("Sample prediction {}...".format(output))
 
     # Plot result and ground truth.
     # TODO.
@@ -94,15 +94,13 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--configuration",
+        nargs="?",
         type=str,
-        default="examples/learning/config_NN1.json",
-        help="Configuration file path.",
+        help="Experiment configuration file path.",
     )
-
     parser.add_argument("--resume", type=str, help="Path to pretrained model.")
-
     parser.add_argument(
-        "--samples", nargs="*", type=int, help="Sample index in the dataset.",
+        "--samples", nargs="*", type=int, help="Sample index in the dataset."
     )
 
     CustomArgs = collections.namedtuple("CustomArgs", "flags type target")
