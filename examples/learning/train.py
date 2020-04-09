@@ -21,6 +21,7 @@
 """
 
 import argparse
+import collections
 
 import torch
 
@@ -105,7 +106,7 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="examples/learning/config_NN1.json",
+        default="examples/learning/config_simple.json",
         help="Configuration file path",
     )
 
@@ -116,6 +117,20 @@ if __name__ == "__main__":
         help="Path to checkpoint to resume training.",
     )
 
-    configuration = configuration_parser.ConfigurationParser.from_args(args)
+    CustomArgs = collections.namedtuple("CustomArgs", "flags type target")
+
+    options = [
+        CustomArgs(
+            ["--dataset"], type=str, target=("data_loader;args;data_path")
+        ),
+        CustomArgs(["--lr"], type=float, target=("optimizer;args;lr")),
+        CustomArgs(
+            ["--batch_size"], type=int, target=("data_loader;args;batch_size")
+        ),
+    ]
+
+    configuration = configuration_parser.ConfigurationParser.from_args(
+        args, options
+    )
 
     main(configuration)
