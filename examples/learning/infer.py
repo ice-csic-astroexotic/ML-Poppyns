@@ -3,7 +3,7 @@
 
 """ Inference script.
 
-    This script infers a set of samples sample from a dataset by leveraging a
+    This script infers a set of samples from a dataset by leveraging a
     pretrained model and its architecture.
 
     Running the code:
