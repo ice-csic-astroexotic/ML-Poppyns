@@ -2,14 +2,13 @@
 
     This module create a dataset of the simulated populations.
     For every population simulated from the simulator `initialize_evolve_population.py`
-    with different initial parameters, a density map is created.
+    with different initial parameters, a density map matrix is created.
     This expects that a population has been generated using hydra multirun method.
-    The simulated dataset is also saved in a .csv file where the density map .png
+    The simulated dataset is also saved in a .csv file where the density map .npy
     files and the correponding parameters are saved.
 
     Authors:
 
-        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC)
@@ -22,13 +21,10 @@ import os
 import pathlib
 import sys
 
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import yaml
 
 import pypopsyn.generator.dataset_generator as dg
-import pypopsyn.simulator.constants as const
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +32,8 @@ log = logging.getLogger(__name__)
 def generate_dataset(args) -> None:
     """
         This method reads the simulated population files saved in a multirun/date/time
-        folder and generates a dataset of density map .png files for each population.
+        folder and generates a dataset of density map array .npy files for each
+        population.
         All the information about the dataset are stored in a datset.csv file
         containing the density map files names and the set of parameter values for
         each simulated population.
@@ -48,7 +45,8 @@ def generate_dataset(args) -> None:
             time (str): Time in the form hh-mm-ss when the simulated population files
             have been created.
 
-            dataset_name (str): Name of the dataset where the density maps will be saved
+            dataset_name (str): Name of the dataset where the density maps matrices
+            will be saved.
     """
 
     # create the dataset directory
@@ -90,16 +88,18 @@ def generate_dataset(args) -> None:
         df_pop = pd.read_csv(pop_path, skiprows=[1])
 
         # create position density maps projected on xy plane
-        density_map_xy_filename = "{}/density_map_xy_pop_{}.png".format(
+        density_map_xy_filename = "{}/density_map_xy_pop_{}.npy".format(
             dataset_path, s
         )
 
-        dg.generate_density_map(
+        dg.generate_density_matrix(
             df_pop["x"],
             (-20.0, 20.0),
             df_pop["y"],
             (-20.0, 20.0),
             density_map_xy_filename,
+            n_bins=128,
+            normalize=True,
         )
 
         # save density map filenames into a dictionary
@@ -108,22 +108,24 @@ def generate_dataset(args) -> None:
         )
 
         log.info(
-            "xy density map .png generated for sample {} and saved in {}".format(
+            "xy density map .npy generated for sample {} and saved in {}".format(
                 s, dataset_path
             )
         )
 
         # create position density maps projected on xz plane
-        density_map_xz_filename = "{}/density_map_xz_pop_{}.png".format(
+        density_map_xz_filename = "{}/density_map_xz_pop_{}.npy".format(
             dataset_path, s
         )
 
-        dg.generate_density_map(
+        dg.generate_density_matrix(
             df_pop["x"],
             (-20.0, 20.0),
             df_pop["z"],
             (-5.0, 5.0),
             density_map_xz_filename,
+            n_bins=128,
+            normalize=True,
         )
 
         # save density map filenames into a dictionary
@@ -132,23 +134,25 @@ def generate_dataset(args) -> None:
         )
 
         log.info(
-            "xz density map .png generated for sample {} and saved in {}".format(
+            "xz density map .npy generated for sample {} and saved in {}".format(
                 s, dataset_path
             )
         )
 
         # create velocity maps of component v_r in the xy plane
-        velocity_map_xy_vr_filename = "{}/velocity_map_xy_vr_pop_{}.png".format(
+        velocity_map_xy_vr_filename = "{}/velocity_map_xy_vr_pop_{}.npy".format(
             dataset_path, s
         )
 
-        dg.generate_avg_weight_histo2D(
+        dg.generate_avg_weight_matrix(
             df_pop["x"],
             (-20.0, 20.0),
             df_pop["y"],
             (-20.0, 20.0),
-            df_pop["v_r"],
+            abs(df_pop["v_r"]),
             velocity_map_xy_vr_filename,
+            n_bins=128,
+            normalize=True,
         )
 
         # save velocity map filenames into a dictionary
@@ -157,22 +161,24 @@ def generate_dataset(args) -> None:
         ).append(velocity_map_xy_vr_filename)
 
         log.info(
-            "vr velocity map in xy plane .png generated for sample {} and saved "
+            "vr velocity map in xy plane .npy generated for sample {} and saved "
             "in {}".format(s, dataset_path)
         )
 
         # create velocity maps of component v_phi in the xy plane
-        velocity_map_xy_vphi_filename = "{}/velocity_map_xy_vphi_pop_{}.png".format(
+        velocity_map_xy_vphi_filename = "{}/velocity_map_xy_vphi_pop_{}.npy".format(
             dataset_path, s
         )
 
-        dg.generate_avg_weight_histo2D(
+        dg.generate_avg_weight_matrix(
             df_pop["x"],
             (-20.0, 20.0),
             df_pop["y"],
             (-20.0, 20.0),
-            df_pop["v_phi"],
+            abs(df_pop["v_phi"]),
             velocity_map_xy_vphi_filename,
+            n_bins=128,
+            normalize=True,
         )
 
         # save velocity map filenames into a dictionary
@@ -181,22 +187,24 @@ def generate_dataset(args) -> None:
         ).append(velocity_map_xy_vphi_filename)
 
         log.info(
-            "vphi velocity map in xy plane .png generated for sample {} and saved "
+            "vphi velocity map in xy plane .npy generated for sample {} and saved "
             "in {}".format(s, dataset_path)
         )
 
         # create velocity maps of component v_z in the xy plane
-        velocity_map_xy_vz_filename = "{}/velocity_map_xy_vz_pop_{}.png".format(
+        velocity_map_xy_vz_filename = "{}/velocity_map_xy_vz_pop_{}.npy".format(
             dataset_path, s
         )
 
-        dg.generate_avg_weight_histo2D(
+        dg.generate_avg_weight_matrix(
             df_pop["x"],
             (-20.0, 20.0),
             df_pop["y"],
             (-20.0, 20.0),
-            df_pop["v_z"],
+            abs(df_pop["v_z"]),
             velocity_map_xy_vz_filename,
+            n_bins=128,
+            normalize=True,
         )
 
         # save velocity map filenames into a dictionary
@@ -205,7 +213,7 @@ def generate_dataset(args) -> None:
         ).append(velocity_map_xy_vz_filename)
 
         log.info(
-            "vz velocity map in xy plane .png generated for sample {} and saved "
+            "vz velocity map in xy plane .npy generated for sample {} and saved "
             "in {}".format(s, dataset_path)
         )
 
@@ -237,13 +245,13 @@ def generate_dataset(args) -> None:
     }
 
     # Write the dataset dictionary into a .csv file
-    dataset_filename = "{}/dataset.csv".format(dataset_path)
+    dataset_filename = "{}/dataset_array.csv".format(dataset_path)
     df = pd.DataFrame(
         {key: pd.Series(value) for key, value in dataset_dictionary.items()}
     )
     df.to_csv(dataset_filename, encoding="utf-8", index=False)
 
-    log.info("File dataset.csv generated")
+    log.info("File dataset_array.csv generated")
 
 
 if __name__ == "__main__":
@@ -268,7 +276,7 @@ if __name__ == "__main__":
         "--dataset_name",
         nargs="?",
         type=str,
-        default="train_set",
+        default="array_train_set",
         help="Name of the dataset where the density maps will be saved",
     )
 

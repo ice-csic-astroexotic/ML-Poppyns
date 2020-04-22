@@ -1,4 +1,4 @@
-""" Loader for the NN1 model
+""" Loader for the multichannel 2D arrays
 
     Authors:
 
@@ -29,7 +29,7 @@ class DatasetUpload:
             file_path (str): path to the dataset.csv file containing all the
             information on the dataset
 
-            transform: transformation to apply to the images
+            transform: transformation to apply to the arrays
         """
         self.dataset = pd.read_csv(file_path)
         self.transform = transform
@@ -45,7 +45,7 @@ class DatasetUpload:
 
     def __getitem__(self, index):
         """
-            Read the dataset and extract the images and the corresponding labels
+            Read the dataset and extract the arrays and the corresponding labels
 
         Args:
             index (int): index running along the raws of the dataset.csv file
@@ -62,22 +62,22 @@ class DatasetUpload:
         channel3_name = self.dataset.iloc[index, 3]
         channel4_name = self.dataset.iloc[index, 4]
 
-        channel1 = np.array(Image.open(channel1_name))[:, :, 0]
-        channel2 = np.array(Image.open(channel2_name))[:, :, 0]
-        channel3 = np.array(Image.open(channel3_name))[:, :, 0]
-        channel4 = np.array(Image.open(channel4_name))[:, :, 0]
+        channel1 = np.array(np.load(channel1_name), dtype=np.float32)
+        channel2 = np.array(np.load(channel2_name), dtype=np.float32)
+        channel3 = np.array(np.load(channel3_name), dtype=np.float32)
+        channel4 = np.array(np.load(channel4_name), dtype=np.float32)
 
-        image = np.dstack((channel1, channel2, channel3, channel4))
+        matrix = np.dstack((channel1, channel2, channel3, channel4))
 
         labels = np.array(self.dataset.iloc[index, 5:], dtype=np.float32)
 
         if self.transform is not None:
-            image = self.transform(image)
+            matrix = self.transform(matrix)
 
-        return image, labels
+        return matrix, labels
 
 
-class LoaderMultichannel(LoaderBase):
+class LoaderMultichannelArray(LoaderBase):
     def __init__(
         self,
         data_path: str,
@@ -87,7 +87,7 @@ class LoaderMultichannel(LoaderBase):
     ):
         """
         data loader for the density maps dataset. The dataset is expected to be
-        packed in dataset.csv file.
+        packed in a dataset.csv file.
 
         Args:
             data_path (string): path to the dataset.
