@@ -98,7 +98,7 @@ def generate_dataset(args) -> None:
             df_pop["y"],
             (-20.0, 20.0),
             density_map_xy_filename,
-            n_bins=128,
+            n_bins=64,
             normalize=True,
         )
 
@@ -124,7 +124,7 @@ def generate_dataset(args) -> None:
             df_pop["z"],
             (-5.0, 5.0),
             density_map_xz_filename,
-            n_bins=128,
+            n_bins=64,
             normalize=True,
         )
 
@@ -151,7 +151,7 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_r"]),
             velocity_map_xy_vr_filename,
-            n_bins=128,
+            n_bins=64,
             normalize=True,
         )
 
@@ -177,7 +177,7 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_phi"]),
             velocity_map_xy_vphi_filename,
-            n_bins=128,
+            n_bins=64,
             normalize=True,
         )
 
@@ -203,7 +203,7 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_z"]),
             velocity_map_xy_vz_filename,
-            n_bins=128,
+            n_bins=64,
             normalize=True,
         )
 

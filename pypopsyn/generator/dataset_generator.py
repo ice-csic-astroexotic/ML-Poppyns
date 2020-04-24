@@ -228,7 +228,8 @@ def generate_density_matrix(
         x_log_scale: if True set the x axis scale to log scale
         y_log_scale: if True set the y axis scale to log scale
         n_bins: number of vertical and horizontal bins for the matrix.
-        normalize: if True the number count in each bin is normalized to the total.
+        normalize: if True the number count in each bin is normalized to the maximum
+        count.
 
     Returns:
         Nothing. A NumPy 2D array is generated in the specified file path.
@@ -266,7 +267,7 @@ def generate_density_matrix(
     density = np.array(density)
 
     if normalize:
-        density = density / np.sum(density)
+        density = density / np.max(density)
 
     np.save(filename, density)
 
@@ -300,7 +301,7 @@ def generate_avg_weight_matrix(
         x_log_scale: if True set the x axis scale to log scale
         y_log_scale: if True set the y axis scale to log scale
         n_bins: number of vertical and horizontal bins for the matrix.
-        normalize: if True the weight in each bin is normalized to the total.
+        normalize: if True the weight in each bin is normalized to the maximum weight.
 
     Returns:
         Nothing. A NumPy 2D array is generated in the specified file path.
@@ -347,6 +348,6 @@ def generate_avg_weight_matrix(
     avg_weight = scipy.ndimage.filters.gaussian_filter(avg_weight, sigma=1)
 
     if normalize:
-        avg_weight = avg_weight / np.sum(avg_weight)
+        avg_weight = avg_weight / np.max(avg_weight)
 
     np.save(filename, avg_weight)

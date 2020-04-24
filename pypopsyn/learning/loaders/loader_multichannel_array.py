@@ -52,11 +52,12 @@ class DatasetUpload:
 
         Returns:
             np.ndarray or torch tensor: multidimensional matrices for the images of
-            shape N x N x channels where N is the number of pixels along a raw or
-            column of the .png file
+            shape N x N x channels where N is the number of entries (bins) along a
+            raw or column of the array in the .npy file
 
             np.ndarray: labels of each image
         """
+        # maybe it is a good idea to make the choice of the channels interactive
         channel1_name = self.dataset.iloc[index, 0]
         channel2_name = self.dataset.iloc[index, 2]
         channel3_name = self.dataset.iloc[index, 3]
