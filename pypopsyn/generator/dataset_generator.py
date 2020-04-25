@@ -24,8 +24,6 @@ def generate_density_map(
     x_log_scale: bool = False,
     y_log_scale: bool = False,
     n_bins: int = 128,
-    figure_width: int = 512,
-    figure_height: int = 512,
 ) -> None:
     """
     Density map generator.
@@ -38,12 +36,10 @@ def generate_density_map(
         x_range: horizontal range of values for the points.
         y: vertical coordinate values for the points.
         y_range: vertical range of values for the points.
-        filename: file path to generate the heatmap image.
+        filename: file path to generate the density map image.
         x_log_scale: if True set the x axis scale to log scale
         y_log_scale: if True set the y axis scale to log scale
-        n_bins: number of vertical and horizontal bins for the heatmap.
-        figure_width: width in pixels for the output figure.
-        figure_height: height in pixels for the output figure.
+        n_bins: number of vertical and horizontal bins for the density map.
 
     Returns:
         Nothing. An image is generated in the specified file path.
@@ -82,7 +78,7 @@ def generate_density_map(
 
     DPI = 256
     fig = plt.figure(dpi=DPI, frameon=False)
-    fig.set_size_inches(figure_width / DPI, figure_height / DPI)
+    fig.set_size_inches(n_bins / DPI, n_bins / DPI)
     ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
     ax.set_axis_off()
     fig.add_axes(ax)
@@ -111,8 +107,6 @@ def generate_avg_weight_map(
     x_log_scale: bool = False,
     y_log_scale: bool = False,
     n_bins: int = 128,
-    figure_width: int = 512,
-    figure_height: int = 512,
 ) -> None:
     """
     average weighted map generator.
@@ -128,11 +122,9 @@ def generate_avg_weight_map(
         y_range: vertical range of values for the points.
         w: weight values for the points.
         filename: file path to generate the heatmap image.
-        x_log_scale: if True set the x axis scale to log scale
-        y_log_scale: if True set the y axis scale to log scale
-        n_bins: number of vertical and horizontal bins for the heatmap.
-        figure_width: width in pixels for the output figure.
-        figure_height: height in pixels for the output figure.
+        x_log_scale: if True set the x axis scale to log scale.
+        y_log_scale: if True set the y axis scale to log scale.
+        n_bins: number of vertical and horizontal bins for the weight map.
 
     Returns:
         Nothing. An image is generated in the specified file path.
@@ -182,7 +174,7 @@ def generate_avg_weight_map(
 
     DPI = 256
     fig = plt.figure(dpi=DPI, frameon=False)
-    fig.set_size_inches(figure_width / DPI, figure_height / DPI)
+    fig.set_size_inches(n_bins / DPI, n_bins / DPI)
     ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
     ax.set_axis_off()
     fig.add_axes(ax)

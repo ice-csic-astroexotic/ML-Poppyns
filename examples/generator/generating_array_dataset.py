@@ -98,7 +98,7 @@ def generate_dataset(args) -> None:
             df_pop["y"],
             (-20.0, 20.0),
             density_map_xy_filename,
-            n_bins=64,
+            n_bins=args.resolution,
             normalize=True,
         )
 
@@ -124,7 +124,7 @@ def generate_dataset(args) -> None:
             df_pop["z"],
             (-5.0, 5.0),
             density_map_xz_filename,
-            n_bins=64,
+            n_bins=args.resolution,
             normalize=True,
         )
 
@@ -151,7 +151,7 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_r"]),
             velocity_map_xy_vr_filename,
-            n_bins=64,
+            n_bins=args.resolution,
             normalize=True,
         )
 
@@ -177,7 +177,7 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_phi"]),
             velocity_map_xy_vphi_filename,
-            n_bins=64,
+            n_bins=args.resolution,
             normalize=True,
         )
 
@@ -203,7 +203,7 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_z"]),
             velocity_map_xy_vz_filename,
-            n_bins=64,
+            n_bins=args.resolution,
             normalize=True,
         )
 
@@ -255,6 +255,7 @@ def generate_dataset(args) -> None:
 
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser(description="Parameters")
     parser.add_argument(
         "--date",
@@ -278,6 +279,13 @@ if __name__ == "__main__":
         type=str,
         default="array_train_set",
         help="Name of the dataset where the density maps will be saved",
+    )
+    parser.add_argument(
+        "--resolution",
+        nargs="?",
+        type=int,
+        default=64,
+        help="Resolution for the images to generate",
     )
 
     args = parser.parse_args()
