@@ -51,25 +51,39 @@ class DatasetUpload:
             index (int): index running along the raws of the dataset.csv file
 
         Returns:
-            np.ndarray or torch tensor: multidimensional matrices for the images of
-            shape N x N x channels where N is the number of pixels along a raw or
-            column of the .png file
+            np.ndarray or torch tensor: multi-channel 2D image composed by all the
+            input maps from the dataset for the specified sample with shape
+            N x N x channels where N is the number of pixels along a row or
+            column of the .png file.
 
-            np.ndarray: labels of each image
+            np.ndarray: labels (ground truth) of each image.
         """
-        channel1_name = self.dataset.iloc[index, 0]
-        channel2_name = self.dataset.iloc[index, 2]
-        channel3_name = self.dataset.iloc[index, 3]
-        channel4_name = self.dataset.iloc[index, 4]
 
-        channel1 = np.array(Image.open(channel1_name))[:, :, 0]
-        channel2 = np.array(Image.open(channel2_name))[:, :, 0]
-        channel3 = np.array(Image.open(channel3_name))[:, :, 0]
-        channel4 = np.array(Image.open(channel4_name))[:, :, 0]
+        channels = []
+        i = 0
 
-        image = np.dstack((channel1, channel2, channel3, channel4))
+        # Loop over every input column of the dataset to collect all input channels
+        # in a list so we can stack them later. We assume that all columns must be
+        # ordered so "input:" columns go first then all the labels.
+        for col in self.dataset.columns:
+            # All input channel headers are annotated with a prefix "input:" in the
+            # dataset CSV file. Find them and add them to the list.
+            if "input:" in col:
+                channel_filename = self.dataset.iloc[index, i]
+                channel = np.array(Image.open(channel_filename))[:, :, 0]
+                channels.append(channel)
+            # If an input prefix is not found, it is a label (ground truth) then
+            # skip to directly stack them later based on the last index in which
+            # we found the input prefix.
+            else:
+                break
 
-        labels = np.array(self.dataset.iloc[index, 5:], dtype=np.float32)
+            i += 1
+
+        # Stack all input channels.
+        image = np.dstack(channels)
+        # Fetch all the labels from the last input channel column.
+        labels = np.array(self.dataset.iloc[index, i:], dtype=np.float32)
 
         if self.transform is not None:
             image = self.transform(image)

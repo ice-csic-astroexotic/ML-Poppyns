@@ -1,4 +1,4 @@
-""" Loader for the multichannel 2D arrays
+""" Loader for the multichannel 2D arrays.
 
     Authors:
 
@@ -51,26 +51,39 @@ class DatasetUpload:
             index (int): index running along the raws of the dataset.csv file
 
         Returns:
-            np.ndarray or torch tensor: multidimensional matrices for the images of
-            shape N x N x channels where N is the number of entries (bins) along a
-            raw or column of the array in the .npy file
+            np.ndarray or torch tensor: multi-channel 2D array composed by stacking
+            all input arrays specified in the dataset for the requested sample with
+            shape N x N x channels where N is the number of entries along a row or
+            column of the array in the .npy file.
 
-            np.ndarray: labels of each image
+            np.ndarray: labels of each input.
         """
-        # maybe it is a good idea to make the choice of the channels interactive
-        channel1_name = self.dataset.iloc[index, 0]
-        channel2_name = self.dataset.iloc[index, 2]
-        channel3_name = self.dataset.iloc[index, 3]
-        channel4_name = self.dataset.iloc[index, 4]
 
-        channel1 = np.array(np.load(channel1_name), dtype=np.float32)
-        channel2 = np.array(np.load(channel2_name), dtype=np.float32)
-        channel3 = np.array(np.load(channel3_name), dtype=np.float32)
-        channel4 = np.array(np.load(channel4_name), dtype=np.float32)
+        channels = []
+        i = 0
 
-        matrix = np.dstack((channel1, channel2, channel3, channel4))
+        # Loop over every input column of the dataset to collect all input channels
+        # in a list so we can stack them later. We assume that all columns must be
+        # ordered so "input:" columns go first then all the labels.
+        for col in self.dataset.columns:
+            # All input channel headers are annotated with a prefix "input:" in the
+            # dataset CSV file. Find them and add them to the list.
+            if "input:" in col:
+                channel_filename = self.dataset.iloc[index, i]
+                channel = np.array(np.load(channel_filename), dtype=np.float32)
+                channels.append(channel)
+            # If an input prefix is not found, it is a label (ground truth) then
+            # skip to directly stack them later based on the last index in which
+            # we found the input prefix.
+            else:
+                break
 
-        labels = np.array(self.dataset.iloc[index, 5:], dtype=np.float32)
+            i += 1
+
+        # Stack all input channels.
+        matrix = np.dstack(channels)
+        # Fetch all the labels from the last input channel column.
+        labels = np.array(self.dataset.iloc[index, i:], dtype=np.float32)
 
         if self.transform is not None:
             matrix = self.transform(matrix)

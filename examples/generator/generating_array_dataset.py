@@ -103,9 +103,9 @@ def generate_dataset(args) -> None:
         )
 
         # save density map filenames into a dictionary
-        density_map_xy_dictionary.setdefault("density_map_xy", []).append(
-            density_map_xy_filename
-        )
+        density_map_xy_dictionary.setdefault(
+            "input:density_map_xy", []
+        ).append(density_map_xy_filename)
 
         log.info(
             "xy density map .npy generated for sample {} and saved in {}".format(
@@ -129,9 +129,9 @@ def generate_dataset(args) -> None:
         )
 
         # save density map filenames into a dictionary
-        density_map_xz_dictionary.setdefault("density_map_xz", []).append(
-            density_map_xz_filename
-        )
+        density_map_xz_dictionary.setdefault(
+            "input:density_map_xz", []
+        ).append(density_map_xz_filename)
 
         log.info(
             "xz density map .npy generated for sample {} and saved in {}".format(
@@ -157,7 +157,7 @@ def generate_dataset(args) -> None:
 
         # save velocity map filenames into a dictionary
         velocity_map_xy_vr_dictionary.setdefault(
-            "velocity_map_xy_vr", []
+            "input:velocity_map_xy_vr", []
         ).append(velocity_map_xy_vr_filename)
 
         log.info(
@@ -183,7 +183,7 @@ def generate_dataset(args) -> None:
 
         # save velocity map filenames into a dictionary
         velocity_map_xy_vphi_dictionary.setdefault(
-            "velocity_map_xy_vphi", []
+            "input:velocity_map_xy_vphi", []
         ).append(velocity_map_xy_vphi_filename)
 
         log.info(
@@ -209,7 +209,7 @@ def generate_dataset(args) -> None:
 
         # save velocity map filenames into a dictionary
         velocity_map_xy_vz_dictionary.setdefault(
-            "velocity_map_xy_vz", []
+            "input:velocity_map_xy_vz", []
         ).append(velocity_map_xy_vz_filename)
 
         log.info(
