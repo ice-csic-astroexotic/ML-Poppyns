@@ -3,6 +3,7 @@
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC)
 
@@ -76,7 +77,7 @@ def generate_density_map(
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     density = scipy.ndimage.filters.gaussian_filter(density, sigma=1)
 
-    DPI = 256
+    DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
     fig.set_size_inches(n_bins / DPI, n_bins / DPI)
     ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
@@ -172,7 +173,7 @@ def generate_avg_weight_map(
 
     avg_weight = scipy.ndimage.filters.gaussian_filter(avg_weight, sigma=1)
 
-    DPI = 256
+    DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
     fig.set_size_inches(n_bins / DPI, n_bins / DPI)
     ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
