@@ -1,4 +1,8 @@
-""" Loader for the NN1 model
+""" Loader for multichannel 2D map.
+    This loader creates a multichannel 2D image for each sample in the dataset by
+    stucking together different 2D density maps.
+    These images can be loaded as an input of the neural network together with
+    the related values of the labels (ground truth).
 
     Authors:
 
