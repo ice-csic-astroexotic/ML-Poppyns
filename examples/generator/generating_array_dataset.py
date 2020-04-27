@@ -47,6 +47,9 @@ def generate_dataset(args) -> None:
 
             dataset_name (str): Name of the dataset where the density maps matrices
             will be saved.
+
+            resolution (int): Resolution (number of bins per axis for the 2d
+            histograms) for the image to generate.
     """
 
     # create the dataset directory

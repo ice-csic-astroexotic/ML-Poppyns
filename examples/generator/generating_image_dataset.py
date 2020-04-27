@@ -45,7 +45,11 @@ def generate_dataset(args) -> None:
             time (str): Time in the form hh-mm-ss when the simulated population files
             have been created.
 
-            dataset_name (str): Name of the dataset where the density maps will be saved
+            dataset_name (str): Name of the dataset where the density maps will be
+            saved.
+
+            resolution (int): Resolution (number of bins per axis for the 2d
+            histograms) for the image to generate.
     """
 
     # create the dataset directory
