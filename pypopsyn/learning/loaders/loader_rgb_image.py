@@ -1,4 +1,4 @@
-""" Loader for the NN1 model
+""" Loader for RGB density map images
 
     Authors:
 
