@@ -17,7 +17,7 @@ from PIL import Image
 from .loader_base import LoaderBase
 
 
-class DatasetUpload:
+class DatasetRGBImage:
     """
         upload the images dataset and their labels
     """
@@ -69,21 +69,23 @@ class DatasetUpload:
         return image, labels
 
 
-class LoaderNN1(LoaderBase):
+class LoaderRGBImage(LoaderBase):
     def __init__(
         self,
         data_path: str,
         batch_size: int,
+        ignored_inputs: list = [],
         num_workers: int = 1,
         shuffle: bool = False,
     ):
         """
-        data loader for the density maps dataset. The dataset is expected to be
+        Data loader for RGB density maps dataset. The dataset is expected to be
         packed in dataset.csv file.
 
         Args:
             data_path (string): path to the dataset.
             batch_size (int): Number of samples per batch.
+            ignored_inputs (list): Indices of columns in the dataset to ignore.
             num_workers (int): Workers to load the data.
             shuffle (bool): Shuffle the samples or not.
 
@@ -95,6 +97,11 @@ class LoaderNN1(LoaderBase):
         transformation = torchvision.transforms.ToTensor()
 
         self.data_path = data_path
-        self.dataset = DatasetUpload(self.data_path, transform=transformation)
+        # No possiblity to ignore inputs is given in this dataset. The parameter
+        # is just kept for interface purposes.
+        self.ignored_inputs = []
+        self.dataset = DatasetRGBImage(
+            self.data_path, transform=transformation
+        )
 
         super().__init__(self.dataset, batch_size, num_workers, shuffle)
