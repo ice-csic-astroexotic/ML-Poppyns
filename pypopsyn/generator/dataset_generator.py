@@ -25,6 +25,7 @@ def generate_density_map(
     x_log_scale: bool = False,
     y_log_scale: bool = False,
     n_bins: int = 128,
+    normalize: bool = False,
 ) -> None:
     """
     Density map generator.
@@ -41,6 +42,7 @@ def generate_density_map(
         x_log_scale: if True set the x axis scale to log scale
         y_log_scale: if True set the y axis scale to log scale
         n_bins: number of vertical and horizontal bins for the density map.
+        normalize: unused parameter, just to respect the interface.
 
     Returns:
         Nothing. An image is generated in the specified file path.
@@ -108,6 +110,7 @@ def generate_avg_weight_map(
     x_log_scale: bool = False,
     y_log_scale: bool = False,
     n_bins: int = 128,
+    normalize: bool = False,
 ) -> None:
     """
     average weighted map generator.
@@ -126,6 +129,7 @@ def generate_avg_weight_map(
         x_log_scale: if True set the x axis scale to log scale.
         y_log_scale: if True set the y axis scale to log scale.
         n_bins: number of vertical and horizontal bins for the weight map.
+        normalize: unused parameter to respect the interface.
 
     Returns:
         Nothing. An image is generated in the specified file path.
@@ -221,8 +225,7 @@ def generate_density_matrix(
         x_log_scale: if True set the x axis scale to log scale
         y_log_scale: if True set the y axis scale to log scale
         n_bins: number of vertical and horizontal bins for the matrix.
-        normalize: if True the number count in each bin is normalized to the maximum
-        count.
+        normalize: whether to normalize bins to range [0,1].
 
     Returns:
         Nothing. A NumPy 2D array is generated in the specified file path.
@@ -294,7 +297,7 @@ def generate_avg_weight_matrix(
         x_log_scale: if True set the x axis scale to log scale
         y_log_scale: if True set the y axis scale to log scale
         n_bins: number of vertical and horizontal bins for the matrix.
-        normalize: if True the weight in each bin is normalized to the maximum weight.
+        normalize: whether to normalize bins to range [0,1].
 
     Returns:
         Nothing. A NumPy 2D array is generated in the specified file path.
