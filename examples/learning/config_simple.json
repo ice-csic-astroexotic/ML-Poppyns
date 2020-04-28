@@ -5,24 +5,25 @@
   "arch": {
     "type": "ModelLinear",
     "args": {
-        "input_shape": [3, 512, 512],
+        "input_shape": [4, 64, 64],
         "num_parameters": 1
     }
   },
 
   "data_loader": {
-    "type": "LoaderNN1",
+    "type": "LoaderMultichannelArray",
     "args": {
-      "data_path": "examples/data/8_samples/dataset.csv",
+      "data_path": "examples/data/8_64_array/dataset_array.csv",
       "batch_size": 1,
-      "num_workers": 1
+      "num_workers": 1,
+      "ignored_inputs": [1]
     }
   },
 
   "optimizer": {
     "type": "SGD",
     "args":{
-      "lr": 0.0001,
+      "lr": 1e-2,
       "weight_decay": 0.0,
       "momentum": 0.9
     }

@@ -288,7 +288,7 @@ if __name__ == "__main__":
         nargs="?",
         type=int,
         default=64,
-        help="Resolution for the images to generate",
+        help="Resolution of the arrays that will be generated (in number of cells)",
     )
 
     args = parser.parse_args()

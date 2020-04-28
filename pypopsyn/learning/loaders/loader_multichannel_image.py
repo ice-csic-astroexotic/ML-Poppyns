@@ -21,38 +21,45 @@ from PIL import Image
 from .loader_base import LoaderBase
 
 
-class DatasetUpload:
+class DatasetMultichannelImage:
     """
-        upload the images dataset and their labels
+         Dataset for a multichannel image input.
     """
 
-    def __init__(self, file_path, transform=None):
+    def __init__(self, file_path, ignore=[], transform=None):
         """
-            load the images and labels dataset
+            Initialization or constructor function for the dataset.
+
         Args:
             file_path (str): path to the dataset.csv file containing all the
-            information on the dataset
+            information on the dataset.
 
-            transform: transformation to apply to the images
+            ignore (list): indices of the columns of the dataset that
+            will be ignored by the loader.
+
+            transform: transformations to apply to the images.
         """
         self.dataset = pd.read_csv(file_path)
+        # Remove the columns from the dataset that will be ignored.
+        self.dataset.drop(self.dataset.columns[ignore], axis=1, inplace=True)
         self.transform = transform
 
     def __len__(self):
         """
+            Length of the dataset (number of samples).
 
         Returns:
-            int = length of the dataset
+            int: length of the dataset
 
         """
         return len(self.dataset)
 
     def __getitem__(self, index):
         """
-            Read the dataset and extract the images and the corresponding labels
+            Read the dataset and extract the images and the corresponding labels.
 
         Args:
-            index (int): index running along the raws of the dataset.csv file
+            index (int): index running along the rows of the dataset.csv file.
 
         Returns:
             np.ndarray or torch tensor: multi-channel 2D image composed by all the
@@ -100,6 +107,7 @@ class LoaderMultichannelImage(LoaderBase):
         self,
         data_path: str,
         batch_size: int,
+        ignored_inputs: list,
         num_workers: int = 1,
         shuffle: bool = False,
     ):
@@ -110,6 +118,7 @@ class LoaderMultichannelImage(LoaderBase):
         Args:
             data_path (string): path to the dataset.
             batch_size (int): Number of samples per batch.
+            ignored_inputs (list): Indices of columns in the dataset to ignore.
             num_workers (int): Workers to load the data.
             shuffle (bool): Shuffle the samples or not.
 
@@ -121,6 +130,10 @@ class LoaderMultichannelImage(LoaderBase):
         transformation = torchvision.transforms.ToTensor()
 
         self.data_path = data_path
-        self.dataset = DatasetUpload(self.data_path, transform=transformation)
+        self.ignored_inputs = ignored_inputs
+
+        self.dataset = DatasetMultichannelImage(
+            self.data_path, self.ignored_inputs, transform=transformation
+        )
 
         super().__init__(self.dataset, batch_size, num_workers, shuffle)
