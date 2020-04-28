@@ -1,13 +1,15 @@
 """ Generator for dataset.
 
-    This module creates a dataset of the simulated populations. For every
+    This module creates a dataset of the simulated populations for every
     population simulated from the simulator `initialize_evolve_population.py`
     with different initial parameters.
 
     This expects that a population has been generated using hydra multirun method.
 
-    The simulated dataset is also saved in a .csv file where the corresponding
-    input files are mapped with their paths and labels.
+    The user can choose to generate either a dataset of images or of 2D arrays.
+
+    The information on the simulated dataset is also saved in a .csv file where the
+    corresponding input files are mapped with their paths and labels.
 
     Running the code:
 
@@ -56,6 +58,8 @@ def generate_dataset(args) -> None:
 
             dataset_name (str): Name of the dataset where the density maps matrices
             will be saved.
+
+            type (str): Type of dataset to generate: array or image.
 
             resolution (int): Resolution (number of bins per axis for the 2d
             histograms) for the image to generate.
@@ -114,7 +118,7 @@ def generate_dataset(args) -> None:
         df_pop = pd.read_csv(pop_path, skiprows=[1])
 
         # create position density maps projected on xy plane
-        density_map_xy_filename = "{}/position_map_xy_pop_{}.{}".format(
+        position_map_xy_filename = "{}/position_map_xy_pop_{}.{}".format(
             dataset_path, s, extensions[args.type]
         )
 
@@ -123,7 +127,7 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             df_pop["y"],
             (-20.0, 20.0),
-            density_map_xy_filename,
+            position_map_xy_filename,
             n_bins=args.resolution,
             normalize=True,
         )
@@ -131,12 +135,12 @@ def generate_dataset(args) -> None:
         # save density map filenames into a dictionary
         position_map_xy_dictionary.setdefault(
             "input:position_map_xy", []
-        ).append(density_map_xy_filename)
+        ).append(position_map_xy_filename)
 
-        log.info("{} generated...".format(density_map_xy_filename))
+        log.info("{} generated...".format(position_map_xy_filename))
 
         # create position density maps projected on xz plane
-        density_map_xz_filename = "{}/position_map_xz_pop_{}.{}".format(
+        position_map_xz_filename = "{}/position_map_xz_pop_{}.{}".format(
             dataset_path, s, extensions[args.type]
         )
 
@@ -145,7 +149,7 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             df_pop["z"],
             (-5.0, 5.0),
-            density_map_xz_filename,
+            position_map_xz_filename,
             n_bins=args.resolution,
             normalize=True,
         )
@@ -153,9 +157,9 @@ def generate_dataset(args) -> None:
         # save density map filenames into a dictionary
         position_map_xz_dictionary.setdefault(
             "input:position_map_xz", []
-        ).append(density_map_xz_filename)
+        ).append(position_map_xz_filename)
 
-        log.info("{} generated...".format(density_map_xz_filename))
+        log.info("{} generated...".format(position_map_xz_filename))
 
         # create velocity maps of component v_r in the xy plane
         velocity_map_xy_vr_filename = "{}/velocity_map_xy_vr_pop_{}.{}".format(
@@ -254,13 +258,13 @@ def generate_dataset(args) -> None:
     }
 
     # Write the dataset dictionary into a .csv file
-    dataset_filename = "{}/dataset_array.csv".format(dataset_path)
+    dataset_filename = "{}/dataset.csv".format(dataset_path)
     df = pd.DataFrame(
         {key: pd.Series(value) for key, value in dataset_dictionary.items()}
     )
     df.to_csv(dataset_filename, encoding="utf-8", index=False)
 
-    log.info("File dataset_array.csv generated")
+    log.info("File dataset.csv generated")
 
 
 if __name__ == "__main__":

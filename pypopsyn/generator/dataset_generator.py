@@ -26,6 +26,7 @@ def generate_density_map(
     y_log_scale: bool = False,
     n_bins: int = 128,
     normalize: bool = False,
+    colormap: str = "Grays",
 ) -> None:
     """
     Density map generator.
@@ -43,6 +44,7 @@ def generate_density_map(
         y_log_scale: if True set the y axis scale to log scale
         n_bins: number of vertical and horizontal bins for the density map.
         normalize: unused parameter, just to respect the interface.
+        colormap: colormap to use for the image
 
     Returns:
         Nothing. An image is generated in the specified file path.
@@ -86,7 +88,7 @@ def generate_density_map(
     ax.set_axis_off()
     fig.add_axes(ax)
 
-    ax.pcolormesh(x_edges, y_edges, density.T, cmap="Greys")
+    ax.pcolormesh(x_edges, y_edges, density.T, cmap=colormap)
     ax.set_xlim(x_range[0], x_range[1])
     ax.set_ylim(y_range[0], y_range[1])
 
@@ -111,6 +113,7 @@ def generate_avg_weight_map(
     y_log_scale: bool = False,
     n_bins: int = 128,
     normalize: bool = False,
+    colormap: str = "Grays",
 ) -> None:
     """
     average weighted map generator.
@@ -130,6 +133,7 @@ def generate_avg_weight_map(
         y_log_scale: if True set the y axis scale to log scale.
         n_bins: number of vertical and horizontal bins for the weight map.
         normalize: unused parameter to respect the interface.
+        colormap: colormap to use for the image
 
     Returns:
         Nothing. An image is generated in the specified file path.
@@ -184,7 +188,7 @@ def generate_avg_weight_map(
     ax.set_axis_off()
     fig.add_axes(ax)
 
-    ax.pcolormesh(x_edges, y_edges, avg_weight.T, cmap="Greys")
+    ax.pcolormesh(x_edges, y_edges, avg_weight.T, colormap)
     ax.set_xlim(x_range[0], x_range[1])
     ax.set_ylim(y_range[0], y_range[1])
 
