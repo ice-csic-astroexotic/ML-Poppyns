@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 
 import pypopsyn.simulator.configuration as configuration
+import pypopsyn.simulator.constants as const
 import pypopsyn.simulator.dynamical_evolution as dyn
 import pypopsyn.simulator.initial_population as ipop
 
@@ -158,10 +159,16 @@ def generate_population(cfg) -> None:
     v_phi_final = final_population[:, 6]
     v_z_final = final_population[:, 7]
 
-    # adding the coordinates to a data frame for export
+    # convert velocities in km/s
+    v_r_final = v_r_final * const.KPC_TO_KM / const.YR_TO_S
+    v_phi_final = v_phi_final * const.KPC_TO_KM / const.YR_TO_S
+    v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
+
+    # adding the evolution output to a data frame for export
     log.info("Creating data frame for exporting...")
     df_final = pd.DataFrame(
         {
+            "age": age,
             "r": r_final,
             "phi": phi_final,
             "x": x_final,
@@ -177,14 +184,15 @@ def generate_population(cfg) -> None:
         zip(
             df_final.columns,
             [
+                "[yr]",
                 "[kpc]",
                 "[rad]",
                 "[kpc]",
                 "[kpc]",
                 "[kpc]",
-                "[kpc / yr]",
-                "[kpc /yr]",
-                "[kpc / yr]",
+                "[km / s]",
+                "[km / s]",
+                "[km / s]",
             ],
         )
     )

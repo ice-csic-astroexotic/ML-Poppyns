@@ -11,7 +11,7 @@
   },
 
   "data_loader": {
-    "type": "LoaderNN1",
+    "type": "LoaderRGBImage",
     "args": {
       "data_path": "examples/data/1_samples/dataset.csv",
       "batch_size": 1,

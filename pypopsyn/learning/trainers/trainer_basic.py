@@ -115,9 +115,11 @@ class TrainerBasic(BaseTrainer):
                 self.metric.__class__.__name__, self.metric(output, target)
             )
             # Show the input images of this batch on TensorBoard.
-            self.writer.add_image(
-                "input", make_grid(data.cpu(), nrow=8, normalize=True)
-            )
+            # TODO: temporarily disabled until we find a better way to
+            # represent arbitrary channel images.
+            # self.writer.add_image(
+            #    "input", make_grid(data.cpu(), nrow=8, normalize=True)
+            # )
 
             # For each specified logging to console step, show the current
             # epoch training information (batch progress, loss...). Usually
