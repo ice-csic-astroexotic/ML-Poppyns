@@ -66,9 +66,7 @@ def generate_dataset(args) -> None:
     """
 
     # create the dataset directory
-    dataset_path = "examples/data/{}/{}/{}".format(
-        args.date, args.time, args.dataset_name
-    )
+    dataset_path = "examples/data/{}".format(args.dataset_name)
     pathlib.Path(dataset_path).mkdir(parents=True, exist_ok=True)
 
     # Initialize the multiple options we have to generate the different data

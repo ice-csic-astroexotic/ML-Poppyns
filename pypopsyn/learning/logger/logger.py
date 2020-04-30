@@ -23,7 +23,7 @@ LOG_LEVELS = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
 
 def setup_logging(
     log_dir: str,
-    log_config_file: str = "default_logger_config.json",
+    log_config_file: str = "examples/learning/default_logger_config.json",
     default_level=logging.INFO,
 ) -> None:
     """
