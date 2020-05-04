@@ -66,9 +66,7 @@ def generate_dataset(args) -> None:
     """
 
     # create the dataset directory
-    dataset_path = "examples/data/{}/{}/{}".format(
-        args.date, args.time, args.dataset_name
-    )
+    dataset_path = "examples/data/{}".format(args.dataset_name)
     pathlib.Path(dataset_path).mkdir(parents=True, exist_ok=True)
 
     # Initialize the multiple options we have to generate the different data
@@ -129,7 +127,7 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             position_map_xy_filename,
             n_bins=args.resolution,
-            normalize=True,
+            normalize=args.normalize,
         )
 
         # save density map filenames into a dictionary
@@ -151,7 +149,7 @@ def generate_dataset(args) -> None:
             (-5.0, 5.0),
             position_map_xz_filename,
             n_bins=args.resolution,
-            normalize=True,
+            normalize=args.normalize,
         )
 
         # save density map filenames into a dictionary
@@ -174,7 +172,7 @@ def generate_dataset(args) -> None:
             abs(df_pop["v_r"]),
             velocity_map_xy_vr_filename,
             n_bins=args.resolution,
-            normalize=True,
+            normalize=args.normalize,
         )
 
         # save velocity map filenames into a dictionary
@@ -197,7 +195,7 @@ def generate_dataset(args) -> None:
             abs(df_pop["v_phi"]),
             velocity_map_xy_vphi_filename,
             n_bins=args.resolution,
-            normalize=True,
+            normalize=args.normalize,
         )
 
         # save velocity map filenames into a dictionary
@@ -220,7 +218,7 @@ def generate_dataset(args) -> None:
             abs(df_pop["v_z"]),
             velocity_map_xy_vz_filename,
             n_bins=args.resolution,
-            normalize=True,
+            normalize=args.normalize,
         )
 
         # save velocity map filenames into a dictionary
@@ -306,6 +304,13 @@ if __name__ == "__main__":
         type=int,
         default=64,
         help="Resolution of the arrays that will be generated (in number of cells)",
+    )
+    parser.add_argument(
+        "--normalize",
+        nargs="?",
+        type=bool,
+        default=True,
+        help="Generate normalized maps or not",
     )
 
     args = parser.parse_args()
