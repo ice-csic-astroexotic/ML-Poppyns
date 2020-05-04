@@ -54,7 +54,8 @@ def main(args):
     # provides three values in an array: low, high, and number of samples.
     for arg in vars(args):
 
-        log.info(arg, getattr(args, arg))
+        log.info(arg)
+        log.info(getattr(args, arg))
         arg_range = getattr(args, arg)
 
         var_range = np.linspace(arg_range[0], arg_range[1], int(arg_range[2]))
