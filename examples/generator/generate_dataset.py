@@ -63,6 +63,9 @@ def generate_dataset(args) -> None:
 
             resolution (int): Resolution (number of bins per axis for the 2d
             histograms) for the image to generate.
+
+            normalize (bool): Whether or not to normalize the representations
+            so that each cell holds [0,1] values.
     """
 
     # create the dataset directory
@@ -307,9 +310,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--normalize",
-        nargs="?",
-        type=bool,
-        default=True,
+        default=False,
+        action="store_true",
         help="Generate normalized maps or not",
     )
 
