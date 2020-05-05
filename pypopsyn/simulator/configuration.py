@@ -14,7 +14,7 @@ cfg = {}
 # initial population class parameters
 cfg["r_extent"] = 20.0  # Total radial extent from the galactic centre [kpc].
 cfg["z_extent"] = 5.0  # Total vertical extent from the galactic plane [kpc].
-cfg["vp_extent"] = 2000.0  # Maximum proper velocity magnitude [km/s].
+cfg["vp_extent"] = 2500.0  # Maximum proper velocity magnitude [km/s].
 cfg["resolution"] = 10000  # Resolution for the grid in the initial population.
 cfg["NS_number"] = 50000  # Number of neutron stars for the population.
 cfg["arm_number"] = 4  # Number of spiral arms in the galaxy.
