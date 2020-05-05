@@ -32,6 +32,7 @@ import os
 import pathlib
 import sys
 
+import numpy as np
 import pandas as pd
 import yaml
 
@@ -66,6 +67,9 @@ def generate_dataset(args) -> None:
 
             normalize (bool): Whether or not to normalize the representations
             so that each cell holds [0,1] values.
+
+            samples (int): Number of samples to generate. If no samples are specified
+            the whole dataset is generated. Samples are taken equally spaced.
     """
 
     # create the dataset directory
@@ -102,7 +106,16 @@ def generate_dataset(args) -> None:
     # number of samples in the parsed directory
     sample_number = len(os.listdir(root_path))
 
-    for s in range(sample_number):
+    # select samples to run
+    samples = []
+    if (args.select):
+        samples = list(np.round(np.linspace(0, sample_number - 1, args.select)).astype(int))
+    else:
+        samples = [i for i in range(sample_number)]
+
+    log.info("Generating {} samples".format(len(samples)))
+
+    for s in samples:
 
         log.info("Generating sample {}".format(s))
 
@@ -313,6 +326,12 @@ if __name__ == "__main__":
         default=False,
         action="store_true",
         help="Generate normalized maps or not",
+    )
+    parser.add_argument(
+        "--samples",
+        nargs="?",
+        type=int,
+        help="Number of samples to select",
     )
 
     args = parser.parse_args()
