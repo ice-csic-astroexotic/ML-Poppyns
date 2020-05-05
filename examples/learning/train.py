@@ -117,17 +117,44 @@ if __name__ == "__main__":
         help="Path to checkpoint to resume training.",
     )
 
-    CustomArgs = collections.namedtuple("CustomArgs", "flags type target")
+    CustomArgs = collections.namedtuple(
+        "CustomArgs", "flags type nargs target"
+    )
 
     options = [
         CustomArgs(
-            ["--dataset"], type=str, target=("data_loader;args;data_path")
+            ["--dataset"],
+            type=str,
+            nargs="?",
+            target=("data_loader;args;data_path"),
         ),
-        CustomArgs(["--lr"], type=float, target=("optimizer;args;lr")),
         CustomArgs(
-            ["--batch_size"], type=int, target=("data_loader;args;batch_size")
+            ["--input_shape"],
+            type=int,
+            nargs=3,
+            target=("arch;args;input_shape"),
+        ),
+        CustomArgs(
+            ["--save_dir"], type=str, nargs="?", target=("trainer;save_dir")
+        ),
+        CustomArgs(
+            ["--lr"], type=float, nargs="?", target=("optimizer;args;lr")
+        ),
+        CustomArgs(
+            ["--ignored_inputs"],
+            type=int,
+            nargs="*",
+            target=("data_loader;args;ignored_inputs"),
+        ),
+        CustomArgs(
+            ["--batch_size"],
+            type=int,
+            nargs="?",
+            target=("data_loader;args;batch_size"),
         ),
     ]
+
+    print(options)
 
     configuration = configuration_parser.ConfigurationParser.from_args(
         args, options
