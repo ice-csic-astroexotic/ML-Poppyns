@@ -72,14 +72,9 @@ class ConfigurationParser:
                 *opt.flags, default=None, type=opt.type, nargs=opt.nargs
             )
 
-        print("aaa")
-        print(args)
-
         # Parse arguments if they are not already parsed.
         if not isinstance(args, tuple):
             args = args.parse_args()
-
-        print("aaa")
 
         # Load configuration from JSON file.
         configuration = learning_utils_json.read_json(
