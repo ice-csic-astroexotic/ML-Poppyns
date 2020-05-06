@@ -108,8 +108,12 @@ def generate_dataset(args) -> None:
 
     # select samples to run
     samples = []
-    if (args.select):
-        samples = list(np.round(np.linspace(0, sample_number - 1, args.select)).astype(int))
+    if args.samples:
+        samples = list(
+            np.round(np.linspace(0, sample_number - 1, args.samples)).astype(
+                int
+            )
+        )
     else:
         samples = [i for i in range(sample_number)]
 
@@ -328,10 +332,7 @@ if __name__ == "__main__":
         help="Generate normalized maps or not",
     )
     parser.add_argument(
-        "--samples",
-        nargs="?",
-        type=int,
-        help="Number of samples to select",
+        "--samples", nargs="?", type=int, help="Number of samples to select",
     )
 
     args = parser.parse_args()
