@@ -68,7 +68,9 @@ class ConfigurationParser:
 
         # Add custom CLI options to arguments.
         for opt in options:
-            args.add_argument(*opt.flags, default=None, type=opt.type)
+            args.add_argument(
+                *opt.flags, default=None, type=opt.type, nargs=opt.nargs
+            )
 
         # Parse arguments if they are not already parsed.
         if not isinstance(args, tuple):
