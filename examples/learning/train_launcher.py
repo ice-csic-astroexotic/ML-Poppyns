@@ -27,6 +27,7 @@ import multiprocessing as mp
 import pathlib
 import subprocess
 import sys
+import threading
 import typing
 
 log = logging.getLogger(__name__)
@@ -48,6 +49,15 @@ def run_experiment(command: str) -> typing.Tuple[pathlib.Path, str]:
 
     """
 
+    # Acquire the lock and block any other process from executing
+    # for two seconds. We do this in order not to launch two processes
+    # at the exact same second so that their output folders (which are
+    # named automatically MMDD_HHMMSS) are not overwritten.
+    starting.acquire()
+    threading.Timer(2, starting.release).start()
+
+    # Once the process has released the lock for another process to wait
+    # it can proceed with the execution of the experiment.
     log.info("Launching experiment {}".format(command))
 
     process_output = subprocess.check_output(
@@ -82,7 +92,7 @@ def log_experiment(process_result: typing.Tuple[pathlib.Path, str]) -> None:
     log.info("Process finished...")
 
 
-def setup_process_pool(event: mp.Event) -> None:
+def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
 
     """
     Setup the process pool for multiprocessing with a global pause/resume event.
@@ -90,10 +100,15 @@ def setup_process_pool(event: mp.Event) -> None:
     Args:
         event: reference to a master process event that will signal the child
             processes to pause or resume execution.
+        lock: a reference to a master process lock that will coordinate the
+            child process launching with waiting times.
     """
 
     global unpaused
     unpaused = event
+
+    global starting
+    starting = lock
 
 
 def main(args):
@@ -101,9 +116,12 @@ def main(args):
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.
     event = mp.Event()
+    # Lock on the master process to impose a delay in the process execution
+    # so that none of them can be launched exactly at the same time.
+    lock = mp.Lock()
     # A pool of processes with a defined capacity, a process spawnign setup
     # routine and a general event to signal process execution.
-    pool = mp.Pool(args.processes, setup_process_pool, (event,))
+    pool = mp.Pool(args.processes, setup_process_pool, (event, lock,))
 
     # Read the command list file, each command should be one single line.
     with open(args.command_list) as f:
