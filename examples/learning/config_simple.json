@@ -5,7 +5,7 @@
   "arch": {
     "type": "ModelLinear",
     "args": {
-        "input_shape": [4, 64, 64],
+        "input_shape": [1, 1024, 1024],
         "num_parameters": 1
     }
   },
@@ -13,17 +13,17 @@
   "data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "data_path": "examples/data/8_64_array/dataset_array.csv",
-      "batch_size": 1,
+      "data_path": "examples/data/128_nonnormalized_array_64/dataset.csv",
+      "batch_size": 16,
       "num_workers": 1,
-      "ignored_inputs": [1]
+      "ignored_inputs": [1, 2, 3, 4]
     }
   },
 
   "optimizer": {
     "type": "SGD",
     "args":{
-      "lr": 1e-2,
+      "lr": 1e-4,
       "weight_decay": 0.0,
       "momentum": 0.9
     }
@@ -35,7 +35,7 @@
   },
 
   "metric": {
-      "type": "MetricAccuracyCHI2",
+      "type": "MetricAccuracyRMSE",
       "args": {}
   },
 
