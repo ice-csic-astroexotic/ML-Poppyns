@@ -1,5 +1,5 @@
 """
-Conversions between different coordinate systems and related issues
+Conversions between different coordinate systems and related issues.
 
 Authors:
 
@@ -14,12 +14,16 @@ from typing import Tuple
 import numpy as np
 
 
-def check_radial_coordinate(r: float):
+def check_radial_coordinate(r: float) -> None:
     """
     Check that the distance from the origin is not negative.
 
     Args:
         r (float): distance from the origin in units of length
+
+    Returns:
+        Returns None if r greater than or equal to 0,
+        otherwise raises ValueError.
     """
     if r < 0:
         raise ValueError("Radial coordinate is out of range")
@@ -48,7 +52,8 @@ def spherical_to_cartesian(
     r: float, theta: float, psi: float
 ) -> Tuple[float, float, float]:
     """
-    Calculating the Cartesian x, y and z coordinates from spherical coordinates r, theta and psi.
+    Calculating the Cartesian x, y and z coordinates from spherical coordinates
+    r, theta and psi.
 
     Args:
         r (float): radial component (magnitude of the vector) in spherical
@@ -57,7 +62,7 @@ def spherical_to_cartesian(
         psi (float): azimuthal angle, [0, 2*pi]
 
     Returns:
-        (float, float): x, y and z coordinates in a Cartesian System
+        (float, float, float): x, y and z coordinates in a Cartesian system
     """
 
     x = r * np.sin(theta) * np.cos(psi)
