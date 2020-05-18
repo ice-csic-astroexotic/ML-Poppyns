@@ -6,6 +6,8 @@ using a galactocentric reference frame. Here we are using the scipy.integrate.od
 package which uses the method 'LSODA' (Adams/BDF method with automatic stiffness
 detection and switching) from the Fortran library ODEPACK.
 
+We improve performance with Numba, which allows just-in-time (JIT) compilation.
+
 Authors:
 
         Vanessa Graber (graber@ice.csic.es)
@@ -31,11 +33,10 @@ def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
 
     Args:
         initial_cond (np.ndarray): array of 6 components defining the initial
-        conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0,
-        v_z0) with
-        the following units (kpc, rad, kpc, kpc/yr, rad/yr, kpc/yr)
+        conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
+        with the following units (kpc, rad, kpc, kpc/yr, rad/yr, kpc/yr)
 
-        t (np.ndarray): time array in yr on which perform the integration
+        t (np.ndarray): time array in yr along which to perform the integration
 
     Returns:
          (np.ndarray): array of 6 values of the first order and second order
@@ -72,27 +73,28 @@ def dynamical_evolution(
     time_step: (float) = 1.0e3,
 ) -> np.ndarray:
     """
-    Perform the dynamical evolution in the galactic gravitational potential of the
-    population of neutron stars, starting from some initial conditions.
+    Performing the dynamical evolution of the neutron star population for a given
+    galactic potential, starting from a set of initial conditions.
 
     Args:
         NS_number (int): number of simulated neutron stars
 
         initial_cond (np.ndarray): array of 6 components defining the initial
-        conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0) with
-        the following units (kpc, rad, kpc, kpc/yr, rad/yr, kpc/yr)
+        conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
+        with the following units (kpc, rad, kpc, kpc/yr, rad/yr, kpc/yr)
 
-        t_age (np.ndarray): array of ages in year of the neutron stars
+        t_age (np.ndarray): array of neutron star ages in yr
 
-        time_step (float): time step used for the integration of the system of ODE of motion
+        time_step (float): time step used to integrate the equations of motion
 
     Returns:
-        (np.ndarray): two dimensional array of shape (NS_number, 8) defining
-        the final position in Cartesian and cylindrical coordinates and velocities in cylindrical coordinates of the neutron stars
+        (np.ndarray): two-dimensional array of shape (NS_number, 8) defining
+        the neutron stars' final position in Cartesian and cylindrical coordinates
+        as well as their velocities in cylindrical coordinates
     """
 
-    # initialize the arrays that will contain the final positions and velocities of
-    # the neutron stars
+    # initialize the arrays that will contain the final positions
+    # and velocities of the neutron stars
     r_final = np.zeros(NS_number)
     phi_final = np.zeros(NS_number)
     x_final = np.zeros(NS_number)
@@ -104,12 +106,12 @@ def dynamical_evolution(
 
     for i in range(NS_number):
 
-        # linear time grid in years over which perform the dynamical evolution
-        # each neutron star position and velocity is evolved for a time equal to its age
+        # linear time grid in years over which the dynamical evolution is performed;
+        # each star's position and velocity is evolved for a time equal to its age
         time_grid = np.arange(0.0, t_age[i] + time_step, time_step)
 
-        # save the odeint output which is a two-dimensional array of shape (
-        # len(time_grid), 6)
+        # save the odeint output which is a two-dimensional array of
+        # shape (len(time_grid), 6)
         evol_output = np.array(
             odeint(dynamical_eq_system, initial_cond[i], time_grid)
         )
