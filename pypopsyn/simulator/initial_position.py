@@ -4,10 +4,13 @@ Initial galactocentric position for the stellar population
 We follow Faucher-Giguère & Kaspi (2006) and choose a galactocentric coordinate system,
 where the galactic centre is located at the origin. In terms of galactic latitude l and
 longitude b, the x-,y-, and z-axes are parallel to (l, b) = (90, 0), (180, 0) and (0,
-90), respectively, forming a right-handed Cartesian frame. Moreover, we define r =
-(x**2 + y**2)**0.5 as the distance from the galactic centre in the galactic plane and
-phi = arctan(y/x). Here the angle phi is the same as theta in Faucher-Giguère & Kaspi
-(2006).
+90), respectively, forming a right-handed Cartesian frame. This implies that the Sun is
+positioned at (x=0, y=8.5 kpc).
+
+Moreover, we define r = (x**2 + y**2)**0.5 as the distance from the galactic centre in
+the galactic plane and phi = arctan(y/x). Here, the angle phi is the same as theta in
+Faucher-Giguère & Kaspi (2006). We reserve the variable theta for the polar angle in a
+spherical coordinate system.
 
 Authors:
 
