@@ -1,6 +1,8 @@
 """
-Generator for the final population of neutron stars.
-An initial population is generated and then evolved in time
+Simulating a final population of neutron stars
+
+An initial neutron star population of uniformly distributed ages is generated
+and the respective objects evolved in time according to their age.
 
     Authors:
 
@@ -30,8 +32,8 @@ log = logging.getLogger(__name__)
 @hydra.main()
 def generate_population(cfg) -> None:
 
-    """ Generating an initial population starting from some initial conditions and
-    evolving it in time.
+    """ Generating a neutron star population starting from some initial
+    conditions and evolving it forward in time.
 
     Args:
 
@@ -46,7 +48,7 @@ def generate_population(cfg) -> None:
     # Update simulator configuration with the provided parameters.
     configuration.update_configuration(cfg)
 
-    # generating an initial neutron star population
+    # Generate an initial neutron star population.
     NS_population_initial = ipop.InitialNeutronStarPopulation()
 
     # Generating ages.
@@ -63,8 +65,8 @@ def generate_population(cfg) -> None:
         z_initial,
     ) = NS_population_initial.position(t_age=age)
 
-    # Generating initial velocities summing the proper velocities to the orbital
-    # velocities.
+    # Generating initial velocities by summing the proper kick
+    # velocities at birth and the orbital velocities.
     log.info("Generating initial proper velocities...")
     (vp_r, vp_phi, vp_z,) = NS_population_initial.proper_velocity()
 
@@ -108,10 +110,10 @@ def generate_population(cfg) -> None:
                 "[kpc]",
                 "[kpc]",
                 "[kpc / yr]",
-                "[kpc /yr]",
                 "[kpc / yr]",
                 "[kpc / yr]",
-                "[kpc /yr]",
+                "[kpc / yr]",
+                "[kpc / yr]",
                 "[kpc / yr]",
                 "[kpc / yr]",
             ],
@@ -128,11 +130,11 @@ def generate_population(cfg) -> None:
 
     ####################################################################################
 
-    # evolve the initial population
-    log.info("Evolving in time the initial population...")
+    # Evolve the initial population.
+    log.info("Evolving the initial population in time...")
     NS_number = len(age)
 
-    # define the initial conditions
+    # Define the initial conditions.
     initial_cond = np.array(
         [
             r_initial,
@@ -144,7 +146,7 @@ def generate_population(cfg) -> None:
         ]
     ).T
 
-    # evolve the positions and velocities of the neutron stars in time
+    # Evolve the positions and velocities of the neutron stars forward in time.
     log.info("Evolving the positions and velocities...")
     final_population = dyn.dynamical_evolution(
         NS_number, initial_cond, age, time_step=1.0e4
@@ -159,12 +161,12 @@ def generate_population(cfg) -> None:
     v_phi_final = final_population[:, 6]
     v_z_final = final_population[:, 7]
 
-    # convert velocities in km/s
+    # Convert velocities from kpc / yr into km / s.
     v_r_final = v_r_final * const.KPC_TO_KM / const.YR_TO_S
     v_phi_final = v_phi_final * const.KPC_TO_KM / const.YR_TO_S
     v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
 
-    # adding the evolution output to a data frame for export
+    # Adding the evolution output to a data frame for export.
     log.info("Creating data frame for exporting...")
     df_final = pd.DataFrame(
         {

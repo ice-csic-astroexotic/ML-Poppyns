@@ -41,12 +41,13 @@ import numpy as np
 
 log = logging.getLogger(__name__)
 
+
 def main(args):
 
     log.info(args)
 
-    cli_args : list = []
-    cli_str : list = []
+    cli_args: list = []
+    cli_str: list = []
 
     log.info("Parsing arguments...")
 
@@ -59,7 +60,7 @@ def main(args):
         arg_range = getattr(args, arg)
 
         var_range = np.linspace(arg_range[0], arg_range[1], int(arg_range[2]))
-        var_str = ','.join(map(str, var_range))
+        var_str = ",".join(map(str, var_range))
         cli_args.append(arg)
         cli_str.append(var_str)
 
@@ -68,18 +69,21 @@ def main(args):
     # Generate list for the command which consists of the python interpreter,
     # the script path, and then each one of the arguments with their values,
     # in the end we indicate -m to tell Hydra this is a multirun.
-    cmd : list = ["python", "examples/simulator/initialize_evolve_population.py"]
+    cmd: list = [
+        "python",
+        "examples/simulator/initialize_evolve_population.py",
+    ]
     for i in range(len(cli_args)):
         cmd.append(cli_args[i] + "=" + cli_str[i])
     cmd.append("-m")
 
-     # Launch simulator with the expaned command.
+    # Launch simulator with the expaned command.
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
     # Capture all process output and redirect it to the console.
     while True:
         output = process.stdout.readline()
-        if output == '' or process.poll() is not None:
+        if output == "" or process.poll() is not None:
             break
         if output:
             print(output.strip().decode("utf-8"))
@@ -89,9 +93,7 @@ def main(args):
 
 if __name__ == "__main__":
 
-    args = argparse.ArgumentParser(
-        description="PyPopSyn Simulator Helper"
-    )
+    args = argparse.ArgumentParser(description="PyPopSyn Simulator Helper")
 
     args.add_argument(
         "--vp_mean",

@@ -1,5 +1,7 @@
 """
-Calculating the cumulative distribution function using the trapezoidal rule
+Calculating the cumulative distribution function for a given probability density
+function using the trapezoidal rule and drawing random values from the cumulative
+distribution and probability density function.
 
 Authors:
 
@@ -21,8 +23,8 @@ def cdf_calculator(x: np.ndarray, pdf: Callable[[float], float]) -> np.ndarray:
     function evaluated at the points x using the trapezoidal rule.
 
     Args:
-        x (np.ndarray): discrete set of values at which the pdf, cdf is evaluated
-        pdf (Callable): probability distribution function
+        x (np.ndarray): discrete set of values at which the pdf is evaluated
+        pdf (Callable): probability density function
 
     Returns:
         np.ndarray: normalised cumulative distribution function
@@ -38,19 +40,18 @@ def cdf_calculator(x: np.ndarray, pdf: Callable[[float], float]) -> np.ndarray:
 
 
 def random_from_cdf(
-    x: np.ndarray, cdf: np.ndarray, num_draw: (int)
+    x: np.ndarray, cdf: np.ndarray, num_draw: int
 ) -> np.ndarray:
     """
-    Drawing a random number value from a given normalized cumulative distribution
-    function corresponding to any given probability density function.
+    Drawing random values from a given normalized cumulative distribution function.
 
     Args:
-        x (np.ndarray): discrete set of values at which the pdf, cdf is evaluated
-        cdf (np.ndarray): normalized cumulative probability distribution function
+        x (np.ndarray): discrete set of values at which the cdf is evaluated
+        cdf (np.ndarray): normalized cumulative probability density function
         num_draw (int): number of values to draw
 
     Returns:
-        np.ndarray: random values drawn from the pdf
+        np.ndarray: random values drawn from the cdf
     """
 
     cdf_rand = np.random.uniform(0, 1, num_draw)
@@ -60,14 +61,14 @@ def random_from_cdf(
 
 
 def random_from_pdf(
-    x: np.ndarray, pdf: Callable[[float], float], num_draw: (int)
+    x: np.ndarray, pdf: Callable[[float], float], num_draw: int
 ) -> np.ndarray:
     """
-    Drawing a random number value from a given probability density function.
+    Drawing random values from a given probability density function.
 
     Args:
         x (np.ndarray): discrete set of values at which the pdf is evaluated
-        pdf (Callable): probability distribution function
+        pdf (Callable): probability density function
         num_draw (int): number of values to draw
 
     Returns:

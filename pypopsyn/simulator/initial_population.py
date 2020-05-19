@@ -1,5 +1,5 @@
 """
-Generating an initial population of neutron stars in the Milky Way with random parameters.
+Generating an initial population of neutron stars in the Milky Way with random parameters
 
 Authors:
 
@@ -35,7 +35,7 @@ class InitialNeutronStarPopulation:
 
         Args:
             seed (int): seed for random number generation,
-                        set to None unless otherwise specified
+            set to None unless otherwise specified
         """
 
         self.seed = seed
@@ -44,8 +44,8 @@ class InitialNeutronStarPopulation:
 
     def age(self) -> np.ndarray:
         """
-        Drawing a random age in years for each neutron star from a uniform probability
-        distribution in a given range of time.
+        Drawing a random age in years for each neutron star from a uniform
+        probability distribution in a given range of time.
 
         Returns:
             np.array : array of ages in years
@@ -70,7 +70,7 @@ class InitialNeutronStarPopulation:
         cylindrical and Cartesian coordinates in a galactocentric reference frame.
 
         Args:
-            t_age (np.ndarray): array of ages in years of each neutron star
+            t_age (np.ndarray): array of neutron star ages in yr
 
         Returns:
             (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
@@ -78,8 +78,8 @@ class InitialNeutronStarPopulation:
             coordinates in kpc for each generated neutron star
         """
 
-        # drawing a random distance from the galactic center in kpc for each neutron
-        # star according to the radial stellar density
+        # Drawing a random distance from the galactic center in kpc for
+        # each neutron star according to the radial stellar density.
         r_grid = np.logspace(
             np.log10(0.0001), np.log10(cfg["r_extent"]), cfg["resolution"]
         )
@@ -92,8 +92,8 @@ class InitialNeutronStarPopulation:
             1, cfg["arm_number"] + 1, cfg["NS_number"]
         )
 
-        # Evaluate the angular phi coordinate for each neutron star and add noise
-        # to both galactocentric coordinates.
+        # Evaluate the angular phi coordinate for each neutron star and
+        # add noise to both galactocentric coordinates.
         phi_rand = np.zeros(cfg["NS_number"])
         r_rand = np.zeros(cfg["NS_number"])
         for i in range(cfg["NS_number"]):
@@ -101,14 +101,17 @@ class InitialNeutronStarPopulation:
                 r_pdf_rand[i], arm_index_rand[i]
             )
 
+            # Propagating the azimuthal coordinate of each object backwards in time
+            # (according to its age) to account for the rotation of the galactic arms;
+            # we assume that the arm structure itself remains rigid.
             phi_rand[i] = ip.spiral_arm_time_evol(phi_rand[i], t_age[i])
 
-        # position in the galactic plane in Cartesian coordinates
+        # Position in the galactic plane in Cartesian coordinates.
         polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
         x_rand, y_rand = polar_to_cartesian_vect(r_rand, phi_rand)
 
-        # drawing a random height from the galactic plane in kpc for each neutron
-        # star according to the height stellar density
+        # Drawing a random distance from the galactic plane in kpc for each neutron
+        # star according to the probability density function for the height.
         z_grid = np.logspace(
             np.log10(0.0001), np.log10(cfg["z_extent"]), cfg["resolution"]
         )
@@ -116,7 +119,7 @@ class InitialNeutronStarPopulation:
             z_grid, ip.pdf_initial_height, cfg["NS_number"]
         )
 
-        # randomly distribute the stars above and below the galactic plane
+        # Randomly distribute the stars above and below the galactic plane.
         z_rand = ip.random_scatter_about_plane(z_pdf_rand, cfg["NS_number"])
 
         return r_rand, phi_rand, x_rand, y_rand, z_rand
@@ -134,26 +137,26 @@ class InitialNeutronStarPopulation:
             direction and vp_z is the component along the z direction.
         """
 
-        # drawing a random magnitude of the proper velocity in km / s for each neutron
-        # star according to the proper velocity probability distribution
+        # Drawing a random magnitude of the birth velocity in km / s for each neutron
+        # star according to the underlying velocity probability density function.
         vp_grid = np.linspace(0.0, cfg["vp_extent"], cfg["resolution"])
         vp_rand = cc.random_from_pdf(
             vp_grid, iv.pdf_proper_velocity, cfg["NS_number"]
         )
-        # convert from km / s to kpc / yr
+        # Convert from km / s to kpc / yr.
         vp_rand = vp_rand * const.YR_TO_S / const.KPC_TO_KM
 
-        # drawing a random direction for the speed
-        # drawing a random polar angle [0,np.pi] [rad]
+        # To draw a random direction for the speed from a uniform distribution,
+        # we uniformly sample the azimuthal angle [rad] in the range [0, 2*np.pi];
+        # to obtain a uniform distribution in the z-direction, we sample the polar
+        # angle [rad] in the range [0, np.pi] according to the PDF np.sin.
+        psi_rand = np.random.uniform(0, 2 * np.pi, cfg["NS_number"])
         theta_grid = np.linspace(0.0, np.pi, cfg["resolution"])
         theta_rand = cc.random_from_pdf(theta_grid, np.sin, cfg["NS_number"])
 
-        # drawing a random psi angle [0,2np.pi] [rad]
-        psi_rand = np.random.uniform(0, 2 * np.pi, cfg["NS_number"])
-
-        # project the velocity on a cartesian reference frame comoving with the star
-        # where the x axis points always in the r direction, the y axis in the
-        # azimuthal phi direction and the z axes coincide
+        # Project the velocity on a Cartesian reference frame co-moving with the
+        # star, where the x-axis points always in the r-direction, the y-axis in
+        # the azimuthal phi-direction and the z-axes coincide.
         spherical_to_cartesian_vect = np.vectorize(coco.spherical_to_cartesian)
         vp_r_rand, vp_phi_rand, vp_z_rand = spherical_to_cartesian_vect(
             vp_rand, theta_rand, psi_rand
@@ -169,11 +172,11 @@ class InitialNeutronStarPopulation:
         Calculate the orbital circular velocity of each star in the galactic
         gravitational potential. In galactocentric cylindrical coordinates,
         the only non-zero component is the azimuthal phi component. Since the stars
-        in the galaxy rotate in the clockwise direction, i.e towards decreasing phi
+        in the galaxy rotate in the clockwise direction, i.e., towards decreasing phi
         values, the phi component is negative.
 
         Args:
-            r (np.ndarray): distance in the galactic disk from the galactic centre
+            r (np.ndarray): distance in the galactic disk from the galactic center
             in kpc
             z (np.ndarray): height from the galactic disk in kpc
 

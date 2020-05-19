@@ -1,12 +1,16 @@
 """
-Initial galactocentric position for the stellar population.
+Initial galactocentric position for the stellar population
 
 We follow Faucher-Giguère & Kaspi (2006) and choose a galactocentric coordinate system,
 where the galactic centre is located at the origin. In terms of galactic latitude l and
 longitude b, the x-,y-, and z-axes are parallel to (l, b) = (90, 0), (180, 0) and (0,
-90), respectively, forming a right-handed Cartesian frame. Moreover, we define r =
-(x**2 + y**2)**0.5 as the distance from the galactic centre in the galactic plane and
-phi = arctan(y/x). Here the angle phi is the same as theta in Faucher-Giguère & Kaspi (2006).
+90), respectively, forming a right-handed Cartesian frame. This implies that the Sun is
+positioned at (x=0, y=8.5 kpc).
+
+Moreover, we define r = (x**2 + y**2)**0.5 as the distance from the galactic centre in
+the galactic plane and phi = arctan(y/x). Here, the angle phi is the same as theta in
+Faucher-Giguère & Kaspi (2006). We reserve the variable theta for the polar angle in a
+spherical coordinate system.
 
 Authors:
 
@@ -24,12 +28,16 @@ import numpy as np
 import pypopsyn.simulator.coordinate_conversions as coco
 
 
-def check_arm_index(arm_index: int):
+def check_arm_index(arm_index: int) -> None:
     """
     Check that the index for the spiral galaxy arms is not <1 or >4.
 
     Args:
         arm_index (int): index for the respective spiral arms
+
+    Returns:
+        Returns None if arm_index between or equal to 1 and 4,
+        otherwise raises ValueError.
     """
     if arm_index < 1 or arm_index > 4:
         raise ValueError("Arm index is out of range")
@@ -37,8 +45,8 @@ def check_arm_index(arm_index: int):
 
 def pdf_radial_stellar_density(r: float) -> float:
     """
-    The Milky Way's stellar radial density in the galactic plane according to
-    Eq. (15) of Yusifov & Küçük (2004).
+    The Milky Way's stellar radial density in the galactic plane according
+    to eq. (15) of Yusifov & Küçük (2004).
 
     Args:
         r (float): distance from the galactic centre in kpc
@@ -56,14 +64,14 @@ def pdf_radial_stellar_density(r: float) -> float:
     b = 4.01  # +-0.24
     r1 = 0.55  # +- 0.10 [kpc]
 
-    # stellar surface density (Eqn. (15) of Yusifov & Küçük (2004))
+    # stellar surface density following eq. (15) of Yusifov & Küçük (2004)
     rho = (
         A
         * ((r + r1) / (rsun + r1)) ** a
         * np.exp(-b * (r - rsun) / (rsun + r1))
     )
 
-    # multiply the stellar surface density for the element of area in polar coordinates
+    # multiply the stellar surface density with the area element in polar coordinates
     pdf_r = 2 * np.pi * r * rho
 
     return pdf_r
@@ -136,20 +144,20 @@ def calculate_phi(r: float, arm_index: int) -> float:
 
 def spiral_arm_time_evol(phi0: float, t: float) -> float:
     """
-    Evolving the spiral arm position backward of a time t. We assume that the
-    Galactic spiral structure rotates rigidly in the clockwise direction with a
-    period of 250 Myr (see 'A guided map to the spiral arms in the galactic disk of the
-    Milky Way' by Vallée 2017).
+    Evolving the spiral arm position backward for a time t. We assume that the
+    galactic spiral structure rotates rigidly in clockwise direction with a
+    period of 250 Myr (see 'A guided map to the spiral arms in the galactic disk
+    of the Milky Way' by Vallée (2017)).
 
     Args:
         phi0 (float): current angular position in rad for the current spiral pattern
-        t (float): backward time in years
+        t (float): time in yr to propagate backward
 
     Returns:
         (float): angular position in rad for the spiral pattern as it was t years ago
     """
 
-    # evaluate the angular velocity of rotation of the spiral pattern
+    # evaluate the angular velocity of rotation of the spiral pattern;
     # T is the period of rotation in years
     T = 2.5e8
     omega_spiral_arms = 2.0 * np.pi / T
@@ -171,7 +179,7 @@ def calculate_noise_for_coordinates(
     Args:
         r (float): distance from the galactic centre in kpc
         seed (int): seed for random number generation,
-                    set to None unless otherwise specified
+        set to None unless otherwise specified
 
     Returns:
         (float, float): noise for galactocentric coordinates phi [rad], r [kpc]
@@ -187,8 +195,8 @@ def calculate_noise_for_coordinates(
 
 def pdf_initial_height(z: float) -> float:
     """
-    Probability density function for the height from the galactic equatorial plane.
-    Eq. (2) in Gullon et al. (2014)
+    Probability density function for the height from the galactic equatorial plane
+    according to eq. (2) in Gullon et al. (2014).
 
     Args:
         z (float): distance from the galactic plane in kpc
@@ -218,7 +226,7 @@ def random_scatter_about_plane(
         z (np.ndarray): array of heights in kpc with positive values
         NS_number (int): total number of neutron stars created in the simulation
         seed (int): seed for random number generation,
-                    set to None unless otherwise specified
+        set to None unless otherwise specified
 
     Returns:
         (np.ndarray): array of heights in kpc randomly scattered above or below 0
