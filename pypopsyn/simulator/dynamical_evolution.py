@@ -70,7 +70,7 @@ def dynamical_evolution(
     NS_number: int,
     initial_cond: np.ndarray,
     t_age: np.ndarray,
-    time_step: (float) = 1.0e3,
+    time_step: float = 1.0e3,
 ) -> np.ndarray:
     """
     Performing the dynamical evolution of the neutron star population for a given
