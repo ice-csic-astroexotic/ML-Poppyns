@@ -25,7 +25,8 @@ def generate_density_map(
     filename: str,
     x_log_scale: bool = False,
     y_log_scale: bool = False,
-    n_bins: int = 128,
+    x_n_bins: int = 128,
+    y_n_bins: int = 128,
     normalize: bool = False,
     colormap: str = "Greys",
 ) -> None:
@@ -43,7 +44,8 @@ def generate_density_map(
         filename: file path to generate the density map image.
         x_log_scale: if True set the x axis scale to log scale
         y_log_scale: if True set the y axis scale to log scale
-        n_bins: number of vertical and horizontal bins for the density map.
+        x_n_bins: number of horizontal bins for the density map.
+        y_n_bins: number of vertical bins for the density map.
         normalize: unused parameter, just to respect the interface.
         colormap: colormap to use for the image
 
@@ -57,27 +59,27 @@ def generate_density_map(
 
     if x_log_scale and y_log_scale:
         x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_bins + 1
+            np.log10(x_range[0]), np.log10(x_range[1]), x_n_bins + 1
         )
         y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_bins + 1
+            np.log10(y_range[0]), np.log10(y_range[1]), y_n_bins + 1
         )
 
     elif x_log_scale and (y_log_scale is False):
         x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_bins + 1
+            np.log10(x_range[0]), np.log10(x_range[1]), x_n_bins + 1
         )
-        y_edges = np.linspace(y_range[0], y_range[1], n_bins + 1)
+        y_edges = np.linspace(y_range[0], y_range[1], y_n_bins + 1)
 
     elif (x_log_scale is False) and y_log_scale:
-        x_edges = np.linspace(x_range[0], x_range[1], n_bins + 1)
+        x_edges = np.linspace(x_range[0], x_range[1], x_n_bins + 1)
         y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_bins + 1
+            np.log10(y_range[0]), np.log10(y_range[1]), y_n_bins + 1
         )
 
     else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_bins + 1)
-        y_edges = np.linspace(y_range[0], y_range[1], n_bins + 1)
+        x_edges = np.linspace(x_range[0], x_range[1], x_n_bins + 1)
+        y_edges = np.linspace(y_range[0], y_range[1], y_n_bins + 1)
 
     # generating a 2D histogram that counts the number of objects contained
     # in each respective pixel; following the discrete count, we apply a
@@ -89,7 +91,7 @@ def generate_density_map(
 
     DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
-    fig.set_size_inches(n_bins / DPI, n_bins / DPI)
+    fig.set_size_inches(x_n_bins / DPI, y_n_bins / DPI)
     ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
     ax.set_axis_off()
     fig.add_axes(ax)
@@ -120,7 +122,8 @@ def generate_avg_weight_map(
     filename: str,
     x_log_scale: bool = False,
     y_log_scale: bool = False,
-    n_bins: int = 128,
+    x_n_bins: int = 128,
+    y_n_bins: int = 128,
     normalize: bool = False,
     colormap: str = "Greys",
 ) -> None:
@@ -140,7 +143,8 @@ def generate_avg_weight_map(
         filename: file path to generate the heatmap image.
         x_log_scale: if True set the x axis scale to log scale.
         y_log_scale: if True set the y axis scale to log scale.
-        n_bins: number of vertical and horizontal bins for the weight map.
+        x_n_bins: number of horizontal bins for the weight map.
+        y_n_bins: number of vertical bins for the weight map.
         normalize: unused parameter to respect the interface.
         colormap: colormap to use for the image
 
@@ -154,27 +158,27 @@ def generate_avg_weight_map(
 
     if x_log_scale and y_log_scale:
         x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_bins + 1
+            np.log10(x_range[0]), np.log10(x_range[1]), x_n_bins + 1
         )
         y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_bins + 1
+            np.log10(y_range[0]), np.log10(y_range[1]), y_n_bins + 1
         )
 
     elif x_log_scale and (y_log_scale is False):
         x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_bins + 1
+            np.log10(x_range[0]), np.log10(x_range[1]), x_n_bins + 1
         )
-        y_edges = np.linspace(y_range[0], y_range[1], n_bins + 1)
+        y_edges = np.linspace(y_range[0], y_range[1], y_n_bins + 1)
 
     elif (x_log_scale is False) and y_log_scale:
-        x_edges = np.linspace(x_range[0], x_range[1], n_bins + 1)
+        x_edges = np.linspace(x_range[0], x_range[1], x_n_bins + 1)
         y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_bins + 1
+            np.log10(y_range[0]), np.log10(y_range[1]), y_n_bins + 1
         )
 
     else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_bins + 1)
-        y_edges = np.linspace(y_range[0], y_range[1], n_bins + 1)
+        x_edges = np.linspace(x_range[0], x_range[1], x_n_bins + 1)
+        y_edges = np.linspace(y_range[0], y_range[1], y_n_bins + 1)
 
     # if the quantity desired as the weight can become negative, e.g.,
     # one of the velocity components, take the absolute value and use that
@@ -195,7 +199,7 @@ def generate_avg_weight_map(
 
     DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
-    fig.set_size_inches(n_bins / DPI, n_bins / DPI)
+    fig.set_size_inches(x_n_bins / DPI, y_n_bins / DPI)
     ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
     ax.set_axis_off()
     fig.add_axes(ax)
@@ -226,7 +230,8 @@ def generate_density_matrix(
     filename: str,
     x_log_scale: bool = False,
     y_log_scale: bool = False,
-    n_bins: int = 128,
+    x_n_bins: int = 128,
+    y_n_bins: int = 128,
     normalize: bool = False,
 ) -> None:
     """
@@ -243,7 +248,8 @@ def generate_density_matrix(
         filename: file path to generate the density matrix.
         x_log_scale: if True set the x axis scale to log scale
         y_log_scale: if True set the y axis scale to log scale
-        n_bins: number of vertical and horizontal bins for the matrix.
+        x_n_bins: number of horizontal bins for the matrix.
+        y_n_bins: number of vertical bins for the matrix.
         normalize: whether to normalize bins to range [0,1].
 
     Returns:
@@ -256,27 +262,27 @@ def generate_density_matrix(
 
     if x_log_scale and y_log_scale:
         x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_bins + 1
+            np.log10(x_range[0]), np.log10(x_range[1]), x_n_bins + 1
         )
         y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_bins + 1
+            np.log10(y_range[0]), np.log10(y_range[1]), y_n_bins + 1
         )
 
     elif x_log_scale and (y_log_scale is False):
         x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_bins + 1
+            np.log10(x_range[0]), np.log10(x_range[1]), x_n_bins + 1
         )
-        y_edges = np.linspace(y_range[0], y_range[1], n_bins + 1)
+        y_edges = np.linspace(y_range[0], y_range[1], y_n_bins + 1)
 
     elif (x_log_scale is False) and y_log_scale:
-        x_edges = np.linspace(x_range[0], x_range[1], n_bins + 1)
+        x_edges = np.linspace(x_range[0], x_range[1], x_n_bins + 1)
         y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_bins + 1
+            np.log10(y_range[0]), np.log10(y_range[1]), y_n_bins + 1
         )
 
     else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_bins + 1)
-        y_edges = np.linspace(y_range[0], y_range[1], n_bins + 1)
+        x_edges = np.linspace(x_range[0], x_range[1], x_n_bins + 1)
+        y_edges = np.linspace(y_range[0], y_range[1], y_n_bins + 1)
 
     # generating a 2D histogram that counts the number of objects contained
     # in each respective bin; x (y) values are histogrammed along first
@@ -298,7 +304,8 @@ def generate_avg_weight_matrix(
     filename: str,
     x_log_scale: bool = False,
     y_log_scale: bool = False,
-    n_bins: int = 128,
+    x_n_bins: int = 128,
+    y_n_bins: int = 128,
     normalize: bool = False,
 ) -> None:
     """
@@ -317,7 +324,8 @@ def generate_avg_weight_matrix(
         filename: file path to generate the matrix.
         x_log_scale: if True set the x axis scale to log scale
         y_log_scale: if True set the y axis scale to log scale
-        n_bins: number of vertical and horizontal bins for the matrix.
+        x_n_bins: number of horizontal bins for the matrix.
+        y_n_bins: number of vertical bins for the matrix.
         normalize: whether to normalize bins to range [0,1].
 
     Returns:
@@ -330,27 +338,27 @@ def generate_avg_weight_matrix(
 
     if x_log_scale and y_log_scale:
         x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_bins + 1
+            np.log10(x_range[0]), np.log10(x_range[1]), x_n_bins + 1
         )
         y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_bins + 1
+            np.log10(y_range[0]), np.log10(y_range[1]), y_n_bins + 1
         )
 
     elif x_log_scale and (y_log_scale is False):
         x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_bins + 1
+            np.log10(x_range[0]), np.log10(x_range[1]), x_n_bins + 1
         )
-        y_edges = np.linspace(y_range[0], y_range[1], n_bins + 1)
+        y_edges = np.linspace(y_range[0], y_range[1], y_n_bins + 1)
 
     elif (x_log_scale is False) and y_log_scale:
-        x_edges = np.linspace(x_range[0], x_range[1], n_bins + 1)
+        x_edges = np.linspace(x_range[0], x_range[1], x_n_bins + 1)
         y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_bins + 1
+            np.log10(y_range[0]), np.log10(y_range[1]), y_n_bins + 1
         )
 
     else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_bins + 1)
-        y_edges = np.linspace(y_range[0], y_range[1], n_bins + 1)
+        x_edges = np.linspace(x_range[0], x_range[1], x_n_bins + 1)
+        y_edges = np.linspace(y_range[0], y_range[1], y_n_bins + 1)
 
     # if the quantity desired as the weight can become negative, e.g.,
     # one of the velocity components, take the absolute value and use that
