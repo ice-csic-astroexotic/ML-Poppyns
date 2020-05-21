@@ -23,6 +23,7 @@ import pandas as pd
 
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.constants as const
+import pypopsyn.simulator.coordinate_conversions as coord
 import pypopsyn.simulator.dynamical_evolution as dyn
 import pypopsyn.simulator.initial_population as ipop
 
@@ -166,6 +167,22 @@ def generate_population(cfg) -> None:
     v_phi_final = v_phi_final * const.KPC_TO_KM / const.YR_TO_S
     v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
 
+    # Convert velocity component from galactocentric cylindrical coordinates to
+    # galactocentric cartesian coordinates
+    v_x_final, v_y_final, v_z_final = coord.speed_cylindrical_to_cartesian(
+        v_r_final, v_phi_final, v_z_final, phi_final
+    )
+
+    # Convert galactocentric coordinates and velocities into ICRS reference frame
+    (
+        ra_final,
+        dec_final,
+        v_ra_final,
+        v_dec_final,
+    ) = coord.galactocentric_to_icrs(
+        x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
+    )
+
     # Adding the evolution output to a data frame for export.
     log.info("Creating data frame for exporting...")
     df_final = pd.DataFrame(
@@ -176,9 +193,13 @@ def generate_population(cfg) -> None:
             "x": x_final,
             "y": y_final,
             "z": z_final,
+            "RA": ra_final,
+            "DEC": dec_final,
             "v_r": v_r_final,
             "v_phi": v_phi_final,
             "v_z": v_z_final,
+            "v_RA": v_ra_final,
+            "v_DEC": v_dec_final,
         }
     )
 
@@ -192,9 +213,13 @@ def generate_population(cfg) -> None:
                 "[kpc]",
                 "[kpc]",
                 "[kpc]",
+                "[deg]",
+                "[deg]",
                 "[km / s]",
                 "[km / s]",
                 "[km / s]",
+                "[mas / yr]",
+                "[mas / yr]",
             ],
         )
     )

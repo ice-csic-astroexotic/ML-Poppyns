@@ -3,6 +3,7 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  - astropy=4.0.1
   - black=19.10b0
   - hydra-core=0.11.3
   - ipykernel=5.1.0
