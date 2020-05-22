@@ -140,9 +140,6 @@ def galactocentric_to_icrs(
     v_y_gal = v_x
     v_z_gal = v_z
 
-    # define the Sun velocity in the astropy galactocentric frame
-    v_sun = [11.1, 244, 7.25] * (u.km / u.s)
-
     # create an object containing the coordinates using the class
     # coordinates.Galactocentric from astropy
     gc_coord = coord.Galactocentric(
@@ -154,13 +151,12 @@ def galactocentric_to_icrs(
         v_z=v_z_gal * (u.km / u.s),
         z_sun=0.02 * u.kpc,
         galcen_distance=8.5 * u.kpc,
-        galcen_v_sun=v_sun,
     )
 
     # transform from galactocentric to ICRS frame
     icrs_coord = gc_coord.transform_to(coord.ICRS)
 
-    # converts RA and DEC units in degrees in the ranges [0, 360] deg and [-90,
+    # convert RA and DEC units in degrees in the ranges [0, 360] deg and [-90,
     # 90] deg respectively and remove astropy units to obtain numpy float values.
     ra = icrs_coord.ra.degree / u.deg
     dec = icrs_coord.dec.degree / u.deg
