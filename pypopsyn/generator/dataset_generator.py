@@ -16,11 +16,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.ndimage.filters
 
+import pypopsyn.generator.axes_scaling as axs
+
 
 def generate_density_map(
-    x: np.array,
+    x: np.ndarray,
     x_range: typing.Tuple[float, float],
-    y: np.array,
+    y: np.ndarray,
     y_range: typing.Tuple[float, float],
     filename: str,
     x_log_scale: bool = False,
@@ -37,49 +39,26 @@ def generate_density_map(
     X/Y coordinates in a 2D space. The resulting image is written to disk.
 
     Args:
-        x: horizontal coordinate values for the points.
-        x_range: horizontal range of values for the points.
-        y: vertical coordinate values for the points.
-        y_range: vertical range of values for the points.
-        filename: file path to generate the density map image.
-        x_log_scale: if True set the x axis scale to log scale
-        y_log_scale: if True set the y axis scale to log scale
-        n_x_bins: number of horizontal bins for the density map.
-        n_y_bins: number of vertical bins for the density map.
-        normalize: unused parameter, just to respect the interface.
-        colormap: colormap to use for the image
+        x (np.ndarray): horizontal coordinate values for the points.
+        x_range (float, float): horizontal range of values for the points.
+        y (np.ndarray): vertical coordinate values for the points.
+        y_range (float, float): vertical range of values for the points.
+        filename (str): file path to generate the density map image.
+        x_log_scale (bool): if True set the x axis scale to log scale
+        y_log_scale (bool): if True set the y axis scale to log scale
+        n_x_bins (int): number of horizontal bins for the density map.
+        n_y_bins (int): number of vertical bins for the density map.
+        normalize (bool): unused parameter to respect the interface.
+        colormap (str): colormap to use for the image
 
     Returns:
         Nothing. An image is generated in the specified file path.
 
     """
 
-    x_edges = None
-    y_edges = None
-
-    if x_log_scale and y_log_scale:
-        x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-
-    elif x_log_scale and (y_log_scale is False):
-        x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
-
-    elif (x_log_scale is False) and y_log_scale:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
+    x_edges, y_edges = axs.log_scale_vs_linear_scale(
+        x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
+    )
 
     # generating a 2D histogram that counts the number of objects contained
     # in each respective pixel; following the discrete count, we apply a
@@ -114,11 +93,11 @@ def generate_density_map(
 
 
 def generate_avg_weight_map(
-    x: np.array,
+    x: np.ndarray,
     x_range: typing.Tuple[float, float],
-    y: np.array,
+    y: np.ndarray,
     y_range: typing.Tuple[float, float],
-    w: np.array,
+    w: np.ndarray,
     filename: str,
     x_log_scale: bool = False,
     y_log_scale: bool = False,
@@ -135,50 +114,27 @@ def generate_avg_weight_map(
     The resulting map shows the average value of the weights in each bin.
 
     Args:
-        x: horizontal coordinate values for the points.
-        x_range: horizontal range of values for the points.
-        y: vertical coordinate values for the points.
-        y_range: vertical range of values for the points.
-        w: weight values for the points.
-        filename: file path to generate the heatmap image.
-        x_log_scale: if True set the x axis scale to log scale.
-        y_log_scale: if True set the y axis scale to log scale.
-        n_x_bins: number of horizontal bins for the weight map.
-        n_y_bins: number of vertical bins for the weight map.
-        normalize: unused parameter to respect the interface.
-        colormap: colormap to use for the image
+        x (np.ndarray): horizontal coordinate values for the points.
+        x_range (float, float): horizontal range of values for the points.
+        y (np.ndarray): vertical coordinate values for the points.
+        y_range (float, float): vertical range of values for the points.
+        w (np.ndarray): weight values for the points.
+        filename (str): file path to generate the heat map image.
+        x_log_scale (bool): if True set the x axis scale to log scale
+        y_log_scale (bool): if True set the y axis scale to log scale
+        n_x_bins (int): number of horizontal bins for the weight map.
+        n_y_bins (int): number of vertical bins for the weight map.
+        normalize (bool): unused parameter to respect the interface.
+        colormap (str): colormap to use for the image
 
     Returns:
         Nothing. An image is generated in the specified file path.
 
     """
 
-    x_edges = None
-    y_edges = None
-
-    if x_log_scale and y_log_scale:
-        x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-
-    elif x_log_scale and (y_log_scale is False):
-        x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
-
-    elif (x_log_scale is False) and y_log_scale:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
+    x_edges, y_edges = axs.log_scale_vs_linear_scale(
+        x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
+    )
 
     # if the quantity desired as the weight can become negative, e.g.,
     # one of the velocity components, take the absolute value and use that
@@ -223,9 +179,9 @@ def generate_avg_weight_map(
 
 
 def generate_density_matrix(
-    x: np.array,
+    x: np.ndarray,
     x_range: typing.Tuple[float, float],
-    y: np.array,
+    y: np.ndarray,
     y_range: typing.Tuple[float, float],
     filename: str,
     x_log_scale: bool = False,
@@ -241,48 +197,25 @@ def generate_density_matrix(
     X/Y coordinates in a 2D space. The resulting matrix is saved as .npy file
 
     Args:
-        x: horizontal coordinate values for the points.
-        x_range: horizontal range of values for the points.
-        y: vertical coordinate values for the points.
-        y_range: vertical range of values for the points.
-        filename: file path to generate the density matrix.
-        x_log_scale: if True set the x axis scale to log scale
-        y_log_scale: if True set the y axis scale to log scale
-        n_x_bins: number of horizontal bins for the matrix.
-        n_y_bins: number of vertical bins for the matrix.
-        normalize: whether to normalize bins to range [0,1].
+        x (np.ndarray): horizontal coordinate values for the points.
+        x_range (float, float): horizontal range of values for the points.
+        y (np.ndarray): vertical coordinate values for the points.
+        y_range (float, float): vertical range of values for the points.
+        filename (str): file path to generate the density matrix.
+        x_log_scale (bool): if True set the x axis scale to log scale
+        y_log_scale (bool): if True set the y axis scale to log scale
+        n_x_bins (int): number of horizontal bins for the density matrix.
+        n_y_bins (int): number of vertical bins for the density matrix.
+        normalize (bool): whether to normalize bins to range [0,1].
 
     Returns:
         Nothing. A NumPy 2D array is generated in the specified file path.
 
     """
 
-    x_edges = None
-    y_edges = None
-
-    if x_log_scale and y_log_scale:
-        x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-
-    elif x_log_scale and (y_log_scale is False):
-        x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
-
-    elif (x_log_scale is False) and y_log_scale:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
+    x_edges, y_edges = axs.log_scale_vs_linear_scale(
+        x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
+    )
 
     # generating a 2D histogram that counts the number of objects contained
     # in each respective bin; x (y) values are histogrammed along first
@@ -296,11 +229,11 @@ def generate_density_matrix(
 
 
 def generate_avg_weight_matrix(
-    x: np.array,
+    x: np.ndarray,
     x_range: typing.Tuple[float, float],
-    y: np.array,
+    y: np.ndarray,
     y_range: typing.Tuple[float, float],
-    w: np.array,
+    w: np.ndarray,
     filename: str,
     x_log_scale: bool = False,
     y_log_scale: bool = False,
@@ -316,49 +249,26 @@ def generate_avg_weight_matrix(
     The resulting matrix shows the average value of the weights in each bin.
 
     Args:
-        x: horizontal coordinate values for the points.
-        x_range: horizontal range of values for the points.
-        y: vertical coordinate values for the points.
-        y_range: vertical range of values for the points.
-        w: weight values for the points.
-        filename: file path to generate the matrix.
-        x_log_scale: if True set the x axis scale to log scale
-        y_log_scale: if True set the y axis scale to log scale
-        n_x_bins: number of horizontal bins for the matrix.
-        n_y_bins: number of vertical bins for the matrix.
-        normalize: whether to normalize bins to range [0,1].
+        x (np.ndarray): horizontal coordinate values for the points.
+        x_range (float, float): horizontal range of values for the points.
+        y (np.ndarray): vertical coordinate values for the points.
+        y_range (float, float): vertical range of values for the points.
+        w (np.ndarray): weight values for the points.
+        filename (str): file path to generate the density matrix.
+        x_log_scale (bool): if True set the x axis scale to log scale
+        y_log_scale (bool): if True set the y axis scale to log scale
+        n_x_bins (int): number of horizontal bins for the density matrix.
+        n_y_bins (int): number of vertical bins for the density matrix.
+        normalize (bool): whether to normalize bins to range [0,1].
 
     Returns:
         Nothing. A NumPy 2D array is generated in the specified file path.
 
     """
 
-    x_edges = None
-    y_edges = None
-
-    if x_log_scale and y_log_scale:
-        x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-
-    elif x_log_scale and (y_log_scale is False):
-        x_edges = np.logspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
-
-    elif (x_log_scale is False) and y_log_scale:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        y_edges = np.logspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
+    x_edges, y_edges = axs.log_scale_vs_linear_scale(
+        x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
+    )
 
     # if the quantity desired as the weight can become negative, e.g.,
     # one of the velocity components, take the absolute value and use that
