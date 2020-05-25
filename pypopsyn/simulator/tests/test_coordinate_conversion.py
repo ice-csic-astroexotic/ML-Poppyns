@@ -44,6 +44,21 @@ def test_case_2():
     return data
 
 
+@pytest.fixture()
+def test_case_3():
+    data = {
+        "v_r": 1.0,
+        "v_phi": 1.0,
+        "v_z": 1.0,
+        "phi": np.pi / 4.0,
+        "v_x_expected": 0.0,
+        "v_y_expected": np.sqrt(2),
+        "v_z_expected": 1.0,
+    }
+
+    return data
+
+
 def test_check_radial_coordinate():
     """
     Verifying that a ValueError is raised if the radial coordinate is negative.
@@ -74,3 +89,19 @@ def test_spherical_to_cartesian(test_case_2):
     assert np.abs(test_case_2["x_expected"] - x_out) < TOL
     assert np.abs(test_case_2["y_expected"] - y_out) < TOL
     assert np.abs(test_case_2["z_expected"] - z_out) < TOL
+
+
+def test_speed_cylindrical_to_cartesian(test_case_3):
+    """
+    Verifying that the transformation of velocity components from cylindrical to
+    Cartesian galactocentric coordinates is correct.
+    """
+    v_x_out, v_y_out, v_z_out = coco.speed_cylindrical_to_cartesian(
+        test_case_3["v_r"],
+        test_case_3["v_phi"],
+        test_case_3["v_z"],
+        test_case_3["phi"],
+    )
+    assert np.abs(test_case_3["v_x_expected"] - v_x_out) < TOL
+    assert np.abs(test_case_3["v_y_expected"] - v_y_out) < TOL
+    assert np.abs(test_case_3["v_z_expected"] - v_z_out) < TOL
