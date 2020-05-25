@@ -87,6 +87,8 @@ def speed_cylindrical_to_cartesian(
             v_phi (float): azimuthal velocity component in a cylindrical
             galactocentric frame
             v_z (float): z velocity component in a cylindrical galactocentric frame
+            phi (float): azimuthal angle [0, 2*pi] in cylindrical coordinates
+
         Returns:
             (float, float, float): v_x, v_y and v_z velocity components in a Cartesian
             galactocentric frame.
@@ -124,8 +126,8 @@ def galactocentric_to_icrs(
             v_DEC proper velocity components in mas/yr in the ICRS reference frame.
         """
 
-    # set the astropy galactocentric frame with the most recent updated parameter
-    # values from latest astropy version
+    # Set the astropy galactocentric frame with the parameter
+    # values from astropy version 4.0.
     _ = galactocentric_frame_defaults.set("v4.0")
 
     # The galactocentric reference frame used in the simulation is a right-handed
@@ -147,8 +149,8 @@ def galactocentric_to_icrs(
     v_y_gal = v_x
     v_z_gal = v_z
 
-    # create an object containing the coordinates using the class
-    # coordinates.Galactocentric from astropy
+    # Create an object containing the coordinates using the class
+    # coordinates.Galactocentric from astropy.
     gc_coord = coord.Galactocentric(
         x=x_gal * u.kpc,
         y=y_gal * u.kpc,
@@ -160,10 +162,10 @@ def galactocentric_to_icrs(
         galcen_distance=8.5 * u.kpc,
     )
 
-    # transform from galactocentric to ICRS frame
+    # Transform from galactocentric to ICRS frame.
     icrs_coord = gc_coord.transform_to(coord.ICRS)
 
-    # convert RA and DEC units in degrees in the ranges [0, 360] deg and [-90,
+    # Convert RA and DEC units in degrees in the ranges [0, 360] deg and [-90,
     # 90] deg respectively and remove astropy units to obtain numpy float values.
     ra = icrs_coord.ra.degree / u.deg
     dec = icrs_coord.dec.degree / u.deg

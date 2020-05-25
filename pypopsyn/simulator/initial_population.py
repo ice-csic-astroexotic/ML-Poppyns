@@ -48,7 +48,7 @@ class InitialNeutronStarPopulation:
         probability distribution in a given range of time.
 
         Returns:
-            np.array : array of ages in years
+            np.ndarray : array of ages in years
         """
 
         log.debug(
