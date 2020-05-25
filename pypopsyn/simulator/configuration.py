@@ -23,7 +23,7 @@ cfg["t_age_max"] = 1.0e8  # Maximum age for the neutron stars [yr].
 
 cfg["vp_mean"] = 380.0  # characteristic kick velocity in km/s for the proper
 # velocity pdf.
-cfg["h_mean"] = 0.02  # characteristic height in kpc from the galactic plane
+cfg["h_mean"] = 0.18  # characteristic height in kpc from the galactic plane
 
 
 def update_configuration(new_configuration) -> None:

@@ -64,7 +64,7 @@ def generate_dataset(args) -> None:
 
             resolution (int): Resolution (number of bins per axis for the 2d
             histograms) for the image to generate. In case of RA DEC maps the DEC
-            axis has half the number of bins respect to the RA axis.
+            axis has half the number of bins with respect to the RA axis.
 
             normalize (bool): Whether or not to normalize the representations
             so that each cell holds [0,1] values.
@@ -150,8 +150,8 @@ def generate_dataset(args) -> None:
             df_pop["y"],
             (-20.0, 20.0),
             position_map_xy_filename,
-            x_n_bins=args.resolution,
-            y_n_bins=args.resolution,
+            n_x_bins=args.resolution,
+            n_y_bins=args.resolution,
             normalize=args.normalize,
         )
 
@@ -173,8 +173,8 @@ def generate_dataset(args) -> None:
             df_pop["z"],
             (-5.0, 5.0),
             position_map_xz_filename,
-            x_n_bins=args.resolution,
-            y_n_bins=args.resolution,
+            n_x_bins=args.resolution,
+            n_y_bins=args.resolution,
             normalize=args.normalize,
         )
 
@@ -197,8 +197,8 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_r"]),
             velocity_map_xy_vr_filename,
-            x_n_bins=args.resolution,
-            y_n_bins=args.resolution,
+            n_x_bins=args.resolution,
+            n_y_bins=args.resolution,
             normalize=args.normalize,
         )
 
@@ -221,8 +221,8 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_phi"]),
             velocity_map_xy_vphi_filename,
-            x_n_bins=args.resolution,
-            y_n_bins=args.resolution,
+            n_x_bins=args.resolution,
+            n_y_bins=args.resolution,
             normalize=args.normalize,
         )
 
@@ -245,8 +245,8 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_z"]),
             velocity_map_xy_vz_filename,
-            x_n_bins=args.resolution,
-            y_n_bins=args.resolution,
+            n_x_bins=args.resolution,
+            n_y_bins=args.resolution,
             normalize=args.normalize,
         )
 
@@ -268,8 +268,8 @@ def generate_dataset(args) -> None:
             df_pop["DEC"],
             (-90.0, 90.0),
             position_map_radec_filename,
-            x_n_bins=args.resolution,
-            y_n_bins=int(args.resolution / 2),
+            n_x_bins=args.resolution,
+            n_y_bins=int(args.resolution / 2),
             normalize=args.normalize,
         )
 
@@ -292,8 +292,8 @@ def generate_dataset(args) -> None:
             (-90.0, 90.0),
             abs(df_pop["v_RA"]),
             velocity_map_vra_filename,
-            x_n_bins=args.resolution,
-            y_n_bins=int(args.resolution / 2),
+            n_x_bins=args.resolution,
+            n_y_bins=int(args.resolution / 2),
             normalize=args.normalize,
         )
 
@@ -316,8 +316,8 @@ def generate_dataset(args) -> None:
             (-90.0, 90.0),
             abs(df_pop["v_DEC"]),
             velocity_map_vdec_filename,
-            x_n_bins=args.resolution,
-            y_n_bins=int(args.resolution / 2),
+            n_x_bins=args.resolution,
+            n_y_bins=int(args.resolution / 2),
             normalize=args.normalize,
         )
 
@@ -406,8 +406,7 @@ if __name__ == "__main__":
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the arrays that will be generated (in number "
-        "of cells).",
+        help="Resolution of the arrays that will be generated (in number of cells).",
     )
     parser.add_argument(
         "--normalize",

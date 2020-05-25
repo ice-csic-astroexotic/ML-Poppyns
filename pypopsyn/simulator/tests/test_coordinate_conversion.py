@@ -51,7 +51,7 @@ def test_case_3():
         "v_phi": 1.0,
         "v_z": 1.0,
         "phi": np.pi / 4.0,
-        "v_x_expected": np.sqrt(2),
+        "v_x_expected": 0.0,
         "v_y_expected": np.sqrt(2),
         "v_z_expected": 1.0,
     }

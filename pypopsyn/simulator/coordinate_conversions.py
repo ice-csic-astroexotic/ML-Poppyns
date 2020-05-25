@@ -92,7 +92,7 @@ def speed_cylindrical_to_cartesian(
             galactocentric frame.
         """
 
-    v_x = v_r * np.cos(phi) + v_phi * np.sin(phi)
+    v_x = v_r * np.cos(phi) - v_phi * np.sin(phi)
     v_y = v_r * np.sin(phi) + v_phi * np.cos(phi)
 
     return v_x, v_y, v_z
@@ -105,7 +105,10 @@ def galactocentric_to_icrs(
         Calculating the ICRS (International Celestial Reference Frame) coordinates RA,
         DEC and proper velocities v_RA, v_DEC from galactocentric spatial coordinates
         and velocities x, y, z, v_x, v_y and v_z. We use the astropy.coordinates
-        package that allows automatic conversions between coordinate systems.
+        package that allows automatic conversions between coordinate systems. The
+        module astropy.coordinates.Galactocentric deals with galactocentric
+        coordinates and it is defined as a right-handed reference frame with the Sun
+        located at the coordinate point (x = -8.5 kpc, y = 0 kpc, z = 0.02 kpc).
 
         Args:
             x (float): x coordinate in kpc in galactocentric reference frame
@@ -124,13 +127,16 @@ def galactocentric_to_icrs(
     # values from latest astropy version
     _ = galactocentric_frame_defaults.set("v4.0")
 
-    # The astropy.coordinates.Galactocentric deals with galactocentric
+    # The galactocentric reference frame used in this simulation is a right-handed
+    # reference frame with the Sun located at the coordinate point (x = 0 kpc,
+    # y = 8.5 kpc, z = 0.02 kpc).
+    # The module astropy.coordinates.Galactocentric deals with galactocentric
     # coordinates but it is defined with the x, y, axes rotated of 90 degrees
-    # clockwise respect to our galactocentric reference frame. In this new
-    # frame the position of the Sun is (x = -8.5 kpc, y = 0 kpc, z = 0.02 kpc). We
-    # therefore need to convert the galactocentric coordinates we use into the
+    # clockwise respect to the galactocentric reference frame used in the simulation.
+    # In this new frame the position of the Sun is (x = -8.5 kpc, y = 0 kpc, z = 0.02
+    # kpc). We therefore need to convert the galactocentric coordinates we use into the
     # galactocentric frame defined in astropy. To do that we apply the transformation
-    # (x -> y', y -> -x', z -> z').
+    # (x -> y_gal, y -> -x_gal, z -> z_gal).
 
     x_gal = -y
     y_gal = x
