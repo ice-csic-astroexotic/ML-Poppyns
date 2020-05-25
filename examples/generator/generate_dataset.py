@@ -63,7 +63,8 @@ def generate_dataset(args) -> None:
             type (str): Type of dataset to generate: array or image.
 
             resolution (int): Resolution (number of bins per axis for the 2d
-            histograms) for the image to generate.
+            histograms) for the image to generate. In case of RA DEC maps the DEC
+            axis has half the number of bins with respect to the RA axis.
 
             normalize (bool): Whether or not to normalize the representations
             so that each cell holds [0,1] values.
@@ -92,9 +93,12 @@ def generate_dataset(args) -> None:
     # corresponding set of parameters values
     position_map_xy_dictionary = {}
     position_map_xz_dictionary = {}
+    position_map_radec_dictionary = {}
     velocity_map_xy_vr_dictionary = {}
     velocity_map_xy_vphi_dictionary = {}
     velocity_map_xy_vz_dictionary = {}
+    velocity_map_vra_dictionary = {}
+    velocity_map_vdec_dictionary = {}
     param_dictionary = {}
 
     # Check if the parsed multirun directory exists as a precondition.
@@ -146,7 +150,8 @@ def generate_dataset(args) -> None:
             df_pop["y"],
             (-20.0, 20.0),
             position_map_xy_filename,
-            n_bins=args.resolution,
+            n_x_bins=args.resolution,
+            n_y_bins=args.resolution,
             normalize=args.normalize,
         )
 
@@ -168,7 +173,8 @@ def generate_dataset(args) -> None:
             df_pop["z"],
             (-5.0, 5.0),
             position_map_xz_filename,
-            n_bins=args.resolution,
+            n_x_bins=args.resolution,
+            n_y_bins=args.resolution,
             normalize=args.normalize,
         )
 
@@ -191,7 +197,8 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_r"]),
             velocity_map_xy_vr_filename,
-            n_bins=args.resolution,
+            n_x_bins=args.resolution,
+            n_y_bins=args.resolution,
             normalize=args.normalize,
         )
 
@@ -214,7 +221,8 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_phi"]),
             velocity_map_xy_vphi_filename,
-            n_bins=args.resolution,
+            n_x_bins=args.resolution,
+            n_y_bins=args.resolution,
             normalize=args.normalize,
         )
 
@@ -237,7 +245,8 @@ def generate_dataset(args) -> None:
             (-20.0, 20.0),
             abs(df_pop["v_z"]),
             velocity_map_xy_vz_filename,
-            n_bins=args.resolution,
+            n_x_bins=args.resolution,
+            n_y_bins=args.resolution,
             normalize=args.normalize,
         )
 
@@ -247,6 +256,77 @@ def generate_dataset(args) -> None:
         ).append(velocity_map_xy_vz_filename)
 
         log.info("{} generated...".format(velocity_map_xy_vz_filename))
+
+        # create position density maps projected on RA DEC plane
+        position_map_radec_filename = "{}/position_map_radec_pop_{}.{}".format(
+            dataset_path, s, extensions[args.type]
+        )
+
+        position_map_generators[args.type](
+            df_pop["RA"],
+            (0.0, 360.0),
+            df_pop["DEC"],
+            (-90.0, 90.0),
+            position_map_radec_filename,
+            n_x_bins=args.resolution,
+            n_y_bins=int(args.resolution / 2),
+            normalize=args.normalize,
+        )
+
+        # save density map filenames into a dictionary
+        position_map_radec_dictionary.setdefault(
+            "input:position_map_radec", []
+        ).append(position_map_radec_filename)
+
+        log.info("{} generated...".format(position_map_radec_filename))
+
+        # create velocity maps of component v_ra in the RA DEC plane
+        velocity_map_vra_filename = "{}/velocity_map_vra_pop_{}.{}".format(
+            dataset_path, s, extensions[args.type]
+        )
+
+        velocity_map_generators[args.type](
+            df_pop["RA"],
+            (0.0, 360.0),
+            df_pop["DEC"],
+            (-90.0, 90.0),
+            abs(df_pop["v_RA"]),
+            velocity_map_vra_filename,
+            n_x_bins=args.resolution,
+            n_y_bins=int(args.resolution / 2),
+            normalize=args.normalize,
+        )
+
+        # save velocity map filenames into a dictionary
+        velocity_map_vra_dictionary.setdefault(
+            "input:velocity_map_vra", []
+        ).append(velocity_map_vra_filename)
+
+        log.info("{} generated...".format(velocity_map_vra_filename))
+
+        # create velocity maps of component v_dec in the RA DEC plane
+        velocity_map_vdec_filename = "{}/velocity_map_vdec_pop_{}.{}".format(
+            dataset_path, s, extensions[args.type]
+        )
+
+        velocity_map_generators[args.type](
+            df_pop["RA"],
+            (0.0, 360.0),
+            df_pop["DEC"],
+            (-90.0, 90.0),
+            abs(df_pop["v_DEC"]),
+            velocity_map_vdec_filename,
+            n_x_bins=args.resolution,
+            n_y_bins=int(args.resolution / 2),
+            normalize=args.normalize,
+        )
+
+        # save velocity map filenames into a dictionary
+        velocity_map_vdec_dictionary.setdefault(
+            "input:velocity_map_vdec", []
+        ).append(velocity_map_vdec_filename)
+
+        log.info("{} generated...".format(velocity_map_vdec_filename))
 
         # Check if files containing labels exists as a precondition.
         label_path = pathlib.Path(
@@ -269,9 +349,12 @@ def generate_dataset(args) -> None:
     dataset_dictionary = {
         **position_map_xy_dictionary,
         **position_map_xz_dictionary,
+        **position_map_radec_dictionary,
         **velocity_map_xy_vr_dictionary,
         **velocity_map_xy_vphi_dictionary,
         **velocity_map_xy_vz_dictionary,
+        **velocity_map_vra_dictionary,
+        **velocity_map_vdec_dictionary,
         **param_dictionary,
     }
 
@@ -323,13 +406,13 @@ if __name__ == "__main__":
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the arrays that will be generated (in number of cells)",
+        help="Resolution of the arrays that will be generated (in number of cells).",
     )
     parser.add_argument(
         "--normalize",
         default=False,
         action="store_true",
-        help="Generate normalized maps or not",
+        help="Generate normalized maps or not (use for type array only).",
     )
     parser.add_argument(
         "--samples", nargs="?", type=int, help="Number of samples to select",

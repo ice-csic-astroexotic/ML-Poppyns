@@ -26,6 +26,7 @@ from typing import Tuple
 import numpy as np
 
 import pypopsyn.simulator.coordinate_conversions as coco
+from pypopsyn.simulator.configuration import cfg
 
 
 def check_arm_index(arm_index: int) -> None:
@@ -209,7 +210,7 @@ def pdf_initial_height(z: float) -> float:
     # and choose a mean scale height characteristic for a young distribution as
     # obtained by Gullon et al. (2014)
 
-    h_mean = 0.18  # [kpc]
+    h_mean = cfg["h_mean"]
     pdf_z = 1.0 / h_mean * np.exp(-z / h_mean)
 
     return pdf_z
