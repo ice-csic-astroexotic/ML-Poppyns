@@ -134,8 +134,8 @@ def r_derivative_n_potential(r: float) -> float:
     """
     # Parameters for the nucleus potential
     # (Faucher-Giguère & Kaspi 2006, Kuijken & Gilmore 1989).
-    M_n = 1.0e10 * const.M_SUN  # nucleus mass in g
-    b_n = 1.5  # core radius of the nucleus component in kpc
+    M_n = 1.0e10 * const.M_SUN  # Nucleus mass in g.
+    b_n = 1.5  # Core radius of the nucleus component in kpc.
 
     dpot_n_dr = const.G_KPC_YR * M_n * r * (b_n ** 2 + r ** 2) ** (-3.0 / 2.0)
 
