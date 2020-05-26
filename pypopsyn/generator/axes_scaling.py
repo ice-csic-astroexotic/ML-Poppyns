@@ -21,7 +21,7 @@ def check_range_above_zero(r_range: typing.Tuple[float, float]) -> None:
     Check that a range larger than zero is provided.
 
     Args:
-        r_range (float, float): value range to be checked
+        r_range (float, float): value range to be checked.
 
     Returns:
         Returns None if r_range[0] and r_range[1] greater than 0,

@@ -26,10 +26,10 @@ def pdf_proper_velocity(v: float) -> float:
     eq. (3) in Gullon et al. (2014).
 
     Args:
-        v (float): proper velocity in km/s
+        v (float): proper velocity in km/s.
 
     Returns:
-        float: stellar proper velocity distribution in 1/(km/s)
+        float: stellar proper velocity distribution in 1/(km/s).
     """
     vp_mean = cfg["vp_mean"]
     pdf_vp = 1.0 / vp_mean * np.exp(-v / vp_mean)
@@ -46,11 +46,11 @@ def virial_orbital_velocity(r: float, z: float) -> float:
     to rotation.
 
     Args:
-        r (float): distance in the galactic disk from the galactic centre in kpc
-        z (float): height from the galactic disk in kpc
+        r (float): distance in the galactic disk from the galactic centre in kpc.
+        z (float): height from the galactic disk in kpc.
 
     Returns:
-        (float): value of the orbital virial velocity in kpc / yr
+        (float): value of the orbital virial velocity in kpc / yr.
     """
     pot_mw_gradient = gm.cylind_coord_gradient_mw_potential(r, z)
     v_virial = np.sqrt(r * pot_mw_gradient[0])

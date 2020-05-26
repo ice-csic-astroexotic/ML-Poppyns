@@ -1,4 +1,5 @@
-""" Simulator configuration.
+"""
+Simulator configuration
 
     Authors:
 
@@ -11,7 +12,8 @@
 
 cfg = {}
 
-# initial population class parameters
+# Initial population class parameters.
+
 cfg["r_extent"] = 20.0  # Total radial extent from the galactic centre [kpc].
 cfg["z_extent"] = 5.0  # Total vertical extent from the galactic plane [kpc].
 cfg["vp_extent"] = 2500.0  # Maximum proper velocity magnitude [km/s].
@@ -21,9 +23,9 @@ cfg["arm_number"] = 4  # Number of spiral arms in the galaxy.
 cfg["t_age_min"] = 1.0  # Minimum age for the neutron stars [yr].
 cfg["t_age_max"] = 1.0e8  # Maximum age for the neutron stars [yr].
 
-cfg["vp_mean"] = 380.0  # characteristic kick velocity in km/s for the proper
+cfg["vp_mean"] = 380.0  # Characteristic kick velocity in km/s for the proper
 # velocity pdf.
-cfg["h_mean"] = 0.18  # characteristic height in kpc from the galactic plane
+cfg["h_mean"] = 0.18  # Characteristic height in kpc from the galactic plane.
 
 
 def update_configuration(new_configuration) -> None:

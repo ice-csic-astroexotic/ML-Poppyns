@@ -49,7 +49,7 @@ def test_pdf_proper_velocity(test_case_1):
 
 def test_virial_orbital_velocity(test_case_2):
     """
-    Verifying that the orbital virial velocity is evaluated correctly
+    Verifying that the orbital virial velocity is evaluated correctly.
     """
     v_virial_out = iv.virial_orbital_velocity(
         test_case_2["r"], test_case_2["z"]

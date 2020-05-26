@@ -34,7 +34,7 @@ def check_arm_index(arm_index: int) -> None:
     Check that the index for the spiral galaxy arms is not <1 or >4.
 
     Args:
-        arm_index (int): index for the respective spiral arms
+        arm_index (int): index for the respective spiral arms.
 
     Returns:
         Returns None if arm_index between or equal to 1 and 4,
@@ -50,29 +50,29 @@ def pdf_radial_stellar_density(r: float) -> float:
     to eq. (15) of Yusifov & Küçük (2004).
 
     Args:
-        r (float): distance from the galactic centre in kpc
+        r (float): distance from the galactic centre in kpc.
 
     Returns:
-        float: stellar radial density in 1/kpc
+        float: stellar radial density in 1/kpc.
     """
 
     # check range of input
     coco.check_radial_coordinate(r)
 
-    rsun = 8.5  # Sun's distance from the galactic centre [kpc]
+    rsun = 8.5  # Sun's distance from the galactic centre [kpc].
     A = 37.6  # +- 1.90 [1/kpc**2]
     a = 1.64  # +-0.11
     b = 4.01  # +-0.24
     r1 = 0.55  # +- 0.10 [kpc]
 
-    # stellar surface density following eq. (15) of Yusifov & Küçük (2004)
+    # Stellar surface density following eq. (15) of Yusifov & Küçük (2004).
     rho = (
         A
         * ((r + r1) / (rsun + r1)) ** a
         * np.exp(-b * (r - rsun) / (rsun + r1))
     )
 
-    # multiply the stellar surface density with the area element in polar coordinates
+    # Multiply the stellar surface density with the area element in polar coordinates.
     pdf_r = 2 * np.pi * r * rho
 
     return pdf_r
@@ -85,14 +85,14 @@ def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:
     Wainscoat et al. (1992)).
 
     Args:
-        r (float): distance from the galactic centre in kpc
-        arm_index (int): index for the respective spiral arms, 0 < arm_index < 5
+        r (float): distance from the galactic centre in kpc.
+        arm_index (int): index for the respective spiral arms, 0 < arm_index < 5.
 
     Returns:
-        (float, float): galactocentric coordinates phi [rad], r [kpc] with noise
+        (float, float): galactocentric coordinates phi [rad], r [kpc] with noise.
     """
 
-    # check range of input
+    # Check range of input.
     coco.check_radial_coordinate(r)
     check_arm_index(arm_index)
 
@@ -112,21 +112,21 @@ def calculate_phi(r: float, arm_index: int) -> float:
     Faucher-Giguère & Kaspi (2006) (see also Wainscoat et al. (1992)).
 
     Args:
-        r (float): distance from the galactic centre in kpc
-        arm_index (int): index for the respective spiral arms, 0 < arm_index < 5
+        r (float): distance from the galactic centre in kpc.
+        arm_index (int): index for the respective spiral arms, 0 < arm_index < 5.
 
     Returns:
-        float: galactocentric phi coordinate in rad
+        float: galactocentric phi coordinate in rad.
     """
 
-    # check range of input
+    # Check range of input.
     coco.check_radial_coordinate(r)
     check_arm_index(arm_index)
 
-    # parameters for four spiral arms in the Milky Way according to Table 2 in
+    # Parameters for four spiral arms in the Milky Way according to Table 2 in
     # Faucher-Giguère & Kaspi giving the winding constant k [rad], inner radius r_0
     # [kpc] and inner angle phi_min [rad] for the Norma, Carina-Sagittarius,
-    # Perseus and Crux-Scutum arm
+    # Perseus and Crux-Scutum arm.
 
     arm_param = {
         1: np.array([4.25, 3.48, 1.57]),
@@ -151,19 +151,19 @@ def spiral_arm_time_evol(phi0: float, t: float) -> float:
     of the Milky Way' by Vallée (2017)).
 
     Args:
-        phi0 (float): current angular position in rad for the current spiral pattern
-        t (float): time in yr to propagate backward
+        phi0 (float): current angular position in rad for the current spiral pattern.
+        t (float): time in yr to propagate backward.
 
     Returns:
-        (float): angular position in rad for the spiral pattern as it was t years ago
+        (float): angular position in rad for the spiral pattern as it was t years ago.
     """
 
-    # evaluate the angular velocity of rotation of the spiral pattern;
-    # T is the period of rotation in years
+    # Evaluate the angular velocity of rotation of the spiral pattern;
+    # T is the period of rotation in years.
     T = 2.5e8
     omega_spiral_arms = 2.0 * np.pi / T
 
-    # find the value of theta t years ago
+    # Find the value of theta t years ago.
     phi_t = phi0 + omega_spiral_arms * t
 
     return phi_t
@@ -178,12 +178,12 @@ def calculate_noise_for_coordinates(
     see Sec. 3.2.1 in Faucher-Giguère & Kaspi (2006) for details.
 
     Args:
-        r (float): distance from the galactic centre in kpc
+        r (float): distance from the galactic centre in kpc.
         seed (int): seed for random number generation,
-        set to None unless otherwise specified
+        set to None unless otherwise specified.
 
     Returns:
-        (float, float): noise for galactocentric coordinates phi [rad], r [kpc]
+        (float, float): noise for galactocentric coordinates phi [rad], r [kpc].
     """
 
     np.random.seed(seed)
@@ -200,15 +200,15 @@ def pdf_initial_height(z: float) -> float:
     according to eq. (2) in Gullon et al. (2014).
 
     Args:
-        z (float): distance from the galactic plane in kpc
+        z (float): distance from the galactic plane in kpc.
 
     Returns:
-        float: distribution of stars per kpc in z direction
+        float: distribution of stars per kpc in z direction.
     """
 
-    # we use an exponential distribution as given by Wainscoat et al. (1992)
+    # We use an exponential distribution as given by Wainscoat et al. (1992)
     # and choose a mean scale height characteristic for a young distribution as
-    # obtained by Gullon et al. (2014)
+    # obtained by Gullon et al. (2014).
 
     h_mean = cfg["h_mean"]
     pdf_z = 1.0 / h_mean * np.exp(-z / h_mean)
@@ -224,22 +224,22 @@ def random_scatter_about_plane(
     located at z=0.
 
     Args:
-        z (np.ndarray): array of heights in kpc with positive values
-        NS_number (int): total number of neutron stars created in the simulation
+        z (np.ndarray): array of heights in kpc with positive values.
+        NS_number (int): total number of neutron stars created in the simulation.
         seed (int): seed for random number generation,
-        set to None unless otherwise specified
+        set to None unless otherwise specified.
 
     Returns:
-        (np.ndarray): array of heights in kpc randomly scattered above or below 0
+        (np.ndarray): array of heights in kpc randomly scattered above or below 0.
     """
 
     np.random.seed(seed)
 
-    # check that z has the length of the number of neutron stars simulated
+    # Check that z has the length of the number of neutron stars simulated.
     if len(z) != NS_number:
         raise ValueError("Input array has the wrong length")
 
-    # for each neutron star create a random value 0 or 1 (above or below plane)
+    # For each neutron star create a random value 0 or 1 (above or below plane).
 
     up_down_index = np.random.randint(0, 2, NS_number)
     z_rand = np.zeros(NS_number)

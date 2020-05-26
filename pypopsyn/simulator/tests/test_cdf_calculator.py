@@ -51,7 +51,7 @@ def test_cdf_calculator(test_case_1):
 
 def test_random_from_cdf(monkeypatch, test_case_2):
     """
-    Checking that random numbers are correctly drawn from a cdf
+    Checking that random numbers are correctly drawn from a cdf.
     """
 
     def mock_cdf_rand(*args, **kwargs):
@@ -68,7 +68,7 @@ def test_random_from_cdf(monkeypatch, test_case_2):
 
 def test_random_from_pdf(monkeypatch, test_case_2):
     """
-    Checking that random numbers are correctly drawn from a pdf
+    Checking that random numbers are correctly drawn from a pdf.
     """
 
     def pdf(x: float) -> float:

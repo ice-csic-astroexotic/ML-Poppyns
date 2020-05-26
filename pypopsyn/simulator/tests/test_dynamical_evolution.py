@@ -33,7 +33,7 @@ def test_case_1():
 
 def test_dynamical_eq_system(test_case_1):
     """
-    Verifying that the dynamical equation system evaluates the derivatives correctly
+    Verifying that the dynamical equation system evaluates the derivatives correctly.
     """
     derivatives_out = dyn.dynamical_eq_system(
         test_case_1["initial_cond"], test_case_1["t"]

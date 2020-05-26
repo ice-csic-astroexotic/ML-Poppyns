@@ -36,7 +36,7 @@ def test_case_1():
 
 def test_shape_parameter(test_case_1):
     """
-    Verifying that the shape parameter and its derivative are evaluated correctly
+    Verifying that the shape parameter and its derivative are evaluated correctly.
     """
     K_out, dK_dz_out = gm.shape_parameter(test_case_1["z"])
 
@@ -47,7 +47,7 @@ def test_shape_parameter(test_case_1):
 def test_r_z_derivative_dh_potential(test_case_1):
     """
     Verifying that the r and z derivative of the disk-halo potential are evaluated
-    correctly
+    correctly.
     """
     dpot_dh_dr_out, dpot_dh_dz_out = gm.r_z_derivatives_dh_potential(
         test_case_1["r"], test_case_1["z"]
@@ -70,7 +70,7 @@ def test_r_z_derivative_dh_potential(test_case_1):
 def test_r_derivative_b_potential(test_case_1):
     """
     Verifying that the radial derivative of the bulge potential is evaluated
-    correctly
+    correctly.
     """
     dpot_b_dr_out = gm.r_derivative_b_potential(test_case_1["r"])
 
@@ -85,7 +85,7 @@ def test_r_derivative_b_potential(test_case_1):
 def test_r_derivative_n_potential(test_case_1):
     """
     Verifying that the radial derivative of the nucleus potential is evaluated
-    correctly
+    correctly.
     """
     dpot_n_dr_out = gm.r_derivative_n_potential(test_case_1["r"])
 
@@ -99,8 +99,8 @@ def test_r_derivative_n_potential(test_case_1):
 
 def test_cylind_coord_gradient_mw_potential(test_case_1):
     """
-    Verifying that the gradient in cylindrical coordinates of the Milky Way potential is evaluated
-    correctly
+    Verifying that the gradient in cylindrical coordinates of the Milky Way
+    potential is evaluated correctly.
     """
     gradient_mw_out = gm.cylind_coord_gradient_mw_potential(
         test_case_1["r"], test_case_1["z"]

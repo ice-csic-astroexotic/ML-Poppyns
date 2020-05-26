@@ -44,12 +44,12 @@ def generate_density_map(
         y (np.ndarray): vertical coordinate values for the points.
         y_range (float, float): vertical range of values for the points.
         filename (str): file path to generate the density map image.
-        x_log_scale (bool): if True set the x axis scale to log scale
-        y_log_scale (bool): if True set the y axis scale to log scale
+        x_log_scale (bool): if True set the x axis scale to log scale.
+        y_log_scale (bool): if True set the y axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the density map.
         n_y_bins (int): number of vertical bins for the density map.
         normalize (bool): unused parameter to respect the interface.
-        colormap (str): colormap to use for the image
+        colormap (str): colormap to use for the image.
 
     Returns:
         Nothing. An image is generated in the specified file path.
@@ -60,11 +60,11 @@ def generate_density_map(
         x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
     )
 
-    # generating a 2D histogram that counts the number of objects contained
+    # Generating a 2D histogram that counts the number of objects contained
     # in each respective pixel; following the discrete count, we apply a
     # Gaussian filter to smear out the hard edges of the distribution to
     # improve the stability of the machine learning framework;
-    # x (y) values are histogrammed along first (second) dimension
+    # x (y) values are histogrammed along first (second) dimension.
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     density = scipy.ndimage.filters.gaussian_filter(density, sigma=1)
 
@@ -75,9 +75,9 @@ def generate_density_map(
     ax.set_axis_off()
     fig.add_axes(ax)
 
-    # generating a pseudocolor plot of the smeared out density distribution;
+    # Generating a pseudocolor plot of the smeared out density distribution;
     # we transpose the array as pcolormesh is indexed starting from the lower
-    # left , i.e., the column (row) index corresponds to the x (y) coordinate
+    # left , i.e., the column (row) index corresponds to the x (y) coordinate.
     ax.pcolormesh(x_edges, y_edges, density.T, cmap=colormap)
     ax.set_xlim(x_range[0], x_range[1])
     ax.set_ylim(y_range[0], y_range[1])
@@ -120,12 +120,12 @@ def generate_avg_weight_map(
         y_range (float, float): vertical range of values for the points.
         w (np.ndarray): weight values for the points.
         filename (str): file path to generate the heat map image.
-        x_log_scale (bool): if True set the x axis scale to log scale
-        y_log_scale (bool): if True set the y axis scale to log scale
+        x_log_scale (bool): if True set the x axis scale to log scale.
+        y_log_scale (bool): if True set the y axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the weight map.
         n_y_bins (int): number of vertical bins for the weight map.
         normalize (bool): unused parameter to respect the interface.
-        colormap (str): colormap to use for the image
+        colormap (str): colormap to use for the image.
 
     Returns:
         Nothing. An image is generated in the specified file path.
@@ -136,19 +136,19 @@ def generate_avg_weight_map(
         x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
     )
 
-    # if the quantity desired as the weight can become negative, e.g.,
+    # If the quantity desired as the weight can become negative, e.g.,
     # one of the velocity components, take the absolute value and use that
-    # as the weight to avoid the possibility of summing to zero
+    # as the weight to avoid the possibility of summing to zero.
     total_per_bin, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     total_weight, x_edges, y_edges = np.histogram2d(
         x, y, bins=[x_edges, y_edges], weights=w
     )
 
-    # dividing the total summed weight per bin by the number of objects to
+    # Dividing the total summed weight per bin by the number of objects to
     # obtain the average value per pixel; to avoid dividing by 0, we change
     # the values in total_weight from 0 to 0.0001; doing so does not affect
     # the final result as the original array elements are zero anyway;
-    # to avoid potential sharp edges, we apply a Gaussian filter
+    # to avoid potential sharp edges, we apply a Gaussian filter.
     total_per_bin[total_per_bin == 0] = 0.0001
     avg_weight = total_weight / total_per_bin
     avg_weight = scipy.ndimage.filters.gaussian_filter(avg_weight, sigma=1)
@@ -160,9 +160,9 @@ def generate_avg_weight_map(
     ax.set_axis_off()
     fig.add_axes(ax)
 
-    # generating a pseudocolor plot of the smeared out average distribution;
+    # Generating a pseudocolor plot of the smeared out average distribution;
     # we transpose the array as pcolormesh is indexed starting from the lower
-    # left , i.e., the column (row) index corresponds to the x (y) coordinate
+    # left , i.e., the column (row) index corresponds to the x (y) coordinate.
     ax.pcolormesh(x_edges, y_edges, avg_weight.T, cmap=colormap)
     ax.set_xlim(x_range[0], x_range[1])
     ax.set_ylim(y_range[0], y_range[1])
@@ -194,7 +194,7 @@ def generate_density_matrix(
     Density matrix generator.
 
     Creates a density matrix of a distribution of points given their
-    X/Y coordinates in a 2D space. The resulting matrix is saved as .npy file
+    X/Y coordinates in a 2D space. The resulting matrix is saved as .npy file.
 
     Args:
         x (np.ndarray): horizontal coordinate values for the points.
@@ -202,8 +202,8 @@ def generate_density_matrix(
         y (np.ndarray): vertical coordinate values for the points.
         y_range (float, float): vertical range of values for the points.
         filename (str): file path to generate the density matrix.
-        x_log_scale (bool): if True set the x axis scale to log scale
-        y_log_scale (bool): if True set the y axis scale to log scale
+        x_log_scale (bool): if True set the x axis scale to log scale.
+        y_log_scale (bool): if True set the y axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the density matrix.
         n_y_bins (int): number of vertical bins for the density matrix.
         normalize (bool): whether to normalize bins to range [0,1].
@@ -217,9 +217,9 @@ def generate_density_matrix(
         x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
     )
 
-    # generating a 2D histogram that counts the number of objects contained
+    # Generating a 2D histogram that counts the number of objects contained
     # in each respective bin; x (y) values are histogrammed along first
-    # (second) dimension; normalize to overall maximum if normalize = True
+    # (second) dimension; normalize to overall maximum if normalize = True.
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
 
     if normalize:
@@ -255,8 +255,8 @@ def generate_avg_weight_matrix(
         y_range (float, float): vertical range of values for the points.
         w (np.ndarray): weight values for the points.
         filename (str): file path to generate the density matrix.
-        x_log_scale (bool): if True set the x axis scale to log scale
-        y_log_scale (bool): if True set the y axis scale to log scale
+        x_log_scale (bool): if True set the x axis scale to log scale.
+        y_log_scale (bool): if True set the y axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the density matrix.
         n_y_bins (int): number of vertical bins for the density matrix.
         normalize (bool): whether to normalize bins to range [0,1].
@@ -270,24 +270,24 @@ def generate_avg_weight_matrix(
         x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
     )
 
-    # if the quantity desired as the weight can become negative, e.g.,
+    # If the quantity desired as the weight can become negative, e.g.,
     # one of the velocity components, take the absolute value and use that
-    # as the weight to avoid the possibility of summing to zero
+    # as the weight to avoid the possibility of summing to zero.
     total_per_bin, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     total_weight, x_edges, y_edges = np.histogram2d(
         x, y, bins=[x_edges, y_edges], weights=w
     )
 
-    # dividing the total summed weight per bin by the number of objects to
+    # Dividing the total summed weight per bin by the number of objects to
     # obtain the average value per bin; to avoid dividing by 0, we change
     # the values in total_weight from 0 to 0.0001; doing so does not affect
     # the final result as the original array elements are zero anyway;
-    # to avoid potential sharp edges, we apply a Gaussian filter
+    # to avoid potential sharp edges, we apply a Gaussian filter.
     total_per_bin[total_per_bin == 0] = 0.0001
     avg_weight = total_weight / total_per_bin
     avg_weight = scipy.ndimage.filters.gaussian_filter(avg_weight, sigma=1)
 
-    # normalize to overall maximum if normalize = True
+    # Normalize to overall maximum if normalize = True.
     if normalize:
         avg_weight = avg_weight / np.max(avg_weight)
 
