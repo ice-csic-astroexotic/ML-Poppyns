@@ -22,7 +22,7 @@ def check_radial_coordinate(r: float) -> None:
     Check that the distance from the origin is not negative.
 
     Args:
-        r (float): distance from the origin in units of length
+        r (float): distance from the origin in units of length.
 
     Returns:
         Returns None if r greater than or equal to 0,
@@ -38,11 +38,11 @@ def polar_to_cartesian(r: float, phi: float) -> Tuple[float, float]:
 
     Args:
         r (float): radial component (magnitude of the vector) in plane polar
-        coordinates, r>0
-        phi (float): angular coordinate, [0, 2*pi]
+        coordinates, r>0.
+        phi (float): angular coordinate, [0, 2*pi].
 
     Returns:
-        (float, float): x and y coordinates in a Cartesian system
+        (float, float): x and y coordinates in a Cartesian system.
     """
 
     x = r * np.cos(phi)
@@ -60,12 +60,12 @@ def spherical_to_cartesian(
 
     Args:
         r (float): radial component (magnitude of the vector) in spherical
-        coordinates, r>0
-        theta (float): polar angle, [0, pi]
-        psi (float): azimuthal angle, [0, 2*pi]
+        coordinates, r>0.
+        theta (float): polar angle, [0, pi].
+        psi (float): azimuthal angle, [0, 2*pi].
 
     Returns:
-        (float, float, float): x, y and z coordinates in a Cartesian system
+        (float, float, float): x, y and z coordinates in a Cartesian system.
     """
 
     x = r * np.sin(theta) * np.cos(psi)
@@ -83,10 +83,12 @@ def speed_cylindrical_to_cartesian(
         from cylindrical galactocentric components v_r, v_phi and v_z.
 
         Args:
-            v_r (float): radial velocity component in a cylindrical galactocentric frame
+            v_r (float): radial velocity component in a cylindrical galactocentric frame.
             v_phi (float): azimuthal velocity component in a cylindrical
-            galactocentric frame
-            v_z (float): z velocity component in a cylindrical galactocentric frame
+            galactocentric frame.
+            v_z (float): z velocity component in a cylindrical galactocentric frame.
+            phi (float): azimuthal angle [0, 2*pi] in cylindrical coordinates.
+
         Returns:
             (float, float, float): v_x, v_y and v_z velocity components in a Cartesian
             galactocentric frame.
@@ -112,20 +114,20 @@ def galactocentric_to_icrs(
         between coordinate systems.
 
         Args:
-            x (float): x coordinate in kpc in galactocentric reference frame
-            y (float): y coordinate in kpc in galactocentric reference frame
-            z (float): z coordinate in kpc in galactocentric reference frame
-            v_x (float): x velocity component in km/s in galactocentric reference frame
-            v_y (float): y velocity component in km/s in galactocentric reference frame
-            v_z (float): z velocity component in km/s in galactocentric reference frame
+            x (float): x coordinate in kpc in galactocentric reference frame.
+            y (float): y coordinate in kpc in galactocentric reference frame.
+            z (float): z coordinate in kpc in galactocentric reference frame.
+            v_x (float): x velocity component in km/s in galactocentric reference frame.
+            v_y (float): y velocity component in km/s in galactocentric reference frame.
+            v_z (float): z velocity component in km/s in galactocentric reference frame.
 
         Returns:
             (float, float, float, float): RA, DEC coordinates in degree and v_RA
             v_DEC proper velocity components in mas/yr in the ICRS reference frame.
         """
 
-    # set the astropy galactocentric frame with the most recent updated parameter
-    # values from latest astropy version
+    # Set the astropy galactocentric frame with the parameter
+    # values from astropy version 4.0.
     _ = galactocentric_frame_defaults.set("v4.0")
 
     # The galactocentric reference frame used in the simulation is a right-handed
@@ -147,8 +149,8 @@ def galactocentric_to_icrs(
     v_y_gal = v_x
     v_z_gal = v_z
 
-    # create an object containing the coordinates using the class
-    # coordinates.Galactocentric from astropy
+    # Create an object containing the coordinates using the class
+    # coordinates.Galactocentric from astropy.
     gc_coord = coord.Galactocentric(
         x=x_gal * u.kpc,
         y=y_gal * u.kpc,
@@ -160,11 +162,12 @@ def galactocentric_to_icrs(
         galcen_distance=8.5 * u.kpc,
     )
 
-    # transform from galactocentric to ICRS frame
+    # Transform from galactocentric to ICRS frame.
     icrs_coord = gc_coord.transform_to(coord.ICRS)
 
-    # convert RA and DEC units in degrees in the ranges [0, 360] deg and [-90,
-    # 90] deg respectively and remove astropy units to obtain numpy float values.
+    # Determine RA and DEC in degrees in the ranges [0, 360] and [-90, 90],
+    # respectively, and proper motion in RA and DEC in units of mas / yr;
+    # we subsequently remove astropy units to obtain numpy float values.
     ra = icrs_coord.ra.degree / u.deg
     dec = icrs_coord.dec.degree / u.deg
     v_ra = icrs_coord.pm_ra_cosdec / (u.mas / u.yr)

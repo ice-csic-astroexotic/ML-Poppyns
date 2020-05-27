@@ -128,7 +128,7 @@ def test_calculate_phi(test_case_1):
 
 def test_spiral_arm_time_evol(test_case_4):
     """
-    Verifying that the the spiral structure evolve in time in the correct way
+    Verifying that the the spiral structure evolve in time in the correct way.
     """
 
     phi_t_out = ip.spiral_arm_time_evol(test_case_4["phi0"], test_case_4["t"])
@@ -138,7 +138,7 @@ def test_spiral_arm_time_evol(test_case_4):
 
 def test_calculate_noise_for_coordinates(monkeypatch, test_case_3):
     """
-    Verifying that the noise is correctly calculated
+    Verifying that the noise is correctly calculated.
     """
 
     def mock_noise_uniform(*args, **kwargs):
@@ -171,7 +171,7 @@ def test_pdf_initial_height(test_case_1):
 def test_random_scatter_about_plane_01(test_case_2):
     """
     Verifying that a ValueError is raised when the input array does not have the same
-    length as the number of neutron stars simulated
+    length as the number of neutron stars simulated.
     """
     NS_number = 10
     with pytest.raises(ValueError, match="Input array has the wrong length"):

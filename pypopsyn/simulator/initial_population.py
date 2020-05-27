@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 class InitialNeutronStarPopulation:
     """
-    Generating a random pulsar population in the Milky Way
+    Generating a random pulsar population in the Milky Way.
     """
 
     def __init__(self, seed=None):
@@ -35,7 +35,7 @@ class InitialNeutronStarPopulation:
 
         Args:
             seed (int): seed for random number generation,
-            set to None unless otherwise specified
+            set to None unless otherwise specified.
         """
 
         self.seed = seed
@@ -48,7 +48,7 @@ class InitialNeutronStarPopulation:
         probability distribution in a given range of time.
 
         Returns:
-            np.array : array of ages in years
+            np.ndarray : array of ages in years.
         """
 
         log.debug(
@@ -70,12 +70,12 @@ class InitialNeutronStarPopulation:
         cylindrical and Cartesian coordinates in a galactocentric reference frame.
 
         Args:
-            t_age (np.ndarray): array of neutron star ages in yr
+            t_age (np.ndarray): array of neutron star ages in yr.
 
         Returns:
             (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
             polar r and phi coordinates in kpc and rad and Cartesian x, y and z
-            coordinates in kpc for each generated neutron star
+            coordinates in kpc for each generated neutron star.
         """
 
         # Drawing a random distance from the galactic center in kpc for
@@ -177,11 +177,11 @@ class InitialNeutronStarPopulation:
 
         Args:
             r (np.ndarray): distance in the galactic disk from the galactic center
-            in kpc
-            z (np.ndarray): height from the galactic disk in kpc
+            in kpc.
+            z (np.ndarray): height from the galactic disk in kpc.
 
         Returns:
-            (np.ndarray): array of orbital velocities in kpc / yr
+            (np.ndarray): array of orbital velocities in kpc / yr.
         """
         virial_orbital_velocity_vect = np.vectorize(iv.virial_orbital_velocity)
         v_orb = -virial_orbital_velocity_vect(r, z)
