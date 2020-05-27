@@ -20,9 +20,12 @@ def generate_position_map(
     map_type,
     x_positions,
     y_positions,
-    resolution,
+    x_resolution,
+    y_resolution,
     normalize,
     position_maps_dictionary,
+    x_limits=(-20.0, 20.0),
+    y_limits=(-20.0, 20.0),
 ):
 
     position_map_filename = "{}/{}_{}.{}".format(
@@ -31,12 +34,12 @@ def generate_position_map(
 
     position_map_generators[map_type](
         x_positions,
-        (-20.0, 20.0),
+        x_limits,
         y_positions,
-        (-20.0, 20.0),
+        y_limits,
         position_map_filename,
-        n_x_bins=resolution,
-        n_y_bins=resolution,
+        n_x_bins=x_resolution,
+        n_y_bins=y_resolution,
         normalize=normalize,
     )
 

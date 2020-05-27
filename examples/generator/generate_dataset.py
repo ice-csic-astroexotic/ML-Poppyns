@@ -75,24 +75,12 @@ def generate_dataset(args) -> None:
             the whole dataset is generated. Samples are taken equally spaced.
     """
 
-    # create the dataset directory
+    # Create the dataset directory.
     dataset_path = "examples/data/{}".format(args.dataset_name)
     pathlib.Path(dataset_path).mkdir(parents=True, exist_ok=True)
 
-    # Initialize the multiple options we have to generate the different data
-    # inputs which will be later selected at runtime depending on the arguments.
-    position_map_generators = {
-        "array": dg.generate_density_matrix,
-        "image": dg.generate_density_map,
-    }
-    velocity_map_generators = {
-        "array": dg.generate_avg_weight_matrix,
-        "image": dg.generate_avg_weight_map,
-    }
-    extensions = {"array": "npy", "image": "png"}
-
-    # initialize dictionaries that will contain the density map files names and the
-    # corresponding set of parameters values
+    # Initialize dictionaries that will contain the density map files names and
+    # the corresponding set of parameters values.
     position_map_xy_dictionary = {}
     position_map_xz_dictionary = {}
     position_map_radec_dictionary = {}
@@ -109,22 +97,25 @@ def generate_dataset(args) -> None:
         log.error("directory {} not found".format(root_path))
         sys.exit()
 
-    # number of samples in the parsed directory
+    # Number of samples in the parsed directory.
     sample_number = len(os.listdir(root_path))
 
-    # select samples to run
+    # Select samples to run.
     samples = []
     if args.samples:
+        # If a number of samples is specified, uniformly sample them.
         samples = list(
             np.round(np.linspace(0, sample_number - 1, args.samples)).astype(
                 int
             )
         )
     else:
+        # If no samples are specified, just generate all of them.
         samples = [i for i in range(sample_number)]
 
     log.info("Generating {} samples".format(len(samples)))
 
+    # Main generator loop.
     for s in samples:
 
         log.info("Generating sample {}".format(s))
@@ -150,6 +141,7 @@ def generate_dataset(args) -> None:
             df_pop["x"],
             df_pop["y"],
             args.resolution,
+            args.resolution,
             args.normalize,
             position_map_xy_dictionary,
         )
@@ -162,6 +154,7 @@ def generate_dataset(args) -> None:
             args.type,
             df_pop["x"],
             df_pop["z"],
+            args.resolution,
             args.resolution,
             args.normalize,
             position_map_xz_dictionary,
@@ -177,6 +170,7 @@ def generate_dataset(args) -> None:
             df_pop["y"],
             abs(df_pop["v_r"]),
             args.resolution,
+            args.resolution,
             args.normalize,
             velocity_map_xy_vr_dictionary,
         )
@@ -190,6 +184,7 @@ def generate_dataset(args) -> None:
             df_pop["x"],
             df_pop["y"],
             abs(df_pop["v_phi"]),
+            args.resolution,
             args.resolution,
             args.normalize,
             velocity_map_xy_vphi_dictionary,
@@ -205,80 +200,60 @@ def generate_dataset(args) -> None:
             df_pop["y"],
             abs(df_pop["v_z"]),
             args.resolution,
+            args.resolution,
             args.normalize,
             velocity_map_xy_vz_dictionary,
         )
 
-        # create position density maps projected on RA DEC plane
-        position_map_radec_filename = "{}/position_map_radec_pop_{}.{}".format(
-            dataset_path, s, extensions[args.type]
-        )
-
-        position_map_generators[args.type](
+        # Create position density maps projected on RA DEC plane.
+        pmaps.generate_position_map(
+            dataset_path,
+            "position_map_radec",
+            s,
+            args.type,
             df_pop["RA"],
-            (0.0, 360.0),
             df_pop["DEC"],
-            (-90.0, 90.0),
-            position_map_radec_filename,
-            n_x_bins=args.resolution,
-            n_y_bins=int(args.resolution / 2),
-            normalize=args.normalize,
+            args.resolution,
+            int(args.resolution / 2),
+            args.normalize,
+            position_map_radec_dictionary,
+            x_limits=(0.0, 360.0),
+            y_limits=(-90.0, 90.0),
         )
 
-        # save density map filenames into a dictionary
-        position_map_radec_dictionary.setdefault(
-            "input:position_map_radec", []
-        ).append(position_map_radec_filename)
-
-        log.info("{} generated...".format(position_map_radec_filename))
-
-        # create velocity maps of component v_ra in the RA DEC plane
-        velocity_map_vra_filename = "{}/velocity_map_vra_pop_{}.{}".format(
-            dataset_path, s, extensions[args.type]
-        )
-
-        velocity_map_generators[args.type](
+        # Create velocity maps of component Vra in the RA DEC plane.
+        vmaps.generate_velocity_map(
+            dataset_path,
+            "velocity_map_vra",
+            s,
+            args.type,
             df_pop["RA"],
-            (0.0, 360.0),
             df_pop["DEC"],
-            (-90.0, 90.0),
             abs(df_pop["v_RA"]),
-            velocity_map_vra_filename,
-            n_x_bins=args.resolution,
-            n_y_bins=int(args.resolution / 2),
-            normalize=args.normalize,
+            args.resolution,
+            int(args.resolution / 2),
+            args.normalize,
+            velocity_map_vra_dictionary,
+            x_limits=(0.0, 360.0),
+            y_limits=(-90.0, 90.0),
         )
 
-        # save velocity map filenames into a dictionary
-        velocity_map_vra_dictionary.setdefault(
-            "input:velocity_map_vra", []
-        ).append(velocity_map_vra_filename)
-
-        log.info("{} generated...".format(velocity_map_vra_filename))
-
-        # create velocity maps of component v_dec in the RA DEC plane
-        velocity_map_vdec_filename = "{}/velocity_map_vdec_pop_{}.{}".format(
-            dataset_path, s, extensions[args.type]
-        )
-
-        velocity_map_generators[args.type](
+        # Create velocity maps of component Vdec in the RA DEC plane.
+        vmaps.generate_velocity_map(
+            dataset_path,
+            "velocity_map_vdec",
+            s,
+            args.type,
             df_pop["RA"],
-            (0.0, 360.0),
             df_pop["DEC"],
-            (-90.0, 90.0),
             abs(df_pop["v_DEC"]),
-            velocity_map_vdec_filename,
-            n_x_bins=args.resolution,
-            n_y_bins=int(args.resolution / 2),
-            normalize=args.normalize,
+            args.resolution,
+            int(args.resolution / 2),
+            args.normalize,
+            velocity_map_vdec_dictionary,
+            x_limits=(0.0, 360.0),
+            y_limits=(-90.0, 90.0),
         )
-
-        # save velocity map filenames into a dictionary
-        velocity_map_vdec_dictionary.setdefault(
-            "input:velocity_map_vdec", []
-        ).append(velocity_map_vdec_filename)
-
-        log.info("{} generated...".format(velocity_map_vdec_filename))
 
         # Check if files containing labels exists as a precondition.
         label_path = pathlib.Path(
@@ -291,13 +266,13 @@ def generate_dataset(args) -> None:
             )
             sys.exit()
 
-        # save the parameters value in a dictionary
+        # Save the parameters value in a dictionary.
         with open(label_path) as file:
             dictionary = yaml.full_load(file)
             for key, val in dictionary.items():
                 param_dictionary.setdefault(key, []).append(val)
 
-    # Merge the filename and parameters dictionaries in a single dictionary
+    # Merge the filename and parameters dictionaries in a single dictionary.
     dataset_dictionary = {
         **position_map_xy_dictionary,
         **position_map_xz_dictionary,
@@ -310,7 +285,7 @@ def generate_dataset(args) -> None:
         **param_dictionary,
     }
 
-    # Write the dataset dictionary into a .csv file
+    # Write the dataset dictionary into a .csv file.
     dataset_filename = "{}/dataset.csv".format(dataset_path)
     df = pd.DataFrame(
         {key: pd.Series(value) for key, value in dataset_dictionary.items()}

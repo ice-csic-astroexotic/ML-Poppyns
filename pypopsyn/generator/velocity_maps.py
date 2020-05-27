@@ -21,9 +21,12 @@ def generate_velocity_map(
     x_positions,
     y_positions,
     velocities,
-    resolution,
+    x_resolution,
+    y_resolution,
     normalize,
     velocity_maps_dictionary,
+    x_limits=(-20.0, 20.0),
+    y_limits=(-20.0, 20.0),
 ):
 
     velocity_map_filename = "{}/{}_{}.{}".format(
@@ -32,13 +35,13 @@ def generate_velocity_map(
 
     velocity_map_generators[map_type](
         x_positions,
-        (-20.0, 20.0),
+        x_limits,
         y_positions,
-        (-20.0, 20.0),
+        y_limits,
         velocities,
         velocity_map_filename,
-        n_x_bins=resolution,
-        n_y_bins=resolution,
+        n_x_bins=x_resolution,
+        n_y_bins=y_resolution,
         normalize=normalize,
     )
 
