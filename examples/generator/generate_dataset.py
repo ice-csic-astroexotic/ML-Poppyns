@@ -37,6 +37,7 @@ import pandas as pd
 import yaml
 
 import pypopsyn.generator.dataset_generator as dg
+import pypopsyn.generator.velocity_maps as vmaps
 
 log = logging.getLogger(__name__)
 
@@ -185,77 +186,47 @@ def generate_dataset(args) -> None:
 
         log.info("{} generated...".format(position_map_xz_filename))
 
-        # create velocity maps of component v_r in the xy plane
-        velocity_map_xy_vr_filename = "{}/velocity_map_xy_vr_pop_{}.{}".format(
-            dataset_path, s, extensions[args.type]
-        )
-
-        velocity_map_generators[args.type](
+        # Create velocity maps of component v_r in the xy plane.
+        vmaps.generate_velocity_map(
+            dataset_path,
+            "velocity_map_xy_vr",
+            s,
+            args.type,
             df_pop["x"],
-            (-20.0, 20.0),
             df_pop["y"],
-            (-20.0, 20.0),
             abs(df_pop["v_r"]),
-            velocity_map_xy_vr_filename,
-            n_x_bins=args.resolution,
-            n_y_bins=args.resolution,
-            normalize=args.normalize,
+            args.resolution,
+            args.normalize,
+            velocity_map_xy_vr_dictionary,
         )
 
-        # save velocity map filenames into a dictionary
-        velocity_map_xy_vr_dictionary.setdefault(
-            "input:velocity_map_xy_vr", []
-        ).append(velocity_map_xy_vr_filename)
-
-        log.info("{} generated...".format(velocity_map_xy_vr_filename))
-
-        # create velocity maps of component v_phi in the xy plane
-        velocity_map_xy_vphi_filename = "{}/velocity_map_xy_vphi_pop_{}.{}".format(
-            dataset_path, s, extensions[args.type]
-        )
-
-        velocity_map_generators[args.type](
+        # Create velocity maps of component v_phi in the XY plane.
+        vmaps.generate_velocity_map(
+            dataset_path,
+            "velocity_map_xy_vphi",
+            s,
+            args.type,
             df_pop["x"],
-            (-20.0, 20.0),
             df_pop["y"],
-            (-20.0, 20.0),
             abs(df_pop["v_phi"]),
-            velocity_map_xy_vphi_filename,
-            n_x_bins=args.resolution,
-            n_y_bins=args.resolution,
-            normalize=args.normalize,
+            args.resolution,
+            args.normalize,
+            velocity_map_xy_vphi_dictionary,
         )
 
-        # save velocity map filenames into a dictionary
-        velocity_map_xy_vphi_dictionary.setdefault(
-            "input:velocity_map_xy_vphi", []
-        ).append(velocity_map_xy_vphi_filename)
-
-        log.info("{} generated...".format(velocity_map_xy_vphi_filename))
-
-        # create velocity maps of component v_z in the xy plane
-        velocity_map_xy_vz_filename = "{}/velocity_map_xy_vz_pop_{}.{}".format(
-            dataset_path, s, extensions[args.type]
-        )
-
-        velocity_map_generators[args.type](
+        # Create velocity maps of component Vz in the XY plane.
+        vmaps.generate_velocity_map(
+            dataset_path,
+            "velocity_map_xy_vz",
+            s,
+            args.type,
             df_pop["x"],
-            (-20.0, 20.0),
             df_pop["y"],
-            (-20.0, 20.0),
             abs(df_pop["v_z"]),
-            velocity_map_xy_vz_filename,
-            n_x_bins=args.resolution,
-            n_y_bins=args.resolution,
-            normalize=args.normalize,
+            args.resolution,
+            args.normalize,
+            velocity_map_xy_vz_dictionary,
         )
-
-        # save velocity map filenames into a dictionary
-        velocity_map_xy_vz_dictionary.setdefault(
-            "input:velocity_map_xy_vz", []
-        ).append(velocity_map_xy_vz_filename)
-
-        log.info("{} generated...".format(velocity_map_xy_vz_filename))
 
         # create position density maps projected on RA DEC plane
         position_map_radec_filename = "{}/position_map_radec_pop_{}.{}".format(
