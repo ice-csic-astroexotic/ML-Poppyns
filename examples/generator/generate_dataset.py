@@ -37,6 +37,7 @@ import pandas as pd
 import yaml
 
 import pypopsyn.generator.dataset_generator as dg
+import pypopsyn.generator.position_maps as pmaps
 import pypopsyn.generator.velocity_maps as vmaps
 
 log = logging.getLogger(__name__)
@@ -140,51 +141,31 @@ def generate_dataset(args) -> None:
         # create a data frame object of the population file
         df_pop = pd.read_csv(pop_path, skiprows=[1])
 
-        # create position density maps projected on xy plane
-        position_map_xy_filename = "{}/position_map_xy_pop_{}.{}".format(
-            dataset_path, s, extensions[args.type]
-        )
-
-        position_map_generators[args.type](
+        # Create position density maps projected on XY plane.
+        pmaps.generate_position_map(
+            dataset_path,
+            "position_map_xy",
+            s,
+            args.type,
             df_pop["x"],
-            (-20.0, 20.0),
             df_pop["y"],
-            (-20.0, 20.0),
-            position_map_xy_filename,
-            n_x_bins=args.resolution,
-            n_y_bins=args.resolution,
-            normalize=args.normalize,
+            args.resolution,
+            args.normalize,
+            position_map_xy_dictionary,
         )
 
-        # save density map filenames into a dictionary
-        position_map_xy_dictionary.setdefault(
-            "input:position_map_xy", []
-        ).append(position_map_xy_filename)
-
-        log.info("{} generated...".format(position_map_xy_filename))
-
-        # create position density maps projected on xz plane
-        position_map_xz_filename = "{}/position_map_xz_pop_{}.{}".format(
-            dataset_path, s, extensions[args.type]
-        )
-
-        position_map_generators[args.type](
+        # Create position density maps projected on XZ plane.
+        pmaps.generate_position_map(
+            dataset_path,
+            "position_map_xz",
+            s,
+            args.type,
             df_pop["x"],
-            (-20.0, 20.0),
             df_pop["z"],
-            (-5.0, 5.0),
-            position_map_xz_filename,
-            n_x_bins=args.resolution,
-            n_y_bins=args.resolution,
-            normalize=args.normalize,
+            args.resolution,
+            args.normalize,
+            position_map_xz_dictionary,
         )
-
-        # save density map filenames into a dictionary
-        position_map_xz_dictionary.setdefault(
-            "input:position_map_xz", []
-        ).append(position_map_xz_filename)
-
-        log.info("{} generated...".format(position_map_xz_filename))
 
         # Create velocity maps of component v_r in the xy plane.
         vmaps.generate_velocity_map(
