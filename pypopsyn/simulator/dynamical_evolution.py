@@ -56,7 +56,7 @@ def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
 
     # Second derivatives.
     d2r_dt2 = r * dphi_dt ** 2 - gradient_mw_pot[0]
-    d2phi_dt2 = -2 * dr_dt * dphi_dt / r
+    d2phi_dt2 = -2 * dr_dt * dphi_dt / r - gradient_mw_pot[1]
     d2z_dt2 = -gradient_mw_pot[2]
 
     derivatives = np.array(

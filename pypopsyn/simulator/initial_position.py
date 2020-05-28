@@ -108,8 +108,8 @@ def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:
 def calculate_phi(r: float, arm_index: int) -> float:
     """
     Calculating the angular coordinate of a neutron star for a given distance
-    from the galactic centre incorporating the Milky Way's arm structure from
-    Faucher-Giguère & Kaspi (2006) (see also Wainscoat et al. (1992)).
+    from the galactic centre incorporating the Milky Way's arm structure according
+    to eq. (12) of Faucher-Giguère & Kaspi (2006) (see also Wainscoat et al. (1992)).
 
     Args:
         r (float): distance from the galactic centre in kpc.
@@ -163,7 +163,7 @@ def spiral_arm_time_evol(phi0: float, t: float) -> float:
     T = 2.5e8
     omega_spiral_arms = 2.0 * np.pi / T
 
-    # Find the value of theta t years ago.
+    # Find the value of the angle phi t years ago.
     phi_t = phi0 + omega_spiral_arms * t
 
     return phi_t
