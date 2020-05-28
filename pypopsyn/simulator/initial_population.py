@@ -183,7 +183,7 @@ class InitialNeutronStarPopulation:
         Returns:
             (np.ndarray): array of orbital velocities in kpc / yr.
         """
-        virial_orbital_velocity_vect = np.vectorize(iv.virial_orbital_velocity)
-        v_orb = -virial_orbital_velocity_vect(r, z)
+        circular_velocity_vect = np.vectorize(iv.circular_velocity)
+        v_orb = -circular_velocity_vect(r, z)
 
         return v_orb
