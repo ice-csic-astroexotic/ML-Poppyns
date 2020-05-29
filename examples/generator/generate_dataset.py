@@ -53,11 +53,7 @@ def generate_dataset(args) -> None:
         each simulated population.
     Args:
         args:
-            date (str): Date in the form yyyy-mm-dd when the simulated population
-            files have been created.
-
-            time (str): Time in the form hh-mm-ss when the simulated population files
-            have been created.
+            data_path (str): Path to where the simulated multirun is located.
 
             dataset_name (str): Name of the dataset where the density maps matrices
             will be saved.
@@ -92,7 +88,7 @@ def generate_dataset(args) -> None:
     param_dictionary = {}
 
     # Check if the parsed multirun directory exists as a precondition.
-    root_path = pathlib.Path("multirun/{}/{}".format(args.date, args.time))
+    root_path = pathlib.Path(args.data_path)
     if not root_path.exists():
         log.error("directory {} not found".format(root_path))
         sys.exit()
@@ -299,20 +295,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Parameters")
     parser.add_argument(
-        "--date",
+        "--data_path",
         nargs="?",
         type=str,
-        default="2020-03-06",
-        help="Date in the form yyyy-mm-dd when the simulated population files have "
-        "been created",
-    )
-    parser.add_argument(
-        "--time",
-        nargs="?",
-        type=str,
-        default="12-00-00",
-        help="Time in the form hh-mm-ss when the simulated population files have "
-        "been created",
+        required=True,
+        help="Path to where the simulated data in a multirun is",
     )
     parser.add_argument(
         "--dataset_name",
