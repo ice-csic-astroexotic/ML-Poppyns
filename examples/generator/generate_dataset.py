@@ -325,6 +325,7 @@ if __name__ == "__main__":
         "--type",
         nargs="?",
         type=str,
+        choices=["array", "image"],
         default="array",
         help="Type of dataset to generate: array or image",
     )

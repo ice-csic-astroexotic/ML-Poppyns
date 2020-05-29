@@ -1,4 +1,20 @@
+"""
+Position maps generation routines.
+
+    Authors:
+
+        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
+
+    Copyright (c) MAGNESIA (ICE-CSIC)
+
+"""
+
 import logging
+import typing
+
+import numpy as np
 
 import pypopsyn.generator.dataset_generator as dg
 
@@ -8,30 +24,63 @@ position_map_generators = {
     "array": dg.generate_density_matrix,
     "image": dg.generate_density_map,
 }
+# Set the corresponding extensions for the types of position maps.
 extensions = {"array": "npy", "image": "png"}
 
 log = logging.getLogger(__name__)
 
 
 def generate_position_map(
-    dataset_path,
-    map_name,
-    sample_number,
-    map_type,
-    x_positions,
-    y_positions,
-    x_resolution,
-    y_resolution,
-    normalize,
-    position_maps_dictionary,
-    x_limits=(-20.0, 20.0),
-    y_limits=(-20.0, 20.0),
+    dataset_path: str,
+    map_name: str,
+    sample_number: int,
+    map_type: str,
+    x_positions: np.array,
+    y_positions: np.array,
+    x_resolution: int,
+    y_resolution: int,
+    normalize: bool,
+    position_maps_dictionary: dict,
+    x_limits: typing.Tuple[float, float] = (-20.0, 20.0),
+    y_limits: typing.Tuple[float, float] = (-20.0, 20.0),
 ):
+    """
+    This method generates a discrete position map with great flexibility, the
+    dimensions of the map can be chosen, the type (image or array) can also be
+    decided, and the limits and resolution for it can be specified. As a result,
+    a map with the specified filename and a extension determined by the chosen
+    type is created as output.
 
+    The dictionary of position maps for the dataset is also updated with the
+    generated example.
+
+    Args:
+        dataset_path (str): path to the folder where the map will be created.
+        map_name (str): specific name for this map.
+        sample_number (int): number to suffix this map in the dataset.
+        map_type (str): type of map to generate (array or image).
+        x_positions (np.array): positions in the first axis (horizontal).
+        y_positions (np.array): positions in the second axis (vertical).
+        x_resolution (int): resolution in the horizontal axis.
+        y_resolution (int): resolution in the vertical axis.
+        normalize (bool): whether to normalize the each cell or not.
+        position_maps_dictionary (dict): partial dictionary of position maps.
+        x_limits (float, float): limits of the horizontal axis.
+        y_limits (float, float): limits of the vertical axis.
+
+    Returns:
+        Nothing.
+
+    """
+
+    # Compose the final filename with the dataset path, the name for the map,
+    # the current sample suffix and the appropriate extension.
     position_map_filename = "{}/{}_{}.{}".format(
         dataset_path, map_name, sample_number, extensions[map_type]
     )
 
+    # Automagically select and call the appropriate generator depending on the
+    # specified type for the map.
     position_map_generators[map_type](
         x_positions,
         x_limits,
@@ -43,7 +92,7 @@ def generate_position_map(
         normalize=normalize,
     )
 
-    # Save density map filenames into a dictionary.
+    # Save density map filenames into the partial dataset dictionary.
     position_maps_dictionary.setdefault(
         "input:" + position_map_filename, []
     ).append(position_map_filename)
