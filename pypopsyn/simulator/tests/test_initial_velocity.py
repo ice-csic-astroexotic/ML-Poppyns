@@ -33,7 +33,7 @@ def test_case_2():
     data = {
         "r": 1.0,
         "z": 1.0,
-        "v_virial_expected": 2.19947e-7,
+        "v_circular_expected": 2.19947e-7,
     }
 
     return data
@@ -47,14 +47,15 @@ def test_pdf_proper_velocity(test_case_1):
     assert np.abs(test_case_1["pdf_vp_expected"] - pdf_vp_out) < TOL
 
 
-def test_virial_orbital_velocity(test_case_2):
+def test_circular_velocity(test_case_2):
     """
-    Verifying that the orbital virial velocity is evaluated correctly.
+    Verifying that the circular velocity is evaluated correctly.
     """
-    v_virial_out = iv.virial_orbital_velocity(
-        test_case_2["r"], test_case_2["z"]
-    )
+    v_circular_out = iv.circular_velocity(test_case_2["r"], test_case_2["z"])
 
     assert np.isclose(
-        v_virial_out, test_case_2["v_virial_expected"], rtol=TOL, atol=1.0e-30
+        v_circular_out,
+        test_case_2["v_circular_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )

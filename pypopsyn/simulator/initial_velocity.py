@@ -37,9 +37,9 @@ def pdf_proper_velocity(v: float) -> float:
     return pdf_vp
 
 
-def virial_orbital_velocity(r: float, z: float) -> float:
+def circular_velocity(r: float, z: float) -> float:
     """
-    Orbital virial velocity in kpc / yr for a circular orbit at a distance r from the
+    Circular velocity in kpc / yr for a circular orbit at a distance r from the
     galactic center and at a height z from the galactic plane. This velocity is
     evaluated by assuming equilibrium between the gravitational acceleration in the
     r direction due to the galactic potential and the centrifugal acceleration due
@@ -50,9 +50,9 @@ def virial_orbital_velocity(r: float, z: float) -> float:
         z (float): height from the galactic disk in kpc.
 
     Returns:
-        (float): value of the orbital virial velocity in kpc / yr.
+        (float): value of the circular velocity in kpc / yr.
     """
     pot_mw_gradient = gm.cylind_coord_gradient_mw_potential(r, z)
-    v_virial = np.sqrt(r * pot_mw_gradient[0])
+    v_circular = np.sqrt(r * pot_mw_gradient[0])
 
-    return v_virial
+    return v_circular
