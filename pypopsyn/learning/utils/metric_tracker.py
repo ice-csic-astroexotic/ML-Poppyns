@@ -36,7 +36,7 @@ class MetricTracker:
 
         self.writer = writer
         self._data = pd.DataFrame(
-            index=keys, columns=["total", "counts", "average"]
+            index=None, columns=["total", "counts", "average"]
         )
         self.reset()
 
@@ -69,6 +69,16 @@ class MetricTracker:
             Nothing.
 
         """
+
+        if key not in self._data.index:
+            self._data = self._data.append(
+                pd.DataFrame(
+                    index=[key], columns=["total", "counts", "average"]
+                )
+            )
+            self._data.total[key] = 0
+            self._data.counts[key] = 0
+            self._data.average[key] = 0
 
         if self.writer is not None:
             self.writer.add_scalar(key, value)

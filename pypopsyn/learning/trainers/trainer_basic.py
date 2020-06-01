@@ -65,10 +65,10 @@ class TrainerBasic(BaseTrainer):
         self.log_step = int(np.sqrt(data_loader.batch_size))
 
         self.train_metrics = learning_utils.metric_tracker.MetricTracker(
-            "loss", *[self.metric.__class__.__name__], writer=self.writer
+            [], writer=self.writer
         )
         self.valid_metrics = learning_utils.metric_tracker.MetricTracker(
-            "loss", *[self.metric.__class__.__name__], writer=self.writer
+            [], writer=self.writer
         )
 
     def _train_epoch(self, epoch: int) -> dict:
@@ -98,8 +98,17 @@ class TrainerBasic(BaseTrainer):
             # loss and perform backward pass.
             self.optimizer.zero_grad()
             output = self.model(data)
+
+            # Multiple loss logging.
+            for i in range(len(output[0])):
+                loss = self.criterion(output[:, i], target[:, i])
+                # Update tracked loss and output to TensorBoard.
+                self.train_metrics.update("loss{}".format(i), loss.item())
+            # But only backpropagate on general loss.
             loss = self.criterion(output, target)
+            self.train_metrics.update("loss", loss.item())
             loss.backward()
+
             self.optimizer.step()
 
             # Now output all the log information to console and write the
@@ -108,18 +117,10 @@ class TrainerBasic(BaseTrainer):
             # Set the TensorBoard step.
             self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
 
-            # Update tracked loss and output to TensorBoard.
-            self.train_metrics.update("loss", loss.item())
             # Update tracked metric and output to TensorBoard.
             self.train_metrics.update(
                 self.metric.__class__.__name__, self.metric(output, target)
             )
-            # Show the input images of this batch on TensorBoard.
-            # TODO: temporarily disabled until we find a better way to
-            # represent arbitrary channel images.
-            # self.writer.add_image(
-            #    "input", make_grid(data.cpu(), nrow=8, normalize=True)
-            # )
 
             # For each specified logging to console step, show the current
             # epoch training information (batch progress, loss...). Usually

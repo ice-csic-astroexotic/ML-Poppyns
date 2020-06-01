@@ -13,7 +13,7 @@
   "data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "data_path": "examples/data/multiparameter_nonn/dataset.csv",
+      "data_path": "examples/data/multiparameter/dataset.csv",
       "batch_size": 16,
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
