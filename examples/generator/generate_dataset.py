@@ -45,30 +45,32 @@ log = logging.getLogger(__name__)
 
 def generate_dataset(args) -> None:
     """
-        This method reads the simulated population files saved in a multirun/date/time
-        folder and generates a dataset of density map array .npy files for each
-        population.
-        All the information about the dataset are stored in a datset.csv file
-        containing the density map files names and the set of parameter values for
-        each simulated population.
+    This method reads the simulated population files saved in a multirun/date/time
+    folder and generates a dataset of density maps in the specified format
+    (images or arrays) and with various settings (normalization, resolution...).
+    All the information about the dataset are stored in a datset.csv file
+    containing the density map files names and the set of parameter values for
+    each simulated population.
+
     Args:
         args:
             data_path (str): Path to where the simulated multirun is located.
 
-            dataset_name (str): Name of the dataset where the density maps matrices
-            will be saved.
+            dataset_name (str): Name of the dataset and therefore the name
+                of the output folder where the dataset will be generated.
 
             type (str): Type of dataset to generate: array or image.
 
             resolution (int): Resolution (number of bins per axis for the 2d
-            histograms) for the image to generate. In case of RA DEC maps the DEC
-            axis has half the number of bins with respect to the RA axis.
+            histograms) for the image to generate. In case of RA DEC maps the
+            DEC axis has half the number of bins with respect to the RA axis.
 
             normalize (bool): Whether or not to normalize the representations
             so that each cell holds [0,1] values.
 
-            samples (int): Number of samples to generate. If no samples are specified
-            the whole dataset is generated. Samples are taken equally spaced.
+            samples (int): Number of samples to generate. If no samples are
+                specified the whole dataset is generated. Samples are taken
+                equally spaced.
     """
 
     # Create the dataset directory.
@@ -125,7 +127,7 @@ def generate_dataset(args) -> None:
             log.error("Population file not found in {}".format(pop_path))
             sys.exit()
 
-        # create a data frame object of the population file
+        # Create a data frame object of the population file.
         df_pop = pd.read_csv(pop_path, skiprows=[1])
 
         # Create position density maps projected on XY plane.
@@ -156,7 +158,7 @@ def generate_dataset(args) -> None:
             position_map_xz_dictionary,
         )
 
-        # Create velocity maps of component v_r in the xy plane.
+        # Create velocity maps of component v_r in the XY plane.
         vmaps.generate_velocity_map(
             dataset_path,
             "velocity_map_xy_vr",
@@ -186,7 +188,7 @@ def generate_dataset(args) -> None:
             velocity_map_xy_vphi_dictionary,
         )
 
-        # Create velocity maps of component Vz in the XY plane.
+        # Create velocity maps of component v_z in the XY plane.
         vmaps.generate_velocity_map(
             dataset_path,
             "velocity_map_xy_vz",
@@ -217,7 +219,7 @@ def generate_dataset(args) -> None:
             y_limits=(-90.0, 90.0),
         )
 
-        # Create velocity maps of component Vra in the RA DEC plane.
+        # Create velocity maps of component v_RA in the RA DEC plane.
         vmaps.generate_velocity_map(
             dataset_path,
             "velocity_map_vra",
@@ -234,7 +236,7 @@ def generate_dataset(args) -> None:
             y_limits=(-90.0, 90.0),
         )
 
-        # Create velocity maps of component Vdec in the RA DEC plane.
+        # Create velocity maps of component v_DEC in the RA DEC plane.
         vmaps.generate_velocity_map(
             dataset_path,
             "velocity_map_vdec",
