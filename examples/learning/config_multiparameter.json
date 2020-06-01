@@ -5,8 +5,8 @@
   "arch": {
     "type": "ModelLinear",
     "args": {
-        "input_shape": [1, 64, 64],
-        "num_parameters": 1
+        "input_shape": [4, 64, 64],
+        "num_parameters": 2
     }
   },
 
@@ -16,8 +16,8 @@
       "data_path": "examples/data/multiparameter_nonn/dataset.csv",
       "batch_size": 16,
       "num_workers": 1,
-      "ignored_inputs": [1, 2, 3, 4, 5, 6, 7],
-      "ignored_labels": [8]
+      "ignored_inputs": [1, 2, 6, 7],
+      "ignored_labels": []
     }
   },
 

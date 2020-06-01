@@ -22,7 +22,7 @@ class DatasetMultichannelArray:
         Dataset for a multichannel array input.
     """
 
-    def __init__(self, file_path, ignore=[], transform=None):
+    def __init__(self, file_path, ignore=[], ignore_labels=[], transform=None):
         """
             Initialization or constructor function for the dataset.
 
@@ -36,8 +36,11 @@ class DatasetMultichannelArray:
             transform: transformations to apply to the arrays.
         """
         self.dataset = pd.read_csv(file_path)
-        # Remove the columns from the dataset that will be ignored.
-        self.dataset.drop(self.dataset.columns[ignore], axis=1, inplace=True)
+        # Remove the input colums and labels that are to be ignored.
+        self.dataset.drop(
+            self.dataset.columns[ignore + ignore_labels], axis=1, inplace=True
+        )
+
         self.transform = transform
 
     def __len__(self):
@@ -104,6 +107,7 @@ class LoaderMultichannelArray(LoaderBase):
         data_path: str,
         batch_size: int,
         ignored_inputs: list,
+        ignored_labels: list,
         num_workers: int = 1,
         shuffle: bool = False,
     ):
@@ -116,6 +120,7 @@ class LoaderMultichannelArray(LoaderBase):
             data_path (string): path to the dataset.
             batch_size (int): Number of samples per batch.
             ignored_inputs (list): Indices of columns in the dataset to ignore.
+            ignored_labels (list): Indices of columns with labels to ignore.
             num_workers (int): Workers to load the data.
             shuffle (bool): Shuffle the samples or not.
 
@@ -128,9 +133,13 @@ class LoaderMultichannelArray(LoaderBase):
 
         self.data_path = data_path
         self.ignored_inputs = ignored_inputs
+        self.ignored_labels = ignored_labels
 
         self.dataset = DatasetMultichannelArray(
-            self.data_path, self.ignored_inputs, transform=transformation
+            self.data_path,
+            self.ignored_inputs,
+            self.ignored_labels,
+            transform=transformation,
         )
 
         super().__init__(self.dataset, batch_size, num_workers, shuffle)

@@ -270,6 +270,14 @@ def generate_dataset(args) -> None:
             for key, val in dictionary.items():
                 param_dictionary.setdefault(key, []).append(val)
 
+    # Normalize labels to [0, 1] range if requested.
+    if args.normalize:
+        for key, value in param_dictionary.items():
+            max_value = np.max(value)
+            min_value = np.min(value)
+            value = (value - min_value) / (max_value - min_value)
+            param_dictionary[key] = value
+
     # Merge the filename and parameters dictionaries in a single dictionary.
     dataset_dictionary = {
         **position_map_xy_dictionary,
