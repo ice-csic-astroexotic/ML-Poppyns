@@ -93,8 +93,8 @@ def generate_position_map(
     )
 
     # Save density map filenames into the partial dataset dictionary.
-    position_maps_dictionary.setdefault(
-        "input:" + position_map_filename, []
-    ).append(position_map_filename)
+    position_maps_dictionary.setdefault("input:" + map_name, []).append(
+        position_map_filename
+    )
 
     log.info("{} generated...".format(position_map_filename))
