@@ -184,22 +184,17 @@ class TrainerBasic(BaseTrainer):
                 output = self.model(data)
                 loss = self.criterion(output, target)
 
-                # Update validation metrics.
+                # Update tracked loss and output to TensorBoard.
                 self.valid_metrics.update("loss", loss.item())
+                # Update tracked metric and output to TensorBoard.
+                self.valid_metrics.update(
+                    self.metric.__class__.__name__, self.metric(output, target)
+                )
 
-                for metric in self.metric:
-                    self.valid_metrics.update(
-                        metric.__name__, metric(output, target)
-                    )
-
-                # Write output to Tensorboard and logger.
+                # Set tensorboard step.
                 self.writer.set_step(
                     (epoch - 1) * len(self.validation_data_loader) + batch_idx,
                     "validation",
-                )
-
-                self.writer.add_image(
-                    "input", make_grid(data.cpu(), nrow=8, normalize=True)
                 )
 
         # Add histogram of model parameters to Tensorboard.
