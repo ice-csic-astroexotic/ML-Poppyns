@@ -112,7 +112,8 @@ def r_derivative_b_potential(r: float) -> float:
         float: derivative with respect to r of the bulge potential.
     """
     # Parameters for the bulge potential
-    # (Faucher-Giguère & Kaspi 2006, Kuijken & Gilmore 1989).
+    # (Kuijken & Gilmore 1989, in Faucher-Giguère & Kaspi 2006 the nucleus and bulge
+    # are erroneously inverted).
     M_b = 1.0e10 * const.M_SUN  # Bulge mass in g.
     b_b = 1.5  # Core radius of the bulge component in kpc.
     dpot_b_dr = const.G_KPC_YR * M_b * r * (b_b ** 2 + r ** 2) ** (-3.0 / 2.0)
@@ -133,7 +134,8 @@ def r_derivative_n_potential(r: float) -> float:
         float: derivative with respect to r of the nucleus potential.
     """
     # Parameters for the nucleus potential
-    # (Faucher-Giguère & Kaspi 2006, Kuijken & Gilmore 1989).
+    # (Kuijken & Gilmore 1989, in Faucher-Giguère & Kaspi 2006 the nucleus and bulge
+    # are erroneously inverted).
     M_n = 9.3e9 * const.M_SUN  # Nucleus mass in g.
     b_n = 0.25  # Core radius of the nucleus component in kpc.
 
