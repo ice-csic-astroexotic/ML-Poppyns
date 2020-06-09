@@ -88,8 +88,7 @@ class ConfigurationParser:
 
         return cls(configuration, modification, args.resume)
 
-    def init_object(self, name, module, *args, **kwargs):
-
+    def init_object(self, name: str, module, *args, **kwargs):
         """ Object handler finder.
 
             Finds an object handle with the provided name as type in the parsed
@@ -97,21 +96,26 @@ class ConfigurationParser:
 
             Args:
 
-                name Name of the object to find.
-                module: TODO: document.
-                args: TODO: document.
-                kwargs: TODO: document.
+                name: Name of the object to find.
+                module: The Python module where the object class resides.
+                args: Extra arguments for creating the instance.
+                kwargs: Extra arguments for creating the instance.
 
             Returns:
 
-                The object instance intialized with the provided arguments.
+                The object instance intialized with the provided arguments if
+                the name of the requested object exists in the configuration
+                dictionary. None otherwise.
 
         """
 
-        module_name = self._configuration[name]["type"]
-        module_args = dict(self._configuration[name]["args"])
-        module_args.update(kwargs)
-        return getattr(module, module_name)(*args, **module_args)
+        if name in self._configuration:
+            module_name = self._configuration[name]["type"]
+            module_args = dict(self._configuration[name]["args"])
+            module_args.update(kwargs)
+            return getattr(module, module_name)(*args, **module_args)
+        else:
+            return None
 
     def get_logger(self, name: str, verbosity: int = 2):
 

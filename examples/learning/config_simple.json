@@ -5,7 +5,7 @@
   "arch": {
     "type": "ModelLinear",
     "args": {
-        "input_shape": [1, 1024, 1024],
+        "input_shape": [1, 64, 64],
         "num_parameters": 1
     }
   },
@@ -13,10 +13,20 @@
   "data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "data_path": "examples/data/128_nonnormalized_array_64/dataset.csv",
-      "batch_size": 16,
+      "data_path": "examples/data/example/dataset.csv",
+      "batch_size": 1,
       "num_workers": 1,
-      "ignored_inputs": [1, 2, 3, 4]
+      "ignored_inputs": [1, 2, 3, 4, 5, 6, 7]
+    }
+  },
+
+  "validation_data_loader": {
+    "type": "LoaderMultichannelArray",
+    "args": {
+      "data_path": "examples/data/example/dataset.csv",
+      "batch_size": 1,
+      "num_workers": 1,
+      "ignored_inputs": [1, 2, 3, 4, 5, 6, 7]
     }
   },
 

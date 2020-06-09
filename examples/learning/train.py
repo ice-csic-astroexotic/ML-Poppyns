@@ -44,6 +44,10 @@ def main(config):
     loader = config.init_object("data_loader", learning_loaders)
     logger.info("Loader: {}".format(loader))
 
+    logger.info("Creating validation data loader...")
+    val_loader = config.init_object("validation_data_loader", learning_loaders)
+    logger.info("Validation loader: {}".format(val_loader))
+
     # Build model --------------------------------------------------------------
     logger.info("Building model...")
     model = config.init_object("arch", learning_models)
@@ -86,7 +90,7 @@ def main(config):
         optimizer,
         configuration=config,
         data_loader=loader,
-        validation_data_loader=None,
+        validation_data_loader=val_loader,
         lr_scheduler=scheduler,
     )
 
