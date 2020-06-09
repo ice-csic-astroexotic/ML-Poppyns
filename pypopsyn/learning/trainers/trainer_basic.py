@@ -191,13 +191,13 @@ class TrainerBasic(BaseTrainer):
                     self.metric.__class__.__name__, self.metric(output, target)
                 )
 
-                # Set tensorboard step.
+                # Set TensorBoard step.
                 self.writer.set_step(
                     (epoch - 1) * len(self.validation_data_loader) + batch_idx,
                     "validation",
                 )
 
-        # Add histogram of model parameters to Tensorboard.
+        # Add histogram of model parameters to TensorBoard.
         for name, p in self.model.named_parameters():
             self.writer.add_histogram(name, p, bins="auto")
 
