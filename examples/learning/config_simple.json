@@ -13,8 +13,19 @@
   "data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "data_path": "examples/data/multiparameter_nonn/dataset.csv",
-      "batch_size": 16,
+      "data_path": "examples/data/example/dataset.csv",
+      "batch_size": 4,
+      "num_workers": 1,
+      "ignored_inputs": [1, 2, 3, 4, 5, 6, 7],
+      "ignored_labels": [8]
+    }
+  },
+
+  "validation_data_loader": {
+    "type": "LoaderMultichannelArray",
+    "args": {
+      "data_path": "examples/data/example/dataset.csv",
+      "batch_size": 1,
       "num_workers": 1,
       "ignored_inputs": [1, 2, 3, 4, 5, 6, 7],
       "ignored_labels": [8]
