@@ -22,14 +22,14 @@ from pypopsyn.simulator.configuration import cfg
 
 def pdf_proper_velocity(v: float) -> float:
     """
-    Probability density function for the neutron stars' proper velocities following
-    eq. (3) in Gullon et al. (2014).
+    Probability density function for the neutron stars' initial proper
+    velocity magnitude following eq. (3) in Gullon et al. (2014).
 
     Args:
-        v (float): proper velocity in km/s.
+        v (float): initial proper velocity magnitude in km / s.
 
     Returns:
-        float: stellar proper velocity distribution in 1/(km/s).
+        float: stellar proper velocity distribution in 1 / (km / s).
     """
     vp_mean = cfg["vp_mean"]
     pdf_vp = 1.0 / vp_mean * np.exp(-v / vp_mean)

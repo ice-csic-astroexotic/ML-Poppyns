@@ -24,4 +24,4 @@ G = 6.67e-8  # Gravitational constant [cm^3 g^-1 s^-2].
 
 G_KPC_YR = (
     G / (KPC_TO_CM ** 3) * YR_TO_S ** 2
-)  # Gravitational constant [kpc^3 g^-1 s^-2].
+)  # Gravitational constant [kpc^3 g^-1 yr^-2].
