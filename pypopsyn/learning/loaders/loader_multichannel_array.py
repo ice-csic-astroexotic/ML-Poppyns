@@ -36,7 +36,7 @@ class DatasetMultichannelArray:
             transform: transformations to apply to the arrays.
         """
         self.dataset = pd.read_csv(file_path)
-        # Remove the input colums and labels that are to be ignored.
+        # Remove the input columns and labels that are to be ignored.
         self.dataset.drop(
             self.dataset.columns[ignore + ignore_labels], axis=1, inplace=True
         )

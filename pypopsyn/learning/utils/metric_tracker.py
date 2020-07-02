@@ -21,7 +21,7 @@ class MetricTracker:
 
     """
 
-    def __init__(self, *keys, writer=None) -> None:
+    def __init__(self, keys=None, writer=None) -> None:
         """
         Metric tracker initialization.
 
@@ -36,7 +36,7 @@ class MetricTracker:
 
         self.writer = writer
         self._data = pd.DataFrame(
-            index=None, columns=["total", "counts", "average"]
+            index=keys, columns=["total", "counts", "average"]
         )
         self.reset()
 

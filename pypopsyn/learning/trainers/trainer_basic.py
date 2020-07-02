@@ -94,21 +94,29 @@ class TrainerBasic(BaseTrainer):
             # Fetch data and labels and move them to the appropriate device.
             data, target = data.to(self.device), target.to(self.device)
 
-            # Training step: zero gradients, compute predictions, calculate
-            # loss and perform backward pass.
+            # Zero gradients to reset loss.
             self.optimizer.zero_grad()
+
+            # Compute output for this batch.
             output = self.model(data)
 
-            # Multiple loss logging.
+            # Compute each individual loss on each of the parameters to be
+            # predicted by comparing the output and the ground truth for each
+            # one of them. Then accumulate each individual loss in the total one.
+            loss = 0.0
             for i in range(len(output[0])):
-                loss = self.criterion(output[:, i], target[:, i])
+                # Compute individual loss for this output.
+                loss_i = self.criterion(output[:, i], target[:, i])
                 # Update tracked loss and output to TensorBoard.
-                self.train_metrics.update("loss{}".format(i), loss.item())
-            # But only backpropagate on general loss.
-            loss = self.criterion(output, target)
-            self.train_metrics.update("loss", loss.item())
-            loss.backward()
+                self.train_metrics.update("loss{}".format(i), loss_i.item())
+                # Accumulate into total loss.
+                loss = loss + loss_i
 
+            # Update tracked general loss and output to TensorBoard.
+            self.train_metrics.update("loss", loss.item())
+
+            # Only backpropagate on total loss not on invidiual ones.
+            loss.backward()
             self.optimizer.step()
 
             # Now output all the log information to console and write the

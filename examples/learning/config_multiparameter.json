@@ -5,7 +5,7 @@
   "arch": {
     "type": "ModelLinear",
     "args": {
-        "input_shape": [4, 64, 64],
+        "input_shape": [4, 128, 128],
         "num_parameters": 2
     }
   },
@@ -14,7 +14,7 @@
     "type": "LoaderMultichannelArray",
     "args": {
       "data_path": "examples/data/multiparameter/dataset.csv",
-      "batch_size": 16,
+      "batch_size": 8,
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
       "ignored_labels": []
@@ -22,11 +22,10 @@
   },
 
   "optimizer": {
-    "type": "SGD",
+    "type": "Adam",
     "args":{
       "lr": 1e-4,
-      "weight_decay": 0.0,
-      "momentum": 0.9
+      "weight_decay": 0.0
     }
   },
 
