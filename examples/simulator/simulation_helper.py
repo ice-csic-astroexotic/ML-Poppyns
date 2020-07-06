@@ -103,6 +103,14 @@ if __name__ == "__main__":
         help="Range for the mean kick velocity [low, high, steps]",
     )
 
+    args.add_argument(
+        "--h_mean",
+        nargs=3,
+        type=float,
+        default=[0.18, 0.18, 1.0],
+        help="Range for the mean Z position [low, high, steps]",
+    )
+
     args = args.parse_args()
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
