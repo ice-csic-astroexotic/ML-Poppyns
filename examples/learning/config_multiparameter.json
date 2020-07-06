@@ -10,6 +10,11 @@
     }
   },
 
+  "weights_initializer": {
+      "type": "InitializerKaiming",
+      "args": {}
+  },
+
   "data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
