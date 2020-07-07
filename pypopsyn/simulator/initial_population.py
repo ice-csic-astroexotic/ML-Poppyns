@@ -154,9 +154,10 @@ class InitialNeutronStarPopulation:
         theta_grid = np.linspace(0.0, np.pi, cfg["resolution"])
         theta_rand = cc.random_from_pdf(theta_grid, np.sin, cfg["NS_number"])
 
-        # Project the velocity on a Cartesian reference frame co-moving with the
-        # star, where the x-axis points always in the r-direction, the y-axis in
-        # the azimuthal phi-direction and the z-axes coincide.
+        # Project the velocity on a Cartesian reference frame co-moving with each
+        # star, where the local x-axis points always in the r-direction of our
+        # galactocentric frame, the local y-axis in the azimuthal phi-direction
+        # and the local z-axis coincides with the galactocentric one.
         spherical_to_cartesian_vect = np.vectorize(coco.spherical_to_cartesian)
         vp_r_rand, vp_phi_rand, vp_z_rand = spherical_to_cartesian_vect(
             vp_rand, theta_rand, psi_rand

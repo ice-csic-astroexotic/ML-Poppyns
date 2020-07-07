@@ -133,16 +133,10 @@ if __name__ == "__main__":
             target=("data_loader;args;data_path"),
         ),
         CustomArgs(
-            ["--input_shape"],
-            type=int,
-            nargs=3,
-            target=("arch;args;input_shape"),
-        ),
-        CustomArgs(
-            ["--save_dir"], type=str, nargs="?", target=("trainer;save_dir")
-        ),
-        CustomArgs(
-            ["--lr"], type=float, nargs="?", target=("optimizer;args;lr")
+            ["--dataset_validation"],
+            type=str,
+            nargs="?",
+            target=("validation_data_loader;args;data_path"),
         ),
         CustomArgs(
             ["--ignored_inputs"],
@@ -151,10 +145,34 @@ if __name__ == "__main__":
             target=("data_loader;args;ignored_inputs"),
         ),
         CustomArgs(
+            ["--ignored_labels"],
+            type=int,
+            nargs="*",
+            target=("data_loader;args;ignored_labels"),
+        ),
+        CustomArgs(
             ["--batch_size"],
             type=int,
             nargs="?",
             target=("data_loader;args;batch_size"),
+        ),
+        CustomArgs(
+            ["--input_shape"],
+            type=int,
+            nargs=3,
+            target=("arch;args;input_shape"),
+        ),
+        CustomArgs(
+            ["--num_parameters"],
+            type=int,
+            nargs="?",
+            target=("arch;args;num_parameters"),
+        ),
+        CustomArgs(
+            ["--save_dir"], type=str, nargs="?", target=("trainer;save_dir")
+        ),
+        CustomArgs(
+            ["--lr"], type=float, nargs="?", target=("optimizer;args;lr")
         ),
     ]
 
