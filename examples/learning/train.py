@@ -60,6 +60,7 @@ def main(config):
         "weights_initializer", learning_initializers
     )
     logger.info("Weight initialization scheme: {}".format(weight_initializer))
+    # Apply the weight initialization scheme to every layer in the model.
     model.apply(weight_initializer)
 
     # Get handle for loss criterion --------------------------------------------
