@@ -11,7 +11,7 @@
   },
 
   "weights_initializer": {
-      "type": "InitializerKaiming",
+      "type": "InitializerXavier",
       "args": {}
   },
 
@@ -26,10 +26,21 @@
     }
   },
 
+  "validation_data_loader": {
+    "type": "LoaderMultichannelArray",
+    "args": {
+      "data_path": "examples/data/multiparameter/dataset.csv",
+      "batch_size": 8,
+      "num_workers": 1,
+      "ignored_inputs": [1, 2, 6, 7],
+      "ignored_labels": []
+    }
+  },
+
   "optimizer": {
     "type": "Adam",
     "args":{
-      "lr": 1e-4,
+      "lr": 1e-5,
       "weight_decay": 0.0
     }
   },
@@ -54,7 +65,6 @@
 
   "trainer": {
     "epochs": 2000,
-
     "save_dir": "examples/learning/saved",
     "save_period": 1,
     "verbosity": 1,

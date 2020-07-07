@@ -149,6 +149,12 @@ if __name__ == "__main__":
             target=("validation_data_loader;args;data_path"),
         ),
         CustomArgs(
+            ["--initializer"],
+            type=str,
+            nargs="?",
+            target=("weights_initializer;type"),
+        ),
+        CustomArgs(
             ["--ignored_inputs"],
             type=int,
             nargs="*",
