@@ -66,19 +66,19 @@ def generate_population(cfg) -> None:
         z_initial,
     ) = NS_population_initial.position(t_age=age)
 
-    # Generating initial velocities by summing the proper kick
+    # Generating initial velocities by summing the kick
     # velocities at birth and the orbital velocities.
-    log.info("Generating initial proper velocities...")
-    (vp_r, vp_phi, vp_z,) = NS_population_initial.proper_velocity()
+    log.info("Generating initial kick velocities...")
+    (vk_r, vk_phi, vk_z,) = NS_population_initial.kick_velocity()
 
     log.info("Computing orbital velocities...")
     v_orb = NS_population_initial.orbital_velocity(r_initial, z_initial)
 
     log.info("Computing initial total velocities...")
-    v_r_initial = vp_r
-    v_phi_initial = vp_phi + v_orb
+    v_r_initial = vk_r
+    v_phi_initial = vk_phi + v_orb
     omega_initial = v_phi_initial / r_initial
-    v_z_initial = vp_z
+    v_z_initial = vk_z
 
     # Adding the coordinates to a data frame for export.
     log.info("Creating data frame for exporting...")
@@ -93,9 +93,9 @@ def generate_population(cfg) -> None:
             "v_r": v_r_initial,
             "v_phi": v_phi_initial,
             "v_z": v_z_initial,
-            "vp_r": vp_r,
-            "vp_phi": vp_phi,
-            "vp_z": vp_z,
+            "vk_r": vk_r,
+            "vk_phi": vk_phi,
+            "vk_z": vk_z,
             "v_orb": v_orb,
         }
     )

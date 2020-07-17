@@ -124,27 +124,35 @@ class InitialNeutronStarPopulation:
 
         return r_rand, phi_rand, x_rand, y_rand, z_rand
 
-    def proper_velocity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def kick_velocity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        Calculating the proper velocity of each random neutron star in a cylindrical
+        Calculating the kick velocity of each random neutron star in a cylindrical
         galactocentric coordinate system.
 
         Returns:
-            (np.ndarray, np.ndarray, np.ndarray): vp_r, vp_phi and vp_z proper
+            (np.ndarray, np.ndarray, np.ndarray): vk_r, vk_phi and vk_z kick
             velocities in kpc / yr for each generated neutron stars. In particular
-            vp_r is the component of the proper velocity along the galactocentric
-            radial direction, vp_phi is the component along the azimuthal phi
-            direction and vp_z is the component along the z direction.
+            vk_r is the component of the kick velocity along the galactocentric
+            radial direction, vk_phi is the component along the azimuthal phi
+            direction and vk_z is the component along the z direction.
         """
 
-        # Drawing a random magnitude of the birth velocity in km / s for each neutron
+        kick_model = cfg["kick_model"]
+        if kick_model == "maxwell":
+            pdf_vkick = iv.pdf_kick_velocity_maxwell
+        elif kick_model == "exp":
+            pdf_vkick = iv.pdf_kick_velocity_exp
+        else:
+            raise ValueError(
+                "The kick velocity model pdf does not exist. Choose between maxwell or exp."
+            )
+
+        # Drawing a random magnitude of the birth kick velocity in km / s for each neutron
         # star according to the underlying velocity probability density function.
-        vp_grid = np.linspace(0.0, cfg["vp_extent"], cfg["resolution"])
-        vp_rand = cc.random_from_pdf(
-            vp_grid, iv.pdf_proper_velocity, cfg["NS_number"]
-        )
+        vk_grid = np.linspace(0.0, cfg["vk_extent"], cfg["resolution"])
+        vk_rand = cc.random_from_pdf(vk_grid, pdf_vkick, cfg["NS_number"])
         # Convert from km / s to kpc / yr.
-        vp_rand = vp_rand * const.YR_TO_S / const.KPC_TO_KM
+        vk_rand = vk_rand * const.YR_TO_S / const.KPC_TO_KM
 
         # To draw a random direction for the speed from a uniform distribution,
         # we uniformly sample the azimuthal angle [rad] in the range [0, 2*np.pi];
@@ -159,11 +167,11 @@ class InitialNeutronStarPopulation:
         # galactocentric frame, the local y-axis in the azimuthal phi-direction
         # and the local z-axis coincides with the galactocentric one.
         spherical_to_cartesian_vect = np.vectorize(coco.spherical_to_cartesian)
-        vp_r_rand, vp_phi_rand, vp_z_rand = spherical_to_cartesian_vect(
-            vp_rand, theta_rand, psi_rand
+        vk_r_rand, vk_phi_rand, vk_z_rand = spherical_to_cartesian_vect(
+            vk_rand, theta_rand, psi_rand
         )
 
-        return vp_r_rand, vp_phi_rand, vp_z_rand
+        return vk_r_rand, vk_phi_rand, vk_z_rand
 
     @staticmethod
     def orbital_velocity(

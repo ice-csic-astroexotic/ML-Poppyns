@@ -25,24 +25,43 @@ if galactic_model == "gmM19":
 elif galactic_model == "gmCI87":
     gmod = gm.GalaxyModelCI87()
 else:
-    raise ValueError("The galactic model does not exist")
+    raise ValueError(
+        "The galactic model does not exist. Choose between gmCI87 or gmM19."
+    )
 
 
-def pdf_proper_velocity(v: float) -> float:
+def pdf_kick_velocity_exp(v: float) -> float:
     """
-    Probability density function for the neutron stars' initial proper
+    decaying exponential Probability density function for the neutron stars' initial kick
     velocity magnitude following eq. (3) in Gullon et al. (2014).
 
     Args:
-        v (float): initial proper velocity magnitude in km / s.
+        v (float): initial kick velocity magnitude in km / s.
 
     Returns:
-        float: stellar proper velocity distribution in 1 / (km / s).
+        float: stellar kick velocity distribution in 1 / (km / s).
     """
-    vp_mean = cfg["vp_mean"]
-    pdf_vp = 1.0 / vp_mean * np.exp(-v / vp_mean)
+    vk_mean = cfg["vk_c"]
+    pdf_vk = 1.0 / vk_mean * np.exp(-v / vk_mean)
 
-    return pdf_vp
+    return pdf_vk
+
+
+def pdf_kick_velocity_maxwell(v: float) -> float:
+    """
+    maxwell probability density function for the neutron stars' initial kick
+    velocity magnitude following eq. (3) in Gullon et al. (2014).
+
+    Args:
+        v (float): initial kick velocity magnitude in km / s.
+
+    Returns:
+        float: stellar kick velocity distribution in 1 / (km / s).
+    """
+    sigma = cfg["vk_c"]
+    pdf_vk = v ** 2 * np.exp(-(v ** 2) / (2 * sigma ** 2))
+
+    return pdf_vk
 
 
 def circular_velocity(r: float, z: float) -> float:

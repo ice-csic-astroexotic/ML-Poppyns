@@ -16,24 +16,23 @@ cfg = {}
 
 cfg["r_extent"] = 20.0  # Total radial extent from the galactic centre [kpc].
 cfg["z_extent"] = 5.0  # Total vertical extent from the galactic plane [kpc].
-cfg["vp_extent"] = 2500.0  # Maximum proper velocity magnitude [km/s].
+cfg["vk_extent"] = 2500.0  # Maximum kick velocity magnitude [km/s].
 cfg["resolution"] = 10000  # Resolution for the grid in the initial population.
 cfg["NS_number"] = 50000  # Number of neutron stars for the population.
 cfg["arm_number"] = 4  # Number of spiral arms in the galaxy.
 cfg["t_age_min"] = 1.0  # Minimum age for the neutron stars [yr].
 cfg["t_age_max"] = 5.0e6  # Maximum age for the neutron stars [yr].
-
-cfg[
-    "galactic_model"
-] = "gmM19"  # galactic potential model to use in the simulation. Choose between gmM19 or gmCI87
-
-cfg[
-    "spiral_arms"
-] = "saYM16"  # spiral arms model to use in the simulation. Choose between saFK06 or saYM16
-
-cfg["vp_mean"] = 380.0  # Characteristic kick velocity in km/s for the proper
-# velocity pdf.
-cfg["h_mean"] = 0.18  # Characteristic height in kpc from the galactic plane.
+# galactic potential model to use in the simulation. Choose between gmM19 or gmCI87
+cfg["galactic_model"] = "gmM19"
+# spiral arms model to use in the simulation. Choose between saFK06 or saYM16
+cfg["spiral_arms"] = "saYM16"
+# model pdf for the kick velocity. Choose between "maxwell" or "exp"
+cfg["kick_model"] = "maxwell"
+# Characteristic kick velocity in km/s for the kick velocity pdf.
+# In case of an exponential pdf this is the mean kick velocity, in case of a Maxwell pdf it is the sigma.
+cfg["vk_c"] = 380.0
+# Characteristic height in kpc from the galactic plane.
+cfg["h_mean"] = 0.18
 
 
 def update_configuration(new_configuration) -> None:
