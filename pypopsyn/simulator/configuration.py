@@ -27,6 +27,10 @@ cfg[
     "galactic_model"
 ] = "gmM19"  # galactic potential model to use in the simulation. Choose between gmM19 or gmCI87
 
+cfg[
+    "spiral_arms"
+] = "saYM16"  # spiral arms model to use in the simulation. Choose between saFK06 or saYM16
+
 cfg["vp_mean"] = 380.0  # Characteristic kick velocity in km/s for the proper
 # velocity pdf.
 cfg["h_mean"] = 0.18  # Characteristic height in kpc from the galactic plane.

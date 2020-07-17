@@ -30,7 +30,9 @@ if galactic_model == "gmM19":
 elif galactic_model == "gmCI87":
     gmod = gm.GalaxyModelCI87()
 else:
-    raise ValueError("The galactic model does not exist")
+    raise ValueError(
+        "The galactic model does not exist. Choose between gmCI87 or gmM19."
+    )
 
 
 def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
