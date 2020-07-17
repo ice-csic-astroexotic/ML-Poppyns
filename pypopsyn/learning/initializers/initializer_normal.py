@@ -1,0 +1,79 @@
+"""
+Normal initializer.
+
+Class for a normal weight initializer.
+
+Authors:
+
+    Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+
+MIT License
+
+Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+"""
+
+import numpy as np
+import torch
+
+from .initializer_base import InitializerBase
+
+
+class InitializerNormal(InitializerBase):
+    """
+    Normal weight initializer class.
+
+    Any instance of this class is a callable function that will initialize a
+    given torch module which contains trainable parameters (weights and biases)
+    with a normal distribution for the weights and zero the biases.
+    """
+
+    def __call__(self, m: torch.nn.Module) -> None:
+        """
+        Custom call operator for initializing the parameters of a module.
+
+        Weights are initialized using a normal distribution (with values taken
+        from the N(mean, std^2) distribution) whilst biases are just filled with
+        a constant zero value. In this case, std = 1 / sqrt(y) where y is the
+        number of input features.
+
+        Args:
+            m (torch.module): module with parameters to be initialized. Could
+              be anything from a linear layer to a convolutional one. Right now,
+              only initialization of Linear layers is performed.
+
+        Returns:
+            Nothing.
+        """
+        if type(m) == torch.nn.Linear:
+            y = m.in_features
+            torch.nn.init.normal_(m.weight, 0.0, 1.0 / np.sqrt(y))
+            m.bias.data.fill_(0.0)
+
+    def __str__(self) -> str:
+        """
+        Custom to string operator for the weight initializer.
+
+        Args:
+            None.
+
+        Returns:
+            A string which describes the weight initializer for output purposes.
+        """
+
+        return "Normal weight initializer"

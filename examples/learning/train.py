@@ -26,6 +26,7 @@ import collections
 import torch
 
 import pypopsyn.learning.configuration_parser as configuration_parser
+import pypopsyn.learning.initializers.initializers as learning_initializers
 import pypopsyn.learning.loaders.loaders as learning_loaders
 import pypopsyn.learning.losses.losses as learning_losses
 import pypopsyn.learning.metrics.metrics as learning_metrics
@@ -52,6 +53,15 @@ def main(config):
     logger.info("Building model...")
     model = config.init_object("arch", learning_models)
     logger.info("Model architecture: {}".format(model))
+
+    # Initialize weights -------------------------------------------------------
+    logger.info("Initializing weights...")
+    weight_initializer = config.init_object(
+        "weights_initializer", learning_initializers
+    )
+    logger.info("Weight initialization scheme: {}".format(weight_initializer))
+    # Apply the weight initialization scheme to every layer in the model.
+    model.apply(weight_initializer)
 
     # Get handle for loss criterion --------------------------------------------
     logger.info("Creating loss criterion...")
@@ -137,6 +147,12 @@ if __name__ == "__main__":
             type=str,
             nargs="?",
             target=("validation_data_loader;args;data_path"),
+        ),
+        CustomArgs(
+            ["--initializer"],
+            type=str,
+            nargs="?",
+            target=("weights_initializer;type"),
         ),
         CustomArgs(
             ["--ignored_inputs"],
