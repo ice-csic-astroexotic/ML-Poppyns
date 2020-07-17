@@ -22,9 +22,17 @@ from scipy.integrate import odeint
 
 import pypopsyn.simulator.coordinate_conversions as coco
 import pypopsyn.simulator.galactic_model as gm
+from pypopsyn.simulator.configuration import cfg
+
+galactic_model = cfg["galactic_model"]
+if galactic_model == "gmM19":
+    gmod = gm.GalaxyModelM19()
+elif galactic_model == "gmCI87":
+    gmod = gm.GalaxyModelCI87()
+else:
+    raise ValueError("The galactic model does not exist")
 
 
-@jit
 def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
     """
     System of dynamical equations to solve to determine the orbits of the neutron
@@ -47,7 +55,7 @@ def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
     r = initial_cond[0]
     z = initial_cond[2]
 
-    gradient_mw_pot = gm.cylind_coord_gradient_mw_potential(r, z)
+    gradient_mw_pot = gmod.cylind_coord_gradient_mw_potential(r, z)
 
     # First derivatives.
     dr_dt = initial_cond[3]

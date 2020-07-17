@@ -19,6 +19,14 @@ import numpy as np
 import pypopsyn.simulator.galactic_model as gm
 from pypopsyn.simulator.configuration import cfg
 
+galactic_model = cfg["galactic_model"]
+if galactic_model == "gmM19":
+    gmod = gm.GalaxyModelM19()
+elif galactic_model == "gmCI87":
+    gmod = gm.GalaxyModelCI87()
+else:
+    raise ValueError("The galactic model does not exist")
+
 
 def pdf_proper_velocity(v: float) -> float:
     """
@@ -52,7 +60,8 @@ def circular_velocity(r: float, z: float) -> float:
     Returns:
         (float): value of the circular velocity in kpc / yr.
     """
-    pot_mw_gradient = gm.cylind_coord_gradient_mw_potential(r, z)
+
+    pot_mw_gradient = gmod.cylind_coord_gradient_mw_potential(r, z)
     v_circular = np.sqrt(r * pot_mw_gradient[0])
 
     return v_circular

@@ -21,7 +21,11 @@ cfg["resolution"] = 10000  # Resolution for the grid in the initial population.
 cfg["NS_number"] = 50000  # Number of neutron stars for the population.
 cfg["arm_number"] = 4  # Number of spiral arms in the galaxy.
 cfg["t_age_min"] = 1.0  # Minimum age for the neutron stars [yr].
-cfg["t_age_max"] = 1.0e8  # Maximum age for the neutron stars [yr].
+cfg["t_age_max"] = 5.0e6  # Maximum age for the neutron stars [yr].
+
+cfg[
+    "galactic_model"
+] = "gmM19"  # galactic potential model to use in the simulation. Choose between gmM19 or gmCI87
 
 cfg["vp_mean"] = 380.0  # Characteristic kick velocity in km/s for the proper
 # velocity pdf.
