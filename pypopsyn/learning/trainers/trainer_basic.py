@@ -182,6 +182,20 @@ class TrainerBasic(BaseTrainer):
         self.model.eval()
         self.valid_metrics.reset()
 
+        # Fetch standardization and normalization factors.
+        target_max = torch.tensor(self.validation_data_loader.target_max).to(
+            self.device
+        )
+        target_min = torch.tensor(self.validation_data_loader.target_min).to(
+            self.device
+        )
+        target_std = torch.tensor(self.validation_data_loader.target_std).to(
+            self.device
+        )
+        target_mean = torch.tensor(self.validation_data_loader.target_mean).to(
+            self.device
+        )
+
         with torch.no_grad():
 
             for batch_idx, (data, target) in enumerate(
@@ -190,8 +204,32 @@ class TrainerBasic(BaseTrainer):
 
                 data, target = data.to(self.device), target.to(self.device)
 
+                # Compute predictions.
                 output = self.model(data)
-                loss = self.criterion(output, target)
+
+                if self.validation_data_loader.normalize:
+                    # De-normalize output and target for proper loss calculation.
+                    output = output * (target_max - target_min) + target_min
+                    target = target * (target_max - target_min) + target_min
+                elif self.validation_data_loader.standardize:
+                    # De-standardize output and target for proper loss calculation.
+                    output = output * target_std + target_mean
+                    target = target * target_std + target_mean
+
+                # Compute each individual loss on each of the parameters to be
+                # predicted by comparing the output and the ground truth for
+                # each one of them. Then accumulate each individual loss in the
+                # total one which will be reported.
+                loss = 0.0
+                for i in range(len(output[0])):
+                    # Compute individual loss for this output.
+                    loss_i = self.criterion(output[:, i], target[:, i])
+                    # Update tracked loss and output to TensorBoard.
+                    self.valid_metrics.update(
+                        "loss{}".format(i), loss_i.item()
+                    )
+                    # Accumulate into total loss.
+                    loss = loss + loss_i
 
                 # Update tracked loss and output to TensorBoard.
                 self.valid_metrics.update("loss", loss.item())

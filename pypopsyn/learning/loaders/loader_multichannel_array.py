@@ -11,6 +11,7 @@
 
 import numpy as np
 import pandas as pd
+import torch
 import torchvision.transforms
 from PIL import Image
 
@@ -22,7 +23,46 @@ class DatasetMultichannelArray:
         Dataset for a multichannel array input.
     """
 
-    def __init__(self, file_path, ignore=[], ignore_labels=[], transform=None):
+    def compute_target_standardization(self):
+        """
+            TODO: Comment.
+        """
+
+        i = 0
+
+        # Loop over every input column of the dataset to collect all outputs.
+        for col in self.dataset.columns:
+            # All input channel headers are annotated with a prefix "input:" in
+            # the dataset CSV file. Find them and skip them to find the targets.
+            if "input:" in col:
+                i += 1
+            # If an input prefix is not found, it is a label (ground truth) then
+            # skip to directly stack them later based on the last index in which
+            # we found the input prefix.
+            else:
+                break
+
+        # Fetch all the targets from the last input channel column.
+        targets = np.array(self.dataset.iloc[:, i:], dtype=np.float32)
+
+        # Compute mean and standard deviation of each target.
+        self.target_std = np.std(targets, axis=0, dtype=np.float32)
+        self.target_mean = np.mean(targets, axis=0, dtype=np.float32)
+        self.target_max = np.max(targets, axis=0)
+        self.target_min = np.min(targets, axis=0)
+
+        print("Maximum value for targets: ", self.target_max)
+        print("Minimum value for targets: ", self.target_min)
+
+    def __init__(
+        self,
+        file_path,
+        ignore=[],
+        ignore_labels=[],
+        normalize=False,
+        standardize=False,
+        transform=None,
+    ):
         """
             Initialization or constructor function for the dataset.
 
@@ -40,6 +80,10 @@ class DatasetMultichannelArray:
         self.dataset.drop(
             self.dataset.columns[ignore + ignore_labels], axis=1, inplace=True
         )
+
+        self.normalize = normalize
+        self.standardize = standardize
+        self.compute_target_standardization()
 
         self.transform = transform
 
@@ -93,12 +137,29 @@ class DatasetMultichannelArray:
         # Stack all input channels.
         matrix = np.dstack(channels)
         # Fetch all the labels from the last input channel column.
-        labels = np.array(self.dataset.iloc[index, i:], dtype=np.float32)
+        targets = np.array(self.dataset.iloc[index, i:], dtype=np.float32)
+
+        # On-the-fly normalization and standardization.
+        if self.normalize:
+            pc_min = np.min(matrix, axis=(0, 1), keepdims=True)
+            pc_max = np.max(matrix, axis=(0, 1), keepdims=True)
+            matrix = (matrix - pc_min) / (pc_max - pc_min)
+
+            targets = (targets - self.target_min) / (
+                self.target_max - self.target_min
+            )
+
+        elif self.standardize:
+            pc_std = np.std(matrix, axis=(0, 1), keepdims=True)
+            pc_mean = np.mean(matrix, axis=(0, 1), keepdims=True)
+            matrix = (matrix - pc_mean) / pc_std
+
+            targets = (targets - self.target_mean) / self.target_std
 
         if self.transform is not None:
             matrix = self.transform(matrix)
 
-        return matrix, labels
+        return matrix, targets
 
 
 class LoaderMultichannelArray(LoaderBase):
@@ -110,6 +171,8 @@ class LoaderMultichannelArray(LoaderBase):
         ignored_labels: list,
         num_workers: int = 1,
         shuffle: bool = False,
+        normalize: bool = False,
+        standardize: bool = False,
     ):
         """
         Data loader for a multi-channel array-based dataset. The dataset is
@@ -134,12 +197,21 @@ class LoaderMultichannelArray(LoaderBase):
         self.data_path = data_path
         self.ignored_inputs = ignored_inputs
         self.ignored_labels = ignored_labels
+        self.normalize = normalize
+        self.standardize = standardize
 
         self.dataset = DatasetMultichannelArray(
             self.data_path,
             self.ignored_inputs,
             self.ignored_labels,
+            self.normalize,
+            self.standardize,
             transform=transformation,
         )
+
+        self.target_mean = self.dataset.target_mean
+        self.target_std = self.dataset.target_std
+        self.target_max = self.dataset.target_max
+        self.target_min = self.dataset.target_min
 
         super().__init__(self.dataset, batch_size, num_workers, shuffle)
