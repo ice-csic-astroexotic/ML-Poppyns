@@ -23,7 +23,7 @@
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
       "ignored_labels": [],
-      "normalize": true,
+      "normalize": false,
       "standardize": false
     }
   },
@@ -36,7 +36,7 @@
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
       "ignored_labels": [],
-      "normalize": true,
+      "normalize": false,
       "standardize": false
     }
   },

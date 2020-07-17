@@ -93,13 +93,13 @@ def main(config):
     # Train the model ----------------------------------------------------------
     logger.info("Creating trainer...")
     trainer = learning_trainer.TrainerBasic(
-        model,
-        loss_criterion,
-        metric,
-        optimizer,
+        model=model,
+        criterion=loss_criterion,
+        metric=metric,
+        optimizer=optimizer,
         configuration=config,
-        data_loader=loader,
-        validation_data_loader=val_loader,
+        train_loader=loader,
+        val_loader=val_loader,
         lr_scheduler=scheduler,
     )
 
@@ -187,13 +187,20 @@ if __name__ == "__main__":
             ["--save_dir"], type=str, nargs="?", target=("trainer;save_dir")
         ),
         CustomArgs(
-            ["--normalize"], type=bool, nargs="?", target=("trainer;normalize")
+            ["--normalize"],
+            type=bool,
+            nargs="?",
+            target=(
+                "data_loader;args;normalize,validation_data_loader;args;normalize"
+            ),
         ),
         CustomArgs(
             ["--standardize"],
             type=bool,
             nargs="?",
-            target=("trainer;standardize"),
+            target=(
+                "data_loader;args;standardize,validation_data_loader;args;standardize"
+            ),
         ),
         CustomArgs(
             ["--lr"], type=float, nargs="?", target=("optimizer;args;lr")
