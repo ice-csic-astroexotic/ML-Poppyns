@@ -55,7 +55,8 @@ class InitializerUniformRule(InitializerBase):
 
         Args:
             m (torch.module): module with parameters to be initialized. Could
-              be anything from a linear layer to a convolutional one.
+              be anything from a linear layer to a convolutional one. Right now,
+              only initialization of Linear layers is performed.
 
         Returns:
             Nothing.
@@ -65,7 +66,7 @@ class InitializerUniformRule(InitializerBase):
             n = m.in_features
             y = 1.0 / np.sqrt(n)
             torch.nn.init.uniform_(m.weight, -y, y)
-            torch.nn.init.constant_(m.bias, 0.0)
+            m.bias.data.fill_(0.0)
 
     def __str__(self) -> str:
         """
