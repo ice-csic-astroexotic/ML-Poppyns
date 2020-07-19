@@ -27,11 +27,11 @@ from pypopsyn.simulator.configuration import cfg
 galactic_model = cfg["galactic_model"]
 if galactic_model == "gmM19":
     gmod = gm.GalaxyModelM19()
-elif galactic_model == "gmCI87":
-    gmod = gm.GalaxyModelCI87()
+elif galactic_model == "gmFK06":
+    gmod = gm.GalaxyModelFK06()
 else:
     raise ValueError(
-        "The galactic model does not exist. Choose between gmCI87 or gmM19."
+        "The galactic model does not exist. Choose between gmFK06 or gmM19."
     )
 
 

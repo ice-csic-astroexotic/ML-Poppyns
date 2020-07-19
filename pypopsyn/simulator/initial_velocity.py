@@ -26,7 +26,7 @@ elif galactic_model == "gmFK06":
     gmod = gm.GalaxyModelFK06()
 else:
     raise ValueError(
-        "The galactic model does not exist. Choose between gmCI87 or gmM19."
+        "The galactic model does not exist. Choose between gmFK06 or gmM19."
     )
 
 
