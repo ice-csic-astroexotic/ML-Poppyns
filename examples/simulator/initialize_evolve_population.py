@@ -195,8 +195,10 @@ def generate_population(cfg) -> None:
     (
         ra_final,
         dec_final,
+        sun_dist,
         v_ra_final,
         v_dec_final,
+        v_ls,
     ) = coord.galactocentric_to_icrs(
         x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
     )
@@ -226,11 +228,13 @@ def generate_population(cfg) -> None:
             "z": z_final,
             "RA": ra_final,
             "DEC": dec_final,
+            "d": sun_dist,
             "v_r": v_r_final,
             "v_phi": v_phi_final,
             "v_z": v_z_final,
             "v_RA": v_ra_final,
             "v_DEC": v_dec_final,
+            "v_ls": v_ls,
         }
     )
 
@@ -246,11 +250,13 @@ def generate_population(cfg) -> None:
                 "[kpc]",
                 "[deg]",
                 "[deg]",
+                "[kpc]",
                 "[km / s]",
                 "[km / s]",
                 "[km / s]",
                 "[mas / yr]",
                 "[mas / yr]",
+                "[km / s]",
             ],
         )
     )

@@ -59,6 +59,7 @@ def pdf_radial_stellar_density(r: float) -> float:
     # check range of input
     coco.check_radial_coordinate(r)
 
+    # Here we keep R_sun = 8.5 kpc for consistency with the results of Yusifov & Küçük (2004)
     rsun = 8.5  # Sun's distance from the galactic centre [kpc].
     A = 37.6  # +- 1.90 [1/kpc**2]
     a = 1.64  # +-0.11

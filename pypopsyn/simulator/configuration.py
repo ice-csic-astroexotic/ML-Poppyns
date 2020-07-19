@@ -14,6 +14,8 @@ cfg = {}
 
 # Initial population class parameters.
 
+cfg["R_sun"] = 8.3  # Sun distance from the galactocentric axis [kpc].
+cfg["z_sun"] = 0.02  # Sun distance from the Galactic plane [kpc].
 cfg["r_extent"] = 20.0  # Total radial extent from the galactic centre [kpc].
 cfg["z_extent"] = 5.0  # Total vertical extent from the galactic plane [kpc].
 cfg["vk_extent"] = 2500.0  # Maximum kick velocity magnitude [km/s].
