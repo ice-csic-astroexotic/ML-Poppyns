@@ -22,7 +22,7 @@ TOL = 1e-5
 def test_case_1():
     data = {
         "v": 300,
-        "pdf_vp_expected": 0.00119,
+        "pdf_vk_expected": 0.00119,
     }
 
     return data
@@ -39,12 +39,12 @@ def test_case_2():
     return data
 
 
-def test_pdf_proper_velocity(test_case_1):
+def test_pdf_kick_velocity_exp(test_case_1):
     """
     Verifying that proper velocity distribution is correctly calculated.
     """
-    pdf_vp_out = iv.pdf_proper_velocity(test_case_1["v"])
-    assert np.abs(test_case_1["pdf_vp_expected"] - pdf_vp_out) < TOL
+    pdf_vk_out = iv.pdf_kick_velocity_exp(test_case_1["v"])
+    assert np.abs(test_case_1["pdf_vk_expected"] - pdf_vk_out) < TOL
 
 
 def test_circular_velocity(test_case_2):

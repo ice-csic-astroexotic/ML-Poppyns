@@ -22,9 +22,9 @@ cfg["NS_number"] = 50000  # Number of neutron stars for the population.
 cfg["arm_number"] = 4  # Number of spiral arms in the galaxy.
 cfg["t_age_min"] = 1.0  # Minimum age for the neutron stars [yr].
 cfg["t_age_max"] = 5.0e6  # Maximum age for the neutron stars [yr].
-# galactic potential model to use in the simulation. Choose between gmM19 or gmCI87
+# galactic potential model to use in the simulation. Choose between gmM19 or gmFK06
 cfg["galactic_model"] = "gmM19"
-# spiral arms model to use in the simulation. Choose between saFK06 or saYM16
+# spiral arms model to use in the simulation. Choose between saYM16 or saFK06
 cfg["spiral_arms"] = "saYM16"
 # model pdf for the kick velocity. Choose between "maxwell" or "exp"
 cfg["kick_model"] = "maxwell"

@@ -14,6 +14,7 @@
 
 KPC_TO_KM = 3.08567758e16  # Convert from [kpc] to [km].
 KPC_TO_CM = 3.08567758e21  # Convert from [kpc] to [cm].
+KM_TO_CM = 100000  # Convert from [km] to [cm]
 YR_TO_S = 3600 * 24 * 365  # Convert from [yr] to [s].
 
 # Physical constants.

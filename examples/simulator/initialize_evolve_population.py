@@ -25,6 +25,7 @@ import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.constants as const
 import pypopsyn.simulator.coordinate_conversions as coord
 import pypopsyn.simulator.dynamical_evolution as dyn
+import pypopsyn.simulator.galactic_model as gm
 import pypopsyn.simulator.initial_population as ipop
 
 log = logging.getLogger(__name__)
@@ -49,6 +50,15 @@ def generate_population(cfg) -> None:
     # Update simulator configuration with the provided parameters.
     configuration.update_configuration(cfg)
 
+    galactic_model = configuration.cfg["galactic_model"]
+    if galactic_model == "gmM19":
+        gmod = gm.GalaxyModelM19()
+    elif galactic_model == "gmFK06":
+        gmod = gm.GalaxyModelFK06()
+    else:
+        raise ValueError(
+            "The galactic model does not exist. Choose between gmCI87 or gmM19."
+        )
     # Generate an initial neutron star population.
     NS_population_initial = ipop.InitialNeutronStarPopulation()
 
@@ -79,6 +89,14 @@ def generate_population(cfg) -> None:
     v_phi_initial = vk_phi + v_orb
     omega_initial = v_phi_initial / r_initial
     v_z_initial = vk_z
+
+    # Compute the initial total energy of the system.
+    v_initial = (
+        np.sqrt(v_r_initial ** 2 + v_phi_initial ** 2 + v_z_initial ** 2)
+        * const.KPC_TO_KM
+        / const.YR_TO_S
+    )
+    total_energy_in = gmod.total_energy(v_initial, r_initial, z_initial)
 
     # Adding the coordinates to a data frame for export.
     log.info("Creating data frame for exporting...")
@@ -181,6 +199,19 @@ def generate_population(cfg) -> None:
         v_dec_final,
     ) = coord.galactocentric_to_icrs(
         x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
+    )
+
+    # Compute the total energy of the system after the dynamical evolution.
+    v_final = np.sqrt(v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2)
+    total_energy_fin = gmod.total_energy(v_final, r_final, z_final)
+
+    delta_energy_percentage = (
+        (total_energy_fin - total_energy_in) / total_energy_in * 100.0
+    )
+    log.info(
+        "Percentage variation of total energy of the system during simulation: {} %".format(
+            delta_energy_percentage
+        )
     )
 
     # Adding the evolution output to a data frame for export.
