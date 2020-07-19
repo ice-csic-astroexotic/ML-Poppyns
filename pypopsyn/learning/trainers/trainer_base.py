@@ -97,7 +97,7 @@ class BaseTrainer:
     def _train_epoch(self, epoch):
         raise NotImplementedError
 
-    def train(self) -> np.float32:
+    def train(self) -> float:
 
         """
         Main training procedure.
@@ -116,7 +116,7 @@ class BaseTrainer:
             None.
 
         Returns:
-            (np.float32) the best result for the specified metric over the whole
+            float: the best result for the specified metric over the whole
             training process (validation accuracy according to the metric if
             validation is performed and training accuracy otherwise).
 

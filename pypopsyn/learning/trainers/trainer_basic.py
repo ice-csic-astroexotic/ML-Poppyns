@@ -158,7 +158,10 @@ class TrainerBasic(BaseTrainer):
                 # Compute individual loss for this output.
                 loss_i = self.criterion(output[:, i], target[:, i])
                 # Update tracked loss and output to TensorBoard.
-                self.train_metrics.update("loss{}".format(i), loss_i.item())
+                self.train_metrics.update(
+                    "loss_{}".format(self.train_loader.target_names[i]),
+                    loss_i.item(),
+                )
                 # Accumulate into total loss.
                 loss = loss + loss_i
 
@@ -270,7 +273,8 @@ class TrainerBasic(BaseTrainer):
                     loss_i = self.criterion(output[:, i], target[:, i])
                     # Update tracked loss and output to TensorBoard.
                     self.valid_metrics.update(
-                        "loss{}".format(i), loss_i.item()
+                        "loss_{}".format(self.val_loader.target_names[i]),
+                        loss_i.item(),
                     )
                     # Accumulate into total loss.
                     loss = loss + loss_i
