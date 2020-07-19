@@ -36,77 +36,101 @@ import pypopsyn.learning.trainers.trainer_basic as learning_trainer
 
 def main(config):
 
-    # Get handle for the logger ------------------------------------------------
-    logger = config.get_logger("train")
-    logger.info("Logger initialized...")
+    trials = 1
+    converged = False
 
-    # Setup data loaders -------------------------------------------------------
-    logger.info("Creating data loaders...")
-    loader = config.init_object("data_loader", learning_loaders)
-    logger.info("Loader: {}".format(loader))
+    while not converged and trials <= config["trials"]:
 
-    logger.info("Creating validation data loader...")
-    val_loader = config.init_object("validation_data_loader", learning_loaders)
-    logger.info("Validation loader: {}".format(val_loader))
+        # Get handle for the logger --------------------------------------------
+        logger = config.get_logger("train")
+        logger.info(
+            "========================================================="
+        )
+        logger.info("Trial {} out of {}...".format(trials, config["trials"]))
+        logger.info(
+            "Convergence threshold: {}".format(config["convergence_threshold"])
+        )
+        logger.info("Logger initialized...")
 
-    # Build model --------------------------------------------------------------
-    logger.info("Building model...")
-    model = config.init_object("arch", learning_models)
-    logger.info("Model architecture: {}".format(model))
+        # Setup data loaders ---------------------------------------------------
+        logger.info("Creating data loaders...")
+        loader = config.init_object("data_loader", learning_loaders)
+        logger.info("Loader: {}".format(loader))
 
-    # Initialize weights -------------------------------------------------------
-    logger.info("Initializing weights...")
-    weight_initializer = config.init_object(
-        "weights_initializer", learning_initializers
-    )
-    logger.info("Weight initialization scheme: {}".format(weight_initializer))
-    # Apply the weight initialization scheme to every layer in the model.
-    model.apply(weight_initializer)
+        logger.info("Creating validation data loader...")
+        val_loader = config.init_object(
+            "validation_data_loader", learning_loaders
+        )
+        logger.info("Validation loader: {}".format(val_loader))
 
-    # Get handle for loss criterion --------------------------------------------
-    logger.info("Creating loss criterion...")
-    loss_criterion = config.init_object("loss", learning_losses)
-    logger.info("Loss criterion: {}".format(loss_criterion))
+        # Build model ----------------------------------------------------------
+        logger.info("Building model...")
+        model = config.init_object("arch", learning_models)
+        logger.info("Model architecture: {}".format(model))
 
-    # Get handles for metric ---------------------------------------------------
-    logger.info("Creating metrics...")
-    metric = config.init_object("metric", learning_metrics)
-    logger.info("Metric: {}".format(metric))
+        # Initialize weights ---------------------------------------------------
+        logger.info("Initializing weights...")
+        weight_initializer = config.init_object(
+            "weights_initializer", learning_initializers
+        )
+        logger.info("Weight initialization: {}".format(weight_initializer))
+        # Apply the weight initialization scheme to every layer in the model.
+        model.apply(weight_initializer)
 
-    # Construct optimizer and scheduler ----------------------------------------
-    trainable_parameters = filter(
-        lambda p: p.requires_grad, model.parameters()
-    )
+        # Get handle for loss criterion ----------------------------------------
+        logger.info("Creating loss criterion...")
+        loss_criterion = config.init_object("loss", learning_losses)
+        logger.info("Loss criterion: {}".format(loss_criterion))
 
-    logger.info("Creating optimizer...")
-    optimizer = config.init_object(
-        "optimizer", torch.optim, trainable_parameters
-    )
-    logger.info("Optimizer {}".format(optimizer))
+        # Get handles for metric -----------------------------------------------
+        logger.info("Creating metrics...")
+        metric = config.init_object("metric", learning_metrics)
+        logger.info("Metric: {}".format(metric))
 
-    logger.info("Creating scheduler...")
-    scheduler = config.init_object(
-        "lr_scheduler", torch.optim.lr_scheduler, optimizer
-    )
-    logger.info("Scheduler {}".format(scheduler))
+        # Construct optimizer and scheduler ------------------------------------
+        trainable_parameters = filter(
+            lambda p: p.requires_grad, model.parameters()
+        )
 
-    # Train the model ----------------------------------------------------------
-    logger.info("Creating trainer...")
-    trainer = learning_trainer.TrainerBasic(
-        model=model,
-        criterion=loss_criterion,
-        metric=metric,
-        optimizer=optimizer,
-        configuration=config,
-        train_loader=loader,
-        val_loader=val_loader,
-        lr_scheduler=scheduler,
-    )
+        logger.info("Creating optimizer...")
+        optimizer = config.init_object(
+            "optimizer", torch.optim, trainable_parameters
+        )
+        logger.info("Optimizer {}".format(optimizer))
 
-    logger.info("{}".format(config))
+        logger.info("Creating scheduler...")
+        scheduler = config.init_object(
+            "lr_scheduler", torch.optim.lr_scheduler, optimizer
+        )
+        logger.info("Scheduler {}".format(scheduler))
 
-    logger.info("Training model...")
-    trainer.train()
+        # Train the model ------------------------------------------------------
+        logger.info("Creating trainer...")
+        trainer = learning_trainer.TrainerBasic(
+            model=model,
+            criterion=loss_criterion,
+            metric=metric,
+            optimizer=optimizer,
+            configuration=config,
+            train_loader=loader,
+            val_loader=val_loader,
+            lr_scheduler=scheduler,
+        )
+
+        logger.info("{}".format(config))
+
+        logger.info("Training model...")
+        result = trainer.train()
+
+        logger.info("Best training result: {}".format(result))
+
+        if result < config["convergence_threshold"]:
+            converged = True
+            logger.info("Training converged!")
+        else:
+            logger.info("Training did not converge!")
+
+        trials += 1
 
 
 if __name__ == "__main__":
@@ -135,6 +159,12 @@ if __name__ == "__main__":
     )
 
     options = [
+        CustomArgs(
+            ["--convergence"],
+            type=float,
+            nargs="?",
+            target=("convergence_threshold"),
+        ),
         CustomArgs(
             ["--dataset"],
             type=str,

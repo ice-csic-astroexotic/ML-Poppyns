@@ -26,6 +26,8 @@ SOFTWARE.
 
 """
 
+import typing
+
 import numpy as np
 import torch
 from torchvision.utils import make_grid
@@ -118,7 +120,7 @@ class TrainerBasic(BaseTrainer):
             [], writer=self.writer
         )
 
-    def _train_epoch(self, epoch: int) -> dict:
+    def _train_epoch(self, epoch: int) -> typing.Tuple[dict, dict]:
         """
         Single-epoch training routine.
 
@@ -126,9 +128,10 @@ class TrainerBasic(BaseTrainer):
             epoch: Current epoch number.
 
         Returns:
-            A dictionary containing the results for the epoch, i.e., the average
-            for each tracked metric: usually the loss average for the epoch, and
-            any other specified accuracy metric average.
+            Two dictionaries containing the results for the epoch, i.e., the
+            average for the losses and for the tracked metric: one for the
+            training set and another for the validation one if present (None
+            otherwise).
 
         """
 
@@ -202,15 +205,16 @@ class TrainerBasic(BaseTrainer):
 
         # If there is a validation set, perform a validation step and update
         # the logged metrics and losses.
+        val_log = None
         if self.validate:
             val_log = self._valid_epoch(epoch)
-            log.update(**{"val_" + k: v for k, v in val_log.items()})
+            # log.update(**{"val_" + k: v for k, v in val_log.items()})
 
         # Step learning rate if a scheduler is provided.
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
 
-        return log
+        return log, val_log
 
     def _valid_epoch(self, epoch: int) -> dict:
         """

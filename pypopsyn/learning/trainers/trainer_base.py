@@ -10,6 +10,7 @@
 
 from abc import abstractmethod
 
+import numpy as np
 import torch
 from numpy import inf
 
@@ -96,7 +97,7 @@ class BaseTrainer:
     def _train_epoch(self, epoch):
         raise NotImplementedError
 
-    def train(self) -> None:
+    def train(self) -> np.float32:
 
         """
         Main training procedure.
@@ -108,13 +109,16 @@ class BaseTrainer:
         Furthermore, it also monitors the metric to check if it has improved
         or not and perform early stopping if needed.
 
-        At last, it checkpoints the training process at the specified interval.
+        At last, it checkpoints the training process at the specified interval;
+        it also saves the most accurate model to `best_model.pth`.
 
         Args:
             None.
 
         Returns:
-            Nothing.
+            (np.float32) the best result for the specified metric over the whole
+            training process (validation accuracy according to the metric if
+            validation is performed and training accuracy otherwise).
 
         """
 
@@ -122,47 +126,85 @@ class BaseTrainer:
 
         for epoch in range(self.start_epoch, self.epochs + 1):
 
-            # Run one training epoch and fetch the results dictionary.
-            result = self._train_epoch(epoch)
+            self.logger.info(
+                "************************************************"
+            )
+            self.logger.info("Epoch {}".format(epoch))
+            self.logger.info("Best accuracy: {}".format(self.monitor_best))
+
+            # Run one epoch and fetch the result dictionaries for train/val.
+            train_result, val_result = self._train_epoch(epoch)
 
             # Update current epoch logging dictionary with the results from the
             # training epoch (usually loss and accuracy averages).
             log = {"epoch": epoch}
-            log.update(result)
+            log.update(train_result)
+            current_result = log[self.metric.__class__.__name__]
 
-            # Print per-epoch logged information to the screen.
+            # Print training per-epoch logged information to the screen.
+            self.logger.info("Training results...")
             for key, value in log.items():
                 self.logger.info("    {:15s}: {}".format(str(key), value))
 
-            # Evaluate model performance according to configured metric.
-            # Save best checkpoint as model_best.
-            best = False
+            # Print validation information if validation was performed.
+            if val_result is not None:
+
+                # Update current epoch logging dictionary with the results from
+                # the validation epoch (usually loss and accuracy averages).
+                val_log = {"epoch": epoch}
+                val_log.update(val_result)
+                current_result = val_log[self.metric.__class__.__name__]
+
+                # Print validation per-epoch logged information to the screen.
+                self.logger.info("Validation results...")
+                for key, value in val_log.items():
+                    self.logger.info("    {:15s}: {}".format(str(key), value))
 
             # Check whether model performance improved or not, according
-            # to specified metric behavior (minimum or maximum).
-            if self.metric.improved(
-                self.monitor_best, log[self.metric.__class__.__name__]
-            ):
+            # to specified metric behavior (minimum or maximum). The metric will
+            # be the validation one if validation is performed or training if
+            # no validation is carried out.
+            best = False
 
-                self.monitor_best = log[self.metric.__class__.__name__]
+            if self.metric.improved(self.monitor_best, current_result):
+                # The current result improves the running best, save it and
+                # reset the patience counter for early stopping.
+                self.monitor_best = current_result
                 not_improved_count = 0
                 best = True
-
+                self.logger.info("Metric improved!")
             else:
+                # The current result did not improve the running best, increase
+                # the patience counter for early stopping.
+                self.logger.info(
+                    "Metric did not improve for {} epochs...".format(
+                        not_improved_count
+                    )
+                )
                 not_improved_count += 1
 
             # Perform early stopping if the metric has not improved for
-            # the specified number of epochs.
+            # the specified number of epochs (patience).
             if not_improved_count > self.early_stop:
                 self.logger.info(
-                    "Validation performance didn't improve for {} epochs. "
+                    "Target metric did not improve for {} epochs. "
                     "Training stops.".format(self.early_stop)
                 )
                 break
 
-            # Create checkpoint.
-            if epoch % self.save_period == 0:
-                self._save_checkpoint(epoch, save_best=best)
+            # Create checkpoint at the requested interval.
+            if (epoch % self.save_period) == 0:
+                self._save_checkpoint(
+                    epoch, "checkpoint-epoch{}.pth".format(epoch)
+                )
+                self.logger.info("Saved checkpoint...")
+
+            # Save best model if it is the case.
+            if best:
+                self._save_checkpoint(epoch, "best_model.pth")
+                self.logger.info("Saved best model so far...")
+
+        return self.monitor_best
 
     def _progress(self, batch_idx: int, data_loader, len_epoch: int) -> str:
         """
@@ -192,7 +234,7 @@ class BaseTrainer:
 
         return base.format(current, total, 100.0 * current / total)
 
-    def _save_checkpoint(self, epoch: int, save_best: bool = False) -> None:
+    def _save_checkpoint(self, epoch: int, filename: str) -> None:
         """
         Checkpoint saving.
 
@@ -201,13 +243,12 @@ class BaseTrainer:
         configuration.
 
         Args:
-            epoch: Current epoch number.
-            save_best: Whether or not this is the best model so far.
+            epoch: current training epoch.
+            filename: filename to save the checkpoint to.
 
         Returns:
-            Nothing. Saves the checkpoint in the checkpoint folder using
-            the epoch number as suffix. If the current epoch has produced
-            the best model so far, it is saved as the best model.
+            Nothing. Saves the checkpoint in the checkpoint folder with
+            the specified filename.
 
         """
 
@@ -222,19 +263,8 @@ class BaseTrainer:
             "config": self.configuration,
         }
 
-        filename = str(
-            self.checkpoint_dir / "checkpoint-epoch{}.pth".format(epoch)
-        )
-
+        filename = str(self.checkpoint_dir / filename)
         torch.save(state, filename)
-
-        self.logger.info("Saving checkpoint: {} ...".format(filename))
-
-        if save_best:
-
-            best_path = str(self.checkpoint_dir / "model_best.pth")
-            torch.save(state, best_path)
-            self.logger.info("Saving current best: model_best.pth ...")
 
     def _resume_checkpoint(self, checkpoint_path) -> None:
         """
