@@ -8,6 +8,7 @@
 
 """
 
+import typing
 from abc import abstractmethod
 
 import numpy as np
@@ -97,7 +98,7 @@ class BaseTrainer:
     def _train_epoch(self, epoch):
         raise NotImplementedError
 
-    def train(self) -> float:
+    def train(self) -> typing.Tuple[dict, float]:
 
         """
         Main training procedure.
@@ -116,12 +117,15 @@ class BaseTrainer:
             None.
 
         Returns:
+            dict: a dictionary with the best values for each individual loss for
+            each one of the targets.
             float: the best result for the specified metric over the whole
             training process (validation accuracy according to the metric if
             validation is performed and training accuracy otherwise).
 
         """
 
+        best_losses = {}
         not_improved_count = 0
 
         for epoch in range(self.start_epoch, self.epochs + 1):
@@ -132,8 +136,9 @@ class BaseTrainer:
             self.logger.info("Epoch {}".format(epoch))
             self.logger.info("Best accuracy: {}".format(self.monitor_best))
 
-            # Run one epoch and fetch the result dictionaries for train/val.
-            train_result, val_result = self._train_epoch(epoch)
+            # Run one epoch and fetch the result dictionaries for train/val and
+            # the losses that will be used for convergence.
+            train_result, val_result, losses = self._train_epoch(epoch)
 
             # Update current epoch logging dictionary with the results from the
             # training epoch (usually loss and accuracy averages).
@@ -146,7 +151,9 @@ class BaseTrainer:
             for key, value in log.items():
                 self.logger.info("    {:15s}: {}".format(str(key), value))
 
-            # Print validation information if validation was performed.
+            # Print validation information if validation was performed and use
+            # it to update the training tracking metrics if so (like the current
+            # best loss so far).
             if val_result is not None:
 
                 # Update current epoch logging dictionary with the results from
@@ -172,6 +179,7 @@ class BaseTrainer:
                 self.monitor_best = current_result
                 not_improved_count = 0
                 best = True
+                best_losses = losses
                 self.logger.info("Metric improved!")
             else:
                 # The current result did not improve the running best, increase
@@ -204,7 +212,7 @@ class BaseTrainer:
                 self._save_checkpoint(epoch, "best_model.pth")
                 self.logger.info("Saved best model so far...")
 
-        return self.monitor_best
+        return best_losses, self.monitor_best
 
     def _progress(self, batch_idx: int, data_loader, len_epoch: int) -> str:
         """

@@ -39,7 +39,7 @@ def main(config):
     trials = 1
     converged = False
 
-    while not converged and trials <= config["trials"]:
+    while (not converged) and (trials <= config["trials"]):
 
         # Get handle for the logger --------------------------------------------
         logger = config.get_logger("train")
@@ -47,9 +47,7 @@ def main(config):
             "========================================================="
         )
         logger.info("Trial {} out of {}...".format(trials, config["trials"]))
-        logger.info(
-            "Convergence threshold: {}".format(config["convergence_threshold"])
-        )
+        logger.info("Convergence thresholds: {}".format(config["convergence"]))
         logger.info("Logger initialized...")
 
         # Setup data loaders ---------------------------------------------------
@@ -120,15 +118,34 @@ def main(config):
         logger.info("{}".format(config))
 
         logger.info("Training model...")
-        result = trainer.train()
+        train_results, best_result = trainer.train()
 
-        logger.info("Best training result: {}".format(result))
+        logger.info("Best losses: {}".format(train_results))
+        logger.info("Best accuracy achieved: {}".format(best_result))
 
-        if result < config["convergence_threshold"]:
-            converged = True
-            logger.info("Training converged!")
+        # Iterate over the best individual train or val losses and check the
+        # specified convergence criteria in the configuration file.
+        converged = True
+        for k, v in train_results.items():
+
+            # If no convergence criteria is specified for a certain target, we
+            # assume that is has converged.
+            if k not in config["convergence"]:
+                logger.info("No convergence criteria set for {}".format(k))
+                continue
+
+            if v < config["convergence"][k]:
+                logger.info("Training converged for {}!".format(k))
+            else:
+                converged = False
+                logger.info("Training did not converge for {}!".format(k))
+
+        # If any of the targets has not converged, we will try to repeat the
+        # training process.
+        if converged:
+            logger.info("Training has converged! Stopping.")
         else:
-            logger.info("Training did not converge!")
+            logger.info("Training has not converged...")
 
         trials += 1
 
