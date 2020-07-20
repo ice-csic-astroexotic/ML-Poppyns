@@ -19,6 +19,7 @@ cfg["z_sun"] = 0.02  # Sun distance from the Galactic plane [kpc].
 cfg["r_extent"] = 20.0  # Total radial extent from the galactic centre [kpc].
 cfg["z_extent"] = 5.0  # Total vertical extent from the galactic plane [kpc].
 cfg["vk_extent"] = 2500.0  # Maximum kick velocity magnitude [km/s].
+cfg["seed"] = 42  # Seed for random number generation.
 cfg["resolution"] = 10000  # Resolution for the grid in the initial population.
 cfg["NS_number"] = 50000  # Number of neutron stars for the population.
 cfg["arm_number"] = 4  # Number of spiral arms in the galaxy.
@@ -28,11 +29,12 @@ cfg["t_age_max"] = 5.0e6  # Maximum age for the neutron stars [yr].
 cfg["galactic_model"] = "gmM19"
 # Spiral arms model to use in the simulation. Choose between saYMW17 or saFK06.
 cfg["spiral_arms"] = "saYMW17"
-# Model pdf for the kick velocity. Choose between "km_maxwell" or "km_exp"
+# Model pdf for the kick velocity. Choose between "km_maxwell" or "km_exp".
 cfg["kick_model"] = "km_maxwell"
-# Characteristic kick velocity in km/s for the kick velocity pdf.
-# In case of an exponential pdf this is the mean kick velocity, in case of a Maxwell pdf it is the sigma.
+# Characteristic kick velocity in km/s for the kick velocity exponential pdf.
 cfg["vk_c"] = 380.0
+# sigma in km/s for the kick velocity Maxwell pdf.
+cfg["sigma_k"] = 265.0
 # Characteristic height in kpc from the galactic plane.
 cfg["h_mean"] = 0.18
 

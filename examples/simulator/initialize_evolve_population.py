@@ -90,7 +90,7 @@ def generate_population(cfg) -> None:
     omega_initial = v_phi_initial / r_initial
     v_z_initial = vk_z
 
-    # Compute the value of the initial velocity vector for each star in km / s.
+    # Compute the magnitude of the initial velocity vector for each star in km / s.
     v_initial = (
         np.sqrt(v_r_initial ** 2 + v_phi_initial ** 2 + v_z_initial ** 2)
         * const.KPC_TO_KM
@@ -204,7 +204,7 @@ def generate_population(cfg) -> None:
         x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
     )
 
-    # Compute the value of the initial velocity vector for each star in km / s.
+    # Compute the magnitude of the initial velocity vector for each star in km / s.
     v_final = np.sqrt(v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2)
     # Compute the total energy of the system after the dynamical evolution.
     total_energy_final = gmod.total_energy(v_final, r_final, z_final)

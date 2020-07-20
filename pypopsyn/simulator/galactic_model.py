@@ -40,13 +40,13 @@ class GalaxyModelM19:
 
     # Parameters of the model, values from table 1 in Marchetti et al. (2019).
     a_d = 3.0  # Scale length of the disk in kpc.
-    b_d = 0.28  # scale height for the disk.
+    b_d = 0.28  # Scale height for the disk.
     M_d = 6.8e10 * const.M_SUN  # Disk+halo mass in g.
     M_b = 5.0e9 * const.M_SUN  # Bulge mass in g.
     r_b = 1.0  # Core radius of the bulge component in kpc.
-    M_n = 1.71e9 * const.M_SUN  # nucleus mass in g.
+    M_n = 1.71e9 * const.M_SUN  # Nucleus mass in g.
     r_n = 0.07  # Core radius of the nucleus component in kpc.
-    M_h = 5.4e11 * const.M_SUN  # halo mass in g.
+    M_h = 5.4e11 * const.M_SUN  # Halo mass in g.
     r_h = 15.62  # Core radius of the halo component in kpc.
 
     def shape_parameter(self, z: float) -> Tuple[float, float]:

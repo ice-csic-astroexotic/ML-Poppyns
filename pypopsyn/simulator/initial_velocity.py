@@ -50,7 +50,7 @@ def pdf_kick_velocity_exp(v: float) -> float:
 def pdf_kick_velocity_maxwell(v: float) -> float:
     """
     Maxwell probability density function for the neutron stars' initial kick
-    velocity magnitude following Hobbs et al. (2004).
+    velocity magnitude following Hobbs et al. (2005).
 
     Args:
         v (float): initial kick velocity magnitude in km / s.
@@ -58,8 +58,8 @@ def pdf_kick_velocity_maxwell(v: float) -> float:
     Returns:
         float: stellar kick velocity distribution in 1 / (km / s).
     """
-    sigma = cfg["vk_c"]
-    pdf_vk = v ** 2 * np.exp(-(v ** 2) / (2 * sigma ** 2))
+    sigma = cfg["sigma_k"]
+    pdf_vk = v ** 2 / (sigma ** 3) * np.exp(-(v ** 2) / (2 * sigma ** 2))
 
     return pdf_vk
 
