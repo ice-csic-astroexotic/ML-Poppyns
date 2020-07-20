@@ -26,6 +26,8 @@ SOFTWARE.
 
 """
 
+import typing
+
 import numpy as np
 import torch
 from torchvision.utils import make_grid
@@ -130,7 +132,7 @@ class TrainerBasic(BaseTrainer):
             [], writer=self.writer
         )
 
-    def _train_epoch(self, epoch: int) -> dict:
+    def _train_epoch(self, epoch: int) -> typing.Tuple[dict, dict, dict]:
         """
         Single-epoch training routine.
 
@@ -138,9 +140,15 @@ class TrainerBasic(BaseTrainer):
             epoch: Current epoch number.
 
         Returns:
-            A dictionary containing the results for the epoch, i.e., the average
-            for each tracked metric: usually the loss average for the epoch, and
-            any other specified accuracy metric average.
+            dict: a dictionary with the results for the epoch, i.e., the
+            average for the losses and for the tracked metric for the training
+            set.
+            dict: the same but for the validation set (if available, None is
+            returned otherwise).
+            dict: a dictionary with the values for each individual loss for
+            each one of the targets. If validation is performed, such losses
+            correspond to validation losses, otherwise they are the training
+            set losses.
 
         """
 
@@ -167,7 +175,10 @@ class TrainerBasic(BaseTrainer):
                 # Compute individual loss for this output.
                 loss_i = self.criterion(output[:, i], target[:, i])
                 # Update tracked loss and output to TensorBoard.
-                self.train_metrics.update("loss{}".format(i), loss_i.item())
+                self.train_metrics.update(
+                    "{}".format(self.train_loader.target_names[i]),
+                    loss_i.item(),
+                )
                 # Accumulate into total loss.
                 loss = loss + loss_i
 
@@ -211,18 +222,31 @@ class TrainerBasic(BaseTrainer):
         # results for each tracked metrics: usually the average loss and any
         # other specified accuracy metrics.
         log = self.train_metrics.result()
+        # Pack the individual losses separatedly.
+        losses = dict(
+            filter(
+                lambda e: e[0] in self.train_loader.target_names, log.items()
+            )
+        )
 
-        # If there is a validation set, perform a validation step and update
+        # If there is a validation set, perform a validation step and fetch
         # the logged metrics and losses.
+        val_log = None
         if self.validate:
             val_log = self._valid_epoch(epoch)
-            log.update(**{"val_" + k: v for k, v in val_log.items()})
+            # Pack the individual losses separatedly.
+            losses = dict(
+                filter(
+                    lambda e: e[0] in self.val_loader.target_names,
+                    val_log.items(),
+                )
+            )
 
         # Step learning rate if a scheduler is provided.
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
 
-        return log
+        return log, val_log, losses
 
     def _valid_epoch(self, epoch: int) -> dict:
         """
@@ -278,7 +302,8 @@ class TrainerBasic(BaseTrainer):
                     loss_i = self.criterion(output[:, i], target[:, i])
                     # Update tracked loss and output to TensorBoard.
                     self.valid_metrics.update(
-                        "loss{}".format(i), loss_i.item()
+                        "{}".format(self.val_loader.target_names[i]),
+                        loss_i.item(),
                     )
                     # Accumulate into total loss.
                     loss = loss + loss_i

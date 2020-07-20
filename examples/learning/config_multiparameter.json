@@ -1,5 +1,10 @@
 {
   "name": "Linear",
+  "trials": 8,
+  "convergence": {
+    "h_mean": 0.01,
+    "vp_mean": 5.0
+  },
   "n_gpu": 0,
 
   "arch": {
@@ -36,6 +41,7 @@
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
       "ignored_labels": [],
+      "shuffle": false,
       "normalize": false,
       "standardize": false
     }
@@ -62,17 +68,17 @@
   "lr_scheduler": {
     "type": "StepLR",
     "args": {
-      "step_size": 256,
+      "step_size": 128,
       "gamma": 0.1
     }
   },
 
   "trainer": {
-    "epochs": 2000,
+    "epochs": 1024,
     "save_dir": "examples/learning/saved",
-    "save_period": 1,
+    "save_period": 1000,
     "verbosity": 1,
-    "early_stop": 100,
+    "early_stop": 32,
     "tensorboard": true
   }
 }

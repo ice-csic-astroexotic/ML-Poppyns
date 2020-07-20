@@ -53,6 +53,13 @@ class DatasetMultichannelArray:
         This routine computes dataset-wide statistics that might be needed for
         input/targets normalization and standardization like mean, standard
         deviation, minimum, maximum...
+
+        Args:
+            None.
+
+        Returns:
+            Nothing.
+
         """
 
         i = 0
@@ -80,6 +87,26 @@ class DatasetMultichannelArray:
         self.target_mean = np.mean(targets, axis=0)
         self.target_max = np.max(targets, axis=0)
         self.target_min = np.min(targets, axis=0)
+
+    def __fetch_target_names(self):
+        """
+        Fetch the names of the targets/labels from the dataset file.
+
+        Args:
+            None.
+
+        Returns:
+            Nothing.
+
+        """
+
+        self.target_names = []
+        # Loop over every input column of the dataset to collect all outputs.
+        for col in self.dataset.columns:
+            # All input channel headers are annotated with a prefix "input:" in
+            # the dataset CSV file. Find them and skip them to find the targets.
+            if "input:" not in col:
+                self.target_names.append(col)
 
     def __init__(
         self,
@@ -126,6 +153,7 @@ class DatasetMultichannelArray:
         # Compute dataset statistics needed for standardization or normalization
         # like mean, standard deviation, minimum, maximum...
         self.__compute_statistics()
+        self.__fetch_target_names()
 
     def __len__(self):
         """
@@ -239,7 +267,7 @@ class LoaderMultichannelArray(LoaderBase):
             standardize (bool): whether or not to standardize inputs and targets.
 
         Returns:
-            Nothing
+            Nothing.
 
         """
 
@@ -264,5 +292,6 @@ class LoaderMultichannelArray(LoaderBase):
         self.target_std = self.dataset.target_std
         self.target_max = self.dataset.target_max
         self.target_min = self.dataset.target_min
+        self.target_names = self.dataset.target_names
 
         super().__init__(self.dataset, batch_size, num_workers, shuffle)
