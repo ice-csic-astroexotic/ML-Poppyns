@@ -19,9 +19,8 @@ YR_TO_S = 3600 * 24 * 365  # Convert from [yr] to [s].
 # Physical constants.
 
 M_SUN = 2.0e33  # Sun mass [g].
-
+c = 29979245800  # Speed of light [cm/s]
 G = 6.67e-8  # Gravitational constant [cm^3 g^-1 s^-2].
-
 G_KPC_YR = (
     G / (KPC_TO_CM ** 3) * YR_TO_S ** 2
 )  # Gravitational constant [kpc^3 g^-1 yr^-2].

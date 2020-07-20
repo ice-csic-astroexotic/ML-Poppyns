@@ -4,11 +4,13 @@ Simulator configuration
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC)
 
 """
 
+import pypopsyn.simulator.constants as const
 
 cfg = {}
 
@@ -23,9 +25,18 @@ cfg["arm_number"] = 4  # Number of spiral arms in the galaxy.
 cfg["t_age_min"] = 1.0  # Minimum age for the neutron stars [yr].
 cfg["t_age_max"] = 1.0e8  # Maximum age for the neutron stars [yr].
 
-cfg["vp_mean"] = 380.0  # Characteristic kick velocity in km/s for the proper
+cfg["vp_mean"] = 380.0  # Characteristic kick velocity in [km/s] for the proper
 # velocity pdf.
-cfg["h_mean"] = 0.18  # Characteristic height in kpc from the galactic plane.
+cfg["h_mean"] = 0.18  # Characteristic height in [kpc] from the galactic plane.
+
+
+# Canonical neutron star parameters.
+
+cfg["NS_radius"] = 11.0  # Characteristic neutron star radius in [km]
+# velocity pdf.
+cfg["NS_mass"] = (
+    1.4 * const.M_SUN
+)  # Characteristic neutron star mass in solar masses
 
 
 def update_configuration(new_configuration) -> None:
