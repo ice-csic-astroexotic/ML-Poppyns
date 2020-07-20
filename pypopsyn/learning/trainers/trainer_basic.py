@@ -65,10 +65,10 @@ class TrainerBasic(BaseTrainer):
         self.log_step = int(np.sqrt(data_loader.batch_size))
 
         self.train_metrics = learning_utils.metric_tracker.MetricTracker(
-            "loss", *[self.metric.__class__.__name__], writer=self.writer
+            [], writer=self.writer
         )
         self.valid_metrics = learning_utils.metric_tracker.MetricTracker(
-            "loss", *[self.metric.__class__.__name__], writer=self.writer
+            [], writer=self.writer
         )
 
     def _train_epoch(self, epoch: int) -> dict:
@@ -94,11 +94,28 @@ class TrainerBasic(BaseTrainer):
             # Fetch data and labels and move them to the appropriate device.
             data, target = data.to(self.device), target.to(self.device)
 
-            # Training step: zero gradients, compute predictions, calculate
-            # loss and perform backward pass.
+            # Zero gradients to reset loss.
             self.optimizer.zero_grad()
+
+            # Compute output for this batch.
             output = self.model(data)
-            loss = self.criterion(output, target)
+
+            # Compute each individual loss on each of the parameters to be
+            # predicted by comparing the output and the ground truth for each
+            # one of them. Then accumulate each individual loss in the total one.
+            loss = 0.0
+            for i in range(len(output[0])):
+                # Compute individual loss for this output.
+                loss_i = self.criterion(output[:, i], target[:, i])
+                # Update tracked loss and output to TensorBoard.
+                self.train_metrics.update("loss{}".format(i), loss_i.item())
+                # Accumulate into total loss.
+                loss = loss + loss_i
+
+            # Update tracked general loss and output to TensorBoard.
+            self.train_metrics.update("loss", loss.item())
+
+            # Only backpropagate on total loss not on invidiual ones.
             loss.backward()
             self.optimizer.step()
 
@@ -108,18 +125,10 @@ class TrainerBasic(BaseTrainer):
             # Set the TensorBoard step.
             self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
 
-            # Update tracked loss and output to TensorBoard.
-            self.train_metrics.update("loss", loss.item())
             # Update tracked metric and output to TensorBoard.
             self.train_metrics.update(
                 self.metric.__class__.__name__, self.metric(output, target)
             )
-            # Show the input images of this batch on TensorBoard.
-            # TODO: temporarily disabled until we find a better way to
-            # represent arbitrary channel images.
-            # self.writer.add_image(
-            #    "input", make_grid(data.cpu(), nrow=8, normalize=True)
-            # )
 
             # For each specified logging to console step, show the current
             # epoch training information (batch progress, loss...). Usually

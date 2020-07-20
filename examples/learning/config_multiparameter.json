@@ -5,39 +5,43 @@
   "arch": {
     "type": "ModelLinear",
     "args": {
-        "input_shape": [1, 64, 64],
-        "num_parameters": 1
+        "input_shape": [4, 128, 128],
+        "num_parameters": 2
     }
+  },
+
+  "weights_initializer": {
+      "type": "InitializerXavier",
+      "args": {}
   },
 
   "data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "data_path": "examples/data/example/dataset.csv",
-      "batch_size": 4,
+      "data_path": "examples/data/multiparameter/dataset.csv",
+      "batch_size": 8,
       "num_workers": 1,
-      "ignored_inputs": [1, 2, 3, 4, 5, 6, 7],
-      "ignored_labels": [8]
+      "ignored_inputs": [1, 2, 6, 7],
+      "ignored_labels": []
     }
   },
 
   "validation_data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "data_path": "examples/data/example/dataset.csv",
-      "batch_size": 1,
+      "data_path": "examples/data/multiparameter/dataset.csv",
+      "batch_size": 8,
       "num_workers": 1,
-      "ignored_inputs": [1, 2, 3, 4, 5, 6, 7],
-      "ignored_labels": [8]
+      "ignored_inputs": [1, 2, 6, 7],
+      "ignored_labels": []
     }
   },
 
   "optimizer": {
-    "type": "SGD",
+    "type": "Adam",
     "args":{
-      "lr": 1e-4,
-      "weight_decay": 0.0,
-      "momentum": 0.9
+      "lr": 1e-5,
+      "weight_decay": 0.0
     }
   },
 
@@ -61,7 +65,6 @@
 
   "trainer": {
     "epochs": 2000,
-
     "save_dir": "examples/learning/saved",
     "save_period": 1,
     "verbosity": 1,
