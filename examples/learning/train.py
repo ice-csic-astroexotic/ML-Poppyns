@@ -43,12 +43,16 @@ def main(config):
 
         # Get handle for the logger --------------------------------------------
         logger = config.get_logger("train")
+        logger.info("Logger initialized...")
+
+        # Show experiment information ------------------------------------------
         logger.info(
             "========================================================="
         )
         logger.info("Trial {} out of {}...".format(trials, config["trials"]))
-        logger.info("Convergence thresholds: {}".format(config["convergence"]))
-        logger.info("Logger initialized...")
+        logger.info("Convergence thresholds:")
+        for k, v in config["convergence"].items():
+            logger.info("{}:{}".format(k, v))
 
         # Setup data loaders ---------------------------------------------------
         logger.info("Creating data loaders...")
@@ -130,11 +134,17 @@ def main(config):
 
             # If no convergence criteria is specified for a certain target, we
             # assume that is has converged.
-            if k not in config["convergence"]:
+            if (k + "_threshold") not in config["convergence"]:
                 logger.info("No convergence criteria set for {}".format(k))
                 continue
 
-            if v < config["convergence"][k]:
+            logger.info(
+                "Convergence threshold for {} is {}".format(
+                    k, config["convergence"][(k + "_threshold")]
+                )
+            )
+
+            if v < config["convergence"][(k + "_threshold")]:
                 logger.info("Training converged for {}!".format(k))
             else:
                 converged = False
