@@ -70,9 +70,8 @@ def main(config):
 
     # Get handles for metric ---------------------------------------------------
     logger.info("Creating metrics...")
-    metrics = config.init_object("metric", learning_metrics)
-    logger.info("Metric: {}".format(metrics))
-    # TODO: Handle multiple metrics.
+    metric = config.init_object("metric", learning_metrics)
+    logger.info("Metric: {}".format(metric))
 
     # Construct optimizer and scheduler ----------------------------------------
     trainable_parameters = filter(
@@ -94,13 +93,13 @@ def main(config):
     # Train the model ----------------------------------------------------------
     logger.info("Creating trainer...")
     trainer = learning_trainer.TrainerBasic(
-        model,
-        loss_criterion,
-        metrics,
-        optimizer,
+        model=model,
+        criterion=loss_criterion,
+        metric=metric,
+        optimizer=optimizer,
         configuration=config,
-        data_loader=loader,
-        validation_data_loader=val_loader,
+        train_loader=loader,
+        val_loader=val_loader,
         lr_scheduler=scheduler,
     )
 
@@ -120,7 +119,7 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="examples/learning/config_simple.json",
+        default="examples/learning/config_multiparameter.json",
         help="Configuration file path",
     )
 
@@ -188,11 +187,25 @@ if __name__ == "__main__":
             ["--save_dir"], type=str, nargs="?", target=("trainer;save_dir")
         ),
         CustomArgs(
+            ["--normalize"],
+            type=bool,
+            nargs="?",
+            target=(
+                "data_loader;args;normalize,validation_data_loader;args;normalize"
+            ),
+        ),
+        CustomArgs(
+            ["--standardize"],
+            type=bool,
+            nargs="?",
+            target=(
+                "data_loader;args;standardize,validation_data_loader;args;standardize"
+            ),
+        ),
+        CustomArgs(
             ["--lr"], type=float, nargs="?", target=("optimizer;args;lr")
         ),
     ]
-
-    print(options)
 
     configuration = configuration_parser.ConfigurationParser.from_args(
         args, options

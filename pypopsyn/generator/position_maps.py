@@ -39,7 +39,6 @@ def generate_position_map(
     y_positions: np.array,
     x_resolution: int,
     y_resolution: int,
-    normalize: bool,
     position_maps_dictionary: dict,
     x_limits: typing.Tuple[float, float] = (-20.0, 20.0),
     y_limits: typing.Tuple[float, float] = (-20.0, 20.0),
@@ -63,7 +62,6 @@ def generate_position_map(
         y_positions (np.array): positions in the second axis (vertical).
         x_resolution (int): resolution in the horizontal axis.
         y_resolution (int): resolution in the vertical axis.
-        normalize (bool): whether to normalize the each cell or not.
         position_maps_dictionary (dict): partial dictionary of position maps.
         x_limits (float, float): limits of the horizontal axis.
         y_limits (float, float): limits of the vertical axis.
@@ -89,7 +87,6 @@ def generate_position_map(
         position_map_filename,
         n_x_bins=x_resolution,
         n_y_bins=y_resolution,
-        normalize=normalize,
     )
 
     # Save density map filenames into the partial dataset dictionary.

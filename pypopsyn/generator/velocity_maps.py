@@ -40,7 +40,6 @@ def generate_velocity_map(
     velocities: np.array,
     x_resolution: int,
     y_resolution: int,
-    normalize: bool,
     velocity_maps_dictionary: dict,
     x_limits: typing.Tuple[float, float] = (-20.0, 20.0),
     y_limits: typing.Tuple[float, float] = (-20.0, 20.0),
@@ -65,7 +64,6 @@ def generate_velocity_map(
         velocities (np.array): array of velocities to put in the map.
         x_resolution (int): resolution in the horizontal axis.
         y_resolution (int): resolution in the vertical axis.
-        normalize (bool): whether to normalize the each cell or not.
         velocity_maps_dictionary (dict): dictionary of velocity maps.
         x_limits (float, float): limits of the horizontal axis.
         y_limits (float, float): limits of the vertical axis.
@@ -92,7 +90,6 @@ def generate_velocity_map(
         velocity_map_filename,
         n_x_bins=x_resolution,
         n_y_bins=y_resolution,
-        normalize=normalize,
     )
 
     # Save velocity map filename into the partial dataset dictionary.

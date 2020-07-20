@@ -160,15 +160,22 @@ class ConfigurationParser:
 
         """
 
-        if modifications is None:
-            return configuration
-
-        for k, v in modifications.items():
+        def _apply_update(k, v):
             if v is not None:
                 keys = k.split(";")
                 functools.reduce(operator.getitem, keys[:-1], configuration)[
                     keys[-1]
                 ] = v
+
+        if modifications is None:
+            return configuration
+
+        for k, v in modifications.items():
+            if "," in k:
+                for ki in k.split(","):
+                    _apply_update(ki, v)
+            else:
+                _apply_update(k, v)
 
         return configuration
 

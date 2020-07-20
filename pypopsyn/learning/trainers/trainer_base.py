@@ -58,13 +58,22 @@ class BaseTrainer:
         self.optimizer = optimizer
 
         # Setup GPU device if available, move model into configured device.
+        self.logger.info(
+            "Requesting {} GPUs...".format(configuration["n_gpu"])
+        )
         self.device, device_ids = request_device(
             self.logger, configuration["n_gpu"]
         )
+        self.logger.info("Devices obtained: {}".format(device_ids))
         self.model = model.to(self.device)
-        if len(device_ids) > 1:
+        if len(device_ids) >= 1:
+            self.logger.info(
+                "{} GPU detected, running in parallel!".format(len(device_ids))
+            )
             self.model = torch.nn.DataParallel(model, device_ids=device_ids)
 
+        # Trainer configuration and parameter fetching from config dictionary.
+        self.logger.info("Configuring trainer...")
         trainer_configuration = configuration["trainer"]
         self.epochs = trainer_configuration["epochs"]
         self.save_period = trainer_configuration["save_period"]
