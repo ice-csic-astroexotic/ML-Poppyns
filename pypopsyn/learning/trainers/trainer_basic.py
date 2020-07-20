@@ -93,6 +93,12 @@ class TrainerBasic(BaseTrainer):
             )
         )
 
+        if self.train_loader.normalize and self.train_loader.standardize:
+            self.logger.error(
+                "Standardization and normalization enabled for train loader..."
+            )
+            exit()
+
         self.val_loader = val_loader
         self.validate = self.val_loader is not None
 
@@ -107,6 +113,12 @@ class TrainerBasic(BaseTrainer):
                     self.val_loader.standardize
                 )
             )
+
+            if self.val_loader.normalize and self.val_loader.standardize:
+                self.logger.error(
+                    "Standardization and normalization enabled for train loader..."
+                )
+                exit()
 
         self.lr_scheduler = lr_scheduler
         self.log_step = int(np.sqrt(self.train_loader.batch_size))
