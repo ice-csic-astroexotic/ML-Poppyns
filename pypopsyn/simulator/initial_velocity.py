@@ -50,7 +50,7 @@ def pdf_kick_velocity_exp(v: float) -> float:
 def pdf_kick_velocity_maxwell(v: float) -> float:
     """
     Maxwell probability density function for the neutron stars' initial kick
-    velocity magnitude following eq. (3) in Gullon et al. (2014).
+    velocity magnitude following Hobbs et al. (2004).
 
     Args:
         v (float): initial kick velocity magnitude in km / s.
