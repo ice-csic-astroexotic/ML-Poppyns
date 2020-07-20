@@ -111,8 +111,8 @@ def calculate_phi(r: float, arm_index: int) -> float:
     Calculating the angular coordinate of a neutron star for a given distance
     from the galactic centre incorporating the Milky Way's arm structure according
     to eq. (12) of Faucher-Giguère & Kaspi (2006) (see also Wainscoat et al. (1992)).
-    Two different parameters set for the spiral arms are provided. The first one is taken
-    from Faucher-Giguère & Kaspi (2006) and the second one from Yau & Manchester 2016.
+    Two different parameter sets for the spiral arms are provided. The first one is taken
+    from Faucher-Giguère & Kaspi (2006) and the second one from Yao, Manchester & Wang (2017).
 
     Args:
         r (float): distance from the galactic centre in kpc.
@@ -128,9 +128,9 @@ def calculate_phi(r: float, arm_index: int) -> float:
 
     # Parameters for four spiral arms in the Milky Way giving the winding constant k [rad], inner radius r_0
     # [kpc] and inner angle phi_min [rad] for the Norma, Carina-Sagittarius, Perseus and Crux-Scutum arm.
-    # Parameters are given for two models 1) saFK06 according to Table 2 in Faucher-Giguère & Kaspi 2006 and 2) saYM16
-    # according to table 1 in Yau & Manchester 2016. In this last case the parameters are adapted to match the same
-    # functional form as in Faucher-Giguère & Kaspi 2006.
+    # Parameters are given for two models 1) saFK06 according to Table 2 in Faucher-Giguère & Kaspi (2006) and 2) saYMW17
+    # according to table 1 in Yao, Manchester & Wang (2017). In this last case the parameters are adapted to match the same
+    # functional form as in Faucher-Giguère & Kaspi (2006).
 
     arms_pattern = cfg["spiral_arms"]
     if arms_pattern == "saFK06":
@@ -140,7 +140,7 @@ def calculate_phi(r: float, arm_index: int) -> float:
             3: np.array([4.89, 4.90, 4.09]),
             4: np.array([4.89, 4.90, 0.95]),
         }
-    elif arms_pattern == "saYM16":
+    elif arms_pattern == "saYMW17":
         arm_param = {
             1: np.array([4.95, 3.35, 0.77]),
             2: np.array([5.46, 3.56, 3.82]),
@@ -149,7 +149,7 @@ def calculate_phi(r: float, arm_index: int) -> float:
         }
     else:
         raise ValueError(
-            "The spiral pattern does not exist. Choose between saFK06 or saYM16."
+            "The spiral pattern does not exist. Choose between saFK06 or saYMW17."
         )
 
     phi = (

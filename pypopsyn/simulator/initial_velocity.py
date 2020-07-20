@@ -32,7 +32,7 @@ else:
 
 def pdf_kick_velocity_exp(v: float) -> float:
     """
-    decaying exponential Probability density function for the neutron stars' initial kick
+    Decaying exponential Probability density function for the neutron stars' initial kick
     velocity magnitude following eq. (3) in Gullon et al. (2014).
 
     Args:
@@ -49,7 +49,7 @@ def pdf_kick_velocity_exp(v: float) -> float:
 
 def pdf_kick_velocity_maxwell(v: float) -> float:
     """
-    maxwell probability density function for the neutron stars' initial kick
+    Maxwell probability density function for the neutron stars' initial kick
     velocity magnitude following eq. (3) in Gullon et al. (2014).
 
     Args:

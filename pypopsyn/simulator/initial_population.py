@@ -138,13 +138,13 @@ class InitialNeutronStarPopulation:
         """
 
         kick_model = cfg["kick_model"]
-        if kick_model == "maxwell":
+        if kick_model == "km_maxwell":
             pdf_vkick = iv.pdf_kick_velocity_maxwell
-        elif kick_model == "exp":
+        elif kick_model == "km_exp":
             pdf_vkick = iv.pdf_kick_velocity_exp
         else:
             raise ValueError(
-                "The kick velocity model pdf does not exist. Choose between maxwell or exp."
+                "The kick velocity model pdf does not exist. Choose between km_maxwell or km_exp."
             )
 
         # Drawing a random magnitude of the birth kick velocity in km / s for each neutron

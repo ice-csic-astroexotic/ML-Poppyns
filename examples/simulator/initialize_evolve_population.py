@@ -57,7 +57,7 @@ def generate_population(cfg) -> None:
         gmod = gm.GalaxyModelFK06()
     else:
         raise ValueError(
-            "The galactic model does not exist. Choose between gmCI87 or gmM19."
+            "The galactic model does not exist. Choose between gmFK06 or gmM19."
         )
     # Generate an initial neutron star population.
     NS_population_initial = ipop.InitialNeutronStarPopulation()
@@ -90,13 +90,14 @@ def generate_population(cfg) -> None:
     omega_initial = v_phi_initial / r_initial
     v_z_initial = vk_z
 
-    # Compute the initial total energy of the system.
+    # Compute the value of the initial velocity vector for each star in km / s.
     v_initial = (
         np.sqrt(v_r_initial ** 2 + v_phi_initial ** 2 + v_z_initial ** 2)
         * const.KPC_TO_KM
         / const.YR_TO_S
     )
-    total_energy_in = gmod.total_energy(v_initial, r_initial, z_initial)
+    # Compute the initial total initial energy of the system.
+    total_energy_initial = gmod.total_energy(v_initial, r_initial, z_initial)
 
     # Adding the coordinates to a data frame for export.
     log.info("Creating data frame for exporting...")
@@ -203,12 +204,16 @@ def generate_population(cfg) -> None:
         x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
     )
 
-    # Compute the total energy of the system after the dynamical evolution.
+    # Compute the value of the initial velocity vector for each star in km / s.
     v_final = np.sqrt(v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2)
-    total_energy_fin = gmod.total_energy(v_final, r_final, z_final)
+    # Compute the total energy of the system after the dynamical evolution.
+    total_energy_final = gmod.total_energy(v_final, r_final, z_final)
 
+    # Compute the percentage variation in total energy during the simulation with respect to the initial total energy
     delta_energy_percentage = (
-        (total_energy_fin - total_energy_in) / total_energy_in * 100.0
+        (total_energy_final - total_energy_initial)
+        / total_energy_initial
+        * 100.0
     )
     log.info(
         "Percentage variation of total energy of the system during simulation: {} %".format(

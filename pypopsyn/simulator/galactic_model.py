@@ -7,9 +7,9 @@ model consists of three components: a disk-halo, a bulge and a nucleus.
 The parameters of the model are taken from table B1 in Kuijken & Gilmore (1989).
 
 2) gmM19 The Galaxy model from Marchetti et al. (2019). This is a four components Galactic potential model
-consisting of a Hernquist bulge and nucleus (Hernquist 1990), a Miyamoto-Nagai disk (Miyamoto & Nagai 1975)
-and a Navarro-Frenk-White halo (Navarro et al. 1996). The parameters of the model are taken from table 1
-in Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy 2015).
+consisting of a Hernquist bulge and nucleus (Hernquist (1990)), a Miyamoto-Nagai disk (Miyamoto & Nagai (1975))
+and a Navarro-Frenk-White halo (Navarro et al. (1996)). The parameters of the model are taken from table 1
+in Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy (2015)).
 
 To improve performance when evolving the neutron stars' position in the galactic
 potential (see dynamical_evolution.py), we add Numba's jit decorator to all functions.
@@ -35,10 +35,10 @@ class GalaxyModelM19:
     Galaxy model from Marchetti et al. (2019). This is a four components Galactic potential model
     consisting of a Hernquist bulge and nucleus (Hernquist 1990), a Miyamoto-Nagai disk (Miyamoto & Nagai 1975)
     and a Navarro-Frenk-White halo (Navarro et al. 1996). The parameters of the model are taken from table 1
-    in Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy 2015).
+    in Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy (2015)).
     """
 
-    # parameters of the model, values from table 1 in Marchetti et al. (2019).
+    # Parameters of the model, values from table 1 in Marchetti et al. (2019).
     a_d = 3.0  # Scale length of the disk in kpc.
     b_d = 0.28  # scale height for the disk.
     M_d = 6.8e10 * const.M_SUN  # Disk+halo mass in g.
@@ -149,7 +149,7 @@ class GalaxyModelM19:
 
     def MW_potential(self, r: float, z: float) -> float:
         """
-        Total Milky Way gravitational potential in Marchetti et al. 2019.
+        Total Milky Way gravitational potential in Marchetti et al. (2019).
 
         Args:
             r (float): distance in the galactic disk from the galactic centre in kpc.
@@ -184,7 +184,7 @@ class GalaxyModelM19:
         Returns:
             (float): value of the total energy of the system in erg.
         """
-        # convert speeds in [cm/s]
+        # Convert speeds in [cm/s].
         v = v * const.KM_TO_CM
 
         tot_kin_energy = 0.5 * np.sum(v ** 2)
@@ -321,7 +321,7 @@ class GalaxyModelFK06:
     """
     Galaxy model from Faucher-Giguère & Kaspi (2006). This model consists ofa disk-halo component, a bulge component,
     and a nucleus component. The parameters of the model are taken from table 1 in Kuijken & Gilmore (1989)
-    (in Faucher-Giguère & Kaspi 2006 the nucleus and bulge are erroneously inverted).
+    (in Faucher-Giguère & Kaspi (2006) the nucleus and bulge are erroneously inverted).
     """
 
     # Parameter values from table B1 in Kuijken & Gilmore (1989)
@@ -349,7 +349,7 @@ class GalaxyModelFK06:
             z (float): height from the galactic disk in kpc.
 
         Returns:
-            (float, float): value of the shape parameter and its derivative with respect
+            (float, float): value of the shape parameter and its derivative with respect.
             to z.
         """
 
@@ -469,7 +469,7 @@ class GalaxyModelFK06:
         Returns:
             (float): value of the total energy of the system in erg.
         """
-        # convert speeds in [cm/s]
+        # Convert speeds in [cm/s].
         v = v * const.KM_TO_CM
 
         tot_kin_energy = 0.5 * np.sum(v ** 2)
