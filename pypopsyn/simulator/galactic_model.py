@@ -63,6 +63,13 @@ class GalaxyModelBase:
         raise NotImplementedError("Please Implement this method")
 
 
+# Class member data specification for Numba. In order for Numba to be able to
+# Jit an entire class, we need to provide an specification of all the data such
+# class holds together with its data types. The tuples contain the name of the
+# field and the Numba type of the field. By doing so the data of a jitclass
+# instance is allocated on the heap as a C-compatible structure so that any
+# compiled functions can have direct access to the underlying data, bypassing
+# the interpreter.
 galaxyModelM19_spec = [
     ("a_d", float64),
     ("b_d", float64),
@@ -367,6 +374,13 @@ class GalaxyModelM19(GalaxyModelBase):
         return pot_mw_gradient
 
 
+# Class member data specification for Numba. In order for Numba to be able to
+# Jit an entire class, we need to provide an specification of all the data such
+# class holds together with its data types. The tuples contain the name of the
+# field and the Numba type of the field. By doing so the data of a jitclass
+# instance is allocated on the heap as a C-compatible structure so that any
+# compiled functions can have direct access to the underlying data, bypassing
+# the interpreter.
 galaxyModelFK06_spec = [
     ("a_d", float64),
     ("h", float64[:]),

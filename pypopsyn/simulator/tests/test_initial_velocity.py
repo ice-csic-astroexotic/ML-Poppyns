@@ -20,6 +20,11 @@ TOL = 1e-5
 
 @pytest.fixture()
 def test_case_1():
+
+    import pypopsyn.simulator.galactic_model as gm
+
+    gm.initialize_galactic_model()
+
     data = {
         "v": 300,
         "pdf_vk_exp_expected": 0.00119,
@@ -31,11 +36,12 @@ def test_case_1():
 
 @pytest.fixture()
 def test_case_2():
-    data = {
-        "r": 1.0,
-        "z": 1.0,
-        "v_circular_expected": 1.45781e-7,
-    }
+
+    import pypopsyn.simulator.galactic_model as gm
+
+    gm.initialize_galactic_model()
+
+    data = {"r": 1.0, "z": 1.0, "v_circular_expected": 1.45781e-7}
 
     return data
 
