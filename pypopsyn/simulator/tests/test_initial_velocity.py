@@ -34,7 +34,7 @@ def test_case_2():
     data = {
         "r": 1.0,
         "z": 1.0,
-        "v_circular_expected": 2.19947e-7,
+        "v_circular_expected": 1.45781e-7,
     }
 
     return data

@@ -22,9 +22,9 @@ def test_case_1():
     data = {
         "r": 1.5,
         "arm_index": 3,
-        "phi_no_noise_expected": -1.69864,
+        "phi_no_noise_expected": -3.13512,
         "r_with_noise_expected": 1.6,
-        "phi_with_noise_expected": -0.69864,
+        "phi_with_noise_expected": -2.13512,
         "z": 0.01,
         "pdf_z_expected": 5.25533,
     }
