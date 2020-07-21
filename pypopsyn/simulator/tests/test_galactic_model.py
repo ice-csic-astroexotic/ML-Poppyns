@@ -82,7 +82,7 @@ def test_shape_parameter_FK06(test_case_1):
 
 def test_dh_potential_FK06(test_case_1):
     """
-    Verifying that the the disk-halo potential is evaluated correctly.
+    Verifying that the disk-halo potential is evaluated correctly.
     """
     pot_dh_out = gmFK06.dh_potential(test_case_1["r"], test_case_1["z"])
 
@@ -93,7 +93,7 @@ def test_dh_potential_FK06(test_case_1):
 
 def test_b_potential_FK06(test_case_1):
     """
-    Verifying that the the bulge potential is evaluated correctly.
+    Verifying that the bulge potential is evaluated correctly.
     """
     pot_b_out = gmFK06.b_potential(test_case_1["r"])
 
@@ -104,7 +104,7 @@ def test_b_potential_FK06(test_case_1):
 
 def test_n_potential_FK06(test_case_1):
     """
-    Verifying that the the nucleus potential is evaluated correctly.
+    Verifying that the nucleus potential is evaluated correctly.
     """
     pot_n_out = gmFK06.n_potential(test_case_1["r"])
 
@@ -115,7 +115,7 @@ def test_n_potential_FK06(test_case_1):
 
 def test_MW_potential_FK06(test_case_1):
     """
-    Verifying that the the total Milky Way potential is evaluated correctly.
+    Verifying that the total Milky Way potential is evaluated correctly.
     """
     pot_MW_out = gmFK06.MW_potential(test_case_1["r"], test_case_1["z"])
 
@@ -126,7 +126,7 @@ def test_MW_potential_FK06(test_case_1):
 
 def test_tot_energy_FK06(test_case_1):
     """
-    Verifying that the the total energy is evaluated correctly.
+    Verifying that the total energy is evaluated correctly.
     """
     tot_energy_out = gmFK06.total_energy(
         test_case_1["v_array"], test_case_1["r_array"], test_case_1["z_array"]
@@ -222,7 +222,7 @@ def test_shape_parameter_M19(test_case_2):
 
 def test_d_potential_M19(test_case_2):
     """
-    Verifying that the the disk-halo potential is evaluated correctly.
+    Verifying that the disk potential is evaluated correctly.
     """
     pot_d_out = gmM19.d_potential(test_case_2["r"], test_case_2["z"])
 
@@ -233,7 +233,7 @@ def test_d_potential_M19(test_case_2):
 
 def test_b_potential_M19(test_case_2):
     """
-    Verifying that the the bulge potential is evaluated correctly.
+    Verifying that the bulge potential is evaluated correctly.
     """
     pot_b_out = gmM19.b_potential(test_case_2["r"])
 
@@ -244,7 +244,7 @@ def test_b_potential_M19(test_case_2):
 
 def test_n_potential_M19(test_case_2):
     """
-    Verifying that the the nucleus potential is evaluated correctly.
+    Verifying that the nucleus potential is evaluated correctly.
     """
     pot_n_out = gmM19.n_potential(test_case_2["r"])
 
@@ -255,7 +255,7 @@ def test_n_potential_M19(test_case_2):
 
 def test_h_potential_M19(test_case_2):
     """
-    Verifying that the the halo potential is evaluated correctly.
+    Verifying that the halo potential is evaluated correctly.
     """
     pot_h_out = gmM19.h_potential(test_case_2["r"])
 
@@ -266,7 +266,7 @@ def test_h_potential_M19(test_case_2):
 
 def test_MW_potential_M19(test_case_2):
     """
-    Verifying that the the total Milky Way potential is evaluated correctly.
+    Verifying that the total Milky Way potential is evaluated correctly.
     """
     pot_MW_out = gmM19.MW_potential(test_case_2["r"], test_case_2["z"])
 
@@ -277,7 +277,7 @@ def test_MW_potential_M19(test_case_2):
 
 def test_tot_energy_M19(test_case_2):
     """
-    Verifying that the the total energy is evaluated correctly.
+    Verifying that the total energy is evaluated correctly.
     """
     tot_energy_out = gmM19.total_energy(
         test_case_2["v_array"], test_case_2["r_array"], test_case_2["z_array"]
