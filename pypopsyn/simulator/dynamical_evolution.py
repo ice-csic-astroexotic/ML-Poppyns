@@ -24,18 +24,11 @@ import pypopsyn.simulator.coordinate_conversions as coco
 import pypopsyn.simulator.galactic_model as gm
 from pypopsyn.simulator.configuration import cfg
 
-galactic_model = cfg["galactic_model"]
-if galactic_model == "gmM19":
-    gmod = gm.GalaxyModelM19()
-elif galactic_model == "gmFK06":
-    gmod = gm.GalaxyModelFK06()
-else:
-    raise ValueError(
-        "The galactic model does not exist. Choose between gmFK06 or gmM19."
-    )
 
-
-def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
+@jit
+def dynamical_eq_system(
+    initial_cond: np.ndarray, t: np.ndarray, galactic_model: gm.GalaxyModelBase
+) -> np.ndarray:
     """
     System of dynamical equations to solve to determine the orbits of the neutron
     stars in the galactic potential. The differential equation are written in
@@ -48,6 +41,9 @@ def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
 
         t (np.ndarray): time array in yr along which to perform the integration.
 
+        galactic_model (gm.GalaxyModelBase): a galactic model to calculate
+        the needed potential.
+
     Returns:
          (np.ndarray): array of 6 values of the first order and second order
          derivatives at each time step.
@@ -57,7 +53,7 @@ def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
     r = initial_cond[0]
     z = initial_cond[2]
 
-    gradient_mw_pot = gmod.cylind_coord_gradient_mw_potential(r, z)
+    gradient_mw_pot = galactic_model.cylind_coord_gradient_mw_potential(r, z)
 
     # First derivatives.
     dr_dt = initial_cond[3]
@@ -123,7 +119,12 @@ def dynamical_evolution(
         # Save the odeint output which is a two-dimensional array of
         # shape (len(time_grid), 6).
         evol_output = np.array(
-            odeint(dynamical_eq_system, initial_cond[i], time_grid)
+            odeint(
+                dynamical_eq_system,
+                initial_cond[i],
+                time_grid,
+                args=(gm.galactic_model,),
+            )
         )
 
         # Save the final position and velocity.

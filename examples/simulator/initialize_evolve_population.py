@@ -49,16 +49,9 @@ def generate_population(cfg) -> None:
 
     # Update simulator configuration with the provided parameters.
     configuration.update_configuration(cfg)
+    # Initialize components of the simulator that need it.
+    gm.initialize_galactic_model()
 
-    galactic_model = configuration.cfg["galactic_model"]
-    if galactic_model == "gmM19":
-        gmod = gm.GalaxyModelM19()
-    elif galactic_model == "gmFK06":
-        gmod = gm.GalaxyModelFK06()
-    else:
-        raise ValueError(
-            "The galactic model does not exist. Choose between gmFK06 or gmM19."
-        )
     # Generate an initial neutron star population.
     NS_population_initial = ipop.InitialNeutronStarPopulation()
 
@@ -97,7 +90,9 @@ def generate_population(cfg) -> None:
         / const.YR_TO_S
     )
     # Compute the initial total initial energy of the system.
-    total_energy_initial = gmod.total_energy(v_initial, r_initial, z_initial)
+    total_energy_initial = gm.galactic_model.total_energy(
+        v_initial, r_initial, z_initial
+    )
 
     # Adding the coordinates to a data frame for export.
     log.info("Creating data frame for exporting...")
@@ -207,7 +202,9 @@ def generate_population(cfg) -> None:
     # Compute the magnitude of the initial velocity vector for each star in km / s.
     v_final = np.sqrt(v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2)
     # Compute the total energy of the system after the dynamical evolution.
-    total_energy_final = gmod.total_energy(v_final, r_final, z_final)
+    total_energy_final = gm.galactic_model.total_energy(
+        v_final, r_final, z_final
+    )
 
     # Compute the percentage variation in total energy during the simulation with respect to the initial total energy
     delta_energy_percentage = (

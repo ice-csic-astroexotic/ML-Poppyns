@@ -22,32 +22,82 @@ Authors:
     Copyright (c) MAGNESIA (ICE-CSIC)
 """
 
+import abc
 from typing import Tuple
 
 import numpy as np
-from numba import jit
+from numba import float32, float64, int32, jit
+from numba.experimental import jitclass
 
 import pypopsyn.simulator.constants as const
+from pypopsyn.simulator.configuration import cfg
+
+galactic_model = None
 
 
-class GalaxyModelM19:
+def initialize_galactic_model() -> None:
+
+    global galactic_model
+
+    if cfg["galactic_model"] == "gmM19":
+        galactic_model = GalaxyModelM19()
+    elif cfg["galactic_model"] == "gmFK06":
+        galactic_model = GalaxyModelFK06()
+    else:
+        raise ValueError(
+            "The galactic model does not exist. Choose between gmFK06 or gmM19."
+        )
+
+
+class GalaxyModelBase:
     """
-    Galaxy model from Marchetti et al. (2019). This is a four components Galactic potential model
-    consisting of a Hernquist bulge and nucleus (Hernquist 1990), a Miyamoto-Nagai disk (Miyamoto & Nagai 1975)
-    and a Navarro-Frenk-White halo (Navarro et al. 1996). The parameters of the model are taken from table 1
-    in Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy (2015)).
+    Base class for any galaxy model so that we ensure that a common interface
+    between all of them is respected with abstract methods that must be
+    implemented or an error will be raised.
     """
 
-    # Parameters of the model, values from table 1 in Marchetti et al. (2019).
-    a_d = 3.0  # Scale length of the disk in kpc.
-    b_d = 0.28  # Scale height for the disk.
-    M_d = 6.8e10 * const.M_SUN  # Disk+halo mass in g.
-    M_b = 5.0e9 * const.M_SUN  # Bulge mass in g.
-    r_b = 1.0  # Core radius of the bulge component in kpc.
-    M_n = 1.71e9 * const.M_SUN  # Nucleus mass in g.
-    r_n = 0.07  # Core radius of the nucleus component in kpc.
-    M_h = 5.4e11 * const.M_SUN  # Halo mass in g.
-    r_h = 15.62  # Core radius of the halo component in kpc.
+    @abc.abstractmethod
+    def cylind_coord_gradient_mw_potential(
+        self, r: float, z: float
+    ) -> np.ndarray:
+        raise NotImplementedError("Please Implement this method")
+
+
+galaxyModelM19_spec = [
+    ("a_d", float64),
+    ("b_d", float64),
+    ("M_d", float64),
+    ("M_b", float64),
+    ("r_b", float64),
+    ("M_n", float64),
+    ("r_n", float64),
+    ("M_h", float64),
+    ("r_h", float64),
+]
+
+
+@jitclass(galaxyModelM19_spec)
+class GalaxyModelM19(GalaxyModelBase):
+    """
+    Galaxy model from Marchetti et al. (2019). This is a four components Galactic
+    potential model consisting of a Hernquist bulge and nucleus (Hernquist 1990),
+    a Miyamoto-Nagai disk (Miyamoto & Nagai 1975) and a Navarro-Frenk-White halo
+    (Navarro et al. 1996). The parameters of the model are taken from table 1 in
+    Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of
+    the Milky Way (Bovy (2015)).
+    """
+
+    def __init__(self) -> None:
+        # Parameters of the model, values from table 1 in Marchetti et al. (2019).
+        self.a_d = 3.0  # Scale length of the disk in kpc.
+        self.b_d = 0.28  # Scale height for the disk.
+        self.M_d = 6.8e10 * const.M_SUN  # Disk+halo mass in g.
+        self.M_b = 5.0e9 * const.M_SUN  # Bulge mass in g.
+        self.r_b = 1.0  # Core radius of the bulge component in kpc.
+        self.M_n = 1.71e9 * const.M_SUN  # Nucleus mass in g.
+        self.r_n = 0.07  # Core radius of the nucleus component in kpc.
+        self.M_h = 5.4e11 * const.M_SUN  # Halo mass in g.
+        self.r_h = 15.62  # Core radius of the halo component in kpc.
 
     def shape_parameter(self, z: float) -> Tuple[float, float]:
         """
@@ -317,40 +367,58 @@ class GalaxyModelM19:
         return pot_mw_gradient
 
 
-class GalaxyModelFK06:
+galaxyModelFK06_spec = [
+    ("a_d", float64),
+    ("h", float64[:]),
+    ("beta", float64[:]),
+    ("M_dh", float64),
+    ("b_dh", float64),
+    ("M_b", float64),
+    ("b_b", float64),
+    ("M_n", float64),
+    ("b_n", float64),
+]
+
+
+@jitclass(galaxyModelFK06_spec)
+class GalaxyModelFK06(GalaxyModelBase):
     """
-    Galaxy model from Faucher-Giguère & Kaspi (2006). This model consists ofa disk-halo component, a bulge component,
-    and a nucleus component. The parameters of the model are taken from table 1 in Kuijken & Gilmore (1989)
-    (in Faucher-Giguère & Kaspi (2006) the nucleus and bulge are erroneously inverted).
+    Galaxy model from Faucher-Giguère & Kaspi (2006). This model consists of a
+    disk-halo component, a bulge component, and a nucleus component. The
+    parameters of the model are taken from table 1 in Kuijken & Gilmore (1989)
+    (in Faucher-Giguère & Kaspi (2006) the nucleus and bulge are erroneously
+    inverted).
     """
 
-    # Parameter values from table B1 in Kuijken & Gilmore (1989)
-    a_d = 2.4  # Scale length of the disk in kpc.
-    h = np.array(
-        [0.325, 0.090, 0.125]
-    )  # Array of disk components' scale heights in kpc.
-    beta = np.array(
-        [0.4, 0.5, 0.1]
-    )  # Array of weights for the disk components.
-    M_dh = 1.45e11 * const.M_SUN  # Disk+halo mass in g.
-    b_dh = 5.5  # Core radius of the halo component in kpc.
-    M_b = 1.0e10 * const.M_SUN  # Bulge mass in g.
-    b_b = 1.5  # Core radius of the bulge component in kpc.
-    M_n = 9.3e9 * const.M_SUN  # Nucleus mass in g.
-    b_n = 0.25  # Core radius of the nucleus component in kpc.
+    def __init__(self) -> None:
+        # Parameter values from table B1 in Kuijken & Gilmore (1989)
+        self.a_d = 2.4  # Scale length of the disk in kpc.
+        self.h = np.array(
+            [0.325, 0.090, 0.125]
+        )  # Array of disk components' scale heights in kpc.
+        self.beta = np.array(
+            [0.4, 0.5, 0.1]
+        )  # Array of weights for the disk components.
+        self.M_dh = 1.45e11 * const.M_SUN  # Disk+halo mass in g.
+        self.b_dh = 5.5  # Core radius of the halo component in kpc.
+        self.M_b = 1.0e10 * const.M_SUN  # Bulge mass in g.
+        self.b_b = 1.5  # Core radius of the bulge component in kpc.
+        self.M_n = 9.3e9 * const.M_SUN  # Nucleus mass in g.
+        self.b_n = 0.25  # Core radius of the nucleus component in kpc.
 
     def shape_parameter(self, z: float) -> Tuple[float, float]:
         """
-        Shape parameter for the disk-halo potential from Carlberg & Innamen (1987) and
-        its derivative with respect to the height z from the galactic disk.
-        First term in the denominator of eq. (13) in Faucher-Giguère & Kaspi (2006).
+        Shape parameter for the disk-halo potential from Carlberg & Innamen
+        (1987) and its derivative with respect to the height z from the galactic
+        disk. First term in the denominator of eq. (13) in Faucher-Giguère &
+        Kaspi (2006).
 
         Args:
             z (float): height from the galactic disk in kpc.
 
         Returns:
-            (float, float): value of the shape parameter and its derivative with respect.
-            to z.
+            (float, float): value of the shape parameter and its derivative with
+            respect to z.
         """
 
         a_d = self.a_d
