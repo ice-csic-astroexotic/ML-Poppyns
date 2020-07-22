@@ -84,7 +84,10 @@ class InitialNeutronStarPopulation:
             np.log10(0.0001), np.log10(cfg["r_extent"]), cfg["resolution"]
         )
         r_pdf_rand = cc.random_from_pdf(
-            r_grid, ip.pdf_radial_stellar_density, cfg["NS_number"]
+            r_grid,
+            ip.pdf_radial_stellar_density,
+            cfg["NS_number"],
+            cfg["seed"],
         )
 
         # Randomly select one of the four spiral arms for the neutron star sample.
@@ -116,7 +119,7 @@ class InitialNeutronStarPopulation:
             np.log10(0.0001), np.log10(cfg["z_extent"]), cfg["resolution"]
         )
         z_pdf_rand = cc.random_from_pdf(
-            z_grid, ip.pdf_initial_height, cfg["NS_number"]
+            z_grid, ip.pdf_initial_height, cfg["NS_number"], cfg["seed"]
         )
 
         # Randomly distribute the stars above and below the galactic plane.
@@ -152,7 +155,9 @@ class InitialNeutronStarPopulation:
         # Drawing a random magnitude of the birth kick velocity in km / s for each neutron
         # star according to the underlying velocity probability density function.
         vk_grid = np.linspace(0.0, cfg["vk_extent"], cfg["resolution"])
-        vk_rand = cc.random_from_pdf(vk_grid, pdf_vkick, cfg["NS_number"])
+        vk_rand = cc.random_from_pdf(
+            vk_grid, pdf_vkick, cfg["NS_number"], cfg["seed"]
+        )
         # Convert from km / s to kpc / yr.
         vk_rand = vk_rand * const.YR_TO_S / const.KPC_TO_KM
 
@@ -162,7 +167,9 @@ class InitialNeutronStarPopulation:
         # angle [rad] in the range [0, np.pi] according to the PDF np.sin.
         psi_rand = np.random.uniform(0, 2 * np.pi, cfg["NS_number"])
         theta_grid = np.linspace(0.0, np.pi, cfg["resolution"])
-        theta_rand = cc.random_from_pdf(theta_grid, np.sin, cfg["NS_number"])
+        theta_rand = cc.random_from_pdf(
+            theta_grid, np.sin, cfg["NS_number"], cfg["seed"]
+        )
 
         # Project the velocity on a Cartesian reference frame co-moving with each
         # star, where the local x-axis points always in the r-direction of our
