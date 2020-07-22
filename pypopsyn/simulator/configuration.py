@@ -21,10 +21,12 @@ cfg["z_extent"] = 5.0  # Total vertical extent from the galactic plane [kpc].
 cfg["vk_extent"] = 2500.0  # Maximum kick velocity magnitude [km/s].
 cfg["seed"] = 42  # Seed for random number generation.
 cfg["resolution"] = 10000  # Resolution for the grid in the initial population.
-cfg["NS_number"] = 5e5  # Number of neutron stars for the population.
+cfg[
+    "NS_number"
+] = 500000  # Integer number of neutron stars for the population.
 cfg["arm_number"] = 4  # Number of spiral arms in the galaxy.
 cfg["t_age_min"] = 1.0  # Minimum age for the neutron stars [yr].
-cfg["t_age_max"] = 1e8  # Maximum age for the neutron stars [yr].
+cfg["t_age_max"] = 1e2  # Maximum age for the neutron stars [yr].
 # Galactic potential model to use in the simulation. Choose between gmM19 or gmFK06.
 cfg["galactic_model"] = "gmM19"
 # Spiral arms model to use in the simulation. Choose between saYMW17 or saFK06.

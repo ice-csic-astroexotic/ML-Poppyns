@@ -34,8 +34,8 @@ class InitialNeutronStarPopulation:
         Initialization for the population synthesis.
 
         Args:
-            seed (int): seed for random number generation,
-            set to None unless otherwise specified.
+            seed (int): seed for random number generation;
+            value taken from the configuration file.
         """
 
         self.seed = seed
@@ -98,7 +98,7 @@ class InitialNeutronStarPopulation:
         r_rand = np.zeros(cfg["NS_number"])
         for i in range(cfg["NS_number"]):
             phi_rand[i], r_rand[i] = ip.pdf_initial_coordinates(
-                r_pdf_rand[i], arm_index_rand[i]
+                r_pdf_rand[i], arm_index_rand[i], cfg["seed"]
             )
 
             # Propagating the azimuthal coordinate of each object backwards in time
@@ -120,7 +120,9 @@ class InitialNeutronStarPopulation:
         )
 
         # Randomly distribute the stars above and below the galactic plane.
-        z_rand = ip.random_scatter_about_plane(z_pdf_rand, cfg["NS_number"])
+        z_rand = ip.random_scatter_about_plane(
+            z_pdf_rand, cfg["NS_number"], cfg["seed"]
+        )
 
         return r_rand, phi_rand, x_rand, y_rand, z_rand
 

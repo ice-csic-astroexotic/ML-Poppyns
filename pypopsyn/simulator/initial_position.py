@@ -79,7 +79,9 @@ def pdf_radial_stellar_density(r: float) -> float:
     return pdf_r
 
 
-def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:
+def pdf_initial_coordinates(
+    r: float, arm_index: int, seed: int = None
+) -> Tuple[float, float]:
     """
     Probability density function for stellar galactocentric position incorporating
     the Milky Way's arm structure based on Faucher-Giguère & Kaspi (2006) (see also
@@ -88,6 +90,9 @@ def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:
     Args:
         r (float): distance from the galactic centre in kpc.
         arm_index (int): index for the respective spiral arms, 0 < arm_index < 5.
+        seed (int): seed for random number generation in the
+        calculate_noise_for_coordinates function;
+        set to None unless otherwise specified.
 
     Returns:
         (float, float): galactocentric coordinates phi [rad], r [kpc] with noise.
@@ -98,7 +103,7 @@ def pdf_initial_coordinates(r: float, arm_index: int) -> Tuple[float, float]:
     check_arm_index(arm_index)
 
     phi = calculate_phi(r, arm_index)
-    phi_corr, r_corr = calculate_noise_for_coordinates(r)
+    phi_corr, r_corr = calculate_noise_for_coordinates(r, seed)
 
     phi = phi + phi_corr
     r = r + r_corr
