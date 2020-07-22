@@ -232,8 +232,8 @@ def pdf_initial_height(z: float) -> float:
     # and choose a mean scale height characteristic for a young distribution as
     # obtained by Gullon et al. (2014).
 
-    h_mean = cfg["h_mean"]
-    pdf_z = 1.0 / h_mean * np.exp(-z / h_mean)
+    h_c = cfg["h_c"]
+    pdf_z = 1.0 / h_c * np.exp(-z / h_c)
 
     return pdf_z
 

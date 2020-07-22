@@ -22,7 +22,6 @@ from scipy.integrate import odeint
 
 import pypopsyn.simulator.coordinate_conversions as coco
 import pypopsyn.simulator.galactic_model as gm
-from pypopsyn.simulator.configuration import cfg
 
 
 @jit
