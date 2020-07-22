@@ -26,6 +26,7 @@
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC)
 
@@ -43,26 +44,49 @@ log = logging.getLogger(__name__)
 
 
 def main(args):
-
     log.info(args)
+
+    log.info("Parsing arguments...")
 
     cli_args: list = []
     cli_str: list = []
 
-    log.info("Parsing arguments...")
+    args_dict = vars(args)
 
-    # Expand each one of the arguments with their linspace. Each argument
+    # Expand the parameter of the chosen kick velocity model with its linspace. Each argument
     # provides three values in an array: low, high, and number of samples.
-    for arg in vars(args):
-
-        log.info(arg)
-        log.info(getattr(args, arg))
-        arg_range = getattr(args, arg)
-
+    if args_dict["kick_model"] == "km_maxwell":
+        cli_args.append("kick_model")
+        cli_str.append("km_maxwell")
+        arg_range = args_dict["sigma_k"]
         var_range = np.linspace(arg_range[0], arg_range[1], int(arg_range[2]))
         var_str = ",".join(map(str, var_range))
-        cli_args.append(arg)
+        cli_args.append("sigma_k")
         cli_str.append(var_str)
+        cli_args.append("vk_c")
+        cli_str.append("1")
+    elif args_dict["kick_model"] == "km_exp":
+        cli_args.append("kick_model")
+        cli_str.append("km_exp")
+        arg_range = args_dict["vk_c"]
+        var_range = np.linspace(arg_range[0], arg_range[1], int(arg_range[2]))
+        var_str = ",".join(map(str, var_range))
+        cli_args.append("vk_c")
+        cli_str.append(var_str)
+        cli_args.append("sigma_k")
+        cli_str.append("1")
+    else:
+        raise ValueError(
+            "The kick velocity model pdf does not exist. Choose between km_maxwell or km_exp."
+        )
+
+    # Expand the parameter of the galactic height distribution model with its linspace. Each argument
+    # provides three values in an array: low, high, and number of samples.
+    arg_range = args_dict["h_c"]
+    var_range = np.linspace(arg_range[0], arg_range[1], int(arg_range[2]))
+    var_str = ",".join(map(str, var_range))
+    cli_args.append("h_c")
+    cli_str.append(var_str)
 
     log.info("Running simulator...")
 
@@ -77,7 +101,7 @@ def main(args):
         cmd.append(cli_args[i] + "=" + cli_str[i])
     cmd.append("-m")
 
-    # Launch simulator with the expaned command.
+    # Launch simulator with the expanded command.
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
     # Capture all process output and redirect it to the console.
@@ -92,19 +116,34 @@ def main(args):
 
 
 if __name__ == "__main__":
-
-    args = argparse.ArgumentParser(description="PyPopSyn Simulator Helper")
+    args = argparse.ArgumentParser(description="PyPopSyn parameters")
 
     args.add_argument(
-        "--vp_mean",
-        nargs=3,
-        type=float,
-        default=[100.0, 600.0, 6.0],
-        help="Range for the mean kick velocity [low, high, steps]",
+        "--kick_model",
+        nargs="?",
+        type=str,
+        default="km_maxwell",
+        help="pdf model for the kick velocity and range for its parameter [low, high, steps]",
     )
 
     args.add_argument(
-        "--h_mean",
+        "--sigma_k",
+        nargs=3,
+        type=float,
+        default=[100.0, 600.0, 3.0],
+        help="Range of kick velocity sigma for the Maxwell model [low, high, steps]",
+    )
+
+    args.add_argument(
+        "--vk_c",
+        nargs=3,
+        type=float,
+        default=[100.0, 600.0, 3.0],
+        help="Range of characteristic kick velocity for the exponential model [low, high, steps]",
+    )
+
+    args.add_argument(
+        "--h_c",
         nargs=3,
         type=float,
         default=[0.18, 0.18, 1.0],
