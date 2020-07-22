@@ -26,7 +26,7 @@ cfg[
 ] = 500000  # Integer number of neutron stars for the population.
 cfg["arm_number"] = 4  # Number of spiral arms in the galaxy.
 cfg["t_age_min"] = 1.0  # Minimum age for the neutron stars [yr].
-cfg["t_age_max"] = 1e2  # Maximum age for the neutron stars [yr].
+cfg["t_age_max"] = 1e8  # Maximum age for the neutron stars [yr].
 # Galactic potential model to use in the simulation. Choose between gmM19 or gmFK06.
 cfg["galactic_model"] = "gmM19"
 # Spiral arms model to use in the simulation. Choose between saYMW17 or saFK06.
