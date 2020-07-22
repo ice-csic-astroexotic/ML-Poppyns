@@ -38,7 +38,7 @@ cfg["vk_c"] = 380.0
 # sigma in km/s for the kick velocity Maxwell pdf.
 cfg["sigma_k"] = 265.0
 # Characteristic height in kpc from the galactic plane.
-cfg["h_mean"] = 0.18
+cfg["h_c"] = 0.18
 
 
 def update_configuration(new_configuration) -> None:
