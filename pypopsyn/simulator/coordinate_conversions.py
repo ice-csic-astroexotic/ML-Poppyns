@@ -6,7 +6,24 @@ Authors:
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
 
-    Copyright (c) MAGNESIA (ICE-CSIC)
+MIT License
+
+Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 
 from typing import Tuple
@@ -31,7 +48,7 @@ def check_radial_coordinate(r: float) -> None:
         otherwise raises ValueError.
     """
     if r < 0:
-        raise ValueError("Radial coordinate is out of range")
+        raise ValueError("Radial coordinate is out of range.")
 
 
 def polar_to_cartesian(r: float, phi: float) -> Tuple[float, float]:
@@ -107,25 +124,26 @@ def galactocentric_to_icrs(
 ) -> Tuple[float, float, float, float, float, float]:
     """
         Calculating the ICRS (International Celestial Reference Frame) coordinates RA,
-        DEC, distance and proper velocities v_RA, v_DEC, v_ls from galactocentric spatial coordinates
-        and velocities x, y, z, v_x, v_y and v_z. This galactocentric coordinates
-        refers to the galactocentric reference frame used in the simulation defined
-        as a right-handed reference frame with the Sun located at the coordinate
-        point (x = 0 kpc, y = 8.5 kpc, z = 0.02 kpc).
+        DEC, distance and proper velocities v_RA, v_DEC, v_ls from galactocentric
+        spatial coordinates and velocities x, y, z, v_x, v_y and v_z. This
+        galactocentric coordinates refers to the galactocentric reference frame used in
+        the simulation defined as a right-handed reference frame with the Sun located
+        at the coordinate point (x = 0 kpc, y = 8.5 kpc, z = 0.02 kpc).
         We use the astropy.coordinates package that allows automatic conversions
         between coordinate systems.
 
         Args:
-            x (float): x coordinate in kpc in galactocentric reference frame.
-            y (float): y coordinate in kpc in galactocentric reference frame.
-            z (float): z coordinate in kpc in galactocentric reference frame.
-            v_x (float): x velocity component in km/s in galactocentric reference frame.
-            v_y (float): y velocity component in km/s in galactocentric reference frame.
-            v_z (float): z velocity component in km/s in galactocentric reference frame.
+            x (float): x coordinate in [kpc] in galactocentric reference frame.
+            y (float): y coordinate in [kpc] in galactocentric reference frame.
+            z (float): z coordinate in [kpc] in galactocentric reference frame.
+            v_x (float): x velocity component in [km/s] in galactocentric reference frame.
+            v_y (float): y velocity component in [km/s] in galactocentric reference frame.
+            v_z (float): z velocity component in [km/s] in galactocentric reference frame.
 
         Returns:
-            (float, float, float, float, float, float): RA, DEC coordinates in degree, distance from the ICRS origin in kpc,
-            proper motion v_RA, v_DEC components in mas/yr in the ICRS reference frame and the line of sight velocity in km/s.
+            (float, float, float, float, float, float): RA, DEC coordinates in [deg],
+            distance from the ICRS origin in [kpc], proper motion v_RA, v_DEC components
+            in [mas/yr] in the ICRS reference frame and the line of sight velocity in [km/s].
         """
 
     # Set the astropy galactocentric frame with the parameter
@@ -167,8 +185,8 @@ def galactocentric_to_icrs(
     # Transform from galactocentric to ICRS frame.
     icrs_coord = gc_coord.transform_to(coord.ICRS)
 
-    # Determine RA and DEC in degrees in the ranges [0, 360] and [-90, 90],
-    # respectively, and proper motion in RA and DEC in units of mas / yr;
+    # Determine RA and DEC in [deg] in the ranges [0, 360] and [-90, 90],
+    # respectively, and proper motion in RA and DEC in units of [mas/yr];
     # we subsequently remove astropy units to obtain numpy float values.
     ra = icrs_coord.ra.degree
     dec = icrs_coord.dec.degree

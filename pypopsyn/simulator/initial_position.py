@@ -1,13 +1,13 @@
 """
-Initial galactocentric position for the stellar population
+Initial galactocentric position for the stellar population.
 
 We follow Faucher-Giguère & Kaspi (2006) and choose a galactocentric coordinate system,
-where the galactic centre is located at the origin. In terms of galactic latitude l and
+where the galactic center is located at the origin. In terms of galactic latitude l and
 longitude b, the x-,y-, and z-axes are parallel to (l, b) = (90, 0), (180, 0) and (0,
 90), respectively, forming a right-handed Cartesian frame. This implies that the Sun is
 positioned at (x=0, y=8.5 kpc).
 
-Moreover, we define r = (x**2 + y**2)**0.5 as the distance from the galactic centre in
+Moreover, we define r = (x^2 + y^2)^0.5 as the distance from the galactic center in
 the galactic plane and phi = arctan(y/x). Here, the angle phi is the same as theta in
 Faucher-Giguère & Kaspi (2006). We reserve the variable theta for the polar angle in a
 spherical coordinate system.
@@ -17,7 +17,24 @@ Authors:
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
 
-    Copyright (c) MAGNESIA (ICE-CSIC)
+MIT License
+
+Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 
 
@@ -41,7 +58,7 @@ def check_arm_index(arm_index: int) -> None:
         otherwise raises ValueError.
     """
     if arm_index < 1 or arm_index > 4:
-        raise ValueError("Arm index is out of range")
+        raise ValueError("Arm index is out of range.")
 
 
 def pdf_radial_stellar_density(r: float) -> float:
@@ -50,18 +67,19 @@ def pdf_radial_stellar_density(r: float) -> float:
     to eq. (15) of Yusifov & Küçük (2004).
 
     Args:
-        r (float): distance from the galactic centre in kpc.
+        r (float): distance from the galactic center in [kpc].
 
     Returns:
-        float: stellar radial density in 1/kpc.
+        float: stellar radial density in [1/kpc].
     """
 
     # check range of input
     coco.check_radial_coordinate(r)
 
-    # Here we keep R_sun = 8.5 kpc for consistency with the results of Yusifov & Küçük (2004)
-    rsun = 8.5  # Sun's distance from the galactic centre [kpc].
-    A = 37.6  # +- 1.90 [1/kpc**2]
+    # Here we keep R_sun = 8.5 kpc for consistency with the results
+    # of Yusifov & Küçük (2004)
+    rsun = 8.5  # Sun's distance from the galactic center in [kpc].
+    A = 37.6  # +- 1.90 [1/kpc^2]
     a = 1.64  # +-0.11
     b = 4.01  # +-0.24
     r1 = 0.55  # +- 0.10 [kpc]
@@ -85,10 +103,10 @@ def pdf_initial_coordinates(
     """
     Probability density function for stellar galactocentric position incorporating
     the Milky Way's arm structure based on Faucher-Giguère & Kaspi (2006) (see also
-    Wainscoat et al. (1992)).
+    Wainscoat et al. 1992).
 
     Args:
-        r (float): distance from the galactic centre in kpc.
+        r (float): distance from the galactic center in [kpc].
         arm_index (int): index for the respective spiral arms, 0 < arm_index < 5.
         seed (int): seed for random number generation in the
         calculate_noise_for_coordinates function;
@@ -114,28 +132,31 @@ def pdf_initial_coordinates(
 def calculate_phi(r: float, arm_index: int) -> float:
     """
     Calculating the angular coordinate of a neutron star for a given distance
-    from the galactic centre incorporating the Milky Way's arm structure according
-    to eq. (12) of Faucher-Giguère & Kaspi (2006) (see also Wainscoat et al. (1992)).
-    Two different parameter sets for the spiral arms are provided. The first one is taken
-    from Faucher-Giguère & Kaspi (2006) and the second one from Yao, Manchester & Wang (2017).
+    from the galactic center incorporating the Milky Way's arm structure according
+    to eq. (12) of Faucher-Giguère & Kaspi (2006) (see also Wainscoat et al. 1992).
+    Two different parameter sets for the spiral arms are provided. The first one is
+    taken from Faucher-Giguère & Kaspi (2006) and the second one from Yao, Manchester
+    & Wang (2017).
 
     Args:
-        r (float): distance from the galactic centre in kpc.
+        r (float): distance from the galactic center in [kpc].
         arm_index (int): index for the respective spiral arms, 0 < arm_index < 5.
 
     Returns:
-        float: galactocentric phi coordinate in rad.
+        float: galactocentric phi coordinate in [rad].
     """
 
     # Check range of input.
     coco.check_radial_coordinate(r)
     check_arm_index(arm_index)
 
-    # Parameters for four spiral arms in the Milky Way giving the winding constant k [rad], inner radius r_0
-    # [kpc] and inner angle phi_min [rad] for the Norma, Carina-Sagittarius, Perseus and Crux-Scutum arm.
-    # Parameters are given for two models 1) saFK06 according to Table 2 in Faucher-Giguère & Kaspi (2006) and 2) saYMW17
-    # according to table 1 in Yao, Manchester & Wang (2017). In this last case the parameters are adapted to match the same
-    # functional form as in Faucher-Giguère & Kaspi (2006).
+    # Parameters for four spiral arms in the Milky Way giving the winding constant k
+    # [rad], inner radius r_0 [kpc] and inner angle phi_min [rad] for the Norma,
+    # Carina-Sagittarius, Perseus and Crux-Scutum arm. Parameters are given for two
+    # models 1) saFK06 according to Table 2 in Faucher-Giguère & Kaspi (2006) and
+    # 2) saYMW17 according to Table 1 in Yao, Manchester & Wang (2017). In this last
+    # case the parameters are adapted to match the same functional form as in
+    # Faucher-Giguère & Kaspi (2006).
 
     arms_pattern = cfg["spiral_arms"]
     if arms_pattern == "saFK06":
@@ -173,15 +194,15 @@ def spiral_arm_time_evol(phi0: float, t: float) -> float:
     of the Milky Way' by Vallée (2017)).
 
     Args:
-        phi0 (float): current angular position in rad for the current spiral pattern.
-        t (float): time in yr to propagate backward.
+        phi0 (float): current angular position in [rad] for the current spiral pattern.
+        t (float): time in [yr] to propagate backward.
 
     Returns:
-        (float): angular position in rad for the spiral pattern as it was t years ago.
+        (float): angular position in [rad] for the spiral pattern as it was t years ago.
     """
 
     # Evaluate the angular velocity of rotation of the spiral pattern;
-    # T is the period of rotation in years.
+    # T is the period of rotation in [yr].
     T = 2.5e8
     omega_spiral_arms = 2.0 * np.pi / T
 
@@ -196,11 +217,11 @@ def calculate_noise_for_coordinates(
 ) -> Tuple[float, float]:
     """
     Calculating noise for the angular and radial coordinate to smear out the
-    distribution and avoid artificial features near the galactic centre;
+    distribution and avoid artificial features near the galactic center;
     see Sec. 3.2.1 in Faucher-Giguère & Kaspi (2006) for details.
 
     Args:
-        r (float): distance from the galactic centre in kpc.
+        r (float): distance from the galactic center in [kpc].
         seed (int): seed for random number generation,
         set to None unless otherwise specified.
 
@@ -222,7 +243,7 @@ def pdf_initial_height(z: float) -> float:
     according to eq. (2) in Gullon et al. (2014).
 
     Args:
-        z (float): distance from the galactic plane in kpc.
+        z (float): distance from the galactic plane in [kpc].
 
     Returns:
         float: distribution of stars per kpc in z direction.
@@ -246,13 +267,13 @@ def random_scatter_about_plane(
     located at z=0.
 
     Args:
-        z (np.ndarray): array of heights in kpc with positive values.
+        z (np.ndarray): array of heights in [kpc] with positive values.
         NS_number (int): total number of neutron stars created in the simulation.
         seed (int): seed for random number generation,
         set to None unless otherwise specified.
 
     Returns:
-        (np.ndarray): array of heights in kpc randomly scattered above or below 0.
+        (np.ndarray): array of heights in [kpc] randomly scattered above or below 0.
     """
 
     np.random.seed(seed)

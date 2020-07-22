@@ -1,15 +1,17 @@
 """
-Model for the Milky Way gravitational potential
+Model for the Milky Way gravitational potential.
 
 We consider two different models:
+
 1) gmFK06: A galactic structure as in Faucher-Giguère & Kaspi (2006). Their
 model consists of three components: a disk-halo, a bulge and a nucleus.
-The parameters of the model are taken from table B1 in Kuijken & Gilmore (1989).
+The parameters of the model are taken from Table B1 in Kuijken & Gilmore (1989).
 
-2) gmM19 The Galaxy model from Marchetti et al. (2019). This is a four components Galactic potential model
-consisting of a Hernquist bulge and nucleus (Hernquist (1990)), a Miyamoto-Nagai disk (Miyamoto & Nagai (1975))
-and a Navarro-Frenk-White halo (Navarro et al. (1996)). The parameters of the model are taken from table 1
-in Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy (2015)).
+2) gmM19: The galaxy model from Marchetti et al. (2019). This is a four-component
+galactic potential model consisting of a Hernquist bulge and nucleus (Hernquist 1990),
+a Miyamoto-Nagai disk (Miyamoto & Nagai 1975) and a Navarro-Frenk-White halo (Navarro
+et al. 1996). The parameters of the model are taken from Table 1 in Marchetti et al.
+(2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy 2015).
 
 To improve performance when evolving the neutron stars' position in the galactic
 potential (see dynamical_evolution.py), we add Numba's jit decorator to all functions.
@@ -19,7 +21,24 @@ Authors:
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
 
-    Copyright (c) MAGNESIA (ICE-CSIC)
+MIT License
+
+Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 
 import abc
@@ -36,7 +55,12 @@ galactic_model = None
 
 
 def initialize_galactic_model() -> None:
-
+    """
+    Initializing the galactic model employed in the simulation. We have implemented two
+    versions, i.e., the galactic structure of Faucher-Giguère & Kaspi (2006) (with
+    parameters from Kuijken & Gilmore (1989)) and Galaxy model from Marchetti et al.
+    (2019). The galactic_model variable is made available on a global level.
+    """
     global galactic_model
 
     if cfg["galactic_model"] == "gmM19":
@@ -51,16 +75,16 @@ def initialize_galactic_model() -> None:
 
 class GalaxyModelBase:
     """
-    Base class for any galaxy model so that we ensure that a common interface
-    between all of them is respected with abstract methods that must be
-    implemented or an error will be raised.
+    Base class for any galaxy model to ensure that a common interface between all of
+    them is respected. The following abstract methods must be implemented or an error
+    will be raised.
     """
 
     @abc.abstractmethod
     def cylind_coord_gradient_mw_potential(
         self, r: float, z: float
     ) -> np.ndarray:
-        raise NotImplementedError("Please Implement this method")
+        raise NotImplementedError("Please implement this method.")
 
 
 # Class member data specification for Numba. In order for Numba to be able to
@@ -86,25 +110,25 @@ galaxyModelM19_spec = [
 @jitclass(galaxyModelM19_spec)
 class GalaxyModelM19(GalaxyModelBase):
     """
-    Galaxy model from Marchetti et al. (2019). This is a four components Galactic
+    Galaxy model from Marchetti et al. (2019). This is a four-component galactic
     potential model consisting of a Hernquist bulge and nucleus (Hernquist 1990),
     a Miyamoto-Nagai disk (Miyamoto & Nagai 1975) and a Navarro-Frenk-White halo
-    (Navarro et al. 1996). The parameters of the model are taken from table 1 in
+    (Navarro et al. 1996). The parameters of the model are taken from Table 1 in
     Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of
-    the Milky Way (Bovy (2015)).
+    the Milky Way (Bovy 2015).
     """
 
     def __init__(self) -> None:
-        # Parameters of the model, values from table 1 in Marchetti et al. (2019).
-        self.a_d = 3.0  # Scale length of the disk in kpc.
+        # Parameters of the model, values from Table 1 in Marchetti et al. (2019).
+        self.a_d = 3.0  # Scale length of the disk in [kpc].
         self.b_d = 0.28  # Scale height for the disk.
-        self.M_d = 6.8e10 * const.M_SUN  # Disk+halo mass in g.
-        self.M_b = 5.0e9 * const.M_SUN  # Bulge mass in g.
-        self.r_b = 1.0  # Core radius of the bulge component in kpc.
-        self.M_n = 1.71e9 * const.M_SUN  # Nucleus mass in g.
-        self.r_n = 0.07  # Core radius of the nucleus component in kpc.
-        self.M_h = 5.4e11 * const.M_SUN  # Halo mass in g.
-        self.r_h = 15.62  # Core radius of the halo component in kpc.
+        self.M_d = 6.8e10 * const.M_SUN  # Disk+halo mass in [g].
+        self.M_b = 5.0e9 * const.M_SUN  # Bulge mass in [g].
+        self.r_b = 1.0  # Core radius of the bulge component in [kpc].
+        self.M_n = 1.71e9 * const.M_SUN  # Nucleus mass in [g].
+        self.r_n = 0.07  # Core radius of the nucleus component in [kpc].
+        self.M_h = 5.4e11 * const.M_SUN  # Halo mass in [g].
+        self.r_h = 15.62  # Core radius of the halo component in [kpc].
 
     def shape_parameter(self, z: float) -> Tuple[float, float]:
         """
@@ -113,11 +137,11 @@ class GalaxyModelM19(GalaxyModelBase):
         Second term in the denominator of eq. (8) in Marchetti et al. (2019).
 
         Args:
-            z (float): height from the galactic disk in kpc.
+            z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): value of the shape parameter and its derivative with respect
-            to z.
+            (float, float): value of the shape parameter and its derivative with
+            respect to z.
         """
 
         a_d = self.a_d
@@ -135,11 +159,11 @@ class GalaxyModelM19(GalaxyModelBase):
         Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
-            z (float): height from the galactic disk in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the disk-halo potential in erg/g.
+            (float): value of the disk-halo potential in [erg/g].
         """
 
         K, _ = self.shape_parameter(z)
@@ -156,10 +180,10 @@ class GalaxyModelM19(GalaxyModelBase):
         Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in erg/g.
+            (float): value of the bulge potential in [erg/g].
         """
         M_b = self.M_b
         r_b = self.r_b
@@ -174,10 +198,10 @@ class GalaxyModelM19(GalaxyModelBase):
         Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in erg/g.
+            (float): value of the bulge potential in [erg/g].
         """
         M_n = self.M_n
         r_n = self.r_n
@@ -188,14 +212,14 @@ class GalaxyModelM19(GalaxyModelBase):
 
     def h_potential(self, r: float) -> float:
         """
-        The Navarro-Frenk-White halo component gravitational potential defined in eq. (9) in
-        Marchetti et al. (2019).
+        The Navarro-Frenk-White halo component gravitational potential defined in
+        eq. (9) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in erg/g.
+            (float): value of the bulge potential in [erg/g].
         """
         M_h = self.M_h
         r_h = self.r_h
@@ -209,11 +233,11 @@ class GalaxyModelM19(GalaxyModelBase):
         Total Milky Way gravitational potential in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
-            z (float): height from the galactic disk in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the Galactic potential in erg.
+            (float): value of the Galactic potential in [erg].
         """
 
         MW_pot = (
@@ -229,19 +253,19 @@ class GalaxyModelM19(GalaxyModelBase):
         self, v: np.ndarray, r: np.ndarray, z: np.ndarray
     ) -> float:
         """
-        Value of the total energy of the system, sum of the total kinetic energy and the
-        total gravitational potential energy. We assume here that all the stars have unit
-        mass.
+        Value of the total energy of the system, sum of the total kinetic energy and
+        the total gravitational potential energy. We assume here that all the stars
+        have unit mass.
 
         Args:
-            v (np.ndarray): array of magnitudes of the speed of the stars in km/s
-            r (np.ndarray): array of distances from the galactic axis in kpc.
-            z (np.ndarray): array of distances from the galactic disk in kpc.
+            v (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
+            r (np.ndarray): array of distances from the galactic axis in [kpc].
+            z (np.ndarray): array of distances from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the total energy of the system in erg.
+            (float): value of the total energy of the system in [erg].
         """
-        # Convert speeds in [cm/s].
+        # Convert speeds into [cm/s].
         v = v * const.KM_TO_CM
 
         tot_kin_energy = 0.5 * np.sum(v ** 2)
@@ -259,8 +283,8 @@ class GalaxyModelM19(GalaxyModelBase):
         potential defined in eq. (8) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
-            z (float): height from the galactic disk in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            z (float): height from the galactic disk in [kpc].
 
         Returns:
             (float, float): derivative with respect to r and z of the disk potential.
@@ -288,7 +312,7 @@ class GalaxyModelM19(GalaxyModelBase):
         defined in eq. (7) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
             float: derivative with respect to r of the bulge potential.
@@ -307,7 +331,7 @@ class GalaxyModelM19(GalaxyModelBase):
         defined in eq. (7) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
             float: derivative with respect to r of the nucleus potential.
@@ -326,7 +350,7 @@ class GalaxyModelM19(GalaxyModelBase):
         defined in eq. (9) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
             float: derivative with respect to r of the halo potential.
@@ -352,8 +376,8 @@ class GalaxyModelM19(GalaxyModelBase):
         the components defined in eq. (7,8,9) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
-            z (float): height from the galactic disk in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            z (float): height from the galactic disk in [kpc].
 
         Returns:
             (np.ndarray): gradient of the galactic potential in cylindrical
@@ -399,26 +423,26 @@ class GalaxyModelFK06(GalaxyModelBase):
     """
     Galaxy model from Faucher-Giguère & Kaspi (2006). This model consists of a
     disk-halo component, a bulge component, and a nucleus component. The
-    parameters of the model are taken from table 1 in Kuijken & Gilmore (1989)
+    parameters of the model are taken from Table 1 in Kuijken & Gilmore (1989)
     (in Faucher-Giguère & Kaspi (2006) the nucleus and bulge are erroneously
     inverted).
     """
 
     def __init__(self) -> None:
-        # Parameter values from table B1 in Kuijken & Gilmore (1989)
-        self.a_d = 2.4  # Scale length of the disk in kpc.
+        # Parameter values from Table B1 in Kuijken & Gilmore (1989).
+        self.a_d = 2.4  # Scale length of the disk in [kpc].
         self.h = np.array(
             [0.325, 0.090, 0.125]
-        )  # Array of disk components' scale heights in kpc.
+        )  # Array of disk components' scale heights in [kpc].
         self.beta = np.array(
             [0.4, 0.5, 0.1]
         )  # Array of weights for the disk components.
-        self.M_dh = 1.45e11 * const.M_SUN  # Disk+halo mass in g.
-        self.b_dh = 5.5  # Core radius of the halo component in kpc.
-        self.M_b = 1.0e10 * const.M_SUN  # Bulge mass in g.
-        self.b_b = 1.5  # Core radius of the bulge component in kpc.
-        self.M_n = 9.3e9 * const.M_SUN  # Nucleus mass in g.
-        self.b_n = 0.25  # Core radius of the nucleus component in kpc.
+        self.M_dh = 1.45e11 * const.M_SUN  # Disk+halo mass in [g].
+        self.b_dh = 5.5  # Core radius of the halo component in [kpc].
+        self.M_b = 1.0e10 * const.M_SUN  # Bulge mass in [g].
+        self.b_b = 1.5  # Core radius of the bulge component in [kpc].
+        self.M_n = 9.3e9 * const.M_SUN  # Nucleus mass in [g].
+        self.b_n = 0.25  # Core radius of the nucleus component in [kpc].
 
     def shape_parameter(self, z: float) -> Tuple[float, float]:
         """
@@ -428,7 +452,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         Kaspi (2006).
 
         Args:
-            z (float): height from the galactic disk in kpc.
+            z (float): height from the galactic disk in [kpc].
 
         Returns:
             (float, float): value of the shape parameter and its derivative with
@@ -460,11 +484,11 @@ class GalaxyModelFK06(GalaxyModelBase):
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
-            z (float): height from the galactic disk in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the disk-halo potential in erg/g.
+            (float): value of the disk-halo potential in [erg/g].
         """
 
         K, _ = self.shape_parameter(z)
@@ -486,10 +510,10 @@ class GalaxyModelFK06(GalaxyModelBase):
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in erg/g.
+            (float): value of the bulge potential in [erg/g].
         """
         M_b = self.M_b
         b_b = self.b_b
@@ -504,7 +528,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
             (float): value of the nucleus potential.
@@ -522,11 +546,11 @@ class GalaxyModelFK06(GalaxyModelBase):
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
-            z (float): height from the galactic disk in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the Galactic potential in erg.
+            (float): value of the Galactic potential in [erg].
         """
 
         MW_pot = (
@@ -539,19 +563,19 @@ class GalaxyModelFK06(GalaxyModelBase):
         self, v: np.ndarray, r: np.ndarray, z: np.ndarray
     ) -> float:
         """
-        Value of the total energy of the system, sum of the total kinetic energy and the
-        total gravitational potential energy. We assume here that all the stars have unit
-        mass.
+        Value of the total energy of the system, sum of the total kinetic energy and
+        the total gravitational potential energy. We assume here that all the stars
+        have unit mass.
 
         Args:
-            v (np.ndarray): array of magnitudes of the speed of the stars in km/s
-            r (np.ndarray): array of distances from the galactic axis in kpc.
-            z (np.ndarray): array of distances from the galactic disk in kpc.
+            v (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
+            r (np.ndarray): array of distances from the galactic axis in [kpc].
+            z (np.ndarray): array of distances from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the total energy of the system in erg.
+            (float): value of the total energy of the system in [erg].
         """
-        # Convert speeds in [cm/s].
+        # Convert speeds into [cm/s].
         v = v * const.KM_TO_CM
 
         tot_kin_energy = 0.5 * np.sum(v ** 2)
@@ -569,11 +593,12 @@ class GalaxyModelFK06(GalaxyModelBase):
         potential defined in eq. (14) in Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
-            z (float): height from the galactic disk in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): derivative with respect to r and z of the disk-halo potential.
+            (float, float): derivative with respect to r and z of the disk-halo
+            potential.
         """
 
         M_dh = self.M_dh
@@ -602,7 +627,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         defined in eq. (15) in Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
             float: derivative with respect to r of the bulge potential.
@@ -623,7 +648,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         defined in eq. (15) in Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
             float: derivative with respect to r of the nucleus potential.
@@ -646,8 +671,8 @@ class GalaxyModelFK06(GalaxyModelBase):
         defined in eq. (13) in Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in kpc.
-            z (float): height from the galactic disk in kpc.
+            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            z (float): height from the galactic disk in [kpc].
 
         Returns:
             (np.ndarray): gradient of the galactic potential in cylindrical
