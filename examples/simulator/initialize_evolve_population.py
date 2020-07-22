@@ -1,5 +1,5 @@
 """
-Simulating a final population of neutron stars
+Simulating a final population of neutron stars.
 
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved in time according to their age.
@@ -10,7 +10,22 @@ and the respective objects evolved in time according to their age.
         Michele Ronchi (ronchi @ ice.csic.es)
         Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
 
-    Copyright(c) MAGNESIA(ICE - CSIC)
+Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 
 import logging
@@ -33,8 +48,8 @@ log = logging.getLogger(__name__)
 
 @hydra.main()
 def generate_population(cfg) -> None:
-
-    """ Generating a neutron star population starting from some initial
+    """
+    Generating a neutron star population starting from some initial
     conditions and evolving it forward in time.
 
     Args:
@@ -83,7 +98,7 @@ def generate_population(cfg) -> None:
     omega_initial = v_phi_initial / r_initial
     v_z_initial = vk_z
 
-    # Compute the magnitude of the initial velocity vector for each star in km / s.
+    # Compute the magnitude of the initial velocity vector for each star in [km/s].
     v_initial = (
         np.sqrt(v_r_initial ** 2 + v_phi_initial ** 2 + v_z_initial ** 2)
         * const.KPC_TO_KM
@@ -124,13 +139,13 @@ def generate_population(cfg) -> None:
                 "[kpc]",
                 "[kpc]",
                 "[kpc]",
-                "[kpc / yr]",
-                "[kpc / yr]",
-                "[kpc / yr]",
-                "[kpc / yr]",
-                "[kpc / yr]",
-                "[kpc / yr]",
-                "[kpc / yr]",
+                "[kpc/yr]",
+                "[kpc/yr]",
+                "[kpc/yr]",
+                "[kpc/yr]",
+                "[kpc/yr]",
+                "[kpc/yr]",
+                "[kpc/yr]",
             ],
         )
     )
@@ -176,7 +191,7 @@ def generate_population(cfg) -> None:
     v_phi_final = final_population[:, 6]
     v_z_final = final_population[:, 7]
 
-    # Convert velocities from kpc / yr into km / s.
+    # Convert velocities from [kpc/yr] into [km/s].
     v_r_final = v_r_final * const.KPC_TO_KM / const.YR_TO_S
     v_phi_final = v_phi_final * const.KPC_TO_KM / const.YR_TO_S
     v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
@@ -199,14 +214,16 @@ def generate_population(cfg) -> None:
         x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
     )
 
-    # Compute the magnitude of the initial velocity vector for each star in km / s.
+    # Compute the magnitude of the initial velocity vector for each star in [km/s].
     v_final = np.sqrt(v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2)
+
     # Compute the total energy of the system after the dynamical evolution.
     total_energy_final = gm.galactic_model.total_energy(
         v_final, r_final, z_final
     )
 
-    # Compute the percentage variation in total energy during the simulation with respect to the initial total energy
+    # Compute the percentage variation in total energy during the simulation with
+    # respect to the initial total energy
     delta_energy_percentage = (
         (total_energy_final - total_energy_initial)
         / total_energy_initial
@@ -253,12 +270,12 @@ def generate_population(cfg) -> None:
                 "[deg]",
                 "[deg]",
                 "[kpc]",
-                "[km / s]",
-                "[km / s]",
-                "[km / s]",
-                "[mas / yr]",
-                "[mas / yr]",
-                "[km / s]",
+                "[km/s]",
+                "[km/s]",
+                "[km/s]",
+                "[mas/yr]",
+                "[mas/yr]",
+                "[km/s]",
             ],
         )
     )
