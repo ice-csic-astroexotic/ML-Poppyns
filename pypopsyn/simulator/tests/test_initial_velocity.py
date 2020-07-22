@@ -1,12 +1,29 @@
 """
-Test for the initial_velocity module
+Tests for the initial_velocity module.
 
     Authors:
 
         Vanessa Graber (graber @ ice.csic.es)
         Michele Ronchi (ronchi @ ice.csic.es)
 
-    Copyright(c) MAGNESIA(ICE - CSIC)
+MIT License
+
+Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 
 
@@ -48,7 +65,8 @@ def test_case_2():
 
 def test_pdf_kick_velocity_exp(test_case_1):
     """
-    Verifying that proper velocity distribution is correctly calculated for the exponential function.
+    Verifying that the proper velocity distribution is correctly calculated
+    for the exponential function.
     """
     pdf_vk_out = iv.pdf_kick_velocity_exp(test_case_1["v"])
     assert np.abs(test_case_1["pdf_vk_exp_expected"] - pdf_vk_out) < TOL
@@ -56,7 +74,8 @@ def test_pdf_kick_velocity_exp(test_case_1):
 
 def test_pdf_kick_velocity_maxwell(test_case_1):
     """
-    Verifying that proper velocity distribution is correctly calculated for the Maxwell distribution.
+    Verifying that the proper velocity distribution is correctly calculated
+    for the Maxwell distribution.
     """
     pdf_vk_out = iv.pdf_kick_velocity_maxwell(test_case_1["v"])
     assert np.abs(test_case_1["pdf_vk_maxwell_expected"] - pdf_vk_out) < TOL
