@@ -31,8 +31,12 @@ import numpy as np
 import pytest
 
 import pypopsyn.simulator.dynamical_evolution as dyn
+from pypopsyn.simulator.configuration import cfg
 
 TOL = 1e-5
+
+# Select the galactic model from Marchetti et al. (2019) for the test.
+cfg["galactic_model"] = "gmM19"
 
 
 @pytest.fixture()
