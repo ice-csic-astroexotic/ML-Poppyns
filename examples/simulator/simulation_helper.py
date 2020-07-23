@@ -45,8 +45,8 @@
 """
 
 import argparse
+import json
 import logging
-import os
 import subprocess
 import sys
 
@@ -63,8 +63,14 @@ def main(args):
     cli_args: list = []
     cli_str: list = []
 
-    # If the arg values are a in a list providing three values in an array [low, high, and number of samples],
-    # expand each one of the arguments with their linspace. Otherwise just save the value of the arg.
+    args_dict = vars(args)
+
+    f = open("examples/simulator/config_sweeper.json")
+    check_arg = json.load(f)
+    models_list = check_arg["models"].keys()
+
+    models_needs = []
+
     for arg in vars(args):
         log.info(arg)
         log.info(getattr(args, arg))
@@ -72,14 +78,30 @@ def main(args):
 
         if values is None:
             continue
-        elif type(values) is not list:
-            cli_args.append(arg)
-            cli_str.append(values)
+
+        elif type(values) is str:
+            # the parameter is a model
+            if values in models_list:
+                cli_args.append(arg)
+                cli_str.append(values)
+                models_needs.extend(check_arg["models"][values])
+            else:
+                raise ValueError(
+                    "The kick velocity model pdf does not exist. Choose between km_maxwell or km_exp."
+                )
+
         elif type(values) is list:
+            # If the arg values are a list of three values [low, high, and number of samples],
+            # expand each one of the arguments with their linspace.
             var_range = np.linspace(values[0], values[1], int(values[2]))
             var_str = ",".join(map(str, var_range))
             cli_args.append(arg)
             cli_str.append(var_str)
+
+    # check if the models parsed have all the required parameters not None
+    for par in models_needs:
+        if args_dict[par] is None:
+            raise ValueError("A required parameter is None.")
 
     log.info("Running simulator...")
 
