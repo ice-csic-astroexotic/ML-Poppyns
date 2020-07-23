@@ -65,43 +65,73 @@ def main(args):
 
     args_dict = vars(args)
 
+    # Open the parameters dictionary with required values for the selection ones.
     f = open("examples/simulator/config_sweeper.json")
     check_arg = json.load(f)
-    models_list = check_arg["models"].keys()
 
-    models_needs = []
+    required_parameters = []
+    forbidden_parameters = []
 
     for arg in vars(args):
-        log.info(arg)
-        log.info(getattr(args, arg))
-        values = getattr(args, arg)
 
-        if values is None:
+        log.info(arg)
+        value = getattr(args, arg)
+        log.info(value)
+
+        if value is None:
             continue
 
-        elif type(values) is str:
-            # the parameter is a model
-            if values in models_list:
+        elif type(value) is str:
+            # If the value of this parameter is a string, this is a selection
+            # parameter and we must check: (a) whether the selection is valid
+            # (b) capture the list of required parameters and (c) gather the
+            # forbidden ones (probably they belong other selection).
+            if value in check_arg[arg]:
                 cli_args.append(arg)
-                cli_str.append(values)
-                models_needs.extend(check_arg["models"][values])
+                cli_str.append(value)
+                required_parameters.extend(check_arg[arg][value])
+                forbidden_parameters.extend(
+                    [
+                        item
+                        for sublist in [
+                            v for k, v in check_arg[arg].items() if k != value
+                        ]
+                        for item in sublist
+                    ]
+                )
             else:
+                # If the value for such argument is not on the dictionary of
+                # possible values we throw an exception.
                 raise ValueError(
-                    "The kick velocity model pdf does not exist. Choose between km_maxwell or km_exp."
+                    "The value {} is not feasible for parameter {}".format(
+                        value, arg
+                    )
                 )
 
-        elif type(values) is list:
-            # If the arg values are a list of three values [low, high, and number of samples],
-            # expand each one of the arguments with their linspace.
-            var_range = np.linspace(values[0], values[1], int(values[2]))
+        elif type(value) is list:
+            # If the value is a list, we assume it will be a specificaiton of
+            # three values [low, high, steps] and then expand each one of the
+            # arguments with the linear space in such range.
+            var_range = np.linspace(value[0], value[1], int(value[2]))
             var_str = ",".join(map(str, var_range))
             cli_args.append(arg)
             cli_str.append(var_str)
 
-    # check if the models parsed have all the required parameters not None
-    for par in models_needs:
-        if args_dict[par] is None:
-            raise ValueError("A required parameter is None.")
+    log.info("Required parameters {}".format(required_parameters))
+    log.info("Forbidden parameters {}".format(forbidden_parameters))
+
+    # Remove intersecting parameters from the forbidden list.
+    for p in set(required_parameters) & set(forbidden_parameters):
+        log.info("Intersecting parameter {}".format(p))
+        forbidden_parameters.remove(p)
+    # Check if all the required parameters are specified.
+    for p in required_parameters:
+        if p not in args_dict.keys() or args_dict[p] is None:
+            raise ValueError("Required parameter {} not present.".format(p))
+    # Check if none of the incompatible parameters are required.
+    for p in forbidden_parameters:
+        if p in args_dict.keys() and args_dict[p] is not None:
+            raise ValueError("Forbidden parameter {} is present".format(p))
 
     log.info("Running simulator...")
 
