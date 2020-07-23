@@ -65,7 +65,12 @@ def pdf_kick_velocity_maxwell(v: float) -> float:
         float: stellar kick velocity distribution in [1/(km/s)].
     """
     sigma = cfg["sigma_k"]
-    pdf_vk = v ** 2 / (sigma ** 3) * np.exp(-(v ** 2) / (2 * sigma ** 2))
+    pdf_vk = (
+        np.sqrt(2 / np.pi)
+        * v ** 2
+        / (sigma ** 3)
+        * np.exp(-(v ** 2) / (2 * sigma ** 2))
+    )
 
     return pdf_vk
 

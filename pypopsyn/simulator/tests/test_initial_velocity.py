@@ -49,7 +49,7 @@ def test_case_1():
     data = {
         "v": 300,
         "pdf_vk_exp_expected": 0.00119,
-        "pdf_vk_maxwell_expected": 0.00255,
+        "pdf_vk_maxwell_expected": 0.002033,
     }
 
     return data
