@@ -187,11 +187,9 @@ def calculate_phi(r: np.ndarray, arm_index: np.ndarray) -> np.ndarray:
             "The spiral pattern does not exist. Choose between saFK06 or saYMW17."
         )
 
-    phi = (
-        np.vectorize(arm_param.get)(arm_index)[0]
-        * np.log(r / np.vectorize(arm_param.get)(arm_index)[1])
-        + np.vectorize(arm_param.get)(arm_index)[2]
-    )
+    arm_param_vect = np.vectorize(arm_param.get)(arm_index)
+
+    phi = arm_param_vect[0] * np.log(r / arm_param_vect[1]) + arm_param_vect[2]
 
     return phi
 
