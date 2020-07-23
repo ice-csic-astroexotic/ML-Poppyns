@@ -98,30 +98,35 @@ def pdf_radial_stellar_density(r: float) -> float:
 
 
 def pdf_initial_coordinates(
-    r: float, arm_index: int, seed: int = None
-) -> Tuple[float, float]:
+    r: np.ndarray, NS_number: int, arm_index: np.ndarray, seed: int = None
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Probability density function for stellar galactocentric position incorporating
     the Milky Way's arm structure based on Faucher-Giguère & Kaspi (2006) (see also
     Wainscoat et al. 1992).
 
     Args:
-        r (float): distance from the galactic center in [kpc].
-        arm_index (int): index for the respective spiral arms, 0 < arm_index < 5.
+        r (np.ndarray): distances from the galactic center in [kpc].
+        NS_number (int): total number of neutron stars created in the simulation.
+        arm_index (np.ndarray): indices for the respective spiral arms,
+        0 < arm_index < 5.
         seed (int): seed for random number generation in the
         calculate_noise_for_coordinates function;
         set to None unless otherwise specified.
 
     Returns:
-        (float, float): galactocentric coordinates phi [rad], r [kpc] with noise.
+        (np.ndarray, np.ndarray): galactocentric coordinates phi [rad], r [kpc] with
+        noise applied.
     """
 
     # Check range of input.
-    coco.check_radial_coordinate(r)
-    check_arm_index(arm_index)
+    check_radial_coordinate_vect = np.vectorize(coco.check_radial_coordinate)
+    check_radial_coordinate_vect(r)
+    check_arm_index_vect = np.vectorize(check_arm_index)
+    check_arm_index_vect(arm_index)
 
     phi = calculate_phi(r, arm_index)
-    phi_corr, r_corr = calculate_noise_for_coordinates(r, seed)
+    phi_corr, r_corr = calculate_noise_for_coordinates(r, NS_number, seed)
 
     phi = phi + phi_corr
     r = r + r_corr
@@ -129,9 +134,9 @@ def pdf_initial_coordinates(
     return phi, r
 
 
-def calculate_phi(r: float, arm_index: int) -> float:
+def calculate_phi(r: np.ndarray, arm_index: np.ndarray) -> np.ndarray:
     """
-    Calculating the angular coordinate of a neutron star for a given distance
+    Calculating the angular coordinates of a neutron star for a given distance
     from the galactic center incorporating the Milky Way's arm structure according
     to eq. (12) of Faucher-Giguère & Kaspi (2006) (see also Wainscoat et al. 1992).
     Two different parameter sets for the spiral arms are provided. The first one is
@@ -139,16 +144,19 @@ def calculate_phi(r: float, arm_index: int) -> float:
     & Wang (2017).
 
     Args:
-        r (float): distance from the galactic center in [kpc].
-        arm_index (int): index for the respective spiral arms, 0 < arm_index < 5.
+        r (np.ndarray): distances from the galactic center in [kpc].
+        arm_index (np.ndarray): indices for the respective spiral arms,
+        0 < arm_index < 5.
 
     Returns:
-        float: galactocentric phi coordinate in [rad].
+        np.ndarray: galactocentric phi coordinates in [rad].
     """
 
     # Check range of input.
-    coco.check_radial_coordinate(r)
-    check_arm_index(arm_index)
+    check_radial_coordinate_vect = np.vectorize(coco.check_radial_coordinate)
+    check_radial_coordinate_vect(r)
+    check_arm_index_vect = np.vectorize(check_arm_index)
+    check_arm_index_vect(arm_index)
 
     # Parameters for four spiral arms in the Milky Way giving the winding constant k
     # [rad], inner radius r_0 [kpc] and inner angle phi_min [rad] for the Norma,
@@ -159,19 +167,20 @@ def calculate_phi(r: float, arm_index: int) -> float:
     # Faucher-Giguère & Kaspi (2006).
 
     arms_pattern = cfg["spiral_arms"]
+
     if arms_pattern == "saFK06":
         arm_param = {
-            1: np.array([4.25, 3.48, 1.57]),
-            2: np.array([4.25, 3.48, 4.71]),
-            3: np.array([4.89, 4.90, 4.09]),
-            4: np.array([4.89, 4.90, 0.95]),
+            1: (4.25, 3.48, 1.57),
+            2: (4.25, 3.48, 4.71),
+            3: (4.89, 4.90, 4.09),
+            4: (4.89, 4.90, 0.95),
         }
     elif arms_pattern == "saYMW17":
         arm_param = {
-            1: np.array([4.95, 3.35, 0.77]),
-            2: np.array([5.46, 3.56, 3.82]),
-            3: np.array([5.77, 3.71, 2.09]),
-            4: np.array([5.37, 3.67, 5.76]),
+            1: (4.95, 3.35, 0.77),
+            2: (5.46, 3.56, 3.82),
+            3: (5.77, 3.71, 2.09),
+            4: (5.37, 3.67, 5.76),
         }
     else:
         raise ValueError(
@@ -179,26 +188,29 @@ def calculate_phi(r: float, arm_index: int) -> float:
         )
 
     phi = (
-        arm_param[arm_index][0] * np.log(r / arm_param[arm_index][1])
-        + arm_param[arm_index][2]
+        np.vectorize(arm_param.get)(arm_index)[0]
+        * np.log(r / np.vectorize(arm_param.get)(arm_index)[1])
+        + np.vectorize(arm_param.get)(arm_index)[2]
     )
 
     return phi
 
 
-def spiral_arm_time_evol(phi0: float, t: float) -> float:
+def spiral_arm_time_evol(phi0: np.ndarray, t: np.ndarray) -> np.ndarray:
     """
-    Evolving the spiral arm position backward for a time t. We assume that the
+    Evolving the spiral arm positions backward for a given age t. We assume that the
     galactic spiral structure rotates rigidly in clockwise direction with a
     period of 250 Myr (see 'A guided map to the spiral arms in the galactic disk
     of the Milky Way' by Vallée (2017)).
 
     Args:
-        phi0 (float): current angular position in [rad] for the current spiral pattern.
-        t (float): time in [yr] to propagate backward.
+        phi0 (np.ndarray): current angular positions in [rad] for the chosen
+        spiral pattern.
+        t (np.ndarray): times in [yr] to propagate backward.
 
     Returns:
-        (float): angular position in [rad] for the spiral pattern as it was t years ago.
+        (np.ndarray): angular positions in [rad] for the spiral pattern as they were
+        t years ago.
     """
 
     # Evaluate the angular velocity of rotation of the spiral pattern;
@@ -206,33 +218,35 @@ def spiral_arm_time_evol(phi0: float, t: float) -> float:
     T = 2.5e8
     omega_spiral_arms = 2.0 * np.pi / T
 
-    # Find the value of the angle phi t years ago.
+    # Find the values of the angles phi t years ago.
     phi_t = phi0 + omega_spiral_arms * t
 
     return phi_t
 
 
 def calculate_noise_for_coordinates(
-    r: float, seed: int = None
-) -> Tuple[float, float]:
+    r: np.ndarray, NS_number: int, seed: int = None
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Calculating noise for the angular and radial coordinate to smear out the
     distribution and avoid artificial features near the galactic center;
     see Sec. 3.2.1 in Faucher-Giguère & Kaspi (2006) for details.
 
     Args:
-        r (float): distance from the galactic center in [kpc].
+        r (np.ndarray): array of distances from the galactic center in [kpc].
+        NS_number (int): total number of neutron stars created in the simulation.
         seed (int): seed for random number generation,
         set to None unless otherwise specified.
 
     Returns:
-        (float, float): noise for galactocentric coordinates phi [rad], r [kpc].
+        (np.ndarray, np.ndarray): array of noise for the galactocentric coordinates
+        phi [rad], r [kpc].
     """
 
     np.random.seed(seed)
 
-    phi_corr = np.random.uniform(0, 2 * np.pi) * np.exp(-0.35 * r)
-    r_corr = np.random.normal(0, 0.07 * r)
+    phi_corr = np.random.uniform(0, 2 * np.pi, NS_number) * np.exp(-0.35 * r)
+    r_corr = np.random.normal(0, 0.07 * r, NS_number)
 
     return phi_corr, r_corr
 

@@ -30,18 +30,25 @@ import numpy as np
 import pytest
 
 import pypopsyn.simulator.initial_position as ip
+from pypopsyn.simulator.configuration import cfg
 
 TOL = 1e-5
+
+
+# For the tests, set the spiral arm pattern in the configuration file to
+# the one from Faucher-Giguère & Kaspi (2006).
+cfg["spiral_arms"] = "saFK06"
 
 
 @pytest.fixture()
 def test_case_1():
     data = {
-        "r": 1.5,
-        "arm_index": 3,
-        "phi_no_noise_expected": -3.13512,
-        "r_with_noise_expected": 1.6,
-        "phi_with_noise_expected": -2.13512,
+        "NS_number": 2,
+        "r": np.array([1.5, 3.0]),
+        "arm_index": np.array([3, 1]),
+        "phi_no_noise_expected": np.array([-1.69863, 0.93921]),
+        "r_with_noise_expected": np.array([1.6, 3.2]),
+        "phi_with_noise_expected": np.array([-0.69863, 2.4392]),
         "z": 0.01,
         "pdf_z_expected": 5.25533,
     }
@@ -64,10 +71,11 @@ def test_case_2():
 @pytest.fixture()
 def test_case_3():
     data = {
-        "r": 1.2,
-        "uniform_noise_mock": 2.0,
-        "phi_corr_expected": 1.31409,
-        "r_corr_expected": 0.02,
+        "NS_number": 2,
+        "r": np.array([1.2, 3.8]),
+        "uniform_noise_mock": np.array([2.0, 0.2]),
+        "phi_corr_expected": np.array([1.31409, 0.052895]),
+        "r_corr_expected": np.array([0.02, 0.5]),
     }
 
     return data
@@ -76,9 +84,9 @@ def test_case_3():
 @pytest.fixture()
 def test_case_4():
     data = {
-        "phi0": 0.0,
-        "t": 1.0e8,
-        "phi_t_expected": 2.51327,
+        "phi0": np.array([0.0, 1.0]),
+        "t": np.array([1.0e8, 1e4]),
+        "phi_t_expected": np.array([2.51327, 1.00025]),
     }
 
     return data
@@ -121,16 +129,20 @@ def test_pdf_initial_coordinates(monkeypatch, test_case_1):
     # return is the same order as the original function, i.e., phi_corr, r_corr.
 
     def mock_noise(*args, **kwargs):
-        return 1.0, 0.1
+        return np.array([1.0, 1.5]), np.array([0.1, 0.2])
 
     monkeypatch.setattr(ip, "calculate_noise_for_coordinates", mock_noise)
 
     phi_out, r_out = ip.pdf_initial_coordinates(
-        test_case_1["r"], test_case_1["arm_index"]
+        test_case_1["r"], test_case_1["NS_number"], test_case_1["arm_index"]
     )
 
-    assert np.abs(test_case_1["phi_with_noise_expected"] - phi_out) < TOL
-    assert np.abs(test_case_1["r_with_noise_expected"] - r_out) < TOL
+    assert np.isclose(
+        test_case_1["phi_with_noise_expected"], phi_out, rtol=TOL, atol=1.0e-30
+    ).all()
+    assert np.isclose(
+        test_case_1["r_with_noise_expected"], r_out, rtol=TOL, atol=1.0e-30
+    ).all()
 
 
 def test_calculate_phi(test_case_1):
@@ -140,17 +152,21 @@ def test_calculate_phi(test_case_1):
 
     phi_out = ip.calculate_phi(test_case_1["r"], test_case_1["arm_index"])
 
-    assert np.abs(test_case_1["phi_no_noise_expected"] - phi_out) < TOL
+    assert np.isclose(
+        test_case_1["phi_no_noise_expected"], phi_out, rtol=TOL, atol=1.0e-30
+    ).all()
 
 
 def test_spiral_arm_time_evol(test_case_4):
     """
-    Verifying that the the spiral structure evolve in time in the correct way.
+    Verifying that the spiral structure evolves in time in the correct way.
     """
 
     phi_t_out = ip.spiral_arm_time_evol(test_case_4["phi0"], test_case_4["t"])
 
-    assert np.abs(test_case_4["phi_t_expected"] - phi_t_out) < TOL
+    assert np.isclose(
+        test_case_4["phi_t_expected"], phi_t_out, rtol=TOL, atol=1.0e-30
+    ).all()
 
 
 def test_calculate_noise_for_coordinates(monkeypatch, test_case_3):
@@ -169,11 +185,15 @@ def test_calculate_noise_for_coordinates(monkeypatch, test_case_3):
     monkeypatch.setattr(np.random, "normal", mock_noise_normal)
 
     phi_corr_out, r_corr_out = ip.calculate_noise_for_coordinates(
-        test_case_3["r"]
+        test_case_3["r"], test_case_3["NS_number"]
     )
 
-    assert np.abs(test_case_3["phi_corr_expected"] - phi_corr_out) < TOL
-    assert np.abs(test_case_3["r_corr_expected"] - r_corr_out) < TOL
+    assert np.isclose(
+        test_case_3["phi_corr_expected"], phi_corr_out, rtol=TOL, atol=1.0e-30
+    ).all()
+    assert np.isclose(
+        test_case_3["r_corr_expected"], r_corr_out, rtol=TOL, atol=1.0e-30
+    ).all()
 
 
 def test_pdf_initial_height(test_case_1):
