@@ -1,4 +1,5 @@
-""" Dataset generator functions
+"""
+Dataset generator functions.
 
     Authors:
 
@@ -6,8 +7,22 @@
         Michele Ronchi (ronchi@ice.csic.es)
         Vanessa Graber (graber@ice.csic.es)
 
-    Copyright (c) MAGNESIA (ICE-CSIC)
+Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 
 import typing
@@ -29,7 +44,6 @@ def generate_density_map(
     y_log_scale: bool = False,
     n_x_bins: int = 128,
     n_y_bins: int = 128,
-    normalize: bool = False,
     colormap: str = "Greys",
 ) -> None:
     """
@@ -48,7 +62,6 @@ def generate_density_map(
         y_log_scale (bool): if True set the y axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the density map.
         n_y_bins (int): number of vertical bins for the density map.
-        normalize (bool): unused parameter to respect the interface.
         colormap (str): colormap to use for the image.
 
     Returns:
@@ -103,7 +116,6 @@ def generate_avg_weight_map(
     y_log_scale: bool = False,
     n_x_bins: int = 128,
     n_y_bins: int = 128,
-    normalize: bool = False,
     colormap: str = "Greys",
 ) -> None:
     """
@@ -124,7 +136,6 @@ def generate_avg_weight_map(
         y_log_scale (bool): if True set the y axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the weight map.
         n_y_bins (int): number of vertical bins for the weight map.
-        normalize (bool): unused parameter to respect the interface.
         colormap (str): colormap to use for the image.
 
     Returns:
@@ -188,7 +199,6 @@ def generate_density_matrix(
     y_log_scale: bool = False,
     n_x_bins: int = 128,
     n_y_bins: int = 128,
-    normalize: bool = False,
 ) -> None:
     """
     Density matrix generator.
@@ -222,9 +232,6 @@ def generate_density_matrix(
     # (second) dimension; normalize to overall maximum if normalize = True.
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
 
-    if normalize:
-        density = density / np.max(density)
-
     np.save(filename, density)
 
 
@@ -239,7 +246,6 @@ def generate_avg_weight_matrix(
     y_log_scale: bool = False,
     n_x_bins: int = 128,
     n_y_bins: int = 128,
-    normalize: bool = False,
 ) -> None:
     """
     Average weighted matrix generator.
@@ -259,7 +265,6 @@ def generate_avg_weight_matrix(
         y_log_scale (bool): if True set the y axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the density matrix.
         n_y_bins (int): number of vertical bins for the density matrix.
-        normalize (bool): whether to normalize bins to range [0,1].
 
     Returns:
         Nothing. A NumPy 2D array is generated in the specified file path.
@@ -286,9 +291,5 @@ def generate_avg_weight_matrix(
     total_per_bin[total_per_bin == 0] = 0.0001
     avg_weight = total_weight / total_per_bin
     avg_weight = scipy.ndimage.filters.gaussian_filter(avg_weight, sigma=1)
-
-    # Normalize to overall maximum if normalize = True.
-    if normalize:
-        avg_weight = avg_weight / np.max(avg_weight)
 
     np.save(filename, avg_weight)

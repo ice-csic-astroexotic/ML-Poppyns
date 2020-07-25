@@ -7,8 +7,22 @@ Velocity maps generation routines.
         Michele Ronchi (ronchi@ice.csic.es)
         Vanessa Graber (graber@ice.csic.es)
 
-    Copyright (c) MAGNESIA (ICE-CSIC)
+Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 
 import logging
@@ -40,7 +54,6 @@ def generate_velocity_map(
     velocities: np.array,
     x_resolution: int,
     y_resolution: int,
-    normalize: bool,
     velocity_maps_dictionary: dict,
     x_limits: typing.Tuple[float, float] = (-20.0, 20.0),
     y_limits: typing.Tuple[float, float] = (-20.0, 20.0),
@@ -65,7 +78,6 @@ def generate_velocity_map(
         velocities (np.array): array of velocities to put in the map.
         x_resolution (int): resolution in the horizontal axis.
         y_resolution (int): resolution in the vertical axis.
-        normalize (bool): whether to normalize the each cell or not.
         velocity_maps_dictionary (dict): dictionary of velocity maps.
         x_limits (float, float): limits of the horizontal axis.
         y_limits (float, float): limits of the vertical axis.
@@ -92,10 +104,9 @@ def generate_velocity_map(
         velocity_map_filename,
         n_x_bins=x_resolution,
         n_y_bins=y_resolution,
-        normalize=normalize,
     )
 
-    # Save velocity map filename into the partial dataset dictionary.
+    # Save velocity map file names into the partial dataset dictionary.
     velocity_maps_dictionary.setdefault("input:" + map_name, []).append(
         velocity_map_filename
     )

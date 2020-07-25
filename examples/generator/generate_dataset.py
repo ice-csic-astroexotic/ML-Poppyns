@@ -140,7 +140,6 @@ def generate_dataset(args) -> None:
             df_pop["y"],
             args.resolution,
             args.resolution,
-            args.normalize,
             position_map_xy_dictionary,
         )
 
@@ -154,7 +153,6 @@ def generate_dataset(args) -> None:
             df_pop["z"],
             args.resolution,
             args.resolution,
-            args.normalize,
             position_map_xz_dictionary,
         )
 
@@ -169,7 +167,6 @@ def generate_dataset(args) -> None:
             abs(df_pop["v_r"]),
             args.resolution,
             args.resolution,
-            args.normalize,
             velocity_map_xy_vr_dictionary,
         )
 
@@ -184,7 +181,6 @@ def generate_dataset(args) -> None:
             abs(df_pop["v_phi"]),
             args.resolution,
             args.resolution,
-            args.normalize,
             velocity_map_xy_vphi_dictionary,
         )
 
@@ -199,7 +195,6 @@ def generate_dataset(args) -> None:
             abs(df_pop["v_z"]),
             args.resolution,
             args.resolution,
-            args.normalize,
             velocity_map_xy_vz_dictionary,
         )
 
@@ -213,7 +208,6 @@ def generate_dataset(args) -> None:
             df_pop["DEC"],
             args.resolution,
             int(args.resolution / 2),
-            args.normalize,
             position_map_radec_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
@@ -230,7 +224,6 @@ def generate_dataset(args) -> None:
             abs(df_pop["v_RA"]),
             args.resolution,
             int(args.resolution / 2),
-            args.normalize,
             velocity_map_vra_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
@@ -247,7 +240,6 @@ def generate_dataset(args) -> None:
             abs(df_pop["v_DEC"]),
             args.resolution,
             int(args.resolution / 2),
-            args.normalize,
             velocity_map_vdec_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
@@ -269,14 +261,6 @@ def generate_dataset(args) -> None:
             dictionary = yaml.full_load(file)
             for key, val in dictionary.items():
                 param_dictionary.setdefault(key, []).append(val)
-
-    # Normalize labels to [0, 1] range if requested.
-    if args.normalize:
-        for key, value in param_dictionary.items():
-            max_value = np.max(value)
-            min_value = np.min(value)
-            value = (value - min_value) / (max_value - min_value)
-            param_dictionary[key] = value
 
     # Merge the filename and parameters dictionaries in a single dictionary.
     dataset_dictionary = {
@@ -332,12 +316,6 @@ if __name__ == "__main__":
         type=int,
         default=64,
         help="Resolution of the arrays that will be generated (in number of cells).",
-    )
-    parser.add_argument(
-        "--normalize",
-        default=False,
-        action="store_true",
-        help="Generate normalized maps or not (use for type array only).",
     )
     parser.add_argument(
         "--samples", nargs="?", type=int, help="Number of samples to select",
