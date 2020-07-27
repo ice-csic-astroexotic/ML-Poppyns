@@ -46,7 +46,7 @@ cfg["z_extent"] = 5.0
 cfg["vk_extent"] = 2500.0
 
 # Seed for the random number generation.
-cfg["seed"] = 42
+cfg["seed"] = None
 
 # Resolution for the spatial grid in the initial population.
 cfg["resolution"] = 10000
