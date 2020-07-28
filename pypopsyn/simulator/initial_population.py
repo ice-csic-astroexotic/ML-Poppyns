@@ -28,6 +28,7 @@ SOFTWARE.
 """
 
 import logging
+import time
 from typing import Tuple
 
 import numpy as np
@@ -47,11 +48,17 @@ class InitialNeutronStarPopulation:
     Generating a random pulsar population in the Milky Way.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
-        Initialization for the population synthesis.
+        Initialization for the initial population synthesis.
         """
 
+        # Initialize seed randomly if no seed was specified.
+        if cfg["seed"] is None:
+            cfg["seed"] = int(time.time())
+
+        # Set NumPy random set globally.
+        log.info("Seed: {}".format(cfg["seed"]))
         np.random.seed(cfg["seed"])
 
     def age(self) -> np.ndarray:
@@ -95,15 +102,8 @@ class InitialNeutronStarPopulation:
         r_grid = np.logspace(
             np.log10(0.0001), np.log10(cfg["r_extent"]), cfg["resolution"]
         )
-        # To avoid performing the inverse transverse sampling step involved here,
-        # at the same points in all calls to the function cc.random_from_pdf and
-        # introducing unwanted correlations between different parameters, we modify
-        # the seed by adding a constant.
         r_pdf_rand = cc.random_from_pdf(
-            r_grid,
-            ip.pdf_radial_stellar_density,
-            cfg["NS_number"],
-            cfg["seed"] + 1,
+            r_grid, ip.pdf_radial_stellar_density, cfg["NS_number"],
         )
 
         # Randomly select one of the four spiral arms for the neutron star sample.
@@ -116,7 +116,7 @@ class InitialNeutronStarPopulation:
         phi_rand = np.zeros(cfg["NS_number"])
         r_rand = np.zeros(cfg["NS_number"])
         phi_rand, r_rand = ip.pdf_initial_coordinates(
-            r_pdf_rand, cfg["NS_number"], arm_index_rand, cfg["seed"]
+            r_pdf_rand, cfg["NS_number"], arm_index_rand
         )
 
         # Propagating the azimuthal coordinate of each object backwards in time
@@ -133,18 +133,12 @@ class InitialNeutronStarPopulation:
         z_grid = np.logspace(
             np.log10(0.0001), np.log10(cfg["z_extent"]), cfg["resolution"]
         )
-        # To avoid performing the inverse transverse sampling step involved here,
-        # at the same points in all calls to the function cc.random_from_pdf and
-        # introducing unwanted correlations between different parameters, we modify
-        # the seed by adding a constant.
         z_pdf_rand = cc.random_from_pdf(
-            z_grid, ip.pdf_initial_height, cfg["NS_number"], cfg["seed"] + 2
+            z_grid, ip.pdf_initial_height, cfg["NS_number"]
         )
 
         # Randomly distribute the stars above and below the galactic plane.
-        z_rand = ip.random_scatter_about_plane(
-            z_pdf_rand, cfg["NS_number"], cfg["seed"]
-        )
+        z_rand = ip.random_scatter_about_plane(z_pdf_rand, cfg["NS_number"])
 
         return r_rand, phi_rand, x_rand, y_rand, z_rand
 
@@ -175,14 +169,7 @@ class InitialNeutronStarPopulation:
         # neutron star according to the underlying velocity probability density
         # function.
         vk_grid = np.linspace(0.0, cfg["vk_extent"], cfg["resolution"])
-
-        # To avoid performing the inverse transverse sampling step involved here,
-        # at the same points in all calls to the function cc.random_from_pdf and
-        # introducing unwanted correlations between different parameters, we modify
-        # the seed by adding a constant.
-        vk_rand = cc.random_from_pdf(
-            vk_grid, pdf_vkick, cfg["NS_number"], cfg["seed"] + 3
-        )
+        vk_rand = cc.random_from_pdf(vk_grid, pdf_vkick, cfg["NS_number"])
         # Convert from [km/s] to [kpc/yr].
         vk_rand = vk_rand * const.YR_TO_S / const.KPC_TO_KM
 
@@ -192,14 +179,7 @@ class InitialNeutronStarPopulation:
         # angle [rad] in the range [0, np.pi] according to the PDF np.sin.
         psi_rand = np.random.uniform(0, 2 * np.pi, cfg["NS_number"])
         theta_grid = np.linspace(0.0, np.pi, cfg["resolution"])
-
-        # To avoid performing the inverse transverse sampling step involved here,
-        # at the same points in all calls to the function cc.random_from_pdf and
-        # introducing unwanted correlations between different parameters, we modify
-        # the seed by adding a constant.
-        theta_rand = cc.random_from_pdf(
-            theta_grid, np.sin, cfg["NS_number"], cfg["seed"] + 4
-        )
+        theta_rand = cc.random_from_pdf(theta_grid, np.sin, cfg["NS_number"])
 
         # Project the velocity on a Cartesian reference frame co-moving with each
         # star, where the local x-axis points always in the r-direction of our

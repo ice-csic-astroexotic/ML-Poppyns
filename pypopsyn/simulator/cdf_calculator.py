@@ -57,7 +57,7 @@ def cdf_calculator(x: np.ndarray, pdf: Callable[[float], float]) -> np.ndarray:
 
 
 def random_from_cdf(
-    x: np.ndarray, cdf: np.ndarray, num_draw: int, seed: int = None
+    x: np.ndarray, cdf: np.ndarray, num_draw: int
 ) -> np.ndarray:
     """
     Drawing random values from a given normalized cumulative distribution function.
@@ -66,14 +66,10 @@ def random_from_cdf(
         x (np.ndarray): discrete set of values at which the cdf is evaluated.
         cdf (np.ndarray): normalized cumulative probability density function.
         num_draw (int): number of values to draw.
-        seed (int): seed for random number generation,
-        set to None unless otherwise specified.
 
     Returns:
         np.ndarray: random values drawn from the cdf.
     """
-
-    np.random.seed(seed)
 
     cdf_rand = np.random.uniform(0, 1, num_draw)
     x_rand = np.interp(cdf_rand, cdf, x)
@@ -82,10 +78,7 @@ def random_from_cdf(
 
 
 def random_from_pdf(
-    x: np.ndarray,
-    pdf: Callable[[float], float],
-    num_draw: int,
-    seed: int = None,
+    x: np.ndarray, pdf: Callable[[float], float], num_draw: int,
 ) -> np.ndarray:
     """
     Drawing random values from a given probability density function.
@@ -94,14 +87,12 @@ def random_from_pdf(
         x (np.ndarray): discrete set of values at which the pdf is evaluated.
         pdf (Callable): probability density function.
         num_draw (int): number of values to draw.
-        seed (int): seed for random number generation in the random_from_cdf function,
-        set to None unless otherwise specified.
 
     Returns:
         np.ndarray: random values drawn from the pdf.
     """
 
     cdf = cdf_calculator(x, pdf)
-    x_rand = random_from_cdf(x, cdf, num_draw, seed)
+    x_rand = random_from_cdf(x, cdf, num_draw)
 
     return x_rand

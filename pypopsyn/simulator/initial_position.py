@@ -98,7 +98,7 @@ def pdf_radial_stellar_density(r: float) -> float:
 
 
 def pdf_initial_coordinates(
-    r: np.ndarray, NS_number: int, arm_index: np.ndarray, seed: int = None
+    r: np.ndarray, NS_number: int, arm_index: np.ndarray
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Probability density function for stellar galactocentric position incorporating
@@ -110,9 +110,6 @@ def pdf_initial_coordinates(
         NS_number (int): total number of neutron stars created in the simulation.
         arm_index (np.ndarray): indices for the respective spiral arms,
         0 < arm_index < 5.
-        seed (int): seed for random number generation in the
-        calculate_noise_for_coordinates function;
-        set to None unless otherwise specified.
 
     Returns:
         (np.ndarray, np.ndarray): galactocentric coordinates phi [rad], r [kpc] with
@@ -126,7 +123,7 @@ def pdf_initial_coordinates(
     check_arm_index_vect(arm_index)
 
     phi = calculate_phi(r, arm_index)
-    phi_corr, r_corr = calculate_noise_for_coordinates(r, NS_number, seed)
+    phi_corr, r_corr = calculate_noise_for_coordinates(r, NS_number)
 
     phi = phi + phi_corr
     r = r + r_corr
@@ -223,7 +220,7 @@ def spiral_arm_time_evol(phi0: np.ndarray, t: np.ndarray) -> np.ndarray:
 
 
 def calculate_noise_for_coordinates(
-    r: np.ndarray, NS_number: int, seed: int = None
+    r: np.ndarray, NS_number: int
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Calculating noise for the angular and radial coordinate to smear out the
@@ -233,15 +230,11 @@ def calculate_noise_for_coordinates(
     Args:
         r (np.ndarray): array of distances from the galactic center in [kpc].
         NS_number (int): total number of neutron stars created in the simulation.
-        seed (int): seed for random number generation,
-        set to None unless otherwise specified.
 
     Returns:
         (np.ndarray, np.ndarray): array of noise for the galactocentric coordinates
         phi [rad], r [kpc].
     """
-
-    np.random.seed(seed)
 
     phi_corr = np.random.uniform(0, 2 * np.pi, NS_number) * np.exp(-0.35 * r)
     r_corr = np.random.normal(0, 0.07 * r, NS_number)
@@ -271,9 +264,7 @@ def pdf_initial_height(z: float) -> float:
     return pdf_z
 
 
-def random_scatter_about_plane(
-    z: np.ndarray, NS_number: int, seed: int = None
-) -> np.ndarray:
+def random_scatter_about_plane(z: np.ndarray, NS_number: int) -> np.ndarray:
     """
     Randomly distribute positive height values within z about the galactic plane
     located at z=0.
@@ -281,14 +272,10 @@ def random_scatter_about_plane(
     Args:
         z (np.ndarray): array of heights in [kpc] with positive values.
         NS_number (int): total number of neutron stars created in the simulation.
-        seed (int): seed for random number generation,
-        set to None unless otherwise specified.
 
     Returns:
         (np.ndarray): array of heights in [kpc] randomly scattered above or below 0.
     """
-
-    np.random.seed(seed)
 
     # Check that z has the length of the number of neutron stars simulated.
     if len(z) != NS_number:

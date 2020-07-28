@@ -36,6 +36,8 @@ TOL = 1e-5
 # Reduce the number of objects produced so that the computation time
 # remains tractable for the tests.
 cfg["NS_number"] = 5
+# Set a predefined seed for the tests.
+cfg["seed"] = 42
 
 
 @pytest.fixture()
