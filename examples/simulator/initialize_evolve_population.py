@@ -288,6 +288,9 @@ def generate_population(cfg) -> None:
         )
     )
 
+    # Cleanup. Reset seed to empty value.
+    configuration.cfg["seed"] = None
+
 
 if __name__ == "__main__":
 
