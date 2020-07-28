@@ -114,14 +114,9 @@ def generate_population(cfg) -> None:
     df_initial = pd.DataFrame(
         {
             "age": age,
-            "r": r_initial,
-            "phi": phi_initial,
             "x": x_initial,
             "y": y_initial,
             "z": z_initial,
-            "v_r": v_r_initial,
-            "v_phi": v_phi_initial,
-            "v_z": v_z_initial,
             "vk_r": vk_r,
             "vk_phi": vk_phi,
             "vk_z": vk_z,
@@ -135,13 +130,8 @@ def generate_population(cfg) -> None:
             [
                 "[yr]",
                 "[kpc]",
-                "[rad]",
                 "[kpc]",
                 "[kpc]",
-                "[kpc]",
-                "[kpc/yr]",
-                "[kpc/yr]",
-                "[kpc/yr]",
                 "[kpc/yr]",
                 "[kpc/yr]",
                 "[kpc/yr]",
@@ -240,8 +230,6 @@ def generate_population(cfg) -> None:
     df_final = pd.DataFrame(
         {
             "age": age,
-            "r": r_final,
-            "phi": phi_final,
             "x": x_final,
             "y": y_final,
             "z": z_final,
@@ -262,8 +250,6 @@ def generate_population(cfg) -> None:
             df_final.columns,
             [
                 "[yr]",
-                "[kpc]",
-                "[rad]",
                 "[kpc]",
                 "[kpc]",
                 "[kpc]",
