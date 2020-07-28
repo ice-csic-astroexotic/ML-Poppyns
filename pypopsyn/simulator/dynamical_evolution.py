@@ -13,7 +13,24 @@ Authors:
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
 
-    Copyright (c) MAGNESIA (ICE-CSIC)
+MIT License
+
+Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 
 import numpy as np
@@ -25,7 +42,9 @@ import pypopsyn.simulator.galactic_model as gm
 
 
 @jit
-def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
+def dynamical_eq_system(
+    initial_cond: np.ndarray, t: np.ndarray, galactic_model: gm.GalaxyModelBase
+) -> np.ndarray:
     """
     System of dynamical equations to solve to determine the orbits of the neutron
     stars in the galactic potential. The differential equation are written in
@@ -34,9 +53,12 @@ def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
     Args:
         initial_cond (np.ndarray): array of 6 components defining the initial
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
-        with the following units (kpc, rad, kpc, kpc/yr, rad/yr, kpc/yr).
+        with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
 
-        t (np.ndarray): time array in yr along which to perform the integration.
+        t (np.ndarray): time array in [yr] along which to perform the integration.
+
+        galactic_model (gm.GalaxyModelBase): a galactic model to calculate
+        the needed potential.
 
     Returns:
          (np.ndarray): array of 6 values of the first order and second order
@@ -47,7 +69,7 @@ def dynamical_eq_system(initial_cond: np.ndarray, t: np.ndarray) -> np.ndarray:
     r = initial_cond[0]
     z = initial_cond[2]
 
-    gradient_mw_pot = gm.cylind_coord_gradient_mw_potential(r, z)
+    gradient_mw_pot = galactic_model.cylind_coord_gradient_mw_potential(r, z)
 
     # First derivatives.
     dr_dt = initial_cond[3]
@@ -81,9 +103,9 @@ def dynamical_evolution(
 
         initial_cond (np.ndarray): array of 6 components defining the initial
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
-        with the following units (kpc, rad, kpc, kpc/yr, rad/yr, kpc/yr).
+        with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
 
-        t_age (np.ndarray): array of neutron star ages in yr.
+        t_age (np.ndarray): array of neutron star ages in [yr].
 
         time_step (float): time step used to integrate the equations of motion.
 
@@ -113,7 +135,12 @@ def dynamical_evolution(
         # Save the odeint output which is a two-dimensional array of
         # shape (len(time_grid), 6).
         evol_output = np.array(
-            odeint(dynamical_eq_system, initial_cond[i], time_grid)
+            odeint(
+                dynamical_eq_system,
+                initial_cond[i],
+                time_grid,
+                args=(gm.galactic_model,),
+            )
         )
 
         # Save the final position and velocity.

@@ -1,0 +1,10 @@
+{
+  "kick_model": {
+    "km_maxwell": [
+        "sigma_k"
+    ],
+    "km_exp": [
+        "vk_c"
+    ]
+  }
+}
