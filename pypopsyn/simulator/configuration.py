@@ -52,7 +52,7 @@ cfg["seed"] = None
 cfg["resolution"] = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 500000
+cfg["NS_number"] = 100000
 
 # Number of spiral arms in the galaxy.
 cfg["arm_number"] = 4
@@ -61,7 +61,7 @@ cfg["arm_number"] = 4
 cfg["t_age_min"] = 1.0
 
 # Maximum age for the neutron stars in [yr].
-cfg["t_age_max"] = 1e8
+cfg["t_age_max"] = 1e7
 
 # Galactic potential model used in the simulation. Choose between gmM19 or gmFK06.
 cfg["galactic_model"] = "gmM19"
@@ -100,6 +100,14 @@ def update_configuration(new_configuration) -> None:
     """
 
     for key, value in new_configuration.items():
+
+        if key not in cfg.keys():
+
+            raise ValueError(
+                "Trying to update non-existing configuration key {}".format(
+                    key
+                )
+            )
 
         print(
             "Updating key {} in configuration with value {}...".format(
