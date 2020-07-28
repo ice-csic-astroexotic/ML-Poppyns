@@ -11,6 +11,9 @@ Welcome to pypopsyn's documentation!
    :caption: Getting Started:
 
    _site/getting_started/setup
+   _site/getting_started/logging
+   _site/getting_started/testing
+   _site/getting_started/hydra
    _site/getting_started/glossary
 
 .. toctree::
