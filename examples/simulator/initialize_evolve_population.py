@@ -49,7 +49,7 @@ log = logging.getLogger(__name__)
 
 
 @hydra.main()
-@timefunc.timefunc
+@timefunc.time_function
 def generate_population(cfg) -> None:
     """
     Generating a neutron star population starting from some initial
@@ -72,7 +72,7 @@ def generate_population(cfg) -> None:
 
     ############################################################################
 
-    with timewith.timewith("[InitialPopulation]") as timer:
+    with timewith.TimeWith("[InitialPopulation]") as timer:
 
         # Generate an initial neutron star population.
         NS_population_initial = ipop.InitialNeutronStarPopulation()
@@ -129,7 +129,7 @@ def generate_population(cfg) -> None:
 
     ############################################################################
 
-    with timewith.timewith("[InitialPopulationExport]") as timer:
+    with timewith.TimeWith("[InitialPopulationExport]") as timer:
 
         # Adding the coordinates to a data frame for export.
         log.info("Creating data frame for exporting...")
@@ -182,7 +182,7 @@ def generate_population(cfg) -> None:
 
     ############################################################################
 
-    with timewith.timewith("[PopulationEvolution]") as timer:
+    with timewith.TimeWith("[PopulationEvolution]") as timer:
 
         # Evolve the initial population.
         log.info("Evolving the initial population in time...")
@@ -269,7 +269,7 @@ def generate_population(cfg) -> None:
 
     ############################################################################
 
-    with timewith.timewith("[EvolvedPopulationExport]") as timer:
+    with timewith.TimeWith("[EvolvedPopulationExport]") as timer:
 
         # Adding the evolution output to a data frame for export.
         log.info("Creating data frame for exporting...")
