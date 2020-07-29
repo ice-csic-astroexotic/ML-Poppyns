@@ -64,6 +64,7 @@ def generate_population(cfg) -> None:
 
     # Update simulator configuration with the provided parameters.
     configuration.update_configuration(cfg)
+
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
 
@@ -109,42 +110,47 @@ def generate_population(cfg) -> None:
         v_initial, r_initial, z_initial
     )
 
-    # Adding the coordinates to a data frame for export.
+    # Adding the parameters to a data frame for export.
     log.info("Creating data frame for exporting...")
+
+    # Generating two header lines and merging them using MultiIndex.
+    parameters_initial = [
+        "age",
+        "x",
+        "y",
+        "z",
+        "vk_r",
+        "vk_phi",
+        "vk_z",
+        "v_orb",
+    ]
+    units_initial = [
+        "[yr]",
+        "[kpc]",
+        "[kpc]",
+        "[kpc]",
+        "[kpc/yr]",
+        "[kpc/yr]",
+        "[kpc/yr]",
+        "[kpc/yr]",
+    ]
+    header_initial = pd.MultiIndex.from_arrays(
+        [parameters_initial, units_initial]
+    )
+
     df_initial = pd.DataFrame(
-        {
-            "age": age,
-            "x": x_initial,
-            "y": y_initial,
-            "z": z_initial,
-            "vk_r": vk_r,
-            "vk_phi": vk_phi,
-            "vk_z": vk_z,
-            "v_orb": v_orb,
-        }
+        data=np.array(
+            [age, x_initial, y_initial, z_initial, vk_r, vk_phi, vk_z, v_orb]
+        ).T,
+        columns=header_initial,
     )
 
-    df_initial.columns = pd.MultiIndex.from_tuples(
-        zip(
-            df_initial.columns,
-            [
-                "[yr]",
-                "[kpc]",
-                "[kpc]",
-                "[kpc]",
-                "[kpc/yr]",
-                "[kpc/yr]",
-                "[kpc/yr]",
-                "[kpc/yr]",
-            ],
-        )
-    )
-
-    df_initial.to_csv("initial_population.txt", index=False, header=True)
+    # Save the data frame as compressed binary file.
+    df_initial.to_pickle("initial_population.pkl.gz", compression="gzip")
 
     log.info(
         "Output of the initial population generated in {}/{}".format(
-            os.getcwd(), "initial_population.txt"
+            os.getcwd(), "initial_population.pkl.gz"
         )
     )
 
@@ -187,12 +193,12 @@ def generate_population(cfg) -> None:
     v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
 
     # Convert velocity component from galactocentric cylindrical coordinates to
-    # galactocentric cartesian coordinates
+    # galactocentric cartesian coordinates.
     v_x_final, v_y_final, v_z_final = coord.speed_cylindrical_to_cartesian(
         v_r_final, v_phi_final, v_z_final, phi_final
     )
 
-    # Convert galactocentric coordinates and velocities into ICRS reference frame
+    # Convert galactocentric coordinates and velocities into ICRS reference frame.
     (
         ra_final,
         dec_final,
@@ -213,7 +219,7 @@ def generate_population(cfg) -> None:
     )
 
     # Compute the percentage variation in total energy during the simulation with
-    # respect to the initial total energy
+    # respect to the initial total energy.
     delta_energy_percentage = (
         (total_energy_final - total_energy_initial)
         / total_energy_initial
@@ -227,50 +233,67 @@ def generate_population(cfg) -> None:
 
     # Adding the evolution output to a data frame for export.
     log.info("Creating data frame for exporting...")
+
+    # Generating two header lines and merging them using MultiIndex.
+    parameters_final = [
+        "age",
+        "x",
+        "y",
+        "z",
+        "RA",
+        "DEC",
+        "d",
+        "v_r",
+        "v_phi",
+        "v_z",
+        "v_RA",
+        "v_DEC",
+        "v_ls",
+    ]
+    units_final = [
+        "[yr]",
+        "[kpc]",
+        "[kpc]",
+        "[kpc]",
+        "[deg]",
+        "[deg]",
+        "[kpc]",
+        "[km/s]",
+        "[km/s]",
+        "[km/s]",
+        "[mas/yr]",
+        "[mas/yr]",
+        "[km/s]",
+    ]
+    header_final = pd.MultiIndex.from_arrays([parameters_final, units_final])
+
     df_final = pd.DataFrame(
-        {
-            "age": age,
-            "x": x_final,
-            "y": y_final,
-            "z": z_final,
-            "RA": ra_final,
-            "DEC": dec_final,
-            "d": sun_dist,
-            "v_r": v_r_final,
-            "v_phi": v_phi_final,
-            "v_z": v_z_final,
-            "v_RA": v_ra_final,
-            "v_DEC": v_dec_final,
-            "v_ls": v_ls,
-        }
-    )
-
-    df_final.columns = pd.MultiIndex.from_tuples(
-        zip(
-            df_final.columns,
+        data=np.array(
             [
-                "[yr]",
-                "[kpc]",
-                "[kpc]",
-                "[kpc]",
-                "[deg]",
-                "[deg]",
-                "[kpc]",
-                "[km/s]",
-                "[km/s]",
-                "[km/s]",
-                "[mas/yr]",
-                "[mas/yr]",
-                "[km/s]",
-            ],
-        )
+                age,
+                x_final,
+                y_final,
+                z_final,
+                ra_final,
+                dec_final,
+                sun_dist,
+                v_r_final,
+                v_phi_final,
+                v_z_final,
+                v_ra_final,
+                v_dec_final,
+                v_ls,
+            ]
+        ).T,
+        columns=header_final,
     )
 
-    df_final.to_csv("final_population.txt", index=False, header=True)
+    # Save the data frame as a compressed binary file.
+    df_final.to_pickle("final_population.pkl.gz", compression="gzip")
 
     log.info(
         "Output of the evolved population generated in {}/{}".format(
-            os.getcwd(), "final_population.txt"
+            os.getcwd(), "final_population.pkl.gz"
         )
     )
 
