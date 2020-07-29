@@ -28,6 +28,12 @@ SOFTWARE.
 
 cfg = {}
 
+# Enable function-specific cprofiles.
+cfg["enable_cprofiles"] = False
+
+# Output directory for cprofiles.
+cfg["cprofiles_dir"] = "cprofiles"
+
 # Initial population class parameters.
 
 # Sun's distance from the galactocentric axis in [kpc].
