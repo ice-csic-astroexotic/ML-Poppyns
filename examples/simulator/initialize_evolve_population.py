@@ -69,10 +69,9 @@ def generate_population(cfg) -> None:
 
     # Update simulator configuration with the provided parameters.
     configuration.update_configuration(cfg)
+
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
-
-    ############################################################################
 
     with timewith.TimeWith(
         "[InitialPopulation]",
@@ -86,7 +85,6 @@ def generate_population(cfg) -> None:
         # Generating ages.
         log.info("Randomizing population age...")
         age = NS_population_initial.age()
-        timer.checkpoint("[InitialAges]")
 
         # Generating initial positions.
         log.info("Generating initial positions...")
@@ -97,103 +95,96 @@ def generate_population(cfg) -> None:
             y_initial,
             z_initial,
         ) = NS_population_initial.position(t_age=age)
-        timer.checkpoint("[InitialPositions]")
 
         # Generating initial velocities by summing the kick
         # velocities at birth and the orbital velocities.
         log.info("Generating initial kick velocities...")
         (vk_r, vk_phi, vk_z,) = NS_population_initial.kick_velocity()
-        timer.checkpoint("[InitialKickVelocities]")
 
         log.info("Computing orbital velocities...")
         v_orb = NS_population_initial.orbital_velocity(r_initial, z_initial)
-        timer.checkpoint("[InitialOrbitalVelocity]")
 
-        # Compute the magnitude of the initial velocity vector for each star.
         log.info("Computing initial total velocities...")
         v_r_initial = vk_r
         v_phi_initial = vk_phi + v_orb
         omega_initial = v_phi_initial / r_initial
         v_z_initial = vk_z
 
+        # Compute the magnitude of the initial velocity vector for each star.
         v_initial = (
             np.sqrt(v_r_initial ** 2 + v_phi_initial ** 2 + v_z_initial ** 2)
             * const.KPC_TO_KM
             / const.YR_TO_S
         )
 
-        timer.checkpoint("[InitialVelocityVector]")
+        timer.checkpoint("[Initial]")
 
         # Compute the initial total initial energy of the system.
         total_energy_initial = gm.galactic_model.total_energy(
             v_initial, r_initial, z_initial
         )
 
-        timer.checkpoint("[InitiaTotalEnergy]")
+        timer.checkpoint("[Energy]")
 
-        log.info("Initial population synthesized...")
-
-    ############################################################################
-
-    with timewith.TimeWith(
-        "[InitialPopulationExport]",
-        configuration.cfg["profile_log"],
-        configuration.cfg["show_profiling"],
-    ) as timer:
-
-        # Adding the coordinates to a data frame for export.
+        # Adding the parameters to a data frame for export.
         log.info("Creating data frame for exporting...")
+
+        # Generating two header lines and merging them using MultiIndex.
+        parameters_initial = [
+            "age",
+            "x",
+            "y",
+            "z",
+            "vk_r",
+            "vk_phi",
+            "vk_z",
+            "v_orb",
+        ]
+        units_initial = [
+            "[yr]",
+            "[kpc]",
+            "[kpc]",
+            "[kpc]",
+            "[kpc/yr]",
+            "[kpc/yr]",
+            "[kpc/yr]",
+            "[kpc/yr]",
+        ]
+        header_initial = pd.MultiIndex.from_arrays(
+            [parameters_initial, units_initial]
+        )
+
         df_initial = pd.DataFrame(
-            {
-                "age": age,
-                "r": r_initial,
-                "phi": phi_initial,
-                "x": x_initial,
-                "y": y_initial,
-                "z": z_initial,
-                "v_r": v_r_initial,
-                "v_phi": v_phi_initial,
-                "v_z": v_z_initial,
-                "vk_r": vk_r,
-                "vk_phi": vk_phi,
-                "vk_z": vk_z,
-                "v_orb": v_orb,
-            }
-        )
-
-        df_initial.columns = pd.MultiIndex.from_tuples(
-            zip(
-                df_initial.columns,
+            data=np.array(
                 [
-                    "[yr]",
-                    "[kpc]",
-                    "[rad]",
-                    "[kpc]",
-                    "[kpc]",
-                    "[kpc]",
-                    "[kpc/yr]",
-                    "[kpc/yr]",
-                    "[kpc/yr]",
-                    "[kpc/yr]",
-                    "[kpc/yr]",
-                    "[kpc/yr]",
-                    "[kpc/yr]",
-                ],
-            )
+                    age,
+                    x_initial,
+                    y_initial,
+                    z_initial,
+                    vk_r,
+                    vk_phi,
+                    vk_z,
+                    v_orb,
+                ]
+            ).T,
+            columns=header_initial,
         )
 
-        df_initial.to_csv("initial_population.txt", index=False, header=True)
+        # Save the data frame as compressed binary file.
+        df_initial.to_pickle("initial_population.pkl.gz", compression="gzip")
+
+        timer.checkpoint("[Export]")
 
         log.info(
             "Output of the initial population generated in {}/{}".format(
-                os.getcwd(), "initial_population.txt"
+                os.getcwd(), "initial_population.pkl.gz"
             )
         )
 
     ############################################################################
 
     with timewith.TimeWith(
-        "[PopulationEvolution]",
+        "[EvolvePopulation]",
         configuration.cfg["profile_log"],
         configuration.cfg["show_profiling"],
     ) as timer:
@@ -220,8 +211,6 @@ def generate_population(cfg) -> None:
             NS_number, initial_cond, age, time_step=1.0e4
         )
 
-        timer.checkpoint("[DynamicalEvolution]")
-
         r_final = final_population[:, 0]
         phi_final = final_population[:, 1]
         x_final = final_population[:, 2]
@@ -242,8 +231,6 @@ def generate_population(cfg) -> None:
             v_r_final, v_phi_final, v_z_final, phi_final
         )
 
-        timer.checkpoint("[SpeedCylindricalToCartesian]")
-
         # Convert galactocentric coordinates and velocities into ICRS frame.
         (
             ra_final,
@@ -256,7 +243,7 @@ def generate_population(cfg) -> None:
             x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
         )
 
-        timer.checkpoint("[GalactocentricToICRS]")
+        timer.checkpoint("[Evolution]")
 
         # Compute the magnitude of the initial velocity vector for each star.
         v_final = np.sqrt(v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2)
@@ -266,81 +253,91 @@ def generate_population(cfg) -> None:
             v_final, r_final, z_final
         )
 
-        # Compute the percentage variation in total energy during the simulation with
-        # respect to the initial total energy
+        # Compute the percentage variation in total energy during the simulation
+        # with respect to the initial total energy.
         delta_energy_percentage = (
             (total_energy_final - total_energy_initial)
             / total_energy_initial
             * 100.0
         )
+
         log.info(
             "Percentage variation of total energy of the system: {} %".format(
                 delta_energy_percentage
             )
         )
 
-        timer.checkpoint("[DeltaEnergy]")
-
-    ############################################################################
-
-    with timewith.TimeWith(
-        "[EvolvedPopulationExport]",
-        configuration.cfg["profile_log"],
-        configuration.cfg["show_profiling"],
-    ) as timer:
+        timer.checkpoint("[Energy]")
 
         # Adding the evolution output to a data frame for export.
         log.info("Creating data frame for exporting...")
+
+        # Generating two header lines and merging them using MultiIndex.
+        parameters_final = [
+            "age",
+            "x",
+            "y",
+            "z",
+            "RA",
+            "DEC",
+            "d",
+            "v_r",
+            "v_phi",
+            "v_z",
+            "v_RA",
+            "v_DEC",
+            "v_ls",
+        ]
+        units_final = [
+            "[yr]",
+            "[kpc]",
+            "[kpc]",
+            "[kpc]",
+            "[deg]",
+            "[deg]",
+            "[kpc]",
+            "[km/s]",
+            "[km/s]",
+            "[km/s]",
+            "[mas/yr]",
+            "[mas/yr]",
+            "[km/s]",
+        ]
+        header_final = pd.MultiIndex.from_arrays(
+            [parameters_final, units_final]
+        )
+
         df_final = pd.DataFrame(
-            {
-                "age": age,
-                "r": r_final,
-                "phi": phi_final,
-                "x": x_final,
-                "y": y_final,
-                "z": z_final,
-                "RA": ra_final,
-                "DEC": dec_final,
-                "d": sun_dist,
-                "v_r": v_r_final,
-                "v_phi": v_phi_final,
-                "v_z": v_z_final,
-                "v_RA": v_ra_final,
-                "v_DEC": v_dec_final,
-                "v_ls": v_ls,
-            }
-        )
-
-        df_final.columns = pd.MultiIndex.from_tuples(
-            zip(
-                df_final.columns,
+            data=np.array(
                 [
-                    "[yr]",
-                    "[kpc]",
-                    "[rad]",
-                    "[kpc]",
-                    "[kpc]",
-                    "[kpc]",
-                    "[deg]",
-                    "[deg]",
-                    "[kpc]",
-                    "[km/s]",
-                    "[km/s]",
-                    "[km/s]",
-                    "[mas/yr]",
-                    "[mas/yr]",
-                    "[km/s]",
-                ],
-            )
+                    age,
+                    x_final,
+                    y_final,
+                    z_final,
+                    ra_final,
+                    dec_final,
+                    sun_dist,
+                    v_r_final,
+                    v_phi_final,
+                    v_z_final,
+                    v_ra_final,
+                    v_dec_final,
+                    v_ls,
+                ]
+            ).T,
+            columns=header_final,
         )
 
-        df_final.to_csv("final_population.txt", index=False, header=True)
+        # Save the data frame as a compressed binary file.
+        df_final.to_pickle("final_population.pkl.gz", compression="gzip")
 
         log.info(
             "Output of the evolved population generated in {}/{}".format(
-                os.getcwd(), "final_population.txt"
+                os.getcwd(), "final_population.pkl.gz"
             )
         )
+
+        timer.checkpoint("[Export]")
 
     # Cleanup. Reset seed to empty value.
     configuration.cfg["seed"] = None

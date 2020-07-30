@@ -82,11 +82,15 @@ def main(args):
             continue
 
         elif type(value) is str:
-            # If the value of this parameter is a string, this is a selection
-            # parameter and we must check: (a) whether the selection is valid
+            # If the value of this parameter is a string, this can be either
+            # the directory path where to save the multirun output or a selection
+            # parameter. In this last case we must check: (a) whether the selection is valid
             # (b) capture the list of required parameters and (c) gather the
             # forbidden ones (probably they belong other selection).
-            if value in check_arg[arg]:
+            if arg == "output_dir":
+                cli_args.append("hydra.sweep.dir")
+                cli_str.append(value)
+            elif value in check_arg[arg]:
                 cli_args.append(arg)
                 cli_str.append(value)
                 required_parameters.extend(check_arg[arg][value])
@@ -162,6 +166,14 @@ def main(args):
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser(description="PyPopSyn parameters")
+
+    args.add_argument(
+        "--output_dir",
+        nargs="?",
+        type=str,
+        default=None,
+        help="path to the directory where the multi-run output is saved.",
+    )
 
     args.add_argument(
         "--kick_model",
