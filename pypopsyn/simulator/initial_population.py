@@ -33,6 +33,7 @@ from typing import Tuple
 
 import numpy as np
 
+import pypopsyn.benchmark.pyinstrument as benchmark
 import pypopsyn.simulator.cdf_calculator as cc
 import pypopsyn.simulator.constants as const
 import pypopsyn.simulator.coordinate_conversions as coco
@@ -81,6 +82,11 @@ class InitialNeutronStarPopulation:
         )
         return t_age
 
+    @benchmark.profile(
+        enabled=cfg["enable_profiles"],
+        show=cfg["show_profiles"],
+        output_dir=cfg["profiles_dir"],
+    )
     def position(
         self, t_age: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
