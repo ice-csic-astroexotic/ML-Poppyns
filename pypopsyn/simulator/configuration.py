@@ -28,9 +28,10 @@ SOFTWARE.
 
 cfg = {}
 
-# Function-specific cProfiling configuration.
-cfg["enable_cprofiles"] = True
-cfg["cprofiles_dir"] = "cprofiles"
+# Function-specific profiling configuration.
+cfg["enable_profiles"] = False
+cfg["show_profiles"] = False
+cfg["profiles_dir"] = "profiles"
 
 # General profiling configuration.
 cfg["profile_log"] = "profile.txt"
