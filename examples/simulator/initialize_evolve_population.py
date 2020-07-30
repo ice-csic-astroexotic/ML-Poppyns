@@ -49,7 +49,9 @@ log = logging.getLogger(__name__)
 
 
 @hydra.main()
-@timefunc.time_function
+@timefunc.time_function(
+    configuration.cfg["profile_log"], configuration.cfg["show_profiling"]
+)
 def generate_population(cfg) -> None:
     """
     Generating a neutron star population starting from some initial
@@ -72,7 +74,11 @@ def generate_population(cfg) -> None:
 
     ############################################################################
 
-    with timewith.TimeWith("[InitialPopulation]") as timer:
+    with timewith.TimeWith(
+        "[InitialPopulation]",
+        configuration.cfg["profile_log"],
+        configuration.cfg["show_profiling"],
+    ) as timer:
 
         # Generate an initial neutron star population.
         NS_population_initial = ipop.InitialNeutronStarPopulation()
@@ -129,7 +135,11 @@ def generate_population(cfg) -> None:
 
     ############################################################################
 
-    with timewith.TimeWith("[InitialPopulationExport]") as timer:
+    with timewith.TimeWith(
+        "[InitialPopulationExport]",
+        configuration.cfg["profile_log"],
+        configuration.cfg["show_profiling"],
+    ) as timer:
 
         # Adding the coordinates to a data frame for export.
         log.info("Creating data frame for exporting...")
@@ -182,7 +192,11 @@ def generate_population(cfg) -> None:
 
     ############################################################################
 
-    with timewith.TimeWith("[PopulationEvolution]") as timer:
+    with timewith.TimeWith(
+        "[PopulationEvolution]",
+        configuration.cfg["profile_log"],
+        configuration.cfg["show_profiling"],
+    ) as timer:
 
         # Evolve the initial population.
         log.info("Evolving the initial population in time...")
@@ -269,7 +283,11 @@ def generate_population(cfg) -> None:
 
     ############################################################################
 
-    with timewith.TimeWith("[EvolvedPopulationExport]") as timer:
+    with timewith.TimeWith(
+        "[EvolvedPopulationExport]",
+        configuration.cfg["profile_log"],
+        configuration.cfg["show_profiling"],
+    ) as timer:
 
         # Adding the evolution output to a data frame for export.
         log.info("Creating data frame for exporting...")

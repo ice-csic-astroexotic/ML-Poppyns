@@ -38,7 +38,9 @@ class TimeWith:
     Class for timing contexts or scopes with checkpointing.
     """
 
-    def __init__(self, name: str = "", filename: str = None) -> None:
+    def __init__(
+        self, name: str = "", filename: str = None, show: bool = True
+    ) -> None:
         """
         Initialization of the timing context by holding a name for it and also
         capturing the current time as the starting time for the scope.
@@ -48,6 +50,8 @@ class TimeWith:
             name (str): A name for the context to be used when printing info.
 
             filename (str): Name of the file to dump profiling information.
+
+            show (bool): Whether or not to print info to terminal.
 
         Returns:
 
@@ -59,6 +63,7 @@ class TimeWith:
         self.start = time.time()
         self.last = self.start
         self.filename = filename
+        self.show = show
 
     def elapsed(self) -> None:
         """
@@ -85,9 +90,11 @@ class TimeWith:
 
     def checkpoint(self, name: str = "") -> None:
         """
-        Checkpoints at the current time within the context printing out the name
-        given to the checkpoint and showing the amount of time elapsed since the
-        last checkpoint (or the start of the scope if no checkpoint was done).
+        Checkpoints at the current time within the context optionally printing
+        out the name given to the checkpoint and showing the amount of time
+        elapsed since the last checkpoint (or the start of the scope if no
+        checkpoint was done). Such info is also dumped to a file if a filename
+        is specified.
 
         Args:
 
@@ -100,15 +107,18 @@ class TimeWith:
         """
 
         cumulative, total = self.elapsed()
+        output = "<prof>{}{} took {:.4f} [s] (cumulative {:.4f} [s])".format(
+            self.name, name, total, cumulative
+        ).strip()
 
-        print(
-            termcolor.colored(
-                "<prof>{}{} took {:.4f} [s] (cumulative {:.4f} [s])".format(
-                    self.name, name, total, cumulative
-                ).strip(),
-                "green",
-            )
-        )
+        if self.show:
+
+            print(termcolor.colored(output, "green"))
+
+        if self.filename is not None:
+
+            with open(self.filename, "a") as f:
+                f.write(output + "\n")
 
     def __enter__(self):
         """
@@ -124,7 +134,8 @@ class TimeWith:
     def __exit__(self, type, value, traceback):
         """
         Boilerplate exit method when the context is finished. In this case, it
-        is overridden to print the total time elapsed since its beginning.
+        is overridden to optionally print the total time elapsed since its
+        beginning. Such info is also dumped to a file if a filename is specified.
 
         Note: the signature of __exit__ is painful, forgive me for not typing
         all the arguments here.
@@ -135,12 +146,15 @@ class TimeWith:
         """
 
         cumulative, _ = self.elapsed()
+        output = "<prof>{} {} took {:.4f} [s]".format(
+            self.name, "finished", cumulative
+        ).strip()
 
-        print(
-            termcolor.colored(
-                "<prof>{} {} took {:.4f} [s]".format(
-                    self.name, "finished", cumulative
-                ).strip(),
-                "green",
-            )
-        )
+        if self.show:
+
+            print(termcolor.colored(output, "green"))
+
+        if self.filename is not None:
+
+            with open(self.filename, "a") as f:
+                f.write(output + "\n")

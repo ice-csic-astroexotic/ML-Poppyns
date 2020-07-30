@@ -31,38 +31,52 @@ SOFTWARE.
 import time
 import typing
 
-from termcolor import colored
+import termcolor
 
 
-def time_function(f: typing.Callable):
+def time_function(filename: str = None, show: bool = True):
     """
     Function to use as a decorator to time another function for each call
     seamlessly. It sets up a timer, calls the specified function with the
     provided arguments and prints the elapsed time, returning the result
     of the provided function call.
 
+    The profiling result is optionally printed to screen and dumped to a file
+    if a filename is specified.
+
     Args:
 
-        f (typing.Callable): function to be called and timed.
+        filename (str): Name of the file to dump profiling information.
+
+        show (bool): Whether or not to print info to terminal.
 
     Returns:
 
         The result of calling the specified function.
     """
 
-    def f_timer(*args, **kwargs):
+    def inner(func: typing.Callable):
+        def f_timer(*args, **kwargs):
 
-        start = time.time()
-        result = f(*args, **kwargs)
-        end = time.time()
+            start = time.time()
+            result = func(*args, **kwargs)
+            end = time.time()
 
-        print(
-            colored(
-                "<prof>{} took {:.4f} [s]".format(f.__name__, end - start),
-                "green",
+            output = "<prof>{} took {:.4f} [s]".format(
+                func.__name__, end - start
             )
-        )
 
-        return result
+            if show:
 
-    return f_timer
+                print(termcolor.colored(output, "green"))
+
+            if filename is not None:
+
+                with open(filename, "a") as f:
+                    f.write(output + "\n")
+
+            return result
+
+        return f_timer
+
+    return inner

@@ -28,11 +28,13 @@ SOFTWARE.
 
 cfg = {}
 
-# Enable function-specific cprofiles.
-cfg["enable_cprofiles"] = False
-
-# Output directory for cprofiles.
+# Function-specific cProfiling configuration.
+cfg["enable_cprofiles"] = True
 cfg["cprofiles_dir"] = "cprofiles"
+
+# General profiling configuration.
+cfg["profile_log"] = "profile.txt"
+cfg["show_profiling"] = False
 
 # Initial population class parameters.
 
