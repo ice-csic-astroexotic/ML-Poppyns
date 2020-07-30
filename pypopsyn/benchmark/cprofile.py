@@ -41,7 +41,7 @@ def do_cprofile(enabled: bool, output_dir: str):
     Function to be used as decorator to perform a deep cProfile of another
     routine. It will call such function with the provided arguments with
     profiling enabled, later it gathers all the results in a readable format
-    sorting them by total tiem, and then outputs the cProfile result to a text
+    sorting them by total time, and then outputs the cProfile result to a text
     file in the specified folder with the name of the function as file name.
 
     Args:

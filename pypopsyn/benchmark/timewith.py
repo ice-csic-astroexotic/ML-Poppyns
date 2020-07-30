@@ -35,10 +35,10 @@ import termcolor
 
 class TimeWith:
     """
-    Generating a random pulsar population in the Milky Way.
+    Class for timing contexts or scopes with checkpointing.
     """
 
-    def __init__(self, name: str = "") -> None:
+    def __init__(self, name: str = "", filename: str = None) -> None:
         """
         Initialization of the timing context by holding a name for it and also
         capturing the current time as the starting time for the scope.
@@ -46,6 +46,8 @@ class TimeWith:
         Args:
 
             name (str): A name for the context to be used when printing info.
+
+            filename (str): Name of the file to dump profiling information.
 
         Returns:
 
@@ -56,8 +58,8 @@ class TimeWith:
         self.name = name
         self.start = time.time()
         self.last = self.start
+        self.filename = filename
 
-    @property
     def elapsed(self) -> None:
         """
         Elapsed time getter since start of scope and between individual elapsed
@@ -97,12 +99,12 @@ class TimeWith:
 
         """
 
-        _, total = self.elapsed
+        cumulative, total = self.elapsed()
 
         print(
             termcolor.colored(
-                "<prof>{}{} took {:.4f} [s]".format(
-                    self.name, name, total
+                "<prof>{}{} took {:.4f} [s] (cumulative {:.4f} [s])".format(
+                    self.name, name, total, cumulative
                 ).strip(),
                 "green",
             )
@@ -121,8 +123,8 @@ class TimeWith:
 
     def __exit__(self, type, value, traceback):
         """
-        Boilerplate exit method when the context is finished overridden to print
-        the total time elapsed since its beginning.
+        Boilerplate exit method when the context is finished. In this case, it
+        is overridden to print the total time elapsed since its beginning.
 
         Note: the signature of __exit__ is painful, forgive me for not typing
         all the arguments here.
@@ -132,7 +134,7 @@ class TimeWith:
             Nothing.
         """
 
-        cumulative, _ = self.elapsed
+        cumulative, _ = self.elapsed()
 
         print(
             termcolor.colored(
