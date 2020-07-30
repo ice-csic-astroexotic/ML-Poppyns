@@ -123,7 +123,7 @@ When launching the training script you can also choose to normalize or standardi
   python examples/learning/train.py --configuration="examples/learning/config.json" --normalize 1
   python examples/learning/train.py --configuration="examples/learning/config.json" --standardize 1
 
-The :code:`examples/learning/train_launcher.py` script you to specify a list of experiment commands in a text file like:
+The :code:`examples/learning/train_launcher.py` script allows you to specify a list of experiment commands in a text file like:
 
 .. code-block:: bash
 
