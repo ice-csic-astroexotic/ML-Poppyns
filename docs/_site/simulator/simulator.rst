@@ -8,7 +8,7 @@ Basics
 Configuration
 **************
 
-.. automodule:: simulator.configuration
+.. automodule:: pypopsyn.simulator.configuration
   :members: configuration
 
 CDF Calculator
@@ -62,5 +62,4 @@ Initial NS Population
 #####################
 
 .. automodule:: simulator.initial_population
-  :members: initial_population
-.. autoclass:: simulator.initial_population.InitialNeutronStarPopulation
+  :members:
