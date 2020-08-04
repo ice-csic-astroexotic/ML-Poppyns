@@ -37,6 +37,7 @@ import pypopsyn.benchmark.pyinstrument as benchmark
 import pypopsyn.simulator.cdf_calculator as cc
 import pypopsyn.simulator.constants as const
 import pypopsyn.simulator.coordinate_conversions as coco
+import pypopsyn.simulator.initial_period as ipd
 import pypopsyn.simulator.initial_position as ip
 import pypopsyn.simulator.initial_velocity as iv
 from pypopsyn.simulator.configuration import cfg
@@ -119,8 +120,6 @@ class InitialNeutronStarPopulation:
 
         # Evaluate the angular phi coordinate for each neutron star and
         # add noise to both galactocentric coordinates.
-        phi_rand = np.zeros(cfg["NS_number"])
-        r_rand = np.zeros(cfg["NS_number"])
         phi_rand, r_rand = ip.pdf_initial_coordinates(
             r_pdf_rand, cfg["NS_number"], arm_index_rand
         )
@@ -221,3 +220,53 @@ class InitialNeutronStarPopulation:
         v_orb = -circular_velocity_vect(r, z)
 
         return v_orb
+
+    def period(self) -> np.ndarray:
+        """
+        Determining the initial rotation periods of each pulsar in the sample,
+        as drawn from a normal (Gaussian) distribution. The characteristic
+        parameters are defined in configuration.py. Note that we only allow
+        positive values and redraw them if they fall below zero.
+
+        Returns:
+            (np.ndarray): initial spin periods of the pulsar sample in [s].
+        """
+
+        P_rand = ipd.pdf_period(
+            cfg["P_initial_mean"], cfg["NS_number"], cfg["P_initial_sigma"]
+        )
+
+        return P_rand
+
+    def magnetic_field(self) -> np.ndarray:
+        """
+        We follow Faucher-Giguère & Kaspi (2006) and Gullon et al. (2014) and determine
+        the initial magnetic field strengths of each pulsar in the sample, by drawing values
+        from a log-normal distribution, i.e., the log_10 values are normally distributed.
+        The characteristic parameters are defined in configuration.py.
+
+        Returns:
+            (np.ndarray): initial magnetic field strengths of the pulsar sample in [G].
+        """
+
+        B_rand = np.random.lognormal(
+            cfg["B_initial_log10_mean"],
+            cfg["B_initial_log10_sigma"],
+            cfg["NS_number"],
+        )
+
+        return B_rand
+
+    def misalignment_angle(self) -> np.ndarray:
+        """
+        We follow Gullon et al. (2014) and choose the initial misalignment angle in the
+        range [0, np.pi / 2] according to the probability density distribution np.sin.
+
+        Returns:
+            (np.ndarray): initial misalignment angles of the pulsar sample in [rad].
+        """
+
+        chi_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
+        chi_rand = cc.random_from_pdf(chi_grid, np.sin, cfg["NS_number"])
+
+        return chi_rand
