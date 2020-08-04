@@ -30,6 +30,15 @@ import pypopsyn.simulator.constants as const
 
 cfg = {}
 
+# Function-specific profiling configuration.
+cfg["enable_profiles"] = False
+cfg["show_profiles"] = False
+cfg["profiles_dir"] = "profiles"
+
+# General profiling configuration.
+cfg["profile_log"] = "profile.txt"
+cfg["show_profiling"] = False
+
 # Initial population class parameters.
 
 # Sun's distance from the galactocentric axis in [kpc].
@@ -48,13 +57,13 @@ cfg["z_extent"] = 5.0
 cfg["vk_extent"] = 2500.0
 
 # Seed for the random number generation.
-cfg["seed"] = 42
+cfg["seed"] = None
 
 # Resolution for the spatial grid in the initial population.
 cfg["resolution"] = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 500000
+cfg["NS_number"] = 100000
 
 # Number of spiral arms in the galaxy.
 cfg["arm_number"] = 4
@@ -63,7 +72,7 @@ cfg["arm_number"] = 4
 cfg["t_age_min"] = 1.0
 
 # Maximum age for the neutron stars in [yr].
-cfg["t_age_max"] = 1e8
+cfg["t_age_max"] = 1e7
 
 # Galactic potential model used in the simulation. Choose between gmM19 or gmFK06.
 cfg["galactic_model"] = "gmM19"
@@ -110,6 +119,14 @@ def update_configuration(new_configuration) -> None:
     """
 
     for key, value in new_configuration.items():
+
+        if key not in cfg.keys():
+
+            raise ValueError(
+                "Trying to update non-existing configuration key {}".format(
+                    key
+                )
+            )
 
         print(
             "Updating key {} in configuration with value {}...".format(

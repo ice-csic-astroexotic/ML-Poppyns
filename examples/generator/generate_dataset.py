@@ -36,7 +36,6 @@ import numpy as np
 import pandas as pd
 import yaml
 
-import pypopsyn.generator.dataset_generator as dg
 import pypopsyn.generator.position_maps as pmaps
 import pypopsyn.generator.velocity_maps as vmaps
 
@@ -120,7 +119,7 @@ def generate_dataset(args) -> None:
 
         # Check if the simulated population file exists as a precondition.
         pop_path = pathlib.Path(
-            "{}/{}/final_population.txt".format(root_path, s)
+            "{}/{}/final_population.pkl.gz".format(root_path, s)
         )
 
         if not pop_path.exists():
@@ -128,7 +127,10 @@ def generate_dataset(args) -> None:
             sys.exit()
 
         # Create a data frame object of the population file.
-        df_pop = pd.read_csv(pop_path, skiprows=[1])
+        df_pop = pd.read_pickle(pop_path, compression="gzip")
+
+        # Remove the units header row from the data frame.
+        df_pop.columns = [x[0] for x in df_pop.columns]
 
         # Create position density maps projected on XY plane.
         pmaps.generate_position_map(
