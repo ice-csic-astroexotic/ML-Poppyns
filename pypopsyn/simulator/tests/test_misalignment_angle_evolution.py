@@ -1,11 +1,9 @@
 """
-Constants module.
+Test for the misalignment_angle_evolution module.
 
     Authors:
 
-        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-        Vanessa Graber (graber@ice.csic.es)
-        Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber @ ice.csic.es)
 
 MIT License
 
@@ -27,20 +25,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-# Unit conversions.
+import numpy as np
+import pytest
 
-KPC_TO_KM = 3.08567758e16  # Convert from [kpc] to [km].
-KPC_TO_CM = 3.08567758e21  # Convert from [kpc] to [cm].
-KM_TO_CM = 100000  # Convert from [km] to [cm].
-YR_TO_S = 3600 * 24 * 365  # Convert from [yr] to [s].
+import pypopsyn.simulator.misalignment_angle_evolution as mae
 
-# Physical constants.
+TOL = 1e-5
 
-M_SUN = 2.0e33  # Sun's mass in [g].
-c = 29979245800  # Speed of light [cm/s]
-e = 4.80320425e-10  # Electric charge in [statC] = [cm^(3/2)g^(1/2)/s]
-G = 6.67e-8  # Gravitational constant in [cm^3 g^-1 s^-2].
 
-G_KPC_YR = (
-    G / (KPC_TO_CM ** 3) * YR_TO_S ** 2
-)  # Gravitational constant in [kpc^3 g^-1 yr^-2].
+@pytest.fixture()
+def test_case_1():
+    data = {
+        "B": np.array([1e12, 1e13, 1e14, 1e15]),
+        "chi": np.array([0, np.pi / 3, 1.4 * np.pi, 2.6 * np.pi]),
+        "P": np.array([1.0e-3, 1.0e-1, 1, 5]),
+        "chi_deriv_expected": np.array(
+            [0.0, -2.073438e-12, -1.407275e-14, 5.629101e-14]
+        ),
+    }
+
+    return data
+
+
+def test_period_derivative(test_case_1):
+    """
+    Verifying that the misalignment angle derivatives for a pulsar sample are evaluated correctly.
+    """
+    chi_deriv_out = mae.misalignment_angle_derivative(
+        test_case_1["B"], test_case_1["chi"], test_case_1["P"]
+    )
+
+    assert np.isclose(
+        chi_deriv_out, test_case_1["chi_deriv_expected"], rtol=TOL, atol=1.0e9,
+    ).all()

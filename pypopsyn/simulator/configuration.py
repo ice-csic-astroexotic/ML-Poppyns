@@ -26,6 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import numpy as np
+
 import pypopsyn.simulator.constants as const
 
 cfg = {}
@@ -38,6 +40,7 @@ cfg["profiles_dir"] = "profiles"
 # General profiling configuration.
 cfg["profile_log"] = "profile.txt"
 cfg["show_profiling"] = False
+
 
 # Initial population class parameters.
 
@@ -92,13 +95,32 @@ cfg["sigma_k"] = 265.0
 # Characteristic height in [kpc] from the galactic plane.
 cfg["h_c"] = 0.18
 
+
 # Canonical neutron star parameters.
 
-cfg["NS_radius"] = 11.0  # Characteristic neutron star radius in [km]
-# velocity pdf.
-cfg["NS_mass"] = (
-    1.4 * const.M_SUN
-)  # Characteristic neutron star mass in solar masses
+# Characteristic neutron star radius in [cm].
+cfg["NS_radius"] = 1.1e6
+
+# Characteristic neutron star mass in solar masses.
+cfg["NS_mass"] = 1.4 * const.M_SUN
+
+
+# Field, misalignment angle and period evolution parameters for a crust-based model.
+
+# Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
+# taken from Spitkovsky (2006) and Philippov et al. (2014).
+# For comparison, in vacuum k_0 = 0 and k_1 = k_2 = 2/3.
+cfg["k_coefficients"] = np.array([1.0, 1.0, 1.0])
+
+# Dominant conductivity based on phonon or impurity scattering, in [1/s].
+# For details see Cumming et al. (2004) or Gourgouliatos and Cumming (2014).
+cfg["sigma"] = 1e24
+
+# Characteristic length scale of the magnetic field in [cm].
+cfg["L"] = 1e5
+
+# Characteristic electron density in [g/cm^3].
+cfg["n_e"] = 1e36
 
 
 def update_configuration(new_configuration) -> None:
