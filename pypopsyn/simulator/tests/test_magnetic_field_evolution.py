@@ -29,7 +29,6 @@ import numpy as np
 import pytest
 
 import pypopsyn.simulator.magnetic_field_evolution as mfe
-from pypopsyn.simulator.configuration import cfg
 
 TOL = 1e-5
 
