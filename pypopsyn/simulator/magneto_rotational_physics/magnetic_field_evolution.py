@@ -27,6 +27,7 @@ SOFTWARE.
 """
 
 import numpy as np
+from scipy.integrate import solve_ivp
 
 import pypopsyn.simulator.basics.constants as const
 from pypopsyn.simulator.configuration import cfg
@@ -52,7 +53,7 @@ def timescale_ohmic(L: float, sigma: float) -> float:
     return tau_ohm
 
 
-def timescale_Hall(B: np.ndarray, L: float, n_e: float) -> np.ndarray:
+def timescale_Hall(B: float, L: float, n_e: float) -> float:
     """
     Calculating the Hall timescale for a given field strength, characteristic magnetic field length
     scale and electron density. Note that for our purposes, we neglect the fact that all quantities can
@@ -61,12 +62,12 @@ def timescale_Hall(B: np.ndarray, L: float, n_e: float) -> np.ndarray:
     B will be identified with the initial dipolar magnetic field components at the pulsars' pole.
 
     Args:
-        B (np.ndarray): (local) magnetic field strengths, measured in [G].
+        B (float): (local) magnetic field strength, measured in [G].
         L (float): characteristic length scale on which the magnetic field varies, measured in [cm].
         n_e (float): electron density, measured in [g/cm^3].
 
     Returns:
-        (np.ndarray): Hall timescales in [yr].
+        (float): Hall timescale in [yr].
     """
 
     tau_Hall = (
@@ -76,9 +77,9 @@ def timescale_Hall(B: np.ndarray, L: float, n_e: float) -> np.ndarray:
     return tau_Hall
 
 
-def field_derivative(B: np.ndarray, B_initial: np.ndarray) -> np.ndarray:
+def field_derivative(t: float, B: float, B_initial: float) -> float:
     """
-    Calculating the change in the magnetic field strength of pulsars based on a simplified
+    Calculating the change in the magnetic field strength of a pulsar based on a simplified
     differential equation (see eq. (18) of Aguilera et al. (2008)) that captures the
     characteristics of more complication numerical simulations of pulsar magnetic field
     evolution, i.e., at early timescales the Hall evolution dominates, while at late times
@@ -87,15 +88,63 @@ def field_derivative(B: np.ndarray, B_initial: np.ndarray) -> np.ndarray:
     field strength.
 
     Args:
-        B (np.ndarray): pulsars' magnetic field magnitudes evolving with time, measured in [G].
-        B_initial (np.ndarray): pulsars' initial magnetic field magnitudes, measured in [G].
+        t (float): unused current time parameter in [yr], only needed for integration below.
+        B (float): pulsar's magnetic field magnitudes evolving with time, measured in [G].
+        B_initial (float): pulsar's initial magnetic field magnitudes, measured in [G].
 
     Returns:
-        (np.ndarray): magnetic field derivatives for all simulated pulsars in [G/s].
+        (np.ndarray): magnetic field derivatives for a simulated pulsars in [G/yr].
     """
-    tau_ohm = timescale_ohmic(cfg["L"], cfg["sigma"]) * const.YR_TO_S
-    tau_Hall = timescale_Hall(B_initial, cfg["L"], cfg["n_e"]) * const.YR_TO_S
+
+    tau_ohm = timescale_ohmic(cfg["L"], cfg["sigma"])
+    tau_Hall = timescale_Hall(B_initial, cfg["L"], cfg["n_e"])
 
     B_deriv = -B / tau_ohm - B ** 2 / (tau_Hall * B_initial)
 
     return B_deriv
+
+
+def field_evolution(
+    B_initial: np.ndarray, NS_number: int, t_age: np.ndarray, time_step: float
+) -> np.ndarray:
+    """
+    Evolving the neutron stars' magnetic fields according to their respective ages
+    forward in time to obtain their current magnetic field strengths.
+
+    Args:
+        B_initial (np.ndarray): pulsars' initial magnetic field magnitudes, measured in [G].
+        NS_number (int): number of simulated neutron stars.
+        t_age (np.ndarray): array of neutron star ages in [yr].
+        time_step (float): time step used to integrate the differential equation, in [yr].
+
+    Returns:
+        (np.ndarray): current pulsar magnetic field strengths, in [G].
+    """
+
+    # Initialization of the array for the magnetic field strengths at the current time.
+    B_final = np.zeros(NS_number)
+
+    for i in range(NS_number):
+
+        # Generating a time grid at which the solution is evaluated. We start to
+        # evolve each star at its birth, corresponding to time 0, and do so for
+        # its full age in steps of the specified time_step. To obtain the magnetic
+        # field at the current time, we append the current age value.
+        time_grid = np.append(np.arange(0, t_age[i], time_step), t_age[i])
+
+        # To integrate the problem, we use scipy's solve_ivp function.
+        # Note that the args parameter only works in scipy version >1.4.0.
+        evol_output = solve_ivp(
+            field_derivative,
+            t_span=[0, t_age[i]],
+            y0=np.array([B_initial[i]]),
+            method="RK45",
+            t_eval=time_grid,
+            args=(B_initial[i],),
+        )
+
+        # The solution evaluated at the times t_eval=time_grid can be accessed via .y.
+        # The last value in the array corresponds to the current field strength.
+        B_final[i] = evol_output.y[0][-1]
+
+    return B_final

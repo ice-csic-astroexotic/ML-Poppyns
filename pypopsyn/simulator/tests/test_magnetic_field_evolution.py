@@ -53,7 +53,20 @@ def test_case_2():
         "B_initial": 1e13,
         "t": 10.0,
         "B": 5e12,
-        "B_deriv_expected": -4.817742e-02,
+        "B_deriv_expected": -1519323.11712,
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_3():
+    data = {
+        "B_initial": np.array([1e10, 1e12]),
+        "time_step": 1e3,
+        "NS_number": 2,
+        "t_age": np.array([1e3, 1e3]),
+        "B_evol_expected": np.array([9.997743e9, 9.997588e11]),
     }
 
     return data
@@ -94,3 +107,23 @@ def test_field_derivative(test_case_2):
     assert np.isclose(
         B_deriv_out, test_case_2["B_deriv_expected"], rtol=TOL, atol=1.0e-30,
     )
+
+
+def test_field_evolution(test_case_3):
+    """
+    Verifying (approximately) that the magnetic field is correctly evolved in time.
+    We use a simple finite differencing scheme, i.e., B_initial + field_derivative
+    * time_step, to evaluate the first time step, only, and compare it to the output
+    of solve_ivp for two object whose ages correspond exactly to the length of the
+    first time step.
+    """
+    B_evol_out = mfe.field_evolution(
+        test_case_3["B_initial"],
+        test_case_3["NS_number"],
+        test_case_3["t_age"],
+        test_case_3["time_step"],
+    )
+
+    assert np.isclose(
+        B_evol_out, test_case_3["B_evol_expected"], rtol=TOL, atol=1.0e-30,
+    ).all()
