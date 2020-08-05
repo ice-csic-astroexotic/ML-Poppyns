@@ -240,16 +240,16 @@ class InitialNeutronStarPopulation:
 
     def magnetic_field(self) -> np.ndarray:
         """
-        We follow Faucher-Giguère & Kaspi (2006) and Gullon et al. (2014) and determine
-        the initial magnetic field strengths of each pulsar in the sample, by drawing values
-        from a log-normal distribution, i.e., the log_10 values are normally distributed.
-        The characteristic parameters are defined in configuration.py.
+        We follow Faucher-Giguère & Kaspi (2006) and Gullon et al. (2014) and determine the
+        initial magnetic field strengths of each pulsar in the sample, by drawing values from
+        a log-normal distribution, i.e., the log_10 values of the magnetic field strengths are
+        themselves normally distributed. The characteristic parameters are defined in configuration.py.
 
         Returns:
             (np.ndarray): initial magnetic field strengths of the pulsar sample in [G].
         """
 
-        B_rand = np.random.lognormal(
+        B_rand = 10 ** np.random.normal(
             cfg["B_initial_log10_mean"],
             cfg["B_initial_log10_sigma"],
             cfg["NS_number"],
