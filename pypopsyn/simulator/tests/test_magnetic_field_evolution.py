@@ -1,5 +1,5 @@
 """
-Tests for the magnetic_field_evolution module.
+Tests for the magneto_rotational_physics/magnetic_field_evolution module.
 
     Authors:
 

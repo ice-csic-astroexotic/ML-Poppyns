@@ -1,5 +1,5 @@
 """
-Test for the initial_period module.
+Test for the magneto_rotational_physics/initial_period module.
 
     Authors:
 

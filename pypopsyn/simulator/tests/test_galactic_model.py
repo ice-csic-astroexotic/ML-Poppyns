@@ -1,5 +1,5 @@
 """
-Tests for the galactic_model module.
+Tests for the stellar_dynamics/galactic_model module.
 
     Authors:
 

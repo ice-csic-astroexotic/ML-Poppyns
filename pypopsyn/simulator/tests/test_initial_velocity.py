@@ -1,5 +1,5 @@
 """
-Tests for the initial_velocity module.
+Tests for the stellar_dynamics/initial_velocity module.
 
     Authors:
 

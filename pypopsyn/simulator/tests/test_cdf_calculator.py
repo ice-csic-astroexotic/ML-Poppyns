@@ -1,5 +1,5 @@
 """
-Tests for the cdf_calculator module.
+Tests for the basics/cdf_calculator module.
 
     Authors:
 

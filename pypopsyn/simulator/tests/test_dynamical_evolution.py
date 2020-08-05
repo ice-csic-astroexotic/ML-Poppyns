@@ -1,5 +1,5 @@
 """
-Tests for the dynamical_evolution module.
+Tests for the stellar_dynamics/dynamical_evolution module.
 
     Authors:
 

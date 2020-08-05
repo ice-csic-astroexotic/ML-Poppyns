@@ -1,5 +1,5 @@
 """
-Test for the period_evolution module.
+Test for the magneto_rotational_physics/period_evolution module.
 
     Authors:
 

@@ -1,5 +1,5 @@
 """
-Test for the misalignment_angle_evolution module.
+Test for the magneto_rotational_physics/misalignment_angle_evolution module.
 
     Authors:
 
