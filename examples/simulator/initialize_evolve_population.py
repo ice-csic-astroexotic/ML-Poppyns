@@ -38,12 +38,13 @@ import pandas as pd
 
 import pypopsyn.benchmark.timefunc as timefunc
 import pypopsyn.benchmark.timewith as timewith
+import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
-import pypopsyn.simulator.constants as const
-import pypopsyn.simulator.coordinate_conversions as coord
-import pypopsyn.simulator.dynamical_evolution as dyn
-import pypopsyn.simulator.galactic_model as gm
 import pypopsyn.simulator.initial_population as ipop
+import pypopsyn.simulator.magneto_rotational_physics.period_evolution as pe
+import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coord
+import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
+import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 
 log = logging.getLogger(__name__)
 
@@ -117,14 +118,34 @@ def generate_population(cfg) -> None:
             / const.YR_TO_S
         )
 
-        timer.checkpoint("[Initial]")
+        timer.checkpoint("[Initial position and velocity]")
 
         # Compute the initial total initial energy of the system.
         total_energy_initial = gm.galactic_model.total_energy(
             v_initial, r_initial, z_initial
         )
 
-        timer.checkpoint("[Energy]")
+        timer.checkpoint("[Initial energy]")
+
+        # Computing the initial periods, field strengths and misalignment angles
+        log.info("Computing initial periods...")
+        P_initial = NS_population_initial.period()
+
+        log.info("Computing initial field strengths...")
+        B_initial = NS_population_initial.magnetic_field()
+
+        log.info("Computing initial misalignment angles...")
+        chi_initial = NS_population_initial.misalignment_angle()
+
+        timer.checkpoint(
+            "[Initial period, field strength and misalignment angle]"
+        )
+
+        # Determining the initial period derivatives.
+        log.info("Computing initial period derivatives...")
+        P_dot_initial = pe.period_derivative(B_initial, chi_initial, P_initial)
+
+        timer.checkpoint("[Initial period derivative]")
 
         # Adding the parameters to a data frame for export.
         log.info("Creating data frame for exporting...")
@@ -139,6 +160,10 @@ def generate_population(cfg) -> None:
             "vk_phi",
             "vk_z",
             "v_orb",
+            "P",
+            "B",
+            "chi",
+            "P_dot",
         ]
         units_initial = [
             "[yr]",
@@ -149,6 +174,10 @@ def generate_population(cfg) -> None:
             "[kpc/yr]",
             "[kpc/yr]",
             "[kpc/yr]",
+            "[s]",
+            "[G]",
+            "[rad]",
+            "[s/s]",
         ]
         header_initial = pd.MultiIndex.from_arrays(
             [parameters_initial, units_initial]
@@ -165,6 +194,10 @@ def generate_population(cfg) -> None:
                     vk_phi,
                     vk_z,
                     v_orb,
+                    P_initial,
+                    B_initial,
+                    chi_initial,
+                    P_dot_initial,
                 ]
             ).T,
             columns=header_initial,
