@@ -104,7 +104,7 @@ def test_dh_potential_FK06(test_case_1):
     pot_dh_out = gmFK06.dh_potential(test_case_1["r"], test_case_1["z"])
 
     assert np.isclose(
-        pot_dh_out, test_case_1["pot_dh_expected"], rtol=TOL, atol=1.0e9,
+        pot_dh_out, test_case_1["pot_dh_expected"], rtol=TOL, atol=1.0e-30,
     )
 
 
@@ -115,7 +115,7 @@ def test_b_potential_FK06(test_case_1):
     pot_b_out = gmFK06.b_potential(test_case_1["r"])
 
     assert np.isclose(
-        pot_b_out, test_case_1["pot_b_expected"], rtol=TOL, atol=1.0e9,
+        pot_b_out, test_case_1["pot_b_expected"], rtol=TOL, atol=1.0e-30,
     )
 
 
@@ -126,7 +126,7 @@ def test_n_potential_FK06(test_case_1):
     pot_n_out = gmFK06.n_potential(test_case_1["r"])
 
     assert np.isclose(
-        pot_n_out, test_case_1["pot_n_expected"], rtol=TOL, atol=1.0e9,
+        pot_n_out, test_case_1["pot_n_expected"], rtol=TOL, atol=1.0e-30,
     )
 
 
@@ -137,7 +137,7 @@ def test_MW_potential_FK06(test_case_1):
     pot_MW_out = gmFK06.MW_potential(test_case_1["r"], test_case_1["z"])
 
     assert np.isclose(
-        pot_MW_out, test_case_1["pot_MW_expected"], rtol=TOL, atol=1.0e10,
+        pot_MW_out, test_case_1["pot_MW_expected"], rtol=TOL, atol=1.0e-30,
     )
 
 
@@ -153,7 +153,7 @@ def test_tot_energy_FK06(test_case_1):
         tot_energy_out,
         test_case_1["tot_energy_expected"],
         rtol=TOL,
-        atol=1.0e10,
+        atol=1.0e-30,
     )
 
 
@@ -244,7 +244,7 @@ def test_d_potential_M19(test_case_2):
     pot_d_out = gmM19.d_potential(test_case_2["r"], test_case_2["z"])
 
     assert np.isclose(
-        pot_d_out, test_case_2["pot_d_expected"], rtol=TOL, atol=1.0e9,
+        pot_d_out, test_case_2["pot_d_expected"], rtol=TOL, atol=1.0e-30,
     )
 
 
@@ -255,7 +255,7 @@ def test_b_potential_M19(test_case_2):
     pot_b_out = gmM19.b_potential(test_case_2["r"])
 
     assert np.isclose(
-        pot_b_out, test_case_2["pot_b_expected"], rtol=TOL, atol=1.0e9,
+        pot_b_out, test_case_2["pot_b_expected"], rtol=TOL, atol=1.0e-30,
     )
 
 
@@ -266,7 +266,7 @@ def test_n_potential_M19(test_case_2):
     pot_n_out = gmM19.n_potential(test_case_2["r"])
 
     assert np.isclose(
-        pot_n_out, test_case_2["pot_n_expected"], rtol=TOL, atol=1.0e9,
+        pot_n_out, test_case_2["pot_n_expected"], rtol=TOL, atol=1.0e-30,
     )
 
 
@@ -277,7 +277,7 @@ def test_h_potential_M19(test_case_2):
     pot_h_out = gmM19.h_potential(test_case_2["r"])
 
     assert np.isclose(
-        pot_h_out, test_case_2["pot_h_expected"], rtol=TOL, atol=1.0e9,
+        pot_h_out, test_case_2["pot_h_expected"], rtol=TOL, atol=1.0e-30,
     )
 
 
@@ -288,7 +288,7 @@ def test_MW_potential_M19(test_case_2):
     pot_MW_out = gmM19.MW_potential(test_case_2["r"], test_case_2["z"])
 
     assert np.isclose(
-        pot_MW_out, test_case_2["pot_MW_expected"], rtol=TOL, atol=1.0e10,
+        pot_MW_out, test_case_2["pot_MW_expected"], rtol=TOL, atol=1.0e-30,
     )
 
 
@@ -304,7 +304,7 @@ def test_tot_energy_M19(test_case_2):
         tot_energy_out,
         test_case_2["tot_energy_expected"],
         rtol=TOL,
-        atol=1.0e10,
+        atol=1.0e-30,
     )
 
 

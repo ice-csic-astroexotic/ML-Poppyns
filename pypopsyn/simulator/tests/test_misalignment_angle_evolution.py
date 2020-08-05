@@ -38,16 +38,16 @@ def test_case_1():
     data = {
         "B": np.array([1e12, 1e13, 1e14, 1e15]),
         "chi": np.array([0, np.pi / 3, 1.4 * np.pi, 2.6 * np.pi]),
-        "P": np.array([1.0e-3, 1.0e-1, 1, 5]),
+        "P": np.array([1.0e-2, 1.0e-1, 1.0, 5.0]),
         "chi_deriv_expected": np.array(
-            [0.0, -2.073438e-12, -1.407275e-14, 5.629101e-14]
+            [0.0, -2.073438e-12, -1.407275e-12, 5.629101e-12]
         ),
     }
 
     return data
 
 
-def test_period_derivative(test_case_1):
+def test_misalignment_angle_derivative(test_case_1):
     """
     Verifying that the misalignment angle derivatives for a pulsar sample are evaluated correctly.
     """
@@ -56,5 +56,8 @@ def test_period_derivative(test_case_1):
     )
 
     assert np.isclose(
-        chi_deriv_out, test_case_1["chi_deriv_expected"], rtol=TOL, atol=1.0e9,
+        chi_deriv_out,
+        test_case_1["chi_deriv_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     ).all()

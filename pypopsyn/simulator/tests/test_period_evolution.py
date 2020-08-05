@@ -56,5 +56,5 @@ def test_period_derivative(test_case_1):
     )
 
     assert np.isclose(
-        P_deriv_out, test_case_1["P_deriv_expected"], rtol=TOL, atol=1.0e9,
+        P_deriv_out, test_case_1["P_deriv_expected"], rtol=TOL, atol=1e-30,
     ).all()

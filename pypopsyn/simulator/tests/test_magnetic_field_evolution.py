@@ -39,9 +39,9 @@ def test_case_1():
         "sigma": 1e24,
         "L": 1e5,
         "n_e": 1e36,
-        "B": np.array([1e12, 1e14]),
-        "tau_ohm_expected": 4433654.543524,
-        "tau_Hall_expected": np.array([63843047.417426, 638430.474174]),
+        "B": 1e12,
+        "tau_ohm_expected": 4.43365e6,
+        "tau_Hall_expected": 63.8430471e6,
     }
 
     return data
@@ -50,11 +50,10 @@ def test_case_1():
 @pytest.fixture()
 def test_case_2():
     data = {
-        "B_initial": np.array([1e12, 1e13, 1e14]),
-        "B": np.array([1e11, 5e12, 1e10]),
-        "B_deriv_expected": np.array(
-            [-0.720173e-05, -4817.742130e-05, -7.157033e-05]
-        ),
+        "B_initial": 1e13,
+        "t": 10.0,
+        "B": 5e12,
+        "B_deriv_expected": -4.817742e-02,
     }
 
     return data
@@ -67,7 +66,7 @@ def test_timescale_ohmic(test_case_1):
     tau_ohm_out = mfe.timescale_ohmic(test_case_1["L"], test_case_1["sigma"])
 
     assert np.isclose(
-        tau_ohm_out, test_case_1["tau_ohm_expected"], rtol=TOL, atol=1.0e9,
+        tau_ohm_out, test_case_1["tau_ohm_expected"], rtol=TOL, atol=1.0e-30,
     )
 
 
@@ -80,18 +79,18 @@ def test_timescale_Hall(test_case_1):
     )
 
     assert np.isclose(
-        tau_Hall_out, test_case_1["tau_Hall_expected"], rtol=TOL, atol=1.0e9,
-    ).all()
+        tau_Hall_out, test_case_1["tau_Hall_expected"], rtol=TOL, atol=1.0e-30,
+    )
 
 
-def test_magnetic_field_derivative(test_case_2):
+def test_field_derivative(test_case_2):
     """
-    Verifying that the magnetic field derivatives are evaluated correctly.
+    Verifying that the magnetic field derivative is evaluated correctly.
     """
     B_deriv_out = mfe.field_derivative(
-        test_case_2["B"], test_case_2["B_initial"]
+        test_case_2["t"], test_case_2["B"], test_case_2["B_initial"]
     )
 
     assert np.isclose(
-        B_deriv_out, test_case_2["B_deriv_expected"], rtol=TOL, atol=1.0e9,
-    ).all()
+        B_deriv_out, test_case_2["B_deriv_expected"], rtol=TOL, atol=1.0e-30,
+    )
