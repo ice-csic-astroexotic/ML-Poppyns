@@ -108,12 +108,12 @@ cfg["NS_mass"] = 1.4 * const.M_SUN
 # Field, misalignment angle and period evolution parameters for a crust-based model.
 
 # Mean and standard deviation for the Gaussian distributed initial periods in [s].
-cfg["P_initial_mean"] = 0.3
-cfg["P_initial_sigma"] = 0.15
+cfg["P_initial_mean"] = 0.22
+cfg["P_initial_sigma"] = 0.42
 
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
-cfg["B_initial_log10_mean"] = 12.65
-cfg["B_initial_log10_sigma"] = 0.55
+cfg["B_initial_log10_mean"] = 13.20
+cfg["B_initial_log10_sigma"] = 0.62
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
