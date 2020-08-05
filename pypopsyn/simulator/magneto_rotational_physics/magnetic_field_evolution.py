@@ -28,7 +28,7 @@ SOFTWARE.
 
 import numpy as np
 
-import pypopsyn.simulator.constants as const
+import pypopsyn.simulator.basics.constants as const
 from pypopsyn.simulator.configuration import cfg
 
 

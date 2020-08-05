@@ -45,10 +45,10 @@ import abc
 from typing import Tuple
 
 import numpy as np
-from numba import float32, float64, int32, jit
+from numba import float64
 from numba.experimental import jitclass
 
-import pypopsyn.simulator.constants as const
+import pypopsyn.simulator.basics.constants as const
 from pypopsyn.simulator.configuration import cfg
 
 galactic_model = None

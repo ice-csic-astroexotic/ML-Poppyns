@@ -32,7 +32,7 @@ SOFTWARE.
 
 import numpy as np
 
-import pypopsyn.simulator.galactic_model as gm
+import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 from pypopsyn.simulator.configuration import cfg
 
 

@@ -28,7 +28,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.magnetic_field_evolution as mfe
+import pypopsyn.simulator.magneto_rotational_physics.magnetic_field_evolution as mfe
 
 TOL = 1e-5
 

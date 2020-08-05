@@ -29,7 +29,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.initial_position as ip
+import pypopsyn.simulator.stellar_dynamics.initial_position as ip
 from pypopsyn.simulator.configuration import cfg
 
 TOL = 1e-5

@@ -30,8 +30,8 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.cdf_calculator as cc
-import pypopsyn.simulator.initial_position as ip
+import pypopsyn.simulator.basics.cdf_calculator as cc
+import pypopsyn.simulator.stellar_dynamics.initial_position as ip
 
 TOL = 1e-5
 

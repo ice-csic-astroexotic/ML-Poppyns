@@ -30,7 +30,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.dynamical_evolution as dyn
+import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 from pypopsyn.simulator.configuration import cfg
 
 TOL = 1e-5
@@ -42,7 +42,7 @@ cfg["galactic_model"] = "gmM19"
 @pytest.fixture()
 def test_case_1():
 
-    import pypopsyn.simulator.galactic_model as gm
+    import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 
     gm.initialize_galactic_model()
 

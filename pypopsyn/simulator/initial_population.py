@@ -34,12 +34,12 @@ from typing import Tuple
 import numpy as np
 
 import pypopsyn.benchmark.pyinstrument as benchmark
-import pypopsyn.simulator.cdf_calculator as cc
-import pypopsyn.simulator.constants as const
-import pypopsyn.simulator.coordinate_conversions as coco
-import pypopsyn.simulator.initial_period as ipd
-import pypopsyn.simulator.initial_position as ip
-import pypopsyn.simulator.initial_velocity as iv
+import pypopsyn.simulator.basics.cdf_calculator as cc
+import pypopsyn.simulator.basics.constants as const
+import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
+import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
+import pypopsyn.simulator.stellar_dynamics.initial_position as ip
+import pypopsyn.simulator.stellar_dynamics.initial_velocity as iv
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)

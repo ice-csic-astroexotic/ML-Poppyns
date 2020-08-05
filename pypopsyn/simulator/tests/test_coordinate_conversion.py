@@ -30,7 +30,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.coordinate_conversions as coco
+import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 
 TOL = 1e-5
 

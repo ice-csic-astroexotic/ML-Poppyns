@@ -28,7 +28,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.misalignment_angle_evolution as mae
+import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_evolution as mae
 
 TOL = 1e-5
 

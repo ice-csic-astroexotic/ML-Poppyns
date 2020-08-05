@@ -28,7 +28,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.period_evolution as pe
+import pypopsyn.simulator.magneto_rotational_physics.period_evolution as pe
 
 TOL = 1e-5
 

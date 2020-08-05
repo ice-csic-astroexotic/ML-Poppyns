@@ -42,7 +42,7 @@ from typing import Tuple
 
 import numpy as np
 
-import pypopsyn.simulator.coordinate_conversions as coco
+import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 from pypopsyn.simulator.configuration import cfg
 
 

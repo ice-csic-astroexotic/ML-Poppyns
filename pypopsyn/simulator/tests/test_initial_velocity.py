@@ -30,7 +30,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.initial_velocity as iv
+import pypopsyn.simulator.stellar_dynamics.initial_velocity as iv
 from pypopsyn.simulator.configuration import cfg
 
 TOL = 1e-5
@@ -42,7 +42,7 @@ cfg["galactic_model"] = "gmM19"
 @pytest.fixture()
 def test_case_1():
 
-    import pypopsyn.simulator.galactic_model as gm
+    import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 
     gm.initialize_galactic_model()
 
@@ -58,7 +58,7 @@ def test_case_1():
 @pytest.fixture()
 def test_case_2():
 
-    import pypopsyn.simulator.galactic_model as gm
+    import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 
     gm.initialize_galactic_model()
 

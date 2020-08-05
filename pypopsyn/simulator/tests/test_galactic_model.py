@@ -29,7 +29,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.galactic_model as gm
+import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 
 TOL = 1e-5
 

@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import pypopsyn.simulator.initial_period as ipd
+import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
 from pypopsyn.simulator.configuration import cfg
 
 
