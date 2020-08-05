@@ -100,11 +100,6 @@ Metric parent class
 .. automodule:: pypopsyn.learning.metrics.metric_base
   :members: metric_base
 
-:math:`\chi^2` metric
-*********************
-.. automodule:: pypopsyn.learning.metrics.metric_chi2
-  :members: metric_chi2
-
 Root mean square error (RMSE) metric
 ************************************
 .. automodule:: pypopsyn.learning.metrics.metric_rmse
@@ -141,12 +136,30 @@ Basic trainer
 .. automodule:: pypopsyn.learning.trainers.trainer_basic
   :members: trainer_basic
 
+Utils
+#####
+
+JSON file reader
+****************
+.. automodule:: pypopsyn.learning.utils.json
+  :members: json
+
+Metric tracker
+****************
+.. automodule:: pypopsyn.learning.utils.metric_tracker
+  :members: metric_tracker
+
+Request GPU devices
+*******************
+.. automodule:: pypopsyn.learning.utils.request_device
+  :members: request_device
+
 Update configuration from CLI
 #############################
 
 Configuration parser
 ********************
-.. automodule:: pypopsyn.learning.utils.configuration_parser
+.. automodule:: pypopsyn.learning.configuration_parser
   :members: configuration_parser
 
 
