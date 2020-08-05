@@ -73,7 +73,7 @@ def generate_dataset(args) -> None:
     """
 
     # Create the dataset directory.
-    dataset_path = "examples/data/{}".format(args.dataset_name)
+    dataset_path = "{}".format(args.dataset_name)
     pathlib.Path(dataset_path).mkdir(parents=True, exist_ok=True)
 
     # Initialize dictionaries that will contain the density map files names and
@@ -298,11 +298,11 @@ if __name__ == "__main__":
         help="Path to where the simulated data in a multirun is",
     )
     parser.add_argument(
-        "--dataset_name",
+        "--dataset_path",
         nargs="?",
         type=str,
         default="array_train_set",
-        help="Name of the dataset where the density maps will be saved",
+        help="Path to the dataset folder where the density maps will be saved",
     )
     parser.add_argument(
         "--type",
