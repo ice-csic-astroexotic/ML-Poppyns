@@ -44,18 +44,18 @@ log = logging.getLogger(__name__)
 
 def generate_dataset(args) -> None:
     """
-    This method reads the simulated population files saved in a multirun/date/time
+    This method reads the simulated population files saved in a multirun
     folder and generates a dataset of density maps in the specified format
-    (images or arrays) and with various settings (normalization, resolution...).
+    (images or arrays) and with a specified resolution.
     All the information about the dataset are stored in a datset.csv file
     containing the density map files names and the set of parameter values for
     each simulated population.
 
     Args:
         args:
-            data_path (str): Path to where the simulated multirun is located.
+            data (str): Path to where the simulated data in a multirun are located.
 
-            dataset_path (str): Path to where the dataset will be generated.
+            save_dir (str): Path to where the generated dataset will be saved.
 
             type (str): Type of dataset to generate: array or image.
 
@@ -63,16 +63,13 @@ def generate_dataset(args) -> None:
             histograms) for the image to generate. In case of RA DEC maps the
             DEC axis has half the number of bins with respect to the RA axis.
 
-            normalize (bool): Whether or not to normalize the representations
-            so that each cell holds [0,1] values.
-
             samples (int): Number of samples to generate. If no samples are
                 specified the whole dataset is generated. Samples are taken
                 equally spaced.
     """
 
     # Create the dataset directory path.
-    dataset_path = "{}".format(args.dataset_path)
+    dataset_path = "{}".format(args.save_dir)
     pathlib.Path(dataset_path).mkdir(parents=True, exist_ok=True)
 
     # Initialize dictionaries that will contain the density map files names and
@@ -88,7 +85,7 @@ def generate_dataset(args) -> None:
     param_dictionary = {}
 
     # Check if the parsed multirun directory exists as a precondition.
-    root_path = pathlib.Path(args.data_path)
+    root_path = pathlib.Path(args.data)
     if not root_path.exists():
         log.error("directory {} not found".format(root_path))
         sys.exit()
@@ -290,18 +287,18 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Parameters")
     parser.add_argument(
-        "--data_path",
+        "--data",
         nargs="?",
         type=str,
         required=True,
-        help="Path to where the simulated data in a multirun is",
+        help="Path to where the simulated data in a multirun are.",
     )
     parser.add_argument(
-        "--dataset_path",
+        "--save_dir",
         nargs="?",
         type=str,
         default="examples/data/array_train_set",
-        help="Path to the dataset folder where the density maps will be saved",
+        help="Path to the folder where the dataset will be saved.",
     )
     parser.add_argument(
         "--type",
@@ -309,7 +306,7 @@ if __name__ == "__main__":
         type=str,
         choices=["array", "image"],
         default="array",
-        help="Type of dataset to generate: array or image",
+        help="Type of dataset to generate: array or image.",
     )
     parser.add_argument(
         "--resolution",
