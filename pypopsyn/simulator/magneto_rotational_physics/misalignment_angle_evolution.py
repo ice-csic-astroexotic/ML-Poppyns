@@ -33,25 +33,26 @@ from pypopsyn.simulator.configuration import cfg
 
 
 def misalignment_angle_derivative(
-    B: np.ndarray, chi: np.ndarray, P: np.ndarray
-) -> np.ndarray:
+    t: float, chi: float, B: float, P: float
+) -> float:
     """
     This function determines the change in the misalignment angle, i.e., the angle between the
-    magnetic dipolar moment and the rotation axis of pulsars. It is taken from eq. (71) of
+    magnetic dipolar moment and the rotation axis of a pulsar. It is taken from eq. (71) of
     Pons & Vigano (2019). For more details see, e.g., Spitkovsky (2006) or Philippov et al.
     (2014), who determine the coefficients k_0, k_1, k_2 (defined in the configuration file)
     for a pulsar embedded in a force-free and resistive magnetosphere from numerical simulations.
     Note that all three input parameters are time-dependent.
 
     Args:
-        B (np.ndarray): values of the dipolar component of the magnetic field at the
-        magnetic pole for the sample of simulated neutron stars, measured in [G].
-        chi (np.ndarray): angles between the magnetic dipolar moment, i.e., the magnetic
+        t (float): unused current time parameter in [yr], only needed for integration below.
+        chi (float): angles between the magnetic dipolar moment, i.e., the magnetic
         field axis, and the rotation axis for all simulated pulsars, measured in [rad].
-        P (np.ndarray): spin periods of simulated pulsars, measured in [s].
+        B (float): values of the dipolar component of the magnetic field at the
+        magnetic pole for the sample of simulated neutron stars, measured in [G].
+        P (float): spin periods of simulated pulsars, measured in [s].
 
     Returns:
-        (np.ndarray): misalignment angle derivatives for all simulated pulsars in [rad/s].
+        (float): misalignment angle derivatives for all simulated pulsars in [rad/s].
     """
 
     # Canonical neutron star moment of inertia in [g cm^2] assuming a perfect solid sphere.
