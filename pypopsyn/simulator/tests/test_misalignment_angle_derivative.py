@@ -1,5 +1,5 @@
 """
-Test for the magneto_rotational_physics/misalignment_angle_evolution module.
+Test for the magneto_rotational_physics/misalignment_angle_derivative module.
 
     Authors:
 
@@ -28,7 +28,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_evolution as mae
+import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivative as madv
 
 TOL = 1e-5
 
@@ -37,7 +37,6 @@ TOL = 1e-5
 def test_case_1():
     data = {
         "B": np.array([1e12, 1e13, 1e14, 1e15]),
-        "t": np.array([1.0, 1.0, 1.0, 1.0]),
         "chi": np.array([0, np.pi / 3, 1.4 * np.pi, 2.6 * np.pi]),
         "P": np.array([1.0e-2, 1.0e-1, 1.0, 5.0]),
         "chi_deriv_expected": np.array(
@@ -53,13 +52,10 @@ def test_misalignment_angle_derivative(test_case_1):
     Verifying that the misalignment angle derivatives for a pulsar sample are evaluated correctly.
     """
     misalignment_angle_derivative_vect = np.vectorize(
-        mae.misalignment_angle_derivative
+        madv.misalignment_angle_derivative
     )
     chi_deriv_out = misalignment_angle_derivative_vect(
-        test_case_1["t"],
-        test_case_1["chi"],
-        test_case_1["B"],
-        test_case_1["P"],
+        test_case_1["B"], test_case_1["chi"], test_case_1["P"],
     )
 
     assert np.isclose(

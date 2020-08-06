@@ -41,7 +41,7 @@ import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population as ipop
-import pypopsyn.simulator.magneto_rotational_physics.period_evolution as pe
+import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coord
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
@@ -143,7 +143,10 @@ def generate_population(cfg) -> None:
 
         # Determining the initial period derivatives.
         log.info("Computing initial period derivatives...")
-        P_dot_initial = pe.period_derivative(B_initial, chi_initial, P_initial)
+        period_derivative_vect = np.vectorize(pdv.period_derivative)
+        P_dot_initial = period_derivative_vect(
+            B_initial, chi_initial, P_initial
+        )
 
         timer.checkpoint("[Initial period derivative]")
 

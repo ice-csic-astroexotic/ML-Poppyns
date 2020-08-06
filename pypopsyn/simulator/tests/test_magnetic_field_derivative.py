@@ -1,5 +1,5 @@
 """
-Tests for the magneto_rotational_physics/magnetic_field_evolution module.
+Tests for the magneto_rotational_physics/magnetic_field_derivative module.
 
     Authors:
 
@@ -28,7 +28,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.magneto_rotational_physics.magnetic_field_evolution as mfe
+import pypopsyn.simulator.magneto_rotational_physics.magnetic_field_derivative as mfdv
 
 TOL = 1e-5
 
@@ -51,22 +51,8 @@ def test_case_1():
 def test_case_2():
     data = {
         "B_initial": 1e13,
-        "t": 10.0,
         "B": 5e12,
         "B_deriv_expected": -1519323.11712,
-    }
-
-    return data
-
-
-@pytest.fixture()
-def test_case_3():
-    data = {
-        "B_initial": np.array([1e10, 1e12]),
-        "time_step": 1e3,
-        "NS_number": 2,
-        "t_age": np.array([1e3, 1e3]),
-        "B_evol_expected": np.array([9.997743e9, 9.997588e11]),
     }
 
     return data
@@ -76,7 +62,7 @@ def test_timescale_ohmic(test_case_1):
     """
     Verifying that the ohmic dissipation timescale is evaluated correctly.
     """
-    tau_ohm_out = mfe.timescale_ohmic(test_case_1["L"], test_case_1["sigma"])
+    tau_ohm_out = mfdv.timescale_ohmic(test_case_1["L"], test_case_1["sigma"])
 
     assert np.isclose(
         tau_ohm_out, test_case_1["tau_ohm_expected"], rtol=TOL, atol=1.0e-30,
@@ -87,7 +73,7 @@ def test_timescale_Hall(test_case_1):
     """
     Verifying that the Hall timescale is evaluated correctly.
     """
-    tau_Hall_out = mfe.timescale_Hall(
+    tau_Hall_out = mfdv.timescale_Hall(
         test_case_1["B"], test_case_1["L"], test_case_1["n_e"]
     )
 
@@ -100,30 +86,10 @@ def test_field_derivative(test_case_2):
     """
     Verifying that the magnetic field derivative is evaluated correctly.
     """
-    B_deriv_out = mfe.field_derivative(
-        test_case_2["t"], test_case_2["B"], test_case_2["B_initial"]
+    B_deriv_out = mfdv.field_derivative(
+        test_case_2["B"], test_case_2["B_initial"]
     )
 
     assert np.isclose(
         B_deriv_out, test_case_2["B_deriv_expected"], rtol=TOL, atol=1.0e-30,
     )
-
-
-def test_field_evolution(test_case_3):
-    """
-    Verifying (approximately) that the magnetic field is correctly evolved in time.
-    We use a simple finite differencing scheme, i.e., B_initial + field_derivative
-    * time_step, to evaluate the first time step, only, and compare it to the output
-    of solve_ivp for two object whose ages correspond exactly to the length of the
-    first time step.
-    """
-    B_evol_out = mfe.field_evolution(
-        test_case_3["B_initial"],
-        test_case_3["NS_number"],
-        test_case_3["t_age"],
-        test_case_3["time_step"],
-    )
-
-    assert np.isclose(
-        B_evol_out, test_case_3["B_evol_expected"], rtol=TOL, atol=1.0e-30,
-    ).all()

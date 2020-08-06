@@ -1,5 +1,5 @@
 """
-Test for the magneto_rotational_physics/period_evolution module.
+Test for the magneto_rotational_physics/period_derivative module.
 
     Authors:
 
@@ -28,7 +28,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.magneto_rotational_physics.period_evolution as pe
+import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 
 TOL = 1e-5
 
@@ -51,7 +51,8 @@ def test_period_derivative(test_case_1):
     """
     Verifying that the period derivatives for a pulsar sample are evaluated correctly.
     """
-    P_deriv_out = pe.period_derivative(
+    period_derivative_vect = np.vectorize(pdv.period_derivative)
+    P_deriv_out = period_derivative_vect(
         test_case_1["B"], test_case_1["chi"], test_case_1["P"]
     )
 
