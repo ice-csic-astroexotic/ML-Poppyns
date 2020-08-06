@@ -41,6 +41,7 @@ import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population as ipop
+import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coord
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
@@ -127,18 +128,18 @@ def generate_population(cfg) -> None:
 
         timer.checkpoint("[Initial energy]")
 
-        # Computing the initial periods, field strengths and misalignment angles
-        log.info("Computing initial periods...")
-        P_initial = NS_population_initial.period()
-
+        # Computing the initial field strengths, misalignment angles, and periods
         log.info("Computing initial field strengths...")
         B_initial = NS_population_initial.magnetic_field()
 
         log.info("Computing initial misalignment angles...")
         chi_initial = NS_population_initial.misalignment_angle()
 
+        log.info("Computing initial periods...")
+        P_initial = NS_population_initial.period()
+
         timer.checkpoint(
-            "[Initial period, field strength and misalignment angle]"
+            "[Initial field strengths, misalignment angles and periods]"
         )
 
         # Determining the initial period derivatives.
@@ -148,7 +149,7 @@ def generate_population(cfg) -> None:
             B_initial, chi_initial, P_initial
         )
 
-        timer.checkpoint("[Initial period derivative]")
+        timer.checkpoint("[Initial period derivatives]")
 
         # Adding the parameters to a data frame for export.
         log.info("Creating data frame for exporting...")
@@ -163,9 +164,9 @@ def generate_population(cfg) -> None:
             "vk_phi",
             "vk_z",
             "v_orb",
-            "P",
             "B",
             "chi",
+            "P",
             "P_dot",
         ]
         units_initial = [
@@ -177,9 +178,9 @@ def generate_population(cfg) -> None:
             "[kpc/yr]",
             "[kpc/yr]",
             "[kpc/yr]",
-            "[s]",
             "[G]",
             "[rad]",
+            "[s]",
             "[s/s]",
         ]
         header_initial = pd.MultiIndex.from_arrays(
@@ -197,9 +198,9 @@ def generate_population(cfg) -> None:
                     vk_phi,
                     vk_z,
                     v_orb,
-                    P_initial,
                     B_initial,
                     chi_initial,
+                    P_initial,
                     P_dot_initial,
                 ]
             ).T,
@@ -279,7 +280,7 @@ def generate_population(cfg) -> None:
             x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
         )
 
-        timer.checkpoint("[Evolution]")
+        timer.checkpoint("[Dynamic evolution]")
 
         # Compute the magnitude of the initial velocity vector for each star.
         v_final = np.sqrt(v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2)
@@ -303,7 +304,25 @@ def generate_population(cfg) -> None:
             )
         )
 
-        timer.checkpoint("[Energy]")
+        timer.checkpoint("[Final energy]")
+
+        # Determine the evolved magnetic field, misalignment angle and rotation period.
+        log.info(
+            "Evolving magnetic field, misalignment angle and rotation period..."
+        )
+        B_final, chi_final, P_final = mre.magneto_rotational_evolution(
+            B_initial, chi_initial, P_initial, age,
+        )
+
+        timer.checkpoint(
+            "[Final field strengths, misalignment angles and periods]"
+        )
+
+        # Determining the final period derivatives.
+        log.info("Computing final period derivatives...")
+        P_dot_final = period_derivative_vect(B_final, chi_final, P_final)
+
+        timer.checkpoint("[Final period derivatives]")
 
         # Adding the evolution output to a data frame for export.
         log.info("Creating data frame for exporting...")
@@ -323,6 +342,10 @@ def generate_population(cfg) -> None:
             "v_RA",
             "v_DEC",
             "v_ls",
+            "B",
+            "chi",
+            "P",
+            "P_dot",
         ]
         units_final = [
             "[yr]",
@@ -338,6 +361,10 @@ def generate_population(cfg) -> None:
             "[mas/yr]",
             "[mas/yr]",
             "[km/s]",
+            "[G]",
+            "[rad]",
+            "[s]",
+            "[s/s]",
         ]
         header_final = pd.MultiIndex.from_arrays(
             [parameters_final, units_final]
@@ -359,6 +386,10 @@ def generate_population(cfg) -> None:
                     v_ra_final,
                     v_dec_final,
                     v_ls,
+                    B_final,
+                    chi_final,
+                    P_final,
+                    P_dot_final,
                 ]
             ).T,
             columns=header_final,
