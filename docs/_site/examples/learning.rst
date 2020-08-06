@@ -160,10 +160,10 @@ The :code:`examples/experiment_launcher.py` script allows you to specify a list 
 
 .. code-block:: bash
 
-  python examples/learning/train.py --dataset examples/data/8_nonnormalized_array_64/dataset.csv --input_shape 4 64 64 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r64_position_velocity
-  python examples/learning/train.py --dataset examples/data/8_nonnormalized_array_128/dataset.csv --input_shape 4 128 128 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r128_position_velocity
-  python examples/learning/train.py --dataset examples/data/8_nonnormalized_array_256/dataset.csv --input_shape 4 256 256 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r256_position_velocity
-  python examples/learning/train.py --dataset examples/data/8_nonnormalized_array_512/dataset.csv --input_shape 4 512 512 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r512_position_velocity
+  python examples/learning/train.py --dataset examples/data/8_array_64/dataset.csv --input_shape 4 64 64 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r64_position_velocity
+  python examples/learning/train.py --dataset examples/data/8_array_128/dataset.csv --input_shape 4 128 128 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r128_position_velocity
+  python examples/learning/train.py --dataset examples/data/8_array_256/dataset.csv --input_shape 4 256 256 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r256_position_velocity
+  python examples/learning/train.py --dataset examples/data/8_array_512/dataset.csv --input_shape 4 512 512 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r512_position_velocity
 
 by default, the command list will be held in :code:`examples/command_list.txt`. Each line should contain one full command (including the :code:`python` program call) to execute an experiment. The script will execute those experiments automatically and in parallel providing a number of maximum simultaneous :code:`--processes`:
 
