@@ -27,11 +27,13 @@ SOFTWARE.
 """
 
 import numpy as np
+from numba import jit
 
 import pypopsyn.simulator.basics.constants as const
 from pypopsyn.simulator.configuration import cfg
 
 
+@jit
 def misalignment_angle_derivative(B: float, chi: float, P: float) -> float:
     """
     This function determines the change in the misalignment angle, i.e., the angle between the

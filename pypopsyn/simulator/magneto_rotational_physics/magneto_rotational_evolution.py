@@ -28,6 +28,7 @@ SOFTWARE.
 from typing import Tuple
 
 import numpy as np
+from numba import jit
 from scipy.integrate import solve_ivp
 
 import pypopsyn.simulator.magneto_rotational_physics.magnetic_field_derivative as mfdv
@@ -36,6 +37,7 @@ import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.configuration import cfg
 
 
+@jit
 def combined_derivatives(
     t: float, y: np.ndarray, B_initial: float
 ) -> np.ndarray:

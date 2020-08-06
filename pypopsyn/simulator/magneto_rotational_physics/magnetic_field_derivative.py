@@ -27,6 +27,7 @@ SOFTWARE.
 """
 
 import numpy as np
+from numba import jit
 
 import pypopsyn.simulator.basics.constants as const
 from pypopsyn.simulator.configuration import cfg
@@ -47,11 +48,12 @@ def timescale_ohmic(L: float, sigma: float) -> float:
         (float): ohmic diffusion timescale in [yr].
     """
 
-    tau_ohm = 4 * np.pi * sigma * L ** 2 / const.c ** 2 / const.YR_TO_S
+    tau_ohm = 4 * np.pi * sigma * L ** 2 / (const.c ** 2 * const.YR_TO_S)
 
     return tau_ohm
 
 
+@jit
 def timescale_Hall(B: float, L: float, n_e: float) -> float:
     """
     Calculating the Hall timescale for a given field strength, characteristic magnetic field length
@@ -70,12 +72,13 @@ def timescale_Hall(B: float, L: float, n_e: float) -> float:
     """
 
     tau_Hall = (
-        4 * np.pi * const.e * n_e * L ** 2 / (const.c * B) / const.YR_TO_S
+        4 * np.pi * const.e * n_e * L ** 2 / (const.c * B * const.YR_TO_S)
     )
 
     return tau_Hall
 
 
+@jit
 def field_derivative(B: float, B_initial: float) -> float:
     """
     Calculating the change in the magnetic field strength of a pulsar based on a simplified
