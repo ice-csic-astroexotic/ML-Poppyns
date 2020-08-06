@@ -33,6 +33,7 @@ from scipy.integrate import solve_ivp
 import pypopsyn.simulator.magneto_rotational_physics.magnetic_field_derivative as mfdv
 import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivative as madv
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
+from pypopsyn.simulator.configuration import cfg
 
 
 def combined_derivatives(
@@ -70,9 +71,7 @@ def magneto_rotational_evolution(
     B_initial: np.ndarray,
     chi_initial: np.ndarray,
     P_initial: np.ndarray,
-    NS_number: int,
     t_age: np.ndarray,
-    time_step: float,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Evolving the neutron stars' magnetic fields, misalignment angles and periods
@@ -85,9 +84,7 @@ def magneto_rotational_evolution(
         B_initial (np.ndarray): pulsars' initial magnetic field magnitudes, measured in [G].
         chi_initial (np.ndarray): pulsars' initial misalignment angles, measured in [rad].
         P_initial (np.ndarray): pulsars' initial rotation periods, measured in [s].
-        NS_number (int): number of simulated neutron stars.
         t_age (np.ndarray): array of neutron star ages in [yr].
-        time_step (float): time step used to integrate the differential equation, in [yr].
 
     Returns:
         (np.ndarray, np.ndarray, np.ndarray): current pulsar magnetic field strengths in [G],
@@ -95,20 +92,23 @@ def magneto_rotational_evolution(
     """
 
     # Initialization of the array for the three parameters.
-    B_final = np.zeros(NS_number)
-    chi_final = np.zeros(NS_number)
-    P_final = np.zeros(NS_number)
+    B_final = np.zeros(cfg["NS_number"])
+    chi_final = np.zeros(cfg["NS_number"])
+    P_final = np.zeros(cfg["NS_number"])
 
     # Initial conditions for the three parameters.
     y_initial = np.column_stack((B_initial, chi_initial, P_initial))
 
-    for i in range(NS_number):
+    for i in range(cfg["NS_number"]):
 
         # Generating a time grid at which the solution is evaluated. We start to
         # evolve each star at its birth, corresponding to time 0, and do so for
-        # its full age in steps of the specified time_step. To obtain the magnetic
-        # field at the current time, we append the current age value.
-        time_grid = np.append(np.arange(0, t_age[i], time_step), t_age[i])
+        # its full age in steps of the time_step specified in the configuration
+        # file. To obtain the magnetic field at the current time, we append the
+        # current age value.
+        time_grid = np.append(
+            np.arange(0, t_age[i], cfg["time_step"]), t_age[i]
+        )
 
         # To integrate the problem, we use scipy's solve_ivp function.
         # Note that the args parameter only works in scipy version >1.4.0.

@@ -130,6 +130,9 @@ cfg["L"] = 1e5
 # Characteristic electron density in [g/cm^3].
 cfg["n_e"] = 1e36
 
+# Time step for the magneto-rotational evolution [yr].
+cfg["time_step"] = 1e3
+
 
 def update_configuration(new_configuration) -> None:
     """
