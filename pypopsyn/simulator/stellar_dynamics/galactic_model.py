@@ -176,7 +176,7 @@ class GalaxyModelM19(GalaxyModelBase):
 
     def b_potential(self, r: float) -> float:
         """
-        The Hernnquist bulge component gravitational potential defined in eq. (7) in
+        The Hernquist bulge component gravitational potential defined in eq. (7) in
         Marchetti et al. (2019).
 
         Args:
@@ -194,7 +194,7 @@ class GalaxyModelM19(GalaxyModelBase):
 
     def n_potential(self, r: float) -> float:
         """
-        The Hernnquist nucleus component gravitational potential defined in eq. (7) in
+        The Hernquist nucleus component gravitational potential defined in eq. (7) in
         Marchetti et al. (2019).
 
         Args:
