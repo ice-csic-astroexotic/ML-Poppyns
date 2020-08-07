@@ -28,7 +28,7 @@ SOFTWARE.
 from typing import Tuple
 
 import numpy as np
-from numba import jit
+from numba import float64, jit
 from scipy.integrate import solve_ivp
 
 import pypopsyn.simulator.magneto_rotational_physics.magnetic_field_derivative as mfdv
@@ -37,7 +37,7 @@ import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.configuration import cfg
 
 
-@jit
+@jit(float64[:](float64, float64[:], float64))
 def combined_derivatives(
     t: float, y: np.ndarray, B_initial: float
 ) -> np.ndarray:
@@ -53,14 +53,15 @@ def combined_derivatives(
         B_initial (float): initial magnetic field magnitude for one pulsar, measured in [G].
 
     Returns:
-        (np.ndarray): derivative of the three magneto-rotational parameters for one pulsar
+        (np.ndarray): derivative of the three magneto-rotational parameters for one pulsar,
+        quantities are referred to in respective changes per [yr].
     """
 
     # Unpacking the three components of the vector y.
     B, chi, P = y
 
     # Specifying the three derivatives.
-    dy = np.zeros(len(y))
+    dy = np.zeros(len(y), dtype=np.float64)
 
     dy[0] = mfdv.field_derivative(B, B_initial)
     dy[1] = madv.misalignment_angle_derivative(B, chi, P)

@@ -27,13 +27,19 @@ SOFTWARE.
 """
 
 import numpy as np
-from numba import jit
+from numba import float64, jit
 
 import pypopsyn.simulator.basics.constants as const
 from pypopsyn.simulator.configuration import cfg
 
+# Redefining global variables to allow type specification.
+# Necessary right now in order to get JIT to work.
+L_cfg: float = cfg["L"]
+sigma_cfg: float = cfg["sigma"]
+n_e_cfg: float = cfg["n_e"]
 
-@jit
+
+@jit(float64(float64, float64))
 def timescale_ohmic(L: float, sigma: float) -> float:
     """
     Calculating the ohmic diffusion timescale for a given conductivity and characteristic magnetic
@@ -54,7 +60,7 @@ def timescale_ohmic(L: float, sigma: float) -> float:
     return tau_ohm
 
 
-@jit
+@jit(float64(float64, float64, float64))
 def timescale_Hall(B: float, L: float, n_e: float) -> float:
     """
     Calculating the Hall timescale for a given field strength, characteristic magnetic field length
@@ -79,7 +85,7 @@ def timescale_Hall(B: float, L: float, n_e: float) -> float:
     return tau_Hall
 
 
-@jit
+@jit(float64(float64, float64))
 def field_derivative(B: float, B_initial: float) -> float:
     """
     Calculating the change in the magnetic field strength of a pulsar based on a simplified
@@ -98,8 +104,8 @@ def field_derivative(B: float, B_initial: float) -> float:
         (np.ndarray): magnetic field derivatives for a simulated pulsars in [G/yr].
     """
 
-    tau_ohm = timescale_ohmic(cfg["L"], cfg["sigma"])
-    tau_Hall = timescale_Hall(B_initial, cfg["L"], cfg["n_e"])
+    tau_ohm = timescale_ohmic(L_cfg, sigma_cfg)
+    tau_Hall = timescale_Hall(B_initial, L_cfg, n_e_cfg)
 
     B_deriv = -B / tau_ohm - B ** 2 / (tau_Hall * B_initial)
 

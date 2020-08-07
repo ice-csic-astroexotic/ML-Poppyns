@@ -31,7 +31,7 @@ import pytest
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 from pypopsyn.simulator.configuration import cfg
 
-TOL = 1e-5
+TOL = 1e-7
 
 # Update the number of simulated objects for testing purposes.
 cfg["NS_number"] = 2
@@ -45,10 +45,8 @@ def test_case_1():
         "P_initial": np.array([1e-2, 1.0]),
         "t_age": np.array([1e3, 1e3]),
         "B_final_expected": np.array([9.997743e9, 9.997588e11]),
-        "chi_final_expected": np.array([0.0, 1.047198]),
-        "P_final_expected": np.array(
-            [0.010000000000004788, 1.000000000000838]
-        ),
+        "chi_final_expected": np.array([0.0, 1.04719101]),
+        "P_final_expected": np.array([0.01000015, 1.00002643]),
     }
 
     return data
@@ -95,7 +93,6 @@ def test_magneto_rotational_evolution(test_case_1):
         atol=1.0e-30,
     ).all()
 
-    # The relative changes in the period are very small, so we adjust rtol to a smaller value.
     assert np.isclose(
-        P_final_out, test_case_1["P_final_expected"], rtol=1e-15, atol=1.0e-30
+        P_final_out, test_case_1["P_final_expected"], rtol=TOL, atol=1.0e-30
     ).all()
