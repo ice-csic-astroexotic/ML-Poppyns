@@ -33,7 +33,7 @@ import pypopsyn.simulator.basics.constants as const
 from pypopsyn.simulator.configuration import cfg
 
 
-# @jit
+@jit
 def period_derivative(B: float, chi: float, P: float) -> float:
     """
     This function determines the change in the rotation period of a pulsar. It is taken

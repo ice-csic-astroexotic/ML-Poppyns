@@ -37,7 +37,7 @@ import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.configuration import cfg
 
 
-# @jit
+@jit
 def combined_derivatives(
     t: float, y: np.ndarray, B_initial: float
 ) -> np.ndarray:

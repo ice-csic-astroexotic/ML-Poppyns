@@ -31,13 +31,13 @@ SOFTWARE.
 
 KPC_TO_KM = 3.08567758e16  # Convert from [kpc] to [km].
 KPC_TO_CM = 3.08567758e21  # Convert from [kpc] to [cm].
-KM_TO_CM = 100000  # Convert from [km] to [cm].
-YR_TO_S = 3600 * 24 * 365  # Convert from [yr] to [s].
+KM_TO_CM = 100000.0  # Convert from [km] to [cm].
+YR_TO_S = 3600.0 * 24 * 365  # Convert from [yr] to [s].
 
 # Physical constants.
 
 M_SUN = 2.0e33  # Sun's mass in [g].
-c = 29979245800  # Speed of light [cm/s]
+c = 29979245800.0  # Speed of light [cm/s]
 e = 4.80320425e-10  # Electric charge in [statC] = [cm^(3/2)g^(1/2)/s]
 G = 6.67e-8  # Gravitational constant in [cm^3 g^-1 s^-2].
 
