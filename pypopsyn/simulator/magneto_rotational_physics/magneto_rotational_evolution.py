@@ -110,14 +110,15 @@ def magneto_rotational_evolution(
         # file. To obtain the magnetic field at the current time, we append the
         # current age value.
         time_grid = np.append(
-            np.arange(0, t_age[i], cfg["time_step"]), t_age[i]
+            10 ** np.arange(0, np.log10(t_age[i]), cfg["time_step_log10"],),
+            t_age[i],
         )
 
         # To integrate the problem, we use scipy's solve_ivp function.
         # Note that the args parameter only works in scipy version >1.4.0.
         evol_output = solve_ivp(
             combined_derivatives,
-            t_span=[0, t_age[i]],
+            t_span=[1.0, t_age[i]],
             y0=y_initial[i],
             method="RK45",
             t_eval=time_grid,

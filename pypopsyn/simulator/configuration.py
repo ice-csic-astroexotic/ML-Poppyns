@@ -131,7 +131,7 @@ cfg["L"] = 1e5
 cfg["n_e"] = 1e36
 
 # Time step for the magneto-rotational evolution [yr].
-cfg["time_step"] = 1e3
+cfg["time_step_log10"] = 1e-2
 
 
 def update_configuration(new_configuration) -> None:
