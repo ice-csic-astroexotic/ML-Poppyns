@@ -31,10 +31,13 @@ import pytest
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 from pypopsyn.simulator.configuration import cfg
 
-TOL = 1e-7
+TOL = 1e-10
 
 # Update the number of simulated objects for testing purposes.
 cfg["NS_number"] = 2
+
+# Update the logarithmic time step for testing purposes.
+cfg["time_step_log10"] = 1
 
 
 @pytest.fixture()
@@ -43,10 +46,10 @@ def test_case_1():
         "B_initial": np.array([1e10, 1e12]),
         "chi_initial": np.array([0.0, np.pi / 3]),
         "P_initial": np.array([1e-2, 1.0]),
-        "t_age": np.array([1e3, 1e3]),
-        "B_final_expected": np.array([9.997743e9, 9.997588e11]),
-        "chi_final_expected": np.array([0.0, 1.04719101]),
-        "P_final_expected": np.array([0.01000015, 1.00002643]),
+        "t_age": np.array([10, 10]),
+        "B_final_expected": np.array([9.999979686e9, 999.997829102e9]),
+        "chi_final_expected": np.array([0.0, 1.0471974923]),
+        "P_final_expected": np.array([0.01000000136, 1.00000023784]),
     }
 
     return data
@@ -73,8 +76,8 @@ def test_magneto_rotational_evolution(test_case_1):
     Verifying (approximately) that the magnetic field, misalignment angle and period are
     correctly evolved in time. To do so, we use a simple finite differencing scheme, i.e.,
     x_initial + x_derivative * time_step, to evaluate the first time step, only, and compare
-    it to the output of solve_ivp for two object whose ages correspond exactly to the length
-    of the first time step. Note that
+    it to the output of solve_ivp for two object whose ages correspond to the first evaluated
+    time step. With the above choices, the first time_step has a length of 9 years.
     """
     B_final_out, chi_final_out, P_final_out = mre.magneto_rotational_evolution(
         test_case_1["B_initial"],
