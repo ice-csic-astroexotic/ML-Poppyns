@@ -181,7 +181,7 @@ def generate_population(cfg) -> None:
             "[G]",
             "[rad]",
             "[s]",
-            "[s/s]",
+            "[s/yr]",
         ]
         header_initial = pd.MultiIndex.from_arrays(
             [parameters_initial, units_initial]
@@ -364,7 +364,7 @@ def generate_population(cfg) -> None:
             "[G]",
             "[rad]",
             "[s]",
-            "[s/s]",
+            "[s/yr]",
         ]
         header_final = pd.MultiIndex.from_arrays(
             [parameters_final, units_final]
