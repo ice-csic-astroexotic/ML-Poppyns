@@ -2,8 +2,9 @@
   "name": "Linear",
   "trials": 8,
   "convergence": {
-    "h_mean": 0.01,
-    "vp_mean": 5.0
+    "h_c_threshold": 0.01,
+    "vk_c_threshold": 5.0,
+    "sigma_k_threshold": 5.0
   },
   "n_gpu": 0,
 

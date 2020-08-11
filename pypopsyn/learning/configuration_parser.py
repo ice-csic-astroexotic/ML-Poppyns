@@ -103,7 +103,7 @@ class ConfigurationParser:
 
             Returns:
 
-                The object instance intialized with the provided arguments if
+                The object instance initialized with the provided arguments if
                 the name of the requested object exists in the configuration
                 dictionary. None otherwise.
 

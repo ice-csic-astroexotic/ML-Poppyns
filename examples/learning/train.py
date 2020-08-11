@@ -214,19 +214,25 @@ if __name__ == "__main__":
             ["--ignored_inputs"],
             type=int,
             nargs="*",
-            target=("data_loader;args;ignored_inputs"),
+            target=(
+                "data_loader;args;ignored_inputs,validation_data_loader;args;ignored_inputs"
+            ),
         ),
         CustomArgs(
             ["--ignored_labels"],
             type=int,
             nargs="*",
-            target=("data_loader;args;ignored_labels"),
+            target=(
+                "data_loader;args;ignored_labels,validation_data_loader;args;ignored_labels"
+            ),
         ),
         CustomArgs(
             ["--batch_size"],
             type=int,
             nargs="?",
-            target=("data_loader;args;batch_size"),
+            target=(
+                "data_loader;args;batch_size,validation_data_loader;args;batch_size"
+            ),
         ),
         CustomArgs(
             ["--input_shape"],
