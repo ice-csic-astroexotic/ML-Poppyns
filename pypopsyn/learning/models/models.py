@@ -10,6 +10,6 @@
 
 """
 
-from .model_Conv import ModelConv
+from .model_conv import ModelConv
 from .model_linear import ModelLinear
 from .model_mnist import ModelMNIST
