@@ -36,9 +36,11 @@ class ModelConv(ModelBase):
         super().__init__()
         self.conv1 = nn.Conv2d(input_shape[0], 4, 3)
         self.pool = nn.MaxPool2d(2, 2)
-        
-        # Create a mock input with the same shape of the real input drawing values from a normal distribution and pass it through the convolution layers in order to save the shape of the input features after the convolution layer and automatically initialize the linear layers with the right shape. 
-        x = torch.randn(input_shape[0], input_shape[1], input_shape[2]).view(-1,input_shape[0], input_shape[1], input_shape[2])
+
+        # Create a mock input with the same shape of the real input drawing values from a normal distribution and pass it through the convolution layers in order to save the shape of the input features after the convolution layer and automatically initialize the linear layers with the right shape.
+        x = torch.randn(input_shape[0], input_shape[1], input_shape[2]).view(
+            -1, input_shape[0], input_shape[1], input_shape[2]
+        )
         self._to_linear = None
         self.convs(x)
 
@@ -46,11 +48,11 @@ class ModelConv(ModelBase):
 
     def convs(self, x):
         """
-        Convolution and pooling layers farward pass.
+        Convolution and pooling layers forward pass.
 
         Args:
             x: Input tensor for the convolution layers.
-  
+
         Returns:
             Output tensor of the convolution and pooling layers.
         """
@@ -65,8 +67,8 @@ class ModelConv(ModelBase):
 
     def forward(self, x):
 
-        """ 
-	Forward pass.
+        """
+        Forward pass.
 
         Args:
             x: Input tensor for the network.
@@ -77,7 +79,7 @@ class ModelConv(ModelBase):
         """
 
         x = self.convs(x)
-        x = x.view(-1, self._to_linear)        
+        x = x.view(-1, self._to_linear)
         x = F.relu(self.fc1(x))
 
         return x
