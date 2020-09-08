@@ -22,7 +22,9 @@
 
 import argparse
 import collections
+import time
 
+import numpy as np
 import torch
 
 import pypopsyn.learning.configuration_parser as configuration_parser
@@ -32,6 +34,47 @@ import pypopsyn.learning.losses.losses as learning_losses
 import pypopsyn.learning.metrics.metrics as learning_metrics
 import pypopsyn.learning.models.models as learning_models
 import pypopsyn.learning.trainers.trainer_basic as learning_trainer
+
+
+def measure(model, x, y):
+    # synchronize gpu time and measure fp
+    torch.cuda.synchronize()
+    t0 = time.time()
+    y_pred = model(x)
+    torch.cuda.synchronize()
+    elapsed_fp = time.time() - t0
+
+    # zero gradients, synchronize time and measure
+    model.zero_grad()
+    t0 = time.time()
+    y_pred.backward(y)
+    torch.cuda.synchronize()
+    elapsed_bp = time.time() - t0
+    return elapsed_fp, elapsed_bp
+
+
+def benchmark(model, x, y):
+    # transfer the model on GPU
+    model.cuda()
+
+    # DRY RUNS
+    for i in range(5):
+        _, _ = measure(model, x, y)
+
+    print("DONE WITH DRY RUNS, NOW BENCHMARKING")
+
+    # START BENCHMARKING
+    t_forward = []
+    t_backward = []
+    for i in range(10):
+        t_fp, t_bp = measure(model, x, y)
+        t_forward.append(t_fp)
+        t_backward.append(t_bp)
+
+    # free memory
+    del model
+
+    return t_forward, t_backward
 
 
 def main(config):
@@ -69,6 +112,26 @@ def main(config):
         logger.info("Building model...")
         model = config.init_object("arch", learning_models)
         logger.info("Model architecture: {}".format(model))
+
+        # Benchmark model ------------------------------------------------------
+        # https://gist.github.com/iacolippo/9611c6d9c7dfc469314baeb5a69e7e1b
+        x = torch.Variable(torch.randn(1, 3, 224, 224)).cuda()
+        y = torch.randn(1, 1000).cuda()
+        time_forward, time_backward = benchmark(model, x, y)
+        logger.info(
+            "Forward pass time: {}{}{}".format(
+                np.mean(np.asarray(time_forward) * 1e3),
+                "+/-",
+                np.std(np.asarray(time_backward) * 1e3),
+            )
+        )
+        logger.info(
+            "Backward pass time: {}{}{}".format(
+                np.mean(np.asarray(time_backward) * 1e3),
+                "+/-",
+                np.std(np.asarray(time_backward) * 1e3),
+            )
+        )
 
         # Initialize weights ---------------------------------------------------
         logger.info("Initializing weights...")
