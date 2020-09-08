@@ -98,7 +98,7 @@ class BaseTrainer:
     def _train_epoch(self, epoch):
         raise NotImplementedError
 
-    def train(self) -> typing.Tuple[dict, float]:
+    def train(self, trial: int = None) -> typing.Tuple[dict, float]:
 
         """
         Main training procedure.
@@ -114,7 +114,8 @@ class BaseTrainer:
         it also saves the most accurate model to `best_model.pth`.
 
         Args:
-            None.
+            trial (int): the current trial to add suffixes to the saved models
+                and checkpoints. Can be none if no trial is specified.
 
         Returns:
             dict: a dictionary with the best values for each individual loss for
@@ -203,13 +204,16 @@ class BaseTrainer:
             # Create checkpoint at the requested interval.
             if (epoch % self.save_period) == 0:
                 self._save_checkpoint(
-                    epoch, "checkpoint-epoch{}.pth".format(epoch)
+                    epoch,
+                    "checkpoint_trial{}_epoch{}.pth".format(trial, epoch),
                 )
                 self.logger.info("Saved checkpoint...")
 
             # Save best model if it is the case.
             if best:
-                self._save_checkpoint(epoch, "best_model.pth")
+                self._save_checkpoint(
+                    epoch, "best_model_trial{}.pth".format(trial)
+                )
                 self.logger.info("Saved best model so far...")
 
         return best_losses, self.monitor_best

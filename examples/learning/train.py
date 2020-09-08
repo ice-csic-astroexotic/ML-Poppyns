@@ -122,10 +122,10 @@ def main(config):
         logger.info("{}".format(config))
 
         logger.info("Training model...")
-        train_results, best_result = trainer.train()
+        train_results, best_result = trainer.train(trials)
 
         logger.info("Best losses: {}".format(train_results))
-        logger.info("Best accuracy achieved: {}".format(best_result))
+        logger.info("Best accuracies achieved: {}".format(best_result))
 
         # Iterate over the best individual train or val losses and check the
         # specified convergence criteria in the configuration file.
