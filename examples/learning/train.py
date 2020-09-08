@@ -23,6 +23,7 @@
 import argparse
 import collections
 import time
+import typing
 
 import numpy as np
 import torch
@@ -36,43 +37,52 @@ import pypopsyn.learning.models.models as learning_models
 import pypopsyn.learning.trainers.trainer_basic as learning_trainer
 
 
-def measure(model, x, y):
-    # synchronize gpu time and measure fp
-    torch.cuda.synchronize()
-    t0 = time.time()
-    y_pred = model(x)
-    torch.cuda.synchronize()
-    elapsed_fp = time.time() - t0
+def measure(model, input_dummy, output_dummy) -> typing.Tuple[float, float]:
 
-    # zero gradients, synchronize time and measure
+    # TODO: Add support to selected device, move tensors and model to device.
+
+    # Synchronize gpu time and measure forward pass.
+    # torch.cuda.synchronize()
+    t0 = time.time()
+    y_pred = model(input_dummy)
+    # torch.cuda.synchronize()
+    elapsed_forward = time.time() - t0
+
+    # Zero gradients, synchronize time and measure backward pass.
     model.zero_grad()
     t0 = time.time()
-    y_pred.backward(y)
-    torch.cuda.synchronize()
-    elapsed_bp = time.time() - t0
-    return elapsed_fp, elapsed_bp
+    y_pred.backward(output_dummy)
+    # torch.cuda.synchronize()
+    elapsed_backward = time.time() - t0
+
+    return elapsed_forward, elapsed_backward
 
 
-def benchmark(model, x, y):
-    # transfer the model on GPU
-    model.cuda()
+def benchmark(model, input_dummy, labels_dummy) -> typing.Tuple[float, float]:
 
-    # DRY RUNS
-    for i in range(5):
-        _, _ = measure(model, x, y)
+    # TODO: Transfer the model to proper device.
+    # model.cuda()
 
-    print("DONE WITH DRY RUNS, NOW BENCHMARKING")
+    # Dry runs.
+    num_dry_runs = 5
+    for i in range(num_dry_runs):
+        _, _ = measure(model, input_dummy, labels_dummy)
 
-    # START BENCHMARKING
+    # Benchmarking for a defined number of repetitions.
+    num_repetitions = 100
     t_forward = []
     t_backward = []
-    for i in range(10):
-        t_fp, t_bp = measure(model, x, y)
+
+    for i in range(num_repetitions):
+        t_fp, t_bp = measure(model, input_dummy, labels_dummy)
         t_forward.append(t_fp)
         t_backward.append(t_bp)
 
-    # free memory
-    del model
+    t_forward = np.mean(np.asarray(t_forward) * 1e3)
+    t_backward = np.mean(np.asarray(t_backward) * 1e3)
+
+    # TODO: free memory if needed.
+    # del model
 
     return t_forward, t_backward
 
@@ -115,23 +125,17 @@ def main(config):
 
         # Benchmark model ------------------------------------------------------
         # https://gist.github.com/iacolippo/9611c6d9c7dfc469314baeb5a69e7e1b
-        x = torch.Variable(torch.randn(1, 3, 224, 224)).cuda()
-        y = torch.randn(1, 1000).cuda()
-        time_forward, time_backward = benchmark(model, x, y)
-        logger.info(
-            "Forward pass time: {}{}{}".format(
-                np.mean(np.asarray(time_forward) * 1e3),
-                "+/-",
-                np.std(np.asarray(time_backward) * 1e3),
-            )
+
+        logger.info("Benchmarking model...")
+        input_dummy, labels_dummy = next(iter(loader))
+        # TODO: Make sure this iter next does not skip the first batch next time.
+        logger.info("Dummy input shape {}".format(input_dummy.shape))
+        logger.info("Dummy output shape {}".format(labels_dummy.shape))
+        time_forward, time_backward = benchmark(
+            model, input_dummy, labels_dummy
         )
-        logger.info(
-            "Backward pass time: {}{}{}".format(
-                np.mean(np.asarray(time_backward) * 1e3),
-                "+/-",
-                np.std(np.asarray(time_backward) * 1e3),
-            )
-        )
+        logger.info("Forward pass time: {}[s]".format(time_forward))
+        logger.info("Backward pass time: {}[s]".format(time_backward))
 
         # Initialize weights ---------------------------------------------------
         logger.info("Initializing weights...")
