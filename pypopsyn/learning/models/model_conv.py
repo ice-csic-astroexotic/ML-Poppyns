@@ -1,12 +1,27 @@
-""" Model for a convolutional neural network
+"""
+Model for a convolutional neural network
 
-    Authors:
+Authors:
 
-        Michele Ronchi (ronchi@ice.csic.es)
-        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+    Michele Ronchi (ronchi@ice.csic.es)
+    Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 
-    Copyright (c) MAGNESIA (ICE-CSIC)
+Copyright (c) MAGNESIA (ICE-CSIC)
 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 
 import numpy as np
@@ -37,7 +52,9 @@ class ModelConv(ModelBase):
         self.conv1 = nn.Conv2d(input_shape[0], 4, 3)
         self.pool = nn.MaxPool2d(2, 2)
 
-        # Create a mock input with the same shape of the real input drawing values from a normal distribution and pass it through the convolution layers in order to save the shape of the input features after the convolution layer and automatically initialize the linear layers with the right shape.
+        # Create a mock input with the same shape of the real input drawing values from a normal distribution and pass
+        # it through the convolution layers in order to save the shape of the input features after the convolution
+        # layer and automatically initialize the linear layers with the right shape.
         x = torch.randn(input_shape[0], input_shape[1], input_shape[2]).view(
             -1, input_shape[0], input_shape[1], input_shape[2]
         )
