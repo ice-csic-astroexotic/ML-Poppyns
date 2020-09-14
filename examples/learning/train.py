@@ -35,56 +35,7 @@ import pypopsyn.learning.losses.losses as learning_losses
 import pypopsyn.learning.metrics.metrics as learning_metrics
 import pypopsyn.learning.models.models as learning_models
 import pypopsyn.learning.trainers.trainer_basic as learning_trainer
-
-
-def measure(model, input_dummy, output_dummy) -> typing.Tuple[float, float]:
-
-    # TODO: Add support to selected device, move tensors and model to device.
-
-    # Synchronize gpu time and measure forward pass.
-    # torch.cuda.synchronize()
-    t0 = time.time()
-    y_pred = model(input_dummy)
-    # torch.cuda.synchronize()
-    elapsed_forward = time.time() - t0
-
-    # Zero gradients, synchronize time and measure backward pass.
-    model.zero_grad()
-    t0 = time.time()
-    y_pred.backward(output_dummy)
-    # torch.cuda.synchronize()
-    elapsed_backward = time.time() - t0
-
-    return elapsed_forward, elapsed_backward
-
-
-def benchmark(model, input_dummy, labels_dummy) -> typing.Tuple[float, float]:
-
-    # TODO: Transfer the model to proper device.
-    # model.cuda()
-
-    # Dry runs.
-    num_dry_runs = 5
-    for i in range(num_dry_runs):
-        _, _ = measure(model, input_dummy, labels_dummy)
-
-    # Benchmarking for a defined number of repetitions.
-    num_repetitions = 100
-    t_forward = []
-    t_backward = []
-
-    for i in range(num_repetitions):
-        t_fp, t_bp = measure(model, input_dummy, labels_dummy)
-        t_forward.append(t_fp)
-        t_backward.append(t_bp)
-
-    t_forward = np.mean(np.asarray(t_forward) * 1e3)
-    t_backward = np.mean(np.asarray(t_backward) * 1e3)
-
-    # TODO: free memory if needed.
-    # del model
-
-    return t_forward, t_backward
+import pypopsyn.learning.utils.benchmark as benchmark
 
 
 def main(config):
@@ -122,20 +73,6 @@ def main(config):
         logger.info("Building model...")
         model = config.init_object("arch", learning_models)
         logger.info("Model architecture: {}".format(model))
-
-        # Benchmark model ------------------------------------------------------
-        # https://gist.github.com/iacolippo/9611c6d9c7dfc469314baeb5a69e7e1b
-
-        logger.info("Benchmarking model...")
-        input_dummy, labels_dummy = next(iter(loader))
-        # TODO: Make sure this iter next does not skip the first batch next time.
-        logger.info("Dummy input shape {}".format(input_dummy.shape))
-        logger.info("Dummy output shape {}".format(labels_dummy.shape))
-        time_forward, time_backward = benchmark(
-            model, input_dummy, labels_dummy
-        )
-        logger.info("Forward pass time: {}[s]".format(time_forward))
-        logger.info("Backward pass time: {}[s]".format(time_backward))
 
         # Initialize weights ---------------------------------------------------
         logger.info("Initializing weights...")
@@ -186,8 +123,19 @@ def main(config):
             lr_scheduler=scheduler,
         )
 
-        logger.info("{}".format(config))
+        # Benchmark model.
+        logger.info(
+            "Benchmarking model on device {}...".format(trainer.device)
+        )
+        input_dummy, labels_dummy = next(iter(loader))
+        # TODO: Make sure this iter next does not skip the first batch next time.
+        time_forward, time_backward = benchmark.benchmark(
+            model, trainer.device, input_dummy, labels_dummy
+        )
+        logger.info("Forward pass time: {}[ms]".format(time_forward))
+        logger.info("Backward pass time: {}[ms]".format(time_backward))
 
+        # Start training.
         logger.info("Training model...")
         train_results, best_result = trainer.train(trials)
 
