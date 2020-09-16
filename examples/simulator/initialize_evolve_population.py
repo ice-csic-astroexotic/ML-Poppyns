@@ -44,6 +44,7 @@ import pypopsyn.simulator.coordinate_conversions as coord
 import pypopsyn.simulator.dynamical_evolution as dyn
 import pypopsyn.simulator.galactic_model as gm
 import pypopsyn.simulator.initial_population as ipop
+import pypopsyn.simulator.spiral_model as sm
 
 log = logging.getLogger(__name__)
 
@@ -72,6 +73,7 @@ def generate_population(cfg) -> None:
 
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
+    sm.initialize_spiral_model()
 
     with timewith.TimeWith(
         "[InitialPopulation]",
@@ -94,7 +96,9 @@ def generate_population(cfg) -> None:
             x_initial,
             y_initial,
             z_initial,
-        ) = NS_population_initial.position(t_age=age)
+        ) = NS_population_initial.position(
+            t_age=age, spiral_model=sm.spiral_model
+        )
 
         # Generating initial velocities by summing the kick
         # velocities at birth and the orbital velocities.

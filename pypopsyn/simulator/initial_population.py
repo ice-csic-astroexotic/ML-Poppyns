@@ -39,6 +39,7 @@ import pypopsyn.simulator.constants as const
 import pypopsyn.simulator.coordinate_conversions as coco
 import pypopsyn.simulator.initial_position as ip
 import pypopsyn.simulator.initial_velocity as iv
+import pypopsyn.simulator.spiral_model as sm
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
@@ -88,7 +89,7 @@ class InitialNeutronStarPopulation:
         output_dir=cfg["profiles_dir"],
     )
     def position(
-        self, t_age: np.ndarray
+        self, t_age: np.ndarray, spiral_model: sm.SpiralModelBase
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Calculating the position at birth of each random neutron star in
@@ -96,33 +97,51 @@ class InitialNeutronStarPopulation:
 
         Args:
             t_age (np.ndarray): array of neutron star ages in [yr].
+            spiral_model (sm.SpiralModelBase): a spiral arm structure model.
 
         Returns:
             (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
             polar r and phi coordinates in [kpc] and rad and Cartesian x, y and z
             coordinates in [kpc] for each generated neutron star.
         """
+        # Randomly associate a spiral arm to each neutron star.
+        arm_index_rand = spiral_model.generate_arm_index(
+            cfg["arm_number"], cfg["NS_number"]
+        )
+        print(arm_index_rand)
+        # Count the number of stars in the Local arm
+        NS_local = len(arm_index_rand[arm_index_rand == 5])
+        print(NS_local)
 
         # Drawing a random distance from the galactic center in [kpc] for
         # each neutron star according to the radial stellar density.
         r_grid = np.logspace(
             np.log10(0.0001), np.log10(cfg["r_extent"]), cfg["resolution"]
         )
-        r_pdf_rand = cc.random_from_pdf(
-            r_grid, ip.pdf_radial_stellar_density, cfg["NS_number"],
+
+        r_pdf_rand = np.zeros(cfg["NS_number"])
+        r_pdf_rand[arm_index_rand != 5] = cc.random_from_pdf(
+            r_grid, ip.pdf_radial_stellar_density, cfg["NS_number"] - NS_local
         )
 
-        # Randomly select one of the four spiral arms for the neutron star sample.
-        arm_index_rand = np.random.randint(
-            1, cfg["arm_number"] + 1, cfg["NS_number"]
-        )
+        if NS_local != 0:
+            r_grid_local = np.logspace(
+                np.log10(sm.spiral_model.local_r_min),
+                np.log10(spiral_model.local_r_max),
+                cfg["resolution"],
+            )
+
+            r_pdf_rand[arm_index_rand == 5] = cc.random_from_pdf(
+                r_grid_local, ip.pdf_radial_stellar_density, NS_local
+            )
 
         # Evaluate the angular phi coordinate for each neutron star and
         # add noise to both galactocentric coordinates.
+        phi = sm.spiral_model.calculate_phi(r_pdf_rand, arm_index_rand)
         phi_rand = np.zeros(cfg["NS_number"])
         r_rand = np.zeros(cfg["NS_number"])
-        phi_rand, r_rand = ip.pdf_initial_coordinates(
-            r_pdf_rand, cfg["NS_number"], arm_index_rand
+        phi_rand, r_rand = ip.smear_initial_coordinates(
+            r_pdf_rand, phi, cfg["NS_number"]
         )
 
         # Propagating the azimuthal coordinate of each object backwards in time
