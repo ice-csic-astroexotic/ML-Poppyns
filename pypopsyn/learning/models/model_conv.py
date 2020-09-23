@@ -49,19 +49,21 @@ class ModelConv(ModelBase):
         """
 
         super().__init__()
-        self.conv1 = nn.Conv2d(input_shape[0], 4, 3)
+        self.conv1 = nn.Conv2d(input_shape[0], 32, 3)
+        self.conv2 = nn.Conv2d(32, 64, 3)
         self.pool = nn.MaxPool2d(2, 2)
 
         # Create a mock input with the same shape of the real input drawing values from a normal distribution and pass
         # it through the convolution layers in order to save the shape of the input features after the convolution
         # layer and automatically initialize the linear layers with the right shape.
-        x = torch.randn(input_shape[0], input_shape[1], input_shape[2]).view(
+        x = torch.randn(input_shape).view(
             -1, input_shape[0], input_shape[1], input_shape[2]
         )
         self._to_linear = None
         self.convs(x)
 
-        self.fc1 = nn.Linear(self._to_linear, num_parameters)
+        self.fc1 = nn.Linear(self._to_linear, 64)
+        self.fc2 = nn.Linear(64, num_parameters)
 
     def convs(self, x):
         """
@@ -75,6 +77,7 @@ class ModelConv(ModelBase):
         """
 
         x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
 
         # If the dimension of the flattened input features to the linear layers has not been saved yet, save it.
         if self._to_linear is None:
@@ -98,5 +101,6 @@ class ModelConv(ModelBase):
         x = self.convs(x)
         x = x.view(-1, self._to_linear)
         x = F.relu(self.fc1(x))
+        x = self.fc2(x)
 
         return x
