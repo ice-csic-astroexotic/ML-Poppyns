@@ -34,7 +34,7 @@ class LossRMSE(LossBase):
         # adding a small epsilon to avoid null values
         self.eps = eps
 
-        loss = torch.sqrt(self.mse(output, target) + self.eps)
+        loss = torch.sqrt(self.mse(output, target)) + self.eps
         return loss
 
     def __str__(self):
