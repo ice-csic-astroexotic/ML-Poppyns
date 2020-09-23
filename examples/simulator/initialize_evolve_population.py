@@ -76,6 +76,7 @@ def generate_population(cfg) -> None:
     with timewith.TimeWith(
         "[InitialPopulation]",
         configuration.cfg["profile_log"],
+        configuration.cfg["profile_json"],
         configuration.cfg["show_profiling"],
     ) as timer:
 
@@ -186,6 +187,7 @@ def generate_population(cfg) -> None:
     with timewith.TimeWith(
         "[EvolvePopulation]",
         configuration.cfg["profile_log"],
+        configuration.cfg["profile_json"],
         configuration.cfg["show_profiling"],
     ) as timer:
 

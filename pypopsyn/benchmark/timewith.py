@@ -28,6 +28,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import json
+import os
 import time
 
 import termcolor
@@ -39,7 +41,11 @@ class TimeWith:
     """
 
     def __init__(
-        self, name: str = "", filename: str = None, show: bool = True
+        self,
+        name: str = "",
+        log_filename: str = None,
+        json_filename: str = None,
+        show: bool = True,
     ) -> None:
         """
         Initialization of the timing context by holding a name for it and also
@@ -62,8 +68,24 @@ class TimeWith:
         self.name = name
         self.start = time.time()
         self.last = self.start
-        self.filename = filename
+        self.log_filename = log_filename
+        self.json_filename = json_filename
         self.show = show
+
+        if self.json_filename is not None:
+
+            if not os.path.isfile(self.json_filename):
+                with open(self.json_filename, "w+") as f:
+                    f.write(json.dumps({}))
+
+            with open(self.json_filename, "r") as f:
+                data = json.load(f)
+
+            data[name] = {}
+            data[name]["time"] = 0.0
+
+            with open(self.json_filename, "w") as f:
+                json.dump(data, f, indent=2)
 
     def elapsed(self) -> None:
         """
@@ -115,10 +137,22 @@ class TimeWith:
 
             print(termcolor.colored(output, "green"))
 
-        if self.filename is not None:
+        if self.log_filename is not None:
 
-            with open(self.filename, "a") as f:
+            with open(self.log_filename, "a") as f:
                 f.write(output + "\n")
+
+        if self.json_filename is not None:
+
+            with open(self.json_filename) as f:
+                data = json.load(f)
+
+            data[self.name][name] = {}
+            data[self.name][name]["elapsed_time"] = total
+            data[self.name][name]["cumulative_time"] = cumulative
+
+            with open(self.json_filename, "w") as f:
+                json.dump(data, f, indent=2)
 
     def __enter__(self):
         """
@@ -154,7 +188,17 @@ class TimeWith:
 
             print(termcolor.colored(output, "green"))
 
-        if self.filename is not None:
+        if self.log_filename is not None:
 
-            with open(self.filename, "a") as f:
+            with open(self.log_filename, "a") as f:
                 f.write(output + "\n")
+
+        if self.json_filename is not None:
+
+            with open(self.json_filename, "r") as f:
+                data = json.load(f)
+
+            data[self.name]["time"] = cumulative
+
+            with open(self.json_filename, "w") as f:
+                json.dump(data, f, indent=2)
