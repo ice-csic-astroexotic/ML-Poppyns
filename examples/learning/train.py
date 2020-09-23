@@ -22,7 +22,10 @@
 
 import argparse
 import collections
+import time
+import typing
 
+import numpy as np
 import torch
 
 import pypopsyn.learning.configuration_parser as configuration_parser
@@ -32,6 +35,7 @@ import pypopsyn.learning.losses.losses as learning_losses
 import pypopsyn.learning.metrics.metrics as learning_metrics
 import pypopsyn.learning.models.models as learning_models
 import pypopsyn.learning.trainers.trainer_basic as learning_trainer
+import pypopsyn.learning.utils.benchmark as benchmark
 
 
 def main(config):
@@ -119,8 +123,19 @@ def main(config):
             lr_scheduler=scheduler,
         )
 
-        logger.info("{}".format(config))
+        # Benchmark model.
+        logger.info(
+            "Benchmarking model on device {}...".format(trainer.device)
+        )
+        input_dummy, labels_dummy = next(iter(loader))
+        # TODO: Make sure this iter next does not skip the first batch next time.
+        time_forward, time_backward = benchmark.benchmark(
+            model, trainer.device, input_dummy, labels_dummy
+        )
+        logger.info("Forward pass time: {}[ms]".format(time_forward))
+        logger.info("Backward pass time: {}[ms]".format(time_backward))
 
+        # Start training.
         logger.info("Training model...")
         train_results, best_result = trainer.train(trials)
 
