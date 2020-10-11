@@ -50,18 +50,17 @@ import pypopsyn.simulator.initial_population as ipop
 log = logging.getLogger(__name__)
 
 
-@timefunc.time_function(
-    configuration.cfg["profile_log"], configuration.cfg["show_profiling"]
-)
-def generate_population(output_dir: str, json_override: str = None) -> None:
+def generate_population(
+    output_path: pathlib.Path, json_override_path: pathlib.Path = None
+) -> None:
     """
     Generating a neutron star population starting from some initial
     conditions and evolving it forward in time.
 
     Args:
 
-        output_dir (str):
-        json_override (str):
+        output_dir (pathlib.Path): Output directory for the run.
+        json_override_path (pathlib.Path): Path to JSON with parameter overrides.
 
     Returns:
 
@@ -69,14 +68,10 @@ def generate_population(output_dir: str, json_override: str = None) -> None:
 
     """
 
-    # If the output directory does not exist, create it.
-    output_path = pathlib.Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    # Update simulator configuration with the provided JSON override.
+    # Update simulator configuration with the provided JSON override (if any).
     cfg_override = {}
-    if json_override:
-        with open(json_override) as f:
+    if json_override_path:
+        with open(json_override_path) as f:
             cfg_override = json.load(f)
             configuration.update_configuration(cfg_override)
 
@@ -374,7 +369,7 @@ if __name__ == "__main__":
         "--output_dir",
         nargs="?",
         type=str,
-        default="output",
+        default="output/test",
         help="Path to the directory where the run will be saved.",
     )
 
@@ -390,4 +385,16 @@ if __name__ == "__main__":
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-    generate_population(args.output_dir, args.parameter_override)
+    # If the output directory does not exist, create it.
+    output_path = pathlib.Path(args.output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Update path-dependent configurations prepending the specified output path.
+    configuration.cfg["profile_log"] = pathlib.Path().joinpath(
+        output_path, configuration.cfg["profile_log"]
+    )
+    configuration.cfg["profile_json"] = pathlib.Path().joinpath(
+        output_path, configuration.cfg["profile_json"]
+    )
+
+    generate_population(output_path, args.parameter_override)
