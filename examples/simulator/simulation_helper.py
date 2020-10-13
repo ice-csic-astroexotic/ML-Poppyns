@@ -302,7 +302,7 @@ if __name__ == "__main__":
         "--kick_model",
         nargs="?",
         type=str,
-        default=None,
+        default="km_exp",
         help="pdf model for the kick velocity and range for its parameter. Choose between km_exp or km_maxwell.",
     )
 

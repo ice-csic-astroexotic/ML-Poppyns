@@ -27,6 +27,7 @@
 """
 
 import argparse
+import json
 import logging
 import os
 import pathlib
@@ -34,7 +35,6 @@ import sys
 
 import numpy as np
 import pandas as pd
-import yaml
 
 import pypopsyn.generator.position_maps as pmaps
 import pypopsyn.generator.velocity_maps as vmaps
@@ -69,7 +69,7 @@ def generate_dataset(args) -> None:
     """
 
     # Create the dataset directory path.
-    dataset_path = "{}".format(args.save_dir)
+    dataset_path = f"{args.save_dir}"
     pathlib.Path(dataset_path).mkdir(parents=True, exist_ok=True)
 
     # Initialize dictionaries that will contain the density map files names and
@@ -87,7 +87,7 @@ def generate_dataset(args) -> None:
     # Check if the parsed multirun directory exists as a precondition.
     root_path = pathlib.Path(args.data)
     if not root_path.exists():
-        log.error("directory {} not found".format(root_path))
+        log.error(f"directory {root_path} not found")
         sys.exit()
 
     # Number of samples in the parsed directory.
@@ -111,15 +111,13 @@ def generate_dataset(args) -> None:
     # Main generator loop.
     for s in samples:
 
-        log.info("Generating sample {}".format(s))
+        log.info(f"Generating sample {s:06}")
 
         # Check if the simulated population file exists as a precondition.
-        pop_path = pathlib.Path(
-            "{}/{}/final_population.pkl.gz".format(root_path, s)
-        )
+        pop_path = pathlib.Path(f"{root_path}/{s:06}/final_population.pkl.gz")
 
         if not pop_path.exists():
-            log.error("Population file not found in {}".format(pop_path))
+            log.error(f"Population file not found in {pop_path}")
             sys.exit()
 
         # Create a data frame object of the population file.
@@ -244,19 +242,15 @@ def generate_dataset(args) -> None:
         )
 
         # Check if files containing labels exists as a precondition.
-        label_path = pathlib.Path(
-            "{}/{}/.hydra/config.yaml".format(root_path, s)
-        )
+        label_path = pathlib.Path(f"{root_path}/{s:06}/override.json")
 
         if not label_path.exists():
-            log.error(
-                "File containing labels not found in {}".format(label_path)
-            )
+            log.error(f"File containing labels not found in {label_path}")
             sys.exit()
 
         # Save the parameters value in a dictionary.
         with open(label_path) as file:
-            dictionary = yaml.full_load(file)
+            dictionary = json.load(file)
             for key, val in dictionary.items():
                 param_dictionary.setdefault(key, []).append(val)
 
@@ -274,7 +268,7 @@ def generate_dataset(args) -> None:
     }
 
     # Write the dataset dictionary into a .csv file.
-    dataset_filename = "{}/dataset.csv".format(dataset_path)
+    dataset_filename = f"{dataset_path}/dataset.csv"
     df = pd.DataFrame(
         {key: pd.Series(value) for key, value in dataset_dictionary.items()}
     )
