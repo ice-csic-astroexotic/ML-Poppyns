@@ -75,6 +75,11 @@ def generate_population(
             cfg_override = json.load(f)
             configuration.update_configuration(cfg_override)
 
+    # Dump configuration override to output path.
+    override_dump_path = pathlib.Path().joinpath(output_path, "override.json")
+    with open(override_dump_path, "w") as f:
+        json.dump(cfg_override, f, indent=4, sort_keys=True)
+
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
 
