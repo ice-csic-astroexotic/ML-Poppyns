@@ -4,7 +4,8 @@
     population simulated from the simulator `initialize_evolve_population.py`
     with different initial parameters.
 
-    This expects that a population has been generated using hydra multirun method.
+    This expects that a set of populations have been generated either using
+    directly that script or using the helper with its particular directory tree.
 
     The user can choose to generate either a dataset of images or of 2D arrays.
 
@@ -44,16 +45,16 @@ log = logging.getLogger(__name__)
 
 def generate_dataset(args) -> None:
     """
-    This method reads the simulated population files saved in a multirun
-    folder and generates a dataset of density maps in the specified format
-    (images or arrays) and with a specified resolution.
+    This method reads the simulated population files (usually by the simulation
+    helper) folder and generates a dataset of density maps in the specified
+    format (images or arrays) and with a specified resolution.
     All the information about the dataset are stored in a datset.csv file
     containing the density map files names and the set of parameter values for
     each simulated population.
 
     Args:
         args:
-            data (str): Path to where the simulated data in a multirun are located.
+            data (str): Path to where the simulated populations are located.
 
             save_dir (str): Path to where the generated dataset will be saved.
 
@@ -84,7 +85,7 @@ def generate_dataset(args) -> None:
     velocity_map_vdec_dictionary = {}
     param_dictionary = {}
 
-    # Check if the parsed multirun directory exists as a precondition.
+    # Check if the parsed simulated populations directory exists.
     root_path = pathlib.Path(args.data)
     if not root_path.exists():
         log.error(f"directory {root_path} not found")
@@ -285,7 +286,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         required=True,
-        help="Path to where the simulated data in a multirun are.",
+        help="Path to where the simulated populations are.",
     )
     parser.add_argument(
         "--save_dir",

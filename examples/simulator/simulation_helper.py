@@ -6,12 +6,17 @@
     This script helps running the simulator scripts (in this case the simulator
     for initializing and evolving a population) in a multithreaded way.
 
-    TODO: Document better what the script does.
-
-    This script parses a more compact representation like:
+    It parses a compact representation for each tunable parameter like:
         --argument low high count
 
-    And expand it to a linspace between [low, high] with a count num of steps.
+    And expands it to a linspace between [low, high] with a count num of steps.
+
+    Such expansion is done for each specified argument and then all the possible
+    combinations of them are produced by a generator.
+
+    Each combination will spawn a new process that goes into a multithreaded
+    pool for later execution, allowing the simulation of many populations to
+    run asyncrhonously in parallel with a defined maximum number of threads.
 
     Running the code:
 
@@ -108,8 +113,8 @@ def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
     log.info(
         "****************************************************************"
     )
-    log.info('Ran simulation "{}"!'.format(process_result[0]))
-    log.info("Process output:\n {}".format(process_result[1]))
+    log.info(f"Ran simulation {process_result[0]}!")
+    log.info(f"Process output:\n {process_result[1]}")
     log.info("Process finished...")
 
 
@@ -198,9 +203,7 @@ def main(args):
                 # If the value for such argument is not on the dictionary of
                 # possible values we throw an exception.
                 raise ValueError(
-                    "The value {} is not feasible for parameter {}".format(
-                        value, arg
-                    )
+                    f"The value {value} is not feasible for parameter {arg}"
                 )
 
         elif type(value) is list:
@@ -211,21 +214,21 @@ def main(args):
             var_expanded_ranges.append(list(var_range))
             var_names.append(arg)
 
-    log.info("Required parameters {}".format(required_parameters))
-    log.info("Forbidden parameters {}".format(forbidden_parameters))
+    log.info(f"Required parameters {required_parameters}")
+    log.info(f"Forbidden parameters {forbidden_parameters}")
 
     # Remove intersecting parameters from the forbidden list.
     for p in set(required_parameters) & set(forbidden_parameters):
-        log.info("Intersecting parameter {}".format(p))
+        log.info(f"Intersecting parameter {p}")
         forbidden_parameters.remove(p)
     # Check if all the required parameters are specified.
     for p in required_parameters:
         if p not in args_dict.keys() or args_dict[p] is None:
-            raise ValueError("Required parameter {} not present.".format(p))
+            raise ValueError(f"Required parameter {p} not present.")
     # Check if none of the incompatible parameters are required.
     for p in forbidden_parameters:
         if p in args_dict.keys() and args_dict[p] is not None:
-            raise ValueError("Forbidden parameter {} is present".format(p))
+            raise ValueError("Forbidden parameter {p} is present")
 
     # Create a generator of all the possible combinations of parameters based on
     # their expanded range lists and queue each combination as a different
@@ -287,7 +290,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         required=True,
-        help="path to the directory where the multi-run output is saved.",
+        help="Path to the directory where the multi-run output is saved.",
     )
 
     args.add_argument(
@@ -303,7 +306,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default="km_exp",
-        help="pdf model for the kick velocity and range for its parameter. Choose between km_exp or km_maxwell.",
+        help="PDF model for the kick velocity and range for its parameter. Choose between km_exp or km_maxwell.",
     )
 
     args.add_argument(
