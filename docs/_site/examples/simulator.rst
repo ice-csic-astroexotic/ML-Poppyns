@@ -2,33 +2,36 @@
 Simulator Example
 *****************
 
-The :code:`examples/simulator/initialize_evolve_population.py` script is responsible for initializing the simulated population from some initial conditions parameters and evolve it in time.
-To simulate populations with different initial parameters the package :code:`hydra` is used. One can pass the values of the parameters through a configuration available at :code:`pypopsyn/simulator/configuration.py` or directly on the command prompt. As an example to simulate four population with kick velocities drawn from exponential distributions with four different characteristic kick velocities :code:`vk_c` values one can run the script:
+The :code:`examples/simulator/initialize_evolve_population.py` script is responsible for initializing the simulated population from some initial conditions parameters and evolve it in time. To simulate populations with different initial parameters, the user can directly modify the simulator configuration in :code:`pypopsyn/simulator/configuration.py` or alternatively for a more programmatic way a JSON dictionary containing configuration overrides for the simulation parameters can be provided as a command line argument to this script:
 
 .. code-block:: bash
 
-  python examples/simulator/initialize_evolve_population.py kick_model="km_exp" vk_c=100.,200.,300.,600. -m 
+  python examples/simulator/initialize_evolve_population.py --output_dir test_simulation --parameter_override override.json
 
+This will generate a new folder if it does not exist :code:`test_simulation` in which the simulation results will be dumped: the initial population in compressed binary format `initial_population.pkl.gz`, the final population in the same format `final_population.pkl.gz`, the profiles for the simulation if enabled and the dictionary containing the parameter overrides in `override.json` for reproducibility.
 
-In this way the multirun mode is used and a directory structure :code:`multirun/YYYY-MM-DD/hh-mm-ss/simulated_population_index` is created, where :code:`YYYY-MM-DD` and :code:`hh-mm-ss` folders names are the date and time when the simulation has been performed and the :code:`simulated_population_index` folders names are :code:`0, 1, 2, ...`. In each one of these folders, the output files :code:`initial_population.pkl.gz`, :code:`final_population.pkl.gz`, a log file :code:`initialize_evolve_population.log` and a folder named :code:`.hydra` are created. The file :code:`final_population.pkl.gz` contains all the physical information (like the final position, the final velocity...) of each star after the evolution from the initial configuration saved in :code:`initial_population.pkl.gz`. The folder :code:`.hydra` contains a file named :code:`config.yaml` storing the parameter values from where the population has been initialized.
-
-You can also change the directory where to save the output files. To do that you need to pass an additional argument when running the script above. In paricular if you are not in multirun mode you have to pass the command :code:`hydra.run.dir = "new_directory_path"`, while if you are using the multirun and sweeping parameter values you need to pass the argument :code:`hydra.sweep.dir = "new_directory_path"`. In this way the folders :code:`0, 1, 2, ...` will be saved into the :code:`new_directory_path`.
-
-If you want to generate a huge parameter sweep, you would need to indicate a really large list (each one of the values for the parameter you want to sweep). Hydra is evolving and will accept a way to sweep the parameters in an easy way with a compact notation but for now it only sweeps integers in a linspace fashion :code:`start:end:steps`. To simplify running such large-scale experiments, you can use the wrapper or helper script to make use of such compact notation:
+For more information about the simulation script, issue the :code:`--h` argument:
 
 .. code-block:: bash
 
-  python examples/simulator/simulation_helper.py --kick_model "km_exp" --vk_c 100.0 200.0 100
+  python examples/simulator/initialize_evolve_population.py --h
 
+If you want to generate a huge parameter sweep you can use the wrapper or helper script that allows the specification of parameters in a linear spacing format :code:`--parameter [low] [high] [steps]`:
 
-That will generate a sweep of :code:`100` uniformly spaced samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]`.
+.. code-block:: bash
+
+  python examples/simulator/simulation_helper.py --output_dir test_simulator --kick_model "km_exp" --vk_c 100.0 200.0 100
+
+This example will generate a sweep of :code:`100` uniformly spaced samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model and the results will be dumped in the specified :code:`test_simulator` folder.
 
 You can also sweep over more than one parameters by running a script like:
 
 .. code-block:: bash
 
-  python examples/simulator/simulation_helper.py --kick_model "km_exp" --vk_c 100.0 200.0 100 --h_c 0.01 2 10
+  python examples/simulator/simulation_helper.py --output_dir test_simulator --kick_model "km_exp" --vk_c 100.0 200.0 100 --h_c 0.01 2 10
 
-In this way a population is simulated for each combination of values of :code:`vk_c` and :code:`h_c`, i.e., the above case corresponds to :code:`100 x 10 = 1000` simulations.
+In this way a population is simulated for each combination of values of :code:`vk_c` and :code:`h_c`, i.e., the above case corresponds to :code:`100 x 10 = 1000` simulations. The sweeper will generate a folder :code:`test_simulator` which will contain a folder for each simulation (parameter combination).
 
-Also in this case if you want to change the path where to save the output files, you can pass the additional argument :code:`--output_dir "new_directory_path"`.
+Here it is important to distinguish between two types of arguments for the helper: options and parameters. Options are arguments which specify procedures for the simulation and they cannot be swept in a range since we assume they are not going to be outputs that will need to be predicted, e.g., the kick model. Parameters are values that we expect to use as ground truth for the learning system and therefore are to be predicted so they can be swept in a range to generate a dataset, e.g., :code:`vk_c`.
+
+The script automatically checks the compatibility of the present parameters for the selected options, e.g., :code:`vk_c` cannot be specified if :code:`km_maxell` has been chosen as kick model. This is done using the dictionary :code:`examples/simulator/config_sweeper.json` which specifies a list of exclusive parameters for each option.
