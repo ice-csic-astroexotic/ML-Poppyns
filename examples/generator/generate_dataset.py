@@ -88,7 +88,7 @@ def generate_dataset(args) -> None:
     # Check if the parsed simulated populations directory exists.
     root_path = pathlib.Path(args.data)
     if not root_path.exists():
-        log.error(f"directory {root_path} not found")
+        log.error(f"Directory {root_path} not found...")
         sys.exit()
 
     # Number of samples in the parsed directory.
@@ -107,7 +107,7 @@ def generate_dataset(args) -> None:
         # If no samples are specified, just generate all of them.
         samples = [i for i in range(sample_number)]
 
-    log.info("Generating {} samples".format(len(samples)))
+    log.info(f"Generating {len(samples)} samples...")
 
     # Main generator loop.
     for s in samples:
