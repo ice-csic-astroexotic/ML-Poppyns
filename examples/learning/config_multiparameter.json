@@ -3,7 +3,7 @@
   "trials": 8,
   "convergence": {
     "h_c_threshold": 0.01,
-    "vk_c_threshold": 5.0,
+    "vk_c_threshold": 0.1,
     "sigma_k_threshold": 5.0
   },
   "n_gpu": 0,
@@ -12,7 +12,7 @@
     "type": "ModelLinear",
     "args": {
         "input_shape": [4, 128, 128],
-        "num_parameters": 2
+        "num_parameters": 1
     }
   },
 
@@ -28,9 +28,10 @@
       "batch_size": 8,
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
-      "ignored_labels": [],
-      "normalize": false,
-      "standardize": false
+      "ignored_labels": [8],
+      "normalize": true,
+      "standardize": false,
+      "shuffle": true
     }
   },
 
@@ -41,9 +42,8 @@
       "batch_size": 8,
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
-      "ignored_labels": [],
-      "shuffle": false,
-      "normalize": false,
+      "ignored_labels": [8],
+      "normalize": true,
       "standardize": false
     }
   },
