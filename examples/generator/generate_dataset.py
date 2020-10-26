@@ -4,7 +4,8 @@
     population simulated from the simulator `initialize_evolve_population.py`
     with different initial parameters.
 
-    This expects that a population has been generated using hydra multirun method.
+    This expects that a set of populations have been generated either using
+    directly that script or using the helper with its particular directory tree.
 
     The user can choose to generate either a dataset of images or of 2D arrays.
 
@@ -27,6 +28,7 @@
 """
 
 import argparse
+import json
 import logging
 import os
 import pathlib
@@ -34,7 +36,6 @@ import sys
 
 import numpy as np
 import pandas as pd
-import yaml
 
 import pypopsyn.generator.position_maps as pmaps
 import pypopsyn.generator.velocity_maps as vmaps
@@ -44,16 +45,16 @@ log = logging.getLogger(__name__)
 
 def generate_dataset(args) -> None:
     """
-    This method reads the simulated population files saved in a multirun
-    folder and generates a dataset of density maps in the specified format
-    (images or arrays) and with a specified resolution.
+    This method reads the simulated population files (usually by the simulation
+    helper) folder and generates a dataset of density maps in the specified
+    format (images or arrays) and with a specified resolution.
     All the information about the dataset are stored in a datset.csv file
     containing the density map files names and the set of parameter values for
     each simulated population.
 
     Args:
         args:
-            data (str): Path to where the simulated data in a multirun are located.
+            data (str): Path to where the simulated populations are located.
 
             save_dir (str): Path to where the generated dataset will be saved.
 
@@ -69,7 +70,7 @@ def generate_dataset(args) -> None:
     """
 
     # Create the dataset directory path.
-    dataset_path = "{}".format(args.save_dir)
+    dataset_path = f"{args.save_dir}"
     pathlib.Path(dataset_path).mkdir(parents=True, exist_ok=True)
 
     # Initialize dictionaries that will contain the density map files names and
@@ -84,10 +85,10 @@ def generate_dataset(args) -> None:
     velocity_map_vdec_dictionary = {}
     param_dictionary = {}
 
-    # Check if the parsed multirun directory exists as a precondition.
+    # Check if the parsed simulated populations directory exists.
     root_path = pathlib.Path(args.data)
     if not root_path.exists():
-        log.error("directory {} not found".format(root_path))
+        log.error(f"Directory {root_path} not found...")
         sys.exit()
 
     # Number of samples in the parsed directory.
@@ -106,20 +107,18 @@ def generate_dataset(args) -> None:
         # If no samples are specified, just generate all of them.
         samples = [i for i in range(sample_number)]
 
-    log.info("Generating {} samples".format(len(samples)))
+    log.info(f"Generating {len(samples)} samples...")
 
     # Main generator loop.
     for s in samples:
 
-        log.info("Generating sample {}".format(s))
+        log.info(f"Generating sample {s:06}")
 
         # Check if the simulated population file exists as a precondition.
-        pop_path = pathlib.Path(
-            "{}/{}/final_population.pkl.gz".format(root_path, s)
-        )
+        pop_path = pathlib.Path(f"{root_path}/{s:06}/final_population.pkl.gz")
 
         if not pop_path.exists():
-            log.error("Population file not found in {}".format(pop_path))
+            log.error(f"Population file not found in {pop_path}")
             sys.exit()
 
         # Create a data frame object of the population file.
@@ -244,19 +243,15 @@ def generate_dataset(args) -> None:
         )
 
         # Check if files containing labels exists as a precondition.
-        label_path = pathlib.Path(
-            "{}/{}/.hydra/config.yaml".format(root_path, s)
-        )
+        label_path = pathlib.Path(f"{root_path}/{s:06}/override.json")
 
         if not label_path.exists():
-            log.error(
-                "File containing labels not found in {}".format(label_path)
-            )
+            log.error(f"File containing labels not found in {label_path}")
             sys.exit()
 
         # Save the parameters value in a dictionary.
         with open(label_path) as file:
-            dictionary = yaml.full_load(file)
+            dictionary = json.load(file)
             for key, val in dictionary.items():
                 param_dictionary.setdefault(key, []).append(val)
 
@@ -274,7 +269,7 @@ def generate_dataset(args) -> None:
     }
 
     # Evaluate the validation dataset size according to the fraction defined by the split argument.
-    # Then random sample the validation dataset and the train dataset from the whole dataset
+    # Then random sample the validation dataset and the train dataset from the whole dataset.
     valid_size = int(args.split * len(samples))
     dataset_idx = np.arange(len(samples))
     valid_idx = np.random.choice(len(samples), valid_size, replace=False)
@@ -291,6 +286,7 @@ def generate_dataset(args) -> None:
 
     # Write the train and validation dataset dictionary into a .csv file.
     train_dataset_filename = "{}/train_dataset.csv".format(dataset_path)
+
     df = pd.DataFrame(
         {
             key: pd.Series(value)
@@ -319,7 +315,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         required=True,
-        help="Path to where the simulated data in a multirun are.",
+        help="Path to where the simulated populations are.",
     )
     parser.add_argument(
         "--split",
