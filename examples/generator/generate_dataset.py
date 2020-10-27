@@ -268,43 +268,63 @@ def generate_dataset(args) -> None:
         **param_dictionary,
     }
 
-    # Evaluate the validation dataset size according to the fraction defined by the split argument.
-    # Then random sample the validation dataset and the train dataset from the whole dataset.
-    valid_size = int(args.split * len(samples))
-    dataset_idx = np.arange(len(samples))
-    valid_idx = np.random.choice(len(samples), valid_size, replace=False)
-    train_idx = np.array([idx for idx in dataset_idx if idx not in valid_idx])
-    # Create dictionaries for the training and validation datasets
-    valid_dataset_dictionary = {}
-    train_dataset_dictionary = {}
-    for k in dataset_dictionary.keys():
-        v = np.array(dataset_dictionary[k])
-        v_valid = v[valid_idx]
-        v_train = v[train_idx]
-        valid_dataset_dictionary.setdefault(k, v_valid)
-        train_dataset_dictionary.setdefault(k, v_train)
+    if args.split is not None:
 
-    # Write the train and validation dataset dictionary into a .csv file.
-    train_dataset_filename = "{}/train_dataset.csv".format(dataset_path)
+        # Evaluate the validation dataset size according to the fraction defined by the split argument.
+        # Then random sample the validation dataset and the train dataset from the whole dataset.
+        valid_size = int(args.split * len(samples))
+        dataset_idx = np.arange(len(samples))
+        valid_idx = np.random.choice(len(samples), valid_size, replace=False)
+        train_idx = np.array(
+            [idx for idx in dataset_idx if idx not in valid_idx]
+        )
+        # Create dictionaries for the training and validation datasets
+        valid_dataset_dictionary = {}
+        train_dataset_dictionary = {}
+        for k in dataset_dictionary.keys():
+            v = np.array(dataset_dictionary[k])
+            v_valid = v[valid_idx]
+            v_train = v[train_idx]
+            valid_dataset_dictionary.setdefault(k, v_valid)
+            train_dataset_dictionary.setdefault(k, v_train)
 
-    df = pd.DataFrame(
-        {
-            key: pd.Series(value)
-            for key, value in train_dataset_dictionary.items()
-        }
-    )
-    df.to_csv(train_dataset_filename, encoding="utf-8", index=False)
+        # Write the train and validation dataset dictionary into a .csv file.
+        train_dataset_filename = "{}/train_dataset.csv".format(dataset_path)
 
-    valid_dataset_filename = "{}/valid_dataset.csv".format(dataset_path)
-    df = pd.DataFrame(
-        {
-            key: pd.Series(value)
-            for key, value in valid_dataset_dictionary.items()
-        }
-    )
-    df.to_csv(valid_dataset_filename, encoding="utf-8", index=False)
+        df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in train_dataset_dictionary.items()
+            }
+        )
+        df.to_csv(train_dataset_filename, encoding="utf-8", index=False)
 
-    log.info("Files train_dataset.csv and valid_dataset.csv generated")
+        valid_dataset_filename = "{}/valid_dataset.csv".format(dataset_path)
+        df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in valid_dataset_dictionary.items()
+            }
+        )
+        df.to_csv(valid_dataset_filename, encoding="utf-8", index=False)
+
+        log.info("Files train_dataset.csv and valid_dataset.csv generated")
+
+    else:
+
+        # Use the whole dataset both for training and validation.
+        # Write the dataset dictionary into a .csv file.
+        dataset_filename = "{}/dataset.csv".format(dataset_path)
+
+        df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in dataset_dictionary.items()
+            }
+        )
+        df.to_csv(dataset_filename, encoding="utf-8", index=False)
+
+        log.info("File dataset.csv generated")
 
 
 if __name__ == "__main__":
@@ -321,7 +341,7 @@ if __name__ == "__main__":
         "--split",
         nargs="?",
         type=float,
-        default=0.2,
+        default=None,
         help="Fraction of the total dataset that will form the validation dataset.",
     )
     parser.add_argument(
