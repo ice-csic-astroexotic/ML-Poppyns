@@ -57,8 +57,7 @@ class TrainerBasic(BaseTrainer):
         metric: pypopsyn.learning.metrics.metric_base,
         optimizer: torch.optim.Optimizer,
         configuration: pypopsyn.learning.configuration_parser,
-        train_loader: pypopsyn.learning.loaders.loader_base,
-        val_loader: pypopsyn.learning.loaders.loader_base = None,
+        dataset_loader: pypopsyn.learning.loaders.loader_base,
         lr_scheduler: torch.optim.lr_scheduler = None,
     ) -> None:
         """
@@ -67,11 +66,10 @@ class TrainerBasic(BaseTrainer):
         Args:
             model (torch.nn.Module): network model to train.
             criterion (pypopsyn.LossBase): criterion for the loss calculation.
-            metrics (pypopsyn.MetricBase): accuracy metric to be computed.
+            metric (pypopsyn.MetricBase): accuracy metric to be computed.
             optimizer (torch.optim.Optimizer): optimizer for training.
             configuration (pypopsyn.learning.configuration_parser): config dict.
-            train_loader (pypopsyn.learning.loaders.loader_base): train loader.
-            val_loader (pypopsyn.learning.loaders.loader_base): validation loader.
+            dataset_loader (pypopsyn.learning.loaders.loader_base): dataset loader.
             lr_scheduler (torch.optim.lr_scheduler): learning rate scheduler.
 
         Returns:
@@ -81,49 +79,50 @@ class TrainerBasic(BaseTrainer):
 
         super().__init__(model, criterion, metric, optimizer, configuration)
 
-        self.train_loader = train_loader
-        self.len_epoch = len(self.train_loader)
+        # Define the loader for the total dataset.
+        self.dataset_loader = dataset_loader
 
         self.logger.info(
-            "Training loader normalization: {}".format(
-                self.train_loader.normalize
+            "Dataset loader normalization: {}".format(
+                self.dataset_loader.normalize
             )
         )
         self.logger.info(
-            "Training loader standardization: {}".format(
-                self.train_loader.standardize
+            "Dataset loader standardization: {}".format(
+                self.dataset_loader.standardize
             )
         )
 
-        if self.train_loader.normalize and self.train_loader.standardize:
+        if self.dataset_loader.normalize and self.dataset_loader.standardize:
             self.logger.error(
-                "Standardization and normalization enabled for train loader..."
+                "Standardization and normalization enabled for dataset loader..."
             )
             exit()
 
-        self.val_loader = val_loader
-        self.validate = self.val_loader is not None
+        # Fetch standardization and normalization factors for the targets.
+        self.target_max = torch.tensor(self.dataset_loader.target_max).to(
+            self.device
+        )
+        self.target_min = torch.tensor(self.dataset_loader.target_min).to(
+            self.device
+        )
+        self.target_std = torch.tensor(self.dataset_loader.target_std).to(
+            self.device
+        )
+        self.target_mean = torch.tensor(self.dataset_loader.target_mean).to(
+            self.device
+        )
 
-        if self.validate:
-            self.logger.info(
-                "Validation loader normalization: {}".format(
-                    self.val_loader.normalize
-                )
-            )
-            self.logger.info(
-                "Validation loader standardization: {}".format(
-                    self.val_loader.standardize
-                )
-            )
+        # Define the loaders for training and validation.
+        self.train_loader = self.dataset_loader.train_loader
+        self.valid_loader = self.dataset_loader.valid_loader
 
-            if self.val_loader.normalize and self.val_loader.standardize:
-                self.logger.error(
-                    "Standardization and normalization enabled for train loader..."
-                )
-                exit()
+        # Define the total length of a training epoch
+        self.len_epoch = len(self.train_loader)
 
         self.lr_scheduler = lr_scheduler
-        self.log_step = int(np.sqrt(self.train_loader.batch_size))
+
+        self.log_step = int(np.sqrt(self.dataset_loader.batch_size))
 
         self.train_metrics = learning_utils.metric_tracker.MetricTracker(
             [], writer=self.writer
@@ -167,25 +166,47 @@ class TrainerBasic(BaseTrainer):
             # Compute output for this batch.
             output = self.model(data)
 
+            # De-normalize or de-standardize targets and outputs on the fly
+            # if needed to rescale the loss values to a more readable range.
+            # TODO: THIS COULD BE IMPROVED AND IDEALLY I WOULD LIKE THIS TO
+            # BE DONE MORE TRANSPARENTLY, I DON'T KNOW HOW NOW.
+            if self.dataset_loader.normalize:
+                output_rescaled = (
+                    output * (self.target_max - self.target_min)
+                    + self.target_min
+                )
+                target_rescaled = (
+                    target * (self.target_max - self.target_min)
+                    + self.target_min
+                )
+            elif self.dataset_loader.standardize:
+                output_rescaled = output * self.target_std + self.target_mean
+                target_rescaled = target * self.target_std + self.target_mean
+
             # Compute each individual loss on each of the parameters to be
             # predicted by comparing the output and the ground truth for each
             # one of them. Then accumulate each individual loss in the total one.
             loss = 0.0
+            loss_rescaled = 0.0
             for i in range(len(output[0])):
                 # Compute individual loss for this output.
                 loss_i = self.criterion(output[:, i], target[:, i])
+                loss_rescaled_i = self.criterion(
+                    output_rescaled[:, i], target_rescaled[:, i]
+                )
                 # Update tracked loss and output to TensorBoard.
                 self.train_metrics.update(
-                    "{}".format(self.train_loader.target_names[i]),
-                    loss_i.item(),
+                    "{}".format(self.dataset_loader.target_names[i]),
+                    loss_rescaled_i.item(),
                 )
                 # Accumulate into total loss.
                 loss = loss + loss_i
+                loss_rescaled = loss_rescaled + loss_rescaled_i
 
             # Update tracked general loss and output to TensorBoard.
-            self.train_metrics.update("loss", loss.item())
+            self.train_metrics.update("loss", loss_rescaled.item())
 
-            # Only backpropagate on total loss not on invidiual ones.
+            # Only backpropagate on total not-rescaled loss not on invidiual ones.
             loss.backward()
             self.optimizer.step()
 
@@ -195,9 +216,10 @@ class TrainerBasic(BaseTrainer):
             # Set the TensorBoard step.
             self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
 
-            # Update tracked metric and output to TensorBoard.
+            # Update tracked accuracy metric and output to TensorBoard.
             self.train_metrics.update(
-                self.metric.__class__.__name__, self.metric(output, target)
+                self.metric.__class__.__name__,
+                self.metric(output_rescaled, target_rescaled),
             )
 
             # For each specified logging to console step, show the current
@@ -225,22 +247,20 @@ class TrainerBasic(BaseTrainer):
         # Pack the individual losses separatedly.
         losses = dict(
             filter(
-                lambda e: e[0] in self.train_loader.target_names, log.items()
+                lambda e: e[0] in self.dataset_loader.target_names, log.items()
             )
         )
 
         # If there is a validation set, perform a validation step and fetch
         # the logged metrics and losses.
-        val_log = None
-        if self.validate:
-            val_log = self._valid_epoch(epoch)
-            # Pack the individual losses separatedly.
-            losses = dict(
-                filter(
-                    lambda e: e[0] in self.val_loader.target_names,
-                    val_log.items(),
-                )
+        val_log = self._valid_epoch(epoch)
+        # Pack the individual losses separatedly.
+        losses = dict(
+            filter(
+                lambda e: e[0] in self.dataset_loader.target_names,
+                val_log.items(),
             )
+        )
 
         # Step learning rate if a scheduler is provided.
         if self.lr_scheduler is not None:
@@ -265,15 +285,9 @@ class TrainerBasic(BaseTrainer):
         self.model.eval()
         self.valid_metrics.reset()
 
-        # Fetch standardization and normalization factors.
-        target_max = torch.tensor(self.val_loader.target_max).to(self.device)
-        target_min = torch.tensor(self.val_loader.target_min).to(self.device)
-        target_std = torch.tensor(self.val_loader.target_std).to(self.device)
-        target_mean = torch.tensor(self.val_loader.target_mean).to(self.device)
-
         with torch.no_grad():
 
-            for batch_idx, (data, target) in enumerate(self.val_loader):
+            for batch_idx, (data, target) in enumerate(self.valid_loader):
 
                 # Fetch data and targets, move them to the compute device.
                 data, target = data.to(self.device), target.to(self.device)
@@ -285,12 +299,18 @@ class TrainerBasic(BaseTrainer):
                 # if needed to rescale the loss values to a more readable range.
                 # TODO: THIS COULD BE IMPROVED AND IDEALLY I WOULD LIKE THIS TO
                 # BE DONE MORE TRANSPARENTLY, I DON'T KNOW HOW NOW.
-                if self.val_loader.normalize:
-                    output = output * (target_max - target_min) + target_min
-                    target = target * (target_max - target_min) + target_min
-                elif self.val_loader.standardize:
-                    output = output * target_std + target_mean
-                    target = target * target_std + target_mean
+                if self.dataset_loader.normalize:
+                    output = (
+                        output * (self.target_max - self.target_min)
+                        + self.target_min
+                    )
+                    target = (
+                        target * (self.target_max - self.target_min)
+                        + self.target_min
+                    )
+                elif self.dataset_loader.standardize:
+                    output = output * self.target_std + self.target_mean
+                    target = target * self.target_std + self.target_mean
 
                 # Compute each individual loss on each of the parameters to be
                 # predicted by comparing the output and the ground truth for
@@ -302,7 +322,7 @@ class TrainerBasic(BaseTrainer):
                     loss_i = self.criterion(output[:, i], target[:, i])
                     # Update tracked loss and output to TensorBoard.
                     self.valid_metrics.update(
-                        "{}".format(self.val_loader.target_names[i]),
+                        "{}".format(self.dataset_loader.target_names[i]),
                         loss_i.item(),
                     )
                     # Accumulate into total loss.
@@ -317,7 +337,7 @@ class TrainerBasic(BaseTrainer):
 
                 # Set TensorBoard step.
                 self.writer.set_step(
-                    (epoch - 1) * len(self.val_loader) + batch_idx,
+                    (epoch - 1) * len(self.valid_loader) + batch_idx,
                     "validation",
                 )
 

@@ -239,6 +239,47 @@ class DatasetMultichannelArray:
         return matrix, targets
 
 
+class DataSplit:
+    def __init__(
+        self, dataset, shuffle, valid_split,
+    ):
+        """
+        This class creates the samplers to split a given dataset into a train and validation sets.
+
+        Args:
+            dataset: dataset to be split.
+            shuffle (bool): Shuffle the samples or not.
+            valid_split (float): fraction of the total dataset that will form the validation set.
+
+        Returns:
+            Nothing.
+        """
+
+        self.dataset = dataset
+        dataset_size = len(self.dataset)
+        valid_size = int(np.floor(valid_split * dataset_size))
+        dataset_idx = np.arange(dataset_size)
+        valid_idx = np.random.choice(dataset_size, valid_size, replace=False)
+        train_idx = np.array(
+            [idx for idx in dataset_idx if idx not in valid_idx]
+        )
+
+        if shuffle:
+            self.train_sampler = torch.utils.data.sampler.SubsetRandomSampler(
+                train_idx
+            )
+            self.valid_sampler = torch.utils.data.sampler.SubsetRandomSampler(
+                valid_idx
+            )
+        else:
+            self.train_sampler = torch.utils.data.sampler.SequentialSampler(
+                train_idx
+            )
+            self.valid_sampler = torch.utils.data.sampler.SequentialSampler(
+                valid_idx
+            )
+
+
 class LoaderMultichannelArray(LoaderBase):
     def __init__(
         self,
@@ -250,6 +291,7 @@ class LoaderMultichannelArray(LoaderBase):
         shuffle: bool = False,
         normalize: bool = False,
         standardize: bool = False,
+        valid_split: float = None,
     ):
         """
         Data loader for a multi-channel array-based dataset. The dataset is
@@ -274,11 +316,15 @@ class LoaderMultichannelArray(LoaderBase):
         transformation = torchvision.transforms.ToTensor()
 
         self.data_path = data_path
+        self.batch_size = batch_size
         self.ignored_inputs = ignored_inputs
         self.ignored_labels = ignored_labels
         self.normalize = normalize
         self.standardize = standardize
+        self.shuffle = shuffle
+        self.valid_split = valid_split
 
+        # Load the whole dataset and apply normalization/standardization.
         self.dataset = DatasetMultichannelArray(
             self.data_path,
             self.ignored_inputs,
@@ -288,10 +334,36 @@ class LoaderMultichannelArray(LoaderBase):
             transform=transformation,
         )
 
+        # Fetch the dataset statistics.
         self.target_mean = self.dataset.target_mean
         self.target_std = self.dataset.target_std
         self.target_max = self.dataset.target_max
         self.target_min = self.dataset.target_min
         self.target_names = self.dataset.target_names
 
-        super().__init__(self.dataset, batch_size, num_workers, shuffle)
+        # Split the dataset into train and validation datasets.
+        self.dataset_split = DataSplit(
+            self.dataset, self.shuffle, self.valid_split,
+        )
+
+        self.train_sampler = self.dataset_split.train_sampler
+        self.valid_sampler = self.dataset_split.valid_sampler
+
+        # Create the loaders for the train and validation datasets.
+        self.train_loader = torch.utils.data.DataLoader(
+            self.dataset,
+            batch_size=batch_size,
+            sampler=self.train_sampler,
+            shuffle=False,
+            num_workers=num_workers,
+        )
+
+        self.valid_loader = torch.utils.data.DataLoader(
+            self.dataset,
+            batch_size=batch_size,
+            sampler=self.valid_sampler,
+            shuffle=False,
+            num_workers=num_workers,
+        )
+
+        super().__init__(self.dataset, batch_size, num_workers)

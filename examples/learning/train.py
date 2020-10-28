@@ -63,12 +63,6 @@ def main(config):
         loader = config.init_object("data_loader", learning_loaders)
         logger.info("Loader: {}".format(loader))
 
-        logger.info("Creating validation data loader...")
-        val_loader = config.init_object(
-            "validation_data_loader", learning_loaders
-        )
-        logger.info("Validation loader: {}".format(val_loader))
-
         # Build model ----------------------------------------------------------
         logger.info("Building model...")
         model = config.init_object("arch", learning_models)
@@ -118,15 +112,15 @@ def main(config):
             metric=metric,
             optimizer=optimizer,
             configuration=config,
-            train_loader=loader,
-            val_loader=val_loader,
+            dataset_loader=loader,
             lr_scheduler=scheduler,
         )
-
+        """
         # Benchmark model.
         logger.info(
             "Benchmarking model on device {}...".format(trainer.device)
         )
+        # THIS GIVES PROBLEM SINCE loader IS NOT ITERABLE ANYMORE.
         input_dummy, labels_dummy = next(iter(loader))
         # TODO: Make sure this iter next does not skip the first batch next time.
         time_forward, time_backward = benchmark.benchmark(
@@ -134,7 +128,7 @@ def main(config):
         )
         logger.info("Forward pass time: {}[ms]".format(time_forward))
         logger.info("Backward pass time: {}[ms]".format(time_backward))
-
+        """
         # Start training.
         logger.info("Training model...")
         train_results, best_result = trainer.train(trials)
@@ -214,12 +208,6 @@ if __name__ == "__main__":
             target=("data_loader;args;data_path"),
         ),
         CustomArgs(
-            ["--dataset_validation"],
-            type=str,
-            nargs="?",
-            target=("validation_data_loader;args;data_path"),
-        ),
-        CustomArgs(
             ["--initializer"],
             type=str,
             nargs="?",
@@ -229,25 +217,19 @@ if __name__ == "__main__":
             ["--ignored_inputs"],
             type=int,
             nargs="*",
-            target=(
-                "data_loader;args;ignored_inputs,validation_data_loader;args;ignored_inputs"
-            ),
+            target=("data_loader;args;ignored_inputs"),
         ),
         CustomArgs(
             ["--ignored_labels"],
             type=int,
             nargs="*",
-            target=(
-                "data_loader;args;ignored_labels,validation_data_loader;args;ignored_labels"
-            ),
+            target=("data_loader;args;ignored_labels"),
         ),
         CustomArgs(
             ["--batch_size"],
             type=int,
             nargs="?",
-            target=(
-                "data_loader;args;batch_size,validation_data_loader;args;batch_size"
-            ),
+            target=("data_loader;args;batch_size"),
         ),
         CustomArgs(
             ["--input_shape"],
@@ -268,17 +250,13 @@ if __name__ == "__main__":
             ["--normalize"],
             type=bool,
             nargs="?",
-            target=(
-                "data_loader;args;normalize,validation_data_loader;args;normalize"
-            ),
+            target=("data_loader;args;normalize"),
         ),
         CustomArgs(
             ["--standardize"],
             type=bool,
             nargs="?",
-            target=(
-                "data_loader;args;standardize,validation_data_loader;args;standardize"
-            ),
+            target=("data_loader;args;standardize"),
         ),
         CustomArgs(
             ["--lr"], type=float, nargs="?", target=("optimizer;args;lr")

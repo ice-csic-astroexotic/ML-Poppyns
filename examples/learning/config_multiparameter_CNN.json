@@ -29,22 +29,10 @@
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
       "ignored_labels": [],
+      "shuffle": true,
       "normalize": false,
-      "standardize": false
-    }
-  },
-
-  "validation_data_loader": {
-    "type": "LoaderMultichannelArray",
-    "args": {
-      "data_path": "examples/data/multiparameter/dataset.csv",
-      "batch_size": 8,
-      "num_workers": 1,
-      "ignored_inputs": [1, 2, 6, 7],
-      "ignored_labels": [],
-      "shuffle": false,
-      "normalize": false,
-      "standardize": false
+      "standardize": false,
+      "valid_split": 0.25
     }
   },
 
