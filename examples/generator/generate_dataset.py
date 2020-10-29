@@ -269,7 +269,7 @@ def generate_dataset(args) -> None:
     }
 
     # Write the whole dataset dictionary into a .csv file.
-    dataset_filename = "{}/dataset.csv".format(dataset_path)
+    dataset_filename = f"{dataset_path}/dataset.csv"
 
     df = pd.DataFrame(
         {key: pd.Series(value) for key, value in dataset_dictionary.items()}
@@ -299,7 +299,7 @@ def generate_dataset(args) -> None:
             train_dataset_dictionary.setdefault(k, v_train)
 
         # Write the train and validation dataset dictionary into a .csv file.
-        train_dataset_filename = "{}/train_dataset.csv".format(dataset_path)
+        train_dataset_filename = f"{dataset_path}/train_dataset.csv"
 
         df = pd.DataFrame(
             {
@@ -309,7 +309,7 @@ def generate_dataset(args) -> None:
         )
         df.to_csv(train_dataset_filename, encoding="utf-8", index=False)
 
-        valid_dataset_filename = "{}/valid_dataset.csv".format(dataset_path)
+        valid_dataset_filename = f"{dataset_path}/valid_dataset.csv"
         df = pd.DataFrame(
             {
                 key: pd.Series(value)
