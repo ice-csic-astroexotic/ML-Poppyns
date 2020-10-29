@@ -268,6 +268,16 @@ def generate_dataset(args) -> None:
         **param_dictionary,
     }
 
+    # Write the whole dataset dictionary into a .csv file.
+    dataset_filename = "{}/dataset.csv".format(dataset_path)
+
+    df = pd.DataFrame(
+        {key: pd.Series(value) for key, value in dataset_dictionary.items()}
+    )
+    df.to_csv(dataset_filename, encoding="utf-8", index=False)
+
+    log.info("File dataset.csv generated")
+
     if args.split is not None:
 
         # Evaluate the validation dataset size according to the fraction defined by the split argument.
@@ -309,22 +319,6 @@ def generate_dataset(args) -> None:
         df.to_csv(valid_dataset_filename, encoding="utf-8", index=False)
 
         log.info("Files train_dataset.csv and valid_dataset.csv generated")
-
-    else:
-
-        # Use the whole dataset both for training and validation.
-        # Write the dataset dictionary into a .csv file.
-        dataset_filename = "{}/dataset.csv".format(dataset_path)
-
-        df = pd.DataFrame(
-            {
-                key: pd.Series(value)
-                for key, value in dataset_dictionary.items()
-            }
-        )
-        df.to_csv(dataset_filename, encoding="utf-8", index=False)
-
-        log.info("File dataset.csv generated")
 
 
 if __name__ == "__main__":
