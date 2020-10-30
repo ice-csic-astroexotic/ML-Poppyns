@@ -2,9 +2,9 @@
   "name": "Linear",
   "trials": 8,
   "convergence": {
-    "h_c_threshold": 0.01,
-    "vk_c_threshold": 0.1,
-    "sigma_k_threshold": 5.0
+    "h_c_threshold": 0.5,
+    "vk_c_threshold": 10.0,
+    "sigma_k_threshold": 10.0
   },
   "n_gpu": 0,
 
@@ -42,7 +42,7 @@
       "batch_size": 8,
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
-      "ignored_labels": [8],
+      "ignored_labels": [],
       "normalize": true,
       "standardize": false
     }
