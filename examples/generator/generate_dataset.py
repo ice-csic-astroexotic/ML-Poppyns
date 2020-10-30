@@ -12,6 +12,10 @@
     The information on the simulated dataset is also saved in a .csv file where the
     corresponding input files are mapped with their paths and labels.
 
+    If the argument split is specified the total dataset will be split into a
+    train and validation subsets and two additional .csv files will be created
+    specifying the samples in each subset.
+
     Running the code:
 
         python3 dataset_generator.py --h
@@ -89,6 +93,13 @@ def generate_dataset(args) -> None:
     root_path = pathlib.Path(args.data)
     if not root_path.exists():
         log.error(f"Directory {root_path} not found...")
+        sys.exit()
+
+    # If the dataset split is provided check if the argument falls in the range [0, 1].
+    if args.split and ((args.split < 0.0) or (args.split > 1.0)):
+        log.error(
+            f"Split argument {args.split} out of range. It must be in the range [0, 1]."
+        )
         sys.exit()
 
     # Number of samples in the parsed directory.
@@ -288,7 +299,7 @@ def generate_dataset(args) -> None:
         train_idx = np.array(
             [idx for idx in dataset_idx if idx not in valid_idx]
         )
-        # Create dictionaries for the training and validation datasets
+        # Create dictionaries for the training and validation datasets.
         valid_dataset_dictionary = {}
         train_dataset_dictionary = {}
         for k in dataset_dictionary.keys():
@@ -336,7 +347,8 @@ if __name__ == "__main__":
         nargs="?",
         type=float,
         default=None,
-        help="Fraction of the total dataset that will form the validation dataset.",
+        help="Fraction of the total dataset that will form the validation dataset. "
+        "It must be a number in the range [0, 1].",
     )
     parser.add_argument(
         "--save_dir",
