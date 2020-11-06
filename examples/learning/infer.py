@@ -15,6 +15,7 @@
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC)
 
@@ -23,8 +24,12 @@
 import argparse
 import collections
 import logging
+import pathlib
 import sys
+from collections import OrderedDict
 
+import numpy as np
+import pandas as pd
 import torch
 
 import pypopsyn.learning.configuration_parser as configuration_parser
@@ -34,6 +39,10 @@ from pypopsyn.learning.utils.request_device import request_device
 
 
 def infer(args, config):
+
+    # Create the saving directory path.
+    inference_results_path = f"{args.save_dir}"
+    pathlib.Path(inference_results_path).mkdir(parents=True, exist_ok=True)
 
     # Force data to load in a sequential manner without shuffling.
     config["data_loader"]["args"]["shuffle"] = False
@@ -55,9 +64,17 @@ def infer(args, config):
     # Load pretrained model ----------------------------------------------------
     logger.info("Loading checkpoint: {} ...".format(config.resume))
     checkpoint = torch.load(config.resume)
+    # Load the state dict
     state_dict = checkpoint["state_dict"]
     model.load_state_dict(state_dict)
-
+    """
+    # TO USE WHEN LOADING MODELS TRAINED ON GPU
+    new_state_dict = OrderedDict()
+    for k, v in state_dict.items():
+        name = k[7:]  # remove 'module.' for some reason it does not like it when loading models trained with gpu
+        new_state_dict[name] = v
+    model.load_state_dict(new_state_dict)
+    """
     # Prepare model for inference ----------------------------------------------
     logger.info("Preparing model for inference...")
     device, device_ids = request_device(logger, configuration["n_gpu"])
@@ -69,17 +86,68 @@ def infer(args, config):
     # Select sample to infer and run inference ---------------------------------
     logger.info("Inferring sample {}...".format(args.samples))
 
+    # Fetch standardization and normalization factors.
+    target_max = torch.tensor(loader.target_max).to(device)
+    target_min = torch.tensor(loader.target_min).to(device)
+    target_std = torch.tensor(loader.target_std).to(device)
+    target_mean = torch.tensor(loader.target_mean).to(device)
+
+    target_values_dict = {}
+    predicted_values_dict = {}
+
     with torch.no_grad():
         for i, (data, target) in enumerate(loader):
             if args.samples is not None and i not in args.samples:
                 continue
 
-            logger.info("Sample labels {}...".format(target))
-
             data, target = data.to(device), target.to(device)
             output = model(data)
+            # De-normalize or de-standardize targets and outputs on the fly
+            # if needed to rescale the loss values to a more readable range.
+            # TODO: THIS COULD BE IMPROVED AND IDEALLY I WOULD LIKE THIS TO
+            # BE DONE MORE TRANSPARENTLY, I DON'T KNOW HOW NOW.
+            if loader.normalize:
+                output = output * (target_max - target_min) + target_min
+                target = target * (target_max - target_min) + target_min
+            elif loader.standardize:
+                output = output * target_std + target_mean
+                target = target * target_std + target_mean
 
+            logger.info("Sample labels {}...".format(target))
             logger.info("Sample prediction {}...".format(output))
+
+            for j in range(len(output[0])):
+                target_j = target[:, j]
+                output_j = output[:, j]
+
+                # Save target and output values into the partial dictionaries.
+                target_values_dict.setdefault(f"target_{j}", []).append(
+                    target_j.item()
+                )
+                predicted_values_dict.setdefault(f"predicted_{j}", []).append(
+                    output_j.item()
+                )
+
+    # Merge the target and output dictionaries in a single dictionary.
+    inference_results_dictionary = {
+        **target_values_dict,
+        **predicted_values_dict,
+    }
+
+    # Write the inference results dictionary into a .csv file.
+    inference_results_filename = (
+        f"{inference_results_path}/inference_results.csv"
+    )
+
+    df = pd.DataFrame(
+        {
+            key: pd.Series(value)
+            for key, value in inference_results_dictionary.items()
+        }
+    )
+    df.to_csv(inference_results_filename, encoding="utf-8", index=False)
+
+    logger.info("File inference_results.csv generated.")
 
     # Plot result and ground truth.
     # TODO.
@@ -90,29 +158,91 @@ def infer(args, config):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Parameters")
-
-    parser.add_argument(
-        "--configuration",
-        nargs="?",
-        type=str,
-        help="Experiment configuration file path.",
+    args = argparse.ArgumentParser(
+        description="PyPopSyn Population Synthesis infering"
     )
-    parser.add_argument("--resume", type=str, help="Path to pretrained model.")
-    parser.add_argument(
+
+    args.add_argument(
+        "-c",
+        "--configuration",
+        type=str,
+        default="examples/learning/config_multiparameter.json",
+        help="Configuration file path",
+    )
+
+    args.add_argument(
+        "--resume", type=str, default=None, help="Path to pretrained model.",
+    )
+
+    args.add_argument(
         "--samples", nargs="*", type=int, help="Sample index in the dataset."
     )
 
-    CustomArgs = collections.namedtuple("CustomArgs", "flags type target")
+    args.add_argument(
+        "--save_dir",
+        nargs="?",
+        type=str,
+        default="inference_result",
+        help="Path to the directory where the inference results are saved.",
+    )
+
+    CustomArgs = collections.namedtuple(
+        "CustomArgs", "flags type nargs target"
+    )
 
     options = [
         CustomArgs(
-            ["--dataset"], type=str, target=("data_loader;args;data_path")
-        )
+            ["--dataset"],
+            type=str,
+            nargs="?",
+            target=("data_loader;args;data_path"),
+        ),
+        CustomArgs(
+            ["--ignored_inputs"],
+            type=int,
+            nargs="*",
+            target=("data_loader;args;ignored_inputs"),
+        ),
+        CustomArgs(
+            ["--ignored_labels"],
+            type=int,
+            nargs="*",
+            target=("data_loader;args;ignored_labels"),
+        ),
+        CustomArgs(
+            ["--input_shape"],
+            type=int,
+            nargs=3,
+            target=("arch;args;input_shape"),
+        ),
+        CustomArgs(
+            ["--num_parameters"],
+            type=int,
+            nargs="?",
+            target=("arch;args;num_parameters"),
+        ),
+        CustomArgs(
+            ["--batch_size"],
+            type=int,
+            nargs="?",
+            target=("data_loader;args;batch_size"),
+        ),
+        CustomArgs(
+            ["--normalize"],
+            type=bool,
+            nargs="?",
+            target=("data_loader;args;normalize"),
+        ),
+        CustomArgs(
+            ["--standardize"],
+            type=bool,
+            nargs="?",
+            target=("data_loader;args;standardize"),
+        ),
     ]
 
     configuration = configuration_parser.ConfigurationParser.from_args(
-        parser, options
+        args, options
     )
 
-    infer(parser.parse_args(), configuration)
+    infer(args.parse_args(), configuration)
