@@ -22,9 +22,14 @@ you need to provide the path to the location where the simulated populations dat
 
 In this way it is easy for later loading it into the learning subpackage.
 
-.. note::
+To generate a dataset split into two subsets one specific for training and the other for validation you can specify a fraction of the total dataset that will form the validation subset by passing the argument :code:`split` in the generator script. For example:
 
-  If you don't want to generate all the samples in the population, you can use the :code:`--samples {int}` argument to specify a number of samples to select from the population. They will be equally spaced. If no samples are indicated, the whole population will be taken into account. NOTE: This will be hard to do when we have multiple parameters varying in the population.
+.. code-block:: bash
+
+ python examples/generator/generate_dataset.py --split 0.2 --data simulated_data --save_dir generated_dataset --type array --resolution 128
+
+This will create a dataset along with other two files :code:`train_dataset.csv` and :code:`valid_dataset.csv` that will specify the samples belonging to the train dataset (80 % of the total dataset in this case) and the ones belonging to the validation dataset  (20 % of the total dataset).
+The split is performed by random sampling the validation subset from the total dataset according to the specified split fraction.
 
 The :code:`examples/experiment_launcher.py` script allows you to specify a list of experiment commands in a text file like:
 

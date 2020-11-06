@@ -67,10 +67,6 @@ def generate_dataset(args) -> None:
             resolution (int): Resolution (number of bins per axis for the 2d
             histograms) for the image to generate. In case of RA DEC maps the
             DEC axis has half the number of bins with respect to the RA axis.
-
-            samples (int): Number of samples to generate. If no samples are
-                specified the whole dataset is generated. Samples are taken
-                equally spaced.
     """
 
     # Create the dataset directory path.
@@ -105,23 +101,10 @@ def generate_dataset(args) -> None:
     # Number of samples in the parsed directory.
     sample_number = len(os.listdir(root_path))
 
-    # Select samples to run.
-    samples = []
-    if args.samples:
-        # If a number of samples is specified, uniformly sample them.
-        samples = list(
-            np.round(np.linspace(0, sample_number - 1, args.samples)).astype(
-                int
-            )
-        )
-    else:
-        # If no samples are specified, just generate all of them.
-        samples = [i for i in range(sample_number)]
-
-    log.info(f"Generating {len(samples)} samples...")
+    log.info(f"Generating {sample_number} samples...")
 
     # Main generator loop.
-    for s in samples:
+    for s in range(sample_number):
 
         log.info(f"Generating sample {s:06}")
 
@@ -293,9 +276,9 @@ def generate_dataset(args) -> None:
 
         # Evaluate the validation dataset size according to the fraction defined by the split argument.
         # Then random sample the validation dataset and the train dataset from the whole dataset.
-        valid_size = int(args.split * len(samples))
-        dataset_idx = np.arange(len(samples))
-        valid_idx = np.random.choice(len(samples), valid_size, replace=False)
+        valid_size = int(args.split * sample_number)
+        dataset_idx = np.arange(sample_number)
+        valid_idx = np.random.choice(sample_number, valid_size, replace=False)
         train_idx = np.array(
             [idx for idx in dataset_idx if idx not in valid_idx]
         )
@@ -371,9 +354,6 @@ if __name__ == "__main__":
         type=int,
         default=64,
         help="Resolution of the arrays that will be generated (in number of cells).",
-    )
-    parser.add_argument(
-        "--samples", nargs="?", type=int, help="Number of samples to select",
     )
 
     args = parser.parse_args()
