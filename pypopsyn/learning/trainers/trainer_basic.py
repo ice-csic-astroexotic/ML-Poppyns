@@ -197,7 +197,8 @@ class TrainerBasic(BaseTrainer):
 
             # Update tracked metric and output to TensorBoard.
             self.train_metrics.update(
-                self.metric.__class__.__name__, self.metric(output, target)
+                self.metric.__class__.__name__,
+                self.metric(output, target).item(),
             )
 
             # For each specified logging to console step, show the current
@@ -312,7 +313,8 @@ class TrainerBasic(BaseTrainer):
                 self.valid_metrics.update("loss", loss.item())
                 # Update tracked metric and output to TensorBoard.
                 self.valid_metrics.update(
-                    self.metric.__class__.__name__, self.metric(output, target)
+                    self.metric.__class__.__name__,
+                    self.metric(output, target).item(),
                 )
 
                 # Set TensorBoard step.

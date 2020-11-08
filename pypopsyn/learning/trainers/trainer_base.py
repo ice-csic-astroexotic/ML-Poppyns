@@ -8,6 +8,8 @@
 
 """
 
+import json
+import pathlib
 import typing
 from abc import abstractmethod
 
@@ -82,7 +84,23 @@ class BaseTrainer:
         self.monitor_best = self.metric.initial_value()
         self.early_stop = trainer_configuration.get("early_stop", inf)
         self.start_epoch = 1
-        self.checkpoint_dir = configuration.save_dir
+        self.checkpoint_dir = self.configuration.save_dir
+        self.log_dir = self.configuration.log_dir
+
+        # Initialize training and validation JSONs.
+        self.train_json_path = pathlib.Path().joinpath(
+            self.log_dir, "train_result.json"
+        )
+        self.train_json: dict = {}
+        with open(self.train_json_path, "w") as f:
+            json.dump(self.train_json, f, indent=2, sort_keys=True)
+
+        self.validation_json_path = pathlib.Path().joinpath(
+            self.log_dir, "validation_result.json"
+        )
+        self.validation_json: dict = {}
+        with open(self.validation_json_path, "w") as f:
+            json.dump(self.validation_json, f, indent=2, sort_keys=True)
 
         # setup visualization writer instance
         self.writer = TensorboardWriter(
@@ -131,10 +149,12 @@ class BaseTrainer:
 
         for epoch in range(self.start_epoch, self.epochs + 1):
 
+            epoch_str = f"{epoch:05d}"
+
             self.logger.info(
                 "************************************************"
             )
-            self.logger.info("Epoch {}".format(epoch))
+            self.logger.info("Epoch {}".format(epoch_str))
             self.logger.info("Best accuracy: {}".format(self.monitor_best))
 
             # Run one epoch and fetch the result dictionaries for train/val and
@@ -152,6 +172,16 @@ class BaseTrainer:
             for key, value in log.items():
                 self.logger.info("    {:15s}: {}".format(str(key), value))
 
+            # Log results to training JSON.
+            self.train_json[epoch_str] = {}
+            for key, value in log.items():
+                if key == "epoch":
+                    continue
+                self.train_json[epoch_str][key] = value
+
+            with open(self.train_json_path, "w") as f:
+                json.dump(self.train_json, f, indent=2, sort_keys=True)
+
             # Print validation information if validation was performed and use
             # it to update the training tracking metrics if so (like the current
             # best loss so far).
@@ -167,6 +197,18 @@ class BaseTrainer:
                 self.logger.info("Validation results...")
                 for key, value in val_log.items():
                     self.logger.info("    {:15s}: {}".format(str(key), value))
+
+                # Log results to validation JSON.
+                self.validation_json[epoch_str] = {}
+                for key, value in log.items():
+                    if key == "epoch":
+                        continue
+                    self.validation_json[epoch_str][key] = value
+
+                with open(self.validation_json_path, "w") as f:
+                    json.dump(
+                        self.validation_json, f, indent=2, sort_keys=True
+                    )
 
             # Check whether model performance improved or not, according
             # to specified metric behavior (minimum or maximum). The metric will
