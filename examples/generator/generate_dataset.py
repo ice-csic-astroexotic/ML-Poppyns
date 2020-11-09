@@ -92,9 +92,9 @@ def generate_dataset(args) -> None:
         sys.exit()
 
     # If the dataset split is provided check if the argument falls in the range [0, 1].
-    if args.split and ((args.split < 0.0) or (args.split > 1.0)):
+    if args.split and ((args.split <= 0.0) or (args.split >= 1.0)):
         log.error(
-            f"Split argument {args.split} out of range. It must be in the range [0, 1]."
+            f"Split argument {args.split} out of range. It must be in the range (0, 1)."
         )
         sys.exit()
 
