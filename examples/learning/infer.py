@@ -46,6 +46,8 @@ def infer(args, config):
 
     # Force data to load in a sequential manner without shuffling.
     config["data_loader"]["args"]["shuffle"] = False
+    # Fix batch size to 1 for inference.
+    config["data_loader"]["args"]["batch_size"] = 1
 
     # Get handle for the logger ------------------------------------------------
     logger = config.get_logger("Inference")
@@ -55,33 +57,28 @@ def infer(args, config):
     logger.info("Creating data loaders...")
     loader = config.init_object("data_loader", learning_loaders)
     logger.info("Loader: {}".format(loader))
+    # Fetch names of the target parameters to predict.
+    target_names = loader.target_names
 
     # Build model --------------------------------------------------------------
     logger.info("Building model...")
     model = config.init_object("arch", learning_models)
     logger.info("Model architecture: {}".format(model))
 
+    # Prepare model for inference ----------------------------------------------
+    logger.info("Preparing model for inference...")
+    device, device_ids = request_device(logger, configuration["n_gpu"])
+    if len(device_ids) >= 1:
+        model = torch.nn.DataParallel(model, device_ids=device_ids)
+    model = model.to(device)
+    model.eval()
+
     # Load pretrained model ----------------------------------------------------
-    logger.info("Loading checkpoint: {} ...".format(config.resume))
+    logger.info(f"Loading checkpoint: {config.resume} ...")
     checkpoint = torch.load(config.resume)
     # Load the state dict
     state_dict = checkpoint["state_dict"]
     model.load_state_dict(state_dict)
-    """
-    # TO USE WHEN LOADING MODELS TRAINED ON GPU
-    new_state_dict = OrderedDict()
-    for k, v in state_dict.items():
-        name = k[7:]  # remove 'module.' for some reason it does not like it when loading models trained with gpu
-        new_state_dict[name] = v
-    model.load_state_dict(new_state_dict)
-    """
-    # Prepare model for inference ----------------------------------------------
-    logger.info("Preparing model for inference...")
-    device, device_ids = request_device(logger, configuration["n_gpu"])
-    if len(device_ids) > 1:
-        model = torch.nn.DataParallel(model, device_ids=device_ids)
-    model = model.to(device)
-    model.eval()
 
     # Select sample to infer and run inference ---------------------------------
     logger.info("Inferring sample {}...".format(args.samples))
@@ -121,12 +118,12 @@ def infer(args, config):
                 output_j = output[:, j]
 
                 # Save target and output values into the partial dictionaries.
-                target_values_dict.setdefault(f"target_{j}", []).append(
-                    target_j.item()
-                )
-                predicted_values_dict.setdefault(f"predicted_{j}", []).append(
-                    output_j.item()
-                )
+                target_values_dict.setdefault(
+                    f"target:{target_names[j]}", []
+                ).append(target_j.item())
+                predicted_values_dict.setdefault(
+                    f"predicted:{target_names[j]}", []
+                ).append(output_j.item())
 
     # Merge the target and output dictionaries in a single dictionary.
     inference_results_dictionary = {
@@ -149,9 +146,6 @@ def infer(args, config):
 
     logger.info("File inference_results.csv generated.")
 
-    # Plot result and ground truth.
-    # TODO.
-
     # Reproduce result with simulator.
     # TODO.
 
@@ -171,7 +165,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--resume", type=str, default=None, help="Path to pretrained model.",
+        "--weights", type=str, default=None, help="Path to pretrained model.",
     )
 
     args.add_argument(
@@ -220,12 +214,6 @@ if __name__ == "__main__":
             type=int,
             nargs="?",
             target=("arch;args;num_parameters"),
-        ),
-        CustomArgs(
-            ["--batch_size"],
-            type=int,
-            nargs="?",
-            target=("data_loader;args;batch_size"),
         ),
         CustomArgs(
             ["--normalize"],
