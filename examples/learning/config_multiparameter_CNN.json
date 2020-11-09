@@ -2,7 +2,7 @@
   "name": "Convolution",
   "trials": 8,
   "convergence": {
-    "h_c_threshold": 0.01,
+    "h_c_threshold": 0.5,
     "vk_c_threshold": 10.0,
     "sigma_k_threshold": 10.0
   },
@@ -24,11 +24,12 @@
   "data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "data_path": "examples/data/multiparameter/dataset.csv",
+      "data_path": "examples/data/multiparameter/train_dataset.csv",
       "batch_size": 8,
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
       "ignored_labels": [],
+      "shuffle": true,
       "normalize": false,
       "standardize": false
     }
@@ -37,7 +38,7 @@
   "validation_data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "data_path": "examples/data/multiparameter/dataset.csv",
+      "data_path": "examples/data/multiparameter/valid_dataset.csv",
       "batch_size": 8,
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],

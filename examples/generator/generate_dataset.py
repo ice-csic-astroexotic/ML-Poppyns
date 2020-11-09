@@ -12,6 +12,10 @@
     The information on the simulated dataset is also saved in a .csv file where the
     corresponding input files are mapped with their paths and labels.
 
+    If the argument split is specified the total dataset will be split into a
+    train and validation subsets and two additional .csv files will be created
+    specifying the samples in each subset.
+
     Running the code:
 
         python3 dataset_generator.py --h
@@ -63,10 +67,6 @@ def generate_dataset(args) -> None:
             resolution (int): Resolution (number of bins per axis for the 2d
             histograms) for the image to generate. In case of RA DEC maps the
             DEC axis has half the number of bins with respect to the RA axis.
-
-            samples (int): Number of samples to generate. If no samples are
-                specified the whole dataset is generated. Samples are taken
-                equally spaced.
     """
 
     # Create the dataset directory path.
@@ -91,26 +91,20 @@ def generate_dataset(args) -> None:
         log.error(f"Directory {root_path} not found...")
         sys.exit()
 
+    # If the dataset split is provided check if the argument falls in the range [0, 1].
+    if args.split and ((args.split <= 0.0) or (args.split >= 1.0)):
+        log.error(
+            f"Split argument {args.split} out of range. It must be in the range (0, 1)."
+        )
+        sys.exit()
+
     # Number of samples in the parsed directory.
     sample_number = len(os.listdir(root_path))
 
-    # Select samples to run.
-    samples = []
-    if args.samples:
-        # If a number of samples is specified, uniformly sample them.
-        samples = list(
-            np.round(np.linspace(0, sample_number - 1, args.samples)).astype(
-                int
-            )
-        )
-    else:
-        # If no samples are specified, just generate all of them.
-        samples = [i for i in range(sample_number)]
-
-    log.info(f"Generating {len(samples)} samples...")
+    log.info(f"Generating {sample_number} samples...")
 
     # Main generator loop.
-    for s in samples:
+    for s in range(sample_number):
 
         log.info(f"Generating sample {s:06}")
 
@@ -268,14 +262,57 @@ def generate_dataset(args) -> None:
         **param_dictionary,
     }
 
-    # Write the dataset dictionary into a .csv file.
+    # Write the whole dataset dictionary into a .csv file.
     dataset_filename = f"{dataset_path}/dataset.csv"
+
     df = pd.DataFrame(
         {key: pd.Series(value) for key, value in dataset_dictionary.items()}
     )
     df.to_csv(dataset_filename, encoding="utf-8", index=False)
 
     log.info("File dataset.csv generated")
+
+    if args.split is not None:
+
+        # Evaluate the validation dataset size according to the fraction defined by the split argument.
+        # Then random sample the validation dataset and the train dataset from the whole dataset.
+        valid_size = int(args.split * sample_number)
+        dataset_idx = np.arange(sample_number)
+        valid_idx = np.random.choice(sample_number, valid_size, replace=False)
+        train_idx = np.array(
+            [idx for idx in dataset_idx if idx not in valid_idx]
+        )
+        # Create dictionaries for the training and validation datasets.
+        valid_dataset_dictionary = {}
+        train_dataset_dictionary = {}
+        for k in dataset_dictionary.keys():
+            v = np.array(dataset_dictionary[k])
+            v_valid = v[valid_idx]
+            v_train = v[train_idx]
+            valid_dataset_dictionary.setdefault(k, v_valid)
+            train_dataset_dictionary.setdefault(k, v_train)
+
+        # Write the train and validation dataset dictionary into a .csv file.
+        train_dataset_filename = f"{dataset_path}/train_dataset.csv"
+
+        df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in train_dataset_dictionary.items()
+            }
+        )
+        df.to_csv(train_dataset_filename, encoding="utf-8", index=False)
+
+        valid_dataset_filename = f"{dataset_path}/valid_dataset.csv"
+        df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in valid_dataset_dictionary.items()
+            }
+        )
+        df.to_csv(valid_dataset_filename, encoding="utf-8", index=False)
+
+        log.info("Files train_dataset.csv and valid_dataset.csv generated")
 
 
 if __name__ == "__main__":
@@ -287,6 +324,14 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="Path to where the simulated populations are.",
+    )
+    parser.add_argument(
+        "--split",
+        nargs="?",
+        type=float,
+        default=None,
+        help="Fraction of the total dataset that will form the validation dataset. "
+        "It must be a number in the range [0, 1].",
     )
     parser.add_argument(
         "--save_dir",
@@ -309,9 +354,6 @@ if __name__ == "__main__":
         type=int,
         default=64,
         help="Resolution of the arrays that will be generated (in number of cells).",
-    )
-    parser.add_argument(
-        "--samples", nargs="?", type=int, help="Number of samples to select",
     )
 
     args = parser.parse_args()

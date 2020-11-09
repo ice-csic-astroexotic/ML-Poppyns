@@ -2,9 +2,9 @@
   "name": "Linear",
   "trials": 8,
   "convergence": {
-    "h_c_threshold": 0.01,
-    "vk_c_threshold": 0.1,
-    "sigma_k_threshold": 5.0
+    "h_c_threshold": 0.5,
+    "vk_c_threshold": 10.0,
+    "sigma_k_threshold": 10.0
   },
   "n_gpu": 0,
 
@@ -24,25 +24,25 @@
   "data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "data_path": "examples/data/multiparameter/dataset.csv",
+      "data_path": "examples/data/multiparameter/train_dataset.csv",
       "batch_size": 8,
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
-      "ignored_labels": [8],
-      "normalize": true,
-      "standardize": false,
-      "shuffle": true
+      "ignored_labels": [],
+      "shuffle": true,
+      "normalize": false,
+      "standardize": false
     }
   },
 
   "validation_data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "data_path": "examples/data/multiparameter/dataset.csv",
+      "data_path": "examples/data/multiparameter/valid_dataset.csv",
       "batch_size": 8,
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
-      "ignored_labels": [8],
+      "ignored_labels": [],
       "normalize": true,
       "standardize": false
     }
@@ -69,7 +69,7 @@
   "lr_scheduler": {
     "type": "StepLR",
     "args": {
-      "step_size": 128,
+      "step_size": 1024,
       "gamma": 0.1
     }
   },
@@ -79,7 +79,7 @@
     "save_dir": "examples/learning/saved",
     "save_period": 1000,
     "verbosity": 1,
-    "early_stop": 32,
+    "early_stop": 128,
     "tensorboard": true
   }
 }
