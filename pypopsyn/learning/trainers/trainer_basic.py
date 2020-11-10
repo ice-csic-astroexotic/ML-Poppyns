@@ -128,6 +128,9 @@ class TrainerBasic(BaseTrainer):
         self.train_metrics = learning_utils.metric_tracker.MetricTracker(
             [], writer=self.writer
         )
+        self.train_denormalized_metrics = learning_utils.metric_tracker.MetricTracker(
+            [], writer=self.writer
+        )
         self.valid_metrics = learning_utils.metric_tracker.MetricTracker(
             [], writer=self.writer
         )
@@ -230,6 +233,9 @@ class TrainerBasic(BaseTrainer):
             )
         )
 
+        # Perform evaluation on denormalized training set.
+        train_denormalized_log = self._training_eval_epoch(epoch)
+
         # If there is a validation set, perform a validation step and fetch
         # the logged metrics and losses.
         val_log = None
@@ -247,7 +253,74 @@ class TrainerBasic(BaseTrainer):
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
 
-        return log, val_log, losses
+        return log, val_log, train_denormalized_log, losses
+
+    def _training_eval_epoch(self, epoch: int) -> dict:
+
+        # Set the model to evaluation mode and reset validation metrics.
+        self.model.eval()
+        self.train_denormalized_metrics.reset()
+
+        # Fetch standardization and normalization factors.
+        target_max = torch.tensor(self.train_loader.target_max).to(self.device)
+        target_min = torch.tensor(self.train_loader.target_min).to(self.device)
+        target_std = torch.tensor(self.train_loader.target_std).to(self.device)
+        target_mean = torch.tensor(self.train_loader.target_mean).to(
+            self.device
+        )
+
+        with torch.no_grad():
+
+            for batch_idx, (data, target) in enumerate(self.train_loader):
+
+                # Fetch data and targets, move them to the compute device.
+                data, target = data.to(self.device), target.to(self.device)
+
+                # Compute predictions.
+                output = self.model(data)
+
+                # De-normalize or de-standardize targets and outputs on the fly
+                # if needed to rescale the loss values to a more readable range.
+                # TODO: THIS COULD BE IMPROVED AND IDEALLY I WOULD LIKE THIS TO
+                # BE DONE MORE TRANSPARENTLY, I DON'T KNOW HOW NOW.
+                if self.train_loader.normalize:
+                    output = output * (target_max - target_min) + target_min
+                    target = target * (target_max - target_min) + target_min
+                elif self.train_loader.standardize:
+                    output = output * target_std + target_mean
+                    target = target * target_std + target_mean
+
+                # Compute each individual loss on each of the parameters to be
+                # predicted by comparing the output and the ground truth for
+                # each one of them. Then accumulate each individual loss in the
+                # total one which will be reported.
+                loss = 0.0
+                for i in range(len(output[0])):
+                    # Compute individual loss for this output.
+                    loss_i = self.criterion(output[:, i], target[:, i])
+                    # Update tracked loss and output to TensorBoard.
+                    self.train_denormalized_metrics.update(
+                        "{}".format(self.train_loader.target_names[i]),
+                        loss_i.item(),
+                    )
+                    # Accumulate into total loss.
+                    loss = loss + loss_i
+
+                # Update tracked loss and output to TensorBoard.
+                self.train_denormalized_metrics.update("loss", loss.item())
+                # Update tracked metric and output to TensorBoard.
+                self.train_denormalized_metrics.update(
+                    self.metric.__class__.__name__,
+                    self.metric(output, target).item(),
+                )
+
+                # Set TensorBoard step.
+                self.writer.set_step(
+                    (epoch - 1) * len(self.val_loader) + batch_idx,
+                    "training_denormalized",
+                )
+
+        return self.train_denormalized_metrics.result()
 
     def _valid_epoch(self, epoch: int) -> dict:
         """

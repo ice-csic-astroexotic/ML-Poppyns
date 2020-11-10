@@ -95,6 +95,13 @@ class BaseTrainer:
         with open(self.train_json_path, "w") as f:
             json.dump(self.train_json, f, indent=2, sort_keys=True)
 
+        self.train_eval_json_path = pathlib.Path().joinpath(
+            self.log_dir, "train_eval_result.json"
+        )
+        self.train_eval_json: dict = {}
+        with open(self.train_eval_json_path, "w") as f:
+            json.dump(self.train_eval_json, f, indent=2, sort_keys=True)
+
         self.validation_json_path = pathlib.Path().joinpath(
             self.log_dir, "validation_result.json"
         )
@@ -159,7 +166,12 @@ class BaseTrainer:
 
             # Run one epoch and fetch the result dictionaries for train/val and
             # the losses that will be used for convergence.
-            train_result, val_result, losses = self._train_epoch(epoch)
+            (
+                train_result,
+                val_result,
+                train_eval_result,
+                losses,
+            ) = self._train_epoch(epoch)
 
             # Update current epoch logging dictionary with the results from the
             # training epoch (usually loss and accuracy averages).
@@ -182,6 +194,26 @@ class BaseTrainer:
             with open(self.train_json_path, "w") as f:
                 json.dump(self.train_json, f, indent=2, sort_keys=True)
 
+            # Update current epoch logging dictionary with the results from the
+            # training evaluation epoch (usually loss and accuracy averages).
+            train_eval_log = {"epoch": epoch}
+            train_eval_log.update(train_eval_result)
+
+            # Print training per-epoch logged information to the screen.
+            self.logger.info("Training evaluation results...")
+            for key, value in train_eval_log.items():
+                self.logger.info("    {:15s}: {}".format(str(key), value))
+
+            # Log results to training JSON.
+            self.train_eval_json[epoch_str] = {}
+            for key, value in train_eval_log.items():
+                if key == "epoch":
+                    continue
+                self.train_eval_json[epoch_str][key] = value
+
+            with open(self.train_eval_json_path, "w") as f:
+                json.dump(self.train_eval_json, f, indent=2, sort_keys=True)
+
             # Print validation information if validation was performed and use
             # it to update the training tracking metrics if so (like the current
             # best loss so far).
@@ -200,7 +232,7 @@ class BaseTrainer:
 
                 # Log results to validation JSON.
                 self.validation_json[epoch_str] = {}
-                for key, value in log.items():
+                for key, value in val_log.items():
                     if key == "epoch":
                         continue
                     self.validation_json[epoch_str][key] = value
