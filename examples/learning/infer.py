@@ -19,6 +19,21 @@
 
     Copyright (c) MAGNESIA (ICE-CSIC)
 
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
 """
 
 import argparse
@@ -56,14 +71,14 @@ def infer(args, config):
     # Setup data loaders -------------------------------------------------------
     logger.info("Creating data loaders...")
     loader = config.init_object("data_loader", learning_loaders)
-    logger.info("Loader: {}".format(loader))
+    logger.info(f"Loader: {loader}")
     # Fetch names of the target parameters to predict.
     target_names = loader.target_names
 
     # Build model --------------------------------------------------------------
     logger.info("Building model...")
     model = config.init_object("arch", learning_models)
-    logger.info("Model architecture: {}".format(model))
+    logger.info(f"Model architecture: {model}")
 
     # Prepare model for inference ----------------------------------------------
     logger.info("Preparing model for inference...")
@@ -81,7 +96,7 @@ def infer(args, config):
     model.load_state_dict(state_dict)
 
     # Select sample to infer and run inference ---------------------------------
-    logger.info("Inferring sample {}...".format(args.samples))
+    logger.info(f"Inferring sample {args.samples}...")
 
     # Fetch standardization and normalization factors.
     target_max = torch.tensor(loader.target_max).to(device)
@@ -110,8 +125,8 @@ def infer(args, config):
                 output = output * target_std + target_mean
                 target = target * target_std + target_mean
 
-            logger.info("Sample labels {}...".format(target))
-            logger.info("Sample prediction {}...".format(output))
+            logger.info(f"Sample labels {target}...")
+            logger.info(f"Sample prediction {output}...")
 
             for j in range(len(output[0])):
                 target_j = target[:, j]
