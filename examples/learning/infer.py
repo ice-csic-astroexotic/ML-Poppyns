@@ -168,7 +168,7 @@ def infer(args, config):
 if __name__ == "__main__":
 
     args = argparse.ArgumentParser(
-        description="PyPopSyn Population Synthesis infering"
+        description="PyPopSyn Population Synthesis inferring"
     )
 
     args.add_argument(
