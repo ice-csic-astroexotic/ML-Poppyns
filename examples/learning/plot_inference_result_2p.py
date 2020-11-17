@@ -79,11 +79,12 @@ def running_stat(
     x: np.ndarray, target: np.array, n_bins: int
 ) -> (np.ndarray, np.ndarray, np.ndarray):
     """
-        Calculate the variation of the root mean square error (RMSE) and of the mean residual with sign of the predicted values x over the range of the targets data.
+        Calculate the variation of the root mean square error (RMSE) and of the mean residual
+        with sign of the predicted values x over the range of the targets data.
 
         Args:
             x (np.ndarray): predicted values.
-            targets (np.ndarray): target values.
+            target (np.ndarray): target values.
             n_bins (int): number of bins.
 
         Returns:
@@ -92,9 +93,8 @@ def running_stat(
     inf_lim = np.min(target)
     sup_lim = np.max(target)
     bin_edges = np.linspace(inf_lim, sup_lim, n_bins + 1)
-
-    # compute the bin center values
     bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
+
     running_rmse = np.zeros(len(bin_centers))
     running_average = np.zeros(len(bin_centers))
 
@@ -321,7 +321,7 @@ def plot_inference_results(args) -> None:
     )
     plt.savefig(f"{args.save_dir}/2par_residuals_sigmak.pdf")
 
-    # Plot correlation between the two parameter residuals
+    # Plot correlation between the two parameter residuals.
     fig, ax = plt.subplots()
     ax.set_xlabel(r"Residuals $\sigma_{\rm k}$ [km/s]")
     ax.set_ylabel(r"Residuals $h_{\rm c}$ [kpc]")
