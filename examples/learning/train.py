@@ -190,7 +190,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--resume",
+        "--weights",
         type=str,
         default=None,
         help="Path to checkpoint to resume training.",
