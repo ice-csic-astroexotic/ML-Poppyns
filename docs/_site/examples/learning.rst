@@ -180,3 +180,43 @@ A custom experiments file can be specified with the :code:`--command_list` param
   python examples/experiment_launcher.py --command_list examples/learning/custom.txt --processes 2
 
 This combined with an intelligent use of the :code:`--save_dir` :term:`CLI` argument will let you run many experiments unattended and check them asynchronously.
+
+Infer on a Data Set
+###################
+
+Once a network has been trained, it can be used to infer on an existing dataset of density and velocity maps.
+To do so the script :code:`examples/learning/infer.py` allows you to take an experiment configuration file, a pretrained model, and a data set to run inference on selected samples for that dataset.
+
+To use this inference script you will need to provide a dataset to infer (--dataset), a checkpoint with a pretrained model (--weights), the configuration file of the experiment that generated such model (--c) and a directory path where to save the CSV file with the inference results. For instance:
+
+.. code-block:: bash
+
+    python examples/learning/infer.py --c examples/learning/config_multiparameter.json --d examples/data/8_samples/dataset.csv --resume examples/learning/saved/models/Linear/0407_175854/model_best.pth --save_dir inference_results
+
+Then you can use the :code:`--samples` argument to provide a list of samples you would like to infer (their indices in the dataset) or just leave it blank to infer over all.
+Make sure that the data set used for inference has the same input configuration as the data set used for training the model, i.e., same input shape, number of labels to predict, normalization etc..
+The output will be the labels (ground truth) for each sample and the corresponding prediction printed on terminal and saved in a CSV file :code:`inference_results.csv`.
+For example, in case of inference over the two parameters :code:`h_c` and :code:`sigma_k` the output file would be like this:
+
+.. code-block:: bash
+
+    target:h_c,target:sigma_k,predicted:h_c,predicted:sigma_k
+    1.594645619392395,204.6456756591797,1.600591778755188,208.88429260253906
+    1.9688189029693604,127.5905532836914,1.961457371711731,124.93790435791016
+    1.017795443534851,452.32281494140625,1.0061225891113281,449.244873046875
+    0.16031496226787567,446.8188781738281,0.160542294383049,438.3158874511719
+    1.6414172649383545,237.66929626464844,1.647267460823059,241.9035186767578
+    1.6258267164230347,589.9212646484375,1.600623369216919,595.2665405273438
+    1.1892913579940796,111.07874298095703,1.1856337785720825,110.28069305419922
+    0.8930708765983582,441.3149719238281,0.8915233612060547,433.6885986328125
+    1.2672441005706787,17.511810302734375,1.3246393203735352,11.903473854064941
+    0.08236220479011536,122.08661651611328,0.10178111493587494,130.51028442382812
+    2.0,485.3464660644531,2.0088584423065186,490.4414367675781
+    0.20708660781383514,325.7322692871094,0.2022785246372223,313.9435729980469
+    1.2204724550247192,611.93701171875,1.153143048286438,622.7503662109375
+    1.0957480669021606,254.1811065673828,1.0770119428634644,255.84629821777344
+    1.5634645223617554,490.85040283203125,1.507364273071289,493.6461181640625
+    ...
+
+To plot the inference results in the form of residuals plot you can run the scripts :code:`plot_inference_result_1p.py` or :code:`plot_inference_result_2p.py` for the single parameter or the two parameter inference respectively.
+To run the first script :code:`plot_inference_result_1p.py`, you need to provide the path to the :code:`inference_results.csv` files for either one or both the :code:`h_c` and :code:`sigma_k` parameters. To run the second script :code:`plot_inference_result_2p.py`, you need to provide the path to the :code:`inference_results.csv` containing the prediction on both parameters.
