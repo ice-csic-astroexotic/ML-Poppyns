@@ -72,7 +72,7 @@ class BaseTrainer:
         self.model = model.to(self.device)
         if len(device_ids) >= 1:
             self.logger.info(
-                "{} GPU detected, running in parallel!".format(len(device_ids))
+                f"{len(device_ids)} GPU detected, running in parallel!"
             )
             self.model = torch.nn.DataParallel(model, device_ids=device_ids)
 
@@ -161,8 +161,8 @@ class BaseTrainer:
             self.logger.info(
                 "************************************************"
             )
-            self.logger.info("Epoch {}".format(epoch_str))
-            self.logger.info("Best accuracy: {}".format(self.monitor_best))
+            self.logger.info(f"Epoch {epoch_str}")
+            self.logger.info(f"Best accuracy: {self.monitor_best}")
 
             # Run one epoch and fetch the result dictionaries for train/val and
             # the losses that will be used for convergence.
@@ -182,7 +182,7 @@ class BaseTrainer:
             # Print training per-epoch logged information to the screen.
             self.logger.info("Training results...")
             for key, value in log.items():
-                self.logger.info("    {:15s}: {}".format(str(key), value))
+                self.logger.info(f"    {str(key):15s}: {value}")
 
             # Log results to training JSON.
             self.train_json[epoch_str] = {}
@@ -202,7 +202,7 @@ class BaseTrainer:
             # Print training per-epoch logged information to the screen.
             self.logger.info("Training evaluation results...")
             for key, value in train_eval_log.items():
-                self.logger.info("    {:15s}: {}".format(str(key), value))
+                self.logger.info(f"    {str(key):15s}: {value}")
 
             # Log results to training JSON.
             self.train_eval_json[epoch_str] = {}
@@ -260,9 +260,7 @@ class BaseTrainer:
                 # The current result did not improve the running best, increase
                 # the patience counter for early stopping.
                 self.logger.info(
-                    "Metric did not improve for {} epochs...".format(
-                        not_improved_count
-                    )
+                    f"Metric did not improve for {not_improved_count} epochs..."
                 )
                 not_improved_count += 1
 
@@ -278,16 +276,13 @@ class BaseTrainer:
             # Create checkpoint at the requested interval.
             if (epoch % self.save_period) == 0:
                 self._save_checkpoint(
-                    epoch,
-                    "checkpoint_trial{}_epoch{}.pth".format(trial, epoch),
+                    epoch, f"checkpoint_trial{trial}_epoch{epoch}.pth"
                 )
                 self.logger.info("Saved checkpoint...")
 
             # Save best model if it is the case.
             if best:
-                self._save_checkpoint(
-                    epoch, "best_model_trial{}.pth".format(trial)
-                )
+                self._save_checkpoint(epoch, f"best_model_trial{trial}.pth")
                 self.logger.info("Saved best model so far...")
 
         return best_losses, self.monitor_best
