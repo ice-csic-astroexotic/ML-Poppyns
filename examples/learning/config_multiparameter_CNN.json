@@ -1,18 +1,18 @@
 {
-  "name": "Linear",
+  "name": "Convolution",
   "trials": 8,
   "convergence": {
     "h_c_threshold": 0.5,
     "vk_c_threshold": 10.0,
     "sigma_k_threshold": 10.0
   },
-  "n_gpu": 0,
+  "n_gpu": 1,
 
   "arch": {
-    "type": "ModelLinear",
+    "type": "ModelConv",
     "args": {
         "input_shape": [4, 128, 128],
-        "num_parameters": 1
+        "num_parameters": 2
     }
   },
 
@@ -43,7 +43,8 @@
       "num_workers": 1,
       "ignored_inputs": [1, 2, 6, 7],
       "ignored_labels": [],
-      "normalize": true,
+      "shuffle": false,
+      "normalize": false,
       "standardize": false
     }
   },

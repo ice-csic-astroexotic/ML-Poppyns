@@ -8,20 +8,50 @@ Suppose that you have created a set of simulated populations stored in :code:`mu
 
 .. code-block:: bash
 
-  python examples/generator/generate_dataset.py --data_path multirun/2020-04-16/15-45-46 --dataset_name array_dataset --type array --resolution 64
+  python examples/generator/generate_dataset.py --data multirun/2020-04-16/15-45-46 --save_dir examples/data/array_dataset --type array --resolution 64
 
-you need to provide the path to the location where the simulated populations are stored, the name of the dataset that you are going to create, the type of the representations (you can choose :code:`array` or :code:`image`) and the resolution. By running the script, the folder :code:`examples/data/array_dataset` is created where a set of 2D arrays are stored for each sample along with a :code:`dataset.csv` file containing all the information about the dataset. Such CSV file provides one line for each sample in the dataset in which we indicate the file path for its 2D arrays and the values for its parameters like this:
+you need to provide the path to the location where the simulated populations data are stored, the path where to save the dataset that you are going to create, the type of the representations (you can choose :code:`array` or :code:`image`) and the resolution. By running the script, the folder :code:`examples/data/array_dataset` is created where a set of 2D arrays are stored for each sample along with a :code:`dataset.csv` file containing all the information about the dataset. Such CSV file provides one line for each sample in the dataset in which we indicate the file path for its 2D arrays and the values for its parameters like this:
 
 ::
 
   input:position_map_xy,input:position_map_xz,input:velocity_map_xy_vr,input:velocity_map_xy_vphi,input:velocity_map_xy_vz,vk_c
-  examples/data/2020-04-16/15-45-46/array_dataset/position_map_xy_pop_0.npy,examples/data/2020-04-16/15-45-46/array_dataset/position_map_xz_pop_0.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vr_pop_0.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vphi_pop_0.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vz_pop_0.npy,100.0
-  examples/data/2020-04-16/15-45-46/array_dataset/position_map_xy_pop_1.npy,examples/data/2020-04-16/15-45-46/array_dataset/position_map_xz_pop_1.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vr_pop_1.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vphi_pop_1.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vz_pop_1.npy,200.0
-  examples/data/2020-04-16/15-45-46/array_dataset/position_map_xy_pop_2.npy,examples/data/2020-04-16/15-45-46/array_dataset/position_map_xz_pop_2.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vr_pop_2.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vphi_pop_2.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vz_pop_2.npy,300.0
-  examples/data/2020-04-16/15-45-46/array_dataset/position_map_xy_pop_3.npy,examples/data/2020-04-16/15-45-46/array_dataset/position_map_xz_pop_3.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vr_pop_3.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vphi_pop_3.npy,examples/data/2020-04-16/15-45-46/array_dataset/velocity_map_xy_vz_pop_3.npy,600.0
+  examples/data/array_dataset/position_map_xy_pop_0.npy,examples/data/array_dataset/position_map_xz_pop_0.npy,examples/data/array_dataset/velocity_map_xy_vr_pop_0.npy,examples/data/array_dataset/velocity_map_xy_vphi_pop_0.npy,examples/data/array_dataset/velocity_map_xy_vz_pop_0.npy,100.0
+  examples/data/array_dataset/position_map_xy_pop_1.npy,examples/data/array_dataset/position_map_xz_pop_1.npy,examples/data/array_dataset/velocity_map_xy_vr_pop_1.npy,examples/data/array_dataset/velocity_map_xy_vphi_pop_1.npy,examples/data/array_dataset/velocity_map_xy_vz_pop_1.npy,200.0
+  examples/data/array_dataset/position_map_xy_pop_2.npy,examples/data/array_dataset/position_map_xz_pop_2.npy,examples/data/array_dataset/velocity_map_xy_vr_pop_2.npy,examples/data/array_dataset/velocity_map_xy_vphi_pop_2.npy,examples/data/array_dataset/velocity_map_xy_vz_pop_2.npy,300.0
+  examples/data/array_dataset/position_map_xy_pop_3.npy,examples/data/array_dataset/position_map_xz_pop_3.npy,examples/data/array_dataset/velocity_map_xy_vr_pop_3.npy,examples/data/array_dataset/velocity_map_xy_vphi_pop_3.npy,examples/data/array_dataset/velocity_map_xy_vz_pop_3.npy,600.0
 
 In this way it is easy for later loading it into the learning subpackage.
 
-.. note::
+To generate a dataset split into two subsets one specific for training and the other for validation you can specify a fraction of the total dataset that will form the validation subset by passing the argument :code:`split` in the generator script. For example:
 
-  If you don't want to generate all the samples in the population, you can use the :code:`--samples {int}` argument to specify a number of samples to select from the population. They will be equally spaced. If no samples are indicated, the whole population will be taken into account. NOTE: This will be hard to do when we have multiple parameters varying in the population.
+.. code-block:: bash
+
+ python examples/generator/generate_dataset.py --split 0.2 --data simulated_data --save_dir generated_dataset --type array --resolution 128
+
+This will create a dataset along with other two files :code:`train_dataset.csv` and :code:`valid_dataset.csv` that will specify the samples belonging to the train dataset (80 % of the total dataset in this case) and the ones belonging to the validation dataset  (20 % of the total dataset).
+The split is performed by random sampling the validation subset from the total dataset according to the specified split fraction.
+
+The :code:`examples/experiment_launcher.py` script allows you to specify a list of experiment commands in a text file like:
+
+.. code-block:: bash
+
+  python  examples/generator/generate_dataset.py --data multirun/2020-04-16/15-45-46 --save_dir examples/data/8_array_64" --type "array" --resolution 64
+  python  examples/generator/generate_dataset.py --data multirun/2020-04-16/15-45-46 --save_dir examples/data/8_array_128" --type "array" --resolution 128
+  python  examples/generator/generate_dataset.py --data multirun/2020-04-16/15-45-46 --save_dir examples/data/8_array_256" --type "array" --resolution 256
+  python  examples/generator/generate_dataset.py --data multirun/2020-04-16/15-45-46 --save_dir examples/data/8_array_512" --type "array" --resolution 512
+
+by default, the command list will be held in :code:`examples/command_list.txt`. Each line should contain one full command (including the :code:`python` program call) to execute an experiment. The script will execute those experiments automatically and in parallel providing a number of maximum simultaneous :code:`--processes`:
+
+.. code-block:: bash
+
+  python examples/experiment_launcher.py --processes 2
+
+Obviously, this number of processes should be set as a function of the number of available threads/cores.
+
+A custom experiments file can be specified with the :code:`--command_list` parameter:
+
+.. code-block:: bash
+
+  python examples/experiment_launcher.py --command_list examples/generator/custom.txt --processes 2
+
+This combined with an intelligent use of the :code:`--save_dir` :term:`CLI` argument will let you run many experiments unattended and check them asynchronously.

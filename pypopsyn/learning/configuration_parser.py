@@ -86,7 +86,7 @@ class ConfigurationParser:
             o.target: getattr(args, _get_opt_name(o.flags)) for o in options
         }
 
-        return cls(configuration, modification, args.resume)
+        return cls(configuration, modification, args.weights)
 
     def init_object(self, name: str, module, *args, **kwargs):
         """ Object handler finder.
@@ -103,7 +103,7 @@ class ConfigurationParser:
 
             Returns:
 
-                The object instance intialized with the provided arguments if
+                The object instance initialized with the provided arguments if
                 the name of the requested object exists in the configuration
                 dictionary. None otherwise.
 

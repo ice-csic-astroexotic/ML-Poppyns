@@ -38,8 +38,9 @@ cfg["show_profiles"] = False
 cfg["profiles_dir"] = "profiles"
 
 # General profiling configuration.
-cfg["profile_log"] = "profile.txt"
-cfg["show_profiling"] = False
+cfg["profile_log"] = "profile.log"
+cfg["profile_json"] = "profile.json"
+cfg["show_profiling"] = True
 
 
 # Initial population class parameters.

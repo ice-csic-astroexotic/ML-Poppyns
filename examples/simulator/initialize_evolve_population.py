@@ -28,11 +28,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import argparse
+import json
 import logging
 import os
+import pathlib
 import sys
 
-import hydra
 import numpy as np
 import pandas as pd
 
@@ -50,18 +52,17 @@ import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 log = logging.getLogger(__name__)
 
 
-@hydra.main()
-@timefunc.time_function(
-    configuration.cfg["profile_log"], configuration.cfg["show_profiling"]
-)
-def generate_population(cfg) -> None:
+def generate_population(
+    output_path: pathlib.Path, json_override_path: pathlib.Path = None
+) -> None:
     """
     Generating a neutron star population starting from some initial
     conditions and evolving it forward in time.
 
     Args:
 
-        cfg: configuration dictionary for the simulator.
+        output_dir (pathlib.Path): Output directory for the run.
+        json_override_path (pathlib.Path): Path to JSON with parameter overrides.
 
     Returns:
 
@@ -69,8 +70,17 @@ def generate_population(cfg) -> None:
 
     """
 
-    # Update simulator configuration with the provided parameters.
-    configuration.update_configuration(cfg)
+    # Update simulator configuration with the provided JSON override (if any).
+    cfg_override = {}
+    if json_override_path:
+        with open(json_override_path) as f:
+            cfg_override = json.load(f)
+            configuration.update_configuration(cfg_override)
+
+    # Dump configuration override to output path.
+    override_dump_path = pathlib.Path().joinpath(output_path, "override.json")
+    with open(override_dump_path, "w") as f:
+        json.dump(cfg_override, f, indent=4, sort_keys=True)
 
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
@@ -78,6 +88,7 @@ def generate_population(cfg) -> None:
     with timewith.TimeWith(
         "[InitialPopulation]",
         configuration.cfg["profile_log"],
+        configuration.cfg["profile_json"],
         configuration.cfg["show_profiling"],
     ) as timer:
 
@@ -208,7 +219,10 @@ def generate_population(cfg) -> None:
         )
 
         # Save the data frame as compressed binary file.
-        df_initial.to_pickle("initial_population.pkl.gz", compression="gzip")
+        initial_output_path = pathlib.Path().joinpath(
+            output_path, "initial_population.pkl.gz"
+        )
+        df_initial.to_pickle(initial_output_path, compression="gzip")
 
         timer.checkpoint("[Export]")
 
@@ -223,6 +237,7 @@ def generate_population(cfg) -> None:
     with timewith.TimeWith(
         "[EvolvePopulation]",
         configuration.cfg["profile_log"],
+        configuration.cfg["profile_json"],
         configuration.cfg["show_profiling"],
     ) as timer:
 
@@ -396,7 +411,10 @@ def generate_population(cfg) -> None:
         )
 
         # Save the data frame as a compressed binary file.
-        df_final.to_pickle("final_population.pkl.gz", compression="gzip")
+        final_output_path = pathlib.Path().joinpath(
+            output_path, "final_population.pkl.gz"
+        )
+        df_final.to_pickle(final_output_path, compression="gzip")
 
         log.info(
             "Output of the evolved population generated in {}/{}".format(
@@ -412,6 +430,38 @@ def generate_population(cfg) -> None:
 
 if __name__ == "__main__":
 
+    args = argparse.ArgumentParser(description="PyPopSyn parameters")
+
+    args.add_argument(
+        "--output_dir",
+        nargs="?",
+        type=str,
+        default="output/test",
+        help="Path to the directory where the run will be saved.",
+    )
+
+    args.add_argument(
+        "--parameter_override",
+        nargs="?",
+        type=str,
+        default=None,
+        help="Path to JSON containing the parameter override values.",
+    )
+
+    args = args.parse_args()
+
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-    generate_population()
+    # If the output directory does not exist, create it.
+    output_path = pathlib.Path(args.output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Update path-dependent configurations prepending the specified output path.
+    configuration.cfg["profile_log"] = pathlib.Path().joinpath(
+        output_path, configuration.cfg["profile_log"]
+    )
+    configuration.cfg["profile_json"] = pathlib.Path().joinpath(
+        output_path, configuration.cfg["profile_json"]
+    )
+
+    generate_population(output_path, args.parameter_override)

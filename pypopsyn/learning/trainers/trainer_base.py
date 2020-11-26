@@ -8,6 +8,8 @@
 
 """
 
+import json
+import pathlib
 import typing
 from abc import abstractmethod
 
@@ -70,7 +72,7 @@ class BaseTrainer:
         self.model = model.to(self.device)
         if len(device_ids) >= 1:
             self.logger.info(
-                "{} GPU detected, running in parallel!".format(len(device_ids))
+                f"{len(device_ids)} GPU detected, running in parallel!"
             )
             self.model = torch.nn.DataParallel(model, device_ids=device_ids)
 
@@ -82,7 +84,30 @@ class BaseTrainer:
         self.monitor_best = self.metric.initial_value()
         self.early_stop = trainer_configuration.get("early_stop", inf)
         self.start_epoch = 1
-        self.checkpoint_dir = configuration.save_dir
+        self.checkpoint_dir = self.configuration.save_dir
+        self.log_dir = self.configuration.log_dir
+
+        # Initialize training and validation JSONs.
+        self.train_json_path = pathlib.Path().joinpath(
+            self.log_dir, "train_result.json"
+        )
+        self.train_json: dict = {}
+        with open(self.train_json_path, "w") as f:
+            json.dump(self.train_json, f, indent=2, sort_keys=True)
+
+        self.train_eval_json_path = pathlib.Path().joinpath(
+            self.log_dir, "train_eval_result.json"
+        )
+        self.train_eval_json: dict = {}
+        with open(self.train_eval_json_path, "w") as f:
+            json.dump(self.train_eval_json, f, indent=2, sort_keys=True)
+
+        self.validation_json_path = pathlib.Path().joinpath(
+            self.log_dir, "validation_result.json"
+        )
+        self.validation_json: dict = {}
+        with open(self.validation_json_path, "w") as f:
+            json.dump(self.validation_json, f, indent=2, sort_keys=True)
 
         # setup visualization writer instance
         self.writer = TensorboardWriter(
@@ -98,7 +123,7 @@ class BaseTrainer:
     def _train_epoch(self, epoch):
         raise NotImplementedError
 
-    def train(self) -> typing.Tuple[dict, float]:
+    def train(self, trial: int = None) -> typing.Tuple[dict, float]:
 
         """
         Main training procedure.
@@ -114,7 +139,8 @@ class BaseTrainer:
         it also saves the most accurate model to `best_model.pth`.
 
         Args:
-            None.
+            trial (int): the current trial to add suffixes to the saved models
+                and checkpoints. Can be none if no trial is specified.
 
         Returns:
             dict: a dictionary with the best values for each individual loss for
@@ -130,15 +156,22 @@ class BaseTrainer:
 
         for epoch in range(self.start_epoch, self.epochs + 1):
 
+            epoch_str = f"{epoch:05d}"
+
             self.logger.info(
                 "************************************************"
             )
-            self.logger.info("Epoch {}".format(epoch))
-            self.logger.info("Best accuracy: {}".format(self.monitor_best))
+            self.logger.info(f"Epoch {epoch_str}")
+            self.logger.info(f"Best accuracy: {self.monitor_best}")
 
             # Run one epoch and fetch the result dictionaries for train/val and
             # the losses that will be used for convergence.
-            train_result, val_result, losses = self._train_epoch(epoch)
+            (
+                train_result,
+                val_result,
+                train_eval_result,
+                losses,
+            ) = self._train_epoch(epoch)
 
             # Update current epoch logging dictionary with the results from the
             # training epoch (usually loss and accuracy averages).
@@ -149,7 +182,37 @@ class BaseTrainer:
             # Print training per-epoch logged information to the screen.
             self.logger.info("Training results...")
             for key, value in log.items():
-                self.logger.info("    {:15s}: {}".format(str(key), value))
+                self.logger.info(f"    {str(key):15s}: {value}")
+
+            # Log results to training JSON.
+            self.train_json[epoch_str] = {}
+            for key, value in log.items():
+                if key == "epoch":
+                    continue
+                self.train_json[epoch_str][key] = value
+
+            with open(self.train_json_path, "w") as f:
+                json.dump(self.train_json, f, indent=2, sort_keys=True)
+
+            # Update current epoch logging dictionary with the results from the
+            # training evaluation epoch (usually loss and accuracy averages).
+            train_eval_log = {"epoch": epoch}
+            train_eval_log.update(train_eval_result)
+
+            # Print training per-epoch logged information to the screen.
+            self.logger.info("Training evaluation results...")
+            for key, value in train_eval_log.items():
+                self.logger.info(f"    {str(key):15s}: {value}")
+
+            # Log results to training JSON.
+            self.train_eval_json[epoch_str] = {}
+            for key, value in train_eval_log.items():
+                if key == "epoch":
+                    continue
+                self.train_eval_json[epoch_str][key] = value
+
+            with open(self.train_eval_json_path, "w") as f:
+                json.dump(self.train_eval_json, f, indent=2, sort_keys=True)
 
             # Print validation information if validation was performed and use
             # it to update the training tracking metrics if so (like the current
@@ -166,6 +229,18 @@ class BaseTrainer:
                 self.logger.info("Validation results...")
                 for key, value in val_log.items():
                     self.logger.info("    {:15s}: {}".format(str(key), value))
+
+                # Log results to validation JSON.
+                self.validation_json[epoch_str] = {}
+                for key, value in val_log.items():
+                    if key == "epoch":
+                        continue
+                    self.validation_json[epoch_str][key] = value
+
+                with open(self.validation_json_path, "w") as f:
+                    json.dump(
+                        self.validation_json, f, indent=2, sort_keys=True
+                    )
 
             # Check whether model performance improved or not, according
             # to specified metric behavior (minimum or maximum). The metric will
@@ -185,9 +260,7 @@ class BaseTrainer:
                 # The current result did not improve the running best, increase
                 # the patience counter for early stopping.
                 self.logger.info(
-                    "Metric did not improve for {} epochs...".format(
-                        not_improved_count
-                    )
+                    f"Metric did not improve for {not_improved_count} epochs..."
                 )
                 not_improved_count += 1
 
@@ -203,13 +276,13 @@ class BaseTrainer:
             # Create checkpoint at the requested interval.
             if (epoch % self.save_period) == 0:
                 self._save_checkpoint(
-                    epoch, "checkpoint-epoch{}.pth".format(epoch)
+                    epoch, f"checkpoint_trial{trial}_epoch{epoch}.pth"
                 )
                 self.logger.info("Saved checkpoint...")
 
             # Save best model if it is the case.
             if best:
-                self._save_checkpoint(epoch, "best_model.pth")
+                self._save_checkpoint(epoch, f"best_model_trial{trial}.pth")
                 self.logger.info("Saved best model so far...")
 
         return best_losses, self.monitor_best

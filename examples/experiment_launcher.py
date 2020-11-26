@@ -1,15 +1,15 @@
 #!/usr/bin/evn python3
 # -*- coding: utf-8 -*-
 
-""" Training launcher script.
+""" Experiment launcher script.
 
-    This script helps running training by taking a list of training commands and
+    This script helps running multiple experiments by taking a list of commands and
     executing them with a process pool. This way, a huge list of experiments can
     be left running unattended.
 
     Running the code:
 
-        python3 examples/learning/train_launcher.py --h
+        python3 examples/experiment_launcher.py --h
 
         To obtain help about all the arguments that can be used.
 
@@ -38,14 +38,14 @@ def run_experiment(command: str) -> typing.Tuple[pathlib.Path, str]:
     Run experiment command.
 
     This is the main routine for running a particular experiment. It runs the
-    provided experiment command (a Python call to the training script with a
+    provided experiment command (a Python call to the experiment script with a
     set of CLI arguments) and captures all the output of the process.
 
     Args:
         command: full command to execute the experiment.
 
     Returns:
-        The experiment command and the consolute output of the process.
+        The experiment command and the convolute output of the process.
 
     """
 
@@ -154,21 +154,21 @@ def main(args):
 
 if __name__ == "__main__":
 
-    args = argparse.ArgumentParser(description="PyPopSyn Training Launcher")
+    args = argparse.ArgumentParser(description="PyPopSyn Experiment Launcher")
 
     args.add_argument(
         "--command_list",
         nargs="?",
         type=str,
-        default="examples/learning/command_list.txt",
-        help="List of commands to execute for training",
+        default="examples/command_list.txt",
+        help="List of commands to execute.",
     )
     args.add_argument(
         "--processes",
         nargs="?",
         type=int,
         default=1,
-        help="Number of simultaneous processes for the pool",
+        help="Number of simultaneous processes for the pool.",
     )
 
     args = args.parse_args()
