@@ -8,7 +8,7 @@
     directly that script or using the helper with its particular directory tree.
 
     The user can choose the total number of stars to randomly select from the
-    original simulated population, he can provide a weighted selection according to
+    original simulated population, they can provide a weighted selection according to
     the stars' distances from the Sun and can provide a distance cut-off to select only stars
     that are nearer to the Sun.
 
@@ -71,10 +71,12 @@ def calculate_selection_weights(d: np.ndarray) -> np.ndarray:
     """
 
     # This function has been fine tuned to match the distribution of distances from the Sun of
-    # the neutron stars with observed proper motion.
+    # the 224 neutron stars with observed proper motion. In this sample we selected neutron stars
+    # that are likely to be not recycled and isolated (i.e., with a spin period derivative Pdot>10^(-17)
+    # and with no association to globular clusters or binary systems).
     weights = np.exp(-0.5 * d) / d
 
-    # Normalize the weights to their sum
+    # Normalize the weights to their sum.
     w = weights / np.sum(weights)
 
     return w
@@ -82,17 +84,16 @@ def calculate_selection_weights(d: np.ndarray) -> np.ndarray:
 
 def data_sampler(args) -> None:
     """
-    This method reads the simulated population files (usually by the simulation
+    This function reads the simulated population files (usually by the simulation
     helper) folder and creates simulated population files with a reduced number
-    of stars by random sampling the original evolved population file.
+    of stars by randomly sampling the original evolved population file.
 
     Args:
-        args:
-            data (str): Path to where the simulated populations are located.
-            save_dir (str): Path to where to save the resampled population files.
-            size (int): Number of stars to random sample from the population files.
-            distance_cut (float): Maximum distance from the Sun cut-off.
-            uniform (bool): If True stars are selected uniformly in distance from the simulated population.
+        data (str): Path to where the simulated populations are located.
+        save_dir (str): Path to where to save the resampled population files.
+        size (int): Number of stars to randomly sample from the population files.
+        distance_cut (float): Maximum distance from the Sun cut-off.
+        uniform (bool): If True stars are selected uniformly in distance from the simulated population.
     """
 
     # Check if the parsed simulated populations directory exists.
@@ -129,7 +130,7 @@ def data_sampler(args) -> None:
         with open(label_path) as f:
             override = json.load(f)
 
-        # Save the file containing labels int the new directory path.
+        # Save the file containing labels into the new directory path.
         override_dump_path = pathlib.Path().joinpath(
             f"{data_path}/", "override.json"
         )
@@ -179,7 +180,7 @@ if __name__ == "__main__":
         nargs="?",
         type=int,
         default=None,
-        help="Number of stars to random sample from the population files.",
+        help="Number of stars to randomly sample from the population files.",
     )
     parser.add_argument(
         "--distance_cut",
