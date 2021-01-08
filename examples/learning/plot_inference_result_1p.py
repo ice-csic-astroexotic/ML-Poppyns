@@ -80,8 +80,8 @@ def running_stat(
     x: np.ndarray, targets: np.array, n_bins: int
 ) -> (np.ndarray, np.ndarray, np.ndarray):
     """
-        Calculate the variation of the root mean square error (RMSE) and of the mean residual
-        of the predicted values x over the range of the targets data.
+        Calculate the variation of the root mean square error (RMSE) the mean relative error (MRE) and of the mean
+        residual with sign of the predicted values x over the range of the targets data.
 
         Args:
             x (np.ndarray): predicted values.
@@ -89,22 +89,31 @@ def running_stat(
             n_bins (int): number of bins.
 
         Returns:
-            (np.array): running value of the RMSE corresponding to each bin.
+            (np.array, np.array, np.array, np.array): array of central values of each bin, running value of the RMSE
+            corresponding to each bin, running value of the average residuals corresponding to each bin and running
+            MRE corresponding to each bin.
     """
     inf_lim = np.min(targets)
     sup_lim = np.max(targets)
     bin_edges = np.linspace(inf_lim, sup_lim, n_bins + 1)
+
+    # Compute the bin center values.
     bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
 
+    # Compute statistics.
     running_rmse = np.zeros(len(bin_centers))
     running_average = np.zeros(len(bin_centers))
+    running_mre = np.zeros(len(bin_centers))
 
     for i in range(1, len(bin_edges)):
         cond = (targets > bin_edges[i - 1]) & (targets < bin_edges[i])
         running_rmse[i - 1] = np.sqrt(np.mean((x[cond] - targets[cond]) ** 2))
         running_average[i - 1] = np.mean((x[cond] - targets[cond]))
+        running_mre[i - 1] = np.mean(
+            abs(x[cond] - targets[cond]) / targets[cond]
+        )
 
-    return bin_centers, running_rmse, running_average
+    return bin_centers, running_rmse, running_average, running_mre
 
 
 def plot_inference_results(args) -> None:
@@ -127,33 +136,39 @@ def plot_inference_results(args) -> None:
         data = pd.read_csv(f"{args.sigmak_inference_file}")
         target_sigmak = data["target:sigma_k"].to_numpy()
         prediction_sigmak = data["predicted:sigma_k"].to_numpy()
-        print(prediction_sigmak)
 
-        # Compute the RMSE values for the total inferred datasets.
+        # Compute the RMSE and MRE values for the total inferred datasets.
         RMSE_sigmak = np.sqrt(
             np.mean((prediction_sigmak - target_sigmak) ** 2)
         )
-        print(RMSE_sigmak)
+        MRE_sigmak = np.mean(
+            abs((prediction_sigmak - target_sigmak) / target_sigmak)
+        )
 
-        # Compute the RMSE values as a function of the target values.
+        # Compute the statistics as a function of the target values.
+        n_bins = 50
         (
             bin_centers_sigmak,
             running_rmse_sigmak,
             running_average_sigmak,
-        ) = running_stat(prediction_sigmak, target_sigmak, 20)
+            running_mre_sigmak,
+        ) = running_stat(prediction_sigmak, target_sigmak, n_bins)
 
-        # Plot predicted vs target values.
+        # Plot prediction vs target values.
         fig, ax = plt.subplots()
-        ax.set_xlabel(r"Target $\sigma_{\rm k}$ [km/s]")
-        ax.set_ylabel(r"Predicted $\sigma_{\rm k}$ [km/s]")
+
+        ax.set_xlabel(r"Target $\sigma_{\rm k}$ [km s$^{-1}$]")
+        ax.set_ylabel(r"Predicted $\sigma_{\rm k}$ [km s$^{-1}$]")
+
         ax.scatter(
             target_sigmak,
             prediction_sigmak,
             linestyle="None",
             marker="o",
-            color="black",
+            facecolors="black",
+            edgecolors="None",
             s=10,
-            alpha=0.2,
+            alpha=0.3,
             rasterized=True,
         )
         ax.plot(
@@ -161,55 +176,57 @@ def plot_inference_results(args) -> None:
             target_sigmak,
             linestyle="-",
             linewidth=3,
-            color="red",
+            color="tab:red",
             alpha=1.0,
             rasterized=True,
             zorder=1,
         )
+
         plt.savefig(f"{args.save_dir}/1par_pred_vs_target_sigmak.pdf")
 
         # Plot residuals.
         fig, ax = plt.subplots()
-        ax.set_xlabel(r"Target $\sigma_{\rm k}$ [km/s]")
-        ax.set_ylabel(
-            r"Pred. $\sigma_{\rm k}$ - Target $\sigma_{\rm k}$ [km/s]"
-        )
+
+        ax.set_xlabel(r"$\sigma_{\rm k, T}$ [km s$^{-1}$]")
+        ax.set_ylabel(r"$\sigma_{\rm k, P} - \sigma_{\rm k, T}$ [km s$^{-1}$]")
+
         ax.scatter(
             target_sigmak,
             prediction_sigmak - target_sigmak,
             linestyle="None",
             marker="o",
-            c="black",
+            facecolors="black",
+            edgecolors="None",
             s=10,
-            alpha=0.2,
+            alpha=0.3,
             rasterized=True,
         )
         ax.plot(
-            np.linspace(1.0, 700.0, 50),
-            np.zeros(50),
+            np.linspace(1.0, 700.0, n_bins),
+            np.zeros(n_bins),
             linestyle="-",
             linewidth=3,
-            color="red",
+            color="tab:red",
             alpha=1.0,
             rasterized=True,
             zorder=1,
         )
         ax.plot(
-            np.linspace(1.0, 700.0, 50),
-            np.zeros(50) - RMSE_sigmak,
+            np.linspace(1.0, 700.0, n_bins),
+            np.zeros(n_bins) - RMSE_sigmak,
             linestyle="--",
-            linewidth=3,
-            color="red",
+            linewidth=5,
+            color="tab:red",
             alpha=1.0,
             rasterized=True,
             zorder=1,
         )
         ax.plot(
-            np.linspace(1.0, 700.0, 50),
-            np.zeros(50) + RMSE_sigmak,
+            np.linspace(1.0, 700.0, n_bins),
+            np.zeros(n_bins) + RMSE_sigmak,
             linestyle="--",
-            linewidth=3,
-            color="red",
+            linewidth=5,
+            color="tab:red",
             alpha=1.0,
             rasterized=True,
             zorder=1,
@@ -218,8 +235,8 @@ def plot_inference_results(args) -> None:
             bin_centers_sigmak,
             running_average_sigmak,
             linestyle="-",
-            linewidth=3,
-            color="lime",
+            linewidth=5,
+            color="tab:blue",
             alpha=1.0,
             rasterized=True,
             zorder=1,
@@ -228,12 +245,57 @@ def plot_inference_results(args) -> None:
             bin_centers_sigmak,
             np.zeros(len(bin_centers_sigmak)) - running_rmse_sigmak,
             np.zeros(len(bin_centers_sigmak)) + running_rmse_sigmak,
-            color="green",
+            facecolors="tab:orange",
+            edgecolors="None",
             alpha=0.5,
             rasterized=True,
             zorder=0,
         )
-        plt.savefig(f"{args.save_dir}/1par_residuals_sigmak.pdf")
+
+        plt.savefig(f"{args.save_dir}/1par_rmse_sigmak.pdf")
+
+        # Plot absolute relative residuals.
+        fig, ax = plt.subplots()
+
+        ax.set_yscale("log")
+        ax.set_xlabel(r"$\sigma_{\rm k, T}$ [km s$^{-1}$]")
+        ax.set_ylabel(
+            r"$\left| (\sigma_{\rm k, P} - \sigma_{\rm k, T}) / \sigma_{\rm k, T} \right|$"
+        )
+
+        ax.scatter(
+            target_sigmak,
+            abs((prediction_sigmak - target_sigmak) / target_sigmak),
+            linestyle="None",
+            marker="o",
+            facecolors="black",
+            edgecolors="None",
+            s=10,
+            alpha=0.3,
+            rasterized=True,
+        )
+        ax.plot(
+            np.linspace(1.0, 700.0, 50),
+            np.zeros(50) + MRE_sigmak,
+            linestyle="--",
+            linewidth=5,
+            color="tab:red",
+            alpha=1.0,
+            rasterized=True,
+            zorder=1,
+        )
+        ax.plot(
+            bin_centers_sigmak,
+            np.zeros(len(bin_centers_sigmak)) + running_mre_sigmak,
+            linestyle="-",
+            linewidth=5,
+            color="tab:blue",
+            alpha=1.0,
+            rasterized=True,
+            zorder=1,
+        )
+
+        plt.savefig(f"{args.save_dir}/1par_mre_sigmak.pdf")
 
     if args.hc_inference_file is not None:
 
@@ -242,26 +304,34 @@ def plot_inference_results(args) -> None:
         target_hc = data["target:h_c"].to_numpy()
         prediction_hc = data["predicted:h_c"].to_numpy()
 
-        # Compute the RMSE values for the total inferred datasets.
+        # Compute the RMSE and MRE values for the total inferred datasets.
         RMSE_hc = np.sqrt(np.mean((prediction_hc - target_hc) ** 2))
+        MRE_hc = np.mean(abs((prediction_hc - target_hc) / target_hc))
 
-        # Compute the RMSE values as a function of the target values.
-        bin_centers_hc, running_rmse_hc, running_average_hc = running_stat(
-            prediction_hc, target_hc, 20
-        )
+        # Compute the statistics as a function of the target values.
+        n_bins = 50
+        (
+            bin_centers_hc,
+            running_rmse_hc,
+            running_average_hc,
+            running_mre_hc,
+        ) = running_stat(prediction_hc, target_hc, n_bins)
 
         # Plot predicted vs target values.
         fig, ax = plt.subplots()
+
         ax.set_xlabel(r"Target $h_{\rm c}$ [kpc]")
         ax.set_ylabel(r"Predicted $h_{\rm c}$ [kpc]")
+
         ax.scatter(
             target_hc,
             prediction_hc,
             linestyle="None",
             marker="o",
-            color="black",
+            facecolors="black",
+            edgecolors="None",
             s=10,
-            alpha=0.2,
+            alpha=0.3,
             rasterized=True,
         )
         ax.plot(
@@ -269,53 +339,57 @@ def plot_inference_results(args) -> None:
             target_hc,
             linestyle="-",
             linewidth=3,
-            color="red",
+            color="tab:red",
             alpha=1.0,
             rasterized=True,
             zorder=1,
         )
+
         plt.savefig(f"{args.save_dir}/1par_pred_vs_target_hc.pdf")
 
         # Plot residuals.
         fig, ax = plt.subplots()
-        ax.set_xlabel(r"Target $h_{\rm c}$ [kpc]")
-        ax.set_ylabel(r"Pred. $h_{\rm c}$ - Target $h_{\rm c}$ [kpc]")
+
+        ax.set_xlabel(r"$h_{\rm c, T}$ [kpc]")
+        ax.set_ylabel(r"$h_{\rm c, P} - h_{\rm c, T}$ [kpc]")
+
         ax.scatter(
             target_hc,
             prediction_hc - target_hc,
             linestyle="None",
             marker="o",
-            c="black",
+            facecolors="black",
+            edgecolors="None",
             s=10,
-            alpha=0.2,
+            alpha=0.3,
             rasterized=True,
         )
         ax.plot(
-            np.linspace(0.02, 2.0, 50),
-            np.zeros(50),
+            np.linspace(0.02, 2.0, n_bins),
+            np.zeros(n_bins),
             linestyle="-",
             linewidth=3,
-            color="red",
+            color="tab:red",
             alpha=1.0,
             rasterized=True,
             zorder=1,
         )
         ax.plot(
-            np.linspace(0.02, 2.0, 50),
-            np.zeros(50) - RMSE_hc,
+            np.linspace(0.02, 2.0, n_bins),
+            np.zeros(n_bins) - RMSE_hc,
             linestyle="--",
-            linewidth=3,
-            color="red",
+            linewidth=5,
+            color="tab:red",
             alpha=1.0,
             rasterized=True,
             zorder=1,
         )
         ax.plot(
-            np.linspace(0.02, 2.0, 50),
-            np.zeros(50) + RMSE_hc,
+            np.linspace(0.02, 2.0, n_bins),
+            np.zeros(n_bins) + RMSE_hc,
             linestyle="--",
-            linewidth=3,
-            color="red",
+            linewidth=5,
+            color="tab:red",
             alpha=1.0,
             rasterized=True,
             zorder=1,
@@ -324,8 +398,8 @@ def plot_inference_results(args) -> None:
             bin_centers_hc,
             running_average_hc,
             linestyle="-",
-            linewidth=3,
-            color="lime",
+            linewidth=5,
+            color="tab:blue",
             alpha=1.0,
             rasterized=True,
             zorder=1,
@@ -334,12 +408,57 @@ def plot_inference_results(args) -> None:
             bin_centers_hc,
             np.zeros(len(bin_centers_hc)) - running_rmse_hc,
             np.zeros(len(bin_centers_hc)) + running_rmse_hc,
-            color="green",
+            facecolors="tab:orange",
+            edgecolors="None",
             alpha=0.5,
             rasterized=True,
             zorder=0,
         )
-        plt.savefig(f"{args.save_dir}/1par_residuals_sigmak.pdf")
+
+        plt.savefig(f"{args.save_dir}/1par_rmse_hc.pdf")
+
+        # Plot absolute relative residuals.
+        fig, ax = plt.subplots()
+
+        ax.set_yscale("log")
+        ax.set_xlabel(r"$h_{\rm c, T}$ [kpc]")
+        ax.set_ylabel(
+            r"$\left| ( h_{\rm c, P} - h_{\rm c, T} ) / h_{\rm c, T} \right|$"
+        )
+
+        ax.scatter(
+            target_hc,
+            abs((prediction_hc - target_hc) / target_hc),
+            linestyle="None",
+            marker="o",
+            facecolors="black",
+            edgecolors="None",
+            s=10,
+            alpha=0.3,
+            rasterized=True,
+        )
+        ax.plot(
+            np.linspace(0.02, 2.0, 50),
+            np.zeros(50) + MRE_hc,
+            linestyle="--",
+            linewidth=5,
+            color="tab:red",
+            alpha=1.0,
+            rasterized=True,
+            zorder=1,
+        )
+        ax.plot(
+            bin_centers_hc,
+            np.zeros(len(bin_centers_hc)) + running_mre_hc,
+            linestyle="-",
+            linewidth=5,
+            color="tab:blue",
+            alpha=1.0,
+            rasterized=True,
+            zorder=1,
+        )
+
+        plt.savefig(f"{args.save_dir}/1par_mre_hc.pdf")
 
 
 if __name__ == "__main__":
