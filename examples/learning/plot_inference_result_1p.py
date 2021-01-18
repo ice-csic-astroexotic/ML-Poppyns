@@ -123,7 +123,8 @@ def plot_inference_results(args) -> None:
     The two files have to contain the prediction results for the sigma_k and h_c parameters respectively.
 
     Args:
-        sigmak_inference_file (str): Path to where the file containing the inference results on the sigma_k parameter is stored.
+        sigmak_inference_file (str): Path to where the file containing the inference results on the sigma_k parameter
+        is stored.
 
         hc_inference_file (str): Path to where the file containing the inference results on the h_c parameter is stored.
 
