@@ -42,78 +42,9 @@ import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib import rcParams
 
-rcParams["mathtext.fontset"] = "stix"
-rcParams["font.family"] = "Liberation serif"
-rcParams["font.size"] = "30"
-# rcParams['font.weight']='bold'
-rcParams["figure.figsize"] = "8.0, 7.0"
-rcParams["figure.autolayout"] = True
-
-rcParams["axes.linewidth"] = "1.7"
-rcParams["axes.labelpad"] = "15.0"
-rcParams["axes.titlepad"] = "15.0"
-
-rcParams["xtick.direction"] = "in"
-rcParams["xtick.top"] = True
-rcParams["xtick.major.pad"] = "10.0"
-rcParams["xtick.minor.pad"] = "10.0"
-rcParams["xtick.major.size"] = "10.0"
-rcParams["xtick.major.width"] = "1.7"
-rcParams["xtick.minor.size"] = "5.0"
-rcParams["xtick.minor.width"] = "1.7"
-rcParams["xtick.labelsize"] = "30"
-
-rcParams["ytick.direction"] = "in"
-rcParams["ytick.right"] = True
-rcParams["ytick.major.pad"] = "10.0"
-rcParams["ytick.minor.pad"] = "10.0"
-rcParams["ytick.major.size"] = "10.0"
-rcParams["ytick.major.width"] = "1.7"
-rcParams["ytick.minor.size"] = "5.0"
-rcParams["ytick.minor.width"] = "1.7"
-rcParams["ytick.labelsize"] = "30"
-
-
-def running_stat(
-    x: np.ndarray, targets: np.array, n_bins: int
-) -> (np.ndarray, np.ndarray, np.ndarray):
-    """
-        Calculate the variation of the root mean square error (RMSE) the mean relative error (MRE) and of the mean
-        residual with sign of the predicted values x over the range of the targets data.
-
-        Args:
-            x (np.ndarray): predicted values.
-            targets (np.ndarray): target values.
-            n_bins (int): number of bins.
-
-        Returns:
-            (np.array, np.array, np.array, np.array): array of central values of each bin, running value of the RMSE
-            corresponding to each bin, running value of the average residuals corresponding to each bin and running
-            MRE corresponding to each bin.
-    """
-    inf_lim = np.min(targets)
-    sup_lim = np.max(targets)
-    bin_edges = np.linspace(inf_lim, sup_lim, n_bins + 1)
-
-    # Compute the bin center values.
-    bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
-
-    # Compute statistics.
-    running_rmse = np.zeros(len(bin_centers))
-    running_average = np.zeros(len(bin_centers))
-    running_mre = np.zeros(len(bin_centers))
-
-    for i in range(1, len(bin_edges)):
-        cond = (targets > bin_edges[i - 1]) & (targets < bin_edges[i])
-        running_rmse[i - 1] = np.sqrt(np.mean((x[cond] - targets[cond]) ** 2))
-        running_average[i - 1] = np.mean((x[cond] - targets[cond]))
-        running_mre[i - 1] = np.mean(
-            abs(x[cond] - targets[cond]) / targets[cond]
-        )
-
-    return bin_centers, running_rmse, running_average, running_mre
+import utilities.plot_settings
+import utilities.statistics as stat
 
 
 def plot_inference_results(args) -> None:
@@ -153,7 +84,9 @@ def plot_inference_results(args) -> None:
             running_rmse_sigmak,
             running_average_sigmak,
             running_mre_sigmak,
-        ) = running_stat(prediction_sigmak, target_sigmak, n_bins)
+        ) = stat.inference_running_stat(
+            prediction_sigmak, target_sigmak, n_bins
+        )
 
         # Plot prediction vs target values.
         fig, ax = plt.subplots()
@@ -316,7 +249,7 @@ def plot_inference_results(args) -> None:
             running_rmse_hc,
             running_average_hc,
             running_mre_hc,
-        ) = running_stat(prediction_hc, target_hc, n_bins)
+        ) = stat.inference_running_stat(prediction_hc, target_hc, n_bins)
 
         # Plot predicted vs target values.
         fig, ax = plt.subplots()
