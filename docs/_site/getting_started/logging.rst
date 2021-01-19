@@ -2,7 +2,7 @@
 Logging
 *******
 
-For logging informatio to both console and file outputs we make use of Python's built-in :code:`logging` module in combination with Hydra.
+For logging information to both console and file outputs we make use of Python's built-in :code:`logging` module.
 
 In each module where the logger needs to be used, you must first import the logging module and get it using the :code:`getLogger` function:
 
@@ -21,6 +21,12 @@ Then you can issue logging messages at the appropriate level:
   log.warning("blablabla")
   log.error("blablabla")
 
+
+
+Logging with Hydra
+******************
+
+Until commit :code:`4cb335f7b435f1997cef9c5a9dd84117abff1ff8` Hydra was enabled to allow parameter sweeps when running the simulation script.
 By default, Hydra configures the loggers automatically to only produce messages above :code:`info` level, e.g.:
 
 .. code-block:: bash

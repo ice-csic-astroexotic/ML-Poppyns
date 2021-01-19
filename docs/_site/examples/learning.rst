@@ -26,7 +26,7 @@ First of all, we can specify some general settings such as the name of the exper
     "n_gpu": 0,
   }
 
-The first section we need to specify is the architecture. For the sake of the example, we are using a linear network with fully connected layers which is receiving an array with shape :math:`64 \times 64` with :math:`4` different input channels and is giving as output the predicted value of the parameter for each sample:
+The first section we need to specify is the architecture. For the sake of the example, we are using a linear network with fully connected layers which is receiving an array with shape :math:`64 \times 64` with :math:`4` different input channels and is giving as output the predicted value of one parameter for each sample:
 
 .. code-block:: json
 
@@ -59,18 +59,19 @@ Next, we need a training loader, responsible for loading the dataset for the tra
     "data_loader": {
       "type": "LoaderMultichannelArray",
       "args": {
-        "data_path": "examples/data/multiparameter/dataset.csv",
+        "data_path": "generated_dataset/train_dataset.csv",
         "batch_size": 8,
         "num_workers": 1,
         "ignored_inputs": [1, 2, 6, 7],
         "ignored_labels": [],
+        "shuffle": true,
         "normalize": false,
         "standardize": false
       }
     },
   }
 
-We can also optionally provide a loader for the validation set using the :code:`validation_data_loader`. Such loader must have the same :code:`ignored_inputs` and :code:`ignored_labels` and be of the same :code:`type` as the training data loader. In fact, what matters is that both of them are compatible with the network's input shape.
+We need to provide a loader for the validation set using the :code:`validation_data_loader`. Such loader must have the same :code:`ignored_inputs` and :code:`ignored_labels` and be of the same :code:`type` as the training data loader. In fact, what matters is that both of them are compatible with the network's input shape.
 
 .. code-block:: json
 
@@ -78,7 +79,7 @@ We can also optionally provide a loader for the validation set using the :code:`
     "validation_data_loader": {
       "type": "LoaderMultichannelArray",
       "args": {
-        "data_path": "examples/data/multiparameter/dataset.csv",
+        "data_path": "generated_dataset/vaild_dataset.csv",
         "batch_size": 8,
         "num_workers": 1,
         "ignored_inputs": [1, 2, 6, 7],
@@ -104,7 +105,7 @@ We can set the optimizer type, which regulates the training process (see `here <
     },
   }
 
-The loss function to use and the metric to monitor the accuracy of the neural network model during training. The implemeted loss function :code:`LossRMSE` evaluates the average :term:`RMSE` between the output of the network and the target labels over every batch. For the accuracy metric a root mean squared error metric is implemented called :code:`MetriAccuracyRMSE`. An optimal value of the :term:`RMSE` should be around 0 for a well-trained network:
+The loss function to minimize and the metric to monitor the predictive accuracy of the neural network model over the validation set during training. The implemeted loss function :code:`LossRMSE` evaluates the :term:`RMSE` between the output of the network and the target labels over every training epoch. For the accuracy metric a similiar :term:`RMSE` metric is implemented called :code:`MetriAccuracyRMSE`. An optimal value of the :term:`RMSE` should be around 0 for a well-trained network:
 
 .. code-block:: json
 
@@ -120,7 +121,7 @@ The loss function to use and the metric to monitor the accuracy of the neural ne
     },
   }
 
-A scheduler for the learning rate, which can update the value of the learning rate after a number of epochs specified by the :code:`step_size` parameter, by multiplying it by a factor :code:`gamma`. In this example after :math:`200` training epochs the learning rate is multiplied by a factor :math:`0.1`. Note that scheduling has different effects depending on the optimizer.
+A scheduler for the learning rate, which can update the value of the learning rate after a number of epochs specified by the :code:`step_size` parameter, by multiplying it by a factor :code:`gamma`. In this example after :math:`128` training epochs the learning rate is multiplied by a factor :math:`0.1`. Note that scheduling has different effects depending on the optimizer.
 
 .. code-block:: json
 
@@ -160,24 +161,19 @@ The :code:`examples/experiment_launcher.py` script allows you to specify a list 
 
 .. code-block:: bash
 
-  python examples/learning/train.py --dataset examples/data/8_array_64/dataset.csv --input_shape 4 64 64 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r64_position_velocity
-  python examples/learning/train.py --dataset examples/data/8_array_128/dataset.csv --input_shape 4 128 128 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r128_position_velocity
-  python examples/learning/train.py --dataset examples/data/8_array_256/dataset.csv --input_shape 4 256 256 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r256_position_velocity
-  python examples/learning/train.py --dataset examples/data/8_array_512/dataset.csv --input_shape 4 512 512 --lr 1e-8 --ignored_inputs 1 --batch_size 1 --save_dir examples/learning/saved/s8_r512_position_velocity
+  python examples/learning/train.py --dataset generated_dataset/array_64/train_dataset.csv --input_shape 4 64 64 --lr 1e-8 --ignored_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r64_gc_position_velocity
+  python examples/learning/train.py --dataset generated_dataset/array_128/train_dataset.csv --input_shape 4 128 128 --lr 1e-8 --ignored_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r128_gc_position_velocity
+  python examples/learning/train.py --dataset generated_dataset/array_256/train_dataset.csv --input_shape 4 256 256 --lr 1e-8 --ignored_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r256_gc_position_velocity
+  python examples/learning/train.py --dataset generated_dataset/array_512/train_dataset.csv --input_shape 4 512 512 --lr 1e-8 --ignored_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r512_gc_position_velocity
 
-by default, the command list will be held in :code:`examples/command_list.txt`. Each line should contain one full command (including the :code:`python` program call) to execute an experiment. The script will execute those experiments automatically and in parallel providing a number of maximum simultaneous :code:`--processes`:
-
-.. code-block:: bash
-
-  python examples/experiment_launcher.py --processes 2
-
+by default, the command list will be held in :code:`examples/command_list.txt`. Each line should contain one full command (including the :code:`python` program call) to execute an experiment. The script will execute those experiments automatically and in parallel providing a number of maximum simultaneous :code:`--processes`.
 Obviously, this number of processes should be set as a function of the number of available threads/cores.
 
 A custom experiments file can be specified with the :code:`--command_list` parameter:
 
 .. code-block:: bash
 
-  python examples/experiment_launcher.py --command_list examples/learning/custom.txt --processes 2
+  python examples/experiment_launcher.py --command_list examples/learning/experiment_list.txt --processes 2
 
 This combined with an intelligent use of the :code:`--save_dir` :term:`CLI` argument will let you run many experiments unattended and check them asynchronously.
 
@@ -187,7 +183,7 @@ Infer on a Data Set
 Once a network has been trained, it can be used to infer on an existing dataset of density and velocity maps.
 To do so the script :code:`examples/learning/infer.py` allows you to take an experiment configuration file, a pretrained model, and a data set to run inference on selected samples for that dataset.
 
-To use this inference script you will need to provide a dataset to infer (--dataset), a checkpoint with a pretrained model (--weights), the configuration file of the experiment that generated such model (--c) and a directory path where to save the CSV file with the inference results. For instance:
+To use this inference script you will need to provide a dataset to infer (:code:`--dataset`), a checkpoint with a pretrained model (:code:`--weights`), the configuration file of the experiment that generated such model (:code:`--c`) and a directory path where to save the CSV file with the inference results. For instance:
 
 .. code-block:: bash
 

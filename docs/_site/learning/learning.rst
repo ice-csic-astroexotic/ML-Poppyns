@@ -89,8 +89,8 @@ Negative log-likelihood loss
 
 Root mean square error (RMSE) loss
 **********************************
-.. automodule:: pypopsyn.learning.losses.loss_rms
-  :members: loss_rms
+.. automodule:: pypopsyn.learning.losses.loss_rmse
+  :members: loss_rmse
 
 Accuracy metrics
 ################
