@@ -190,9 +190,7 @@ def generate_population(
         timer.checkpoint("[Export]")
 
         log.info(
-            "Output of the initial population generated in {}/{}".format(
-                os.getcwd(), "initial_population.pkl.gz"
-            )
+            f"Output of the initial population generated in {os.getcwd()}/{initial_output_path}"
         )
 
     ############################################################################
@@ -277,9 +275,7 @@ def generate_population(
         )
 
         log.info(
-            "Percentage variation of total energy of the system: {} %".format(
-                delta_energy_percentage
-            )
+            f"Percentage variation of total energy of the system: {delta_energy_percentage} %"
         )
 
         timer.checkpoint("[Energy]")
@@ -350,9 +346,7 @@ def generate_population(
         df_final.to_pickle(final_output_path, compression="gzip")
 
         log.info(
-            "Output of the evolved population generated in {}/{}".format(
-                os.getcwd(), "final_population.pkl.gz"
-            )
+            f"Output of the evolved population generated in {os.getcwd()}/{final_output_path}"
         )
 
         timer.checkpoint("[Export]")
