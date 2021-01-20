@@ -214,5 +214,5 @@ For example, in case of inference over the two parameters :code:`h_c` and :code:
     1.5634645223617554,490.85040283203125,1.507364273071289,493.6461181640625
     ...
 
-To plot the inference results in the form of residuals plot you can run the scripts :code:`plot_inference_result_1p.py` or :code:`plot_inference_result_2p.py` for the single parameter or the two parameter inference respectively.
-To run the first script :code:`plot_inference_result_1p.py`, you need to provide the path to the :code:`inference_results.csv` files for either one or both the :code:`h_c` and :code:`sigma_k` parameters. To run the second script :code:`plot_inference_result_2p.py`, you need to provide the path to the :code:`inference_results.csv` containing the prediction on both parameters.
+To plot the inference results in the form of residuals plot you can use the jupyter notebooks :code:`inference_results_1par_plots.ipynb` or :code:`inference_results_2par_plots.ipynb` for the single parameter or the two parameter inference respectively.
+To run the first script notebook, you need to provide the path to the :code:`inference_results.csv` files for either one or both the :code:`h_c` and :code:`sigma_k` parameters. To run the second notebook, you need to provide the path to the :code:`inference_results.csv` containing the prediction on both parameters.
