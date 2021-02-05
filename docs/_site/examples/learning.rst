@@ -10,12 +10,13 @@ Once the dataset containing the heatmaps or 2D arrays has been created, to train
 
   python examples/learning/train.py --configuration="examples/learning/config.json"
 
-where the :code:`config.json` file contains all the information needed by the network to train. This :term:`CLI` can be left unspecified and the script will take the defautl :code:`examples/learning/config_multiparameter.json`.
+where the :code:`config.json` file contains all the information needed by the network to train. This :term:`CLI` can be left unspecified and the script will take the defautl :code:`examples/learning/config_multiparameter_MLP.json`.
 
 In this file we can specify various options to configure the training process, e.g., the network model architecture to use, the input shape of the dataset, or the number of output parameters to predict.
 
 First of all, we can specify some general settings such as the name of the experiment, the amount of :term:`GPU`\s needed for it, the amount of trials to perform if convergence is not reached, and the specific thresholds for convergence for each one of the predicted or output parameters.
 The script will try to perform several training trials until all convergence thresholds are met or the number of trials is reached.
+If convergence is not reached in the number of trials indicated the best trained model is saved anyway.
 
 .. code-block:: json
 
@@ -211,10 +212,22 @@ To use this inference script you will need to provide a dataset to infer (:code:
 
 .. code-block:: bash
 
-    python examples/learning/infer.py --c examples/learning/config_multiparameter.json --dataset examples/data/8_samples/dataset.csv --resume examples/learning/saved/models/Linear/0407_175854/model_best.pth --save_dir inference_results
+    python examples/learning/infer.py --c examples/learning/config_multiparameter_MLP.json --dataset examples/data/8_samples/dataset.csv --resume examples/learning/saved/models/Linear/0407_175854/model_best.pth --save_dir inference_results
 
 Then you can use the :code:`--samples` argument to provide a list of samples you would like to infer (their indices in the dataset) or just leave it blank to infer over all.
 Make sure that the data set used for inference has the same input configuration as the data set used for training the model, i.e., same input shape, number of labels to predict, normalization etc..
+If the inference dataset does not match an error is raised automatically by pytorch.
+For example if you put the wrong resolution for the input maps the error raised is similar to:
+.. code-block:: bash
+
+    RuntimeError: Error(s) in loading state_dict for ModelConv:
+        size mismatch for fc1.weight: copying a param with shape torch.Size([64, 26880]) from checkpoint, the shape in current model is torch.Size([64, 12544]).
+
+If the input channels do not match, an error like the following is raised:
+.. code-block:: bash
+
+    ValueError: all the input array dimensions for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 128 and the array at index 1 has size 64
+
 The output will be the labels (ground truth) for each sample and the corresponding prediction printed on terminal and saved in a CSV file :code:`inference_results.csv`.
 For example, in case of inference over the two parameters :code:`h_c` and :code:`sigma_k` the output file would be like this:
 
