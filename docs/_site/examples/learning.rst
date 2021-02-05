@@ -2,7 +2,9 @@
 Learning Example
 ****************
 
-The :code:`examples/learning/train.py` script allows to train a neural network over a dataset of samples of simulated neutron stars populations. Once the dataset containing the heatmaps or 2D arrays has been created, to train the network over the dataset one can run the script:
+We use here a supervised learning approach where training data are suitably labeled and the network has to learn to predict the target value of the label associated to the data samples.
+The :code:`examples/learning/train.py` script allows to train a neural network over a dataset of samples of simulated neutron star populations.
+Once the dataset containing the heatmaps or 2D arrays has been created, to train the network over the dataset one can run the script:
 
 .. code-block:: bash
 
@@ -12,7 +14,8 @@ where the :code:`config.json` file contains all the information needed by the ne
 
 In this file we can specify various options to configure the training process, e.g., the network model architecture to use, the input shape of the dataset, or the number of output parameters to predict.
 
-First of all, we can specify some general settings such as the name of the experiment, the amount of :term:`GPU`s needed for it, the amount of trials to perform if convergence is not reached, and the specific thresholds for convergence for each one of the predicted or output parameters. The script will try to perform several training trials until all convergence thresholds are met or the number of trials is reached.
+First of all, we can specify some general settings such as the name of the experiment, the amount of :term:`GPU`\s needed for it, the amount of trials to perform if convergence is not reached, and the specific thresholds for convergence for each one of the predicted or output parameters.
+The script will try to perform several training trials until all convergence thresholds are met or the number of trials is reached.
 
 .. code-block:: json
 
@@ -20,8 +23,9 @@ First of all, we can specify some general settings such as the name of the exper
     "name": "Linear",
     "trials": 8,
     "convergence": {
-      "h_mean": 0.01,
-      "vp_mean": 5.0
+      "h_c_threshold": 0.5,
+      "vk_c_threshold": 10.0,
+      "sigma_k_threshold": 10.0
     },
     "n_gpu": 0,
   }
@@ -51,7 +55,15 @@ We also need to specify a scheme to initialize the weights and biases of the net
     },
   }
 
-Next, we need a training loader, responsible for loading the dataset for the training in a representation readable by the network. Here you have to specify the path to the folder containing the dataset, the batch size, and the eventual input channels to ignore in building a multichannel input by specifying a list of index starting from 0. Additionally, we can choose to ignore a list of labels from the dataset. Furthermore, we can (mutually excluding) to enable on-the-fly normalization or standardization for both inputs and labels.
+Next, we need a training loader, responsible for loading the dataset for the training in a representation readable by the network.
+Here you have to specify the path to the folder containing the dataset, the batch size, and the eventual input channels to ignore in building a multichannel input.
+Additionally, we can choose to ignore a list of labels from the dataset.
+The available input channels and labels are specified in the :code:`train_dataset.csv` file and here they are identified with an index starting from 0.
+To ignore some input channels you need to specify a list containing the indices corresponding to the input channels you would like to ignore.
+In the example below we are ignoring the input channels :code:`position_map_xz`, :code:`position_map_radec`, :code:`velocity_map_vra` and :code:`velocity_map_vdec` and the label :code:`h_c`.
+Furthermore, we can enable on-the-fly normalization or standardization (mutually excluding) for both inputs and labels.
+If normalized the input channels will have values in the range between 0 and 1.
+If standardized the input channels have values centred around 0 and ranging approximately between -1 and 1.
 
 .. code-block:: json
 
@@ -63,7 +75,7 @@ Next, we need a training loader, responsible for loading the dataset for the tra
         "batch_size": 8,
         "num_workers": 1,
         "ignored_inputs": [1, 2, 6, 7],
-        "ignored_labels": [],
+        "ignored_labels": [8],
         "shuffle": true,
         "normalize": false,
         "standardize": false
@@ -105,7 +117,7 @@ We can set the optimizer type, which regulates the training process (see `here <
     },
   }
 
-The loss function to minimize and the metric to monitor the predictive accuracy of the neural network model over the validation set during training. The implemeted loss function :code:`LossRMSE` evaluates the :term:`RMSE` between the output of the network and the target labels over every training epoch. For the accuracy metric a similiar :term:`RMSE` metric is implemented called :code:`MetriAccuracyRMSE`. An optimal value of the :term:`RMSE` should be around 0 for a well-trained network:
+We have to specify the loss function to minimize and the metric to monitor the predictive accuracy of the neural network model over the validation set during training. The implemeted loss function :code:`LossRMSE` evaluates the :term:`RMSE` between the output of the network and the target labels over every training epoch. For the accuracy metric a similiar :term:`RMSE` metric is implemented called :code:`MetriAccuracyRMSE`. An optimal value of the :term:`RMSE` should be around 0 for a well-trained network:
 
 .. code-block:: json
 
@@ -121,7 +133,12 @@ The loss function to minimize and the metric to monitor the predictive accuracy 
     },
   }
 
-A scheduler for the learning rate, which can update the value of the learning rate after a number of epochs specified by the :code:`step_size` parameter, by multiplying it by a factor :code:`gamma`. In this example after :math:`128` training epochs the learning rate is multiplied by a factor :math:`0.1`. Note that scheduling has different effects depending on the optimizer.
+We can also set up a scheduler for the learning rate, which can update the value of the learning rate after a number of epochs specified by the :code:`step_size` parameter, by multiplying it by a factor :code:`gamma`.
+In this example after :math:`128` training epochs the learning rate is multiplied by a factor :math:`0.1`.
+Note that scheduling has different effects depending on the optimizer.
+For example for an adaptive optimizer like ADAM the learning rate is automatically adjusted during training, depending on the values of the loss gradients with respect to the network weights.
+Therefore the learning scheduler could not be effective in this case.
+On the other hand, for optimizer where the learning rate is fixed, rescheduling its value after some training epochs could help to converge faster towards a minimum of the loss landscape.
 
 .. code-block:: json
 
@@ -150,12 +167,19 @@ Some parameters for the training routine such as the total number of epochs, the
     }
   }
 
-When launching the training script you can also choose to normalize or standardize the input channels. If normalized the input channels will have values in the range between 0 and 1. If standardized the input channels have values centred around 0 and ranging approximately between -1 and 1. To normalize/standardize the input channels during training you can run either one or the other of the following scripts:
+Once you have set up the configuration file, to launch the training script you can simply run the script:
 
 .. code-block:: bash
 
-  python examples/learning/train.py --configuration="examples/learning/config.json" --normalize 1
-  python examples/learning/train.py --configuration="examples/learning/config.json" --standardize 1
+  python examples/learning/train.py --configuration examples/learning/config.json
+
+When launching the training script you can also provide some of the parameters contained in the configuration file directly via :term:`CLI`.
+For example one can provide the paths to the training and validation dataset, the input channels and the labels to ignore, the input shape, the number of parameters to predict, either to apply normalization or standardization to the input, the batch size, the learning rate value and the path where to save the trained model.
+For example you can run a script like the following:
+
+.. code-block:: bash
+
+  python examples/learning/train.py --configuration examples/learning/config.json --dataset tests/generated_dataset/train_dataset.csv --ignored_inputs 1 2 6 7 --ignored_labels 8 --input_shape 4 64 64 --num_parameters 1 --normalize 1 --save_dir training_results
 
 The :code:`examples/experiment_launcher.py` script allows you to specify a list of experiment commands in a text file like:
 
@@ -166,7 +190,7 @@ The :code:`examples/experiment_launcher.py` script allows you to specify a list 
   python examples/learning/train.py --dataset generated_dataset/array_256/train_dataset.csv --input_shape 4 256 256 --lr 1e-8 --ignored_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r256_gc_position_velocity
   python examples/learning/train.py --dataset generated_dataset/array_512/train_dataset.csv --input_shape 4 512 512 --lr 1e-8 --ignored_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r512_gc_position_velocity
 
-by default, the command list will be held in :code:`examples/command_list.txt`. Each line should contain one full command (including the :code:`python` program call) to execute an experiment. The script will execute those experiments automatically and in parallel providing a number of maximum simultaneous :code:`--processes`.
+By default, the command list will be held in :code:`examples/command_list.txt`. Each line should contain one full command (including the :code:`python` program call) to execute an experiment. The script will execute those experiments automatically and in parallel providing a number of maximum simultaneous :code:`--processes`.
 Obviously, this number of processes should be set as a function of the number of available threads/cores.
 
 A custom experiments file can be specified with the :code:`--command_list` parameter:
@@ -187,7 +211,7 @@ To use this inference script you will need to provide a dataset to infer (:code:
 
 .. code-block:: bash
 
-    python examples/learning/infer.py --c examples/learning/config_multiparameter.json --d examples/data/8_samples/dataset.csv --resume examples/learning/saved/models/Linear/0407_175854/model_best.pth --save_dir inference_results
+    python examples/learning/infer.py --c examples/learning/config_multiparameter.json --dataset examples/data/8_samples/dataset.csv --resume examples/learning/saved/models/Linear/0407_175854/model_best.pth --save_dir inference_results
 
 Then you can use the :code:`--samples` argument to provide a list of samples you would like to infer (their indices in the dataset) or just leave it blank to infer over all.
 Make sure that the data set used for inference has the same input configuration as the data set used for training the model, i.e., same input shape, number of labels to predict, normalization etc..
@@ -215,4 +239,5 @@ For example, in case of inference over the two parameters :code:`h_c` and :code:
     ...
 
 To plot the inference results in the form of residuals plot you can use the jupyter notebooks :code:`inference_results_1par_plots.ipynb` or :code:`inference_results_2par_plots.ipynb` for the single parameter or the two parameter inference respectively.
-To run the first script notebook, you need to provide the path to the :code:`inference_results.csv` files for either one or both the :code:`h_c` and :code:`sigma_k` parameters. To run the second notebook, you need to provide the path to the :code:`inference_results.csv` containing the prediction on both parameters.
+To run the first script notebook, you need to specify the path to the :code:`inference_results.csv` files for either one or both the :code:`h_c` and :code:`sigma_k` parameters directly in the notebook.
+To run the second notebook, you need to provide the path to the :code:`inference_results.csv` containing the prediction on both parameters directly in the notebook.
