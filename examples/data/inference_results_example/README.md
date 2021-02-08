@@ -3,8 +3,11 @@ Inference results
 ## Description
 Inference results of the Convolutional neural network trained respectively to predict either 1) the `sigma_k` parameter of the maxwell kick velocity or 2) the scale height `h_c` of the birth Galactic height distribution or 3) both parameters simultaneusly.
 The network have been tested on the validation datasets simulated with 1) a varying `sigma_k` parameter, 2) a varying `h_c` parameter and 3) both varying `sigma_k` and `h_c` respectively.
+The total datasets for experiment 1) and 2) contains 20000 simulated samples each, while for experiment 3) a dataset of 16384 simulated samples has been used. 
+A 80-20 % training-validation split has been adopted for all the experiments.
 We use a 3-channel input with 1 density map and 2 proper motion maps in ICRS frame with resolution 128 x 64.
 The trained networks and the datasets used are saved on the PIC server.
+The inference results are reported here to show the usage of the inference script.
 
 The inference results for the three experiment 1), 2) and 3) are saved into .csv files.
 
