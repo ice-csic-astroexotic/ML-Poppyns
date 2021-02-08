@@ -1,6 +1,6 @@
-*****
-Setup
-*****
+***************
+Getting started
+***************
 
 These instructions will provide you with a copy of the project and help you get it up 
 and running on your local machine. First, you should clone the repository on your 
@@ -40,7 +40,7 @@ Repository structure
 ********************
 
 The repository is structured in a modular way.
-The main folder is :code:`pypopsyn` which contains three main sub-folders: :code:`simulator`, :code:`generator` and :code:`learning`.
+The main folder is :code:`pypopsyn` which contains four sub-folders: :code:`simulator`, :code:`generator` and :code:`learning` and :code:`benchmark`.
 
 * The :code:`simulator` sub-folder contains all the modules and functions necessary to simulate a population of neutron stars.
 
@@ -48,7 +48,11 @@ The main folder is :code:`pypopsyn` which contains three main sub-folders: :code
 
 * The :code:`learning` sub-folder contains all the modules and functions necessary for the machine learning pipeline.
 
-The :code:`examples` folder contains four main sub-folders: :code:`simulator`, :code:`generator`, :code:`learning`and :code:`data`.
+* The :code:`benchmark` sub-folder contains all the modules and functions necessary for the time profiling of the whole code.
+
+
+The :code:`examples` folder contains four main sub-folders: :code:`simulator`, :code:`generator`, :code:`learning` and :code:`data`.
+The purpose of these examples is to demonstrate the functionality and usage of the respective modules and functions in :code:`pypopsyn`.
 
 * The :code:`simulator` sub-folder contains the script :code:`initialize_evolve_population.py` that simulate the population of neutron stars.
 

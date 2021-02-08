@@ -218,12 +218,14 @@ Then you can use the :code:`--samples` argument to provide a list of samples you
 Make sure that the data set used for inference has the same input configuration as the data set used for training the model, i.e., same input shape, number of labels to predict, normalization etc..
 If the inference dataset does not match an error is raised automatically by pytorch.
 For example if you put the wrong resolution for the input maps the error raised is similar to:
+
 .. code-block:: bash
 
     RuntimeError: Error(s) in loading state_dict for ModelConv:
         size mismatch for fc1.weight: copying a param with shape torch.Size([64, 26880]) from checkpoint, the shape in current model is torch.Size([64, 12544]).
 
 If the input channels do not match, an error like the following is raised:
+
 .. code-block:: bash
 
     ValueError: all the input array dimensions for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 128 and the array at index 1 has size 64
