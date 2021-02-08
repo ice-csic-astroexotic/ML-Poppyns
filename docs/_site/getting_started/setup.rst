@@ -42,25 +42,25 @@ Repository structure
 The repository is structured in a modular way.
 The main folder is :code:`pypopsyn` which contains three main sub-folders: :code:`simulator`, :code:`generator` and :code:`learning`.
 
-* The :code:`simulator` sub-folder contains all the modules and functions necessary to simulate a population of neutron star.
+* The :code:`simulator` sub-folder contains all the modules and functions necessary to simulate a population of neutron stars.
 
 * The :code:`generator` sub-folder contains all the modules and functions necessary to create a dataset of density and velocity maps.
 
 * The :code:`learning` sub-folder contains all the modules and functions necessary for the machine learning pipeline.
 
-The :code:`examples` folder contains three main sub-folders: :code:`simulator`, :code:`generator` and :code:`learning` and a :code:`data` sub-folder.
+The :code:`examples` folder contains four main sub-folders: :code:`simulator`, :code:`generator`, :code:`learning`and :code:`data`.
 
 * The :code:`simulator` sub-folder contains the script :code:`initialize_evolve_population.py` that simulate the population of neutron stars.
 
 * The :code:`generator` sub-folder contains the script :code:`generate_dataset.py` that read the simulated data and create a dataset of density and velocity maps.
 
-* The :code:`learning` sub-folder contains the script :code:`train.py` that trains a neural network on the provided dataset and the script the script :code:`infer.py` that test a treined neural network on a test dataset.
+* The :code:`learning` sub-folder contains the script :code:`train.py` that trains a neural network on the provided dataset and the script :code:`infer.py` that tests the predictive power of a trained neural network on a test dataset.
 
 * The :code:`data` sub-folder contains examples of simulated data, generated dataset and inference results.
 
 There are also other folders containing additional material.
 For example the directory :code:`notebooks` contains some jupyter notebooks that can be used to plot the distributions and features of simulated population of neutron stars, and the statistic of the inference results of a trained neural network.
-The directory :code:`scripts` contains a couple of useful python scripts.
+The directory :code:`scripts` contains a couple of additional python scripts.
 The directory :code:`utilities` contains some modules for statistical analysis and plotting settings.
 
 
