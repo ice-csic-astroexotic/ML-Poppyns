@@ -185,7 +185,7 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="examples/learning/config_multiparameter.json",
+        default="examples/learning/config_multiparameter_MLP.json",
         help="Configuration file path",
     )
 

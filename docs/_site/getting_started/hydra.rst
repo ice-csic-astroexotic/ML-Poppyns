@@ -1,8 +1,9 @@
-*****
-Hydra
-*****
+****************
+Hydra (outdated)
+****************
 
-We are using `Hydra <https://hydra.cc/docs/intro>`_ for experiment running and `OmegaConf <https://omegaconf.readthedocs.io/en/latest/usage.html#access-and-manipulation>`_ for configuration files and dictionaries and. Hydra 
+The current version of the code uses the multi-thread functionality to run multiple processes and allow parameter sweeps and Hydra is no longer available.
+To restore the code to a version where Hydra was enabled you should checkout the commit :code:`4cb335f7b435f1997cef9c5a9dd84117abff1ff8`. We used `Hydra <https://hydra.cc/docs/intro>`_ for experiment running and `OmegaConf <https://omegaconf.readthedocs.io/en/latest/usage.html#access-and-manipulation>`_ for configuration files and dictionaries. Hydra
 is an open-source Python framework that simplifies the development of research and other complex applications. The key feature is the ability to dynamically create a hierarchical configuration by composition and override it through config files and the command line. The name Hydra comes from its ability to run multiple similar jobs - much like a Hydra with multiple heads.
 
 Instead of hardcoding the simulator parameters, we decided to outsorce them to a configuration dictionary :code:`simulator/configuration.py`. Such configuration can be overridden via Hydra by providing a YAML configuration file or :term:`CLI` arguments.
@@ -11,7 +12,7 @@ For instance, we could run the previous initial population example like this:
 
 .. code-block:: bash
 
-  python examples/simulator/generating_population.py r_extent=30.0
+  python examples/simulator/initialize_evolve_population.py r_extent=30.0
 
 to override the value of the :code:`r_extent` to be :math:`30.0` instead of the default configuration value of :math:`20.0` in :code:`configuration.py`.
 
