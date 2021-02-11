@@ -37,8 +37,8 @@ import numpy as np
 from numba import jit
 from scipy.integrate import odeint
 
-import pypopsyn.simulator.coordinate_conversions as coco
-import pypopsyn.simulator.galactic_model as gm
+import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
+import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 
 
 @jit

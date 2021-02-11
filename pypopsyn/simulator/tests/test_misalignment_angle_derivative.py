@@ -1,10 +1,9 @@
 """
-Tests for the stellar_dynamics/dynamical_evolution module.
+Test for the magneto_rotational_physics/misalignment_angle_derivative module.
 
     Authors:
 
         Vanessa Graber (graber @ ice.csic.es)
-        Michele Ronchi (ronchi @ ice.csic.es)
 
 MIT License
 
@@ -26,51 +25,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
-from pypopsyn.simulator.configuration import cfg
+import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivative as madv
 
 TOL = 1e-5
-
-# Select the galactic model from Marchetti et al. (2019) for the test.
-cfg["galactic_model"] = "gmM19"
 
 
 @pytest.fixture()
 def test_case_1():
-
-    import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
-
-    gm.initialize_galactic_model()
-
     data = {
-        "initial_cond": np.array([1.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
-        "t": np.linspace(0.0, 1.0, 10),
-        "derivatives_expected": np.array(
-            [0.0, 0.0, 0.0, -2.12522e-14, 0.0, -1.65820e-14]
+        "B": np.array([1e12, 1e13, 1e14, 1e15]),
+        "chi": np.array([0, np.pi / 3, 1.4 * np.pi, 2.6 * np.pi]),
+        "P": np.array([1.0e-2, 1.0e-1, 1.0, 5.0]),
+        "chi_deriv_expected": np.array(
+            [0.0, -6.538794e-05, -4.437982e-05, 1.775193e-04]
         ),
-        "galactic_model": gm.galactic_model,
     }
 
     return data
 
 
-def test_dynamical_eq_system(test_case_1):
+def test_misalignment_angle_derivative(test_case_1):
     """
-    Verifying that the dynamical equation system evaluates the derivatives correctly.
+    Verifying that the misalignment angle derivatives for a pulsar sample are evaluated correctly.
     """
-    derivatives_out = dyn.dynamical_eq_system(
-        test_case_1["initial_cond"],
-        test_case_1["t"],
-        test_case_1["galactic_model"],
+    misalignment_angle_derivative_vect = np.vectorize(
+        madv.misalignment_angle_derivative
+    )
+    chi_deriv_out = misalignment_angle_derivative_vect(
+        test_case_1["B"], test_case_1["chi"], test_case_1["P"],
     )
 
     assert np.isclose(
-        derivatives_out,
-        test_case_1["derivatives_expected"],
+        chi_deriv_out,
+        test_case_1["chi_deriv_expected"],
         rtol=TOL,
         atol=1.0e-30,
     ).all()

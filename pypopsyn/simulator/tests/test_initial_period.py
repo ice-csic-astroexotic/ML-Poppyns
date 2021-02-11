@@ -1,11 +1,9 @@
 """
-Constants module.
+Test for the magneto_rotational_physics/initial_period module.
 
     Authors:
 
-        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-        Vanessa Graber (graber@ice.csic.es)
-        Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber @ ice.csic.es)
 
 MIT License
 
@@ -27,19 +25,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-# Unit conversions.
+import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
+from pypopsyn.simulator.configuration import cfg
 
-KPC_TO_KM = 3.08567758e16  # Convert from [kpc] to [km].
-KPC_TO_CM = 3.08567758e21  # Convert from [kpc] to [cm].
-KM_TO_CM = 100000  # Convert from [km] to [cm].
-YR_TO_S = 3600 * 24 * 365  # Convert from [yr] to [s].
 
-# Physical constants.
+def test_pdf_period():
+    """
+    Check that all initial periods are indeed positive and the resulting array
+    has the correct length, corresponding to the number of pulsars in our sample.
+    """
+    P_initial_out = ipd.pdf_period(
+        cfg["P_initial_mean"], cfg["NS_number"], cfg["P_initial_sigma"]
+    )
 
-M_SUN = 2.0e33  # Sun's mass in [g].
-
-G = 6.67e-8  # Gravitational constant in [cm^3 g^-1 s^-2].
-
-G_KPC_YR = (
-    G / (KPC_TO_CM ** 3) * YR_TO_S ** 2
-)  # Gravitational constant in [kpc^3 g^-1 yr^-2].
+    assert len(P_initial_out) == cfg["NS_number"]
+    assert (P_initial_out > 0).all()
