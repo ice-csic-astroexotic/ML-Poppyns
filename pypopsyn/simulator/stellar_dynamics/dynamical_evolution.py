@@ -39,6 +39,7 @@ from scipy.integrate import odeint
 
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
+from pypopsyn.simulator.configuration import cfg
 
 
 @jit
@@ -89,25 +90,18 @@ def dynamical_eq_system(
 
 
 def dynamical_evolution(
-    NS_number: int,
-    initial_cond: np.ndarray,
-    t_age: np.ndarray,
-    time_step: float = 1.0e3,
+    initial_cond: np.ndarray, t_age: np.ndarray
 ) -> np.ndarray:
     """
     Performing the dynamical evolution of the neutron star population for a given
     galactic potential, starting from a set of initial conditions.
 
     Args:
-        NS_number (int): number of simulated neutron stars.
-
         initial_cond (np.ndarray): array of 6 components defining the initial
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
         with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
 
         t_age (np.ndarray): array of neutron star ages in [yr].
-
-        time_step (float): time step used to integrate the equations of motion.
 
     Returns:
         (np.ndarray): two-dimensional array of shape (NS_number, 8) defining
@@ -117,20 +111,22 @@ def dynamical_evolution(
 
     # Initialize the arrays that will contain the final positions
     # and velocities of the neutron stars.
-    r_final = np.zeros(NS_number)
-    phi_final = np.zeros(NS_number)
-    x_final = np.zeros(NS_number)
-    y_final = np.zeros(NS_number)
-    z_final = np.zeros(NS_number)
-    v_r_final = np.zeros(NS_number)
-    v_phi_final = np.zeros(NS_number)
-    v_z_final = np.zeros(NS_number)
+    r_final = np.zeros(cfg["NS_number"])
+    phi_final = np.zeros(cfg["NS_number"])
+    x_final = np.zeros(cfg["NS_number"])
+    y_final = np.zeros(cfg["NS_number"])
+    z_final = np.zeros(cfg["NS_number"])
+    v_r_final = np.zeros(cfg["NS_number"])
+    v_phi_final = np.zeros(cfg["NS_number"])
+    v_z_final = np.zeros(cfg["NS_number"])
 
-    for i in range(NS_number):
+    for i in range(cfg["NS_number"]):
 
         # Linear time grid in years over which the dynamical evolution is performed;
         # each star's position and velocity is evolved for a time equal to its age.
-        time_grid = np.arange(0.0, t_age[i] + time_step, time_step)
+        time_grid = np.arange(
+            0.0, t_age[i] + cfg["dyn_time_step"], cfg["dyn_time_step"]
+        )
 
         # Save the odeint output which is a two-dimensional array of
         # shape (len(time_grid), 6).

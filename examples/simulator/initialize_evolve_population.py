@@ -241,7 +241,6 @@ def generate_population(
 
         # Evolve the initial population.
         log.info("Evolving the initial population in time...")
-        NS_number = len(age)
 
         # Define the initial conditions.
         initial_cond = np.array(
@@ -257,9 +256,7 @@ def generate_population(
 
         # Evolve positions and velocities of the neutron stars forward in time.
         log.info("Evolving the positions and velocities...")
-        final_population = dyn.dynamical_evolution(
-            NS_number, initial_cond, age, time_step=1.0e4
-        )
+        final_population = dyn.dynamical_evolution(initial_cond, age)
 
         r_final = final_population[:, 0]
         phi_final = final_population[:, 1]
@@ -321,9 +318,22 @@ def generate_population(
         log.info(
             "Evolving magnetic field, misalignment angle and rotation period..."
         )
-        B_final, chi_final, P_final = mre.magneto_rotational_evolution(
+        (
+            B_final,
+            chi_final,
+            P_final,
+            magrot_evol,
+        ) = mre.magneto_rotational_evolution(
             B_initial, chi_initial, P_initial, age,
         )
+
+        if configuration.cfg["save_magrot_evolution"]:
+            # Save dictionary containing evolution information to output path in a .json file.
+            magrot_evolution_dump_path = pathlib.Path().joinpath(
+                output_path, "magrot_evolution.json"
+            )
+            with open(magrot_evolution_dump_path, "w") as f:
+                json.dump(magrot_evol, f, indent=4, sort_keys=True)
 
         timer.checkpoint(
             "[Final field strengths, misalignment angles and periods]"

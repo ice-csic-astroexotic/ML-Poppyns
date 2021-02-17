@@ -67,7 +67,7 @@ cfg["seed"] = None
 cfg["resolution"] = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 100000
+cfg["NS_number"] = 100
 
 # Number of spiral arms in the galaxy.
 cfg["arm_number"] = 4
@@ -77,6 +77,9 @@ cfg["t_age_min"] = 1.0
 
 # Maximum age for the neutron stars in [yr].
 cfg["t_age_max"] = 1e7
+
+# Time step for the dynamical evolution [yr].
+cfg["dyn_time_step"] = 1e4
 
 # Galactic potential model used in the simulation. Choose between gmM19 or gmFK06.
 cfg["galactic_model"] = "gmM19"
@@ -108,6 +111,8 @@ cfg["NS_mass"] = 1.4 * const.M_SUN
 
 # Field, misalignment angle and period evolution parameters for a crust-based model.
 
+cfg["save_magrot_evolution"] = False
+
 # Mean and standard deviation for the Gaussian distributed initial periods in [s].
 cfg["P_initial_mean"] = 0.22
 cfg["P_initial_sigma"] = 0.42
@@ -132,7 +137,7 @@ cfg["L"] = 1e5
 cfg["n_e"] = 1e36
 
 # Time step for the magneto-rotational evolution [yr].
-cfg["time_step_log10"] = 1e-2
+cfg["magrot_time_step_log10"] = 1e-2
 
 
 def update_configuration(new_configuration) -> None:
