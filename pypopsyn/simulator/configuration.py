@@ -67,7 +67,7 @@ cfg["seed"] = None
 cfg["resolution"] = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 100
+cfg["NS_number"] = 100000
 
 # Number of spiral arms in the galaxy.
 cfg["arm_number"] = 4
@@ -111,7 +111,7 @@ cfg["NS_mass"] = 1.4 * const.M_SUN
 
 # Field, misalignment angle and period evolution parameters for a crust-based model.
 
-cfg["save_magrot_evolution"] = False
+cfg["save_magrot_evolution"] = True
 
 # Mean and standard deviation for the Gaussian distributed initial periods in [s].
 cfg["P_initial_mean"] = 0.22
