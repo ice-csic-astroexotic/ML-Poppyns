@@ -86,13 +86,16 @@ def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     # it can proceed with the execution of the experiment.
     log.info(f"Launching simulation {command}")
 
-    process_output = subprocess.check_output(
-        command, stderr=subprocess.STDOUT, shell=True
-    )
+    try:
+        process_output = subprocess.check_output(
+            command, stderr=subprocess.STDOUT, shell=True
+        )
+        log.info("Experiment finished...")
 
-    log.info("Experiment finished...")
-
-    return command, process_output.decode("utf-8")
+        return command, process_output.decode("utf-8")
+    except subprocess.CalledProcessError as e:
+        log.error("Error when launching simulation...")
+        return command, e.output.decode("utf-8")
 
 
 def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
@@ -109,13 +112,12 @@ def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
 
     """
 
-    log.info("")
-    log.info(
-        "****************************************************************"
-    )
     log.info(f"Ran simulation {process_result[0]}!")
     log.info(f"Process output:\n {process_result[1]}")
     log.info("Process finished...")
+    log.info(
+        "****************************************************************"
+    )
 
 
 def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
@@ -228,7 +230,7 @@ def main(args):
     # Check if none of the incompatible parameters are required.
     for p in forbidden_parameters:
         if p in args_dict.keys() and args_dict[p] is not None:
-            raise ValueError("Forbidden parameter {p} is present")
+            raise ValueError(f"Forbidden parameter {p} is present")
 
     # Create a generator of all the possible combinations of parameters based on
     # their expanded range lists and queue each combination as a different
