@@ -33,10 +33,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from typing import Tuple
+
 import numpy as np
 from numba import jit
 from scipy.integrate import odeint
 
+import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 from pypopsyn.simulator.configuration import cfg
@@ -91,7 +94,7 @@ def dynamical_eq_system(
 
 def dynamical_evolution(
     initial_cond: np.ndarray, t_age: np.ndarray
-) -> np.ndarray:
+) -> Tuple[np.ndarray, dict]:
     """
     Performing the dynamical evolution of the neutron star population for a given
     galactic potential, starting from a set of initial conditions.
@@ -108,6 +111,12 @@ def dynamical_evolution(
         the neutron stars' final position in Cartesian and cylindrical coordinates
         as well as their velocities in cylindrical coordinates.
     """
+
+    polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
+
+    # Initialization of a dictionary that will contain the evolution in time of
+    # positions and velocities.
+    evolution_dictionary = {}
 
     # Initialize the arrays that will contain the final positions
     # and velocities of the neutron stars.
@@ -128,6 +137,8 @@ def dynamical_evolution(
             0.0, t_age[i] + cfg["dyn_time_step"], cfg["dyn_time_step"]
         )
 
+        time_grid[-1] = t_age[i]
+
         # Save the odeint output which is a two-dimensional array of
         # shape (len(time_grid), 6).
         evol_output = np.array(
@@ -138,6 +149,35 @@ def dynamical_evolution(
                 args=(gm.galactic_model,),
             )
         )
+
+        x_evol, y_evol = polar_to_cartesian_vect(
+            evol_output[:, 0], evol_output[:, 1]
+        )
+        v_r_evol = evol_output[:, 3] * const.KPC_TO_KM / const.YR_TO_S
+        v_phi_evol = (
+            evol_output[:, 0]
+            * evol_output[:, 4]
+            * const.KPC_TO_KM
+            / const.YR_TO_S
+        )
+        v_z_evol = evol_output[:, 5] * const.KPC_TO_KM / const.YR_TO_S
+
+        # Save the evolution output of the i-th neutron star in a dictionary.
+        evolution = {
+            i: {
+                "t": time_grid.tolist(),
+                "r(t)": evol_output[:, 0].tolist(),
+                "phi(t)": evol_output[:, 1].tolist(),
+                "x(t)": x_evol.tolist(),
+                "y(t)": y_evol.tolist(),
+                "z(t)": evol_output[:, 2].tolist(),
+                "v_r(t)": v_r_evol.tolist(),
+                "v_phi(t)": v_phi_evol.tolist(),
+                "v_z(t)": v_z_evol.tolist(),
+            }
+        }
+        # Update the dictionary containing the evolution information of all the neutron stars.
+        evolution_dictionary = {**evolution_dictionary, **evolution}
 
         # Save the final position and velocity.
         r_final[i] = evol_output[-1, 0]
@@ -165,4 +205,4 @@ def dynamical_evolution(
         ]
     ).T
 
-    return final_population
+    return final_population, evolution_dictionary

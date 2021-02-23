@@ -256,7 +256,9 @@ def generate_population(
 
         # Evolve positions and velocities of the neutron stars forward in time.
         log.info("Evolving the positions and velocities...")
-        final_population = dyn.dynamical_evolution(initial_cond, age)
+        final_population, dyn_evol_dict = dyn.dynamical_evolution(
+            initial_cond, age
+        )
 
         r_final = final_population[:, 0]
         phi_final = final_population[:, 1]
@@ -290,6 +292,14 @@ def generate_population(
             x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
         )
 
+        if configuration.cfg["save_dyn_evolution"]:
+            # Save dictionary containing evolution information to output path in a .json file.
+            dyn_evolution_dump_path = pathlib.Path().joinpath(
+                output_path, "dyn_evolution.json"
+            )
+            with open(dyn_evolution_dump_path, "w") as f:
+                json.dump(dyn_evol_dict, f, indent=4, sort_keys=True)
+
         timer.checkpoint("[Dynamic evolution]")
 
         # Compute the magnitude of the initial velocity vector for each star.
@@ -322,7 +332,7 @@ def generate_population(
             B_final,
             chi_final,
             P_final,
-            magrot_evol,
+            magrot_evol_dict,
         ) = mre.magneto_rotational_evolution(
             B_initial, chi_initial, P_initial, age,
         )
@@ -333,7 +343,7 @@ def generate_population(
                 output_path, "magrot_evolution.json"
             )
             with open(magrot_evolution_dump_path, "w") as f:
-                json.dump(magrot_evol, f, indent=4, sort_keys=True)
+                json.dump(magrot_evol_dict, f, indent=4, sort_keys=True)
 
         timer.checkpoint(
             "[Final field strengths, misalignment angles and periods]"
