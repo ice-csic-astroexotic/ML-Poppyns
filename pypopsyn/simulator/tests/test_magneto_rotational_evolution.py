@@ -50,6 +50,10 @@ def test_case_1():
         "B_final_expected": np.array([9.999979686e9, 999.997829102e9]),
         "chi_final_expected": np.array([0.0, 1.0471974923]),
         "P_final_expected": np.array([0.01000000136, 1.00000023784]),
+        "magrot_evol_dict_expected": {
+            0: {"t": None, "B(t)": None, "chi(t)": None, "P(t)": None},
+            1: {"t": None, "B(t)": None, "chi(t)": None, "P(t)": None},
+        },
     }
 
     return data
@@ -79,7 +83,12 @@ def test_magneto_rotational_evolution(test_case_1):
     it to the output of solve_ivp for two object whose ages correspond to the first evaluated
     time step. With the above choices, the first time_step has a length of 9 years.
     """
-    B_final_out, chi_final_out, P_final_out = mre.magneto_rotational_evolution(
+    (
+        B_final_out,
+        chi_final_out,
+        P_final_out,
+        magrot_evol_dict_out,
+    ) = mre.magneto_rotational_evolution(
         test_case_1["B_initial"],
         test_case_1["chi_initial"],
         test_case_1["P_initial"],
@@ -99,3 +108,14 @@ def test_magneto_rotational_evolution(test_case_1):
     assert np.isclose(
         P_final_out, test_case_1["P_final_expected"], rtol=TOL, atol=1.0e-30
     ).all()
+
+    assert (
+        magrot_evol_dict_out.keys()
+        == test_case_1["magrot_evol_dict_expected"].keys()
+    )
+
+    for key in test_case_1["magrot_evol_dict_expected"].keys():
+        assert (
+            magrot_evol_dict_out[key].keys()
+            == test_case_1["magrot_evol_dict_expected"][key].keys()
+        )

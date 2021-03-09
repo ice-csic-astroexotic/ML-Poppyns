@@ -45,7 +45,7 @@ import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
-import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coord
+import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 
@@ -262,12 +262,14 @@ def generate_population(
 
         r_final = final_population[:, 0]
         phi_final = final_population[:, 1]
-        x_final = final_population[:, 2]
-        y_final = final_population[:, 3]
-        z_final = final_population[:, 4]
-        v_r_final = final_population[:, 5]
-        v_phi_final = final_population[:, 6]
-        v_z_final = final_population[:, 7]
+        z_final = final_population[:, 2]
+        v_r_final = final_population[:, 3]
+        v_phi_final = final_population[:, 4]
+        v_z_final = final_population[:, 5]
+
+        # Convert from polar coordinates to cartesian coordinates.
+        polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
+        x_final, y_final = polar_to_cartesian_vect(r_final, phi_final)
 
         # Convert velocities from [kpc/yr] into [km/s].
         v_r_final = v_r_final * const.KPC_TO_KM / const.YR_TO_S
@@ -276,7 +278,7 @@ def generate_population(
 
         # Convert velocity component from galactocentric cylindrical coordinates
         # to galactocentric cartesian coordinates.
-        v_x_final, v_y_final, v_z_final = coord.speed_cylindrical_to_cartesian(
+        v_x_final, v_y_final, v_z_final = coco.speed_cylindrical_to_cartesian(
             v_r_final, v_phi_final, v_z_final, phi_final
         )
 
@@ -288,7 +290,7 @@ def generate_population(
             v_ra_final,
             v_dec_final,
             v_ls,
-        ) = coord.galactocentric_to_icrs(
+        ) = coco.galactocentric_to_icrs(
             x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
         )
 

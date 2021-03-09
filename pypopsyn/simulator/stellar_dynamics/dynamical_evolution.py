@@ -36,18 +36,25 @@ SOFTWARE.
 from typing import Tuple
 
 import numpy as np
-from numba import jit
+from numba import float64, jit
 from scipy.integrate import odeint
 
 import pypopsyn.simulator.basics.constants as const
-import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 from pypopsyn.simulator.configuration import cfg
 
+gm.initialize_galactic_model()
 
-@jit
+
+@jit(
+    float64[:](
+        float64[:],
+        float64,
+        gm.galactic_model._numba_type_.class_type.instance_type,
+    )
+)
 def dynamical_eq_system(
-    initial_cond: np.ndarray, t: np.ndarray, galactic_model: gm.GalaxyModelBase
+    initial_cond: np.ndarray, t: float, galactic_model: gm.GalaxyModelBase
 ) -> np.ndarray:
     """
     System of dynamical equations to solve to determine the orbits of the neutron
@@ -120,8 +127,6 @@ def dynamical_evolution(
     # and velocities of the neutron stars.
     r_final = np.zeros(cfg["NS_number"])
     phi_final = np.zeros(cfg["NS_number"])
-    x_final = np.zeros(cfg["NS_number"])
-    y_final = np.zeros(cfg["NS_number"])
     z_final = np.zeros(cfg["NS_number"])
     v_r_final = np.zeros(cfg["NS_number"])
     v_phi_final = np.zeros(cfg["NS_number"])
@@ -142,8 +147,8 @@ def dynamical_evolution(
         evol_output = np.array(
             odeint(
                 dynamical_eq_system,
-                initial_cond[i],
-                time_grid,
+                y0=initial_cond[i],
+                t=time_grid,
                 args=(gm.galactic_model,),
             )
         )
@@ -181,21 +186,8 @@ def dynamical_evolution(
         v_phi_final[i] = omega_final * r_final[i]
         v_z_final[i] = evol_output[-1, 5]
 
-        x_final[i], y_final[i] = coco.polar_to_cartesian(
-            r_final[i], phi_final[i]
-        )
-
     final_population = np.array(
-        [
-            r_final,
-            phi_final,
-            x_final,
-            y_final,
-            z_final,
-            v_r_final,
-            v_phi_final,
-            v_z_final,
-        ]
+        [r_final, phi_final, z_final, v_r_final, v_phi_final, v_z_final]
     ).T
 
     return final_population, evolution_dictionary

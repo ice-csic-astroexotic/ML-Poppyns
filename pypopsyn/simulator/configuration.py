@@ -43,8 +43,8 @@ cfg["profile_json"] = "profile.json"
 cfg["show_profiling"] = True
 
 # Save time evolution output
-cfg["save_dyn_evolution"] = True
-cfg["save_magrot_evolution"] = True
+cfg["save_dyn_evolution"] = False
+cfg["save_magrot_evolution"] = False
 
 
 # Initial population class parameters.
@@ -71,7 +71,7 @@ cfg["seed"] = None
 cfg["resolution"] = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 100
+cfg["NS_number"] = 1000
 
 # Number of spiral arms in the galaxy.
 cfg["arm_number"] = 4
