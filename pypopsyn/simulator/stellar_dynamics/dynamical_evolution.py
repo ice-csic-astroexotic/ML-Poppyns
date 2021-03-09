@@ -112,8 +112,6 @@ def dynamical_evolution(
         as well as their velocities in cylindrical coordinates.
     """
 
-    polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
-
     # Initialization of a dictionary that will contain the evolution in time of
     # positions and velocities.
     evolution_dictionary = {}
@@ -136,7 +134,7 @@ def dynamical_evolution(
         time_grid = np.arange(
             0.0, t_age[i] + cfg["dyn_time_step"], cfg["dyn_time_step"]
         )
-
+        # Make sure that the last value of the time grid is equal to the neutron star's age.
         time_grid[-1] = t_age[i]
 
         # Save the odeint output which is a two-dimensional array of
@@ -150,9 +148,6 @@ def dynamical_evolution(
             )
         )
 
-        x_evol, y_evol = polar_to_cartesian_vect(
-            evol_output[:, 0], evol_output[:, 1]
-        )
         v_r_evol = evol_output[:, 3] * const.KPC_TO_KM / const.YR_TO_S
         v_phi_evol = (
             evol_output[:, 0]
@@ -168,8 +163,6 @@ def dynamical_evolution(
                 "t": time_grid.tolist(),
                 "r(t)": evol_output[:, 0].tolist(),
                 "phi(t)": evol_output[:, 1].tolist(),
-                "x(t)": x_evol.tolist(),
-                "y(t)": y_evol.tolist(),
                 "z(t)": evol_output[:, 2].tolist(),
                 "v_r(t)": v_r_evol.tolist(),
                 "v_phi(t)": v_phi_evol.tolist(),
