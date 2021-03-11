@@ -38,6 +38,9 @@ TOL = 1e-5
 # Select the galactic model from Marchetti et al. (2019) for the test.
 cfg["galactic_model"] = "gmM19"
 
+# Set to save the time evolution output for testing purposes.
+cfg["save_dyn_evolution"] = True
+
 
 @pytest.fixture()
 def test_case_1():

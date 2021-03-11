@@ -131,17 +131,18 @@ def magneto_rotational_evolution(
             args=(B_initial[i],),
         )
 
-        # Save the evolution output of the i-th neutron star in a dictionary.
-        evolution = {
-            i: {
-                "t": time_grid.tolist(),
-                "B(t)": evol_output.y[0].tolist(),
-                "chi(t)": evol_output.y[1].tolist(),
-                "P(t)": evol_output.y[2].tolist(),
+        if cfg["save_magrot_evolution"]:
+            # Save the evolution output of the i-th neutron star in a dictionary.
+            evolution = {
+                i: {
+                    "t": time_grid.tolist(),
+                    "B(t)": evol_output.y[0].tolist(),
+                    "chi(t)": evol_output.y[1].tolist(),
+                    "P(t)": evol_output.y[2].tolist(),
+                }
             }
-        }
-        # Update the dictionary containing the evolution information.
-        evolution_dictionary = {**evolution_dictionary, **evolution}
+            # Update the dictionary containing the evolution information.
+            evolution_dictionary = {**evolution_dictionary, **evolution}
 
         # The solution evaluated at the times t_eval=time_grid can be accessed via .y.
         # The last value in the array corresponds to the current field strength.

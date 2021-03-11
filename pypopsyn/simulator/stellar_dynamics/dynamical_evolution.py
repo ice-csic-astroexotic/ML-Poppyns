@@ -153,29 +153,31 @@ def dynamical_evolution(
             )
         )
 
-        v_r_evol = evol_output[:, 3] * const.KPC_TO_KM / const.YR_TO_S
-        v_phi_evol = (
-            evol_output[:, 0]
-            * evol_output[:, 4]
-            * const.KPC_TO_KM
-            / const.YR_TO_S
-        )
-        v_z_evol = evol_output[:, 5] * const.KPC_TO_KM / const.YR_TO_S
+        if cfg["save_dyn_evolution"]:
 
-        # Save the evolution output of the i-th neutron star in a dictionary.
-        evolution = {
-            i: {
-                "t": time_grid.tolist(),
-                "r(t)": evol_output[:, 0].tolist(),
-                "phi(t)": evol_output[:, 1].tolist(),
-                "z(t)": evol_output[:, 2].tolist(),
-                "v_r(t)": v_r_evol.tolist(),
-                "v_phi(t)": v_phi_evol.tolist(),
-                "v_z(t)": v_z_evol.tolist(),
+            v_r_evol = evol_output[:, 3] * const.KPC_TO_KM / const.YR_TO_S
+            v_phi_evol = (
+                evol_output[:, 0]
+                * evol_output[:, 4]
+                * const.KPC_TO_KM
+                / const.YR_TO_S
+            )
+            v_z_evol = evol_output[:, 5] * const.KPC_TO_KM / const.YR_TO_S
+
+            # Save the evolution output of the i-th neutron star in a dictionary.
+            evolution = {
+                i: {
+                    "t": time_grid.tolist(),
+                    "r(t)": evol_output[:, 0].tolist(),
+                    "phi(t)": evol_output[:, 1].tolist(),
+                    "z(t)": evol_output[:, 2].tolist(),
+                    "v_r(t)": v_r_evol.tolist(),
+                    "v_phi(t)": v_phi_evol.tolist(),
+                    "v_z(t)": v_z_evol.tolist(),
+                }
             }
-        }
-        # Update the dictionary containing the evolution information of all the neutron stars.
-        evolution_dictionary = {**evolution_dictionary, **evolution}
+            # Update the dictionary containing the evolution information of all the neutron stars.
+            evolution_dictionary = {**evolution_dictionary, **evolution}
 
         # Save the final position and velocity.
         r_final[i] = evol_output[-1, 0]
