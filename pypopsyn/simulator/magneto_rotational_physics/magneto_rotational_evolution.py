@@ -4,6 +4,7 @@ Combined evolution of the pulsar period, misalignment angle and magnetic field.
 Authors:
 
         Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 
 MIT License
 
@@ -90,8 +91,11 @@ def magneto_rotational_evolution(
         t_age (np.ndarray): array of neutron star ages in [yr].
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray): current pulsar magnetic field strengths in [G],
-        misalignment angles in [rad] and rotation periods in [s] for the simulated sample.
+        (np.ndarray, np.ndarray, np.ndarray, dict): Tuple consisting of three arrays
+        defining the neutron stars' final magnetic field strengths in [G],
+        misalignment angles in [rad] and rotation periods in [s] and a dictionary containing
+        the time evolution of these quantities for each neutron star (if the option to save
+        the time evolution is enabled).
     """
 
     # Initialization of a dictionary that will contain the evolution in time of B, chi and P.

@@ -114,8 +114,8 @@ def dynamical_evolution(
         t_age (np.ndarray): array of neutron star ages in [yr].
 
     Returns:
-        (np.ndarray, dict): two-dimensional array of shape (NS_number, 6) defining
-        the neutron stars' final position and velocities in cylindrical coordinates
+        (np.ndarray, dict): Tuple consisting of a two-dimensional array of shape (NS_number, 6)
+        defining the neutron stars' final position and velocities in cylindrical coordinates
         and a dictionary containing the time evolution of these quantities for each
         neutron star (if the option to save the time evolution is enabled).
     """
@@ -181,6 +181,7 @@ def dynamical_evolution(
             evolution_dictionary = {**evolution_dictionary, **evolution}
 
         # Save the final position and velocity.
+        # Note: We save directly the v_phi velocity component and not the angular velocity omega.
         r_final[i] = evol_output[-1, 0]
         phi_final[i] = evol_output[-1, 1]
         z_final[i] = evol_output[-1, 2]
