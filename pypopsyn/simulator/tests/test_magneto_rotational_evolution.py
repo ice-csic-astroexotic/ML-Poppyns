@@ -36,6 +36,9 @@ TOL = 1e-10
 # Update the number of simulated objects for testing purposes.
 cfg["NS_number"] = 2
 
+# Update the logarithmic time step for testing purposes.
+cfg["magrot_time_step_log10"] = 1
+
 # Set to save the time evolution output for testing purposes.
 cfg["save_magrot_evolution"] = True
 

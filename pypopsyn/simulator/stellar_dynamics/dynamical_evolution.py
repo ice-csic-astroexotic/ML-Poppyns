@@ -66,7 +66,7 @@ def dynamical_eq_system(
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
         with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
 
-        t (np.ndarray): time array in [yr] along which to perform the integration.
+        t (float): unused time variable, required for the integration below..
 
         galactic_model (gm.GalaxyModelBase): a galactic model to calculate
         the needed potential.
@@ -114,9 +114,10 @@ def dynamical_evolution(
         t_age (np.ndarray): array of neutron star ages in [yr].
 
     Returns:
-        (np.ndarray): two-dimensional array of shape (NS_number, 8) defining
-        the neutron stars' final position in Cartesian and cylindrical coordinates
-        as well as their velocities in cylindrical coordinates.
+        (np.ndarray, dict): two-dimensional array of shape (NS_number, 6) defining
+        the neutron stars' final position and velocities in cylindrical coordinates
+        and a dictionary containing the time evolution of these quantities for each
+        neutron star (if the option to save the time evolution is enabled).
     """
 
     # Initialization of a dictionary that will contain the evolution in time of

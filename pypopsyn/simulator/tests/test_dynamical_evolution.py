@@ -31,12 +31,18 @@ import numpy as np
 import pytest
 
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
+import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 from pypopsyn.simulator.configuration import cfg
+
+gm.initialize_galactic_model()
 
 TOL = 1e-5
 
 # Select the galactic model from Marchetti et al. (2019) for the test.
 cfg["galactic_model"] = "gmM19"
+
+# Update the time step for testing purposes.
+cfg["dyn_time_step"] = 1.0e4
 
 # Set to save the time evolution output for testing purposes.
 cfg["save_dyn_evolution"] = True
@@ -44,10 +50,6 @@ cfg["save_dyn_evolution"] = True
 
 @pytest.fixture()
 def test_case_1():
-
-    import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
-
-    gm.initialize_galactic_model()
 
     data = {
         "initial_cond": np.array([1.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
@@ -63,10 +65,6 @@ def test_case_1():
 
 @pytest.fixture()
 def test_case_2():
-
-    import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
-
-    gm.initialize_galactic_model()
 
     data = {
         "initial_cond": np.array(
