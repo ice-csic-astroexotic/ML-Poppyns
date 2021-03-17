@@ -137,11 +137,9 @@ def dynamical_evolution(
 
         # Linear time grid in years over which the dynamical evolution is performed;
         # each star's position and velocity is evolved for a time equal to its age.
-        time_grid = np.arange(
-            0.0, t_age[i] + cfg["dyn_time_step"], cfg["dyn_time_step"]
+        time_grid = np.append(
+            np.arange(0.0, t_age[i], cfg["dyn_time_step"]), t_age[i],
         )
-        # Make sure that the last value of the time grid is equal to the neutron star's age.
-        time_grid[-1] = t_age[i]
 
         # Save the odeint output which is a two-dimensional array of
         # shape (len(time_grid), 6).
