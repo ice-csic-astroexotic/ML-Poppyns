@@ -4,6 +4,7 @@ Combined evolution of the pulsar period, misalignment angle and magnetic field.
 Authors:
 
         Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 
 MIT License
 
@@ -75,7 +76,7 @@ def magneto_rotational_evolution(
     chi_initial: np.ndarray,
     P_initial: np.ndarray,
     t_age: np.ndarray,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, dict]:
     """
     Evolving the neutron stars' magnetic fields, misalignment angles and periods
     according to their respective ages forward in time to obtain their current
@@ -90,9 +91,15 @@ def magneto_rotational_evolution(
         t_age (np.ndarray): array of neutron star ages in [yr].
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray): current pulsar magnetic field strengths in [G],
-        misalignment angles in [rad] and rotation periods in [s] for the simulated sample.
+        (np.ndarray, np.ndarray, np.ndarray, dict): Tuple consisting of three arrays
+        defining the neutron stars' final magnetic field strengths in [G],
+        misalignment angles in [rad] and rotation periods in [s] and a dictionary containing
+        the time evolution of these quantities for each neutron star (if the option to save
+        the time evolution is enabled).
     """
+
+    # Initialization of a dictionary that will contain the evolution in time of B, chi and P.
+    evolution_dictionary = {}
 
     # Initialization of the array for the three parameters.
     B_final = np.zeros(cfg["NS_number"])
@@ -110,7 +117,10 @@ def magneto_rotational_evolution(
         # file. To obtain the magnetic field at the current time, we append the
         # current age value.
         time_grid = np.append(
-            10 ** np.arange(0, np.log10(t_age[i]), cfg["time_step_log10"],),
+            10
+            ** np.arange(
+                0, np.log10(t_age[i]), cfg["magrot_time_step_log10"],
+            ),
             t_age[i],
         )
 
@@ -125,10 +135,23 @@ def magneto_rotational_evolution(
             args=(B_initial[i],),
         )
 
+        if cfg["save_magrot_evolution"]:
+            # Save the evolution output of the i-th neutron star in a dictionary.
+            evolution = {
+                i: {
+                    "t": time_grid.tolist(),
+                    "B(t)": evol_output.y[0].tolist(),
+                    "chi(t)": evol_output.y[1].tolist(),
+                    "P(t)": evol_output.y[2].tolist(),
+                }
+            }
+            # Update the dictionary containing the evolution information.
+            evolution_dictionary = {**evolution_dictionary, **evolution}
+
         # The solution evaluated at the times t_eval=time_grid can be accessed via .y.
         # The last value in the array corresponds to the current field strength.
         B_final[i] = evol_output.y[0][-1]
         chi_final[i] = evol_output.y[1][-1]
         P_final[i] = evol_output.y[2][-1]
 
-    return B_final, chi_final, P_final
+    return B_final, chi_final, P_final, evolution_dictionary

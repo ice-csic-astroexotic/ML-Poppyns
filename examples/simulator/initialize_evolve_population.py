@@ -45,7 +45,7 @@ import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
-import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coord
+import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 
@@ -86,337 +86,376 @@ def generate_population(
     gm.initialize_galactic_model()
 
     with timewith.TimeWith(
-        "[InitialPopulation]",
+        "[TotalSimulation]",
         configuration.cfg["profile_log"],
         configuration.cfg["profile_json"],
         configuration.cfg["show_profiling"],
-    ) as timer:
+    ):
 
-        # Generate an initial neutron star population.
-        NS_population_initial = ipop.InitialNeutronStarPopulation()
+        with timewith.TimeWith(
+            "[InitialPopulation]",
+            configuration.cfg["profile_log"],
+            configuration.cfg["profile_json"],
+            configuration.cfg["show_profiling"],
+        ) as timer:
 
-        # Generating ages.
-        log.info("Randomizing population age...")
-        age = NS_population_initial.age()
+            # Generate an initial neutron star population.
+            NS_population_initial = ipop.InitialNeutronStarPopulation()
 
-        # Generating initial positions.
-        log.info("Generating initial positions...")
-        (
-            r_initial,
-            phi_initial,
-            x_initial,
-            y_initial,
-            z_initial,
-        ) = NS_population_initial.position(t_age=age)
+            # Generating ages.
+            log.info("Randomizing population age...")
+            age = NS_population_initial.age()
 
-        # Generating initial velocities by summing the kick
-        # velocities at birth and the orbital velocities.
-        log.info("Generating initial kick velocities...")
-        (vk_r, vk_phi, vk_z,) = NS_population_initial.kick_velocity()
-
-        log.info("Computing orbital velocities...")
-        v_orb = NS_population_initial.orbital_velocity(r_initial, z_initial)
-
-        log.info("Computing initial total velocities...")
-        v_r_initial = vk_r
-        v_phi_initial = vk_phi + v_orb
-        omega_initial = v_phi_initial / r_initial
-        v_z_initial = vk_z
-
-        # Compute the magnitude of the initial velocity vector for each star.
-        v_initial = (
-            np.sqrt(v_r_initial ** 2 + v_phi_initial ** 2 + v_z_initial ** 2)
-            * const.KPC_TO_KM
-            / const.YR_TO_S
-        )
-
-        timer.checkpoint("[Initial position and velocity]")
-
-        # Compute the initial total initial energy of the system.
-        total_energy_initial = gm.galactic_model.total_energy(
-            v_initial, r_initial, z_initial
-        )
-
-        timer.checkpoint("[Initial energy]")
-
-        # Computing the initial field strengths, misalignment angles, and periods
-        log.info("Computing initial field strengths...")
-        B_initial = NS_population_initial.magnetic_field()
-
-        log.info("Computing initial misalignment angles...")
-        chi_initial = NS_population_initial.misalignment_angle()
-
-        log.info("Computing initial periods...")
-        P_initial = NS_population_initial.period()
-
-        timer.checkpoint(
-            "[Initial field strengths, misalignment angles and periods]"
-        )
-
-        # Determining the initial period derivatives.
-        log.info("Computing initial period derivatives...")
-        period_derivative_vect = np.vectorize(pdv.period_derivative)
-        P_dot_initial = period_derivative_vect(
-            B_initial, chi_initial, P_initial
-        )
-
-        timer.checkpoint("[Initial period derivatives]")
-
-        # Adding the parameters to a data frame for export.
-        log.info("Creating data frame for exporting...")
-
-        # Generating two header lines and merging them using MultiIndex.
-        parameters_initial = [
-            "age",
-            "x",
-            "y",
-            "z",
-            "vk_r",
-            "vk_phi",
-            "vk_z",
-            "v_orb",
-            "B",
-            "chi",
-            "P",
-            "P_dot",
-        ]
-        units_initial = [
-            "[yr]",
-            "[kpc]",
-            "[kpc]",
-            "[kpc]",
-            "[kpc/yr]",
-            "[kpc/yr]",
-            "[kpc/yr]",
-            "[kpc/yr]",
-            "[G]",
-            "[rad]",
-            "[s]",
-            "[s/yr]",
-        ]
-        header_initial = pd.MultiIndex.from_arrays(
-            [parameters_initial, units_initial]
-        )
-
-        df_initial = pd.DataFrame(
-            data=np.array(
-                [
-                    age,
-                    x_initial,
-                    y_initial,
-                    z_initial,
-                    vk_r,
-                    vk_phi,
-                    vk_z,
-                    v_orb,
-                    B_initial,
-                    chi_initial,
-                    P_initial,
-                    P_dot_initial,
-                ]
-            ).T,
-            columns=header_initial,
-        )
-
-        # Save the data frame as compressed binary file.
-        initial_output_path = pathlib.Path().joinpath(
-            output_path, "initial_population.pkl.gz"
-        )
-        df_initial.to_pickle(initial_output_path, compression="gzip")
-
-        timer.checkpoint("[Export]")
-
-        log.info(
-            f"Output of the initial population generated in {os.getcwd()}/{initial_output_path}"
-        )
-
-    ############################################################################
-
-    with timewith.TimeWith(
-        "[EvolvePopulation]",
-        configuration.cfg["profile_log"],
-        configuration.cfg["profile_json"],
-        configuration.cfg["show_profiling"],
-    ) as timer:
-
-        # Evolve the initial population.
-        log.info("Evolving the initial population in time...")
-        NS_number = len(age)
-
-        # Define the initial conditions.
-        initial_cond = np.array(
-            [
+            # Generating initial positions.
+            log.info("Generating initial positions...")
+            (
                 r_initial,
                 phi_initial,
+                x_initial,
+                y_initial,
                 z_initial,
-                v_r_initial,
-                omega_initial,
-                v_z_initial,
+            ) = NS_population_initial.position(t_age=age)
+
+            # Generating initial velocities by summing the kick
+            # velocities at birth and the orbital velocities.
+            log.info("Generating initial kick velocities...")
+            (vk_r, vk_phi, vk_z,) = NS_population_initial.kick_velocity()
+
+            log.info("Computing orbital velocities...")
+            v_orb = NS_population_initial.orbital_velocity(
+                r_initial, z_initial
+            )
+
+            log.info("Computing initial total velocities...")
+            v_r_initial = vk_r
+            v_phi_initial = vk_phi + v_orb
+            omega_initial = v_phi_initial / r_initial
+            v_z_initial = vk_z
+
+            # Compute the magnitude of the initial velocity vector for each star.
+            v_initial = (
+                np.sqrt(
+                    v_r_initial ** 2 + v_phi_initial ** 2 + v_z_initial ** 2
+                )
+                * const.KPC_TO_KM
+                / const.YR_TO_S
+            )
+
+            timer.checkpoint("[Initial position and velocity]")
+
+            # Compute the initial total initial energy of the system.
+            total_energy_initial = gm.galactic_model.total_energy(
+                v_initial, r_initial, z_initial
+            )
+
+            timer.checkpoint("[Initial energy]")
+
+            # Computing the initial field strengths, misalignment angles, and periods
+            log.info("Computing initial field strengths...")
+            B_initial = NS_population_initial.magnetic_field()
+
+            log.info("Computing initial misalignment angles...")
+            chi_initial = NS_population_initial.misalignment_angle()
+
+            log.info("Computing initial periods...")
+            P_initial = NS_population_initial.period()
+
+            timer.checkpoint(
+                "[Initial field strengths, misalignment angles and periods]"
+            )
+
+            # Determining the initial period derivatives.
+            log.info("Computing initial period derivatives...")
+            period_derivative_vect = np.vectorize(pdv.period_derivative)
+            P_dot_initial = period_derivative_vect(
+                B_initial, chi_initial, P_initial
+            )
+
+            timer.checkpoint("[Initial period derivatives]")
+
+            # Adding the parameters to a data frame for export.
+            log.info("Creating data frame for exporting...")
+
+            # Generating two header lines and merging them using MultiIndex.
+            parameters_initial = [
+                "age",
+                "x",
+                "y",
+                "z",
+                "vk_r",
+                "vk_phi",
+                "vk_z",
+                "v_orb",
+                "B",
+                "chi",
+                "P",
+                "P_dot",
             ]
-        ).T
+            units_initial = [
+                "[yr]",
+                "[kpc]",
+                "[kpc]",
+                "[kpc]",
+                "[kpc/yr]",
+                "[kpc/yr]",
+                "[kpc/yr]",
+                "[kpc/yr]",
+                "[G]",
+                "[rad]",
+                "[s]",
+                "[s/yr]",
+            ]
+            header_initial = pd.MultiIndex.from_arrays(
+                [parameters_initial, units_initial]
+            )
 
-        # Evolve positions and velocities of the neutron stars forward in time.
-        log.info("Evolving the positions and velocities...")
-        final_population = dyn.dynamical_evolution(
-            NS_number, initial_cond, age, time_step=1.0e4
-        )
+            df_initial = pd.DataFrame(
+                data=np.array(
+                    [
+                        age,
+                        x_initial,
+                        y_initial,
+                        z_initial,
+                        vk_r,
+                        vk_phi,
+                        vk_z,
+                        v_orb,
+                        B_initial,
+                        chi_initial,
+                        P_initial,
+                        P_dot_initial,
+                    ]
+                ).T,
+                columns=header_initial,
+            )
 
-        r_final = final_population[:, 0]
-        phi_final = final_population[:, 1]
-        x_final = final_population[:, 2]
-        y_final = final_population[:, 3]
-        z_final = final_population[:, 4]
-        v_r_final = final_population[:, 5]
-        v_phi_final = final_population[:, 6]
-        v_z_final = final_population[:, 7]
+            # Save the data frame as compressed binary file.
+            initial_output_path = pathlib.Path().joinpath(
+                output_path, "initial_population.pkl.gz"
+            )
+            df_initial.to_pickle(initial_output_path, compression="gzip")
 
-        # Convert velocities from [kpc/yr] into [km/s].
-        v_r_final = v_r_final * const.KPC_TO_KM / const.YR_TO_S
-        v_phi_final = v_phi_final * const.KPC_TO_KM / const.YR_TO_S
-        v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
+            timer.checkpoint("[Export]")
 
-        # Convert velocity component from galactocentric cylindrical coordinates
-        # to galactocentric cartesian coordinates.
-        v_x_final, v_y_final, v_z_final = coord.speed_cylindrical_to_cartesian(
-            v_r_final, v_phi_final, v_z_final, phi_final
-        )
+            log.info(
+                f"Output of the initial population generated in {os.getcwd()}/{initial_output_path}"
+            )
 
-        # Convert galactocentric coordinates and velocities into ICRS frame.
-        (
-            ra_final,
-            dec_final,
-            sun_dist,
-            v_ra_final,
-            v_dec_final,
-            v_ls,
-        ) = coord.galactocentric_to_icrs(
-            x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
-        )
+        ############################################################################
 
-        timer.checkpoint("[Dynamic evolution]")
+        with timewith.TimeWith(
+            "[EvolvePopulation]",
+            configuration.cfg["profile_log"],
+            configuration.cfg["profile_json"],
+            configuration.cfg["show_profiling"],
+        ) as timer:
 
-        # Compute the magnitude of the initial velocity vector for each star.
-        v_final = np.sqrt(v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2)
+            # Evolve the initial population.
+            log.info("Evolving the initial population in time...")
 
-        # Compute the total energy of the system after the dynamical evolution.
-        total_energy_final = gm.galactic_model.total_energy(
-            v_final, r_final, z_final
-        )
-
-        # Compute the percentage variation in total energy during the simulation
-        # with respect to the initial total energy.
-        delta_energy_percentage = (
-            (total_energy_final - total_energy_initial)
-            / total_energy_initial
-            * 100.0
-        )
-
-        log.info(
-            f"Percentage variation of total energy of the system: {delta_energy_percentage} %"
-        )
-
-        timer.checkpoint("[Final energy]")
-
-        # Determine the evolved magnetic field, misalignment angle and rotation period.
-        log.info(
-            "Evolving magnetic field, misalignment angle and rotation period..."
-        )
-        B_final, chi_final, P_final = mre.magneto_rotational_evolution(
-            B_initial, chi_initial, P_initial, age,
-        )
-
-        timer.checkpoint(
-            "[Final field strengths, misalignment angles and periods]"
-        )
-
-        # Determining the final period derivatives.
-        log.info("Computing final period derivatives...")
-        P_dot_final = period_derivative_vect(B_final, chi_final, P_final)
-
-        timer.checkpoint("[Final period derivatives]")
-
-        # Adding the evolution output to a data frame for export.
-        log.info("Creating data frame for exporting...")
-
-        # Generating two header lines and merging them using MultiIndex.
-        parameters_final = [
-            "age",
-            "x",
-            "y",
-            "z",
-            "RA",
-            "DEC",
-            "d",
-            "v_r",
-            "v_phi",
-            "v_z",
-            "v_RA",
-            "v_DEC",
-            "v_ls",
-            "B",
-            "chi",
-            "P",
-            "P_dot",
-        ]
-        units_final = [
-            "[yr]",
-            "[kpc]",
-            "[kpc]",
-            "[kpc]",
-            "[deg]",
-            "[deg]",
-            "[kpc]",
-            "[km/s]",
-            "[km/s]",
-            "[km/s]",
-            "[mas/yr]",
-            "[mas/yr]",
-            "[km/s]",
-            "[G]",
-            "[rad]",
-            "[s]",
-            "[s/yr]",
-        ]
-        header_final = pd.MultiIndex.from_arrays(
-            [parameters_final, units_final]
-        )
-
-        df_final = pd.DataFrame(
-            data=np.array(
+            # Define the initial conditions.
+            initial_cond = np.array(
                 [
-                    age,
-                    x_final,
-                    y_final,
-                    z_final,
-                    ra_final,
-                    dec_final,
-                    sun_dist,
-                    v_r_final,
-                    v_phi_final,
-                    v_z_final,
-                    v_ra_final,
-                    v_dec_final,
-                    v_ls,
-                    B_final,
-                    chi_final,
-                    P_final,
-                    P_dot_final,
+                    r_initial,
+                    phi_initial,
+                    z_initial,
+                    v_r_initial,
+                    omega_initial,
+                    v_z_initial,
                 ]
-            ).T,
-            columns=header_final,
-        )
+            ).T
 
-        # Save the data frame as a compressed binary file.
-        final_output_path = pathlib.Path().joinpath(
-            output_path, "final_population.pkl.gz"
-        )
-        df_final.to_pickle(final_output_path, compression="gzip")
+            # Evolve positions and velocities of the neutron stars forward in time.
+            log.info("Evolving the positions and velocities...")
+            final_population, dyn_evol_dict = dyn.dynamical_evolution(
+                initial_cond, age
+            )
 
-        log.info(
-            f"Output of the evolved population generated in {os.getcwd()}/{final_output_path}"
-        )
+            r_final = final_population[:, 0]
+            phi_final = final_population[:, 1]
+            z_final = final_population[:, 2]
+            v_r_final = final_population[:, 3]
+            v_phi_final = final_population[:, 4]
+            v_z_final = final_population[:, 5]
 
-        timer.checkpoint("[Export]")
+            # Convert from polar coordinates to cartesian coordinates.
+            polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
+            x_final, y_final = polar_to_cartesian_vect(r_final, phi_final)
+
+            # Convert velocities from [kpc/yr] into [km/s].
+            v_r_final = v_r_final * const.KPC_TO_KM / const.YR_TO_S
+            v_phi_final = v_phi_final * const.KPC_TO_KM / const.YR_TO_S
+            v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
+
+            # Convert velocity component from galactocentric cylindrical coordinates
+            # to galactocentric cartesian coordinates.
+            (
+                v_x_final,
+                v_y_final,
+                v_z_final,
+            ) = coco.speed_cylindrical_to_cartesian(
+                v_r_final, v_phi_final, v_z_final, phi_final
+            )
+
+            # Convert galactocentric coordinates and velocities into ICRS frame.
+            (
+                ra_final,
+                dec_final,
+                sun_dist,
+                v_ra_final,
+                v_dec_final,
+                v_ls,
+            ) = coco.galactocentric_to_icrs(
+                x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
+            )
+
+            if configuration.cfg["save_dyn_evolution"]:
+                # Save dictionary containing evolution information to output path in a .json file.
+                dyn_evolution_dump_path = pathlib.Path().joinpath(
+                    output_path, "dyn_evolution.json"
+                )
+                with open(dyn_evolution_dump_path, "w") as f:
+                    json.dump(dyn_evol_dict, f, indent=4, sort_keys=True)
+
+            timer.checkpoint("[Dynamic evolution]")
+
+            # Compute the magnitude of the initial velocity vector for each star.
+            v_final = np.sqrt(
+                v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2
+            )
+
+            # Compute the total energy of the system after the dynamical evolution.
+            total_energy_final = gm.galactic_model.total_energy(
+                v_final, r_final, z_final
+            )
+
+            # Compute the percentage variation in total energy during the simulation
+            # with respect to the initial total energy.
+            delta_energy_percentage = (
+                (total_energy_final - total_energy_initial)
+                / total_energy_initial
+                * 100.0
+            )
+
+            log.info(
+                f"Percentage variation of total energy of the system: {delta_energy_percentage} %"
+            )
+
+            timer.checkpoint("[Final energy]")
+
+            # Determine the evolved magnetic field, misalignment angle and rotation period.
+            log.info(
+                "Evolving magnetic field, misalignment angle and rotation period..."
+            )
+            (
+                B_final,
+                chi_final,
+                P_final,
+                magrot_evol_dict,
+            ) = mre.magneto_rotational_evolution(
+                B_initial, chi_initial, P_initial, age,
+            )
+
+            if configuration.cfg["save_magrot_evolution"]:
+                # Save dictionary containing evolution information to output path in a .json file.
+                magrot_evolution_dump_path = pathlib.Path().joinpath(
+                    output_path, "magrot_evolution.json"
+                )
+                with open(magrot_evolution_dump_path, "w") as f:
+                    json.dump(magrot_evol_dict, f, indent=4, sort_keys=True)
+
+            timer.checkpoint(
+                "[Final field strengths, misalignment angles and periods]"
+            )
+
+            # Determining the final period derivatives.
+            log.info("Computing final period derivatives...")
+            P_dot_final = period_derivative_vect(B_final, chi_final, P_final)
+
+            timer.checkpoint("[Final period derivatives]")
+
+            # Adding the evolution output to a data frame for export.
+            log.info("Creating data frame for exporting...")
+
+            # Generating two header lines and merging them using MultiIndex.
+            parameters_final = [
+                "age",
+                "x",
+                "y",
+                "z",
+                "RA",
+                "DEC",
+                "d",
+                "v_r",
+                "v_phi",
+                "v_z",
+                "v_RA",
+                "v_DEC",
+                "v_ls",
+                "B",
+                "chi",
+                "P",
+                "P_dot",
+            ]
+            units_final = [
+                "[yr]",
+                "[kpc]",
+                "[kpc]",
+                "[kpc]",
+                "[deg]",
+                "[deg]",
+                "[kpc]",
+                "[km/s]",
+                "[km/s]",
+                "[km/s]",
+                "[mas/yr]",
+                "[mas/yr]",
+                "[km/s]",
+                "[G]",
+                "[rad]",
+                "[s]",
+                "[s/yr]",
+            ]
+            header_final = pd.MultiIndex.from_arrays(
+                [parameters_final, units_final]
+            )
+
+            df_final = pd.DataFrame(
+                data=np.array(
+                    [
+                        age,
+                        x_final,
+                        y_final,
+                        z_final,
+                        ra_final,
+                        dec_final,
+                        sun_dist,
+                        v_r_final,
+                        v_phi_final,
+                        v_z_final,
+                        v_ra_final,
+                        v_dec_final,
+                        v_ls,
+                        B_final,
+                        chi_final,
+                        P_final,
+                        P_dot_final,
+                    ]
+                ).T,
+                columns=header_final,
+            )
+
+            # Save the data frame as a compressed binary file.
+            final_output_path = pathlib.Path().joinpath(
+                output_path, "final_population.pkl.gz"
+            )
+            df_final.to_pickle(final_output_path, compression="gzip")
+
+            log.info(
+                f"Output of the evolved population generated in {os.getcwd()}/{final_output_path}"
+            )
+
+            timer.checkpoint("[Export]")
 
     # Cleanup. Reset seed to empty value.
     configuration.cfg["seed"] = None

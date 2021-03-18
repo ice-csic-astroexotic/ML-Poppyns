@@ -42,6 +42,10 @@ cfg["profile_log"] = "profile.log"
 cfg["profile_json"] = "profile.json"
 cfg["show_profiling"] = True
 
+# Save time evolution output
+cfg["save_dyn_evolution"] = False
+cfg["save_magrot_evolution"] = False
+
 
 # Initial population class parameters.
 
@@ -77,6 +81,9 @@ cfg["t_age_min"] = 1.0
 
 # Maximum age for the neutron stars in [yr].
 cfg["t_age_max"] = 1e7
+
+# Time step for the dynamical evolution [yr].
+cfg["dyn_time_step"] = 1e4
 
 # Galactic potential model used in the simulation. Choose between gmM19 or gmFK06.
 cfg["galactic_model"] = "gmM19"
@@ -132,7 +139,7 @@ cfg["L"] = 1e5
 cfg["n_e"] = 1e36
 
 # Time step for the magneto-rotational evolution [yr].
-cfg["time_step_log10"] = 1e-2
+cfg["magrot_time_step_log10"] = 1e-2
 
 
 def update_configuration(new_configuration) -> None:
