@@ -61,7 +61,7 @@ def test_case_2():
     data = {
         "NS_number": 5,
         "z": np.array([0.2, 0.3, 0.1, 0.5, 0.1]),
-        "up_down_index_mock": np.array([0, 1, 0, 1, 0]),
+        "if_below_mock": np.array([False, True, False, True, False]),
         "z_expected": np.array([0.2, -0.3, 0.1, -0.5, 0.1]),
     }
 
@@ -222,9 +222,9 @@ def test_random_scatter_about_plane_02(monkeypatch, test_case_2):
     """
 
     def mock_index(*args, **kwargs):
-        return test_case_2["up_down_index_mock"]
+        return test_case_2["if_below_mock"]
 
-    monkeypatch.setattr(np.random, "randint", mock_index)
+    monkeypatch.setattr(np.random, "choice", mock_index)
 
     z_out = ip.random_scatter_about_plane(
         test_case_2["z"], test_case_2["NS_number"]

@@ -279,8 +279,7 @@ def generate_population(
             v_z_final = final_population[:, 5]
 
             # Convert from polar coordinates to cartesian coordinates.
-            polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
-            x_final, y_final = polar_to_cartesian_vect(r_final, phi_final)
+            x_final, y_final = coco.polar_to_cartesian(r_final, phi_final)
 
             # Convert velocities from [kpc/yr] into [km/s].
             v_r_final = v_r_final * const.KPC_TO_KM / const.YR_TO_S

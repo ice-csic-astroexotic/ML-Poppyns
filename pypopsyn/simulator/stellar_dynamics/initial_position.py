@@ -281,15 +281,8 @@ def random_scatter_about_plane(z: np.ndarray, NS_number: int) -> np.ndarray:
     if len(z) != NS_number:
         raise ValueError("Input array has the wrong length")
 
-    # For each neutron star create a random value 0 or 1 (above or below plane).
+    # For each neutron star determine if it is above (False) or below (True) the galactic plane.
+    if_below = np.random.choice([False, True], size=NS_number)
+    z[if_below] = -z[if_below]
 
-    up_down_index = np.random.randint(0, 2, NS_number)
-    z_rand = np.zeros(NS_number)
-
-    for i in range(NS_number):
-        if up_down_index[i] == 0:
-            z_rand[i] = z[i]
-        else:
-            z_rand[i] = -z[i]
-
-    return z_rand
+    return z
