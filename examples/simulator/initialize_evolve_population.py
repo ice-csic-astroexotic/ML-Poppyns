@@ -253,7 +253,7 @@ def generate_population(
             # Evolve the initial population.
             log.info("Evolving the initial population in time...")
 
-            # Define the initial conditions.
+            # Define the initial conditions for the dynamical evolution.
             initial_cond = np.array(
                 [
                     r_initial,

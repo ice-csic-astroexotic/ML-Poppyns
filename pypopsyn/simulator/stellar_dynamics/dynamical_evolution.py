@@ -48,13 +48,13 @@ gm.initialize_galactic_model()
 
 @jit(
     float64[:](
-        float64[:],
         float64,
+        float64[:],
         gm.galactic_model._numba_type_.class_type.instance_type,
     )
 )
 def dynamical_eq_system(
-    initial_cond: np.ndarray, t: float, galactic_model: gm.GalaxyModelBase
+    t: float, initial_cond: np.ndarray, galactic_model: gm.GalaxyModelBase
 ) -> np.ndarray:
     """
     System of dynamical equations to solve to determine the orbits of the neutron
@@ -149,6 +149,7 @@ def dynamical_evolution(
                 y0=initial_cond[i],
                 t=time_grid,
                 args=(gm.galactic_model,),
+                tfirst=True,
             )
         )
 
