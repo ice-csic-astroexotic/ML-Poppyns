@@ -196,9 +196,7 @@ class InitialNeutronStarPopulation:
         return vk_r_rand, vk_phi_rand, vk_z_rand
 
     @staticmethod
-    def orbital_velocity(
-        r: np.ndarray, z: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def orbital_velocity(r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         Calculate the orbital circular velocity of each star in the galactic
         gravitational potential. In galactocentric cylindrical coordinates,

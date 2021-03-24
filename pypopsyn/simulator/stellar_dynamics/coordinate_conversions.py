@@ -36,18 +36,18 @@ from astropy.coordinates import galactocentric_frame_defaults
 from pypopsyn.simulator.configuration import cfg
 
 
-def check_radial_coordinate(r: float) -> None:
+def check_radial_coordinate(r: np.ndarray) -> None:
     """
     Check that the distance from the origin is not negative.
 
     Args:
-        r (float): distance from the origin in units of length.
+        r (np.ndarray): distance from the origin in units of length.
 
     Returns:
         Returns None if r greater than or equal to 0,
         otherwise raises ValueError.
     """
-    if r < 0:
+    if np.any(r < 0):
         raise ValueError("Radial coordinate is out of range.")
 
 

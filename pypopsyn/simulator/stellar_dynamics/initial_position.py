@@ -46,31 +46,31 @@ import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 from pypopsyn.simulator.configuration import cfg
 
 
-def check_arm_index(arm_index: int) -> None:
+def check_arm_index(arm_index: np.ndarray) -> None:
     """
     Check that the index for the spiral galaxy arms is not <1 or >4.
 
     Args:
-        arm_index (int): index for the respective spiral arms.
+        arm_index (np.ndarray): index for the respective spiral arms.
 
     Returns:
         Returns None if arm_index between or equal to 1 and 4,
         otherwise raises ValueError.
     """
-    if arm_index < 1 or arm_index > 4:
+    if np.any(arm_index < 1) or np.any(arm_index > 4):
         raise ValueError("Arm index is out of range.")
 
 
-def pdf_radial_stellar_density(r: float) -> float:
+def pdf_radial_stellar_density(r: np.ndarray) -> np.ndarray:
     """
     The Milky Way's stellar radial density in the galactic plane according
     to eq. (15) of Yusifov & Küçük (2004).
 
     Args:
-        r (float): distance from the galactic center in [kpc].
+        r (np.ndarray): distance from the galactic center in [kpc].
 
     Returns:
-        float: stellar radial density in [1/kpc].
+        np.ndarray: stellar radial density in [1/kpc].
     """
 
     # check range of input
@@ -116,12 +116,6 @@ def pdf_initial_coordinates(
         noise applied.
     """
 
-    # Check range of input.
-    check_radial_coordinate_vect = np.vectorize(coco.check_radial_coordinate)
-    check_radial_coordinate_vect(r)
-    check_arm_index_vect = np.vectorize(check_arm_index)
-    check_arm_index_vect(arm_index)
-
     phi = calculate_phi(r, arm_index)
     phi_corr, r_corr = calculate_noise_for_coordinates(r, NS_number)
 
@@ -146,14 +140,12 @@ def calculate_phi(r: np.ndarray, arm_index: np.ndarray) -> np.ndarray:
         0 < arm_index < 5.
 
     Returns:
-        np.ndarray: galactocentric phi coordinates in [rad].
+        (np.ndarray): galactocentric phi coordinates in [rad].
     """
 
     # Check range of input.
-    check_radial_coordinate_vect = np.vectorize(coco.check_radial_coordinate)
-    check_radial_coordinate_vect(r)
-    check_arm_index_vect = np.vectorize(check_arm_index)
-    check_arm_index_vect(arm_index)
+    coco.check_radial_coordinate(r)
+    check_arm_index(arm_index)
 
     # Parameters for four spiral arms in the Milky Way giving the winding constant k
     # [rad], inner radius r_0 [kpc] and inner angle phi_min [rad] for the Norma,
@@ -242,16 +234,16 @@ def calculate_noise_for_coordinates(
     return phi_corr, r_corr
 
 
-def pdf_initial_height(z: float) -> float:
+def pdf_initial_height(z: np.ndarray) -> np.ndarray:
     """
     Probability density function for the height from the galactic equatorial plane
     according to eq. (2) in Gullon et al. (2014).
 
     Args:
-        z (float): distance from the galactic plane in [kpc].
+        z (np.ndarray): distance from the galactic plane in [kpc].
 
     Returns:
-        float: distribution of stars per kpc in z direction.
+        (np.ndarray): distribution of stars per kpc in z direction.
     """
 
     # We use an exponential distribution as given by Wainscoat et al. (1992)
