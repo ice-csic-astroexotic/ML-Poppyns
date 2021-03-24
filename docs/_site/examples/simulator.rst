@@ -10,6 +10,8 @@ The :code:`examples/simulator/initialize_evolve_population.py` script is respons
 
 This will generate a new folder :code:`simulated_data` if it does not exist, in which the simulation results will be saved: the initial population in compressed binary format `initial_population.pkl.gz`, the final population in the same format `final_population.pkl.gz`, the profiles for the simulation if enabled and the dictionary containing the parameter overrides in `override.json` for reproducibility.
 
+If the user opts to save the full evolutionary output for the dynamical and/or the magneto-rotational evolution by setting :code:`cfg["save_dyn_evolution"]` or :code:`cfg["save_magrot_evolution"]` to :code:`True` in the configuration file, a JSON file with the full time-stamped parameter evolution is also generated.
+
 For more information about the simulation script, issue the :code:`--h` argument:
 
 .. code-block:: bash
@@ -38,4 +40,4 @@ Here it is important to distinguish between two types of arguments for the helpe
 
 The script automatically checks the compatibility of the present parameters for the selected options, e.g., :code:`vk_c` cannot be specified if :code:`km_maxell` has been chosen as kick model. This is done using the dictionary :code:`examples/simulator/config_sweeper.json` which specifies a list of exclusive parameters for each option.
 
-To visualize the outcome of a given population two jupyter notebooks are provided: the first one :code:`initial_population_plots.ipynb` plots the initial conditions of the simulation, the second one :code:`final_population_plots.ipynb` plots the outcome of the simulation after the dynamical evolution.
+To visualize the outcome of a given population a number of jupyter notebooks are provided: the first one :code:`initial_population_plots.ipynb` plots the initial conditions of the simulation, the second one :code:`final_population_plots.ipynb` plots the outcome of the simulation after the dynamical evolution. A comparison between the synthetic and the real observed pulsar population is performed in :code:`observation_comparison.ipynb`. Finally, the full dynamical evolution of different parameters can be visualized with the notebook :code:`evolution_plots.ipynb`.
