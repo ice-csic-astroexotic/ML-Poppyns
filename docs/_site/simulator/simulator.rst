@@ -71,64 +71,98 @@ This telemetry comes from the following setup:
 | Total Time [s]:  15.7038                                     |
 +--------------------+--------------------+--------------------+
 
-Basics
-#######
+Initialising Mock Population
+#############################
 
-Configuration
-**************
+Configuration File
+*******************
 
 .. automodule:: pypopsyn.simulator.configuration
   :members: configuration
 
+Initial NS Population
+**********************
+
+.. automodule:: simulator.initial_population
+  :members:
+
+Basics
+#######
+
 CDF Calculator
 ***************
 
-.. automodule:: simulator.cdf_calculator
+.. automodule:: simulator.basics.cdf_calculator
   :members: cdf_calculator
 
 Constants
 *************
 
-.. automodule:: simulator.constants
+.. automodule:: simulator.basics.constants
   :members: constants
 
-Coordinate Conversions
-************************
+Magneto-rotational Physics
+#############################
 
-.. automodule:: simulator.coordinate_conversions
-  :members: coordinate_conversions
+Initial Period Distribution
+****************************
 
+.. automodule:: simulator.magneto_rotational_physics.initial_period
+  :members: initial_period
+
+Magnetic Field Derivative
+**************************
+
+.. automodule:: simulator.magneto_rotational_physics.magnetic_field_derivative
+  :members: magnetic_field_derivative
+
+Magneto-rotational Evolution
+****************************
+
+.. automodule:: simulator.magneto_rotational_physics.magneto_rotational_evolution
+  :members: magneto_rotational_evolution
+
+Misalignment Angle Derivative
+*****************************
+
+.. automodule:: simulator.magneto_rotational_physics.misalignment_angle_derivative
+  :members: misalignment_angle_derivative
+
+Period Derivative
+*****************
+
+.. automodule:: simulator.magneto_rotational_physics.period_derivative
+  :members: period_derivative
 
 Stellar Dynamics
 ###################
 
+Coordinate Conversions
+************************
+
+.. automodule:: simulator.stellar_dynamics.coordinate_conversions
+  :members: coordinate_conversions
+
 Dynamical Evolution
 *******************
 
-.. automodule:: simulator.dynamical_evolution
+.. automodule:: simulator.stellar_dynamics.dynamical_evolution
   :members: dynamical_evolution
 
 Galactic Model
 **************
 
-.. automodule:: simulator.galactic_model
+.. automodule:: simulator.stellar_dynamics.galactic_model
   :members: galactic_model
 
 Initial Position
 ****************
 
-.. automodule:: simulator.initial_position
+.. automodule:: simulator.stellar_dynamics.initial_position
   :members: initial_position
 
 Initial Velocity
 *******************
 
-.. automodule:: simulator.initial_velocity
+.. automodule:: simulator.stellar_dynamics.initial_velocity
   :members: initial_velocity
-
-
-Initial NS Population
-#####################
-
-.. automodule:: simulator.initial_population
-  :members:

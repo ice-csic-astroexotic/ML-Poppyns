@@ -21,36 +21,46 @@ Then you can issue logging messages at the appropriate level:
   log.warning("blablabla")
   log.error("blablabla")
 
-As an example if we run the script to simulate a population of neutron stars, the following logging information is showed:
+As an example if we run the script to simulate and evolve a population of 100 neutron stars using the standard configuration file, the following logging information is showed:
 
 .. code-block:: bash
 
-    (pop_syn) michele@michele-XPS-13-7390:~/Workspace/MAGNESIA_population_synthesis$ python examples/simulator/initialize_evolve_population.py --parameter_override examples/simulator/parameter_override.json  --output_dir simulated_data
-    Updating key kick_model in configuration with value km_exp...
-    Updating key sigma_k in configuration with value 300...
-    INFO:pypopsyn.simulator.initial_population:Seed: 1612514893
+    (pop_syn) vanessa@vanessa-xps13:~/github/MAGNESIA/MAGNESIA_population_synthesis$ python examples/simulator/initialize_evolve_population.py
+    INFO:pypopsyn.simulator.initial_population:Seed: 1616578226
     INFO:__main__:Randomizing population age...
     INFO:__main__:Generating initial positions...
     INFO:__main__:Generating initial kick velocities...
     INFO:__main__:Computing orbital velocities...
     INFO:__main__:Computing initial total velocities...
-    <prof>[InitialPopulation][Initial] took 2.2616 [s] (cumulative 2.2616 [s])
-    <prof>[InitialPopulation][Energy] took 2.5177 [s] (cumulative 4.7793 [s])
+    <prof>[InitialPopulation][Initial position and velocity] took 0.1432 [s] (cumulative 0.1432 [s])
+    <prof>[InitialPopulation][Initial energy] took 2.0607 [s] (cumulative 2.2039 [s])
+    INFO:__main__:Computing initial field strengths...
+    INFO:__main__:Computing initial misalignment angles...
+    INFO:__main__:Computing initial periods...
+    <prof>[InitialPopulation][Initial field strengths, misalignment angles and periods] took 0.0102 [s] (cumulative 2.2140 [s])
+    INFO:__main__:Computing initial period derivatives...
+    <prof>[InitialPopulation][Initial period derivatives] took 0.0007 [s] (cumulative 2.2148 [s])
     INFO:__main__:Creating data frame for exporting...
-    <prof>[InitialPopulation][Export] took 0.3964 [s] (cumulative 5.1757 [s])
-    INFO:__main__:Output of the initial population generated in /home/michele/Workspace/MAGNESIA_population_synthesis/initial_population.pkl.gz
-    <prof>[InitialPopulation] finished took 5.1763 [s]
+    <prof>[InitialPopulation][Export] took 0.0045 [s] (cumulative 2.2193 [s])
+    INFO:__main__:Output of the initial population generated in /home/vanessa/github/MAGNESIA/MAGNESIA_population_synthesis/output/test/initial_population.pkl.gz
+    <prof>[InitialPopulation] finished took 2.2198 [s]
     INFO:__main__:Evolving the initial population in time...
     INFO:__main__:Evolving the positions and velocities...
-    <prof>[EvolvePopulation][Evolution] took 19.5397 [s] (cumulative 19.5397 [s])
-    INFO:__main__:Percentage variation of total energy of the system: -3.7857443555347806e-05 %
-    <prof>[EvolvePopulation][Energy] took 0.0057 [s] (cumulative 19.5454 [s])
+    <prof>[EvolvePopulation][Dynamic evolution] took 0.0187 [s] (cumulative 0.0187 [s])
+    INFO:__main__:Percentage variation of total energy of the system: -2.5514586196066525e-07 %
+    <prof>[EvolvePopulation][Final energy] took 0.0008 [s] (cumulative 0.0195 [s])
+    INFO:__main__:Evolving magnetic field, misalignment angle and rotation period...
+    <prof>[EvolvePopulation][Final field strengths, misalignment angles and periods] took 0.0295 [s] (cumulative 0.0490 [s])
+    INFO:__main__:Computing final period derivatives...
+    <prof>[EvolvePopulation][Final period derivatives] took 0.0006 [s] (cumulative 0.0496 [s])
     INFO:__main__:Creating data frame for exporting...
-    INFO:__main__:Output of the evolved population generated in /home/michele/Workspace/MAGNESIA_population_synthesis/final_population.pkl.gz
-    <prof>[EvolvePopulation][Export] took 0.5270 [s] (cumulative 20.0724 [s])
-    <prof>[EvolvePopulation] finished took 20.0729 [s]
+    INFO:__main__:Output of the evolved population generated in /home/vanessa/github/MAGNESIA/MAGNESIA_population_synthesis/output/test/final_population.pkl.gz
+    <prof>[EvolvePopulation][Export] took 0.0034 [s] (cumulative 0.0530 [s])
+    <prof>[EvolvePopulation] finished took 0.0534 [s]
+    <prof>[TotalSimulation] finished took 2.2744 [s]
 
-If the :code:`show_profiling` in the :code:`pyposyn/simulator/configuration.py` file is set to :code:`True`, the timing profile for each section of the simulator is also shown on terminal. In general the timing information is saved as a :code:`profile.log` file in the same folder where the output of the simulation is saved.
+
+If the :code:`show_profiling` in the :code:`pyposyn/simulator/configuration.py` file is set to :code:`True`, the timing profile for each section of the simulator is also shown on terminal. In general the timing information is saved as a :code:`profile.log` file in the same folder where the output of the simulation is saved. Function-specific profiling can also be activated by setting :code:`enable_profiles` and / or :code:`show_profiles` to :code:`True`. The detailed information will be saved in the folder specified under :code:`profiles_dir`.
 
 Until commit :code:`4cb335f7b435f1997cef9c5a9dd84117abff1ff8` Hydra was enabled to allow parameter sweeps when running the simulation script.
 By default, Hydra configures the loggers automatically to only produce messages above :code:`info` level, e.g.:
