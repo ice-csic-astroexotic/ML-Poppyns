@@ -5,6 +5,7 @@ channels:
 dependencies:
   - astropy=4.0.1
   - black=19.10b0
+  - ffmpeg
   - hydra-core=0.11.3
   - ipykernel=5.1.0
   - jupyter=1.0.0
@@ -26,7 +27,7 @@ dependencies:
   - pytorch=1.2.0
   - pyyaml=5.3
   - recommonmark
-  - scipy=1.3.2
+  - scipy=1.5.0
   - sphinx
   - zstd=1.3.7
   - tensorboardx

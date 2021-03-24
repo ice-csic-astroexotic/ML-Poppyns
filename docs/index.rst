@@ -6,9 +6,13 @@
 Welcome to pypopsyn's documentation!
 ====================================
 
+.. raw:: latex
+
+   \part{The Basics}
+
 .. toctree::
-   :maxdepth: 2
-   :caption: Getting Started:
+   :maxdepth: 1
+   :caption: The Basics
 
    _site/getting_started/setup
    _site/getting_started/logging
@@ -16,35 +20,36 @@ Welcome to pypopsyn's documentation!
    _site/getting_started/hydra
    _site/getting_started/glossary
 
+.. raw:: latex
+
+   \part{The Package}
+
 .. toctree::
    :maxdepth: 2
-   :caption: Simulator:
+   :caption: The Package
 
    _site/simulator/simulator
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Generator:
-
    _site/generator/generator
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Learning:
-
    _site/learning/learning
 
+.. raw:: latex
+
+   \part{Examples}
+
 .. toctree::
-   :maxdepth: 2
-   :caption: Examples:
+   :maxdepth: 1
+   :caption: Examples
 
    _site/examples/simulator
    _site/examples/generator
    _site/examples/learning
 
-Indices and tables
-==================
+.. raw:: latex
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   \part{Appendix}
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Appendix
+
+   _site/appendix/indices_tables

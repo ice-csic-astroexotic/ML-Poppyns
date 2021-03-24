@@ -4,6 +4,7 @@ Simulator configuration.
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
 
 MIT License
 
@@ -25,6 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import numpy as np
+
+import pypopsyn.simulator.basics.constants as const
 
 cfg = {}
 
@@ -34,8 +38,14 @@ cfg["show_profiles"] = False
 cfg["profiles_dir"] = "profiles"
 
 # General profiling configuration.
-cfg["profile_log"] = "profile.txt"
-cfg["show_profiling"] = False
+cfg["profile_log"] = "profile.log"
+cfg["profile_json"] = "profile.json"
+cfg["show_profiling"] = True
+
+# Save time evolution output
+cfg["save_dyn_evolution"] = False
+cfg["save_magrot_evolution"] = False
+
 
 # Initial population class parameters.
 
@@ -72,6 +82,9 @@ cfg["t_age_min"] = 1.0
 # Maximum age for the neutron stars in [yr].
 cfg["t_age_max"] = 1e7
 
+# Time step for the dynamical evolution [yr].
+cfg["dyn_time_step"] = 1e4
+
 # Galactic potential model used in the simulation. Choose between gmM19 or gmFK06.
 cfg["galactic_model"] = "gmM19"
 
@@ -89,6 +102,44 @@ cfg["sigma_k"] = 265.0
 
 # Characteristic height in [kpc] from the galactic plane.
 cfg["h_c"] = 0.18
+
+
+# Canonical neutron star parameters.
+
+# Characteristic neutron star radius in [cm].
+cfg["NS_radius"] = 1.1e6
+
+# Characteristic neutron star mass in solar masses.
+cfg["NS_mass"] = 1.4 * const.M_SUN
+
+
+# Field, misalignment angle and period evolution parameters for a crust-based model.
+
+# Mean and standard deviation for the Gaussian distributed initial periods in [s].
+cfg["P_initial_mean"] = 0.22
+cfg["P_initial_sigma"] = 0.42
+
+# Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
+cfg["B_initial_log10_mean"] = 13.20
+cfg["B_initial_log10_sigma"] = 0.62
+
+# Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
+# taken from Spitkovsky (2006) and Philippov et al. (2014).
+# For comparison, in vacuum k_0 = 0 and k_1 = k_2 = 2/3.
+cfg["k_coefficients"] = np.array([1.0, 1.0, 1.0])
+
+# Dominant conductivity based on phonon or impurity scattering, in [1/s].
+# For details see Cumming et al. (2004) or Gourgouliatos and Cumming (2014).
+cfg["sigma"] = 1e24
+
+# Characteristic length scale of the magnetic field in [cm].
+cfg["L"] = 1e5
+
+# Characteristic electron density in [g/cm^3].
+cfg["n_e"] = 1e36
+
+# Time step for the magneto-rotational evolution [yr].
+cfg["magrot_time_step_log10"] = 1e-2
 
 
 def update_configuration(new_configuration) -> None:

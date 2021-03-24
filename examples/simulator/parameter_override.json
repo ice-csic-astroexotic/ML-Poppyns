@@ -1,0 +1,5 @@
+{
+  "kick_model": "km_maxwell",
+  "sigma_k": 265,
+  "h_c": 0.18
+}

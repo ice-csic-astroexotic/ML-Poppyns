@@ -11,4 +11,4 @@
 """
 
 from .loss_nll import LossNLL
-from .loss_rms import LossRMSE
+from .loss_rmse import LossRMSE

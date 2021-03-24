@@ -41,7 +41,7 @@ class MetricAccuracyRMSE(MetricBase):
 
             self.mse = nn.MSELoss()
             # adding a small epsilon to avoid null values
-            rmse = torch.sqrt(self.mse(output, target) + self.eps)
+            rmse = torch.sqrt(self.mse(output, target)) + self.eps
 
         return rmse
 

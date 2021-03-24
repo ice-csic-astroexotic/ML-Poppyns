@@ -4,18 +4,19 @@
 """ Simulator helper script.
 
     This script helps running the simulator scripts (in this case the simulator
-    for initializing and evolving a population) so that we can simplify the way
-    parameters are specified for Hydra.
+    for initializing and evolving a population) in a multithreaded way.
 
-    Our current version of Hydra allows us to perform a parameter sweep but we
-    need to provide every single value for each argument to sweep.
-
-    This script parses a more compact representation like:
+    It parses a compact representation for each tunable parameter like:
         --argument low high count
 
-    And expand it to a linspace between [low, high] with a count num of steps.
+    And expands it to a linspace between [low, high] with a count num of steps.
 
-    It then automatically calls the simulation script.
+    Such expansion is done for each specified argument and then all the possible
+    combinations of them are produced by a generator.
+
+    Each combination will spawn a new process that goes into a multithreaded
+    pool for later execution, allowing the simulation of many populations to
+    run asyncrhonously in parallel with a defined maximum number of threads.
 
     Running the code:
 
@@ -45,19 +46,113 @@
 """
 
 import argparse
+import itertools
 import json
 import logging
+import multiprocessing as mp
+import pathlib
 import subprocess
 import sys
+import threading
+import typing
 
 import numpy as np
 
 log = logging.getLogger(__name__)
 
 
-def main(args):
-    log.info(args)
+def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
+    """
+    Run simulation command.
 
+    This is the main routine for running a particular simulation. It runs the
+    provided simulation command (a Python call to the simulation script with a
+    set of CLI arguments) and captures all the output of the process.
+
+    Args:
+        command (List): full command to execute the simulation.
+
+    Returns:
+        The simulation command and the convolute output of the process.
+
+    """
+
+    # Acquire the lock and block any other process from executing
+    # for two seconds.
+    starting.acquire()
+    threading.Timer(1, starting.release).start()
+
+    # Once the process has released the lock for another process to wait
+    # it can proceed with the execution of the experiment.
+    log.info(f"Launching simulation {command}")
+
+    try:
+        process_output = subprocess.check_output(
+            command, stderr=subprocess.STDOUT, shell=True
+        )
+        log.info("Experiment finished...")
+
+        return command, process_output.decode("utf-8")
+    except subprocess.CalledProcessError as e:
+        log.error("Error when launching simulation...")
+        return command, e.output.decode("utf-8")
+
+
+def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
+
+    """
+    Callback to log all the info returned from a simulation run.
+
+    Args:
+        process_result: tuple containing the process simulation command and the
+          whole process output to console string.
+
+    Returns:
+        Nothing.
+
+    """
+
+    log.info(f"Ran simulation {process_result[0]}!")
+    log.info(f"Process output:\n {process_result[1]}")
+    log.info("Process finished...")
+    log.info(
+        "****************************************************************"
+    )
+
+
+def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
+
+    """
+    Setup the process pool for multiprocessing with a global pause/resume event.
+
+    Args:
+        event: reference to a master process event that will signal the child
+            processes to pause or resume execution.
+        lock: a reference to a master process lock that will coordinate the
+            child process launching with waiting times.
+    """
+
+    global unpaused
+    unpaused = event
+
+    global starting
+    starting = lock
+
+
+def main(args):
+
+    # Event on the master process that will be used to synchronize the child
+    # processes and signal them for execution in the pool.
+    event = mp.Event()
+    # Lock on the master process to impose a delay in the process execution
+    # so that none of them can be launched exactly at the same time.
+    lock = mp.Lock()
+    # A pool of processes with a defined capacity, a process spawnign setup
+    # routine and a general event to signal process execution.
+    log.info(f"Initializing pool with {args.processes} processes...")
+    pool = mp.Pool(args.processes, setup_process_pool, (event, lock,))
+
+    # Parse arguments provided to the simulation helper script.
     log.info("Parsing arguments...")
 
     cli_args: list = []
@@ -72,6 +167,9 @@ def main(args):
     required_parameters = []
     forbidden_parameters = []
 
+    var_names = []
+    var_expanded_ranges = []
+
     for arg in vars(args):
 
         log.info(arg)
@@ -84,11 +182,11 @@ def main(args):
         elif type(value) is str:
             # If the value of this parameter is a string, this can be either
             # the directory path where to save the multirun output or a selection
-            # parameter. In this last case we must check: (a) whether the selection is valid
-            # (b) capture the list of required parameters and (c) gather the
-            # forbidden ones (probably they belong other selection).
+            # parameter. In this last case we must check: (a) whether the selection
+            # is valid (b) capture the list of required parameters and (c) gather
+            # the forbidden ones (probably they belong other selection).
             if arg == "output_dir":
-                cli_args.append("hydra.sweep.dir")
+                cli_args.append("--output_dir")
                 cli_str.append(value)
             elif value in check_arg[arg]:
                 cli_args.append(arg)
@@ -107,9 +205,7 @@ def main(args):
                 # If the value for such argument is not on the dictionary of
                 # possible values we throw an exception.
                 raise ValueError(
-                    "The value {} is not feasible for parameter {}".format(
-                        value, arg
-                    )
+                    f"The value {value} is not feasible for parameter {arg}"
                 )
 
         elif type(value) is list:
@@ -117,51 +213,75 @@ def main(args):
             # three values [low, high, steps] and then expand each one of the
             # arguments with the linear space in such range.
             var_range = np.linspace(value[0], value[1], int(value[2]))
-            var_str = ",".join(map(str, var_range))
-            cli_args.append(arg)
-            cli_str.append(var_str)
+            var_expanded_ranges.append(list(var_range))
+            var_names.append(arg)
 
-    log.info("Required parameters {}".format(required_parameters))
-    log.info("Forbidden parameters {}".format(forbidden_parameters))
+    log.info(f"Required parameters {required_parameters}")
+    log.info(f"Forbidden parameters {forbidden_parameters}")
 
     # Remove intersecting parameters from the forbidden list.
     for p in set(required_parameters) & set(forbidden_parameters):
-        log.info("Intersecting parameter {}".format(p))
+        log.info(f"Intersecting parameter {p}")
         forbidden_parameters.remove(p)
     # Check if all the required parameters are specified.
     for p in required_parameters:
         if p not in args_dict.keys() or args_dict[p] is None:
-            raise ValueError("Required parameter {} not present.".format(p))
+            raise ValueError(f"Required parameter {p} not present.")
     # Check if none of the incompatible parameters are required.
     for p in forbidden_parameters:
         if p in args_dict.keys() and args_dict[p] is not None:
-            raise ValueError("Forbidden parameter {} is present".format(p))
+            raise ValueError(f"Forbidden parameter {p} is present")
 
-    log.info("Running simulator...")
+    # Create a generator of all the possible combinations of parameters based on
+    # their expanded range lists and queue each combination as a different
+    # simulation in the pool.
+    log.info("Queuing simulations...")
 
-    # Generate list for the command which consists of the python interpreter,
-    # the script path, and then each one of the arguments with their values,
-    # in the end we indicate -m to tell Hydra this is a multirun.
-    cmd: list = [
-        "python",
-        "examples/simulator/initialize_evolve_population.py",
-    ]
-    for i in range(len(cli_args)):
-        cmd.append(cli_args[i] + "=" + cli_str[i])
-    cmd.append("-m")
+    simulation_number: int = 0
+    for s in itertools.product(*var_expanded_ranges):
+        log.info("Queuing simulation: ")
+        log.info(s)
 
-    # Launch simulator with the expanded command.
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        # Generate output folder for the simulation.
+        simulation_output_path = pathlib.Path().joinpath(
+            args.output_dir, f"{simulation_number:06}"
+        )
+        simulation_output_path.mkdir(parents=True, exist_ok=True)
 
-    # Capture all process output and redirect it to the console.
-    while True:
-        output = process.stdout.readline()
-        if output == "" or process.poll() is not None:
-            break
-        if output:
-            print(output.strip().decode("utf-8"))
+        # Pack combination into a JSON override file and write it to the run
+        # folder for this simulation.
+        simulation_override_json = {}
+        for i in range(len(s)):
+            simulation_override_json[var_names[i]] = s[i]
 
-    log.info("Process finished...")
+        simulation_override_json_path = pathlib.Path().joinpath(
+            simulation_output_path, "override.json"
+        )
+
+        with open(simulation_override_json_path, "w") as f:
+            json.dump(simulation_override_json, f, indent=4, sort_keys=True)
+
+        # Generate list for the command which consists of the python interpreter,
+        # the script path and the path for the JSON override.
+        cmd: str = "python examples/simulator/initialize_evolve_population.py"
+        cmd += f" --output_dir {simulation_output_path}"
+        cmd += f" --parameter_override {simulation_override_json_path}"
+
+        pool.apply_async(run_simulation, args=(cmd,), callback=log_simulation)
+
+        simulation_number += 1
+
+    log.info("")
+    log.info("***************************************************************")
+    log.info("Launching simulations")
+    log.info("***************************************************************")
+
+    # Signal the processes to begin execution in the pool.
+    event.set()
+
+    # Wait for all processes to finish.
+    pool.close()
+    pool.join()
 
 
 if __name__ == "__main__":
@@ -171,16 +291,24 @@ if __name__ == "__main__":
         "--output_dir",
         nargs="?",
         type=str,
-        default=None,
-        help="path to the directory where the multi-run output is saved.",
+        required=True,
+        help="Path to the directory where the multi-run output is saved.",
+    )
+
+    args.add_argument(
+        "--processes",
+        nargs="?",
+        type=int,
+        default=1,
+        help="Number of simultaneous processes for the pool.",
     )
 
     args.add_argument(
         "--kick_model",
         nargs="?",
         type=str,
-        default=None,
-        help="pdf model for the kick velocity and range for its parameter. Choose between km_exp or km_maxwell.",
+        default="km_exp",
+        help="PDF model for the kick velocity and range for its parameter. Choose between km_exp or km_maxwell.",
     )
 
     args.add_argument(
