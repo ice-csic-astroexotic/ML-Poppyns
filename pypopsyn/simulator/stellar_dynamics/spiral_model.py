@@ -260,7 +260,7 @@ class SpiralModelYMW17(SpiralModelBase):
 
         # If the Local arm is excluded, uniformly distribute the stars on the other arms
         if arm_number == 4:
-            arm_index_rand = np.random.randint(1, arm_number, NS_number)
+            arm_index_rand = np.random.randint(1, arm_number + 1, NS_number)
 
         # If the Local arm is included distribute the stars on the arms according to the probability
         # specified in arm_probability
