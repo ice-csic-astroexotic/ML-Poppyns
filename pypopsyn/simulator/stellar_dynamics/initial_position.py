@@ -58,7 +58,7 @@ def check_arm_index(arm_index: np.ndarray) -> None:
         otherwise raises ValueError.
     """
     if np.any(arm_index < 1) or np.any(arm_index > 4):
-        raise ValueError("Arm index is out of range.")
+        raise ValueError("One of arm indices is out of range.")
 
 
 def pdf_radial_stellar_density(r: np.ndarray) -> np.ndarray:

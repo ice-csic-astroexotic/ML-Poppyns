@@ -96,17 +96,10 @@ def test_check_arm_index_01():
     """
     Verifying that a ValueError is raised if the arm index is out of range.
     """
-    arm_index = -1
-    with pytest.raises(ValueError, match="Arm index is out of range."):
-        ip.check_arm_index(arm_index)
-
-
-def test_check_arm_index_02():
-    """
-    Verifying that a ValueError is raised if the arm index is out of range.
-    """
-    arm_index = 6
-    with pytest.raises(ValueError, match="Arm index is out of range."):
+    arm_index = np.array([-1, 6])
+    with pytest.raises(
+        ValueError, match="One of arm indices is out of range."
+    ):
         ip.check_arm_index(arm_index)
 
 

@@ -143,6 +143,8 @@ def dynamical_evolution(
 
         # Save the odeint output which is a two-dimensional array of
         # shape (len(time_grid), 6).
+        # We set tfirst=True to unify the structure of the input ODEs in order to be able
+        # to compare different scipy functions to solve the ODEs.
         evol_output = np.array(
             odeint(
                 dynamical_eq_system,

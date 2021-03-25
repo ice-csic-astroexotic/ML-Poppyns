@@ -80,8 +80,10 @@ def test_check_radial_coordinate():
     """
     Verifying that a ValueError is raised if the radial coordinate is negative.
     """
-    r = -0.1
-    with pytest.raises(ValueError, match="Radial coordinate is out of range."):
+    r = np.array([-0.1, 5])
+    with pytest.raises(
+        ValueError, match="One of the radial coordinates is out of range."
+    ):
         coco.check_radial_coordinate(r)
 
 
