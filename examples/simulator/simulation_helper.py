@@ -16,7 +16,7 @@
 
     Each combination will spawn a new process that goes into a multithreaded
     pool for later execution, allowing the simulation of many populations to
-    run asyncrhonously in parallel with a defined maximum number of threads.
+    run asynchronously in parallel with a defined maximum number of threads.
 
     Running the code:
 
@@ -73,7 +73,7 @@ def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
         command (List): full command to execute the simulation.
 
     Returns:
-        The simulation command and the convolute output of the process.
+        The simulation command and the convoluted output of the process.
 
     """
 
@@ -147,7 +147,7 @@ def main(args):
     # Lock on the master process to impose a delay in the process execution
     # so that none of them can be launched exactly at the same time.
     lock = mp.Lock()
-    # A pool of processes with a defined capacity, a process spawnign setup
+    # A pool of processes with a defined capacity, a process spawning setup
     # routine and a general event to signal process execution.
     log.info(f"Initializing pool with {args.processes} processes...")
     pool = mp.Pool(args.processes, setup_process_pool, (event, lock,))
@@ -209,7 +209,7 @@ def main(args):
                 )
 
         elif type(value) is list:
-            # If the value is a list, we assume it will be a specificaiton of
+            # If the value is a list, we assume it will be a specification of
             # three values [low, high, steps] and then expand each one of the
             # arguments with the linear space in such range.
             var_range = np.linspace(value[0], value[1], int(value[2]))

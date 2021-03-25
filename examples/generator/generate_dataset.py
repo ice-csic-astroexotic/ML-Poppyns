@@ -52,7 +52,7 @@ def generate_dataset(args) -> None:
     This method reads the simulated population files (usually by the simulation
     helper) folder and generates a dataset of density maps in the specified
     format (images or arrays) and with a specified resolution.
-    All the information about the dataset are stored in a datset.csv file
+    All the information about the dataset are stored in a dataset.csv file
     containing the density map files names and the set of parameter values for
     each simulated population.
 
