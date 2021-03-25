@@ -38,19 +38,6 @@ import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 from pypopsyn.simulator.configuration import cfg
 
 
-def check_arm_index(arm_index: np.ndarray) -> None:
-    """
-    Check that the index for the spiral galaxy arms is not <1 or >4.
-    Args:
-        arm_index (np.ndarray): index for the respective spiral arms.
-    Returns:
-        Returns None if arm_index between or equal to 1 and 4,
-        otherwise raises ValueError.
-    """
-    if np.any(arm_index < 1) or np.any(arm_index > 4):
-        raise ValueError("Arm index is out of range.")
-
-
 def pdf_radial_stellar_density(r: np.ndarray) -> np.ndarray:
     """
     The Milky Way's stellar radial density in the galactic plane according
@@ -98,9 +85,6 @@ def smear_initial_coordinates(
         (np.ndarray, np.ndarray): galactocentric coordinates phi [rad], r [kpc] with
         noise applied.
     """
-
-    # Check range of input.
-    coco.check_radial_coordinate(r)
 
     phi_corr, r_corr = calculate_noise_for_coordinates(r, NS_number)
 

@@ -116,7 +116,7 @@ class InitialNeutronStarPopulation:
 
         if NS_local != 0:
             r_grid_local = np.logspace(
-                np.log10(sm.spiral_model.local_r_min),
+                np.log10(spiral_model.local_r_min),
                 np.log10(spiral_model.local_r_max),
                 cfg["resolution"],
             )

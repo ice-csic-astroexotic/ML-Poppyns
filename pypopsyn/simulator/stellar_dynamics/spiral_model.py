@@ -116,16 +116,16 @@ class SpiralModelFK06(SpiralModelBase):
             4: (4.89, 4.90, 0.95),  # Crux-Scutum
             5: (4.57, 8.10, 1.13),  # Local
         }
-        # probability of a star to be in each of the spiral arms.
+        # Probability of a star to be in each of the spiral arms.
+        # This is evaluated considering the stellar density and the length of the spiral arms
+        # in the range of galactocentric radii where the local arm extends.
         self.arm_probability = np.array(
             [0.24615, 0.24615, 0.24615, 0.24615, 0.0154]
         )
-        self.local_r_min = (
-            8.10  # Galactocentric distance where the Local arm starts [kpc].
-        )
-        self.local_r_max = (
-            9.14  # Galactocentric distance where the Local arm ends [kpc].
-        )
+        # Galactocentric distance where the Local arm starts [kpc].
+        self.local_r_min = 8.10
+        # Galactocentric distance where the Local arm ends [kpc].
+        self.local_r_max = 9.14
 
     def generate_arm_index(
         self, arm_number: int, NS_number: int
@@ -143,7 +143,10 @@ class SpiralModelFK06(SpiralModelBase):
             (np.ndarray) array of random indices for the spiral arm associated to each star.
         """
 
-        # If the Local arm is excluded uniformly distribute the stars on the other arms
+        # Initialize the array of arm indices.
+        arm_index_rand = np.zeros(NS_number)
+
+        # If the Local arm is excluded, uniformly distribute the stars on the other arms.
         if arm_number == 4:
             arm_index_rand = np.random.randint(1, arm_number, NS_number)
 
@@ -161,11 +164,11 @@ class SpiralModelFK06(SpiralModelBase):
 
     def check_arm_index(self, arm_index: np.ndarray) -> None:
         """
-        Check that the index for the spiral galaxy arms is not <1 or >4.
+        Check that the index for the spiral galaxy arms is not <1 or >5.
         Args:
             arm_index (np.ndarray): index for the respective spiral arms.
         Returns:
-            Returns None if arm_index between or equal to 1 and 4,
+            Returns None if arm_index between or equal to 1 and 5,
             otherwise raises ValueError.
         """
         if np.any(arm_index < 1) or np.any(arm_index > 5):
@@ -226,15 +229,15 @@ class SpiralModelYMW17(SpiralModelBase):
             5: np.array([20.67, 8.21, 0.96]),  # Local
         }
         # probability of a star to be in each of the spiral arms.
+        # This is evaluated considering the stellar density and the length of the spiral arms
+        # in the range of galactocentric radii where the local arm extends.
         self.arm_probability = np.array(
             [0.2455, 0.2455, 0.2455, 0.2455, 0.018]
         )
-        self.local_r_min = (
-            8.17  # Galactocentric distance where the Local arm starts [kpc].
-        )
-        self.local_r_max = (
-            8.6  # Galactocentric distance where the Local arm ends [kpc].
-        )
+        # Galactocentric distance where the Local arm starts [kpc].
+        self.local_r_min = 8.17
+        # Galactocentric distance where the Local arm ends [kpc].
+        self.local_r_max = 8.6
 
     def generate_arm_index(
         self, arm_number: int, NS_number: int
@@ -252,7 +255,10 @@ class SpiralModelYMW17(SpiralModelBase):
             (np.ndarray) array of random indices for the spiral arm associated to each star.
         """
 
-        # If the Local arm is excluded uniformly distribute the stars on the other arms
+        # Initialize the array of arm indices.
+        arm_index_rand = np.zeros(NS_number)
+
+        # If the Local arm is excluded, uniformly distribute the stars on the other arms
         if arm_number == 4:
             arm_index_rand = np.random.randint(1, arm_number, NS_number)
 
@@ -270,11 +276,11 @@ class SpiralModelYMW17(SpiralModelBase):
 
     def check_arm_index(self, arm_index: np.ndarray) -> None:
         """
-        Check that the index for the spiral galaxy arms is not <1 or >4.
+        Check that the index for the spiral galaxy arms is not <1 or >5.
         Args:
             arm_index (np.ndarray): index for the respective spiral arms.
         Returns:
-            Returns None if arm_index between or equal to 1 and 4,
+            Returns None if arm_index between or equal to 1 and 5,
             otherwise raises ValueError.
         """
         if np.any(arm_index < 1) or np.any(arm_index > 5):
