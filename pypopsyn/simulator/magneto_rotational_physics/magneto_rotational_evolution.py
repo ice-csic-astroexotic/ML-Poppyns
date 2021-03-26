@@ -125,6 +125,8 @@ def magneto_rotational_evolution(
         )
 
         # To integrate the problem, we use scipy's odeint function.
+        # We set tfirst=True to unify the structure of the input ODEs in order to be able
+        # to compare different scipy functions to solve the ODEs.
         evol_output = np.array(
             odeint(
                 combined_derivatives,

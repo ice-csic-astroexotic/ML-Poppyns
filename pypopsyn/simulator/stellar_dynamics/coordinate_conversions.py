@@ -48,7 +48,7 @@ def check_radial_coordinate(r: np.ndarray) -> None:
         otherwise raises ValueError.
     """
     if np.any(r < 0):
-        raise ValueError("Radial coordinate is out of range.")
+        raise ValueError("One of the radial coordinates is out of range.")
 
 
 def polar_to_cartesian(

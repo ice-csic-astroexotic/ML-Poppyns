@@ -153,17 +153,17 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return K, dK_dz
 
-    def d_potential(self, r: float, z: float) -> float:
+    def d_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         The Miyamoto-Nagai disk component gravitational potential defined in eq. (8) in
         Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
-            z (float): height from the galactic disk in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the disk-halo potential in [erg/g].
+            (np.ndarray): value of the disk-halo potential in [erg/g].
         """
 
         K, _ = self.shape_parameter(z)
@@ -174,16 +174,16 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return pot_d
 
-    def b_potential(self, r: float) -> float:
+    def b_potential(self, r: np.ndarray) -> np.ndarray:
         """
         The Hernquist bulge component gravitational potential defined in eq. (7) in
         Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in [erg/g].
+            (np.ndarray): value of the bulge potential in [erg/g].
         """
         M_b = self.M_b
         r_b = self.r_b
@@ -192,16 +192,16 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return pot_b
 
-    def n_potential(self, r: float) -> float:
+    def n_potential(self, r: np.ndarray) -> np.ndarray:
         """
         The Hernquist nucleus component gravitational potential defined in eq. (7) in
         Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in [erg/g].
+            (np.ndarray): value of the bulge potential in [erg/g].
         """
         M_n = self.M_n
         r_n = self.r_n
@@ -210,16 +210,16 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return pot_n
 
-    def h_potential(self, r: float) -> float:
+    def h_potential(self, r: np.ndarray) -> np.ndarray:
         """
         The Navarro-Frenk-White halo component gravitational potential defined in
         eq. (9) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in [erg/g].
+            (np.ndarray): value of the bulge potential in [erg/g].
         """
         M_h = self.M_h
         r_h = self.r_h
@@ -228,16 +228,16 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return pot_h
 
-    def MW_potential(self, r: float, z: float) -> float:
+    def MW_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         Total Milky Way gravitational potential in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
-            z (float): height from the galactic disk in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the Galactic potential in [erg].
+            (np.ndarray): value of the Galactic potential in [erg].
         """
 
         MW_pot = (
@@ -478,17 +478,17 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         return K, dK_dz
 
-    def dh_potential(self, r: float, z: float) -> float:
+    def dh_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         The disk-halo component gravitational potential defined in eq. (14) in
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
-            z (float): height from the galactic disk in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the disk-halo potential in [erg/g].
+            (np.ndarray): value of the disk-halo potential in [erg/g].
         """
 
         K, _ = self.shape_parameter(z)
@@ -504,16 +504,16 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         return pot_dh
 
-    def b_potential(self, r: float) -> float:
+    def b_potential(self, r: np.ndarray) -> np.ndarray:
         """
         The bulge component gravitational potential defined in eq. (15) in
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in [erg/g].
+            (np.ndarray): value of the bulge potential in [erg/g].
         """
         M_b = self.M_b
         b_b = self.b_b
@@ -522,16 +522,16 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         return pot_b
 
-    def n_potential(self, r: float) -> float:
+    def n_potential(self, r: np.ndarray) -> np.ndarray:
         """
         The nucleus component gravitational potential defined in eq. (15) in
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the nucleus potential.
+            (np.ndarray): value of the nucleus potential.
         """
         M_n = self.M_n
         b_n = self.b_n
@@ -540,17 +540,17 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         return pot_n
 
-    def MW_potential(self, r: float, z: float) -> float:
+    def MW_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         Total Milky Way gravitational potential defined in eq. (13) in
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
-            z (float): height from the galactic disk in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the Galactic potential in [erg].
+            (np.ndarray): value of the Galactic potential in [erg].
         """
 
         MW_pot = (

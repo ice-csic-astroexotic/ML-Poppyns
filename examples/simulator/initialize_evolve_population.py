@@ -32,7 +32,6 @@ import sys
 import numpy as np
 import pandas as pd
 
-import pypopsyn.benchmark.timefunc as timefunc
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
@@ -54,7 +53,7 @@ def generate_population(
     Generating a neutron star population starting from some initial
     conditions and evolving it forward in time.
     Args:
-        output_dir (pathlib.Path): Output directory for the run.
+        output_path (pathlib.Path): Output directory for the run.
         json_override_path (pathlib.Path): Path to JSON with parameter overrides.
     Returns:
         Nothing.
