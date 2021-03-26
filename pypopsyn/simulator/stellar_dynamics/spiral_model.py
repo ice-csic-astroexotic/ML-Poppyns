@@ -284,7 +284,7 @@ class SpiralModelYMW17(SpiralModelBase):
             otherwise raises ValueError.
         """
         if np.any(arm_index < 1) or np.any(arm_index > 5):
-            raise ValueError("Arm index is out of range.")
+            raise ValueError("One of arm indices is out of range.")
 
     def calculate_phi(
         self, r: np.ndarray, arm_index: np.ndarray

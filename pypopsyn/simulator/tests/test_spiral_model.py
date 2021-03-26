@@ -90,7 +90,9 @@ def test_check_arm_index_smFK06():
     Verifying that a ValueError is raised if the arm index is out of range.
     """
     arm_index = np.array([-1, 6])
-    with pytest.raises(ValueError, match="Arm index is out of range."):
+    with pytest.raises(
+        ValueError, match="One of arm indices is out of range."
+    ):
         smFK06.check_arm_index(arm_index)
 
 
@@ -133,7 +135,9 @@ def test_check_arm_index_smYMW17():
     Verifying that a ValueError is raised if the arm index is out of range.
     """
     arm_index = np.array([-1, 6])
-    with pytest.raises(ValueError, match="Arm index is out of range."):
+    with pytest.raises(
+        ValueError, match="One of arm indices is out of range."
+    ):
         smYMW17.check_arm_index(arm_index)
 
 
