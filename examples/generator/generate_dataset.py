@@ -42,7 +42,9 @@ import numpy as np
 import pandas as pd
 
 import pypopsyn.generator.position_maps as pmaps
+import pypopsyn.generator.ppdot_maps as ppdmaps
 import pypopsyn.generator.velocity_maps as vmaps
+import pypopsyn.simulator.basics.constants as const
 
 log = logging.getLogger(__name__)
 
@@ -83,6 +85,7 @@ def generate_dataset(args) -> None:
     velocity_map_xy_vz_dictionary = {}
     velocity_map_vra_dictionary = {}
     velocity_map_vdec_dictionary = {}
+    ppdot_map_dictionary = {}
     param_dictionary = {}
 
     # Check if the parsed simulated populations directory exists.
@@ -236,6 +239,19 @@ def generate_dataset(args) -> None:
             y_limits=(-90.0, 90.0),
         )
 
+        # Create p-p_dot density maps.
+        ppdmaps.generate_ppdot_map(
+            dataset_path,
+            "ppdot_map",
+            s,
+            args.type,
+            df_pop["P"],
+            df_pop["P_dot"] / const.YR_TO_S,
+            args.resolution,
+            args.resolution,
+            ppdot_map_dictionary,
+        )
+
         # Check if files containing labels exists as a precondition.
         label_path = pathlib.Path(f"{root_path}/{s:06}/override.json")
 
@@ -259,6 +275,7 @@ def generate_dataset(args) -> None:
         **velocity_map_xy_vz_dictionary,
         **velocity_map_vra_dictionary,
         **velocity_map_vdec_dictionary,
+        **ppdot_map_dictionary,
         **param_dictionary,
     }
 
