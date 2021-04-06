@@ -307,7 +307,7 @@ if __name__ == "__main__":
         "--kick_model",
         nargs="?",
         type=str,
-        default="km_exp",
+        default="km_maxwell",
         help="PDF model for the kick velocity and range for its parameter. Choose between km_exp or km_maxwell.",
     )
 
@@ -333,6 +333,38 @@ if __name__ == "__main__":
         type=float,
         default=[0.18, 0.18, 1.0],
         help="Range for the mean Z position [low, high, steps]",
+    )
+
+    args.add_argument(
+        "--P_initial_mean",
+        nargs=3,
+        type=float,
+        default=[0.22, 0.22, 1.0],
+        help="Range for the mean initial spin period [low, high, steps]",
+    )
+
+    args.add_argument(
+        "--P_initial_sigma",
+        nargs=3,
+        type=float,
+        default=[0.42, 0.42, 1.0],
+        help="Range for the dispersion of the initial spin period [low, high, steps]",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_mean",
+        nargs=3,
+        type=float,
+        default=[13.20, 13.20, 1.0],
+        help="Range for the mean of the log10 initial magnetic field strength [low, high, steps]",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_sigma",
+        nargs=3,
+        type=float,
+        default=[0.62, 0.62, 1.0],
+        help="Range for the dispersion of the log10 of the initial magnetic field strength [low, high, steps]",
     )
 
     args = args.parse_args()
