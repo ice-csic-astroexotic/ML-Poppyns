@@ -66,9 +66,12 @@ def generate_dataset(args) -> None:
 
             type (str): Type of dataset to generate: array or image.
 
-            resolution (int): Resolution (number of bins per axis for the 2d
-            histograms) for the image to generate. In case of RA DEC maps the
+            resolution_dyn (int): Resolution (number of bins per axis for the 2d
+            histograms) for the position and velocity maps to generate. In case of RA DEC maps the
             DEC axis has half the number of bins with respect to the RA axis.
+
+            resolution_ppdot (int): Resolution (number of bins per axis for the 2d
+            histograms) for the P-Pdot density maps to generate.
     """
 
     # Create the dataset directory path.
