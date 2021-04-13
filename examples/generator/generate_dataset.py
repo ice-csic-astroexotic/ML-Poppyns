@@ -239,7 +239,7 @@ def generate_dataset(args) -> None:
             y_limits=(-90.0, 90.0),
         )
 
-        # Create p-p_dot density maps.
+        # Create P-Pdot density maps.
         ppdmaps.generate_ppdot_map(
             dataset_path,
             "ppdot_map",

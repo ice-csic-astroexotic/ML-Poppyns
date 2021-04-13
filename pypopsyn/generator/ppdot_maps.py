@@ -1,5 +1,5 @@
 """
-P-P_dot maps generation routines.
+P-Pdot maps generation routines.
 
     Authors:
 
@@ -7,7 +7,7 @@ P-P_dot maps generation routines.
         Michele Ronchi (ronchi@ice.csic.es)
         Vanessa Graber (graber@ice.csic.es)
 
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
+Copyright (c) MAGNESIA (ICE-CSIC) 2021
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -58,13 +58,13 @@ def generate_ppdot_map(
     pdot_limits: typing.Tuple[float, float] = (1.0e-21, 1.0e-9),
 ):
     """
-    This method generates a discrete p-p_dot diagram map with great flexibility, the
+    This method generates a discrete P-Pdot diagram map with great flexibility, the
     dimensions of the map can be chosen, the type (image or array) can also be
     decided, and the limits and resolution for it can be specified. As a result,
     a map with the specified filename and a extension determined by the chosen
     type is created as output.
 
-    The dictionary of p-p_dot maps for the dataset is also updated with the
+    The dictionary of P-Pdot maps for the dataset is also updated with the
     generated example.
 
     Args:
@@ -76,7 +76,7 @@ def generate_ppdot_map(
         period_derivatives (np.array): spin period derivatives of the neutron stars (vertical axis).
         p_resolution (int): resolution in the horizontal axis.
         pdot_resolution (int): resolution in the vertical axis.
-        ppdot_maps_dictionary (dict): partial dictionary of p-p_dot maps.
+        ppdot_maps_dictionary (dict): partial dictionary of P-Pdot maps.
         p_limits (float, float): limits of the horizontal axis.
         pdot_limits (float, float): limits of the vertical axis.
 
