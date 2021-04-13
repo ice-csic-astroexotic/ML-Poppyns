@@ -38,7 +38,6 @@ import sys
 import numpy as np
 import pandas as pd
 
-import pypopsyn.benchmark.timefunc as timefunc
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
@@ -61,7 +60,7 @@ def generate_population(
 
     Args:
 
-        output_dir (pathlib.Path): Output directory for the run.
+        output_path (pathlib.Path): Output directory for the run.
         json_override_path (pathlib.Path): Path to JSON with parameter overrides.
 
     Returns:
@@ -253,7 +252,7 @@ def generate_population(
             # Evolve the initial population.
             log.info("Evolving the initial population in time...")
 
-            # Define the initial conditions.
+            # Define the initial conditions for the dynamical evolution.
             initial_cond = np.array(
                 [
                     r_initial,
@@ -279,8 +278,7 @@ def generate_population(
             v_z_final = final_population[:, 5]
 
             # Convert from polar coordinates to cartesian coordinates.
-            polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
-            x_final, y_final = polar_to_cartesian_vect(r_final, phi_final)
+            x_final, y_final = coco.polar_to_cartesian(r_final, phi_final)
 
             # Convert velocities from [kpc/yr] into [km/s].
             v_r_final = v_r_final * const.KPC_TO_KM / const.YR_TO_S

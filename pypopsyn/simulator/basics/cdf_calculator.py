@@ -34,7 +34,9 @@ import numpy as np
 import scipy.integrate as integrate
 
 
-def cdf_calculator(x: np.ndarray, pdf: Callable[[float], float]) -> np.ndarray:
+def cdf_calculator(
+    x: np.ndarray, pdf: Callable[[np.ndarray], np.ndarray]
+) -> np.ndarray:
     """
     Calculating the cumulative distribution function for any given probability density
     function evaluated at the points x using the trapezoidal rule.
@@ -47,10 +49,7 @@ def cdf_calculator(x: np.ndarray, pdf: Callable[[float], float]) -> np.ndarray:
         np.ndarray: normalized cumulative distribution function.
     """
 
-    # Vectorizing the pdf to take in an array.
-    pdf_vect = np.vectorize(pdf)
-
-    cdf = integrate.cumtrapz(pdf_vect(x), x, initial=0)
+    cdf = integrate.cumtrapz(pdf(x), x, initial=0)
     cdf = cdf / np.max(cdf)
 
     return cdf
@@ -78,7 +77,7 @@ def random_from_cdf(
 
 
 def random_from_pdf(
-    x: np.ndarray, pdf: Callable[[float], float], num_draw: int,
+    x: np.ndarray, pdf: Callable[[np.ndarray], np.ndarray], num_draw: int,
 ) -> np.ndarray:
     """
     Drawing random values from a given probability density function.

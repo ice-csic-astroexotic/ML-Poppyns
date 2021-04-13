@@ -30,7 +30,7 @@ from typing import Tuple
 
 import numpy as np
 from numba import float64, jit
-from scipy.integrate import solve_ivp
+from scipy.integrate import odeint
 
 import pypopsyn.simulator.magneto_rotational_physics.magnetic_field_derivative as mfdv
 import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivative as madv
@@ -124,15 +124,17 @@ def magneto_rotational_evolution(
             t_age[i],
         )
 
-        # To integrate the problem, we use scipy's solve_ivp function.
-        # Note that the args parameter only works in scipy version >1.4.0.
-        evol_output = solve_ivp(
-            combined_derivatives,
-            t_span=[1.0, t_age[i]],
-            y0=y_initial[i],
-            method="RK45",
-            t_eval=time_grid,
-            args=(B_initial[i],),
+        # To integrate the problem, we use scipy's odeint function.
+        # We set tfirst=True to unify the structure of the input ODEs in order to be able
+        # to compare different scipy functions to solve the ODEs.
+        evol_output = np.array(
+            odeint(
+                combined_derivatives,
+                y0=y_initial[i],
+                t=time_grid,
+                args=(B_initial[i],),
+                tfirst=True,
+            )
         )
 
         if cfg["save_magrot_evolution"]:
@@ -140,9 +142,9 @@ def magneto_rotational_evolution(
             evolution = {
                 i: {
                     "t": time_grid.tolist(),
-                    "B(t)": evol_output.y[0].tolist(),
-                    "chi(t)": evol_output.y[1].tolist(),
-                    "P(t)": evol_output.y[2].tolist(),
+                    "B(t)": evol_output[:, 0].tolist(),
+                    "chi(t)": evol_output[:, 1].tolist(),
+                    "P(t)": evol_output[:, 2].tolist(),
                 }
             }
             # Update the dictionary containing the evolution information.
@@ -150,8 +152,8 @@ def magneto_rotational_evolution(
 
         # The solution evaluated at the times t_eval=time_grid can be accessed via .y.
         # The last value in the array corresponds to the current field strength.
-        B_final[i] = evol_output.y[0][-1]
-        chi_final[i] = evol_output.y[1][-1]
-        P_final[i] = evol_output.y[2][-1]
+        B_final[i] = evol_output[-1, 0]
+        chi_final[i] = evol_output[-1, 1]
+        P_final[i] = evol_output[-1, 2]
 
     return B_final, chi_final, P_final, evolution_dictionary

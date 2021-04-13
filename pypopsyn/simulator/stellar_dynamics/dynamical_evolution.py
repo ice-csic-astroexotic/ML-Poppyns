@@ -48,13 +48,13 @@ gm.initialize_galactic_model()
 
 @jit(
     float64[:](
-        float64[:],
         float64,
+        float64[:],
         gm.galactic_model._numba_type_.class_type.instance_type,
     )
 )
 def dynamical_eq_system(
-    initial_cond: np.ndarray, t: float, galactic_model: gm.GalaxyModelBase
+    t: float, initial_cond: np.ndarray, galactic_model: gm.GalaxyModelBase
 ) -> np.ndarray:
     """
     System of dynamical equations to solve to determine the orbits of the neutron
@@ -143,12 +143,15 @@ def dynamical_evolution(
 
         # Save the odeint output which is a two-dimensional array of
         # shape (len(time_grid), 6).
+        # We set tfirst=True to unify the structure of the input ODEs in order to be able
+        # to compare different scipy functions to solve the ODEs.
         evol_output = np.array(
             odeint(
                 dynamical_eq_system,
                 y0=initial_cond[i],
                 t=time_grid,
                 args=(gm.galactic_model,),
+                tfirst=True,
             )
         )
 

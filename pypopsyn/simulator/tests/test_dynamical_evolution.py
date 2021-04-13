@@ -52,8 +52,8 @@ cfg["save_dyn_evolution"] = True
 def test_case_1():
 
     data = {
-        "initial_cond": np.array([1.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
         "t": 0.0,
+        "initial_cond": np.array([1.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
         "derivatives_expected": np.array(
             [0.0, 0.0, 0.0, -2.12522e-14, 0.0, -1.65820e-14]
         ),
@@ -107,8 +107,8 @@ def test_dynamical_eq_system(test_case_1):
     Verifying that the dynamical equation system evaluates the derivatives correctly.
     """
     derivatives_out = dyn.dynamical_eq_system(
-        test_case_1["initial_cond"],
         test_case_1["t"],
+        test_case_1["initial_cond"],
         test_case_1["galactic_model"],
     )
 

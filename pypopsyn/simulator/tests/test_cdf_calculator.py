@@ -88,8 +88,8 @@ def test_random_from_pdf(monkeypatch, test_case_2):
     Checking that random numbers are correctly drawn from a pdf.
     """
 
-    def pdf(x: float) -> float:
-        return 1.0 / 10.0
+    def pdf(x: np.ndarray) -> np.ndarray:
+        return np.ones(len(x)) * 1.0 / 10.0
 
     def mock_cdf_rand(*args, **kwargs):
         return 0.5

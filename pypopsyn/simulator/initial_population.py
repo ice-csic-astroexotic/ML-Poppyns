@@ -130,8 +130,7 @@ class InitialNeutronStarPopulation:
         phi_rand = ip.spiral_arm_time_evol(phi_rand, t_age)
 
         # Position in the galactic plane in Cartesian coordinates.
-        polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
-        x_rand, y_rand = polar_to_cartesian_vect(r_rand, phi_rand)
+        x_rand, y_rand = coco.polar_to_cartesian(r_rand, phi_rand)
 
         # Drawing a random distance from the galactic plane in [kpc] for each neutron
         # star according to the probability density function for the height.
@@ -190,17 +189,14 @@ class InitialNeutronStarPopulation:
         # star, where the local x-axis points always in the r-direction of our
         # galactocentric frame, the local y-axis in the azimuthal phi-direction
         # and the local z-axis coincides with the galactocentric one.
-        spherical_to_cartesian_vect = np.vectorize(coco.spherical_to_cartesian)
-        vk_r_rand, vk_phi_rand, vk_z_rand = spherical_to_cartesian_vect(
+        vk_r_rand, vk_phi_rand, vk_z_rand = coco.spherical_to_cartesian(
             vk_rand, theta_rand, psi_rand
         )
 
         return vk_r_rand, vk_phi_rand, vk_z_rand
 
     @staticmethod
-    def orbital_velocity(
-        r: np.ndarray, z: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def orbital_velocity(r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         Calculate the orbital circular velocity of each star in the galactic
         gravitational potential. In galactocentric cylindrical coordinates,
