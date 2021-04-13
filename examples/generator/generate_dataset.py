@@ -119,7 +119,7 @@ def generate_dataset(args) -> None:
             sys.exit()
 
         # Create a data frame object of the population file.
-        df_pop = pd.read_pickle(pop_path, compression="gzip")
+        df_pop = pd.read_pickle(str(pop_path), compression="gzip")
 
         # Remove the units header row from the data frame.
         df_pop.columns = [x[0] for x in df_pop.columns]
@@ -132,8 +132,8 @@ def generate_dataset(args) -> None:
             args.type,
             df_pop["x"],
             df_pop["y"],
-            args.resolution,
-            args.resolution,
+            args.resolution_dyn,
+            args.resolution_dyn,
             position_map_xy_dictionary,
         )
 
@@ -145,8 +145,8 @@ def generate_dataset(args) -> None:
             args.type,
             df_pop["x"],
             df_pop["z"],
-            args.resolution,
-            args.resolution,
+            args.resolution_dyn,
+            args.resolution_dyn,
             position_map_xz_dictionary,
         )
 
@@ -159,8 +159,8 @@ def generate_dataset(args) -> None:
             df_pop["x"],
             df_pop["y"],
             abs(df_pop["v_r"]),
-            args.resolution,
-            args.resolution,
+            args.resolution_dyn,
+            args.resolution_dyn,
             velocity_map_xy_vr_dictionary,
         )
 
@@ -173,8 +173,8 @@ def generate_dataset(args) -> None:
             df_pop["x"],
             df_pop["y"],
             abs(df_pop["v_phi"]),
-            args.resolution,
-            args.resolution,
+            args.resolution_dyn,
+            args.resolution_dyn,
             velocity_map_xy_vphi_dictionary,
         )
 
@@ -187,8 +187,8 @@ def generate_dataset(args) -> None:
             df_pop["x"],
             df_pop["y"],
             abs(df_pop["v_z"]),
-            args.resolution,
-            args.resolution,
+            args.resolution_dyn,
+            args.resolution_dyn,
             velocity_map_xy_vz_dictionary,
         )
 
@@ -200,8 +200,8 @@ def generate_dataset(args) -> None:
             args.type,
             df_pop["RA"],
             df_pop["DEC"],
-            args.resolution,
-            int(args.resolution / 2),
+            args.resolution_dyn,
+            int(args.resolution_dyn / 2),
             position_map_radec_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
@@ -216,8 +216,8 @@ def generate_dataset(args) -> None:
             df_pop["RA"],
             df_pop["DEC"],
             abs(df_pop["v_RA"]),
-            args.resolution,
-            int(args.resolution / 2),
+            args.resolution_dyn,
+            int(args.resolution_dyn / 2),
             velocity_map_vra_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
@@ -232,8 +232,8 @@ def generate_dataset(args) -> None:
             df_pop["RA"],
             df_pop["DEC"],
             abs(df_pop["v_DEC"]),
-            args.resolution,
-            int(args.resolution / 2),
+            args.resolution_dyn,
+            int(args.resolution_dyn / 2),
             velocity_map_vdec_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
@@ -247,8 +247,8 @@ def generate_dataset(args) -> None:
             args.type,
             df_pop["P"],
             df_pop["P_dot"] / const.YR_TO_S,
-            args.resolution,
-            args.resolution,
+            args.resolution_ppdot,
+            args.resolution_ppdot,
             ppdot_map_dictionary,
         )
 
@@ -366,11 +366,18 @@ if __name__ == "__main__":
         help="Type of dataset to generate: array or image.",
     )
     parser.add_argument(
-        "--resolution",
+        "--resolution_dyn",
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the arrays that will be generated (in number of cells).",
+        help="Resolution of the position and velocity maps that will be generated (in number of cells).",
+    )
+    parser.add_argument(
+        "--resolution_ppdot",
+        nargs="?",
+        type=int,
+        default=64,
+        help="Resolution of the P-Pdot maps that will be generated (in number of cells).",
     )
 
     args = parser.parse_args()
