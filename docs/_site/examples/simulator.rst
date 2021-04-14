@@ -25,7 +25,7 @@ If you want to generate a huge parameter sweep you can use the wrapper or helper
   python examples/simulator/simulation_helper.py --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100
 
 This example will generate a sweep of :code:`100` uniformly spaced samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model and the results will be dumped in the specified :code:`simulated_data` folder.
-The parameters that can be swept with the simulation helper are :code:`vk_c` for the exponential kick velocity model  :code:`km_exp`, :code:`sigma_k` for the Maxwell kick velocity model :code:`km_maxwell` and :code:`h_c` for the galactic height distribution model of birth places.
+The parameters that can be swept with the simulation helper are :code:`vk_c` for the exponential kick velocity model  :code:`km_exp`, :code:`sigma_k` for the Maxwell kick velocity model :code:`km_maxwell`, :code:`h_c` for the galactic height distribution model of birth places, :code:`P_initial_mean` and :code:`P_initial_sigma` for the birth spin period distribution and :code:`B_initial_log10_mean` and :code:`B_initial_log10_sigma` for the birth magnetic field distribution.
 
 You can also sweep over more than one parameter by running a script like:
 
