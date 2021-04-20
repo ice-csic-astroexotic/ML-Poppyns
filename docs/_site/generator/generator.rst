@@ -26,3 +26,9 @@ Velocity maps
 .. automodule:: pypopsyn.generator.velocity_maps
   :members: velocity_maps
 
+:math:`P-\dot{P}` maps
+***********************
+
+.. automodule:: pypopsyn.generator.ppdot_maps
+  :members: ppdot_maps
+

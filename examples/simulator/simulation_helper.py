@@ -58,6 +58,8 @@ import typing
 
 import numpy as np
 
+from pypopsyn.simulator.configuration import cfg
+
 log = logging.getLogger(__name__)
 
 
@@ -159,6 +161,7 @@ def main(args):
     cli_str: list = []
 
     args_dict = vars(args)
+    print(args_dict)
 
     # Open the parameters dictionary with required values for the selection ones.
     f = open("examples/simulator/config_sweeper.json")
@@ -177,7 +180,35 @@ def main(args):
         log.info(value)
 
         if value is None:
-            continue
+            # If none of the parameters related to the kick velocity models are provided as CLI arguments,
+            # set the parameter corresponding to the given kick model to the default value provided in the
+            # configuration file.
+            if arg == "sigma_k":
+                if args_dict["kick_model"] == "km_maxwell":
+                    args_dict["sigma_k"] = np.linspace(
+                        cfg["sigma_k"], cfg["sigma_k"], 1
+                    )
+                    var_range = args_dict["sigma_k"]
+                    var_expanded_ranges.append(list(var_range))
+                    var_names.append(arg)
+                    log.info(
+                        "sigma_k set to the default value {}".format(
+                            cfg["sigma_k"]
+                        )
+                    )
+            elif arg == "vk_c":
+                if args_dict["kick_model"] == "km_exp":
+                    args_dict["vk_c"] = np.linspace(
+                        cfg["vk_c"], cfg["vk_c"], 1
+                    )
+                    var_range = args_dict["vk_c"]
+                    var_expanded_ranges.append(list(var_range))
+                    var_names.append(arg)
+                    log.info(
+                        "vk_c set to the default value {}".format(cfg["vk_c"])
+                    )
+            else:
+                continue
 
         elif type(value) is str:
             # If the value of this parameter is a string, this can be either
@@ -307,7 +338,7 @@ if __name__ == "__main__":
         "--kick_model",
         nargs="?",
         type=str,
-        default="km_exp",
+        default="km_maxwell",
         help="PDF model for the kick velocity and range for its parameter. Choose between km_exp or km_maxwell.",
     )
 
@@ -331,8 +362,48 @@ if __name__ == "__main__":
         "--h_c",
         nargs=3,
         type=float,
-        default=[0.18, 0.18, 1.0],
+        default=[cfg["h_c"], cfg["h_c"], 1.0],
         help="Range for the mean Z position [low, high, steps]",
+    )
+
+    args.add_argument(
+        "--P_initial_mean",
+        nargs=3,
+        type=float,
+        default=[cfg["P_initial_mean"], cfg["P_initial_mean"], 1.0],
+        help="Range for the mean initial spin period [low, high, steps]",
+    )
+
+    args.add_argument(
+        "--P_initial_sigma",
+        nargs=3,
+        type=float,
+        default=[cfg["P_initial_sigma"], cfg["P_initial_sigma"], 1.0],
+        help="Range for the dispersion of the initial spin period [low, high, steps]",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_mean",
+        nargs=3,
+        type=float,
+        default=[
+            cfg["B_initial_log10_mean"],
+            cfg["B_initial_log10_mean"],
+            1.0,
+        ],
+        help="Range for the mean of the log10 initial magnetic field strength [low, high, steps]",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_sigma",
+        nargs=3,
+        type=float,
+        default=[
+            cfg["B_initial_log10_sigma"],
+            cfg["B_initial_log10_sigma"],
+            1.0,
+        ],
+        help="Range for the dispersion of the log10 of the initial magnetic field strength [low, high, steps]",
     )
 
     args = args.parse_args()
