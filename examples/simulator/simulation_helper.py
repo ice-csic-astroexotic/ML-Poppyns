@@ -180,7 +180,7 @@ def main(args):
         log.info(value)
 
         if value is None:
-            # If no one of the parameters related to the kick velocity models are provided as CLI arguments,
+            # If none of the parameters related to the kick velocity models are provided as CLI arguments,
             # set the parameter corresponding to the given kick model to the default value provided in the
             # configuration file.
             if arg == "sigma_k":
