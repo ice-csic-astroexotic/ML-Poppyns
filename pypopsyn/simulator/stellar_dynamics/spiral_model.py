@@ -35,9 +35,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import abc
 import random
-from typing import Tuple
 
 import numpy as np
 
@@ -188,7 +186,8 @@ class SpiralModelFK06(SpiralModelBase):
         # in the range of galactocentric radii where the local arm extends.
         self.arm_probability = [0.24615, 0.24615, 0.24615, 0.24615, 0.0154]
         # Galactocentric distances where the Local arm starts and ends [kpc].
-        # These values are obtained by evaluating the r coordinates from the phi coordinates specified in Wainscout et al. (2014).
+        # These values are obtained by evaluating the r coordinates from the phi coordinates
+        # specified in Wainscout et al. (2014).
         self.local_r_min = 8.10
         self.local_r_max = 9.14
 
@@ -219,6 +218,7 @@ class SpiralModelYMW17(SpiralModelBase):
         # in the range of galactocentric radii where the local arm extends.
         self.arm_probability = [0.2455, 0.2455, 0.2455, 0.2455, 0.018]
         # Galactocentric distances where the Local arm starts and ends[kpc].
-        # These values are obtained by evaluating the r coordinates from the phi coordinates specified in Hou et al. (2014).
+        # These values are obtained by evaluating the r coordinates from the phi coordinates
+        # specified in Hou et al. (2014).
         self.local_r_min = 8.17
         self.local_r_max = 8.6
