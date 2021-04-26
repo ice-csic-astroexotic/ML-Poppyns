@@ -9,7 +9,7 @@ Wainscoat et al. (1992).
 
 2) saYMW17: A galactic spiral structure according to eq. (12) of Faucher-Giguère & Kaspi (2006)
 but with parameters re-adapted from Yau & Manchester (2017). Their model consists of four arms
-plus a Local arm from (see also Hou et al. (2014)).
+plus a Local arm from Hou et al. (2014).
 
 Authors:
 
