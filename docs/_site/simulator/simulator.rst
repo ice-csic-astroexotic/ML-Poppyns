@@ -207,3 +207,9 @@ Initial Velocity
 
 .. automodule:: simulator.stellar_dynamics.initial_velocity
   :members: initial_velocity
+
+Spiral Model
+************
+
+.. automodule:: simulator.stellar_dynamics.spiral_model
+  :members: spiral_model

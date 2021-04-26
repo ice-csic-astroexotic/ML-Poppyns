@@ -8,6 +8,8 @@ The :code:`examples/simulator/initialize_evolve_population.py` script is respons
 
   python examples/simulator/initialize_evolve_population.py --output_dir simulated_data --parameter_override override.json
 
+For example you can set the number of neutron stars to simulate, the models for the kick velocity distribution, the galactic potential and the structure of the Galactic spiral arms, the number of spiral arms to include (5 or 4 depending if you want to include or not the Local arm) and several other parameters.
+
 This will generate a new folder :code:`simulated_data` if it does not exist, in which the simulation results will be saved: the initial population in compressed binary format `initial_population.pkl.gz`, the final population in the same format `final_population.pkl.gz`, the profiles for the simulation if enabled and the dictionary containing the parameter overrides in `override.json` for reproducibility.
 
 If the user opts to save the full evolutionary output for the dynamical and/or the magneto-rotational evolution by setting :code:`cfg["save_dyn_evolution"]` or :code:`cfg["save_magrot_evolution"]` to :code:`True` in the configuration file, a JSON file with the full time-stamped parameter evolution is also generated.
