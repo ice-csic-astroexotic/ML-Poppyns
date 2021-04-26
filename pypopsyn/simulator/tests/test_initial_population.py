@@ -43,7 +43,7 @@ cfg["seed"] = 42
 # the one from Faucher-Giguère & Kaspi (2006).
 cfg["spiral_arms"] = "saFK06"
 # Set the number of spiral arms to 4 for the tests.
-cfg["seed"] = 4
+cfg["arm_number"] = 4
 
 sm.initialize_spiral_model()
 
