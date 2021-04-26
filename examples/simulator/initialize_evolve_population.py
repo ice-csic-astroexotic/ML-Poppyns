@@ -57,11 +57,16 @@ def generate_population(
     """
     Generating a neutron star population starting from some initial
     conditions and evolving it forward in time.
+
     Args:
+
         output_path (pathlib.Path): Output directory for the run.
         json_override_path (pathlib.Path): Path to JSON with parameter overrides.
+
     Returns:
+
         Nothing.
+
     """
 
     # Update simulator configuration with the provided JSON override (if any).

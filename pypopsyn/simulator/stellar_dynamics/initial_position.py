@@ -48,10 +48,15 @@ def pdf_radial_stellar_density(r: np.ndarray) -> np.ndarray:
     """
     The Milky Way's stellar radial density in the galactic plane according
     to eq. (15) of Yusifov & Küçük (2004).
+
     Args:
+
         r (np.ndarray): distance from the galactic center in [kpc].
+
     Returns:
+
         np.ndarray: stellar radial density in [1/kpc].
+
     """
 
     # check range of input
@@ -83,13 +88,18 @@ def smear_initial_coordinates(
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Smear the initial radial and angular coordinates in the galactocentric frame by adding noise.
+
     Args:
+
         r (np.ndarray): distances from the galactic center in [kpc].
         phi (np.ndarray): azimuthal coordinate of the stars on the spiral arms [rad].
         NS_number (int): total number of neutron stars created in the simulation.
+
     Returns:
+
         (np.ndarray, np.ndarray): galactocentric coordinates phi [rad], r [kpc] with
         noise applied.
+
     """
 
     phi_corr, r_corr = calculate_noise_for_coordinates(r, NS_number)
@@ -106,13 +116,18 @@ def spiral_arm_time_evol(phi0: np.ndarray, t: np.ndarray) -> np.ndarray:
     galactic spiral structure rotates rigidly in clockwise direction with a
     period of 250 Myr (see 'A guided map to the spiral arms in the galactic disk
     of the Milky Way' by Vallée (2017)).
+
     Args:
+
         phi0 (np.ndarray): current angular positions in [rad] for the chosen
         spiral pattern.
         t (np.ndarray): times in [yr] to propagate backward.
+
     Returns:
+
         (np.ndarray): angular positions in [rad] for the spiral pattern as they were
         t years ago.
+
     """
 
     # Evaluate the angular velocity of rotation of the spiral pattern;
@@ -133,12 +148,17 @@ def calculate_noise_for_coordinates(
     Calculating noise for the angular and radial coordinate to smear out the
     distribution and avoid artificial features near the galactic center;
     see Sec. 3.2.1 in Faucher-Giguère & Kaspi (2006) for details.
+
     Args:
+
         r (np.ndarray): array of distances from the galactic center in [kpc].
         NS_number (int): total number of neutron stars created in the simulation.
+
     Returns:
+
         (np.ndarray, np.ndarray): array of noise for the galactocentric coordinates
         phi [rad], r [kpc].
+
     """
 
     phi_corr = np.random.uniform(0, 2 * np.pi, NS_number) * np.exp(-0.35 * r)
@@ -151,10 +171,15 @@ def pdf_initial_height(z: np.ndarray) -> np.ndarray:
     """
     Probability density function for the height from the galactic equatorial plane
     according to eq. (2) in Gullon et al. (2014).
+
     Args:
+
         z (np.ndarray): distance from the galactic plane in [kpc].
+
     Returns:
+
         (np.ndarray): distribution of stars per kpc in z direction.
+
     """
 
     # We use an exponential distribution as given by Wainscoat et al. (1992)
@@ -171,11 +196,16 @@ def random_scatter_about_plane(z: np.ndarray, NS_number: int) -> np.ndarray:
     """
     Randomly distribute positive height values within z about the galactic plane
     located at z=0.
+
     Args:
+
         z (np.ndarray): array of heights in [kpc] with positive values.
         NS_number (int): total number of neutron stars created in the simulation.
+
     Returns:
+
         (np.ndarray): array of heights in [kpc] randomly scattered above or below 0.
+
     """
 
     # Check that z has the length of the number of neutron stars simulated.

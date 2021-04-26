@@ -68,8 +68,11 @@ class InitialNeutronStarPopulation:
         """
         Drawing a random age in [yr] for each neutron star from a uniform
         probability distribution in a given range of time.
+
         Returns:
+
             np.ndarray: array of ages in [yr].
+
         """
 
         log.debug(
@@ -94,13 +97,18 @@ class InitialNeutronStarPopulation:
         """
         Calculating the position at birth of each random neutron star in
         cylindrical and Cartesian coordinates in a galactocentric reference frame.
+
         Args:
+
             t_age (np.ndarray): array of neutron star ages in [yr].
             spiral_model (sm.SpiralModelBase): a class specifying the spiral arm structure model.
+
         Returns:
+
             (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
             polar r and phi coordinates in [kpc] and rad and Cartesian x, y and z
             coordinates in [kpc] for each generated neutron star.
+
         """
         # Randomly associate a spiral arm to each neutron star.
         arm_index_rand = spiral_model.generate_arm_index(
@@ -164,12 +172,15 @@ class InitialNeutronStarPopulation:
         """
         Calculating the kick velocity of each random neutron star in a cylindrical
         galactocentric coordinate system.
+
         Returns:
+
             (np.ndarray, np.ndarray, np.ndarray): vk_r, vk_phi and vk_z kick
             velocities in [kpc/yr] for each generated neutron stars. In particular
             vk_r is the component of the kick velocity along the galactocentric
             radial direction, vk_phi is the component along the azimuthal phi
             direction and vk_z is the component along the z direction.
+
         """
 
         kick_model = cfg["kick_model"]
@@ -216,12 +227,17 @@ class InitialNeutronStarPopulation:
         the only non-zero component is the azimuthal phi component. Since the stars
         in the galaxy rotate in the clockwise direction, i.e., towards decreasing phi
         values, the phi component is negative.
+
         Args:
+
             r (np.ndarray): distance in the galactic disk from the galactic center
             in [kpc].
             z (np.ndarray): height from the galactic disk in [kpc].
+
         Returns:
+
             (np.ndarray): array of orbital velocities in [kpc/yr].
+
         """
         circular_velocity_vect = np.vectorize(iv.circular_velocity)
         v_orb = -circular_velocity_vect(r, z)
@@ -234,8 +250,11 @@ class InitialNeutronStarPopulation:
         as drawn from a normal (Gaussian) distribution. The characteristic
         parameters are defined in configuration.py. Note that we only allow
         positive values and redraw them if they fall below zero.
+
         Returns:
+
             (np.ndarray): initial spin periods of the pulsar sample in [s].
+
         """
 
         P_rand = ipd.pdf_period(
@@ -250,8 +269,11 @@ class InitialNeutronStarPopulation:
         initial magnetic field strengths of each pulsar in the sample, by drawing values from
         a log-normal distribution, i.e., the log_10 values of the magnetic field strengths are
         themselves normally distributed. The characteristic parameters are defined in configuration.py.
+
         Returns:
+
             (np.ndarray): initial magnetic field strengths of the pulsar sample in [G].
+
         """
 
         B_rand = 10 ** np.random.normal(
@@ -266,8 +288,11 @@ class InitialNeutronStarPopulation:
         """
         We follow Gullon et al. (2014) and choose the initial misalignment angle in the
         range [0, np.pi / 2] according to the probability density distribution np.sin.
+
         Returns:
+
             (np.ndarray): initial misalignment angles of the pulsar sample in [rad].
+
         """
 
         chi_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
