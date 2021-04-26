@@ -1,17 +1,23 @@
 """
 Generating an initial population of neutron stars in the Milky Way with
 random parameters.
-Authors:
+
+    Authors:
+
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
+
 MIT License
+
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -90,7 +96,7 @@ class InitialNeutronStarPopulation:
         cylindrical and Cartesian coordinates in a galactocentric reference frame.
         Args:
             t_age (np.ndarray): array of neutron star ages in [yr].
-            spiral_model (sm.SpiralModelBase): a spiral arm structure model.
+            spiral_model (sm.SpiralModelBase): a class specifying the spiral arm structure model.
         Returns:
             (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
             polar r and phi coordinates in [kpc] and rad and Cartesian x, y and z
@@ -100,7 +106,7 @@ class InitialNeutronStarPopulation:
         arm_index_rand = spiral_model.generate_arm_index(
             cfg["arm_number"], cfg["NS_number"]
         )
-        # Count the number of stars in the Local arm
+        # Count the number of stars in the Local arm.
         NS_local = len(arm_index_rand[arm_index_rand == 5])
 
         # Drawing a random distance from the galactic center in [kpc] for

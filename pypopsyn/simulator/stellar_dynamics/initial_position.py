@@ -9,17 +9,23 @@ Moreover, we define r = (x^2 + y^2)^0.5 as the distance from the galactic center
 the galactic plane and phi = arctan(y/x). Here, the angle phi is the same as theta in
 Faucher-Giguère & Kaspi (2006). We reserve the variable theta for the polar angle in a
 spherical coordinate system.
-Authors:
+
+    Authors:
+
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
+
 MIT License
+
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
