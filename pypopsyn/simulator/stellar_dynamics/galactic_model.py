@@ -81,10 +81,42 @@ class GalaxyModelBase:
     """
 
     @abc.abstractmethod
+    def MW_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
+        raise NotImplementedError("Please implement the method MW_potential.")
+
+    @abc.abstractmethod
     def cylind_coord_gradient_mw_potential(
         self, r: float, z: float
     ) -> np.ndarray:
-        raise NotImplementedError("Please implement this method.")
+        raise NotImplementedError(
+            "Please implement the method cylind_coord_gradient_mw_potential."
+        )
+
+    def total_energy(
+        self, v: np.ndarray, r: np.ndarray, z: np.ndarray
+    ) -> float:
+        """
+        Value of the total energy of the system, sum of the total kinetic energy and
+        the total gravitational potential energy. We assume here that all the stars
+        have unit mass.
+
+        Args:
+            v (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
+            r (np.ndarray): array of distances from the galactic axis in [kpc].
+            z (np.ndarray): array of distances from the galactic disk in [kpc].
+
+        Returns:
+            (float): value of the total energy of the system in [erg].
+        """
+        # Convert speeds into [cm/s].
+        v = v * const.KM_TO_CM
+
+        tot_kin_energy = 0.5 * np.sum(v ** 2)
+        tot_pot_energy = np.sum(self.MW_potential(r, z))
+
+        tot_energy = tot_kin_energy + tot_pot_energy
+
+        return tot_energy
 
 
 # Class member data specification for Numba. In order for Numba to be able to
@@ -248,32 +280,6 @@ class GalaxyModelM19(GalaxyModelBase):
         )
 
         return MW_pot
-
-    def total_energy(
-        self, v: np.ndarray, r: np.ndarray, z: np.ndarray
-    ) -> float:
-        """
-        Value of the total energy of the system, sum of the total kinetic energy and
-        the total gravitational potential energy. We assume here that all the stars
-        have unit mass.
-
-        Args:
-            v (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
-            r (np.ndarray): array of distances from the galactic axis in [kpc].
-            z (np.ndarray): array of distances from the galactic disk in [kpc].
-
-        Returns:
-            (float): value of the total energy of the system in [erg].
-        """
-        # Convert speeds into [cm/s].
-        v = v * const.KM_TO_CM
-
-        tot_kin_energy = 0.5 * np.sum(v ** 2)
-        tot_pot_energy = np.sum(self.MW_potential(r, z))
-
-        tot_energy = tot_kin_energy + tot_pot_energy
-
-        return tot_energy
 
     def r_z_derivatives_d_potential(
         self, r: float, z: float
@@ -558,32 +564,6 @@ class GalaxyModelFK06(GalaxyModelBase):
         )
 
         return MW_pot
-
-    def total_energy(
-        self, v: np.ndarray, r: np.ndarray, z: np.ndarray
-    ) -> float:
-        """
-        Value of the total energy of the system, sum of the total kinetic energy and
-        the total gravitational potential energy. We assume here that all the stars
-        have unit mass.
-
-        Args:
-            v (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
-            r (np.ndarray): array of distances from the galactic axis in [kpc].
-            z (np.ndarray): array of distances from the galactic disk in [kpc].
-
-        Returns:
-            (float): value of the total energy of the system in [erg].
-        """
-        # Convert speeds into [cm/s].
-        v = v * const.KM_TO_CM
-
-        tot_kin_energy = 0.5 * np.sum(v ** 2)
-        tot_pot_energy = np.sum(self.MW_potential(r, z))
-
-        tot_energy = tot_kin_energy + tot_pot_energy
-
-        return tot_energy
 
     def r_z_derivatives_dh_potential(
         self, r: float, z: float
