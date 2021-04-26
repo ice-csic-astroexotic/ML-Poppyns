@@ -8,8 +8,8 @@ We consider two different models:
 Wainscoat et al. (1992).
 
 2) saYMW17: A galactic spiral structure according to eq. (12) of Faucher-Giguère & Kaspi (2006)
-but with parameters re-adapted from Yau & Manchester (2017) Their model consists of four arms
-plus a Local arm from (see also Hou et al. 2014).
+but with parameters re-adapted from Yau & Manchester (2017). Their model consists of four arms
+plus a Local arm from (see also Hou et al. (2014)).
 
 Authors:
 
@@ -17,7 +17,7 @@ Authors:
 
 MIT License
 
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
+Copyright (c) MAGNESIA (ICE-CSIC) 2021
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,7 @@ def initialize_spiral_model() -> None:
     """
     Initializing the spiral model employed in the simulation. We have implemented two
     versions, i.e., the spiral structure of Faucher-Giguère & Kaspi (2006) (with
-    the add of the Local arm from Wainscoat et al. (1992)) and the spiral model from
+    the addition of the Local arm from Wainscoat et al. (1992)) and the spiral model from
     Yau & Manchester (2017). The spiral_model variable is made available on a global level.
     """
     global spiral_model
@@ -62,7 +62,7 @@ def initialize_spiral_model() -> None:
         spiral_model = SpiralModelYMW17()
     else:
         raise ValueError(
-            "The spiral arms model does not exist. Choose between saFK06 or saYMW17."
+            "The spiral arm model does not exist. Choose between saFK06 or saYMW17."
         )
 
 
@@ -84,9 +84,9 @@ class SpiralModelBase:
         self, arm_number: int, NS_number: int
     ) -> np.ndarray:
         """
-        Generate an array of indices related to the spiral arm associated to each stars
+        Generate an array of indices related to the spiral arm associated to each star
         according to a probability evaluated taking into account the radial distribution of stars
-        and the limited extension of the local arm with respect to the other arms.
+        and the limited extension of the Local arm with respect to the other arms.
 
         Args:
             arm_number (int): number of arms to simulate.
@@ -104,7 +104,7 @@ class SpiralModelBase:
             arm_index_rand = np.random.randint(1, arm_number + 1, NS_number)
 
         # If the Local arm is included distribute the stars on the arms according to the probability
-        # specified in arm_probability
+        # specified in arm_probability.
         elif arm_number == 5:
             choices = [1, 2, 3, 4, 5]
             arm_index_rand = np.array(
@@ -162,7 +162,7 @@ class SpiralModelBase:
 
 class SpiralModelFK06(SpiralModelBase):
     """
-    Spiral structure of Faucher-Giguère & Kaspi (2006) with the add of the Local arm
+    Spiral structure of Faucher-Giguère & Kaspi (2006) with the addition of the Local arm
     from Wainscoat et al. (1992).
     Spiral arm parameters from table 2 in Faucher-Giguere & Kaspi (2006) and table 1 in
     Wainscoat et al. (1992) assuming a Sun galactocentric distance R_sun = 8.5 kpc.
@@ -173,7 +173,7 @@ class SpiralModelFK06(SpiralModelBase):
     def __init__(self):
         # Parameters of the model, values from Table 2 in Faucher-Giguere & Kaspi (2006) and
         # table 1 in Wainscoat et al. (1992). Respectively winding constant k [rad], the inner
-        # radius r0 [kpc] and the inner angle phi0 [rad]. The phi0 value in Wainscoat et al.
+        # radius r0 [kpc] and the inner angle phi0 [rad]. The phi0 values in Wainscoat et al.
         # (1992) are increased by pi/2 and reported in the range [0, 2pi].
         super().__init__()
         self.arm_param = {
@@ -183,21 +183,21 @@ class SpiralModelFK06(SpiralModelBase):
             4: np.array([4.89, 4.90, 0.95]),  # Crux-Scutum
             5: np.array([4.57, 8.10, 1.13]),  # Local
         }
-        # Probability of a star to be in each of the spiral arms.
+        # Probability of a star to be located in each of the spiral arms.
         # This is evaluated considering the stellar density and the length of the spiral arms
         # in the range of galactocentric radii where the local arm extends.
         self.arm_probability = [0.24615, 0.24615, 0.24615, 0.24615, 0.0154]
-        # Galactocentric distance where the Local arm starts [kpc].
+        # Galactocentric distances where the Local arm starts and ends [kpc].
+        # These values are obtained by evaluating the r coordinates from the phi coordinates specified in Wainscout et al. (2014).
         self.local_r_min = 8.10
-        # Galactocentric distance where the Local arm ends [kpc].
         self.local_r_max = 9.14
 
 
 class SpiralModelYMW17(SpiralModelBase):
     """
     Spiral structure of Yau & Manchester (2017), see also Hou et al. (2014).
-    Spiral arm parameters from table 1 in Yau & Manchester 2016 assuming a Sun
-    galactocentric distance R_sun = 8.3 kpc The Local arm has a radial extension
+    Spiral arm parameters from table 1 in Yau & Manchester (2016) assuming a Sun
+    galactocentric distance R_sun = 8.3 kpc. The Local arm has a radial extension
      ~ 1.05 rad in the range [0.87, 1.92] rad (see Hou et al. 2014).
     """
 
@@ -214,11 +214,11 @@ class SpiralModelYMW17(SpiralModelBase):
             4: np.array([5.37, 3.67, 5.76]),  # Crux-Scutum
             5: np.array([20.67, 8.21, 0.96]),  # Local
         }
-        # probability of a star to be in each of the spiral arms.
+        # Probability of a star to be located in each of the spiral arms.
         # This is evaluated considering the stellar density and the length of the spiral arms
         # in the range of galactocentric radii where the local arm extends.
         self.arm_probability = [0.2455, 0.2455, 0.2455, 0.2455, 0.018]
-        # Galactocentric distance where the Local arm starts [kpc].
+        # Galactocentric distances where the Local arm starts and ends[kpc].
+        # These values are obtained by evaluating the r coordinates from the phi coordinates specified in Hou et al. (2014).
         self.local_r_min = 8.17
-        # Galactocentric distance where the Local arm ends [kpc].
         self.local_r_max = 8.6

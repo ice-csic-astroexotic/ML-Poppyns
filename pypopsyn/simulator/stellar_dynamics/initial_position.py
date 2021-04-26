@@ -82,7 +82,7 @@ def smear_initial_coordinates(
     r: np.ndarray, phi: np.ndarray, NS_number: int
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Smear the initial radial and angular coordinate in the galactocentric frame by adding noise.
+    Smear the initial radial and angular coordinates in the galactocentric frame by adding noise.
     Args:
         r (np.ndarray): distances from the galactic center in [kpc].
         phi (np.ndarray): azimuthal coordinate of the stars on the spiral arms [rad].
