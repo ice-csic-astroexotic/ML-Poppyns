@@ -1,6 +1,5 @@
 """
 Simulating a final population of neutron stars.
-
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved in time according to their age.
 
@@ -47,6 +46,7 @@ import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
+import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 
 log = logging.getLogger(__name__)
 
@@ -83,6 +83,7 @@ def generate_population(
 
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
+    sm.initialize_spiral_model()
 
     with timewith.TimeWith(
         "[TotalSimulation]",
@@ -113,7 +114,9 @@ def generate_population(
                 x_initial,
                 y_initial,
                 z_initial,
-            ) = NS_population_initial.position(t_age=age)
+            ) = NS_population_initial.position(
+                t_age=age, spiral_model=sm.spiral_model
+            )
 
             # Generating initial velocities by summing the kick
             # velocities at birth and the orbital velocities.

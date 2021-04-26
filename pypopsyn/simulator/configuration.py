@@ -73,7 +73,7 @@ cfg["resolution"] = 10000
 # Integer number of neutron stars for the population.
 cfg["NS_number"] = 100000
 
-# Number of spiral arms in the galaxy.
+# Number of spiral arms in the galaxy. If set to 5 the Local arm is included.
 cfg["arm_number"] = 4
 
 # Minimum age for the neutron stars in [yr].

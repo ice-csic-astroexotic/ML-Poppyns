@@ -92,17 +92,6 @@ def test_case_4():
     return data
 
 
-def test_check_arm_index_01():
-    """
-    Verifying that a ValueError is raised if the arm index is out of range.
-    """
-    arm_index = np.array([-1, 6])
-    with pytest.raises(
-        ValueError, match="One of arm indices is out of range."
-    ):
-        ip.check_arm_index(arm_index)
-
-
 def test_pdf_radial_stellar_density():
     """
     Verifying that the pdf for the stellar radial density is correctly calculated.
@@ -113,7 +102,7 @@ def test_pdf_radial_stellar_density():
     assert np.abs(pdf_r_out - pdf_r_expected) < TOL
 
 
-def test_pdf_initial_coordinates(monkeypatch, test_case_1):
+def test_smear_initial_coordinates(monkeypatch, test_case_1):
     """
     Verifying that for a given choice of noise in galactocentric coordinates
     the resulting phi and r values are correctly calculated.
@@ -126,8 +115,10 @@ def test_pdf_initial_coordinates(monkeypatch, test_case_1):
 
     monkeypatch.setattr(ip, "calculate_noise_for_coordinates", mock_noise)
 
-    phi_out, r_out = ip.pdf_initial_coordinates(
-        test_case_1["r"], test_case_1["NS_number"], test_case_1["arm_index"]
+    phi_out, r_out = ip.smear_initial_coordinates(
+        test_case_1["r"],
+        test_case_1["phi_no_noise_expected"],
+        test_case_1["NS_number"],
     )
 
     assert np.isclose(
@@ -135,18 +126,6 @@ def test_pdf_initial_coordinates(monkeypatch, test_case_1):
     ).all()
     assert np.isclose(
         test_case_1["r_with_noise_expected"], r_out, rtol=TOL, atol=1.0e-30
-    ).all()
-
-
-def test_calculate_phi(test_case_1):
-    """
-    Verifying that the angular coordinate phi is correctly calculated.
-    """
-
-    phi_out = ip.calculate_phi(test_case_1["r"], test_case_1["arm_index"])
-
-    assert np.isclose(
-        test_case_1["phi_no_noise_expected"], phi_out, rtol=TOL, atol=1.0e-30
     ).all()
 
 
