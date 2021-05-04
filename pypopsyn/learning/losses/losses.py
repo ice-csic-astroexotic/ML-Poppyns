@@ -10,5 +10,6 @@
 
 """
 
+from .loss_multibin import LossMultiBin
 from .loss_nll import LossNLL
 from .loss_rmse import LossRMSE
