@@ -137,6 +137,13 @@ def generate_population(
 
         timer.checkpoint("[Energy]")
 
+        # Compute the initial z-component of the total angular momentum of the system.
+        L_z_initial = gm.galactic_model.total_angular_momentum_z(
+            v_phi_initial * const.KPC_TO_KM / const.YR_TO_S, r_initial
+        )
+
+        timer.checkpoint("[Angular momentum]")
+
         # Adding the parameters to a data frame for export.
         log.info("Creating data frame for exporting...")
 
@@ -279,6 +286,21 @@ def generate_population(
         )
 
         timer.checkpoint("[Energy]")
+
+        # Compute the final z-component of the total angular momentum of the system.
+        L_z_final = gm.galactic_model.total_angular_momentum_z(
+            v_phi_final, r_final
+        )
+
+        # Compute the percentage variation in total energy during the simulation
+        # with respect to the initial total energy.
+        delta_Lz_percentage = (L_z_final - L_z_initial) / L_z_initial * 100.0
+
+        log.info(
+            f"Percentage variation of z-component of total angular momentum of the system: {delta_Lz_percentage} %"
+        )
+
+        timer.checkpoint("[Angular momentum]")
 
         # Adding the evolution output to a data frame for export.
         log.info("Creating data frame for exporting...")

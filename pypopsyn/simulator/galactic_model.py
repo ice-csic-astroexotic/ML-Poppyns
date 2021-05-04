@@ -275,6 +275,30 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return tot_energy
 
+    def total_angular_momentum_z(
+        self, v_phi: np.ndarray, r: np.ndarray,
+    ) -> float:
+        """
+        Value of the z-component of the total angular momentum of the system, which is a
+        conserved quantity in axisymmetric potentials. We assume here that all the stars
+        have unit mass.
+
+        Args:
+            v_phi (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
+            r (np.ndarray): array of distances from the galactic axis in [kpc].
+
+        Returns:
+            (float): value of the total energy of the system in [erg].
+        """
+        # Convert speeds into [cm/s].
+        v_phi = v_phi * const.KM_TO_CM
+        # Convert distances into [cm].
+        r = r * const.KPC_TO_CM
+
+        L_z = float(np.sum(r * v_phi))
+
+        return L_z
+
     def r_z_derivatives_d_potential(
         self, r: float, z: float
     ) -> Tuple[float, float]:
@@ -584,6 +608,30 @@ class GalaxyModelFK06(GalaxyModelBase):
         tot_energy = tot_kin_energy + tot_pot_energy
 
         return tot_energy
+
+    def total_angular_momentum_z(
+        self, v_phi: np.ndarray, r: np.ndarray,
+    ) -> float:
+        """
+        Value of the z-component of the total angular momentum of the system, which is a
+        conserved quantity in axisymmetric potentials. We assume here that all the stars
+        have unit mass.
+
+        Args:
+            v_phi (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
+            r (np.ndarray): array of distances from the galactic axis in [kpc].
+
+        Returns:
+            (float): value of the total energy of the system in [erg].
+        """
+        # Convert speeds into [cm/s].
+        v_phi = v_phi * const.KM_TO_CM
+        # Convert distances into [cm].
+        r = r * const.KPC_TO_CM
+
+        L_z = float(np.sum(r * v_phi))
+
+        return L_z
 
     def r_z_derivatives_dh_potential(
         self, r: float, z: float
