@@ -178,7 +178,7 @@ def set_default(args_dict: dict) -> None:
         log.info("vk_c set to the default value {}".format(cfg["h_c"]))
 
 
-def check_expand_args(args_dict: dict) -> (list, list):  # noqa: C901
+def check_expand_args(args_dict: dict) -> (list, list):
     """
         Check if the parsed input arguments are coherent and have the correct shape.
         If in grid mode: expand each simulation parameters in linear space in the specified ranges.
