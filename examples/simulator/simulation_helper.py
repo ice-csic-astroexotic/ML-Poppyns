@@ -139,25 +139,61 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
     starting = lock
 
 
-def check_expand_args(args: dict) -> (dict, list, list):  # noqa: C901
+def set_default(args_dict: dict) -> None:
+    """
+    If any of the parameters related to the dynamical evolution are None,
+    set the parameter corresponding to the given kick model to the default value provided in the
+    configuration file.
+
+    Args:
+            args_dict: Dictionary of the parsed argument via CLI.
+    """
+
+    if args_dict["sigma_k"] is None:
+        if args_dict["kick_model"] == "km_maxwell":
+            if args_dict["sampling_type"] == "grid":
+                args_dict["sigma_k"] = [cfg["sigma_k"], cfg["sigma_k"], 1]
+            elif args_dict["sampling_type"] == "random":
+                args_dict["sigma_k"] = [cfg["sigma_k"], cfg["sigma_k"]]
+
+            log.info(
+                "sigma_k set to the default value {}".format(cfg["sigma_k"])
+            )
+
+    elif args_dict["vk_c"] is None:
+        if args_dict["kick_model"] == "km_exp":
+            if args_dict["sampling_type"] == "grid":
+                args_dict["vk_c"] = [cfg["vk_c"], cfg["vk_c"], 1]
+            elif args_dict["sampling_type"] == "random":
+                args_dict["vk_c"] = [cfg["vk_c"], cfg["vk_c"]]
+
+            log.info("vk_c set to the default value {}".format(cfg["vk_c"]))
+
+    elif args_dict["h_c"] is None:
+        if args_dict["sampling_type"] == "grid":
+            args_dict["h_c"] = [cfg["h_c"], cfg["h_c"], 1]
+        elif args_dict["sampling_type"] == "random":
+            args_dict["h_c"] = [cfg["h_c"], cfg["h_c"]]
+
+        log.info("vk_c set to the default value {}".format(cfg["h_c"]))
+
+
+def check_expand_args(args_dict: dict) -> (list, list):  # noqa: C901
     """
         Check if the parsed input arguments are coherent and have the correct shape.
         If in grid mode: expand each simulation parameters in linear space in the specified ranges.
         If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
 
         Args:
-            args: Dictionary of the parsed argument via CLI.
+            args_dict: Dictionary of the parsed argument via CLI.
 
         Return:
-            (dict, list, list): A dictionary containing the parsed arguments with the corresponding values,
-            a list containing the expanded ranges of the parameters and a list containing the names of the
+            (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
             expanded parameters.
 
         """
     cli_args: list = []
     cli_str: list = []
-
-    args_dict = vars(args)
 
     # Open the parameters dictionary with required values for the selection ones.
     f = open("examples/simulator/config_sweeper.json")
@@ -169,66 +205,14 @@ def check_expand_args(args: dict) -> (dict, list, list):  # noqa: C901
     var_names = []
     var_expanded_ranges = []
 
-    for arg in vars(args):
+    for arg in args_dict.keys():
 
         log.info(arg)
-        value = getattr(args, arg)
+        value = args_dict[arg]
         log.info(value)
 
         if value is None:
-            # If none of the parameters related to the dynamical evolution are provided as CLI arguments,
-            # set the parameter corresponding to the given kick model to the default value provided in the
-            # configuration file.
-            if arg == "sigma_k":
-                if args_dict["kick_model"] == "km_maxwell":
-                    if args_dict["sampling_type"] == "grid":
-                        args_dict["sigma_k"] = np.linspace(
-                            cfg["sigma_k"], cfg["sigma_k"], 1
-                        )
-                    elif args_dict["sampling_type"] == "random":
-                        args_dict["sigma_k"] = cfg["sigma_k"] * np.ones(
-                            args_dict["size"]
-                        )
-
-                    var_range = args_dict["sigma_k"]
-                    var_expanded_ranges.append(list(var_range))
-                    var_names.append(arg)
-                    log.info(
-                        "sigma_k set to the default value {}".format(
-                            cfg["sigma_k"]
-                        )
-                    )
-
-            elif arg == "vk_c":
-                if args_dict["kick_model"] == "km_exp":
-                    if args_dict["sampling_type"] == "grid":
-                        args_dict["vk_c"] = np.linspace(
-                            cfg["vk_c"], cfg["vk_c"], 1
-                        )
-                    elif args_dict["sampling_type"] == "random":
-                        args_dict["vk_c"] = cfg["vk_c"] * np.ones(
-                            args_dict["size"]
-                        )
-
-                    var_range = args_dict["vk_c"]
-                    var_expanded_ranges.append(list(var_range))
-                    var_names.append(arg)
-                    log.info(
-                        "vk_c set to the default value {}".format(cfg["vk_c"])
-                    )
-
-            elif arg == "h_c":
-                if args_dict["sampling_type"] == "grid":
-                    args_dict["h_c"] = np.linspace(cfg["h_c"], cfg["h_c"], 1)
-                elif args_dict["sampling_type"] == "random":
-                    args_dict["h_c"] = cfg["h_c"] * np.ones(args_dict["size"])
-
-                var_range = args_dict["h_c"]
-                var_expanded_ranges.append(list(var_range))
-                var_names.append(arg)
-                log.info("vk_c set to the default value {}".format(cfg["h_c"]))
-
-            elif arg == "size":
+            if arg == "size":
                 if args_dict["sampling_type"] == "random":
                     raise ValueError(
                         "In random mode you have to specify the parameter size."
@@ -309,7 +293,7 @@ def check_expand_args(args: dict) -> (dict, list, list):  # noqa: C901
         if p in args_dict.keys() and args_dict[p] is not None:
             raise ValueError("Forbidden parameter {p} is present")
 
-    return args_dict, var_names, var_expanded_ranges
+    return var_names, var_expanded_ranges
 
 
 def main(args):
@@ -328,7 +312,14 @@ def main(args):
     # Parse arguments provided to the simulation helper script.
     log.info("Parsing arguments...")
 
-    args_dict, var_names, var_expanded_ranges = check_expand_args(args)
+    args_dict = vars(args)
+
+    # If any of the parameters related to the dynamical evolution are None,
+    # set the parameter corresponding to the given kick model to the default value provided in the
+    # configuration file.
+    set_default(args_dict)
+
+    var_names, var_expanded_ranges = check_expand_args(args_dict)
 
     if args_dict["sampling_type"] == "grid":
         # Create a generator of all the possible combinations of parameters based on
