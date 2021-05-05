@@ -415,7 +415,7 @@ if __name__ == "__main__":
 
     args.add_argument(
         "--sigma_k",
-        nargs=3,
+        nargs="*",
         type=float,
         default=None,
         help="In grid mode: range of kick velocity sigma for the Maxwell model with number of steps [low, high, steps]."
@@ -424,7 +424,7 @@ if __name__ == "__main__":
 
     args.add_argument(
         "--vk_c",
-        nargs=3,
+        nargs="*",
         type=float,
         default=None,
         help="In grid mode: range of kick velocity vk_c for the exponential model with number of steps "
@@ -434,7 +434,7 @@ if __name__ == "__main__":
 
     args.add_argument(
         "--h_c",
-        nargs=3,
+        nargs="*",
         type=float,
         default=None,
         help="In grid mode: range of scale height h_c of the thin disk model with number of steps "
