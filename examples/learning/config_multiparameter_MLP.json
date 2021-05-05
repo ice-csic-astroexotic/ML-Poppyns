@@ -12,7 +12,8 @@
     "type": "ModelLinear",
     "args": {
         "input_shape": [4, 128, 128],
-        "num_parameters": 1
+        "num_parameters": 1,
+        "positive": true
     }
   },
 

@@ -36,7 +36,12 @@ class ModelConv(ModelBase):
 
     """ A convolutional neural network Model """
 
-    def __init__(self, input_shape: np.array, num_parameters: int = 1) -> None:
+    def __init__(
+        self,
+        input_shape: np.array,
+        num_parameters: int = 1,
+        positive: bool = True,
+    ) -> None:
 
         """
         CNN Model Initialization.
@@ -45,6 +50,7 @@ class ModelConv(ModelBase):
         Args:
             input_shape: Shape of the input batch (C x H x W).
             num_parameters: Number of parameters to predict.
+            positive: Whether to restrict the output to be positive or not.
 
         """
 
@@ -64,6 +70,8 @@ class ModelConv(ModelBase):
 
         self.fc1 = nn.Linear(self._to_linear, 64)
         self.fc2 = nn.Linear(64, num_parameters)
+
+        self.positive = positive
 
     def convs(self, x):
         """
@@ -102,5 +110,8 @@ class ModelConv(ModelBase):
         x = x.view(-1, self._to_linear)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
+
+        if self.positive:
+            x = torch.sigmoid(x)
 
         return x

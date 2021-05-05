@@ -142,6 +142,8 @@ class DatasetMultichannelArray:
         self.standardize = standardize
         self.transform = transform
 
+        print(f"{file_path}")
+
         # Load dataset from CSV file.
         self.dataset = pd.read_csv(file_path)
 

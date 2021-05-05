@@ -12,7 +12,8 @@
     "type": "ModelConv",
     "args": {
         "input_shape": [4, 128, 128],
-        "num_parameters": 2
+        "num_parameters": 2,
+        "positive": true
     }
   },
 
@@ -30,7 +31,7 @@
       "ignored_inputs": [1, 2, 6, 7],
       "ignored_labels": [],
       "shuffle": true,
-      "normalize": false,
+      "normalize": true,
       "standardize": false
     }
   },
@@ -44,7 +45,7 @@
       "ignored_inputs": [1, 2, 6, 7],
       "ignored_labels": [],
       "shuffle": false,
-      "normalize": false,
+      "normalize": true,
       "standardize": false
     }
   },
