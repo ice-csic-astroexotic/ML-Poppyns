@@ -139,22 +139,21 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
     starting = lock
 
 
-def main(args):  # noqa: C901
+def check_expand_args(args: dict) -> (dict, list, list):  # noqa: C901
+    """
+        Check if the parsed input arguments are coherent and have the correct shape.
+        If in grid mode: expand each simulation parameters in linear space in the specified ranges.
+        If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
 
-    # Event on the master process that will be used to synchronize the child
-    # processes and signal them for execution in the pool.
-    event = mp.Event()
-    # Lock on the master process to impose a delay in the process execution
-    # so that none of them can be launched exactly at the same time.
-    lock = mp.Lock()
-    # A pool of processes with a defined capacity, a process spawnign setup
-    # routine and a general event to signal process execution.
-    log.info(f"Initializing pool with {args.processes} processes...")
-    pool = mp.Pool(args.processes, setup_process_pool, (event, lock,))
+        Args:
+            args: Dictionary of the parsed argument via CLI.
 
-    # Parse arguments provided to the simulation helper script.
-    log.info("Parsing arguments...")
+        Return:
+            (dict, list, list): A dictionary containing the parsed arguments with the corresponding values,
+            a list containing the expanded ranges of the parameters and a list containing the names of the
+            expanded parameters.
 
+        """
     cli_args: list = []
     cli_str: list = []
 
@@ -177,7 +176,7 @@ def main(args):  # noqa: C901
         log.info(value)
 
         if value is None:
-            # If none of the parameters related to the kick velocity models are provided as CLI arguments,
+            # If none of the parameters related to the dynamical evolution are provided as CLI arguments,
             # set the parameter corresponding to the given kick model to the default value provided in the
             # configuration file.
             if arg == "sigma_k":
@@ -199,6 +198,7 @@ def main(args):  # noqa: C901
                             cfg["sigma_k"]
                         )
                     )
+
             elif arg == "vk_c":
                 if args_dict["kick_model"] == "km_exp":
                     if args_dict["sampling_type"] == "grid":
@@ -227,6 +227,7 @@ def main(args):  # noqa: C901
                 var_expanded_ranges.append(list(var_range))
                 var_names.append(arg)
                 log.info("vk_c set to the default value {}".format(cfg["h_c"]))
+
             elif arg == "size":
                 if args_dict["sampling_type"] == "random":
                     raise ValueError(
@@ -307,6 +308,27 @@ def main(args):  # noqa: C901
     for p in forbidden_parameters:
         if p in args_dict.keys() and args_dict[p] is not None:
             raise ValueError("Forbidden parameter {p} is present")
+
+    return args_dict, var_names, var_expanded_ranges
+
+
+def main(args):
+
+    # Event on the master process that will be used to synchronize the child
+    # processes and signal them for execution in the pool.
+    event = mp.Event()
+    # Lock on the master process to impose a delay in the process execution
+    # so that none of them can be launched exactly at the same time.
+    lock = mp.Lock()
+    # A pool of processes with a defined capacity, a process spawnign setup
+    # routine and a general event to signal process execution.
+    log.info(f"Initializing pool with {args.processes} processes...")
+    pool = mp.Pool(args.processes, setup_process_pool, (event, lock,))
+
+    # Parse arguments provided to the simulation helper script.
+    log.info("Parsing arguments...")
+
+    args_dict, var_names, var_expanded_ranges = check_expand_args(args)
 
     if args_dict["sampling_type"] == "grid":
         # Create a generator of all the possible combinations of parameters based on
