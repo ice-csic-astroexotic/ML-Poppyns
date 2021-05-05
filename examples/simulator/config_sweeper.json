@@ -6,5 +6,11 @@
     "km_exp": [
         "vk_c"
     ]
+  },
+  "sampling_type": {
+    "random": [
+        "size"
+    ],
+    "grid": []
   }
 }
