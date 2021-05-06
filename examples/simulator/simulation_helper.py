@@ -160,7 +160,7 @@ def set_default(args_dict: dict) -> None:
                 "sigma_k set to the default value {}".format(cfg["sigma_k"])
             )
 
-    elif args_dict["vk_c"] is None:
+    if args_dict["vk_c"] is None:
         if args_dict["kick_model"] == "km_exp":
             if args_dict["sampling_type"] == "grid":
                 args_dict["vk_c"] = [cfg["vk_c"], cfg["vk_c"], 1]
@@ -169,7 +169,7 @@ def set_default(args_dict: dict) -> None:
 
             log.info("vk_c set to the default value {}".format(cfg["vk_c"]))
 
-    elif args_dict["h_c"] is None:
+    if args_dict["h_c"] is None:
         if args_dict["sampling_type"] == "grid":
             args_dict["h_c"] = [cfg["h_c"], cfg["h_c"], 1]
         elif args_dict["sampling_type"] == "random":
@@ -319,6 +319,7 @@ def main(args):
     # configuration file.
     set_default(args_dict)
 
+    # Check and expand the parameters in the provided ranges.
     var_names, var_expanded_ranges = check_expand_args(args_dict)
 
     if args_dict["sampling_type"] == "grid":
