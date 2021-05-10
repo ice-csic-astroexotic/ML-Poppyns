@@ -9,7 +9,7 @@
   },
   "sampling_type": {
     "random": [
-        "size"
+        "sampling_size"
     ],
     "grid": []
   }

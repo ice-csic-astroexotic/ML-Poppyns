@@ -146,7 +146,7 @@ def set_default(args_dict: dict) -> None:
     configuration file.
 
     Args:
-            args_dict: Dictionary of the parsed argument via CLI.
+            args_dict: dictionary of the parsed argument via CLI.
     """
 
     if args_dict["sigma_k"] is None:
@@ -181,11 +181,11 @@ def set_default(args_dict: dict) -> None:
 def check_expand_args(args_dict: dict) -> (list, list):
     """
         Check if the parsed input arguments are coherent and have the correct shape.
-        If in grid mode: expand each simulation parameters in linear space in the specified ranges.
+        If in grid mode: expand each simulation parameter in linear space in the specified ranges.
         If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
 
         Args:
-            args_dict: Dictionary of the parsed argument via CLI.
+            args_dict: dictionary of the parsed argument via CLI.
 
         Return:
             (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
@@ -212,10 +212,10 @@ def check_expand_args(args_dict: dict) -> (list, list):
         log.info(value)
 
         if value is None:
-            if arg == "size":
+            if arg == "sampling_size":
                 if args_dict["sampling_type"] == "random":
                     raise ValueError(
-                        "In random mode you have to specify the parameter size."
+                        "In random mode you have to specify the parameter sampling_size."
                     )
             else:
                 continue
@@ -265,14 +265,14 @@ def check_expand_args(args_dict: dict) -> (list, list):
                 var_names.append(arg)
 
             if args_dict["sampling_type"] == "random":
-                # The two values [low, high] define the range where to draw a number of values specified
-                # by the size argument from a uniform distribution for each one of the parameters.
+                # The two values [low, high] define the range from which a number of values
+                # (specified according to the sampling_size argument) is drawn from a uniform distribution.
                 if len(value) != 2:
                     raise ValueError(
                         f"In random mode the list must have length 2 for parameter {arg}"
                     )
                 var_range = np.random.uniform(
-                    value[0], value[1], int(args_dict["size"])
+                    value[0], value[1], int(args_dict["sampling_size"])
                 )
                 var_expanded_ranges.append(list(var_range))
                 var_names.append(arg)
@@ -403,12 +403,11 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--size",
+        "--sampling_size",
         nargs="?",
         type=int,
         default=None,
-        help="Number of random values to draw for each simulation parameter. This parameter is required only if "
-        "the samplying_type is set to random.",
+        help="Number of random values to draw for each simulation parameter. This parameter is required only if the sampling_type is set to random.",
     )
 
     args.add_argument(
