@@ -39,6 +39,7 @@ TOL = 1e-5
 cfg["NS_number"] = 5
 # Set a predefined seed for the tests.
 cfg["seed"] = 42
+
 # For the tests, set the spiral arm pattern in the configuration file to
 # the one from Faucher-Giguère & Kaspi (2006).
 cfg["spiral_arms"] = "saFK06"
@@ -50,7 +51,7 @@ sm.initialize_spiral_model()
 
 @pytest.fixture()
 def test_case_1():
-
+    np.random.seed(cfg["seed"])
     NS_population_initial = ipop.InitialNeutronStarPopulation()
     age = NS_population_initial.age()
     position = NS_population_initial.position(
@@ -63,9 +64,7 @@ def test_case_1():
         "age": age[selection],
         "r": position[0][selection],
         "phi": position[1][selection],
-        "x": position[2][selection],
-        "y": position[3][selection],
-        "z": position[4][selection],
+        "z": position[2][selection],
         "vk_r": kick_velocity[0][selection],
         "vk_phi": kick_velocity[1][selection],
         "vk_z": kick_velocity[2][selection],
@@ -76,7 +75,7 @@ def test_case_1():
 
 @pytest.fixture()
 def test_case_2():
-
+    np.random.seed(cfg["seed"])
     NS_population_initial = ipop.InitialNeutronStarPopulation()
     age = NS_population_initial.age()
     position = NS_population_initial.position(
@@ -89,9 +88,7 @@ def test_case_2():
         "age": age[selection],
         "r": position[0][selection],
         "phi": position[1][selection],
-        "x": position[2][selection],
-        "y": position[3][selection],
-        "z": position[4][selection],
+        "z": position[2][selection],
         "vk_r": kick_velocity[0][selection],
         "vk_phi": kick_velocity[1][selection],
         "vk_z": kick_velocity[2][selection],
@@ -124,12 +121,6 @@ def test_position(test_case_1, test_case_2):
     )
     assert np.isclose(
         test_case_1["phi"], test_case_2["phi"], rtol=TOL, atol=1.0e-30
-    )
-    assert np.isclose(
-        test_case_1["x"], test_case_2["x"], rtol=TOL, atol=1.0e-30
-    )
-    assert np.isclose(
-        test_case_1["y"], test_case_2["y"], rtol=TOL, atol=1.0e-30
     )
     assert np.isclose(
         test_case_1["z"], test_case_2["z"], rtol=TOL, atol=1.0e-30

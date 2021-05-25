@@ -98,18 +98,20 @@ def magneto_rotational_evolution(
         the time evolution is enabled).
     """
 
+    n = len(t_age)
+
     # Initialization of a dictionary that will contain the evolution in time of B, chi and P.
     evolution_dictionary = {}
 
     # Initialization of the array for the three parameters.
-    B_final = np.zeros(cfg["NS_number"])
-    chi_final = np.zeros(cfg["NS_number"])
-    P_final = np.zeros(cfg["NS_number"])
+    B_final = np.zeros(n)
+    chi_final = np.zeros(n)
+    P_final = np.zeros(n)
 
     # Initial conditions for the three parameters.
     y_initial = np.column_stack((B_initial, chi_initial, P_initial))
 
-    for i in range(cfg["NS_number"]):
+    for i in range(n):
 
         # Generating a time grid at which the solution is evaluated. We start to
         # evolve each star at its birth, corresponding to time 0, and do so for

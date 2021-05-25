@@ -115,10 +115,11 @@ def dynamical_evolution(
 
     Returns:
         (np.ndarray, dict): Tuple consisting of a two-dimensional array of shape (NS_number, 6)
-        defining the neutron stars' final position and velocities in cylindrical coordinates
-        and a dictionary containing the time evolution of these quantities for each
-        neutron star (if the option to save the time evolution is enabled).
+        defining the neutron stars' final positions r [kpc], phi [rad], z [kpc] and velocities
+        in [kpc/yr] in cylindrical coordinates and a dictionary containing the time evolution of
+        these quantities for each neutron star (if the option to save the time evolution is enabled).
     """
+    n = len(t_age)
 
     # Initialization of a dictionary that will contain the evolution in time of
     # positions and velocities.
@@ -126,14 +127,14 @@ def dynamical_evolution(
 
     # Initialize the arrays that will contain the final positions
     # and velocities of the neutron stars.
-    r_final = np.zeros(cfg["NS_number"])
-    phi_final = np.zeros(cfg["NS_number"])
-    z_final = np.zeros(cfg["NS_number"])
-    v_r_final = np.zeros(cfg["NS_number"])
-    v_phi_final = np.zeros(cfg["NS_number"])
-    v_z_final = np.zeros(cfg["NS_number"])
+    r_final = np.zeros(n)
+    phi_final = np.zeros(n)
+    z_final = np.zeros(n)
+    v_r_final = np.zeros(n)
+    v_phi_final = np.zeros(n)
+    v_z_final = np.zeros(n)
 
-    for i in range(cfg["NS_number"]):
+    for i in range(n):
 
         # Linear time grid in years over which the dynamical evolution is performed;
         # each star's position and velocity is evolved for a time equal to its age.
