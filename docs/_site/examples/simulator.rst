@@ -20,20 +20,30 @@ For more information about the simulation script, issue the :code:`--h` argument
 
   python examples/simulator/initialize_evolve_population.py --h
 
-If you want to generate a huge parameter sweep you can use the wrapper or helper script that allows the specification of parameters in a linear spacing format :code:`--parameter [low] [high] [steps]`:
+If you want to generate a huge parameter sweep you can use the wrapper or helper script that allows the specification of parameters with two types of sampling, detemined by the argument :code:`--sampling_type`.
+If :code:`--sampling_type = grid` you should provide the parameters in a linear spacing format :code:`--parameter [low] [high] [steps]`:
 
 .. code-block:: bash
 
-  python examples/simulator/simulation_helper.py --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100
+  python examples/simulator/simulation_helper.py --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100 --sampling_type grid
 
 This example will generate a sweep of :code:`100` uniformly spaced samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model and the results will be dumped in the specified :code:`simulated_data` folder.
+If :code:`--sampling_type = random` you should provide the parameter ranges in the format :code:`--parameter [low] [high]` and specify the :code:`--sampling_size` argument which set the number of values to draw from a uniform distribution for each parameter.
+
+.. code-block:: bash
+
+  python examples/simulator/simulation_helper.py --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 --sampling_type random --sampling_size 100
+
+This example will generate a sweep of :code:`100` randomly drawn samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model and the results will be dumped in the specified :code:`simulated_data` folder.
+
+
 The parameters that can be swept with the simulation helper are :code:`vk_c` for the exponential kick velocity model  :code:`km_exp`, :code:`sigma_k` for the Maxwell kick velocity model :code:`km_maxwell`, :code:`h_c` for the galactic height distribution model of birth places, :code:`P_initial_mean` and :code:`P_initial_sigma` for the birth spin period distribution and :code:`B_initial_log10_mean` and :code:`B_initial_log10_sigma` for the birth magnetic field distribution.
 
 You can also sweep over more than one parameter by running a script like:
 
 .. code-block:: bash
 
-  python examples/simulator/simulation_helper.py --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100 --h_c 0.01 2 10
+  python examples/simulator/simulation_helper.py --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100 --h_c 0.01 2 10 --sampling_type grid
 
 In this way a population is simulated for each combination of values of :code:`vk_c` and :code:`h_c`, i.e., the above case corresponds to :code:`100 x 10 = 1000` simulations.
 The sweeper will generate a folder :code:`simulated_data` which will contain a folder for each simulation (parameter combination) named with an identifier number, i.e, :code:`000000`, :code:`000001`, :code:`000002` and so on.
