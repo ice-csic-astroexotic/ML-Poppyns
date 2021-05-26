@@ -23,7 +23,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from matplotlib import rcParams
+import matplotlib as mpl
+from matplotlib import rc, rcParams
+
+# Set `usetex=False' if you do not have LaTeX installed.
+rc("text", usetex=False)
+rc("font", family="serif")
+mpl.rcParams["text.latex.preamble"] = [r"\usepackage{amsmath}"]
 
 rcParams["mathtext.fontset"] = "stix"
 rcParams["font.family"] = "Liberation serif"

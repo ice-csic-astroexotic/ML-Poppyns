@@ -29,6 +29,7 @@ import numpy as np
 import pytest
 
 import pypopsyn.simulator.initial_population as ipop
+import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 from pypopsyn.simulator.configuration import cfg
 
 TOL = 1e-5
@@ -38,6 +39,13 @@ TOL = 1e-5
 cfg["NS_number"] = 5
 # Set a predefined seed for the tests.
 cfg["seed"] = 42
+# For the tests, set the spiral arm pattern in the configuration file to
+# the one from Faucher-Giguère & Kaspi (2006).
+cfg["spiral_arms"] = "saFK06"
+# Set the number of spiral arms to 4 for the tests.
+cfg["arm_number"] = 4
+
+sm.initialize_spiral_model()
 
 
 @pytest.fixture()
@@ -45,7 +53,9 @@ def test_case_1():
 
     NS_population_initial = ipop.InitialNeutronStarPopulation()
     age = NS_population_initial.age()
-    position = NS_population_initial.position(t_age=age)
+    position = NS_population_initial.position(
+        t_age=age, spiral_model=sm.spiral_model
+    )
     kick_velocity = NS_population_initial.kick_velocity()
     selection = cfg["NS_number"] - 1
 
@@ -69,7 +79,9 @@ def test_case_2():
 
     NS_population_initial = ipop.InitialNeutronStarPopulation()
     age = NS_population_initial.age()
-    position = NS_population_initial.position(t_age=age)
+    position = NS_population_initial.position(
+        t_age=age, spiral_model=sm.spiral_model
+    )
     kick_velocity = NS_population_initial.kick_velocity()
     selection = cfg["NS_number"] - 1
 

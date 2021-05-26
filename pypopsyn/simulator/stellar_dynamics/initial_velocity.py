@@ -32,20 +32,20 @@ SOFTWARE.
 
 import numpy as np
 
-import pypopsyn.simulator.galactic_model as gm
+import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 from pypopsyn.simulator.configuration import cfg
 
 
-def pdf_kick_velocity_exp(v: float) -> float:
+def pdf_kick_velocity_exp(v: np.ndarray) -> np.ndarray:
     """
     Decaying exponential Probability density function for the neutron stars' initial
     kick velocity magnitude following eq. (3) in Gullon et al. (2014).
 
     Args:
-        v (float): initial kick velocity magnitude in [km/s].
+        v (np.ndarray): initial kick velocity magnitude in [km/s].
 
     Returns:
-        float: stellar kick velocity distribution in [1/(km/s)].
+        np.ndarray: stellar kick velocity distribution in [1/(km/s)].
     """
     vk_mean = cfg["vk_c"]
     pdf_vk = 1.0 / vk_mean * np.exp(-v / vk_mean)
@@ -53,7 +53,7 @@ def pdf_kick_velocity_exp(v: float) -> float:
     return pdf_vk
 
 
-def pdf_kick_velocity_maxwell(v: float) -> float:
+def pdf_kick_velocity_maxwell(v: np.ndarray) -> np.ndarray:
     """
     Maxwell probability density function for the neutron stars' initial kick
     velocity magnitude following Hobbs et al. (2005).

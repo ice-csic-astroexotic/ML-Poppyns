@@ -71,64 +71,145 @@ This telemetry comes from the following setup:
 | Total Time [s]:  15.7038                                     |
 +--------------------+--------------------+--------------------+
 
-Basics
-#######
+.. note:: Commit 373350bb30a45601cc40f22de78d0ee5e1bc9cab (14/04/2021).
 
-Configuration
-**************
+This telemetry comes from the following setup:
+
+  * Ubuntu 18.04.
+  * Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz × 8.
+  * 16 GiB RAM DDR4.
+  * 1024 GiB.
+
++-------------------------------------------------------------+--------------------+--------------------+
+| Context                                                     | Time [s]           | Cumulative [s]     |
++=============================================================+====================+====================+
+| [InitialPopulation]                                                                                   |
++-------------------------------------------------------------+--------------------+--------------------+
+| [Initial position and velocity]                             |   0.4506           |   0.4506           |
++-------------------------------------------------------------+--------------------+--------------------+
+| [Energy]                                                    |   1.8407           |   2.2913           |
++-------------------------------------------------------------+--------------------+--------------------+
+| [Initial field strengths, misalignment angles and periods]  |   0.5333           |   2.8246           |
++-------------------------------------------------------------+--------------------+--------------------+
+| [Initial period derivatives]                                |   0.0356           |   2.8602           |
++-------------------------------------------------------------+--------------------+--------------------+
+| [Export]                                                    |   0.5439           |   3.4041           |
++-------------------------------------------------------------+--------------------+--------------------+
+| [EvolvePopulation]                                                                                    |
++-------------------------------------------------------------+--------------------+--------------------+
+| [Dynamic evolution]                                         |  16.4773           |  16.4773           |
++-------------------------------------------------------------+--------------------+--------------------+
+| [Energy]                                                    |   0.0099           |  16.4872           |
++-------------------------------------------------------------+--------------------+--------------------+
+| [Final field strengths, misalignment angles and periods]    |  39.1625           |  55.6497           |
++-------------------------------------------------------------+--------------------+--------------------+
+| [Final period derivatives]                                  |   0.0355           |  55.6853           |
++-------------------------------------------------------------+--------------------+--------------------+
+| [Export]                                                    |   0.7062           |  56.3914           |
++-------------------------------------------------------------+--------------------+--------------------+
+|                                                                                                       |
++-------------------------------------------------------------+--------------------+--------------------+
+| Total Time [s]:  59.8273                                                                              |
++-------------------------------------------------------------+--------------------+--------------------+
+
+Initialising Mock Population
+#############################
+
+Configuration File
+*******************
 
 .. automodule:: pypopsyn.simulator.configuration
   :members: configuration
 
+Initial NS Population
+**********************
+
+.. automodule:: simulator.initial_population
+  :members:
+
+Basics
+#######
+
 CDF Calculator
 ***************
 
-.. automodule:: simulator.cdf_calculator
+.. automodule:: simulator.basics.cdf_calculator
   :members: cdf_calculator
 
 Constants
 *************
 
-.. automodule:: simulator.constants
+.. automodule:: simulator.basics.constants
   :members: constants
 
-Coordinate Conversions
-************************
+Magneto-rotational Physics
+#############################
 
-.. automodule:: simulator.coordinate_conversions
-  :members: coordinate_conversions
+Initial Period Distribution
+****************************
 
+.. automodule:: simulator.magneto_rotational_physics.initial_period
+  :members: initial_period
+
+Magnetic Field Derivative
+**************************
+
+.. automodule:: simulator.magneto_rotational_physics.magnetic_field_derivative
+  :members: magnetic_field_derivative
+
+Magneto-rotational Evolution
+****************************
+
+.. automodule:: simulator.magneto_rotational_physics.magneto_rotational_evolution
+  :members: magneto_rotational_evolution
+
+Misalignment Angle Derivative
+*****************************
+
+.. automodule:: simulator.magneto_rotational_physics.misalignment_angle_derivative
+  :members: misalignment_angle_derivative
+
+Period Derivative
+*****************
+
+.. automodule:: simulator.magneto_rotational_physics.period_derivative
+  :members: period_derivative
 
 Stellar Dynamics
 ###################
 
+Coordinate Conversions
+************************
+
+.. automodule:: simulator.stellar_dynamics.coordinate_conversions
+  :members: coordinate_conversions
+
 Dynamical Evolution
 *******************
 
-.. automodule:: simulator.dynamical_evolution
+.. automodule:: simulator.stellar_dynamics.dynamical_evolution
   :members: dynamical_evolution
 
 Galactic Model
 **************
 
-.. automodule:: simulator.galactic_model
+.. automodule:: simulator.stellar_dynamics.galactic_model
   :members: galactic_model
 
 Initial Position
 ****************
 
-.. automodule:: simulator.initial_position
+.. automodule:: simulator.stellar_dynamics.initial_position
   :members: initial_position
 
 Initial Velocity
 *******************
 
-.. automodule:: simulator.initial_velocity
+.. automodule:: simulator.stellar_dynamics.initial_velocity
   :members: initial_velocity
 
+Spiral Model
+************
 
-Initial NS Population
-#####################
-
-.. automodule:: simulator.initial_population
-  :members:
+.. automodule:: simulator.stellar_dynamics.spiral_model
+  :members: spiral_model

@@ -2,7 +2,7 @@
 Generating an initial population of neutron stars in the Milky Way with
 random parameters.
 
-Authors:
+    Authors:
 
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
@@ -34,11 +34,13 @@ from typing import Tuple
 import numpy as np
 
 import pypopsyn.benchmark.pyinstrument as benchmark
-import pypopsyn.simulator.cdf_calculator as cc
-import pypopsyn.simulator.constants as const
-import pypopsyn.simulator.coordinate_conversions as coco
-import pypopsyn.simulator.initial_position as ip
-import pypopsyn.simulator.initial_velocity as iv
+import pypopsyn.simulator.basics.cdf_calculator as cc
+import pypopsyn.simulator.basics.constants as const
+import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
+import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
+import pypopsyn.simulator.stellar_dynamics.initial_position as ip
+import pypopsyn.simulator.stellar_dynamics.initial_velocity as iv
+import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
@@ -68,7 +70,9 @@ class InitialNeutronStarPopulation:
         probability distribution in a given range of time.
 
         Returns:
+
             np.ndarray: array of ages in [yr].
+
         """
 
         log.debug(
@@ -88,41 +92,58 @@ class InitialNeutronStarPopulation:
         output_dir=cfg["profiles_dir"],
     )
     def position(
-        self, t_age: np.ndarray
+        self, t_age: np.ndarray, spiral_model: sm.SpiralModelBase
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Calculating the position at birth of each random neutron star in
         cylindrical and Cartesian coordinates in a galactocentric reference frame.
 
         Args:
+
             t_age (np.ndarray): array of neutron star ages in [yr].
+            spiral_model (sm.SpiralModelBase): a class specifying the spiral arm structure model.
 
         Returns:
+
             (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
             polar r and phi coordinates in [kpc] and rad and Cartesian x, y and z
             coordinates in [kpc] for each generated neutron star.
+
         """
+        # Randomly associate a spiral arm to each neutron star.
+        arm_index_rand = spiral_model.generate_arm_index(
+            cfg["arm_number"], cfg["NS_number"]
+        )
+        # Count the number of stars in the Local arm.
+        NS_local = len(arm_index_rand[arm_index_rand == 5])
 
         # Drawing a random distance from the galactic center in [kpc] for
         # each neutron star according to the radial stellar density.
         r_grid = np.logspace(
             np.log10(0.0001), np.log10(cfg["r_extent"]), cfg["resolution"]
         )
-        r_pdf_rand = cc.random_from_pdf(
-            r_grid, ip.pdf_radial_stellar_density, cfg["NS_number"],
+
+        r_pdf_rand = np.zeros(cfg["NS_number"])
+        r_pdf_rand[arm_index_rand != 5] = cc.random_from_pdf(
+            r_grid, ip.pdf_radial_stellar_density, cfg["NS_number"] - NS_local
         )
 
-        # Randomly select one of the four spiral arms for the neutron star sample.
-        arm_index_rand = np.random.randint(
-            1, cfg["arm_number"] + 1, cfg["NS_number"]
-        )
+        if NS_local != 0:
+            r_grid_local = np.logspace(
+                np.log10(spiral_model.local_r_min),
+                np.log10(spiral_model.local_r_max),
+                cfg["resolution"],
+            )
+
+            r_pdf_rand[arm_index_rand == 5] = cc.random_from_pdf(
+                r_grid_local, ip.pdf_radial_stellar_density, NS_local
+            )
 
         # Evaluate the angular phi coordinate for each neutron star and
         # add noise to both galactocentric coordinates.
-        phi_rand = np.zeros(cfg["NS_number"])
-        r_rand = np.zeros(cfg["NS_number"])
-        phi_rand, r_rand = ip.pdf_initial_coordinates(
-            r_pdf_rand, cfg["NS_number"], arm_index_rand
+        phi = sm.spiral_model.calculate_phi(r_pdf_rand, arm_index_rand)
+        phi_rand, r_rand = ip.smear_initial_coordinates(
+            r_pdf_rand, phi, cfg["NS_number"]
         )
 
         # Propagating the azimuthal coordinate of each object backwards in time
@@ -131,8 +152,7 @@ class InitialNeutronStarPopulation:
         phi_rand = ip.spiral_arm_time_evol(phi_rand, t_age)
 
         # Position in the galactic plane in Cartesian coordinates.
-        polar_to_cartesian_vect = np.vectorize(coco.polar_to_cartesian)
-        x_rand, y_rand = polar_to_cartesian_vect(r_rand, phi_rand)
+        x_rand, y_rand = coco.polar_to_cartesian(r_rand, phi_rand)
 
         # Drawing a random distance from the galactic plane in [kpc] for each neutron
         # star according to the probability density function for the height.
@@ -154,11 +174,13 @@ class InitialNeutronStarPopulation:
         galactocentric coordinate system.
 
         Returns:
+
             (np.ndarray, np.ndarray, np.ndarray): vk_r, vk_phi and vk_z kick
             velocities in [kpc/yr] for each generated neutron stars. In particular
             vk_r is the component of the kick velocity along the galactocentric
             radial direction, vk_phi is the component along the azimuthal phi
             direction and vk_z is the component along the z direction.
+
         """
 
         kick_model = cfg["kick_model"]
@@ -191,17 +213,14 @@ class InitialNeutronStarPopulation:
         # star, where the local x-axis points always in the r-direction of our
         # galactocentric frame, the local y-axis in the azimuthal phi-direction
         # and the local z-axis coincides with the galactocentric one.
-        spherical_to_cartesian_vect = np.vectorize(coco.spherical_to_cartesian)
-        vk_r_rand, vk_phi_rand, vk_z_rand = spherical_to_cartesian_vect(
+        vk_r_rand, vk_phi_rand, vk_z_rand = coco.spherical_to_cartesian(
             vk_rand, theta_rand, psi_rand
         )
 
         return vk_r_rand, vk_phi_rand, vk_z_rand
 
     @staticmethod
-    def orbital_velocity(
-        r: np.ndarray, z: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def orbital_velocity(r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         Calculate the orbital circular velocity of each star in the galactic
         gravitational potential. In galactocentric cylindrical coordinates,
@@ -210,14 +229,73 @@ class InitialNeutronStarPopulation:
         values, the phi component is negative.
 
         Args:
+
             r (np.ndarray): distance in the galactic disk from the galactic center
             in [kpc].
             z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
+
             (np.ndarray): array of orbital velocities in [kpc/yr].
+
         """
         circular_velocity_vect = np.vectorize(iv.circular_velocity)
         v_orb = -circular_velocity_vect(r, z)
 
         return v_orb
+
+    def period(self) -> np.ndarray:
+        """
+        Determining the initial rotation periods of each pulsar in the sample,
+        as drawn from a normal (Gaussian) distribution. The characteristic
+        parameters are defined in configuration.py. Note that we only allow
+        positive values and redraw them if they fall below zero.
+
+        Returns:
+
+            (np.ndarray): initial spin periods of the pulsar sample in [s].
+
+        """
+
+        P_rand = ipd.pdf_period(
+            cfg["P_initial_mean"], cfg["NS_number"], cfg["P_initial_sigma"]
+        )
+
+        return P_rand
+
+    def magnetic_field(self) -> np.ndarray:
+        """
+        We follow Faucher-Giguère & Kaspi (2006) and Gullon et al. (2014) and determine the
+        initial magnetic field strengths of each pulsar in the sample, by drawing values from
+        a log-normal distribution, i.e., the log_10 values of the magnetic field strengths are
+        themselves normally distributed. The characteristic parameters are defined in configuration.py.
+
+        Returns:
+
+            (np.ndarray): initial magnetic field strengths of the pulsar sample in [G].
+
+        """
+
+        B_rand = 10 ** np.random.normal(
+            cfg["B_initial_log10_mean"],
+            cfg["B_initial_log10_sigma"],
+            cfg["NS_number"],
+        )
+
+        return B_rand
+
+    def misalignment_angle(self) -> np.ndarray:
+        """
+        We follow Gullon et al. (2014) and choose the initial misalignment angle in the
+        range [0, np.pi / 2] according to the probability density distribution np.sin.
+
+        Returns:
+
+            (np.ndarray): initial misalignment angles of the pulsar sample in [rad].
+
+        """
+
+        chi_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
+        chi_rand = cc.random_from_pdf(chi_grid, np.sin, cfg["NS_number"])
+
+        return chi_rand

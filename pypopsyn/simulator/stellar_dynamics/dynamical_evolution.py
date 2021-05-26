@@ -33,17 +33,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from typing import Tuple
+
 import numpy as np
-from numba import jit
+from numba import float64, jit
 from scipy.integrate import odeint
 
-import pypopsyn.simulator.coordinate_conversions as coco
-import pypopsyn.simulator.galactic_model as gm
+import pypopsyn.simulator.basics.constants as const
+import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
+from pypopsyn.simulator.configuration import cfg
+
+gm.initialize_galactic_model()
 
 
-@jit
+@jit(
+    float64[:](
+        float64,
+        float64[:],
+        gm.galactic_model._numba_type_.class_type.instance_type,
+    )
+)
 def dynamical_eq_system(
-    initial_cond: np.ndarray, t: np.ndarray, galactic_model: gm.GalaxyModelBase
+    t: float, initial_cond: np.ndarray, galactic_model: gm.GalaxyModelBase
 ) -> np.ndarray:
     """
     System of dynamical equations to solve to determine the orbits of the neutron
@@ -55,7 +66,7 @@ def dynamical_eq_system(
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
         with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
 
-        t (np.ndarray): time array in [yr] along which to perform the integration.
+        t (float): unused time variable, required for the integration below..
 
         galactic_model (gm.GalaxyModelBase): a galactic model to calculate
         the needed potential.
@@ -89,61 +100,89 @@ def dynamical_eq_system(
 
 
 def dynamical_evolution(
-    NS_number: int,
-    initial_cond: np.ndarray,
-    t_age: np.ndarray,
-    time_step: float = 1.0e3,
-) -> np.ndarray:
+    initial_cond: np.ndarray, t_age: np.ndarray
+) -> Tuple[np.ndarray, dict]:
     """
     Performing the dynamical evolution of the neutron star population for a given
     galactic potential, starting from a set of initial conditions.
 
     Args:
-        NS_number (int): number of simulated neutron stars.
-
         initial_cond (np.ndarray): array of 6 components defining the initial
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
         with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
 
         t_age (np.ndarray): array of neutron star ages in [yr].
 
-        time_step (float): time step used to integrate the equations of motion.
-
     Returns:
-        (np.ndarray): two-dimensional array of shape (NS_number, 8) defining
-        the neutron stars' final position in Cartesian and cylindrical coordinates
-        as well as their velocities in cylindrical coordinates.
+        (np.ndarray, dict): Tuple consisting of a two-dimensional array of shape (NS_number, 6)
+        defining the neutron stars' final position and velocities in cylindrical coordinates
+        and a dictionary containing the time evolution of these quantities for each
+        neutron star (if the option to save the time evolution is enabled).
     """
+
+    # Initialization of a dictionary that will contain the evolution in time of
+    # positions and velocities.
+    evolution_dictionary = {}
 
     # Initialize the arrays that will contain the final positions
     # and velocities of the neutron stars.
-    r_final = np.zeros(NS_number)
-    phi_final = np.zeros(NS_number)
-    x_final = np.zeros(NS_number)
-    y_final = np.zeros(NS_number)
-    z_final = np.zeros(NS_number)
-    v_r_final = np.zeros(NS_number)
-    v_phi_final = np.zeros(NS_number)
-    v_z_final = np.zeros(NS_number)
+    r_final = np.zeros(cfg["NS_number"])
+    phi_final = np.zeros(cfg["NS_number"])
+    z_final = np.zeros(cfg["NS_number"])
+    v_r_final = np.zeros(cfg["NS_number"])
+    v_phi_final = np.zeros(cfg["NS_number"])
+    v_z_final = np.zeros(cfg["NS_number"])
 
-    for i in range(NS_number):
+    for i in range(cfg["NS_number"]):
 
         # Linear time grid in years over which the dynamical evolution is performed;
         # each star's position and velocity is evolved for a time equal to its age.
-        time_grid = np.arange(0.0, t_age[i] + time_step, time_step)
+        time_grid = np.append(
+            np.arange(0.0, t_age[i], cfg["dyn_time_step"]), t_age[i],
+        )
 
         # Save the odeint output which is a two-dimensional array of
         # shape (len(time_grid), 6).
+        # We set tfirst=True to unify the structure of the input ODEs in order to be able
+        # to compare different scipy functions to solve the ODEs.
         evol_output = np.array(
             odeint(
                 dynamical_eq_system,
-                initial_cond[i],
-                time_grid,
+                y0=initial_cond[i],
+                t=time_grid,
                 args=(gm.galactic_model,),
+                tfirst=True,
             )
         )
 
+        if cfg["save_dyn_evolution"]:
+
+            v_r_evol = evol_output[:, 3] * const.KPC_TO_KM / const.YR_TO_S
+            v_phi_evol = (
+                evol_output[:, 0]
+                * evol_output[:, 4]
+                * const.KPC_TO_KM
+                / const.YR_TO_S
+            )
+            v_z_evol = evol_output[:, 5] * const.KPC_TO_KM / const.YR_TO_S
+
+            # Save the evolution output of the i-th neutron star in a dictionary.
+            evolution = {
+                i: {
+                    "t": time_grid.tolist(),
+                    "r(t)": evol_output[:, 0].tolist(),
+                    "phi(t)": evol_output[:, 1].tolist(),
+                    "z(t)": evol_output[:, 2].tolist(),
+                    "v_r(t)": v_r_evol.tolist(),
+                    "v_phi(t)": v_phi_evol.tolist(),
+                    "v_z(t)": v_z_evol.tolist(),
+                }
+            }
+            # Update the dictionary containing the evolution information of all the neutron stars.
+            evolution_dictionary = {**evolution_dictionary, **evolution}
+
         # Save the final position and velocity.
+        # Note: We save directly the v_phi velocity component and not the angular velocity omega.
         r_final[i] = evol_output[-1, 0]
         phi_final[i] = evol_output[-1, 1]
         z_final[i] = evol_output[-1, 2]
@@ -152,21 +191,8 @@ def dynamical_evolution(
         v_phi_final[i] = omega_final * r_final[i]
         v_z_final[i] = evol_output[-1, 5]
 
-        x_final[i], y_final[i] = coco.polar_to_cartesian(
-            r_final[i], phi_final[i]
-        )
-
     final_population = np.array(
-        [
-            r_final,
-            phi_final,
-            x_final,
-            y_final,
-            z_final,
-            v_r_final,
-            v_phi_final,
-            v_z_final,
-        ]
+        [r_final, phi_final, z_final, v_r_final, v_phi_final, v_z_final]
     ).T
 
-    return final_population
+    return final_population, evolution_dictionary

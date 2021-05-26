@@ -8,7 +8,11 @@ The :code:`examples/simulator/initialize_evolve_population.py` script is respons
 
   python examples/simulator/initialize_evolve_population.py --output_dir simulated_data --parameter_override override.json
 
+For example you can set the number of neutron stars to simulate, the models for the kick velocity distribution, the galactic potential and the structure of the Galactic spiral arms, the number of spiral arms to include (5 or 4 depending if you want to include or not the Local arm) and several other parameters.
+
 This will generate a new folder :code:`simulated_data` if it does not exist, in which the simulation results will be saved: the initial population in compressed binary format `initial_population.pkl.gz`, the final population in the same format `final_population.pkl.gz`, the profiles for the simulation if enabled and the dictionary containing the parameter overrides in `override.json` for reproducibility.
+
+If the user opts to save the full evolutionary output for the dynamical and/or the magneto-rotational evolution by setting :code:`cfg["save_dyn_evolution"]` or :code:`cfg["save_magrot_evolution"]` to :code:`True` in the configuration file, a JSON file with the full time-stamped parameter evolution is also generated.
 
 For more information about the simulation script, issue the :code:`--h` argument:
 
@@ -23,7 +27,7 @@ If you want to generate a huge parameter sweep you can use the wrapper or helper
   python examples/simulator/simulation_helper.py --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100
 
 This example will generate a sweep of :code:`100` uniformly spaced samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model and the results will be dumped in the specified :code:`simulated_data` folder.
-The parameters that can be swept with the simulation helper are :code:`vk_c` for the exponential kick velocity model  :code:`km_exp`, :code:`sigma_k` for the Maxwell kick velocity model :code:`km_maxwell` and :code:`h_c` for the galactic height distribution model of birth places.
+The parameters that can be swept with the simulation helper are :code:`vk_c` for the exponential kick velocity model  :code:`km_exp`, :code:`sigma_k` for the Maxwell kick velocity model :code:`km_maxwell`, :code:`h_c` for the galactic height distribution model of birth places, :code:`P_initial_mean` and :code:`P_initial_sigma` for the birth spin period distribution and :code:`B_initial_log10_mean` and :code:`B_initial_log10_sigma` for the birth magnetic field distribution.
 
 You can also sweep over more than one parameter by running a script like:
 
@@ -38,4 +42,4 @@ Here it is important to distinguish between two types of arguments for the helpe
 
 The script automatically checks the compatibility of the present parameters for the selected options, e.g., :code:`vk_c` cannot be specified if :code:`km_maxell` has been chosen as kick model. This is done using the dictionary :code:`examples/simulator/config_sweeper.json` which specifies a list of exclusive parameters for each option.
 
-To visualize the outcome of a given population two jupyter notebooks are provided: the first one :code:`initial_population_plots.ipynb` plots the initial conditions of the simulation, the second one :code:`final_population_plots.ipynb` plots the outcome of the simulation after the dynamical evolution.
+To visualize the outcome of a given population a number of jupyter notebooks are provided: the first one :code:`initial_population_plots.ipynb` plots the initial conditions of the simulation, the second one :code:`final_population_plots.ipynb` plots the outcome of the simulation after the dynamical evolution. A comparison between the synthetic and the real observed pulsar population is performed in :code:`observation_comparison.ipynb`. Finally, the full dynamical evolution of different parameters can be visualized with the notebook :code:`evolution_plots.ipynb`.

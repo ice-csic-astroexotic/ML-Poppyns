@@ -45,7 +45,7 @@ def run_experiment(command: str) -> typing.Tuple[pathlib.Path, str]:
         command: full command to execute the experiment.
 
     Returns:
-        The experiment command and the convolute output of the process.
+        The experiment command and the convoluted output of the process.
 
     """
 
@@ -119,7 +119,7 @@ def main(args):
     # Lock on the master process to impose a delay in the process execution
     # so that none of them can be launched exactly at the same time.
     lock = mp.Lock()
-    # A pool of processes with a defined capacity, a process spawnign setup
+    # A pool of processes with a defined capacity, a process spawning setup
     # routine and a general event to signal process execution.
     pool = mp.Pool(args.processes, setup_process_pool, (event, lock,))
 

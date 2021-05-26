@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath("../pypopsyn"))
 # -- Project information -----------------------------------------------------
 
 project = "pypopsyn"
-copyright = "2020, MAGNESIA"
+copyright = "2020-2021, MAGNESIA"
 author = "MAGNESIA"
 
 
@@ -55,3 +55,12 @@ html_theme = "alabaster"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+# -- Latex configurations ---------------------------------------------------
+
+# To avoid having the first section as the title above the TOC:
+
+latex_elements = {
+    "preamble": "\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of contents}}"
+    "\\setcounter{tocdepth}{1}",
+}

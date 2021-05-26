@@ -1,27 +1,34 @@
 #!/usr/bin/evn python3
 # -*- coding: utf-8 -*-
 
-""" Simulator helper script.
+"""
+    Simulator helper script.
 
     This script helps running the simulator scripts (in this case the simulator
     for initializing and evolving a population) in a multithreaded way.
+    If the --sampling_type argument is set to "grid" it parses a compact representation
+    for each tunable parameter like:
 
-    It parses a compact representation for each tunable parameter like:
         --argument low high count
 
     And expands it to a linspace between [low, high] with a count num of steps.
+    If the --sampling_type argument is set to "random" it parses a compact representation
+    for each tunable parameter like:
 
-    Such expansion is done for each specified argument and then all the possible
-    combinations of them are produced by a generator.
+        --argument low high
 
-    Each combination will spawn a new process that goes into a multithreaded
+    And expands it to a list of values between [low, high] drawn from a uniform distribution.
+    In this case the number of values to be drawn for each parameter is specified by the
+    argument --sampling_size.
+    Such expansion is done for each specified argument and then a generator produces all the possible
+    combinations of them if in "grid" mode or sets of random drawn parameter values if in "random" mode.
+    Each set will spawn a new process that goes into a multithreaded
     pool for later execution, allowing the simulation of many populations to
     run asyncrhonously in parallel with a defined maximum number of threads.
 
     Running the code:
 
         python3 simulator_helper.py --h
-
         To obtain help about all the arguments that can be used.
 
     Authors:
@@ -30,6 +37,7 @@
         Michele Ronchi (ronchi@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
     in the Software without restriction, including without limitation the rights
@@ -66,17 +74,13 @@ log = logging.getLogger(__name__)
 def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     """
     Run simulation command.
-
     This is the main routine for running a particular simulation. It runs the
     provided simulation command (a Python call to the simulation script with a
     set of CLI arguments) and captures all the output of the process.
-
     Args:
         command (List): full command to execute the simulation.
-
     Returns:
         The simulation command and the convolute output of the process.
-
     """
 
     # Acquire the lock and block any other process from executing
@@ -101,14 +105,11 @@ def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
 
     """
     Callback to log all the info returned from a simulation run.
-
     Args:
         process_result: tuple containing the process simulation command and the
           whole process output to console string.
-
     Returns:
         Nothing.
-
     """
 
     log.info("")
@@ -124,7 +125,6 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
 
     """
     Setup the process pool for multiprocessing with a global pause/resume event.
-
     Args:
         event: reference to a master process event that will signal the child
             processes to pause or resume execution.
@@ -139,12 +139,10 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
     starting = lock
 
 
-def set_default(args_dict: dict) -> None:
+def set_default(args_dict: dict) -> None:  # noqa: C901
     """
-    If any of the parameters related to the dynamical evolution are None,
-    set the parameter corresponding to the given kick model to the default value provided in the
-    configuration file.
-
+    If any of the parameters related to the simulation are None, set them to the
+    default value provided in the configuration file.
     Args:
             args_dict: dictionary of the parsed argument via CLI.
     """
@@ -177,20 +175,93 @@ def set_default(args_dict: dict) -> None:
 
         log.info("vk_c set to the default value {}".format(cfg["h_c"]))
 
+    if args_dict["P_initial_mean"] is None:
+        if args_dict["sampling_type"] == "grid":
+            args_dict["P_initial_mean"] = [
+                cfg["P_initial_mean"],
+                cfg["P_initial_mean"],
+                1,
+            ]
+        elif args_dict["sampling_type"] == "random":
+            args_dict["P_initial_mean"] = [
+                cfg["P_initial_mean"],
+                cfg["P_initial_mean"],
+            ]
+
+        log.info(
+            "P_initial_mean set to the default value {}".format(
+                cfg["P_initial_mean"]
+            )
+        )
+
+    if args_dict["P_initial_sigma"] is None:
+        if args_dict["sampling_type"] == "grid":
+            args_dict["P_initial_sigma"] = [
+                cfg["P_initial_sigma"],
+                cfg["P_initial_sigma"],
+                1,
+            ]
+        elif args_dict["sampling_type"] == "random":
+            args_dict["P_initial_sigma"] = [
+                cfg["P_initial_sigma"],
+                cfg["P_initial_sigma"],
+            ]
+
+        log.info(
+            "P_initial_sigma set to the default value {}".format(
+                cfg["P_initial_sigma"]
+            )
+        )
+
+    if args_dict["B_initial_log10_mean"] is None:
+        if args_dict["sampling_type"] == "grid":
+            args_dict["B_initial_log10_mean"] = [
+                cfg["B_initial_log10_mean"],
+                cfg["B_initial_log10_mean"],
+                1,
+            ]
+        elif args_dict["sampling_type"] == "random":
+            args_dict["B_initial_log10_mean"] = [
+                cfg["B_initial_log10_mean"],
+                cfg["B_initial_log10_mean"],
+            ]
+
+        log.info(
+            "B_initial_log10_mean set to the default value {}".format(
+                cfg["B_initial_log10_mean"]
+            )
+        )
+
+    if args_dict["B_initial_log10_sigma"] is None:
+        if args_dict["sampling_type"] == "grid":
+            args_dict["B_initial_log10_sigma"] = [
+                cfg["B_initial_log10_sigma"],
+                cfg["B_initial_log10_sigma"],
+                1,
+            ]
+        elif args_dict["sampling_type"] == "random":
+            args_dict["B_initial_log10_sigma"] = [
+                cfg["B_initial_log10_sigma"],
+                cfg["B_initial_log10_sigma"],
+            ]
+
+        log.info(
+            "B_initial_log10_sigma set to the default value {}".format(
+                cfg["B_initial_log10_sigma"]
+            )
+        )
+
 
 def check_expand_args(args_dict: dict) -> (list, list):
     """
         Check if the parsed input arguments are coherent and have the correct shape.
         If in grid mode: expand each simulation parameter in linear space in the specified ranges.
         If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
-
         Args:
             args_dict: dictionary of the parsed argument via CLI.
-
         Return:
             (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
             expanded parameters.
-
         """
     cli_args: list = []
     cli_str: list = []
@@ -212,13 +283,7 @@ def check_expand_args(args_dict: dict) -> (list, list):
         log.info(value)
 
         if value is None:
-            if arg == "sampling_size":
-                if args_dict["sampling_type"] == "random":
-                    raise ValueError(
-                        "In random mode you have to specify the parameter sampling_size."
-                    )
-            else:
-                continue
+            continue
 
         elif type(value) is str:
             # If the value of this parameter is a string, this can be either
@@ -406,8 +471,9 @@ if __name__ == "__main__":
         "--sampling_size",
         nargs="?",
         type=int,
-        default=None,
-        help="Number of random values to draw for each simulation parameter. This parameter is required only if the sampling_type is set to random.",
+        default=1,
+        help="Number of random values to draw for each simulation parameter. This parameter is required "
+        "only if the sampling_type is set to random.",
     )
 
     args.add_argument(
@@ -453,6 +519,46 @@ if __name__ == "__main__":
         help="In grid mode: range of scale height h_c of the thin disk model with number of steps "
         "[low, high, steps]."
         "In random mode: range of scale height h_c of the thin disk model [low, high].",
+    )
+
+    args.add_argument(
+        "--P_initial_mean",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range of the mean initial spin period with number of steps "
+        "[low, high, steps]."
+        "In random mode: range of the mean initial spin period [low, high].",
+    )
+
+    args.add_argument(
+        "--P_initial_sigma",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range of the dispersion of the initial spin period with number of steps "
+        "[low, high, steps]."
+        "In random mode: range of the dispersion of the initial spin period [low, high].",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_mean",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the mean of the log10 initial magnetic field strength with number of steps "
+        "[low, high, steps]."
+        "In random mode: range of the mean of the log10 initial magnetic field strength [low, high].",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_sigma",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the dispersion of the log10 of the initial magnetic field strength "
+        "with number of steps[low, high, steps]."
+        "In random mode: range of the dispersion of the log10 initial magnetic field strength [low, high].",
     )
 
     args = args.parse_args()

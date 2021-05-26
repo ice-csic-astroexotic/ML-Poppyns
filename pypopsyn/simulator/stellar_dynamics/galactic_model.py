@@ -45,10 +45,10 @@ import abc
 from typing import Tuple
 
 import numpy as np
-from numba import float32, float64, int32, jit
+from numba import float64
 from numba.experimental import jitclass
 
-import pypopsyn.simulator.constants as const
+import pypopsyn.simulator.basics.constants as const
 from pypopsyn.simulator.configuration import cfg
 
 galactic_model = None
@@ -81,10 +81,66 @@ class GalaxyModelBase:
     """
 
     @abc.abstractmethod
+    def MW_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
+        raise NotImplementedError("Please implement the method MW_potential.")
+
+    @abc.abstractmethod
     def cylind_coord_gradient_mw_potential(
         self, r: float, z: float
     ) -> np.ndarray:
-        raise NotImplementedError("Please implement this method.")
+        raise NotImplementedError(
+            "Please implement the method cylind_coord_gradient_mw_potential."
+        )
+
+    def total_energy(
+        self, v: np.ndarray, r: np.ndarray, z: np.ndarray
+    ) -> float:
+        """
+        Value of the total energy of the system, sum of the total kinetic energy and
+        the total gravitational potential energy. We assume here that all the stars
+        have unit mass.
+
+        Args:
+            v (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
+            r (np.ndarray): array of distances from the galactic axis in [kpc].
+            z (np.ndarray): array of distances from the galactic disk in [kpc].
+
+        Returns:
+            (float): value of the total energy of the system in [erg].
+        """
+        # Convert speeds into [cm/s].
+        v = v * const.KM_TO_CM
+
+        tot_kin_energy = 0.5 * np.sum(v ** 2)
+        tot_pot_energy = np.sum(self.MW_potential(r, z))
+
+        tot_energy = tot_kin_energy + tot_pot_energy
+
+        return tot_energy
+
+    def total_angular_momentum_z(
+        self, v_phi: np.ndarray, r: np.ndarray,
+    ) -> float:
+        """
+        Value of the z-component of the total angular momentum of the system, which is a
+        conserved quantity in axisymmetric potentials. We assume here that all the stars
+        have unit mass.
+
+        Args:
+            v_phi (np.ndarray): array of magnitudes of the orbital speed of the stars in [km/s].
+            r (np.ndarray): array of distances from the galactic axis in [kpc].
+
+        Returns:
+            (float): value of the total energy of the system in [erg].
+        """
+        # Convert speeds into [cm/s].
+        v_phi = v_phi * const.KM_TO_CM
+        # Convert distances into [cm].
+        r = r * const.KPC_TO_CM
+
+        L_z = float(np.sum(r * v_phi))
+
+        return L_z
 
 
 # Class member data specification for Numba. In order for Numba to be able to
@@ -153,17 +209,17 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return K, dK_dz
 
-    def d_potential(self, r: float, z: float) -> float:
+    def d_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         The Miyamoto-Nagai disk component gravitational potential defined in eq. (8) in
         Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
-            z (float): height from the galactic disk in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the disk-halo potential in [erg/g].
+            (np.ndarray): value of the disk-halo potential in [erg/g].
         """
 
         K, _ = self.shape_parameter(z)
@@ -174,16 +230,16 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return pot_d
 
-    def b_potential(self, r: float) -> float:
+    def b_potential(self, r: np.ndarray) -> np.ndarray:
         """
-        The Hernnquist bulge component gravitational potential defined in eq. (7) in
+        The Hernquist bulge component gravitational potential defined in eq. (7) in
         Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in [erg/g].
+            (np.ndarray): value of the bulge potential in [erg/g].
         """
         M_b = self.M_b
         r_b = self.r_b
@@ -192,16 +248,16 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return pot_b
 
-    def n_potential(self, r: float) -> float:
+    def n_potential(self, r: np.ndarray) -> np.ndarray:
         """
-        The Hernnquist nucleus component gravitational potential defined in eq. (7) in
+        The Hernquist nucleus component gravitational potential defined in eq. (7) in
         Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in [erg/g].
+            (np.ndarray): value of the bulge potential in [erg/g].
         """
         M_n = self.M_n
         r_n = self.r_n
@@ -210,16 +266,16 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return pot_n
 
-    def h_potential(self, r: float) -> float:
+    def h_potential(self, r: np.ndarray) -> np.ndarray:
         """
         The Navarro-Frenk-White halo component gravitational potential defined in
         eq. (9) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in [erg/g].
+            (np.ndarray): value of the bulge potential in [erg/g].
         """
         M_h = self.M_h
         r_h = self.r_h
@@ -228,16 +284,16 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return pot_h
 
-    def MW_potential(self, r: float, z: float) -> float:
+    def MW_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         Total Milky Way gravitational potential in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
-            z (float): height from the galactic disk in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the Galactic potential in [erg].
+            (np.ndarray): value of the Galactic potential in [erg].
         """
 
         MW_pot = (
@@ -248,56 +304,6 @@ class GalaxyModelM19(GalaxyModelBase):
         )
 
         return MW_pot
-
-    def total_energy(
-        self, v: np.ndarray, r: np.ndarray, z: np.ndarray
-    ) -> float:
-        """
-        Value of the total energy of the system, sum of the total kinetic energy and
-        the total gravitational potential energy. We assume here that all the stars
-        have unit mass.
-
-        Args:
-            v (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
-            r (np.ndarray): array of distances from the galactic axis in [kpc].
-            z (np.ndarray): array of distances from the galactic disk in [kpc].
-
-        Returns:
-            (float): value of the total energy of the system in [erg].
-        """
-        # Convert speeds into [cm/s].
-        v = v * const.KM_TO_CM
-
-        tot_kin_energy = 0.5 * np.sum(v ** 2)
-        tot_pot_energy = np.sum(self.MW_potential(r, z))
-
-        tot_energy = tot_kin_energy + tot_pot_energy
-
-        return tot_energy
-
-    def total_angular_momentum_z(
-        self, v_phi: np.ndarray, r: np.ndarray,
-    ) -> float:
-        """
-        Value of the z-component of the total angular momentum of the system, which is a
-        conserved quantity in axisymmetric potentials. We assume here that all the stars
-        have unit mass.
-
-        Args:
-            v_phi (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
-            r (np.ndarray): array of distances from the galactic axis in [kpc].
-
-        Returns:
-            (float): value of the total energy of the system in [erg].
-        """
-        # Convert speeds into [cm/s].
-        v_phi = v_phi * const.KM_TO_CM
-        # Convert distances into [cm].
-        r = r * const.KPC_TO_CM
-
-        L_z = float(np.sum(r * v_phi))
-
-        return L_z
 
     def r_z_derivatives_d_potential(
         self, r: float, z: float
@@ -502,17 +508,17 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         return K, dK_dz
 
-    def dh_potential(self, r: float, z: float) -> float:
+    def dh_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         The disk-halo component gravitational potential defined in eq. (14) in
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
-            z (float): height from the galactic disk in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the disk-halo potential in [erg/g].
+            (np.ndarray): value of the disk-halo potential in [erg/g].
         """
 
         K, _ = self.shape_parameter(z)
@@ -528,16 +534,16 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         return pot_dh
 
-    def b_potential(self, r: float) -> float:
+    def b_potential(self, r: np.ndarray) -> np.ndarray:
         """
         The bulge component gravitational potential defined in eq. (15) in
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the bulge potential in [erg/g].
+            (np.ndarray): value of the bulge potential in [erg/g].
         """
         M_b = self.M_b
         b_b = self.b_b
@@ -546,16 +552,16 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         return pot_b
 
-    def n_potential(self, r: float) -> float:
+    def n_potential(self, r: np.ndarray) -> np.ndarray:
         """
         The nucleus component gravitational potential defined in eq. (15) in
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
         Returns:
-            (float): value of the nucleus potential.
+            (np.ndarray): value of the nucleus potential.
         """
         M_n = self.M_n
         b_n = self.b_n
@@ -564,17 +570,17 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         return pot_n
 
-    def MW_potential(self, r: float, z: float) -> float:
+    def MW_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         Total Milky Way gravitational potential defined in eq. (13) in
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
-            z (float): height from the galactic disk in [kpc].
+            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
-            (float): value of the Galactic potential in [erg].
+            (np.ndarray): value of the Galactic potential in [erg].
         """
 
         MW_pot = (
@@ -582,56 +588,6 @@ class GalaxyModelFK06(GalaxyModelBase):
         )
 
         return MW_pot
-
-    def total_energy(
-        self, v: np.ndarray, r: np.ndarray, z: np.ndarray
-    ) -> float:
-        """
-        Value of the total energy of the system, sum of the total kinetic energy and
-        the total gravitational potential energy. We assume here that all the stars
-        have unit mass.
-
-        Args:
-            v (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
-            r (np.ndarray): array of distances from the galactic axis in [kpc].
-            z (np.ndarray): array of distances from the galactic disk in [kpc].
-
-        Returns:
-            (float): value of the total energy of the system in [erg].
-        """
-        # Convert speeds into [cm/s].
-        v = v * const.KM_TO_CM
-
-        tot_kin_energy = 0.5 * np.sum(v ** 2)
-        tot_pot_energy = np.sum(self.MW_potential(r, z))
-
-        tot_energy = tot_kin_energy + tot_pot_energy
-
-        return tot_energy
-
-    def total_angular_momentum_z(
-        self, v_phi: np.ndarray, r: np.ndarray,
-    ) -> float:
-        """
-        Value of the z-component of the total angular momentum of the system, which is a
-        conserved quantity in axisymmetric potentials. We assume here that all the stars
-        have unit mass.
-
-        Args:
-            v_phi (np.ndarray): array of magnitudes of the speed of the stars in [km/s].
-            r (np.ndarray): array of distances from the galactic axis in [kpc].
-
-        Returns:
-            (float): value of the total energy of the system in [erg].
-        """
-        # Convert speeds into [cm/s].
-        v_phi = v_phi * const.KM_TO_CM
-        # Convert distances into [cm].
-        r = r * const.KPC_TO_CM
-
-        L_z = float(np.sum(r * v_phi))
-
-        return L_z
 
     def r_z_derivatives_dh_potential(
         self, r: float, z: float
