@@ -98,6 +98,8 @@ def magneto_rotational_evolution(
         the time evolution is enabled).
     """
 
+    # Save the number of simulated neutron stars, which is flexible depending if they are simulated
+    # all at once or one by one.
     n = len(t_age)
 
     # Initialization of a dictionary that will contain the evolution in time of B, chi and P.
