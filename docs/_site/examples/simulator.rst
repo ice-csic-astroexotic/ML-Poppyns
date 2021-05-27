@@ -20,7 +20,7 @@ For more information about the simulation script, issue the :code:`--h` argument
 
   python examples/simulator/initialize_evolve_population.py --h
 
-If you want to generate a huge parameter sweep you can use the wrapper or helper script that allows the specification of parameters with two types of sampling, detemined by the argument :code:`--sampling_type`.
+If you want to generate a huge parameter sweep you can use the wrapper or helper script that allows the specification of parameters with two types of sampling, determined by the argument :code:`--sampling_type`.
 If :code:`--sampling_type = grid` you should provide the parameters in a linear spacing format :code:`--parameter [low] [high] [steps]`:
 
 .. code-block:: bash
@@ -28,7 +28,7 @@ If :code:`--sampling_type = grid` you should provide the parameters in a linear 
   python examples/simulator/simulation_helper.py --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100 --sampling_type grid
 
 This example will generate a sweep of :code:`100` uniformly spaced samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model and the results will be dumped in the specified :code:`simulated_data` folder.
-If :code:`--sampling_type = random` you should provide the parameter ranges in the format :code:`--parameter [low] [high]` and specify the :code:`--sampling_size` argument which set the number of values to draw from a uniform distribution for each parameter.
+If :code:`--sampling_type = random` you should provide the parameter ranges in the format :code:`--parameter [low] [high]` and specify the :code:`--sampling_size` argument which sets the number of values to draw from a uniform distribution for each parameter.
 
 .. code-block:: bash
 
