@@ -43,6 +43,7 @@ import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
+import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
@@ -204,14 +205,14 @@ def generate_population(
                 "[kpc]",
                 "[kpc]",
                 "[kpc]",
-                "[kpc/yr]",
-                "[kpc/yr]",
-                "[kpc/yr]",
-                "[kpc/yr]",
+                "[kpc yr^-1]",
+                "[kpc yr^-1]",
+                "[kpc yr^-1]",
+                "[kpc yr^-1]",
                 "[G]",
                 "[rad]",
                 "[s]",
-                "[s/yr]",
+                "[s yr^-1]",
             ]
 
             header_initial = pd.MultiIndex.from_arrays(
@@ -399,6 +400,33 @@ def generate_population(
 
             timer.checkpoint("[Final period derivatives]")
 
+            # Determining the final period derivatives.
+            log.info("Computing observed radio fluxes...")
+
+            # Determining the radio beam angular aperture.
+            theta_beam = er.beam_aperture(P_final, configuration.cfg["r_em"])
+
+            # Determining the fraction of solid angle spanned by the two radio beams in a star complete rotation.
+            beam_frac = er.beam_fraction(chi_final, theta_beam)
+
+            # Selecting the pulsars whose radio beam intercept our line of sight.
+            intercepted = er.los_intercept(beam_frac)
+
+            # Computing the intrinsic pulse width of the radio pulse.
+            w_intrinsic = er.pulse_width(chi_final, theta_beam)
+
+            # Computing the radio luminosity of the neutron stars.
+            L_radio = er.pdf_radio_luminosity_lognorm(
+                configuration.cfg["NS_number"]
+            )
+
+            # Computing the radio flux observed on Earth.
+            S_radio = er.erg_flux_radio(
+                L_radio, sun_dist, beam_frac, w_intrinsic
+            )
+
+            timer.checkpoint("[Radio emission]")
+
             # Adding the evolution output to a data frame for export.
             log.info("Creating data frame for exporting...")
 
@@ -421,6 +449,10 @@ def generate_population(
                 "chi",
                 "P",
                 "P_dot",
+                "L_radio",
+                "S_radio",
+                "w_int",
+                "intercepted",
             ]
             units_final = [
                 "[yr]",
@@ -430,16 +462,20 @@ def generate_population(
                 "[deg]",
                 "[deg]",
                 "[kpc]",
-                "[km/s]",
-                "[km/s]",
-                "[km/s]",
-                "[mas/yr]",
-                "[mas/yr]",
-                "[km/s]",
+                "[km s^-1]",
+                "[km s^-1]",
+                "[km s^-1]",
+                "[mas yr^-1]",
+                "[mas yr^-1]",
+                "[km s^-1]",
                 "[G]",
                 "[rad]",
                 "[s]",
-                "[s/yr]",
+                "[s yr^-1]",
+                "[erg s^-1 Hz^-1]",
+                "[erg s^-1 cm^-2 Hz^-1]",
+                "[rad]",
+                " ",
             ]
             header_final = pd.MultiIndex.from_arrays(
                 [parameters_final, units_final]
@@ -465,6 +501,10 @@ def generate_population(
                         chi_final,
                         P_final,
                         P_dot_final,
+                        L_radio,
+                        S_radio,
+                        w_intrinsic,
+                        intercepted,
                     ]
                 ).T,
                 columns=header_final,

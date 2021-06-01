@@ -33,6 +33,8 @@ KPC_TO_KM = 3.08567758e16  # Convert from [kpc] to [km].
 KPC_TO_CM = 3.08567758e21  # Convert from [kpc] to [cm].
 KM_TO_CM = 100000.0  # Convert from [km] to [cm].
 YR_TO_S = 3600.0 * 24 * 365  # Convert from [yr] to [s].
+MJY_TO_ERG = 1.0e-26  # Convert [mJy] to [erg cm^-2 s^-1 Hz^-1]
+JY_TO_ERG = 1.0e-23  # Convert [Jy] to [erg cm^-2 s^-1 Hz^-1]
 
 # Physical constants.
 
