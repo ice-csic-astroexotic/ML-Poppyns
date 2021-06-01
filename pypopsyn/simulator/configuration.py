@@ -142,6 +142,16 @@ cfg["n_e"] = 1e36
 cfg["magrot_time_step_log10"] = 1e-2
 
 
+# Radio emission model parameters.
+
+# distance from the center of the star where the radio emission is supposed to be generated [cm].
+cfg["r_em"] = 3.0e7
+
+# Mean and standard deviation for the log-normally distributed radio luminosity in [erg s^(-1) Hz^(-1)].
+cfg["L_radio_log10_mean"] = 18.0
+cfg["L_radio_log10_sigma"] = 0.9
+
+
 def update_configuration(new_configuration) -> None:
     """
     Update current configuration with custom one.
