@@ -151,6 +151,9 @@ cfg["r_em"] = 3.0e7
 cfg["L_radio_log10_mean"] = 18.0
 cfg["L_radio_log10_sigma"] = 0.9
 
+# free electron density model for the Galaxy.
+cfg["fed_model"] = "ymw16"
+
 
 def update_configuration(new_configuration) -> None:
     """
