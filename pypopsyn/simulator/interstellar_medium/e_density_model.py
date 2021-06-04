@@ -35,11 +35,7 @@ import pygedm
 
 
 def compute_DM(
-    l_gal: np.ndarray,
-    b_gal: np.ndarray,
-    d: np.ndarray,
-    ed_model: str,
-    NS_number: int,
+    l_gal: np.ndarray, b_gal: np.ndarray, d: np.ndarray, ed_model: str,
 ) -> np.ndarray:
     """
     Given a specified electron density model between 'ymw16' and 'ne2001' compute
@@ -55,12 +51,14 @@ def compute_DM(
     Returns:
         (np.ndarray): values of the DM in [pc cm^-3].
     """
+    # Store the number of object that need computation of DM.
+    n = len(l_gal)
 
-    DM = np.zeros(NS_number)
+    DM = np.zeros(n)
 
     d_pc = d * 1000  # Convert distance from kpc to pc.
 
-    for i in range(NS_number):
+    for i in range(n):
         # The function dist_to_dm accept only floats as input and the distance must be in [pc].
         dm, _ = pygedm.dist_to_dm(l_gal[i], b_gal[i], d_pc[i], method=ed_model)
 
@@ -85,7 +83,6 @@ def compute_tau_sc(DM: np.ndarray, nu: float) -> np.ndarray:
     """
     # Compute the average tau scattering in [s] at 327 MHz from the empirical formula in Krishnakumar et al. (2015).
     tau_sc_mean = 3.6e-9 * DM ** 2.2 * (1.0 + 1.94e-3 * DM ** 2.0)
-    print(tau_sc_mean)
 
     # We pick the values of tau_sc from a gaussian distribution centered on np.log10(tau_sc_mean)
     # with a fiducial sigma of 0.5 in log10 to roughly reproduce the scatter in the data as in Fig. 3 in
