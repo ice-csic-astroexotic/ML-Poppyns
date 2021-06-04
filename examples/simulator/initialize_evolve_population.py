@@ -41,9 +41,11 @@ import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population as ipop
+import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
+import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
@@ -111,11 +113,14 @@ def generate_population(
             (
                 r_initial,
                 phi_initial,
-                x_initial,
-                y_initial,
                 z_initial,
             ) = NS_population_initial.position(
                 t_age=age, spiral_model=sm.spiral_model
+            )
+
+            # Convert from polar coordinates to cartesian coordinates.
+            x_initial, y_initial = coco.polar_to_cartesian(
+                r_initial, phi_initial
             )
 
             # Generating initial velocities by summing the kick
@@ -310,11 +315,22 @@ def generate_population(
             (
                 ra_final,
                 dec_final,
-                sun_dist,
-                v_ra_final,
-                v_dec_final,
-                v_ls,
+                sun_dist_icrs,
+                pm_ra_final,
+                pm_dec_final,
+                v_ls_icrs,
             ) = coco.galactocentric_to_icrs(
+                x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
+            )
+
+            (
+                l_final,
+                b_final,
+                sun_dist_gal,
+                pm_l_final,
+                pm_b_final,
+                v_ls_gal,
+            ) = coco.galactocentric_to_galactic(
                 x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
             )
 
@@ -400,8 +416,17 @@ def generate_population(
 
             timer.checkpoint("[Final period derivatives]")
 
-            # Determining the final period derivatives.
-            log.info("Computing observed radio fluxes...")
+            # Determining the luminosity in different electromagnetic bands.
+            log.info("Computing the luminosity in radio...")
+
+            L_radio = er.pdf_radio_luminosity_lognorm(
+                configuration.cfg["NS_number"]
+            )
+
+            ####################################################################################################
+
+            # Select only the pulsars that actually intersect our LOS.
+            log.info("Selecting pulsars pointing at us...")
 
             # Determining the radio beam angular aperture.
             theta_beam = er.beam_aperture(P_final, configuration.cfg["r_em"])
@@ -412,20 +437,69 @@ def generate_population(
             # Selecting the pulsars whose radio beam intercept our line of sight.
             intercepted = er.los_intercept(beam_frac)
 
-            # Computing the intrinsic pulse width of the radio pulse.
-            w_intrinsic = er.pulse_width(chi_final, theta_beam)
-
-            # Computing the radio luminosity of the neutron stars.
-            L_radio = er.pdf_radio_luminosity_lognorm(
-                configuration.cfg["NS_number"]
+            fraction_intercepted = len(intercepted[intercepted]) / len(
+                intercepted
             )
+            log.info(
+                f"Fraction of intercepted pulsars: {fraction_intercepted}"
+            )
+
+            timer.checkpoint("[Pulsars LOS selection]")
+
+            # ONLY for the intercepted pulsars.
+            log.info("Measuring the properties of selected pulsars...")
+
+            # Computing the DM.
+            DM = np.zeros(configuration.cfg["NS_number"])
+            DM[intercepted] = edm.compute_DM(
+                l_final[intercepted],
+                b_final[intercepted],
+                sun_dist_gal[intercepted],
+                configuration.cfg["fed_model"],
+            )
+
+            # Computing the intrinsic pulse width of the radio pulse.
+            w_intrinsic = np.zeros(configuration.cfg["NS_number"])
+            w_intrinsic[intercepted] = er.pulse_width(
+                chi_final[intercepted], theta_beam[intercepted]
+            )
+            # Convert pulse width in [s].
+            w_intrinsic_s = w_intrinsic * P_final / (2.0 * np.pi)
 
             # Computing the radio flux observed on Earth.
-            S_radio = er.erg_flux_radio(
-                L_radio, sun_dist, beam_frac, w_intrinsic
+            S_radio = np.zeros(configuration.cfg["NS_number"])
+            S_radio[intercepted] = er.erg_flux_radio(
+                L_radio[intercepted],
+                sun_dist_icrs[intercepted],
+                beam_frac[intercepted],
+                w_intrinsic[intercepted],
             )
+            # Convert Radio flux in Jy.
+            S_radio_Jy = S_radio / const.JY_TO_ERG
 
             timer.checkpoint("[Radio emission]")
+
+            # simulating a radio survey.
+            log.info("Simulate detection with PMPS...")
+
+            survey_PMPS = sr.SurveyRadioPMPS()
+            detected = np.zeros(configuration.cfg["NS_number"], dtype=bool)
+
+            detected[intercepted] = survey_PMPS.detect(
+                S_radio_Jy[intercepted],
+                DM[intercepted],
+                ra_final[intercepted],
+                dec_final[intercepted],
+                l_final[intercepted],
+                b_final[intercepted],
+                w_intrinsic_s[intercepted],
+                P_final[intercepted],
+            )
+
+            fraction_detected = len(detected[detected]) / len(detected)
+            log.info(f"Fraction of detected pulsars: {fraction_detected}")
+
+            timer.checkpoint("[Detection]")
 
             # Adding the evolution output to a data frame for export.
             log.info("Creating data frame for exporting...")
@@ -438,12 +512,14 @@ def generate_population(
                 "z",
                 "RA",
                 "DEC",
+                "l",
+                "b",
                 "d",
                 "v_r",
                 "v_phi",
                 "v_z",
-                "v_RA",
-                "v_DEC",
+                "pm_RA",
+                "pm_DEC",
                 "v_ls",
                 "B",
                 "chi",
@@ -453,12 +529,15 @@ def generate_population(
                 "S_radio",
                 "w_int",
                 "intercepted",
+                "detected",
             ]
             units_final = [
                 "[yr]",
                 "[kpc]",
                 "[kpc]",
                 "[kpc]",
+                "[deg]",
+                "[deg]",
                 "[deg]",
                 "[deg]",
                 "[kpc]",
@@ -473,8 +552,9 @@ def generate_population(
                 "[s]",
                 "[s yr^-1]",
                 "[erg s^-1 Hz^-1]",
-                "[erg s^-1 cm^-2 Hz^-1]",
-                "[rad]",
+                "[Jy]",
+                "[s]",
+                " ",
                 " ",
             ]
             header_final = pd.MultiIndex.from_arrays(
@@ -490,21 +570,24 @@ def generate_population(
                         z_final,
                         ra_final,
                         dec_final,
-                        sun_dist,
+                        l_final,
+                        b_final,
+                        sun_dist_icrs,
                         v_r_final,
                         v_phi_final,
                         v_z_final,
-                        v_ra_final,
-                        v_dec_final,
-                        v_ls,
+                        pm_ra_final,
+                        pm_dec_final,
+                        v_ls_icrs,
                         B_final,
                         chi_final,
                         P_final,
                         P_dot_final,
                         L_radio,
-                        S_radio,
-                        w_intrinsic,
+                        S_radio_Jy,
+                        w_intrinsic_s,
                         intercepted,
+                        detected,
                     ]
                 ).T,
                 columns=header_final,

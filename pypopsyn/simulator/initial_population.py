@@ -93,7 +93,7 @@ class InitialNeutronStarPopulation:
     )
     def position(
         self, t_age: np.ndarray, spiral_model: sm.SpiralModelBase
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Calculating the position at birth of each random neutron star in
         cylindrical and Cartesian coordinates in a galactocentric reference frame.
@@ -105,8 +105,8 @@ class InitialNeutronStarPopulation:
 
         Returns:
 
-            (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
-            polar r and phi coordinates in [kpc] and rad and Cartesian x, y and z
+            (np.ndarray, np.ndarray, np.ndarray):
+            polar r and phi coordinates in [kpc] and rad and z
             coordinates in [kpc] for each generated neutron star.
 
         """
@@ -151,9 +151,6 @@ class InitialNeutronStarPopulation:
         # we assume that the arm structure itself remains rigid.
         phi_rand = ip.spiral_arm_time_evol(phi_rand, t_age)
 
-        # Position in the galactic plane in Cartesian coordinates.
-        x_rand, y_rand = coco.polar_to_cartesian(r_rand, phi_rand)
-
         # Drawing a random distance from the galactic plane in [kpc] for each neutron
         # star according to the probability density function for the height.
         z_grid = np.logspace(
@@ -166,7 +163,7 @@ class InitialNeutronStarPopulation:
         # Randomly distribute the stars above and below the galactic plane.
         z_rand = ip.random_scatter_about_plane(z_pdf_rand, cfg["NS_number"])
 
-        return r_rand, phi_rand, x_rand, y_rand, z_rand
+        return r_rand, phi_rand, z_rand
 
     def kick_velocity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
