@@ -110,6 +110,17 @@ class InitialNeutronStarPopulation:
             coordinates in [kpc] for each generated neutron star.
 
         """
+
+        radial_model = cfg["radial_model"]
+        if radial_model == "rmYK04":
+            pdf_radial = ip.pdf_radial_density_YK04
+        elif radial_model == "rmVV21":
+            pdf_radial = ip.pdf_radial_density_VV21
+        else:
+            raise ValueError(
+                "The radial density model pdf does not exist. Choose between rmYK04 or rmVV21."
+            )
+
         # Randomly associate a spiral arm to each neutron star.
         arm_index_rand = spiral_model.generate_arm_index(
             cfg["arm_number"], cfg["NS_number"]
@@ -125,7 +136,7 @@ class InitialNeutronStarPopulation:
 
         r_pdf_rand = np.zeros(cfg["NS_number"])
         r_pdf_rand[arm_index_rand != 5] = cc.random_from_pdf(
-            r_grid, ip.pdf_radial_stellar_density, cfg["NS_number"] - NS_local
+            r_grid, pdf_radial, cfg["NS_number"] - NS_local
         )
 
         if NS_local != 0:
@@ -136,7 +147,7 @@ class InitialNeutronStarPopulation:
             )
 
             r_pdf_rand[arm_index_rand == 5] = cc.random_from_pdf(
-                r_grid_local, ip.pdf_radial_stellar_density, NS_local
+                r_grid_local, pdf_radial, NS_local
             )
 
         # Evaluate the angular phi coordinate for each neutron star and
@@ -185,9 +196,11 @@ class InitialNeutronStarPopulation:
             pdf_vkick = iv.pdf_kick_velocity_maxwell
         elif kick_model == "km_exp":
             pdf_vkick = iv.pdf_kick_velocity_exp
+        elif kick_model == "km_2maxwell":
+            pdf_vkick = iv.pdf_kick_velocity_2maxwell
         else:
             raise ValueError(
-                "The kick velocity model pdf does not exist. Choose between km_maxwell or km_exp."
+                "The kick velocity model pdf does not exist. Choose between km_maxwell, km_exp or km_2maxwell."
             )
 
         # Drawing a random magnitude of the birth kick velocity in [km/s] for each

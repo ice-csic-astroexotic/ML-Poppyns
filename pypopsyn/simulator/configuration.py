@@ -91,11 +91,14 @@ cfg["galactic_model"] = "gmM19"
 # Spiral arms model used in the simulation. Choose between saYMW17 or saFK06.
 cfg["spiral_arms"] = "saYMW17"
 
-# Model pdf for the kick velocity. Choose between "km_maxwell" or "km_exp".
+# Model pdf for the radial density distribution of neutron star progenitors. Choose between "rmYK04" or "rmVV21".
+cfg["radial_model"] = "rmYK04"
+
+# Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_2maxwell.
 cfg["kick_model"] = "km_maxwell"
 
 # Characteristic kick velocity in [km/s] for the exponential kick velocity pdf.
-cfg["vk_c"] = 380.0
+cfg["vk_c"] = 180.0
 
 # Sigma in [km/s] for the Maxwell kick velocity pdf.
 cfg["sigma_k"] = 265.0

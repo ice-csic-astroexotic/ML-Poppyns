@@ -44,7 +44,7 @@ import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 from pypopsyn.simulator.configuration import cfg
 
 
-def pdf_radial_stellar_density(r: np.ndarray) -> np.ndarray:
+def pdf_radial_density_YK04(r: np.ndarray) -> np.ndarray:
     """
     The Milky Way's stellar radial density in the galactic plane according
     to eq. (15) of Yusifov & Küçük (2004).
@@ -76,6 +76,39 @@ def pdf_radial_stellar_density(r: np.ndarray) -> np.ndarray:
         * ((r + r1) / (rsun + r1)) ** a
         * np.exp(-b * (r - rsun) / (rsun + r1))
     )
+
+    # Multiply the stellar surface density with the area element in polar coordinates.
+    pdf_r = 2 * np.pi * r * rho
+
+    return pdf_r
+
+
+def pdf_radial_density_VV21(r: np.ndarray) -> np.ndarray:
+    """
+    The Milky Way's radial density of supernova remnants including both core-collapse
+    and thermonuclear supernovae. The model distribution is the exponential model from eq. (9)
+    from the work of Verberne & Vinc (2021).
+
+    Args:
+
+        r (np.ndarray): distance from the galactic center in [kpc].
+
+    Returns:
+
+        np.ndarray: SNR radial density in [1/kpc].
+
+    """
+
+    # check range of input
+    coco.check_radial_coordinate(r)
+
+    # Here we keep R_sun = 8. kpc for consistency with the results
+    # of Verberne & Vinc (2021).
+    rsun = 8.0  # Sun's distance from the galactic center in [kpc].
+    b = 2.46  # +0.39 -0.33
+
+    # SNR surface density following eq. (9) of Verberne & Vinc (2021).
+    rho = np.exp(-b * (r - rsun) / (rsun))
 
     # Multiply the stellar surface density with the area element in polar coordinates.
     pdf_r = 2 * np.pi * r * rho
