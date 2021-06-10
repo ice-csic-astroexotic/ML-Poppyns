@@ -6,6 +6,7 @@ dependencies:
   - astropy=4.0.1
   - black=19.10b0
   - ffmpeg
+  - graphviz
   - hydra-core=0.11.3
   - ipykernel=5.1.0
   - jupyter=1.0.0
@@ -36,4 +37,5 @@ dependencies:
   - termcolor=1.1.0
   - torchvision>=0.4.0
   - pip:
+      - pydeps
       - pygedm
