@@ -11,4 +11,6 @@
 """
 from .metric_accuracy import MetricAccuracy
 from .metric_chi2 import MetricAccuracyCHI2
+from .metric_mae import MetricAccuracyMAE
+from .metric_mse import MetricAccuracyMSE
 from .metric_rmse import MetricAccuracyRMSE
