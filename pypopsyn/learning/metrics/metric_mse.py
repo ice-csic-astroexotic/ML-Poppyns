@@ -34,8 +34,6 @@ class MetricAccuracyMSE(MetricBase):
             Mean Square Error computed over a batch.
         """
 
-        mse = 0.0
-
         with torch.no_grad():
 
             self.mse = nn.MSELoss()

@@ -34,8 +34,6 @@ class MetricAccuracyMAE(MetricBase):
             Mean Absolute Error computed over a batch.
         """
 
-        mae = 0.0
-
         with torch.no_grad():
 
             self.mae = nn.L1Loss()

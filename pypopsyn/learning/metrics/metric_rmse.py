@@ -34,8 +34,6 @@ class MetricAccuracyRMSE(MetricBase):
             Root Mean Squared Error computed over a batch.
         """
 
-        rmse = 0.0
-
         with torch.no_grad():
 
             self.mse = nn.MSELoss()
