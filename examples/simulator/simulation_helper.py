@@ -283,7 +283,13 @@ def check_expand_args(args_dict: dict) -> (list, list):
         log.info(value)
 
         if value is None:
-            continue
+            if arg == "sampling_size":
+                if args_dict["sampling_type"] == "random":
+                    raise ValueError(
+                        "In random mode you have to specify the parameter sampling_size."
+                    )
+            else:
+                continue
 
         elif type(value) is str:
             # If the value of this parameter is a string, this can be either
@@ -356,7 +362,7 @@ def check_expand_args(args_dict: dict) -> (list, list):
     # Check if none of the incompatible parameters are required.
     for p in forbidden_parameters:
         if p in args_dict.keys() and args_dict[p] is not None:
-            raise ValueError("Forbidden parameter {p} is present")
+            raise ValueError(f"Forbidden parameter {p} is present")
 
     return var_names, var_expanded_ranges
 
@@ -471,7 +477,7 @@ if __name__ == "__main__":
         "--sampling_size",
         nargs="?",
         type=int,
-        default=1,
+        default=None,
         help="Number of random values to draw for each simulation parameter. This parameter is required "
         "only if the sampling_type is set to random.",
     )
