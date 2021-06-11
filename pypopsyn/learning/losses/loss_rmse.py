@@ -18,7 +18,7 @@ from .loss_base import LossBase
 class LossRMSE(LossBase):
     "Root Mean Square Error (RMSE) loss"
 
-    def __call__(self, output, target, eps=1e-6):
+    def __call__(self, output, target):
 
         """ Computation of the RMSE loss.
 
@@ -31,10 +31,8 @@ class LossRMSE(LossBase):
 
         """
         self.mse = nn.MSELoss()
-        # adding a small epsilon to avoid null values
-        self.eps = eps
 
-        loss = torch.sqrt(self.mse(output, target)) + self.eps
+        loss = torch.sqrt(self.mse(output, target))
         return loss
 
     def __str__(self):

@@ -20,7 +20,7 @@ from .metric_base import MetricBase
 
 
 class MetricAccuracyCHI2(MetricBase):
-    def __call__(self, output, target, eps=1e-6) -> float:
+    def __call__(self, output, target) -> float:
 
         """ Computation of the accuracy metric defined as the reduced chi square value.
             The value of the reduced chi square should be near 1 for a best accuracy.
@@ -33,13 +33,11 @@ class MetricAccuracyCHI2(MetricBase):
             reduced chi square value computed on a batch.
         """
 
-        self.eps = eps
-
         with torch.no_grad():
 
             red_chi2 = (
                 (output - target) ** 2 / target
-            ).sum() / output.data.nelement() + self.eps
+            ).sum() / output.data.nelement()
 
         return red_chi2
 

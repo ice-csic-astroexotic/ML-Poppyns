@@ -21,7 +21,7 @@ from .metric_base import MetricBase
 
 
 class MetricAccuracyRMSE(MetricBase):
-    def __call__(self, output, target, eps=1e-6) -> float:
+    def __call__(self, output, target) -> float:
 
         """ Computation of the accuracy metric defined as root mean squared error.
             The value of the RMSE should be 0 for the best accuracy.
@@ -34,14 +34,12 @@ class MetricAccuracyRMSE(MetricBase):
             Root Mean Squared Error computed over a batch.
         """
 
-        self.eps = eps
         rmse = 0.0
 
         with torch.no_grad():
 
             self.mse = nn.MSELoss()
-            # adding a small epsilon to avoid null values
-            rmse = torch.sqrt(self.mse(output, target)) + self.eps
+            rmse = torch.sqrt(self.mse(output, target))
 
         return rmse
 
