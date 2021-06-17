@@ -38,6 +38,7 @@ import numpy as np
 import pandas as pd
 
 import pypopsyn.benchmark.timewith as timewith
+import pypopsyn.simulator.basics.cdf_calculator as cc
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population as ipop
@@ -434,8 +435,18 @@ def generate_population(
             # Determining the fraction of solid angle spanned by the two radio beams in a star complete rotation.
             beam_frac = er.beam_fraction(chi_final, theta_beam)
 
+            # Drawing a random angular intercept for the LOS.
+            # Note that since we assume simmetry between the northern and southern hemisphere of the star we
+            # can only consider the northern hemisphere.
+            los_grid = np.linspace(
+                0.0, np.pi / 2, configuration.cfg["resolution"]
+            )
+            los_rand = cc.random_from_pdf(
+                los_grid, np.sin, configuration.cfg["NS_number"]
+            )
+
             # Selecting the pulsars whose radio beam intercept our line of sight.
-            intercepted = er.los_intercept(beam_frac)
+            intercepted = er.los_intercept(chi_final, theta_beam, los_rand)
 
             fraction_intercepted = len(intercepted[intercepted]) / len(
                 intercepted
@@ -461,7 +472,9 @@ def generate_population(
             # Computing the intrinsic pulse width of the radio pulse.
             w_intrinsic = np.zeros(configuration.cfg["NS_number"])
             w_intrinsic[intercepted] = er.pulse_width(
-                chi_final[intercepted], theta_beam[intercepted]
+                chi_final[intercepted],
+                theta_beam[intercepted],
+                los_rand[intercepted],
             )
             # Convert pulse width in [s].
             w_intrinsic_s = w_intrinsic * P_final / (2.0 * np.pi)
