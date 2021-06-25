@@ -136,21 +136,25 @@ def los_intercept(
     return intercepted
 
 
-def pdf_radio_luminosity_lognorm(NS_number: int) -> np.ndarray:
+def pdf_radio_luminosity(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     """
-    Draw random radio luminosities from a log-normal distribution.
+    Draw random radio luminosities from a distribution that depends on the spin period and spin period derivative.
+    We assume a random log-normal spread for the normalization constant L_0.
 
     Args:
-        NS_number (int): total number of neutron stars created in the simulation.
-
+        P (np.ndarray): array of spin periods of the pulsars in [s].
+        P_dot (np.ndarray): array of spin period derivatives of the pulsars in [s/s].
 
     Returns:
         (np.ndarray): pulsar radio luminosity [erg s^(-1) Hz^(-1)] drawn from a log-normal distribution.
     """
 
-    L_radio = 10 ** np.random.normal(
+    NS_number = len(P)
+
+    L_0 = 10 ** np.random.normal(
         cfg["L_radio_log10_mean"], cfg["L_radio_log10_sigma"], NS_number
     )
+    L_radio = L_0 * P ** cfg["epsilon1"] * P_dot ** cfg["epsilon2"]
 
     return L_radio
 

@@ -71,16 +71,16 @@ cfg["seed"] = None
 cfg["resolution"] = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 100000
+cfg["NS_number"] = 300000
 
 # Number of spiral arms in the galaxy. If set to 5 the Local arm is included.
-cfg["arm_number"] = 4
+cfg["arm_number"] = 5
 
 # Minimum age for the neutron stars in [yr].
 cfg["t_age_min"] = 1.0
 
 # Maximum age for the neutron stars in [yr].
-cfg["t_age_max"] = 1e7
+cfg["t_age_max"] = 3e7
 
 # Time step for the dynamical evolution [yr].
 cfg["dyn_time_step"] = 1e4
@@ -92,7 +92,7 @@ cfg["galactic_model"] = "gmM19"
 cfg["spiral_arms"] = "saYMW17"
 
 # Model pdf for the radial density distribution of neutron star progenitors. Choose between "rmYK04" or "rmVV21".
-cfg["radial_model"] = "rmYK04"
+cfg["radial_model"] = "rmVV21"
 
 # Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_2maxwell.
 cfg["kick_model"] = "km_maxwell"
@@ -151,8 +151,10 @@ cfg["magrot_time_step_log10"] = 1e-2
 cfg["r_em"] = 3.0e7
 
 # Mean and standard deviation for the log-normally distributed radio luminosity in [erg s^(-1) Hz^(-1)].
-cfg["L_radio_log10_mean"] = 18.0
+cfg["L_radio_log10_mean"] = 26.0
 cfg["L_radio_log10_sigma"] = 0.9
+cfg["epsilon1"] = -1.5
+cfg["epsilon2"] = 0.5
 
 # free electron density model for the Galaxy.
 cfg["fed_model"] = "ymw16"

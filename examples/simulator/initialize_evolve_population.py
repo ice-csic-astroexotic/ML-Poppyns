@@ -420,8 +420,8 @@ def generate_population(
             # Determining the luminosity in different electromagnetic bands.
             log.info("Computing the luminosity in radio...")
 
-            L_radio = er.pdf_radio_luminosity_lognorm(
-                configuration.cfg["NS_number"]
+            L_radio = er.pdf_radio_luminosity(
+                P_final, P_dot_final / const.YR_TO_S
             )
 
             ####################################################################################################
@@ -507,6 +507,17 @@ def generate_population(
                 b_final[intercepted],
                 w_intrinsic_s[intercepted],
                 P_final[intercepted],
+            )
+
+            print(
+                np.mean(
+                    S_radio_Jy[detected] * 1000 * sun_dist_icrs[detected] ** 2
+                )
+            )
+            print(
+                np.std(
+                    S_radio_Jy[detected] * 1000 * sun_dist_icrs[detected] ** 2
+                )
             )
 
             fraction_detected = len(detected[detected]) / len(detected)

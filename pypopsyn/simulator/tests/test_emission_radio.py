@@ -33,8 +33,12 @@ from pypopsyn.simulator.configuration import cfg
 
 TOL = 1e-5
 
-
+# Set the values of the configuration file for testing purposes.
 cfg["NS_number"] = 2
+cfg["L_radio_log10_mean"] = 26.0
+cfg["L_radio_log10_sigma"] = 0.9
+cfg["epsilon1"] = -1.5
+cfg["epsilon2"] = 0.5
 
 
 @pytest.fixture()
@@ -42,6 +46,7 @@ def test_case_1():
     data = {
         "r_em": cfg["r_em"],
         "P": np.array([0.1, 1.0]),
+        "P_dot": np.array([1.0e-15]),
         "chi": np.array([np.pi / 3.0, np.pi / 4.0]),
         "theta_b": np.array([0.3, 0.1]),
         "los": np.array([0.3, 0.8]),
@@ -49,9 +54,10 @@ def test_case_1():
         "w_expected": np.array([0.277910]),
         "beam_fraction_expected": np.array([0.51186, 0.14119]),
         "intercepted_expected": np.array([False, True]),
-        "L_radio": np.array([5.0e19]),
+        "log10_L_0": np.array([26.0]),
+        "L_radio_expected": np.array([3.162278e18]),
         "d": np.array([10.0]),
-        "S_radio_expected": np.array([1.30912e-27]),
+        "S_radio_expected": np.array([8.27960e-29]),
     }
 
     return data
@@ -127,6 +133,26 @@ def test_los_intercept(test_case_1):
     ).all()
 
 
+def test_pdf_radio_luminosity(monkeypatch, test_case_1):
+    """
+    Verifying that the effective pulse width is computed correctly.
+    """
+
+    # Mocking the normalization of the luminosity distribution that is otherwise randomly determined.
+    def mock_log10_L_0(*args, **kwargs):
+        return test_case_1["log10_L_0"]
+
+    monkeypatch.setattr(np.random, "normal", mock_log10_L_0)
+
+    L_radio_out = er.pdf_radio_luminosity(
+        np.array([test_case_1["P"][1]]), test_case_1["P_dot"],
+    )
+
+    assert np.isclose(
+        test_case_1["L_radio_expected"], L_radio_out, rtol=TOL, atol=1.0e-7
+    ).all()
+
+
 def test_erg_flux_radio(test_case_1):
     """
     Verifying that the radio flux of a pulsar is correctly evaluated.
@@ -135,7 +161,7 @@ def test_erg_flux_radio(test_case_1):
     beam_frac = np.array(test_case_1["beam_fraction_expected"][1])
 
     S_radio_out = er.erg_flux_radio(
-        test_case_1["L_radio"],
+        test_case_1["L_radio_expected"],
         test_case_1["d"],
         beam_frac,
         test_case_1["w_expected"],
