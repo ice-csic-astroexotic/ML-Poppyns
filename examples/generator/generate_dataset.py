@@ -313,26 +313,82 @@ def generate_dataset(args) -> None:
             train_dataset_dictionary.setdefault(k, v_train)
 
         # Write the train and validation dataset dictionary into a .csv file.
-        train_dataset_filename = f"{dataset_path}/train_dataset.csv"
+        train_dataset_filename = f"{dataset_path}/dataset_train.csv"
 
-        df = pd.DataFrame(
+        train_df = pd.DataFrame(
             {
                 key: pd.Series(value)
                 for key, value in train_dataset_dictionary.items()
             }
         )
-        df.to_csv(train_dataset_filename, encoding="utf-8", index=False)
+        train_df.to_csv(train_dataset_filename, encoding="utf-8", index=False)
 
-        valid_dataset_filename = f"{dataset_path}/valid_dataset.csv"
-        df = pd.DataFrame(
+        valid_dataset_filename = f"{dataset_path}/dataset_valid.csv"
+        valid_df = pd.DataFrame(
             {
                 key: pd.Series(value)
                 for key, value in valid_dataset_dictionary.items()
             }
         )
-        df.to_csv(valid_dataset_filename, encoding="utf-8", index=False)
+        valid_df.to_csv(valid_dataset_filename, encoding="utf-8", index=False)
 
-        log.info("Files train_dataset.csv and valid_dataset.csv generated")
+        log.info("Files dataset_train.csv and dataset_valid.csv generated")
+
+        # Compute the statistics on the train dataset only.
+        i = 0
+
+        target_names = []
+        # Loop over every input column of the train dataset to collect all outputs.
+        for col in train_df.columns:
+            # All input channel headers are annotated with a prefix "input:" in
+            # the dataset CSV file. Find them and skip them to find the targets.
+            if "input:" in col:
+                i += 1
+            # If an input prefix is not found, it is a label (ground truth) then
+            # skip to directly stack them later based on the last index in which
+            # we found the input prefix.
+            else:
+                target_names.append(col)
+
+        # Fetch all the targets from the last input channel column.
+        targets = np.array(train_df.iloc[:, i:], dtype=float)
+
+        # Compute statistics for targets. Note that they are computed on a
+        # per-position/channel basis over the whole dataset so if we have
+        # multiple labels for each sample, we compute the statistics for each
+        # one of the labels across the whole set of samples (hence axis=0).
+        target_mean = np.mean(targets, axis=0)
+        target_std = np.std(targets, axis=0)
+        target_max = np.max(targets, axis=0)
+        target_min = np.min(targets, axis=0)
+
+        # Save statistics into a dictionary.
+        train_statistics_dictionary = {}
+
+        for i, tn in enumerate(target_names):
+            target_statistics = {
+                tn: {
+                    "std": target_mean[i],
+                    "mean": target_std[i],
+                    "max": target_max[i],
+                    "min": target_min[i],
+                }
+            }
+            # Update the dictionary containing the evolution information of all the neutron stars.
+            train_statistics_dictionary = {
+                **train_statistics_dictionary,
+                **target_statistics,
+            }
+
+        # Write the train statistics dictionary into a .csv file.
+        # Save dictionary containing evolution information to output path in a .json file.
+        train_statistics_dump_path = pathlib.Path().joinpath(
+            dataset_path, "statistics_train.json"
+        )
+        with open(train_statistics_dump_path, "w") as f:
+            json.dump(train_statistics_dictionary, f, indent=4, sort_keys=True)
+
+        log.info("Files statistics_train.json generated")
 
 
 if __name__ == "__main__":
