@@ -380,8 +380,7 @@ def generate_dataset(args) -> None:
                 **target_statistics,
             }
 
-        # Write the train statistics dictionary into a .csv file.
-        # Save dictionary containing evolution information to output path in a .json file.
+        # Save dictionary containing statistical information to the dataset path in a .json file.
         train_statistics_dump_path = pathlib.Path().joinpath(
             dataset_path, "statistics_train.json"
         )

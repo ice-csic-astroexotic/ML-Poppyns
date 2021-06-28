@@ -71,20 +71,14 @@ class DatasetMultichannelArray:
 
         label_name = []
 
-        i = 0
-
         # Loop over every input column of the dataset to collect all outputs.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in
-            # the dataset CSV file. Find them and skip them to find the targets.
-            if "input:" in col:
-                i += 1
-            # If an input prefix is not found, it is a label (ground truth) then
-            # skip to directly stack them later based on the last index in which
-            # we found the input prefix.
-            else:
+            # the dataset CSV file. Find them and skip them to find the targets names.
+            if "input:" not in col:
                 label_name.append(col)
 
+        # Save the statistics for the filtered labels.
         self.target_mean = np.array(
             [self.statistics[key]["mean"] for key in label_name],
             dtype=np.float32,
