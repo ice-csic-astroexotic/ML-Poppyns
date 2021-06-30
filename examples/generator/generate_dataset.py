@@ -12,8 +12,8 @@
     The information on the simulated dataset is also saved in a .csv file where the
     corresponding input files are mapped with their paths and labels.
 
-    If the argument split is specified the total dataset will be split into a
-    train and validation subsets and two additional .csv files will be created
+    The total dataset can be also split into a train, validation and test subsets
+    and in this case three additional .csv files will be created
     specifying the samples in each subset.
 
     Running the code:
@@ -306,10 +306,12 @@ def generate_dataset(args) -> None:
 
     if args.test_split is not None and args.valid_train_split is not None:
 
+        # Split the dataset into training, validation and test sets.
         (
             test_dataset_dictionary,
             trainval_dataset_dictionary,
         ) = ds.split_dataset(dataset_dictionary, args.test_split)
+
         valid_dataset_dictionary, train_dataset_dictionary = ds.split_dataset(
             trainval_dataset_dictionary, args.valid_train_split
         )
@@ -348,7 +350,6 @@ def generate_dataset(args) -> None:
         )
 
         # Compute the statistics on the train dataset only.
-
         statistics_dictionary = cs.compute_statistics(train_dataset_dictionary)
         # Save dictionary containing statistical information to the dataset path in a .json file.
         train_statistics_dump_path = pathlib.Path().joinpath(
@@ -361,6 +362,7 @@ def generate_dataset(args) -> None:
 
     if args.test_split is None and args.valid_train_split is not None:
 
+        # Split the dataset into training and validation sets only.
         valid_dataset_dictionary, train_dataset_dictionary = ds.split_dataset(
             dataset_dictionary, args.valid_train_split
         )
@@ -388,7 +390,6 @@ def generate_dataset(args) -> None:
         log.info("Files dataset_train.csv and dataset_valid.csv generated")
 
         # Compute the statistics on the train dataset only.
-
         statistics_dictionary = cs.compute_statistics(train_dataset_dictionary)
         # Save dictionary containing statistical information to the dataset path in a .json file.
         train_statistics_dump_path = pathlib.Path().joinpath(
@@ -398,6 +399,19 @@ def generate_dataset(args) -> None:
             json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
 
         log.info("Files statistics_train.json generated")
+
+    if args.test_split is None and args.valid_train_split is None:
+
+        # Compute the statistics on the whole dataset.
+        statistics_dictionary = cs.compute_statistics(dataset_dictionary)
+        # Save dictionary containing statistical information to the dataset path in a .json file.
+        statistics_dump_path = pathlib.Path().joinpath(
+            dataset_path, "statistics_train.json"
+        )
+        with open(statistics_dump_path, "w") as f:
+            json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
+
+        log.info("Files statistics.json generated")
 
 
 if __name__ == "__main__":
