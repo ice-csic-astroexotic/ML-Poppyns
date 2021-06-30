@@ -52,6 +52,7 @@ def test_case_1():
         "pot_n_expected": -3.90053e14,
         "pot_MW_expected": -1.58616e15,
         "tot_energy_expected": 2.86857e15,
+        "tot_angular_momentum_expected": 3.11653e30,
         "dpot_dh_dr_expected": 2.32457e-15,
         "dpot_dh_dz_expected": 7.77990e-15,
         "dpot_b_dr_expected": 7.70712e-15,
@@ -152,6 +153,22 @@ def test_tot_energy_FK06(test_case_1):
     assert np.isclose(
         tot_energy_out,
         test_case_1["tot_energy_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
+    )
+
+
+def test_tot_angular_momentum(test_case_1):
+    """
+    Verifying that the z-component of the total angular momentum is evaluated correctly.
+    """
+    L_z_out = gmFK06.total_angular_momentum_z(
+        test_case_1["v_array"], test_case_1["r_array"]
+    )
+
+    assert np.isclose(
+        L_z_out,
+        test_case_1["tot_angular_momentum_expected"],
         rtol=TOL,
         atol=1.0e-30,
     )

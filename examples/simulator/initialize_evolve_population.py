@@ -91,7 +91,6 @@ def generate_population(
         configuration.cfg["profile_json"],
         configuration.cfg["show_profiling"],
     ):
-
         with timewith.TimeWith(
             "[InitialPopulation]",
             configuration.cfg["profile_log"],
@@ -145,12 +144,19 @@ def generate_population(
 
             timer.checkpoint("[Initial position and velocity]")
 
-            # Compute the initial total initial energy of the system.
+            # Compute the total initial energy of the system.
             total_energy_initial = gm.galactic_model.total_energy(
                 v_initial, r_initial, z_initial
             )
 
             timer.checkpoint("[Initial energy]")
+
+            # Compute the initial z-component of the total angular momentum of the system.
+            L_z_initial = gm.galactic_model.total_angular_momentum_z(
+                v_phi_initial * const.KPC_TO_KM / const.YR_TO_S, r_initial
+            )
+
+            timer.checkpoint("[Initial Angular momentum]")
 
             # Computing the initial field strengths, misalignment angles, and periods
             log.info("Computing initial field strengths...")
@@ -207,6 +213,7 @@ def generate_population(
                 "[s]",
                 "[s/yr]",
             ]
+
             header_initial = pd.MultiIndex.from_arrays(
                 [parameters_initial, units_initial]
             )
@@ -343,6 +350,23 @@ def generate_population(
             )
 
             timer.checkpoint("[Final energy]")
+
+            # Compute the final z-component of the total angular momentum of the system.
+            L_z_final = gm.galactic_model.total_angular_momentum_z(
+                v_phi_final, r_final
+            )
+
+            # Compute the percentage variation in total energy during the simulation
+            # with respect to the initial total energy.
+            delta_Lz_percentage = (
+                (L_z_final - L_z_initial) / L_z_initial * 100.0
+            )
+
+            log.info(
+                f"Percentage variation of z-component of total angular momentum of the system: {delta_Lz_percentage} %"
+            )
+
+            timer.checkpoint("[Final angular momentum]")
 
             # Determine the evolved magnetic field, misalignment angle and rotation period.
             log.info(
