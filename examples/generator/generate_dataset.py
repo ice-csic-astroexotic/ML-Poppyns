@@ -41,6 +41,8 @@ import sys
 import numpy as np
 import pandas as pd
 
+import pypopsyn.generator.compute_statistics as cs
+import pypopsyn.generator.dataset_splitter as ds
 import pypopsyn.generator.position_maps as pmaps
 import pypopsyn.generator.ppdot_maps as ppdmaps
 import pypopsyn.generator.velocity_maps as vmaps
@@ -98,9 +100,19 @@ def generate_dataset(args) -> None:
         sys.exit()
 
     # If the dataset split is provided check if the argument falls in the range [0, 1].
-    if args.split and ((args.split <= 0.0) or (args.split >= 1.0)):
+    if args.test_split and (
+        (args.test_split <= 0.0) or (args.test_split >= 1.0)
+    ):
         log.error(
-            f"Split argument {args.split} out of range. It must be in the range (0, 1)."
+            f"Split argument {args.test_split} out of range. It must be in the range (0, 1)."
+        )
+        sys.exit()
+
+    if args.valid_train_split and (
+        (args.valid_train_split <= 0.0) or (args.valid_train_split >= 1.0)
+    ):
+        log.error(
+            f"Split argument {args.valid_train_split} out of range. It must be in the range (0, 1)."
         )
         sys.exit()
 
@@ -292,27 +304,68 @@ def generate_dataset(args) -> None:
 
     log.info("File dataset.csv generated")
 
-    if args.split is not None:
+    if args.test_split is not None and args.valid_train_split is not None:
 
-        # Evaluate the validation dataset size according to the fraction defined by the split argument.
-        # Then random sample the validation dataset and the train dataset from the whole dataset.
-        valid_size = int(args.split * sample_number)
-        dataset_idx = np.arange(sample_number)
-        valid_idx = np.random.choice(sample_number, valid_size, replace=False)
-        train_idx = np.array(
-            [idx for idx in dataset_idx if idx not in valid_idx]
+        (
+            test_dataset_dictionary,
+            trainval_dataset_dictionary,
+        ) = ds.split_dataset(dataset_dictionary, args.test_split)
+        valid_dataset_dictionary, train_dataset_dictionary = ds.split_dataset(
+            trainval_dataset_dictionary, args.valid_train_split
         )
-        # Create dictionaries for the training and validation datasets.
-        valid_dataset_dictionary = {}
-        train_dataset_dictionary = {}
-        for k in dataset_dictionary.keys():
-            v = np.array(dataset_dictionary[k])
-            v_valid = v[valid_idx]
-            v_train = v[train_idx]
-            valid_dataset_dictionary.setdefault(k, v_valid)
-            train_dataset_dictionary.setdefault(k, v_train)
 
-        # Write the train and validation dataset dictionary into a .csv file.
+        # Write the training, validation and test dataset dictionaries into .csv files.
+        train_dataset_filename = f"{dataset_path}/dataset_train.csv"
+
+        train_df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in train_dataset_dictionary.items()
+            }
+        )
+        train_df.to_csv(train_dataset_filename, encoding="utf-8", index=False)
+
+        valid_dataset_filename = f"{dataset_path}/dataset_valid.csv"
+        valid_df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in valid_dataset_dictionary.items()
+            }
+        )
+        valid_df.to_csv(valid_dataset_filename, encoding="utf-8", index=False)
+
+        test_dataset_filename = f"{dataset_path}/dataset_test.csv"
+        test_df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in test_dataset_dictionary.items()
+            }
+        )
+        test_df.to_csv(test_dataset_filename, encoding="utf-8", index=False)
+
+        log.info(
+            "Files dataset_train.csv, dataset_valid.csv and dataset_test.csv generated"
+        )
+
+        # Compute the statistics on the train dataset only.
+
+        statistics_dictionary = cs.compute_statistics(train_dataset_dictionary)
+        # Save dictionary containing statistical information to the dataset path in a .json file.
+        train_statistics_dump_path = pathlib.Path().joinpath(
+            dataset_path, "statistics_train.json"
+        )
+        with open(train_statistics_dump_path, "w") as f:
+            json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
+
+        log.info("Files statistics_train.json generated")
+
+    if args.test_split is None and args.valid_train_split is not None:
+
+        valid_dataset_dictionary, train_dataset_dictionary = ds.split_dataset(
+            dataset_dictionary, args.valid_train_split
+        )
+
+        # Write the training and validation dataset dictionaries into .csv files.
         train_dataset_filename = f"{dataset_path}/dataset_train.csv"
 
         train_df = pd.DataFrame(
@@ -335,57 +388,14 @@ def generate_dataset(args) -> None:
         log.info("Files dataset_train.csv and dataset_valid.csv generated")
 
         # Compute the statistics on the train dataset only.
-        i = 0
 
-        target_names = []
-        # Loop over every input column of the train dataset to collect all outputs.
-        for col in train_df.columns:
-            # All input channel headers are annotated with a prefix "input:" in
-            # the dataset CSV file. Find them and skip them to find the targets.
-            if "input:" in col:
-                i += 1
-            # If an input prefix is not found, it is a label (ground truth) then
-            # skip to directly stack them later based on the last index in which
-            # we found the input prefix.
-            else:
-                target_names.append(col)
-
-        # Fetch all the targets from the last input channel column.
-        targets = np.array(train_df.iloc[:, i:], dtype=float)
-
-        # Compute statistics for targets. Note that they are computed on a
-        # per-position/channel basis over the whole dataset so if we have
-        # multiple labels for each sample, we compute the statistics for each
-        # one of the labels across the whole set of samples (hence axis=0).
-        target_mean = np.mean(targets, axis=0)
-        target_std = np.std(targets, axis=0)
-        target_max = np.max(targets, axis=0)
-        target_min = np.min(targets, axis=0)
-
-        # Save statistics into a dictionary.
-        train_statistics_dictionary = {}
-
-        for i, tn in enumerate(target_names):
-            target_statistics = {
-                tn: {
-                    "std": target_mean[i],
-                    "mean": target_std[i],
-                    "max": target_max[i],
-                    "min": target_min[i],
-                }
-            }
-            # Update the dictionary containing the evolution information of all the neutron stars.
-            train_statistics_dictionary = {
-                **train_statistics_dictionary,
-                **target_statistics,
-            }
-
+        statistics_dictionary = cs.compute_statistics(train_dataset_dictionary)
         # Save dictionary containing statistical information to the dataset path in a .json file.
         train_statistics_dump_path = pathlib.Path().joinpath(
             dataset_path, "statistics_train.json"
         )
         with open(train_statistics_dump_path, "w") as f:
-            json.dump(train_statistics_dictionary, f, indent=4, sort_keys=True)
+            json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
 
         log.info("Files statistics_train.json generated")
 
@@ -401,11 +411,19 @@ if __name__ == "__main__":
         help="Path to where the simulated populations are.",
     )
     parser.add_argument(
-        "--split",
+        "--test_split",
         nargs="?",
         type=float,
         default=None,
-        help="Fraction of the total dataset that will form the validation dataset. "
+        help="Fraction of the total dataset that will form the test dataset. "
+        "It must be a number in the range [0, 1].",
+    )
+    parser.add_argument(
+        "--valid_train_split",
+        nargs="?",
+        type=float,
+        default=None,
+        help="Fraction of the train dataset that will form the validation dataset. "
         "It must be a number in the range [0, 1].",
     )
     parser.add_argument(
