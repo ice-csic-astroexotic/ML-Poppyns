@@ -118,6 +118,30 @@ class GalaxyModelBase:
 
         return tot_energy
 
+    def total_angular_momentum_z(
+        self, v_phi: np.ndarray, r: np.ndarray,
+    ) -> float:
+        """
+        Value of the z-component of the total angular momentum of the system, which is a
+        conserved quantity in axisymmetric potentials. We assume here that all the stars
+        have unit mass.
+
+        Args:
+            v_phi (np.ndarray): array of magnitudes of the orbital speed of the stars in [km/s].
+            r (np.ndarray): array of distances from the galactic axis in [kpc].
+
+        Returns:
+            (float): value of the total energy of the system in [erg].
+        """
+        # Convert speeds into [cm/s].
+        v_phi = v_phi * const.KM_TO_CM
+        # Convert distances into [cm].
+        r = r * const.KPC_TO_CM
+
+        L_z = float(np.sum(r * v_phi))
+
+        return L_z
+
 
 # Class member data specification for Numba. In order for Numba to be able to
 # Jit an entire class, we need to provide a specification of all the data such
