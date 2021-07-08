@@ -16,7 +16,7 @@ from .loss_base import LossBase
 
 
 class LossMSE(LossBase):
-    """Mean Square Error (RMSE) loss"""
+    """Mean Square Error (MSE) loss"""
 
     def __call__(self, output, target):
 
