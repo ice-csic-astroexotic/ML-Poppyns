@@ -45,7 +45,9 @@ import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
+import pypopsyn.simulator.multiband_emission.emission_gamma as eg
 import pypopsyn.simulator.multiband_emission.emission_radio as er
+import pypopsyn.simulator.multiband_surveys.survey_gamma as sg
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
@@ -424,7 +426,18 @@ def generate_population(
                 P_final, P_dot_final / const.YR_TO_S
             )
 
+            L_gamma = eg.pdf_gamma_luminosity(
+                P_final, P_dot_final / const.YR_TO_S
+            )
+
             ####################################################################################################
+            # ===============
+            # RADIO DETECTION
+            # ===============
+
+            detected_radio = np.zeros(
+                configuration.cfg["NS_number"], dtype=bool
+            )
 
             # Select only the pulsars that actually intersect our LOS.
             log.info("Selecting pulsars pointing at us...")
@@ -445,12 +458,14 @@ def generate_population(
                 los_grid, np.sin, configuration.cfg["NS_number"]
             )
 
-            # Selecting the pulsars whose radio beam intercept our line of sight.
-            intercepted = er.los_intercept(chi_final, theta_beam, los_rand)
-
-            fraction_intercepted = len(intercepted[intercepted]) / len(
-                intercepted
+            # Selecting the pulsars whose radio beam intercepts our line of sight.
+            intercepted_radio = er.los_intercept(
+                chi_final, theta_beam, los_rand
             )
+
+            fraction_intercepted = len(
+                intercepted_radio[intercepted_radio]
+            ) / len(intercepted_radio)
             log.info(
                 f"Fraction of intercepted pulsars: {fraction_intercepted}"
             )
@@ -462,30 +477,30 @@ def generate_population(
 
             # Computing the DM.
             DM = np.zeros(configuration.cfg["NS_number"])
-            DM[intercepted] = edm.compute_DM(
-                l_final[intercepted],
-                b_final[intercepted],
-                sun_dist_gal[intercepted],
+            DM[intercepted_radio] = edm.compute_DM(
+                l_final[intercepted_radio],
+                b_final[intercepted_radio],
+                sun_dist_gal[intercepted_radio],
                 configuration.cfg["fed_model"],
             )
 
             # Computing the intrinsic pulse width of the radio pulse.
             w_intrinsic = np.zeros(configuration.cfg["NS_number"])
-            w_intrinsic[intercepted] = er.pulse_width(
-                chi_final[intercepted],
-                theta_beam[intercepted],
-                los_rand[intercepted],
+            w_intrinsic[intercepted_radio] = er.pulse_width(
+                chi_final[intercepted_radio],
+                theta_beam[intercepted_radio],
+                los_rand[intercepted_radio],
             )
             # Convert pulse width in [s].
             w_intrinsic_s = w_intrinsic * P_final / (2.0 * np.pi)
 
             # Computing the radio flux observed on Earth.
             S_radio = np.zeros(configuration.cfg["NS_number"])
-            S_radio[intercepted] = er.erg_flux_radio(
-                L_radio[intercepted],
-                sun_dist_icrs[intercepted],
-                beam_frac[intercepted],
-                w_intrinsic[intercepted],
+            S_radio[intercepted_radio] = er.erg_flux_radio(
+                L_radio[intercepted_radio],
+                sun_dist_icrs[intercepted_radio],
+                beam_frac[intercepted_radio],
+                w_intrinsic[intercepted_radio],
             )
             # Convert Radio flux in Jy.
             S_radio_Jy = S_radio / const.JY_TO_ERG
@@ -496,34 +511,51 @@ def generate_population(
             log.info("Simulate detection with PMPS...")
 
             survey_PMPS = sr.SurveyRadioPMPS()
-            detected = np.zeros(configuration.cfg["NS_number"], dtype=bool)
 
-            detected[intercepted] = survey_PMPS.detect(
-                S_radio_Jy[intercepted],
-                DM[intercepted],
-                ra_final[intercepted],
-                dec_final[intercepted],
-                l_final[intercepted],
-                b_final[intercepted],
-                w_intrinsic_s[intercepted],
-                P_final[intercepted],
+            detected_radio[intercepted_radio] = survey_PMPS.detect(
+                S_radio_Jy[intercepted_radio],
+                DM[intercepted_radio],
+                ra_final[intercepted_radio],
+                dec_final[intercepted_radio],
+                l_final[intercepted_radio],
+                b_final[intercepted_radio],
+                w_intrinsic_s[intercepted_radio],
+                P_final[intercepted_radio],
             )
 
-            print(
-                np.mean(
-                    S_radio_Jy[detected] * 1000 * sun_dist_icrs[detected] ** 2
-                )
-            )
-            print(
-                np.std(
-                    S_radio_Jy[detected] * 1000 * sun_dist_icrs[detected] ** 2
-                )
+            fraction_detected_radio = len(
+                detected_radio[detected_radio]
+            ) / len(detected_radio)
+            log.info(
+                f"Fraction of detected pulsars in radio: {fraction_detected_radio}"
             )
 
-            fraction_detected = len(detected[detected]) / len(detected)
-            log.info(f"Fraction of detected pulsars: {fraction_detected}")
+            timer.checkpoint("[Radio Detection]")
 
-            timer.checkpoint("[Detection]")
+            # ===============
+            # GAMMA DETECTION
+            # ===============
+
+            detected_gamma = np.zeros(
+                configuration.cfg["NS_number"], dtype=bool
+            )
+
+            # Computing the gamma flux observed on Earth.
+            S_gamma = np.zeros(configuration.cfg["NS_number"])
+            S_gamma = eg.erg_flux_gamma(L_gamma, sun_dist_icrs,)
+
+            detected_gamma = sg.detect(S_gamma)
+
+            fraction_detected_gamma = len(
+                detected_gamma[detected_gamma]
+            ) / len(detected_gamma)
+            log.info(
+                f"Fraction of detected pulsars in gamma: {fraction_detected_gamma}"
+            )
+
+            timer.checkpoint("[Gamma Detection]")
+
+            ###################################################################################################
 
             # Adding the evolution output to a data frame for export.
             log.info("Creating data frame for exporting...")
@@ -552,8 +584,11 @@ def generate_population(
                 "L_radio",
                 "S_radio",
                 "w_int",
-                "intercepted",
-                "detected",
+                "L_gamma",
+                "S_gamma",
+                "intercepted_radio",
+                "detected_radio",
+                "detected_gamma",
             ]
             units_final = [
                 "[yr]",
@@ -578,6 +613,9 @@ def generate_population(
                 "[erg s^-1 Hz^-1]",
                 "[Jy]",
                 "[s]",
+                "[erg s^-1]",
+                "[erg cm^-2 s^-1]",
+                " ",
                 " ",
                 " ",
             ]
@@ -610,8 +648,11 @@ def generate_population(
                         L_radio,
                         S_radio_Jy,
                         w_intrinsic_s,
-                        intercepted,
-                        detected,
+                        L_gamma,
+                        S_gamma,
+                        intercepted_radio,
+                        detected_radio,
+                        detected_gamma,
                     ]
                 ).T,
                 columns=header_final,
