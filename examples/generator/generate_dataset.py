@@ -12,9 +12,11 @@
     The information on the simulated dataset is also saved in a .csv file where the
     corresponding input files are mapped with their paths and labels.
 
-    The total dataset can be also split into a train, validation and test subsets
+    The total dataset can be also split into a training, validation and test subsets
     and in this case three additional .csv files will be created
-    specifying the samples in each subset.
+    specifying the samples in each subset. One can also choose to split only into a
+    training and validation subsets (without test subset) and in this case only the
+    two related .csv files will be created.
 
     Running the code:
 
@@ -349,7 +351,7 @@ def generate_dataset(args) -> None:
             "Files dataset_train.csv, dataset_valid.csv and dataset_test.csv generated"
         )
 
-        # Compute the statistics on the train dataset only.
+        # Compute the statistics on the training dataset only.
         statistics_dictionary = cs.compute_statistics(train_dataset_dictionary)
         # Save dictionary containing statistical information to the dataset path in a .json file.
         train_statistics_dump_path = pathlib.Path().joinpath(
@@ -400,7 +402,7 @@ def generate_dataset(args) -> None:
 
         log.info("Files statistics_train.json generated")
 
-    if args.test_split is None and args.valid_train_split is None:
+    else:
 
         # Compute the statistics on the whole dataset.
         statistics_dictionary = cs.compute_statistics(dataset_dictionary)
@@ -437,7 +439,7 @@ if __name__ == "__main__":
         nargs="?",
         type=float,
         default=None,
-        help="Fraction of the train dataset that will form the validation dataset. "
+        help="Fraction of the dataset not dedicated for testing that will form the validation dataset. "
         "It must be a number in the range [0, 1].",
     )
     parser.add_argument(

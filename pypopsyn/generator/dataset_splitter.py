@@ -1,6 +1,6 @@
 """ Splitter for dataset.
 
-    This module split the provided dataset into two sub-dataset according to a given split fraction.
+    This module splits the provided dataset into two sub-dataset according to a given split fraction.
 
     Running the code:
 
@@ -38,35 +38,35 @@ import numpy as np
 
 def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
     """
-    This method splits the provided dataset into two sub-datasets according to a specified split fraction.
+    This method splits the provided dataset into two sub-datasets set_1 and set_2
+    according to a specified split fraction.
 
     Args:
-        dataset_dict (dict): Dictionary containing the information on the all dataset.
+        dataset_dict (dict): Dictionary containing the information on the dataset.
 
-        split (float): Fraction of validation/test dataset size with respect to the train dataset.
+        split (float): Fraction of set_1 size with respect to the provided dataset size.
 
     Return:
-        (dict, dict): Two dictionaries providing the information on the two sub-dataset created from the split.
+        (dict, dict): Two dictionaries providing the information on the two sub-datasets created from the split.
 
     """
 
     dataset_size = [len(x) for x in dataset_dict.values()][0]
-    print(dataset_size)
 
-    # Evaluate the validation dataset size according to the fraction defined by the split argument.
-    # Then random sample the validation dataset and the train dataset from the whole dataset.
-    valid_size = int(split * dataset_size)
+    # Evaluate the subset1 size according to the fraction defined by the split argument.
+    # Then random sample the subset1 and the subset2 from the whole dataset.
+    set1_size = int(split * dataset_size)
     dataset_idx = np.arange(dataset_size)
-    valid_idx = np.random.choice(dataset_size, valid_size, replace=False)
-    train_idx = np.array([idx for idx in dataset_idx if idx not in valid_idx])
-    # Create dictionaries for the training and validation datasets.
-    valid_dataset_dictionary = {}
-    train_dataset_dictionary = {}
+    set1_idx = np.random.choice(dataset_size, set1_size, replace=False)
+    set2_idx = np.array([idx for idx in dataset_idx if idx not in set1_idx])
+    # Create dictionaries for the set_1 and set_2 datasets.
+    set1_dataset_dictionary = {}
+    set2_dataset_dictionary = {}
     for k in dataset_dict.keys():
         v = np.array(dataset_dict[k])
-        v_valid = v[valid_idx]
-        v_train = v[train_idx]
-        valid_dataset_dictionary.setdefault(k, v_valid)
-        train_dataset_dictionary.setdefault(k, v_train)
+        v_set1 = v[set1_idx]
+        v_set2 = v[set2_idx]
+        set1_dataset_dictionary.setdefault(k, v_set1)
+        set2_dataset_dictionary.setdefault(k, v_set2)
 
-    return valid_dataset_dictionary, train_dataset_dictionary
+    return set1_dataset_dictionary, set2_dataset_dictionary

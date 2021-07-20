@@ -1,7 +1,7 @@
 """ Compute dataset statistics.
 
-    This module compute the statistics of the provided dataset.
-    In particular t compute the mean, std, max and min values for the labels in the dataset.
+    This module computes the statistics of the provided dataset.
+    In particular it computes the mean, std, max and min values for the labels in the dataset.
 
     Running the code:
 
@@ -37,8 +37,8 @@ import numpy as np
 
 def compute_statistics(dataset_dict: dict) -> dict:
     """
-    This method compute the label stistics for the provided dataset.
-    In particular the mean, std, max and min values for the labels are computed and saved into a disctionary.
+    This method computes the label statistics for the provided dataset.
+    In particular the mean, std, max and min values for the labels are computed and saved into a dictionary.
 
     Args:
         dataset_dict (dict): Dictionary containing the information on the dataset.
@@ -50,13 +50,12 @@ def compute_statistics(dataset_dict: dict) -> dict:
 
     statistics_dictionary = {}
 
-    # Loop over every key of the train dataset to collect all labels.
+    # Loop over every key of the training dataset to collect all labels.
     for key, values in dataset_dict.items():
-        # If an input prefix is not found, it is a label.
+        # If the "input:" prefix is not found in the key name, it is the key of a label.
 
         if "input:" not in key:
-            print(key)
-            print(values)
+
             target_mean = np.mean(values)
             target_std = np.std(values)
             target_max = np.max(values)
