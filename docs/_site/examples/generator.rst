@@ -32,7 +32,7 @@ The JSON file contains information about the mean, standard deviation, minimum a
 This statistical information will be used during the training process if one wants to normalize or standardize the label values.
 
 You can also choose to split the dataset into training/validation or into training/validation/test sets.
-To generate a dataset split into two subsets one specific for training and the other for validation you can specify a fraction of the total dataset that will form the validation subset by passing the argument :code:`valid_train_split` in the generator script. For example:
+To generate a dataset split into two subsets one specifically for training and the other for validation you can specify a fraction of the total dataset that will form the validation subset by passing the argument :code:`valid_train_split` in the generator script. For example:
 
 .. code-block:: bash
 

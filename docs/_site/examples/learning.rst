@@ -87,7 +87,7 @@ If standardized the input channels have values centred around 0 and ranging appr
   }
 
 We need to provide a loader for the validation set using the :code:`validation_data_loader`.
-Such loader must have the same :code:`ignored_inputs` and :code:`ignored_labels` and be of the same :code:`type` as the training data loader.
+Such loader must have the same :code:`filter_inputs` and :code:`filter_labels` and be of the same :code:`type` as the training data loader.
 In fact, what matters is that both of them are compatible with the network's input shape.
 
 .. code-block:: json
