@@ -57,26 +57,28 @@ We also need to specify a scheme to initialize the weights and biases of the net
   }
 
 Next, we need a training loader, responsible for loading the dataset for the training in a representation readable by the network.
-Here you have to specify the path to the folder containing the dataset, the batch size, and the eventual input channels to ignore in building a multichannel input.
-Additionally, we can choose to ignore a list of labels from the dataset.
+Here you have to specify the path to the folder containing the training dataset, the batch size, and the eventual input channels to use in building a multichannel input.
+Additionally, we can choose the list of labels from the dataset that we want to consider.
 The available input channels and labels are specified in the :code:`train_dataset.csv` file and here they are identified with an index starting from 0.
-To ignore some input channels you need to specify a list containing the indices corresponding to the input channels you would like to ignore.
-In the example below we are ignoring the input channels :code:`position_map_xz`, :code:`position_map_radec`, :code:`velocity_map_vra` and :code:`velocity_map_vdec` and the label :code:`h_c`.
+To select some input channels you need to specify a list containing the indices corresponding to the input channels you would like to consider.
+In the example below we are selecting the input channels :code:`position_map_xy`, :code:`velocity_map_xy_vr`, :code:`velocity_map_xy_vphi` and :code:`velocity_map_xy_vz` and the label :code:`h_c`.
 Furthermore, we can enable on-the-fly normalization or standardization (mutually excluding) for both inputs and labels.
+This will use the statistical information contained in the :code:`statistics_train.json` file.
 If normalized the input channels will have values in the range between 0 and 1.
 If standardized the input channels have values centred around 0 and ranging approximately between -1 and 1.
 
 .. code-block:: json
 
   {
-    "data_loader": {
+    "training_data_loader": {
       "type": "LoaderMultichannelArray",
       "args": {
-        "data_path": "generated_dataset/train_dataset.csv",
+        "dataset_path": "generated_dataset/dataset_train.csv",
+        "statistic_path": "generated_dataset/statistics_train.json",
         "batch_size": 8,
         "num_workers": 1,
-        "ignored_inputs": [1, 2, 6, 7],
-        "ignored_labels": [8],
+        "filter_inputs": [0, 3, 4, 5],
+        "filter_labels": [14],
         "shuffle": true,
         "normalize": false,
         "standardize": false
@@ -84,7 +86,9 @@ If standardized the input channels have values centred around 0 and ranging appr
     },
   }
 
-We need to provide a loader for the validation set using the :code:`validation_data_loader`. Such loader must have the same :code:`ignored_inputs` and :code:`ignored_labels` and be of the same :code:`type` as the training data loader. In fact, what matters is that both of them are compatible with the network's input shape.
+We need to provide a loader for the validation set using the :code:`validation_data_loader`.
+Such loader must have the same :code:`ignored_inputs` and :code:`ignored_labels` and be of the same :code:`type` as the training data loader.
+In fact, what matters is that both of them are compatible with the network's input shape.
 
 .. code-block:: json
 
@@ -92,11 +96,12 @@ We need to provide a loader for the validation set using the :code:`validation_d
     "validation_data_loader": {
       "type": "LoaderMultichannelArray",
       "args": {
-        "data_path": "generated_dataset/vaild_dataset.csv",
+        "dataset_path": "generated_dataset/dataset_valid.csv",
+        "statistic_path": "generated_dataset/statistics_train.json",
         "batch_size": 8,
         "num_workers": 1,
-        "ignored_inputs": [1, 2, 6, 7],
-        "ignored_labels": [],
+        "filter_inputs": [0, 3, 4, 5],
+        "filter_labels": [14],
         "shuffle": false,
         "normalize": false,
         "standardize": false
@@ -180,16 +185,16 @@ For example you can run a script like the following:
 
 .. code-block:: bash
 
-  python examples/learning/train.py --configuration examples/learning/config.json --dataset tests/generated_dataset/train_dataset.csv --ignored_inputs 1 2 6 7 --ignored_labels 8 --input_shape 4 64 64 --num_parameters 1 --normalize 1 --save_dir training_results
+  python examples/learning/train.py --configuration examples/learning/config.json --dataset_training generated_dataset/dataset_train.csv --dataset_validation generated_dataset/dataset_valid.csv --dataset_statistics generated_dataset/statistics_train.json --filter_inputs 0 3 4 5 --filter_labels 14 --input_shape 4 64 64 --num_parameters 1 --normalize 1 --batch_size 1 --lr 1e-5 --save_dir training_results
 
 The :code:`examples/experiment_launcher.py` script allows you to specify a list of experiment commands in a text file like:
 
 .. code-block:: bash
 
-  python examples/learning/train.py --dataset generated_dataset/array_64/train_dataset.csv --input_shape 4 64 64 --lr 1e-8 --ignored_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r64_gc_position_velocity
-  python examples/learning/train.py --dataset generated_dataset/array_128/train_dataset.csv --input_shape 4 128 128 --lr 1e-8 --ignored_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r128_gc_position_velocity
-  python examples/learning/train.py --dataset generated_dataset/array_256/train_dataset.csv --input_shape 4 256 256 --lr 1e-8 --ignored_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r256_gc_position_velocity
-  python examples/learning/train.py --dataset generated_dataset/array_512/train_dataset.csv --input_shape 4 512 512 --lr 1e-8 --ignored_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r512_gc_position_velocity
+  python examples/learning/train.py --dataset_training generated_dataset/array_64/train_dataset.csv --dataset_validation generated_dataset/array_64/dataset_valid.csv --dataset_statistics generated_dataset/array_64/statistics_train.json --input_shape 4 64 64 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r64_gc_position_velocity
+  python examples/learning/train.py --dataset_training generated_dataset/array_128/train_dataset.csv --dataset_validation generated_dataset/array_128/dataset_valid.csv --dataset_statistics generated_dataset/array_128/statistics_train.json --input_shape 4 128 128 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r128_gc_position_velocity
+  python examples/learning/train.py --dataset_training generated_dataset/array_256/train_dataset.csv --dataset_validation generated_dataset/array_256/dataset_valid.csv --dataset_statistics generated_dataset/array_256/statistics_train.json --input_shape 4 256 256 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r256_gc_position_velocity
+  python examples/learning/train.py --dataset_training generated_dataset/array_512/train_dataset.csv --dataset_validation generated_dataset/array_512/dataset_valid.csv --dataset_statistics generated_dataset/array_512/statistics_train.json --input_shape 4 512 512 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r512_gc_position_velocity
 
 By default, the command list will be held in :code:`examples/command_list.txt`. Each line should contain one full command (including the :code:`python` program call) to execute an experiment. The script will execute those experiments automatically and in parallel providing a number of maximum simultaneous :code:`--processes`.
 Obviously, this number of processes should be set as a function of the number of available threads/cores.
