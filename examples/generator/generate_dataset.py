@@ -362,7 +362,7 @@ def generate_dataset(args) -> None:
 
         log.info("Files statistics_train.json generated")
 
-    if args.test_split is None and args.valid_train_split is not None:
+    elif args.test_split is None and args.valid_train_split is not None:
 
         # Split the dataset into training and validation sets only.
         valid_dataset_dictionary, train_dataset_dictionary = ds.split_dataset(
@@ -408,7 +408,7 @@ def generate_dataset(args) -> None:
         statistics_dictionary = cs.compute_statistics(dataset_dictionary)
         # Save dictionary containing statistical information to the dataset path in a .json file.
         statistics_dump_path = pathlib.Path().joinpath(
-            dataset_path, "statistics_train.json"
+            dataset_path, "statistics.json"
         )
         with open(statistics_dump_path, "w") as f:
             json.dump(statistics_dictionary, f, indent=4, sort_keys=True)

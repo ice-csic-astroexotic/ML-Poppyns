@@ -51,6 +51,21 @@
     }
   },
 
+  "test_data_loader": {
+    "type": "LoaderMultichannelArray",
+    "args": {
+      "dataset_path": "examples/data/multiparameter/dataset_test.csv",
+      "statistic_path": "examples/data/multiparameter/statistics_train.json",
+      "batch_size": 1,
+      "num_workers": 1,
+      "filter_inputs": [1, 2, 6, 7],
+      "filter_labels": [],
+      "shuffle": false,
+      "normalize": false,
+      "standardize": false
+    }
+  },
+
   "optimizer": {
     "type": "Adam",
     "args":{
