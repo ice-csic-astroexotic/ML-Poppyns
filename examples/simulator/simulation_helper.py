@@ -432,7 +432,7 @@ def main(args):
 
         # Generate list for the command which consists of the python interpreter,
         # the script path and the path for the JSON override.
-        cmd: str = "python examples/simulator/initialize_evolve_population.py"
+        cmd: str = "python examples/simulator/simulate_population.py"
         cmd += f" --output_dir {simulation_output_path}"
         cmd += f" --parameter_override {simulation_override_json_path}"
 

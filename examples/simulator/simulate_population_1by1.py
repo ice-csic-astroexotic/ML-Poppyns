@@ -2,7 +2,8 @@
 Simulating a final population of neutron stars.
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved in time according to their age.
-Neutron stars are created and evolved one by one.
+Neutron stars are created and evolved one by one until a predefined number of
+simulated stars is reached.
 
     Authors:
 
@@ -54,7 +55,7 @@ from pypopsyn.simulator.configuration import cfg
 log = logging.getLogger(__name__)
 
 
-def generate_population(
+def simulate_population(
     output_path: pathlib.Path, json_override_path: pathlib.Path = None
 ) -> None:
     """
@@ -554,4 +555,4 @@ if __name__ == "__main__":
         output_path, configuration.cfg["profile_json"]
     )
 
-    generate_population(output_path, args.parameter_override)
+    simulate_population(output_path, args.parameter_override)

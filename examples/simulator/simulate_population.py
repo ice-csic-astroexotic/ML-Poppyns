@@ -53,7 +53,7 @@ from pypopsyn.simulator.configuration import cfg
 log = logging.getLogger(__name__)
 
 
-def generate_population(
+def simulate_population(
     output_path: pathlib.Path, json_override_path: pathlib.Path = None
 ) -> None:
     """
@@ -534,4 +534,4 @@ if __name__ == "__main__":
         output_path, configuration.cfg["profile_json"]
     )
 
-    generate_population(output_path, args.parameter_override)
+    simulate_population(output_path, args.parameter_override)
