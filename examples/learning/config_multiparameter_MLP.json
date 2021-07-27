@@ -93,6 +93,8 @@
   },
 
   "trainer": {
+    "type": "TrainerBasic",
+    "args": {},
     "epochs": 1024,
     "save_dir": "examples/learning/saved",
     "save_period": 1000,

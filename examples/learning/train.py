@@ -34,7 +34,7 @@ import pypopsyn.learning.loaders.loaders as learning_loaders
 import pypopsyn.learning.losses.losses as learning_losses
 import pypopsyn.learning.metrics.metrics as learning_metrics
 import pypopsyn.learning.models.models as learning_models
-import pypopsyn.learning.trainers.trainer_basic as learning_trainer
+import pypopsyn.learning.trainers.trainers as learning_trainers
 import pypopsyn.learning.utils.benchmark as benchmark
 
 
@@ -112,9 +112,10 @@ def main(config):
         )
         logger.info("Scheduler {}".format(scheduler))
 
-        # Train the model ------------------------------------------------------
         logger.info("Creating trainer...")
-        trainer = learning_trainer.TrainerBasic(
+        trainer = config.init_object(
+            "trainer",
+            learning_trainers,
             model=model,
             criterion=loss_criterion,
             metric=metric,
@@ -124,7 +125,9 @@ def main(config):
             val_loader=val_loader,
             lr_scheduler=scheduler,
         )
+        logger.info("Trainer {}".format(trainer))
 
+        """
         # Benchmark model.
         logger.info(
             "Benchmarking model on device {}...".format(trainer.device)
@@ -136,7 +139,8 @@ def main(config):
         )
         logger.info("Forward pass time: {}[ms]".format(time_forward))
         logger.info("Backward pass time: {}[ms]".format(time_backward))
-
+        """
+        # Train the model ------------------------------------------------------
         # Start training.
         logger.info("Training model...")
         train_results, best_result = trainer.train(trials)
@@ -264,6 +268,18 @@ if __name__ == "__main__":
             type=int,
             nargs=3,
             target=("arch;args;input_shape"),
+        ),
+        CustomArgs(
+            ["--input_shape_1"],
+            type=int,
+            nargs=3,
+            target=("arch;args;input_shape_1"),
+        ),
+        CustomArgs(
+            ["--input_shape_2"],
+            type=int,
+            nargs=3,
+            target=("arch;args;input_shape_2"),
         ),
         CustomArgs(
             ["--num_parameters"],
