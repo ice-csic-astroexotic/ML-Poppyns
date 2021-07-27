@@ -1,4 +1,4 @@
-""" RMSE Accuracy metric.
+""" MSE Accuracy metric.
 
     Authors:
 
@@ -20,32 +20,32 @@ import torch.nn as nn
 from .metric_base import MetricBase
 
 
-class MetricAccuracyRMSE(MetricBase):
+class MetricAccuracyMSE(MetricBase):
     def __call__(self, output, target) -> float:
 
-        """ Computation of the accuracy metric defined as root mean squared error.
-            The value of the RMSE should be 0 for the best accuracy.
+        """ Computation of the accuracy metric defined as mean square error.
+            The value of the MSE should be 0 for the best accuracy.
 
         Args:
             output: Network output tensor (predictions).
             target: Ground truth tensor (labels).
 
         Returns:
-            Root Mean Squared Error computed over a batch.
+            Mean Square Error computed over a batch.
         """
 
         with torch.no_grad():
 
             self.mse = nn.MSELoss()
-            rmse = torch.sqrt(self.mse(output, target))
+            mse = self.mse(output, target)
 
-        return rmse
+        return mse
 
     def __str__(self) -> str:
 
         """ String representation for the Accuracy metric. """
 
-        return "Root Mean Squared Error accuracy metric"
+        return "Mean Square Error accuracy metric"
 
     def initial_value(self) -> float:
 
