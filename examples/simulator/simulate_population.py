@@ -33,6 +33,7 @@ import logging
 import os
 import pathlib
 import sys
+import time
 
 import numpy as np
 import pandas as pd
@@ -47,11 +48,12 @@ import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
+from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
 
 
-def generate_population(
+def simulate_population(
     output_path: pathlib.Path, json_override_path: pathlib.Path = None
 ) -> None:
     """
@@ -85,6 +87,14 @@ def generate_population(
     gm.initialize_galactic_model()
     sm.initialize_spiral_model()
 
+    # Initialize seed randomly if no seed was specified.
+    if cfg["seed"] is None:
+        cfg["seed"] = int(time.time())
+
+    # Set NumPy random set globally.
+    log.info("Seed: {}".format(cfg["seed"]))
+    np.random.seed(cfg["seed"])
+
     with timewith.TimeWith(
         "[TotalSimulation]",
         configuration.cfg["profile_log"],
@@ -110,11 +120,13 @@ def generate_population(
             (
                 r_initial,
                 phi_initial,
-                x_initial,
-                y_initial,
                 z_initial,
             ) = NS_population_initial.position(
                 t_age=age, spiral_model=sm.spiral_model
+            )
+            # Convert from polar coordinates to cartesian coordinates.
+            x_initial, y_initial = coco.polar_to_cartesian(
+                r_initial, phi_initial
             )
 
             # Generating initial velocities by summing the kick
@@ -522,4 +534,4 @@ if __name__ == "__main__":
         output_path, configuration.cfg["profile_json"]
     )
 
-    generate_population(output_path, args.parameter_override)
+    simulate_population(output_path, args.parameter_override)
