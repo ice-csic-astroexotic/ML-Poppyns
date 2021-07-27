@@ -118,7 +118,7 @@ class TrainerBasic(BaseTrainer):
 
             if self.val_loader.normalize and self.val_loader.standardize:
                 self.logger.error(
-                    "Standardization and normalization enabled for train loader..."
+                    "Standardization and normalization enabled for validation loader..."
                 )
                 exit()
 

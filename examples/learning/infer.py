@@ -60,9 +60,9 @@ def infer(args, config):
     pathlib.Path(inference_results_path).mkdir(parents=True, exist_ok=True)
 
     # Force data to load in a sequential manner without shuffling.
-    config["data_loader"]["args"]["shuffle"] = False
+    config["test_data_loader"]["args"]["shuffle"] = False
     # Fix batch size to 1 for inference.
-    config["data_loader"]["args"]["batch_size"] = 1
+    config["test_data_loader"]["args"]["batch_size"] = 1
 
     # Get handle for the logger ------------------------------------------------
     logger = config.get_logger("Inference")
@@ -70,7 +70,7 @@ def infer(args, config):
 
     # Setup data loaders -------------------------------------------------------
     logger.info("Creating data loaders...")
-    loader = config.init_object("data_loader", learning_loaders)
+    loader = config.init_object("test_data_loader", learning_loaders)
     logger.info(f"Loader: {loader}")
     # Fetch names of the target parameters to predict.
     target_names = loader.target_names
@@ -204,19 +204,25 @@ if __name__ == "__main__":
             ["--dataset"],
             type=str,
             nargs="?",
-            target=("data_loader;args;data_path"),
+            target=("test_data_loader;args;dataset_path"),
         ),
         CustomArgs(
-            ["--ignored_inputs"],
-            type=int,
-            nargs="*",
-            target=("data_loader;args;ignored_inputs"),
+            ["--dataset_statistics"],
+            type=str,
+            nargs="?",
+            target=("test_data_loader;args;statistic_path"),
         ),
         CustomArgs(
-            ["--ignored_labels"],
+            ["--filter_inputs"],
             type=int,
             nargs="*",
-            target=("data_loader;args;ignored_labels"),
+            target=("test_data_loader;args;filter_inputs"),
+        ),
+        CustomArgs(
+            ["--filter_labels"],
+            type=int,
+            nargs="*",
+            target=("test_data_loader;args;filter_labels"),
         ),
         CustomArgs(
             ["--input_shape"],
@@ -234,13 +240,13 @@ if __name__ == "__main__":
             ["--normalize"],
             type=bool,
             nargs="?",
-            target=("data_loader;args;normalize"),
+            target=("test_data_loader;args;normalize"),
         ),
         CustomArgs(
             ["--standardize"],
             type=bool,
             nargs="?",
-            target=("data_loader;args;standardize"),
+            target=("test_data_loader;args;standardize"),
         ),
     ]
 

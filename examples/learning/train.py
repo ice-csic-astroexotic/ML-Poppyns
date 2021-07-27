@@ -60,8 +60,10 @@ def main(config):
 
         # Setup data loaders ---------------------------------------------------
         logger.info("Creating data loaders...")
-        loader = config.init_object("data_loader", learning_loaders)
-        logger.info("Loader: {}".format(loader))
+        train_loader = config.init_object(
+            "training_data_loader", learning_loaders
+        )
+        logger.info("Training loader: {}".format(train_loader))
 
         logger.info("Creating validation data loader...")
         val_loader = config.init_object(
@@ -118,7 +120,7 @@ def main(config):
             metric=metric,
             optimizer=optimizer,
             configuration=config,
-            train_loader=loader,
+            train_loader=train_loader,
             val_loader=val_loader,
             lr_scheduler=scheduler,
         )
@@ -127,7 +129,7 @@ def main(config):
         logger.info(
             "Benchmarking model on device {}...".format(trainer.device)
         )
-        input_dummy, labels_dummy = next(iter(loader))
+        input_dummy, labels_dummy = next(iter(train_loader))
         # TODO: Make sure this iter next does not skip the first batch next time.
         time_forward, time_backward = benchmark.benchmark(
             model, trainer.device, input_dummy, labels_dummy
@@ -208,16 +210,24 @@ if __name__ == "__main__":
             target=("convergence_threshold"),
         ),
         CustomArgs(
-            ["--dataset"],
+            ["--dataset_training"],
             type=str,
             nargs="?",
-            target=("data_loader;args;data_path"),
+            target=("training_data_loader;args;dataset_path"),
         ),
         CustomArgs(
             ["--dataset_validation"],
             type=str,
             nargs="?",
-            target=("validation_data_loader;args;data_path"),
+            target=("validation_data_loader;args;dataset_path"),
+        ),
+        CustomArgs(
+            ["--dataset_statistics"],
+            type=str,
+            nargs="?",
+            target=(
+                "training_data_loader;args;statistic_path,validation_data_loader;args;statistic_path"
+            ),
         ),
         CustomArgs(
             ["--initializer"],
@@ -226,19 +236,19 @@ if __name__ == "__main__":
             target=("weights_initializer;type"),
         ),
         CustomArgs(
-            ["--ignored_inputs"],
+            ["--filter_inputs"],
             type=int,
             nargs="*",
             target=(
-                "data_loader;args;ignored_inputs,validation_data_loader;args;ignored_inputs"
+                "training_data_loader;args;filter_inputs,validation_data_loader;args;filter_inputs"
             ),
         ),
         CustomArgs(
-            ["--ignored_labels"],
+            ["--filter_labels"],
             type=int,
             nargs="*",
             target=(
-                "data_loader;args;ignored_labels,validation_data_loader;args;ignored_labels"
+                "training_data_loader;args;filter_labels,validation_data_loader;args;filter_labels"
             ),
         ),
         CustomArgs(
@@ -246,7 +256,7 @@ if __name__ == "__main__":
             type=int,
             nargs="?",
             target=(
-                "data_loader;args;batch_size,validation_data_loader;args;batch_size"
+                "training_data_loader;args;batch_size,validation_data_loader;args;batch_size"
             ),
         ),
         CustomArgs(
@@ -269,7 +279,7 @@ if __name__ == "__main__":
             type=bool,
             nargs="?",
             target=(
-                "data_loader;args;normalize,validation_data_loader;args;normalize"
+                "training_data_loader;args;normalize,validation_data_loader;args;normalize"
             ),
         ),
         CustomArgs(
@@ -277,7 +287,7 @@ if __name__ == "__main__":
             type=bool,
             nargs="?",
             target=(
-                "data_loader;args;standardize,validation_data_loader;args;standardize"
+                "training_data_loader;args;standardize,validation_data_loader;args;standardize"
             ),
         ),
         CustomArgs(
