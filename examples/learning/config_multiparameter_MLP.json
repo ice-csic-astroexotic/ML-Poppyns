@@ -75,12 +75,12 @@
   },
 
   "loss": {
-      "type": "LossRMSE",
+      "type": "LossMSE",
       "args": {}
   },
 
   "metric": {
-      "type": "MetricAccuracyRMSE",
+      "type": "MetricAccuracyMSE",
       "args": {}
   },
 

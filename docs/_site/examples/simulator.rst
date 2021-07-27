@@ -2,11 +2,17 @@
 Simulator Example
 *****************
 
-The :code:`examples/simulator/initialize_evolve_population.py` script is responsible for initializing the simulated population from some initial conditions parameters and evolve it in time. To simulate populations with different initial parameters, the user can directly modify the simulator configuration in :code:`pypopsyn/simulator/configuration.py` or alternatively for a more programmatic way a JSON dictionary containing configuration overrides for the simulation parameters can be provided as a command line argument to this script:
+There are two ways to simulate a Galactic population of neutron stars:
+
+1) Simulate the entire population all together, which means initializing the entire population formed by N neutron stars from some initial conditions parameters and evolve it in time. For this approach you have to run the script :code:`examples/simulator/simulate_population.py`. This is usually faster since the simulator is optimized to work with multi-dimensional data thanks to the :code:`numpy` library.
+
+2) Initialize and evolve the neutron stars one by one until a number N of neutron stars has been simulated. For this second approach you have to run the script :code:`examples/simulator/simulate_population_1by1.py`.
+
+To simulate populations with different initial parameters, the user can directly modify the simulator configuration in :code:`pypopsyn/simulator/configuration.py` or alternatively for a more programmatic way a JSON dictionary containing configuration overrides for the simulation parameters can be provided as a command line argument to this script:
 
 .. code-block:: bash
 
-  python examples/simulator/initialize_evolve_population.py --output_dir simulated_data --parameter_override override.json
+  python examples/simulator/simulate_population.py --output_dir simulated_data --parameter_override override.json
 
 For example you can set the number of neutron stars to simulate, the models for the kick velocity distribution, the galactic potential and the structure of the Galactic spiral arms, the number of spiral arms to include (5 or 4 depending if you want to include or not the Local arm) and several other parameters.
 
@@ -18,7 +24,7 @@ For more information about the simulation script, issue the :code:`--h` argument
 
 .. code-block:: bash
 
-  python examples/simulator/initialize_evolve_population.py --h
+  python examples/simulator/simulate_population.py --h
 
 If you want to generate a huge parameter sweep you can use the wrapper or helper script that allows the specification of parameters with two types of sampling, determined by the argument :code:`--sampling_type`.
 If :code:`--sampling_type = grid` you should provide the parameters in a linear spacing format :code:`--parameter [low] [high] [steps]`:

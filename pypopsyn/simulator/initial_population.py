@@ -28,7 +28,6 @@ SOFTWARE.
 """
 
 import logging
-import time
 from typing import Tuple
 
 import numpy as np
@@ -51,18 +50,17 @@ class InitialNeutronStarPopulation:
     Generating a random pulsar population in the Milky Way.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, NS_number: int = cfg["NS_number"]) -> None:
         """
         Initialization for the initial population synthesis.
         """
 
-        # Initialize seed randomly if no seed was specified.
-        if cfg["seed"] is None:
-            cfg["seed"] = int(time.time())
-
-        # Set NumPy random set globally.
-        log.info("Seed: {}".format(cfg["seed"]))
-        np.random.seed(cfg["seed"])
+        # Number of neutron stars to generate in a single call of the InitialNeutronStarPopulation class.
+        # The default value corresponds to the total number specified in the configuration file, so that
+        # all neutron stars of the population are generated at once.
+        # For a one by one simulation NS_number is set to 1 and the simulator calls this class repeatedly
+        # generiting stars in a loop until the wanted total number of objects in the population is reached.
+        self.NS_number = NS_number
 
     def age(self) -> np.ndarray:
         """
@@ -82,7 +80,7 @@ class InitialNeutronStarPopulation:
         )
 
         t_age = np.random.uniform(
-            cfg["t_age_min"], cfg["t_age_max"], cfg["NS_number"]
+            cfg["t_age_min"], cfg["t_age_max"], self.NS_number
         )
         return t_age
 
@@ -93,10 +91,10 @@ class InitialNeutronStarPopulation:
     )
     def position(
         self, t_age: np.ndarray, spiral_model: sm.SpiralModelBase
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Calculating the position at birth of each random neutron star in
-        cylindrical and Cartesian coordinates in a galactocentric reference frame.
+        cylindrical reference frame.
 
         Args:
 
@@ -105,14 +103,14 @@ class InitialNeutronStarPopulation:
 
         Returns:
 
-            (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray):
-            polar r and phi coordinates in [kpc] and rad and Cartesian x, y and z
-            coordinates in [kpc] for each generated neutron star.
+            (np.ndarray, np.ndarray, np.ndarray):
+            polar r, phi and z coordinates in [kpc], [rad] and [kpc] respectively
+            for each generated neutron star.
 
         """
         # Randomly associate a spiral arm to each neutron star.
         arm_index_rand = spiral_model.generate_arm_index(
-            cfg["arm_number"], cfg["NS_number"]
+            cfg["arm_number"], self.NS_number
         )
         # Count the number of stars in the Local arm.
         NS_local = len(arm_index_rand[arm_index_rand == 5])
@@ -123,9 +121,9 @@ class InitialNeutronStarPopulation:
             np.log10(0.0001), np.log10(cfg["r_extent"]), cfg["resolution"]
         )
 
-        r_pdf_rand = np.zeros(cfg["NS_number"])
+        r_pdf_rand = np.zeros(self.NS_number)
         r_pdf_rand[arm_index_rand != 5] = cc.random_from_pdf(
-            r_grid, ip.pdf_radial_stellar_density, cfg["NS_number"] - NS_local
+            r_grid, ip.pdf_radial_stellar_density, self.NS_number - NS_local
         )
 
         if NS_local != 0:
@@ -143,7 +141,7 @@ class InitialNeutronStarPopulation:
         # add noise to both galactocentric coordinates.
         phi = sm.spiral_model.calculate_phi(r_pdf_rand, arm_index_rand)
         phi_rand, r_rand = ip.smear_initial_coordinates(
-            r_pdf_rand, phi, cfg["NS_number"]
+            r_pdf_rand, phi, self.NS_number
         )
 
         # Propagating the azimuthal coordinate of each object backwards in time
@@ -151,22 +149,19 @@ class InitialNeutronStarPopulation:
         # we assume that the arm structure itself remains rigid.
         phi_rand = ip.spiral_arm_time_evol(phi_rand, t_age)
 
-        # Position in the galactic plane in Cartesian coordinates.
-        x_rand, y_rand = coco.polar_to_cartesian(r_rand, phi_rand)
-
         # Drawing a random distance from the galactic plane in [kpc] for each neutron
         # star according to the probability density function for the height.
         z_grid = np.logspace(
             np.log10(0.0001), np.log10(cfg["z_extent"]), cfg["resolution"]
         )
         z_pdf_rand = cc.random_from_pdf(
-            z_grid, ip.pdf_initial_height, cfg["NS_number"]
+            z_grid, ip.pdf_initial_height, self.NS_number
         )
 
         # Randomly distribute the stars above and below the galactic plane.
-        z_rand = ip.random_scatter_about_plane(z_pdf_rand, cfg["NS_number"])
+        z_rand = ip.random_scatter_about_plane(z_pdf_rand, self.NS_number)
 
-        return r_rand, phi_rand, x_rand, y_rand, z_rand
+        return r_rand, phi_rand, z_rand
 
     def kick_velocity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
@@ -197,7 +192,7 @@ class InitialNeutronStarPopulation:
         # neutron star according to the underlying velocity probability density
         # function.
         vk_grid = np.linspace(0.0, cfg["vk_extent"], cfg["resolution"])
-        vk_rand = cc.random_from_pdf(vk_grid, pdf_vkick, cfg["NS_number"])
+        vk_rand = cc.random_from_pdf(vk_grid, pdf_vkick, self.NS_number)
         # Convert from [km/s] to [kpc/yr].
         vk_rand = vk_rand * const.YR_TO_S / const.KPC_TO_KM
 
@@ -205,9 +200,9 @@ class InitialNeutronStarPopulation:
         # we uniformly sample the azimuthal angle [rad] in the range [0, 2*np.pi];
         # to obtain a uniform distribution in the z-direction, we sample the polar
         # angle [rad] in the range [0, np.pi] according to the PDF np.sin.
-        psi_rand = np.random.uniform(0, 2 * np.pi, cfg["NS_number"])
+        psi_rand = np.random.uniform(0, 2 * np.pi, self.NS_number)
         theta_grid = np.linspace(0.0, np.pi, cfg["resolution"])
-        theta_rand = cc.random_from_pdf(theta_grid, np.sin, cfg["NS_number"])
+        theta_rand = cc.random_from_pdf(theta_grid, np.sin, self.NS_number)
 
         # Project the velocity on a Cartesian reference frame co-moving with each
         # star, where the local x-axis points always in the r-direction of our
@@ -258,7 +253,7 @@ class InitialNeutronStarPopulation:
         """
 
         P_rand = ipd.pdf_period(
-            cfg["P_initial_mean"], cfg["NS_number"], cfg["P_initial_sigma"]
+            cfg["P_initial_mean"], self.NS_number, cfg["P_initial_sigma"]
         )
 
         return P_rand
@@ -279,7 +274,7 @@ class InitialNeutronStarPopulation:
         B_rand = 10 ** np.random.normal(
             cfg["B_initial_log10_mean"],
             cfg["B_initial_log10_sigma"],
-            cfg["NS_number"],
+            self.NS_number,
         )
 
         return B_rand
@@ -296,6 +291,6 @@ class InitialNeutronStarPopulation:
         """
 
         chi_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-        chi_rand = cc.random_from_pdf(chi_grid, np.sin, cfg["NS_number"])
+        chi_rand = cc.random_from_pdf(chi_grid, np.sin, self.NS_number)
 
         return chi_rand
