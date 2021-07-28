@@ -4,7 +4,8 @@
   "convergence": {
     "h_c_threshold": 0.5,
     "vk_c_threshold": 10.0,
-    "sigma_k_threshold": 10.0
+    "sigma_k_threshold": 10.0,
+    "B_initial_log10_mean": 0.5
   },
   "n_gpu": 1,
 
@@ -76,12 +77,12 @@
   },
 
   "loss": {
-      "type": "LossRMSE",
+      "type": "LossMSE",
       "args": {}
   },
 
   "metric": {
-      "type": "MetricAccuracyRMSE",
+      "type": "MetricAccuracyMSE",
       "args": {}
   },
 
