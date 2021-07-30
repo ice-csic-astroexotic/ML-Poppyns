@@ -1,71 +1,71 @@
 {
   "[TotalSimulation]": {
-    "time": 60.893176794052124
+    "time": 286.78346371650696
   },
   "[InitialPopulation]": {
-    "time": 3.3048250675201416,
+    "time": 5.913757801055908,
     "[Initial position and velocity]": {
-      "elapsed_time": 0.4822235107421875,
-      "cumulative_time": 0.4822235107421875
+      "elapsed_time": 1.3840084075927734,
+      "cumulative_time": 1.3840084075927734
     },
     "[Initial energy]": {
-      "elapsed_time": 1.7231075763702393,
-      "cumulative_time": 2.2053310871124268
+      "elapsed_time": 1.7834179401397705,
+      "cumulative_time": 3.167426347732544
     },
     "[Initial Angular momentum]": {
-      "elapsed_time": 0.2925388813018799,
-      "cumulative_time": 2.4978699684143066
+      "elapsed_time": 0.34117889404296875,
+      "cumulative_time": 3.5086052417755127
     },
     "[Initial field strengths, misalignment angles and periods]": {
-      "elapsed_time": 0.42528414726257324,
-      "cumulative_time": 2.92315411567688
+      "elapsed_time": 1.286022424697876,
+      "cumulative_time": 4.794627666473389
     },
     "[Initial period derivatives]": {
-      "elapsed_time": 0.02472853660583496,
-      "cumulative_time": 2.947882652282715
+      "elapsed_time": 0.08000326156616211,
+      "cumulative_time": 4.874630928039551
     },
     "[Export]": {
-      "elapsed_time": 0.3564615249633789,
-      "cumulative_time": 3.3043441772460938
+      "elapsed_time": 1.0386626720428467,
+      "cumulative_time": 5.9132936000823975
     }
   },
   "[EvolvePopulation]": {
-    "time": 57.57692050933838,
+    "time": 280.86779856681824,
     "[Dynamic evolution]": {
-      "elapsed_time": 15.117332696914673,
-      "cumulative_time": 15.117332696914673
+      "elapsed_time": 107.25299739837646,
+      "cumulative_time": 107.25299739837646
     },
     "[Final energy]": {
-      "elapsed_time": 0.0042378902435302734,
-      "cumulative_time": 15.121570587158203
+      "elapsed_time": 0.013241767883300781,
+      "cumulative_time": 107.26623916625977
     },
     "[Final angular momentum]": {
-      "elapsed_time": 0.0007011890411376953,
-      "cumulative_time": 15.12227177619934
+      "elapsed_time": 0.0024747848510742188,
+      "cumulative_time": 107.26871395111084
     },
     "[Final field strengths, misalignment angles and periods]": {
-      "elapsed_time": 34.61564302444458,
-      "cumulative_time": 49.73791480064392
+      "elapsed_time": 148.78968715667725,
+      "cumulative_time": 256.0584011077881
     },
     "[Final period derivatives]": {
-      "elapsed_time": 0.02337932586669922,
-      "cumulative_time": 49.76129412651062
+      "elapsed_time": 0.09070301055908203,
+      "cumulative_time": 256.14910411834717
     },
     "[Pulsars LOS selection]": {
-      "elapsed_time": 0.011913537979125977,
-      "cumulative_time": 49.773207664489746
+      "elapsed_time": 0.09841704368591309,
+      "cumulative_time": 256.2475211620331
     },
     "[Radio emission]": {
-      "elapsed_time": 7.171895742416382,
-      "cumulative_time": 56.94510340690613
+      "elapsed_time": 22.30645442008972,
+      "cumulative_time": 278.5539755821228
     },
-    "[Detection]": {
-      "elapsed_time": 0.003261566162109375,
-      "cumulative_time": 56.94836497306824
+    "[Radio Detection]": {
+      "elapsed_time": 0.023368358612060547,
+      "cumulative_time": 278.57734394073486
     },
     "[Export]": {
-      "elapsed_time": 0.6281421184539795,
-      "cumulative_time": 57.57650709152222
+      "elapsed_time": 2.289992570877075,
+      "cumulative_time": 280.86733651161194
     }
   }
 }

@@ -1,9 +1,1 @@
-{
-    "B_initial_log10_mean": 13.2,
-    "B_initial_log10_sigma": 0.62,
-    "P_initial_mean": 0.22,
-    "P_initial_sigma": 0.42,
-    "h_c": 0.18,
-    "kick_model": "km_maxwell",
-    "sigma_k": 265
-}
+{}
