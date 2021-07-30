@@ -43,7 +43,8 @@ def smearing_in_channel(
 ) -> np.ndarray:
     """
     Dispersive smearing inside a single frequency channel in [s] evaluated for
-    the central frequency of the survey.
+    the central frequency of the survey. See eq. (27) in Bates et al. (2014)
+    and appendix A2.4 of Handbook of pulsar astronomy by Lorimer and Kramer (2004).
 
     Args:
         DM (np.ndarray): dispersion measure in [pc cm^-3].
