@@ -10,5 +10,7 @@
 
 """
 
+from .loss_mae import LossMAE
+from .loss_mse import LossMSE
 from .loss_nll import LossNLL
 from .loss_rmse import LossRMSE

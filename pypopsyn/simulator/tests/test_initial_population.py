@@ -39,6 +39,7 @@ TOL = 1e-5
 cfg["NS_number"] = 5
 # Set a predefined seed for the tests.
 cfg["seed"] = 42
+
 # For the tests, set the spiral arm pattern in the configuration file to
 # the one from Faucher-Giguère & Kaspi (2006).
 cfg["spiral_arms"] = "saFK06"
@@ -54,7 +55,7 @@ sm.initialize_spiral_model()
 
 @pytest.fixture()
 def test_case_1():
-
+    np.random.seed(cfg["seed"])
     NS_population_initial = ipop.InitialNeutronStarPopulation()
     age = NS_population_initial.age()
     position = NS_population_initial.position(
@@ -78,7 +79,7 @@ def test_case_1():
 
 @pytest.fixture()
 def test_case_2():
-
+    np.random.seed(cfg["seed"])
     NS_population_initial = ipop.InitialNeutronStarPopulation()
     age = NS_population_initial.age()
     position = NS_population_initial.position(
