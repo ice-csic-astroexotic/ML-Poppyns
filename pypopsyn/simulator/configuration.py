@@ -159,11 +159,6 @@ cfg["epsilon2"] = 0.5
 # free electron density model for the Galaxy.
 cfg["fed_model"] = "ymw16"
 
-# Mean and standard deviation for the log-normally distributed gamma luminosity in [erg s^(-1)].
-cfg["L_gamma_log10_mean"] = 16.5
-cfg["L_gamma_log10_sigma"] = 0.9
-cfg["epsilon"] = 0.5
-
 
 def update_configuration(new_configuration) -> None:
     """

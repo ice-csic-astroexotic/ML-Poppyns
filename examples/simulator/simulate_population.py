@@ -46,9 +46,7 @@ import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
-import pypopsyn.simulator.multiband_emission.emission_gamma as eg
 import pypopsyn.simulator.multiband_emission.emission_radio as er
-import pypopsyn.simulator.multiband_surveys.survey_gamma as sg
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
@@ -440,10 +438,6 @@ def simulate_population(
                 P_final, P_dot_final / const.YR_TO_S
             )
 
-            L_gamma = eg.pdf_gamma_luminosity(
-                P_final, P_dot_final / const.YR_TO_S
-            )
-
             ####################################################################################################
             # ===============
             # RADIO DETECTION
@@ -546,29 +540,6 @@ def simulate_population(
 
             timer.checkpoint("[Radio Detection]")
 
-            # ===============
-            # GAMMA DETECTION
-            # ===============
-
-            detected_gamma = np.zeros(
-                configuration.cfg["NS_number"], dtype=bool
-            )
-
-            # Computing the gamma flux observed on Earth.
-            S_gamma = np.zeros(configuration.cfg["NS_number"])
-            S_gamma = eg.erg_flux_gamma(L_gamma, sun_dist_icrs,)
-
-            detected_gamma = sg.detect(S_gamma)
-
-            fraction_detected_gamma = len(
-                detected_gamma[detected_gamma]
-            ) / len(detected_gamma)
-            log.info(
-                f"Fraction of detected pulsars in gamma: {fraction_detected_gamma}"
-            )
-
-            timer.checkpoint("[Gamma Detection]")
-
             ###################################################################################################
 
             # Adding the evolution output to a data frame for export.
@@ -598,11 +569,8 @@ def simulate_population(
                 "L_radio",
                 "S_radio",
                 "w_int",
-                "L_gamma",
-                "S_gamma",
                 "intercepted_radio",
                 "detected_radio",
-                "detected_gamma",
             ]
             units_final = [
                 "[yr]",
@@ -627,9 +595,6 @@ def simulate_population(
                 "[erg s^-1 Hz^-1]",
                 "[Jy]",
                 "[s]",
-                "[erg s^-1]",
-                "[erg cm^-2 s^-1]",
-                " ",
                 " ",
                 " ",
             ]
@@ -662,11 +627,8 @@ def simulate_population(
                         L_radio,
                         S_radio_Jy,
                         w_intrinsic_s,
-                        L_gamma,
-                        S_gamma,
                         intercepted_radio,
                         detected_radio,
-                        detected_gamma,
                     ]
                 ).T,
                 columns=header_final,

@@ -133,7 +133,7 @@ class InitialNeutronStarPopulation:
 
         r_pdf_rand = np.zeros(self.NS_number)
         r_pdf_rand[arm_index_rand != 5] = cc.random_from_pdf(
-            r_grid, ip.pdf_radial_stellar_density, self.NS_number - NS_local
+            r_grid, pdf_radial, self.NS_number - NS_local
         )
 
         if NS_local != 0:
