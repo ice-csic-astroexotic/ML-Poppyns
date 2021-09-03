@@ -127,19 +127,35 @@ def main(config):
         )
         logger.info("Trainer {}".format(trainer))
 
-        """
         # Benchmark model.
         logger.info(
             "Benchmarking model on device {}...".format(trainer.device)
         )
-        input_dummy, labels_dummy = next(iter(train_loader))
-        # TODO: Make sure this iter next does not skip the first batch next time.
-        time_forward, time_backward = benchmark.benchmark(
-            model, trainer.device, input_dummy, labels_dummy
-        )
-        logger.info("Forward pass time: {}[ms]".format(time_forward))
-        logger.info("Backward pass time: {}[ms]".format(time_backward))
-        """
+
+        if config["name"] == "MultimodalConvolution":
+            input_dummy_1, input_dummy_2, labels_dummy = next(
+                iter(train_loader)
+            )
+            # TODO: Make sure this iter next does not skip the first batch next time.
+            time_forward, time_backward = benchmark.benchmark_multimodal(
+                model,
+                trainer.device,
+                input_dummy_1,
+                input_dummy_2,
+                labels_dummy,
+            )
+            logger.info("Forward pass time: {}[ms]".format(time_forward))
+            logger.info("Backward pass time: {}[ms]".format(time_backward))
+
+        else:
+            input_dummy, labels_dummy = next(iter(train_loader))
+            # TODO: Make sure this iter next does not skip the first batch next time.
+            time_forward, time_backward = benchmark.benchmark(
+                model, trainer.device, input_dummy, labels_dummy
+            )
+            logger.info("Forward pass time: {}[ms]".format(time_forward))
+            logger.info("Backward pass time: {}[ms]".format(time_backward))
+
         # Train the model ------------------------------------------------------
         # Start training.
         logger.info("Training model...")
