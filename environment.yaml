@@ -5,6 +5,7 @@ channels:
 dependencies:
   - astropy=4.0.1
   - black=19.10b0
+  - f2c
   - ffmpeg
   - graphviz
   - hydra-core=0.11.3
@@ -38,4 +39,4 @@ dependencies:
   - torchvision>=0.4.0
   - pip:
       - pydeps
-      - pygedm
+      - pygedm --global-option=build_ext --global-option="-I${CONDA_PREFIX}/include:/usr/local/include"
