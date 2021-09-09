@@ -143,22 +143,54 @@ class SurveyRadioPMPS:
         self.n_p = 2  # number of polarizations.
         self.FWHM = 14.0  # FWHM of the beam [arcmin].
         self.SN_th = 9.0  # threshold signal to noise ratio.
-        self.RA_min = (
-            0.0  # range of the sky visible by the survey in RA [deg].
+        self.RA_range = [
+            0.0,
+            360.0,
+        ]  # range of the sky covered by the survey in RA [deg].
+        self.DEC_range = [
+            -90.0,
+            90.0,
+        ]  # range of the sky covered by the survey in DEC [deg].
+        self.l_range = [
+            -150.0,
+            50.0,
+        ]  # range of the sky covered by the survey in galactic longitude l [deg].
+        self.b_range = [
+            -6.0,
+            6.0,
+        ]  # range of the sky covered by the survey in galactic latitude b [deg].
+
+    def sky_coverage(
+        self,
+        RA: np.ndarray,
+        DEC: np.ndarray,
+        l_gal: np.ndarray,
+        b_gal: np.ndarray,
+    ) -> np.ndarray:
+        """
+            Determine which neutron stars are in the sky region covered by the survey.
+
+            Args:
+                RA (np.ndarray): right ascension in [deg] defined between [0, 360] deg in ICRS frame.
+                DEC (np.ndarray): declination in [deg] defined between [-90, 90] deg in ICRS frame.
+                l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
+                b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
+
+            Returns:
+                (np.ndarray): array of boolean variables: true if the pulsar is in the covered sky region, false if not.
+        """
+        coverage = (
+            (RA > self.RA_range[0])
+            & (RA < self.RA_range[1])
+            & (DEC > self.DEC_range[0])
+            & (DEC < self.DEC_range[1])
+            & (l_gal > self.l_range[0])
+            & (l_gal < self.l_range[1])
+            & (b_gal > self.b_range[0])
+            & (b_gal < self.b_range[1])
         )
-        self.RA_max = 360.0
-        self.DEC_min = (
-            -90.0
-        )  # range of the sky visible by the survey in DEC [deg].
-        self.DEC_max = +90.0
-        self.l_min = (
-            -150.0
-        )  # range of the sky visible by the survey in galactic longitude l [deg].
-        self.l_max = 50.0
-        self.b_min = (
-            -6.0
-        )  # range of the sky visible by the survey in galactic latitude b [deg].
-        self.b_max = +6.0
+
+        return coverage
 
     def detection_offset(self, n_detection: int) -> np.ndarray:
         """
@@ -233,8 +265,6 @@ class SurveyRadioPMPS:
         self,
         S_radio: np.ndarray,
         DM: np.ndarray,
-        RA: np.ndarray,
-        DEC: np.ndarray,
         l_gal: np.ndarray,
         b_gal: np.ndarray,
         w_int: np.ndarray,
@@ -247,8 +277,6 @@ class SurveyRadioPMPS:
         Args:
             S_radio (np.ndarray): radio flux in Jy.
             DM (np.ndarray): dispersion measure in [pc cm^-3].
-            RA (np.ndarray): right ascension in [deg] defined between [0, 360] deg in ICRS frame.
-            DEC (np.ndarray): declination in [deg] defined between [-90, 90] deg in ICRS frame.
             l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
             w_int (np.ndarray): intrinsic pulse width in [s].
@@ -260,43 +288,21 @@ class SurveyRadioPMPS:
         # Store the total number of sources.
         n = len(S_radio)
 
-        visibility = (
-            (RA > self.RA_min)
-            & (RA < self.RA_max)
-            & (DEC > self.DEC_min)
-            & (DEC < self.DEC_max)
-            & (l_gal > self.l_min)
-            & (l_gal < self.l_max)
-            & (b_gal > self.b_min)
-            & (b_gal < self.b_max)
-        )
-
-        # Store the number of potentially detectable sources.
-        n_vis = len(S_radio[visibility])
-
         # Compute the effective pulse width.
         w_eff = effective_pulse_width(
-            w_int[visibility],
-            DM[visibility],
-            self.channel_width,
-            self.nu_central,
-            self.t_samp,
+            w_int, DM, self.channel_width, self.nu_central, self.t_samp,
         )
         # Draw a random offset from the telescope beam center.
-        offset2 = self.detection_offset(n_vis)
+        offset2 = self.detection_offset(n)
         # Compute the gain corresponding to the offset detections.
         G = self.gain_gaussian_beam(offset2)
 
         # Compute the Sky temperature in the coordinates of each detection at the central frequency of the survey.
-        T_sky = sky_temperature(
-            l_gal[visibility], b_gal[visibility], self.nu_central
-        )
+        T_sky = sky_temperature(l_gal, b_gal, self.nu_central)
 
         SN_detection = np.zeros(n)
 
-        SN_detection[visibility] = self.antenna_equation(
-            S_radio[visibility], G, w_eff, P[visibility], T_sky
-        )
+        SN_detection = self.antenna_equation(S_radio, G, w_eff, P, T_sky)
 
         detected = SN_detection > self.SN_th
 

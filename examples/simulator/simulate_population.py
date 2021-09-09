@@ -95,21 +95,21 @@ def simulate_population(
     if cfg["seed"] is None:
         cfg["seed"] = int(time.time())
 
-    # Set NumPy random set globally.
+    # Set NumPy random seed globally.
     log.info("Seed: {}".format(cfg["seed"]))
     np.random.seed(cfg["seed"])
 
     with timewith.TimeWith(
         "[TotalSimulation]",
-        configuration.cfg["profile_log"],
-        configuration.cfg["profile_json"],
-        configuration.cfg["show_profiling"],
+        cfg["profile_log"],
+        cfg["profile_json"],
+        cfg["show_profiling"],
     ):
         with timewith.TimeWith(
             "[InitialPopulation]",
-            configuration.cfg["profile_log"],
-            configuration.cfg["profile_json"],
-            configuration.cfg["show_profiling"],
+            cfg["profile_log"],
+            cfg["profile_json"],
+            cfg["show_profiling"],
         ) as timer:
 
             # Generate an initial neutron star population.
@@ -177,7 +177,7 @@ def simulate_population(
                 v_phi_initial * const.KPC_TO_KM / const.YR_TO_S, r_initial
             )
 
-            timer.checkpoint("[Initial Angular momentum]")
+            timer.checkpoint("[Initial angular momentum]")
 
             # Computing the initial field strengths, misalignment angles, and periods
             log.info("Computing initial field strengths...")
@@ -274,14 +274,14 @@ def simulate_population(
         ############################################################################
 
         with timewith.TimeWith(
-            "[EvolvePopulation]",
-            configuration.cfg["profile_log"],
-            configuration.cfg["profile_json"],
-            configuration.cfg["show_profiling"],
+            "[DynamicalEvolution]",
+            cfg["profile_log"],
+            cfg["profile_json"],
+            cfg["show_profiling"],
         ) as timer:
 
             # Evolve the initial population.
-            log.info("Evolving the initial population in time...")
+            log.info("Evolve the initial population in time dynamically...")
 
             # Define the initial conditions for the dynamical evolution.
             initial_cond = np.array(
@@ -297,16 +297,16 @@ def simulate_population(
 
             # Evolve positions and velocities of the neutron stars forward in time.
             log.info("Evolving the positions and velocities...")
-            final_population, dyn_evol_dict = dyn.dynamical_evolution(
+            dyn_evol_output, dyn_evol_dict = dyn.dynamical_evolution(
                 initial_cond, age
             )
 
-            r_final = final_population[:, 0]
-            phi_final = final_population[:, 1]
-            z_final = final_population[:, 2]
-            v_r_final = final_population[:, 3]
-            v_phi_final = final_population[:, 4]
-            v_z_final = final_population[:, 5]
+            r_final = dyn_evol_output[:, 0]
+            phi_final = dyn_evol_output[:, 1]
+            z_final = dyn_evol_output[:, 2]
+            v_r_final = dyn_evol_output[:, 3]
+            v_phi_final = dyn_evol_output[:, 4]
+            v_z_final = dyn_evol_output[:, 5]
 
             # Convert from polar coordinates to cartesian coordinates.
             x_final, y_final = coco.polar_to_cartesian(r_final, phi_final)
@@ -357,7 +357,7 @@ def simulate_population(
                 with open(dyn_evolution_dump_path, "w") as f:
                     json.dump(dyn_evol_dict, f, indent=4, sort_keys=True)
 
-            timer.checkpoint("[Dynamic evolution]")
+            timer.checkpoint("[Dynamical evolution]")
 
             # Compute the magnitude of the initial velocity vector for each star.
             v_final = np.sqrt(
@@ -400,17 +400,50 @@ def simulate_population(
 
             timer.checkpoint("[Final angular momentum]")
 
+        ############################################################################
+
+        with timewith.TimeWith(
+            "[MagnetoRotationalEvolution]",
+            cfg["profile_log"],
+            cfg["profile_json"],
+            cfg["show_profiling"],
+        ) as timer:
+
+            # Initialize the final parameters.
+            B_final = np.zeros(cfg["NS_number"])
+            chi_final = np.zeros(cfg["NS_number"])
+            P_final = np.zeros(cfg["NS_number"])
+            P_dot_final = np.zeros(cfg["NS_number"])
+
+            # Select the survey.
+            survey_PMPS = sr.SurveyRadioPMPS()
+
+            # Determine which stars to evolve according to if they fall in the sky region covered by the survey.
+            coverage_PMPS = survey_PMPS.sky_coverage(
+                ra_final, dec_final, l_final, b_final
+            )
+
+            fraction_coverage = (
+                np.count_nonzero(coverage_PMPS) / cfg["NS_number"]
+            )
+            log.info(
+                f"Fraction of pulsars in the covered sky region: {fraction_coverage}"
+            )
+
             # Determine the evolved magnetic field, misalignment angle and rotation period.
             log.info(
                 "Evolving magnetic field, misalignment angle and rotation period..."
             )
             (
-                B_final,
-                chi_final,
-                P_final,
+                B_final[coverage_PMPS],
+                chi_final[coverage_PMPS],
+                P_final[coverage_PMPS],
                 magrot_evol_dict,
             ) = mre.magneto_rotational_evolution(
-                B_initial, chi_initial, P_initial, age,
+                B_initial[coverage_PMPS],
+                chi_initial[coverage_PMPS],
+                P_initial[coverage_PMPS],
+                age[coverage_PMPS],
             )
 
             if configuration.cfg["save_magrot_evolution"]:
@@ -427,48 +460,62 @@ def simulate_population(
 
             # Determining the final period derivatives.
             log.info("Computing final period derivatives...")
-            P_dot_final = period_derivative_vect(B_final, chi_final, P_final)
+            P_dot_final[coverage_PMPS] = period_derivative_vect(
+                B_final[coverage_PMPS],
+                chi_final[coverage_PMPS],
+                P_final[coverage_PMPS],
+            )
 
             timer.checkpoint("[Final period derivatives]")
+
+        ############################################################################
+
+        with timewith.TimeWith(
+            "[RadioDetection]",
+            configuration.cfg["profile_log"],
+            configuration.cfg["profile_json"],
+            configuration.cfg["show_profiling"],
+        ) as timer:
 
             # Determining the luminosity in different electromagnetic bands.
             log.info("Computing the luminosity in radio...")
 
-            L_radio = er.pdf_radio_luminosity(
-                P_final, P_dot_final / const.YR_TO_S
-            )
-
-            ####################################################################################################
-            # ===============
-            # RADIO DETECTION
-            # ===============
-
-            detected_radio = np.zeros(
-                configuration.cfg["NS_number"], dtype=bool
+            L_radio = np.zeros(cfg["NS_number"])
+            L_radio[coverage_PMPS] = er.pdf_radio_luminosity(
+                P_final[coverage_PMPS],
+                P_dot_final[coverage_PMPS] / const.YR_TO_S,
             )
 
             # Select only the pulsars that actually intersect our LOS.
             log.info("Selecting pulsars pointing at us...")
 
             # Determining the radio beam angular aperture.
-            theta_beam = er.beam_aperture(P_final, configuration.cfg["r_em"])
+            theta_beam = np.zeros(cfg["NS_number"])
+            theta_beam[coverage_PMPS] = er.beam_aperture(
+                P_final[coverage_PMPS], configuration.cfg["r_em"]
+            )
 
             # Determining the fraction of solid angle spanned by the two radio beams in a star complete rotation.
-            beam_frac = er.beam_fraction(chi_final, theta_beam)
+            beam_frac = np.zeros(cfg["NS_number"])
+            beam_frac[coverage_PMPS] = er.beam_fraction(
+                chi_final[coverage_PMPS], theta_beam[coverage_PMPS]
+            )
 
             # Drawing a random angular intercept for the LOS.
             # Note that since we assume simmetry between the northern and southern hemisphere of the star we
             # can only consider the northern hemisphere.
-            los_grid = np.linspace(
-                0.0, np.pi / 2, configuration.cfg["resolution"]
-            )
-            los_rand = cc.random_from_pdf(
-                los_grid, np.sin, configuration.cfg["NS_number"]
+            los_rand = np.zeros(cfg["NS_number"])
+            los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
+            los_rand[coverage_PMPS] = cc.random_from_pdf(
+                los_grid, np.sin, np.count_nonzero(coverage_PMPS)
             )
 
             # Selecting the pulsars whose radio beam intercepts our line of sight.
-            intercepted_radio = er.los_intercept(
-                chi_final, theta_beam, los_rand
+            intercepted_radio = np.zeros(cfg["NS_number"], dtype=bool)
+            intercepted_radio[coverage_PMPS] = er.los_intercept(
+                chi_final[coverage_PMPS],
+                theta_beam[coverage_PMPS],
+                los_rand[coverage_PMPS],
             )
 
             fraction_intercepted = len(
@@ -484,13 +531,15 @@ def simulate_population(
             log.info("Measuring the properties of selected pulsars...")
 
             # Computing the DM.
-            DM = np.zeros(configuration.cfg["NS_number"])
+            DM = np.zeros(cfg["NS_number"])
             DM[intercepted_radio] = edm.compute_DM(
                 l_final[intercepted_radio],
                 b_final[intercepted_radio],
                 sun_dist_gal[intercepted_radio],
-                configuration.cfg["fed_model"],
+                cfg["fed_model"],
             )
+
+            timer.checkpoint("[DM computation]")
 
             # Computing the intrinsic pulse width of the radio pulse.
             w_intrinsic = np.zeros(configuration.cfg["NS_number"])
@@ -518,13 +567,11 @@ def simulate_population(
             # simulating a radio survey.
             log.info("Simulate detection with PMPS...")
 
-            survey_PMPS = sr.SurveyRadioPMPS()
+            detected_radio = np.zeros(cfg["NS_number"], dtype=bool)
 
             detected_radio[intercepted_radio] = survey_PMPS.detect(
                 S_radio_Jy[intercepted_radio],
                 DM[intercepted_radio],
-                ra_final[intercepted_radio],
-                dec_final[intercepted_radio],
                 l_final[intercepted_radio],
                 b_final[intercepted_radio],
                 w_intrinsic_s[intercepted_radio],
@@ -538,113 +585,111 @@ def simulate_population(
                 f"Fraction of detected pulsars in radio: {fraction_detected_radio}"
             )
 
-            timer.checkpoint("[Radio Detection]")
+        ###################################################################################################
 
-            ###################################################################################################
+        # Adding the evolution output to a data frame for export.
+        log.info("Creating data frame for exporting...")
 
-            # Adding the evolution output to a data frame for export.
-            log.info("Creating data frame for exporting...")
+        # Generating two header lines and merging them using MultiIndex.
+        parameters_final = [
+            "age",
+            "x",
+            "y",
+            "z",
+            "RA",
+            "DEC",
+            "l",
+            "b",
+            "d",
+            "v_r",
+            "v_phi",
+            "v_z",
+            "pm_RA",
+            "pm_DEC",
+            "v_ls",
+            "B",
+            "chi",
+            "P",
+            "P_dot",
+            "L_radio",
+            "S_radio",
+            "w_int",
+            "intercepted_radio",
+            "detected_radio",
+        ]
+        units_final = [
+            "[yr]",
+            "[kpc]",
+            "[kpc]",
+            "[kpc]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[kpc]",
+            "[km s^-1]",
+            "[km s^-1]",
+            "[km s^-1]",
+            "[mas yr^-1]",
+            "[mas yr^-1]",
+            "[km s^-1]",
+            "[G]",
+            "[rad]",
+            "[s]",
+            "[s yr^-1]",
+            "[erg s^-1 Hz^-1]",
+            "[Jy]",
+            "[s]",
+            " ",
+            " ",
+        ]
+        header_final = pd.MultiIndex.from_arrays(
+            [parameters_final, units_final]
+        )
 
-            # Generating two header lines and merging them using MultiIndex.
-            parameters_final = [
-                "age",
-                "x",
-                "y",
-                "z",
-                "RA",
-                "DEC",
-                "l",
-                "b",
-                "d",
-                "v_r",
-                "v_phi",
-                "v_z",
-                "pm_RA",
-                "pm_DEC",
-                "v_ls",
-                "B",
-                "chi",
-                "P",
-                "P_dot",
-                "L_radio",
-                "S_radio",
-                "w_int",
-                "intercepted_radio",
-                "detected_radio",
-            ]
-            units_final = [
-                "[yr]",
-                "[kpc]",
-                "[kpc]",
-                "[kpc]",
-                "[deg]",
-                "[deg]",
-                "[deg]",
-                "[deg]",
-                "[kpc]",
-                "[km s^-1]",
-                "[km s^-1]",
-                "[km s^-1]",
-                "[mas yr^-1]",
-                "[mas yr^-1]",
-                "[km s^-1]",
-                "[G]",
-                "[rad]",
-                "[s]",
-                "[s yr^-1]",
-                "[erg s^-1 Hz^-1]",
-                "[Jy]",
-                "[s]",
-                " ",
-                " ",
-            ]
-            header_final = pd.MultiIndex.from_arrays(
-                [parameters_final, units_final]
-            )
+        df_final = pd.DataFrame(
+            data=np.array(
+                [
+                    age,
+                    x_final,
+                    y_final,
+                    z_final,
+                    ra_final,
+                    dec_final,
+                    l_final,
+                    b_final,
+                    sun_dist_icrs,
+                    v_r_final,
+                    v_phi_final,
+                    v_z_final,
+                    pm_ra_final,
+                    pm_dec_final,
+                    v_ls_icrs,
+                    B_final,
+                    chi_final,
+                    P_final,
+                    P_dot_final,
+                    L_radio,
+                    S_radio_Jy,
+                    w_intrinsic_s,
+                    intercepted_radio,
+                    detected_radio,
+                ]
+            ).T,
+            columns=header_final,
+        )
 
-            df_final = pd.DataFrame(
-                data=np.array(
-                    [
-                        age,
-                        x_final,
-                        y_final,
-                        z_final,
-                        ra_final,
-                        dec_final,
-                        l_final,
-                        b_final,
-                        sun_dist_icrs,
-                        v_r_final,
-                        v_phi_final,
-                        v_z_final,
-                        pm_ra_final,
-                        pm_dec_final,
-                        v_ls_icrs,
-                        B_final,
-                        chi_final,
-                        P_final,
-                        P_dot_final,
-                        L_radio,
-                        S_radio_Jy,
-                        w_intrinsic_s,
-                        intercepted_radio,
-                        detected_radio,
-                    ]
-                ).T,
-                columns=header_final,
-            )
+        # Save the data frame as a compressed binary file.
+        final_output_path = pathlib.Path().joinpath(
+            output_path, "final_population.pkl.gz"
+        )
+        df_final.to_pickle(final_output_path, compression="gzip")
 
-            # Save the data frame as a compressed binary file.
-            final_output_path = pathlib.Path().joinpath(
-                output_path, "final_population.pkl.gz"
-            )
-            df_final.to_pickle(final_output_path, compression="gzip")
+        log.info(
+            f"Output of the evolved population generated in {os.getcwd()}/{final_output_path}"
+        )
 
-            log.info(
-                f"Output of the evolved population generated in {os.getcwd()}/{final_output_path}"
-            )
-
-            timer.checkpoint("[Export]")
+        timer.checkpoint("[Export]")
 
     # Cleanup. Reset seed to empty value.
     configuration.cfg["seed"] = None
