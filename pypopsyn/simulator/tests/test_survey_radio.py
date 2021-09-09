@@ -52,6 +52,7 @@ def test_case_1():
         "RA": np.array([30.0, 200.0]),
         "DEC": np.array([-30.0, 50.0]),
         "T_sky_expected": np.array([3.00651602, 1.25853108]),
+        "coverage_expected": np.array([True, False], dtype=bool),
         "offset2": np.array([5, 10]),
         "G_expected": np.array([0.65224292, 0.60774404]),
         "S_radio": np.array([0.01, 100]),
@@ -115,6 +116,21 @@ def test_sky_temeperature(test_case_1):
     ).all()
 
 
+def test_sky_coverage_PMPS(test_case_1):
+    """
+    Verifying that the sky coverage of a survey is computed correctly.
+    """
+
+    coverage_out = PMPS.sky_coverage(
+        test_case_1["RA"],
+        test_case_1["DEC"],
+        test_case_1["l_gal"],
+        test_case_1["b_gal"],
+    )
+
+    assert test_case_1["coverage_expected"].all() == coverage_out.all()
+
+
 def test_gain_gaussian_beam_PMPS(test_case_1):
     """
     Verifying that the gaussian beam gain for an offset observation is computed correctly.
@@ -153,8 +169,6 @@ def test_detect_PMPS(test_case_1):
     detected_out = PMPS.detect(
         test_case_1["S_radio"],
         test_case_1["DM"],
-        test_case_1["RA"],
-        test_case_1["DEC"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],
         test_case_1["w_int"],
