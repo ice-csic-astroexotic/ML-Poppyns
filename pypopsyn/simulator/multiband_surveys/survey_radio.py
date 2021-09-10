@@ -124,41 +124,71 @@ def sky_temperature(
     return T_sky_nu
 
 
-class SurveyRadioPMPS:
+class SurveyRadioBase:
     """
-    Class that model the Parks Multibeam Pulsar Survey.
+    Base class for any radio survey model to ensure that a common interface between all of
+    them is respected. The following abstract methods must be implemented or an error
+    will be raised.
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        beta: float,
+        G0: float,
+        t_obs: float,
+        t_samp: float,
+        T_sys: float,
+        nu_central: float,
+        BW: float,
+        channel_width: float,
+        n_p: float,
+        FWHM: float,
+        SN_th: float,
+        RA_range: np.ndarray,
+        DEC_range: np.ndarray,
+        l_range: np.ndarray,
+        b_range: np.ndarray,
+    ):
+        """
+        Radio survey initialization.
 
-        # The survey parameters are taken from Manchester et al. (2001) and Bates et al. (2014).
-        self.beta = 1.2  # degradation factor.
-        self.G0 = 0.7  # gain at the beam center [K Jy^(-1)].
-        self.t_obs = 2100.0  # integration time [s].
-        self.t_samp = 250.0e-6  # sampling time [s].
-        self.T_sys = 25.0  # system temperature [K].
-        self.nu_central = 1.352e9  # central frequency of the bandwidth [Hz]
-        self.BW = 288.0e6  # frequency bandwidth [Hz].
-        self.channel_width = 3.0e6  # width of a single frequency channel [Hz].
-        self.n_p = 2  # number of polarizations.
-        self.FWHM = 14.0  # FWHM of the beam [arcmin].
-        self.SN_th = 9.0  # threshold signal to noise ratio.
-        self.RA_range = [
-            0.0,
-            360.0,
-        ]  # range of the sky covered by the survey in RA [deg].
-        self.DEC_range = [
-            -90.0,
-            90.0,
-        ]  # range of the sky covered by the survey in DEC [deg].
-        self.l_range = [
-            -150.0,
-            50.0,
-        ]  # range of the sky covered by the survey in galactic longitude l [deg].
-        self.b_range = [
-            -6.0,
-            6.0,
-        ]  # range of the sky covered by the survey in galactic latitude b [deg].
+        Args:
+            beta (float): degradation factor.
+            G0 (float): gain at the beam center [K Jy^(-1)].
+            t_obs (float): integration time [s].
+            t_samp (float): sampling time [s].
+            T_sys (float): system temperature [K].
+            nu_central (float): central frequency of the bandwidth [Hz].
+            BW (float): frequency bandwidth [Hz].
+            channel_width (float): width of a single frequency channel [Hz].
+            n_p (float): number of polarizations.
+            FWHM (float): FWHM of the beam [arcmin].
+            SN_th (float): threshold signal to noise ratio.
+            RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
+            DEC_range (np.ndarray): range of the sky covered by the survey in DEC [deg].
+            l_range (np.ndarray): range of the sky covered by the survey in galactic longitude l [deg].
+            b_range (np.ndarray): range of the sky covered by the survey in galactic latitude b [deg].
+
+        Returns:
+            Nothing.
+
+        """
+
+        self.beta = beta
+        self.G0 = G0
+        self.t_obs = t_obs
+        self.t_samp = t_samp
+        self.T_sys = T_sys
+        self.nu_central = nu_central
+        self.BW = BW
+        self.channel_width = channel_width
+        self.n_p = n_p
+        self.FWHM = FWHM
+        self.SN_th = SN_th
+        self.RA_range = RA_range
+        self.DEC_range = DEC_range
+        self.l_range = l_range
+        self.b_range = b_range
 
     def sky_coverage(
         self,
@@ -307,3 +337,90 @@ class SurveyRadioPMPS:
         detected = SN_detection > self.SN_th
 
         return detected
+
+
+class SurveyRadioPMPS(SurveyRadioBase):
+    """
+    Class that model the Parks Multibeam Pulsar Survey.
+    The survey parameters are taken from Manchester et al. (2001) (see also Bates et al. 2014 and Chakraborty et al. 2020).
+    """
+
+    def __init__(
+        self,
+        beta=1.2,
+        G0=0.7,
+        t_obs=2100.0,
+        t_samp=250.0e-6,
+        T_sys=25.0,
+        nu_central=1.352e9,
+        BW=288.0e6,
+        channel_width=3.0e6,
+        n_p=2,
+        FWHM=14.0,
+        SN_th=9.0,
+        RA_range=np.array([0.0, 360.0]),
+        DEC_range=np.array([-90.0, 90.0]),
+        l_range=np.array([-150.0, 50.0]),
+        b_range=np.array([-6.0, 6.0]),
+    ) -> None:
+
+        super().__init__(
+            beta,
+            G0,
+            t_obs,
+            t_samp,
+            T_sys,
+            nu_central,
+            BW,
+            channel_width,
+            n_p,
+            FWHM,
+            SN_th,
+            RA_range,
+            DEC_range,
+            l_range,
+            b_range,
+        )
+
+
+class SurveyRadioSMPS(SurveyRadioBase):
+    """
+    Class that model the Swinburne Multibeam Pulsar Survey.
+    # The survey parameters are taken from Edwards et al. (2001) (see also Chakraborty et al. 2020).
+    """
+
+    def __init__(
+        self,
+        beta=1.5,
+        G0=0.64,
+        t_obs=265.0,
+        t_samp=125.0e-6,
+        T_sys=25.0,
+        nu_central=1.374e9,
+        BW=288.0e6,
+        channel_width=3.0e6,
+        n_p=2,
+        FWHM=14.0,
+        SN_th=9.0,
+        RA_range=np.array([0.0, 360.0]),
+        DEC_range=np.array([-90.0, 90.0]),
+        l_range=np.array([-100.0, 50.0]),
+        b_range=np.array([-5.0, 15.0]),
+    ) -> None:
+        super().__init__(
+            beta,
+            G0,
+            t_obs,
+            t_samp,
+            T_sys,
+            nu_central,
+            BW,
+            channel_width,
+            n_p,
+            FWHM,
+            SN_th,
+            RA_range,
+            DEC_range,
+            l_range,
+            b_range,
+        )

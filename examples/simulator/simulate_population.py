@@ -415,16 +415,22 @@ def simulate_population(
             P_final = np.zeros(cfg["NS_number"])
             P_dot_final = np.zeros(cfg["NS_number"])
 
-            # Select the survey.
+            # Select the surveys.
             survey_PMPS = sr.SurveyRadioPMPS()
+            survey_SMPS = sr.SurveyRadioSMPS()
 
             # Determine which stars to evolve according to if they fall in the sky region covered by the survey.
             coverage_PMPS = survey_PMPS.sky_coverage(
                 ra_final, dec_final, l_final, b_final
             )
+            coverage_SMPS = survey_SMPS.sky_coverage(
+                ra_final, dec_final, l_final, b_final
+            )
+
+            coverage_tot = coverage_PMPS | coverage_SMPS
 
             fraction_coverage = (
-                np.count_nonzero(coverage_PMPS) / cfg["NS_number"]
+                np.count_nonzero(coverage_tot) / cfg["NS_number"]
             )
             log.info(
                 f"Fraction of pulsars in the covered sky region: {fraction_coverage}"
@@ -435,15 +441,15 @@ def simulate_population(
                 "Evolving magnetic field, misalignment angle and rotation period..."
             )
             (
-                B_final[coverage_PMPS],
-                chi_final[coverage_PMPS],
-                P_final[coverage_PMPS],
+                B_final[coverage_tot],
+                chi_final[coverage_tot],
+                P_final[coverage_tot],
                 magrot_evol_dict,
             ) = mre.magneto_rotational_evolution(
-                B_initial[coverage_PMPS],
-                chi_initial[coverage_PMPS],
-                P_initial[coverage_PMPS],
-                age[coverage_PMPS],
+                B_initial[coverage_tot],
+                chi_initial[coverage_tot],
+                P_initial[coverage_tot],
+                age[coverage_tot],
             )
 
             if configuration.cfg["save_magrot_evolution"]:
@@ -460,10 +466,10 @@ def simulate_population(
 
             # Determining the final period derivatives.
             log.info("Computing final period derivatives...")
-            P_dot_final[coverage_PMPS] = period_derivative_vect(
-                B_final[coverage_PMPS],
-                chi_final[coverage_PMPS],
-                P_final[coverage_PMPS],
+            P_dot_final[coverage_tot] = period_derivative_vect(
+                B_final[coverage_tot],
+                chi_final[coverage_tot],
+                P_final[coverage_tot],
             )
 
             timer.checkpoint("[Final period derivatives]")
@@ -481,9 +487,9 @@ def simulate_population(
             log.info("Computing the luminosity in radio...")
 
             L_radio = np.zeros(cfg["NS_number"])
-            L_radio[coverage_PMPS] = er.pdf_radio_luminosity(
-                P_final[coverage_PMPS],
-                P_dot_final[coverage_PMPS] / const.YR_TO_S,
+            L_radio[coverage_tot] = er.pdf_radio_luminosity(
+                P_final[coverage_tot],
+                P_dot_final[coverage_tot] / const.YR_TO_S,
             )
 
             # Select only the pulsars that actually intersect our LOS.
@@ -491,14 +497,14 @@ def simulate_population(
 
             # Determining the radio beam angular aperture.
             theta_beam = np.zeros(cfg["NS_number"])
-            theta_beam[coverage_PMPS] = er.beam_aperture(
-                P_final[coverage_PMPS], configuration.cfg["r_em"]
+            theta_beam[coverage_tot] = er.beam_aperture(
+                P_final[coverage_tot], configuration.cfg["r_em"]
             )
 
             # Determining the fraction of solid angle spanned by the two radio beams in a star complete rotation.
             beam_frac = np.zeros(cfg["NS_number"])
-            beam_frac[coverage_PMPS] = er.beam_fraction(
-                chi_final[coverage_PMPS], theta_beam[coverage_PMPS]
+            beam_frac[coverage_tot] = er.beam_fraction(
+                chi_final[coverage_tot], theta_beam[coverage_tot]
             )
 
             # Drawing a random angular intercept for the LOS.
@@ -506,16 +512,16 @@ def simulate_population(
             # can only consider the northern hemisphere.
             los_rand = np.zeros(cfg["NS_number"])
             los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-            los_rand[coverage_PMPS] = cc.random_from_pdf(
-                los_grid, np.sin, np.count_nonzero(coverage_PMPS)
+            los_rand[coverage_tot] = cc.random_from_pdf(
+                los_grid, np.sin, np.count_nonzero(coverage_tot)
             )
 
             # Selecting the pulsars whose radio beam intercepts our line of sight.
             intercepted_radio = np.zeros(cfg["NS_number"], dtype=bool)
-            intercepted_radio[coverage_PMPS] = er.los_intercept(
-                chi_final[coverage_PMPS],
-                theta_beam[coverage_PMPS],
-                los_rand[coverage_PMPS],
+            intercepted_radio[coverage_tot] = er.los_intercept(
+                chi_final[coverage_tot],
+                theta_beam[coverage_tot],
+                los_rand[coverage_tot],
             )
 
             fraction_intercepted = len(
@@ -564,25 +570,50 @@ def simulate_population(
 
             timer.checkpoint("[Radio emission]")
 
-            # simulating a radio survey.
+            # simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
 
-            detected_radio = np.zeros(cfg["NS_number"], dtype=bool)
+            detected_radio_PMPS = np.zeros(cfg["NS_number"], dtype=bool)
 
-            detected_radio[intercepted_radio] = survey_PMPS.detect(
-                S_radio_Jy[intercepted_radio],
-                DM[intercepted_radio],
-                l_final[intercepted_radio],
-                b_final[intercepted_radio],
-                w_intrinsic_s[intercepted_radio],
-                P_final[intercepted_radio],
+            detected_radio_PMPS[
+                intercepted_radio & coverage_PMPS
+            ] = survey_PMPS.detect(
+                S_radio_Jy[intercepted_radio & coverage_PMPS],
+                DM[intercepted_radio & coverage_PMPS],
+                l_final[intercepted_radio & coverage_PMPS],
+                b_final[intercepted_radio & coverage_PMPS],
+                w_intrinsic_s[intercepted_radio & coverage_PMPS],
+                P_final[intercepted_radio & coverage_PMPS],
             )
 
-            fraction_detected_radio = len(
-                detected_radio[detected_radio]
-            ) / len(detected_radio)
+            fraction_detected_radio_PMPS = len(
+                detected_radio_PMPS[detected_radio_PMPS]
+            ) / len(detected_radio_PMPS)
             log.info(
-                f"Fraction of detected pulsars in radio: {fraction_detected_radio}"
+                f"Fraction of detected pulsars by PMPS: {fraction_detected_radio_PMPS}"
+            )
+
+            # simulating the SMPS survey.
+            log.info("Simulate detection with SMPS...")
+
+            detected_radio_SMPS = np.zeros(cfg["NS_number"], dtype=bool)
+
+            detected_radio_SMPS[
+                intercepted_radio & coverage_SMPS
+            ] = survey_SMPS.detect(
+                S_radio_Jy[intercepted_radio & coverage_SMPS],
+                DM[intercepted_radio & coverage_SMPS],
+                l_final[intercepted_radio & coverage_SMPS],
+                b_final[intercepted_radio & coverage_SMPS],
+                w_intrinsic_s[intercepted_radio & coverage_SMPS],
+                P_final[intercepted_radio & coverage_SMPS],
+            )
+
+            fraction_detected_radio_SMPS = len(
+                detected_radio_SMPS[detected_radio_SMPS]
+            ) / len(detected_radio_SMPS)
+            log.info(
+                f"Fraction of detected pulsars by SMPS: {fraction_detected_radio_SMPS}"
             )
 
         ###################################################################################################
@@ -615,7 +646,8 @@ def simulate_population(
             "S_radio",
             "w_int",
             "intercepted_radio",
-            "detected_radio",
+            "detected_radio_PMPS",
+            "detected_radio_SMPS",
         ]
         units_final = [
             "[yr]",
@@ -640,6 +672,7 @@ def simulate_population(
             "[erg s^-1 Hz^-1]",
             "[Jy]",
             "[s]",
+            " ",
             " ",
             " ",
         ]
@@ -673,7 +706,8 @@ def simulate_population(
                     S_radio_Jy,
                     w_intrinsic_s,
                     intercepted_radio,
-                    detected_radio,
+                    detected_radio_PMPS,
+                    detected_radio_SMPS,
                 ]
             ).T,
             columns=header_final,
