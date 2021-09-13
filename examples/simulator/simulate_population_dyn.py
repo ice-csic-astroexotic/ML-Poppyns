@@ -42,8 +42,6 @@ import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population as ipop
-import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
-import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
@@ -101,6 +99,10 @@ def simulate_population(
         configuration.cfg["profile_json"],
         configuration.cfg["show_profiling"],
     ):
+
+        ############################################################################
+        # Initialize population
+
         with timewith.TimeWith(
             "[InitialPopulation]",
             configuration.cfg["profile_log"],
@@ -166,99 +168,8 @@ def simulate_population(
 
             timer.checkpoint("[Initial Angular momentum]")
 
-            # # Computing the initial field strengths, misalignment angles, and periods
-            # log.info("Computing initial field strengths...")
-            # B_initial = NS_population_initial.magnetic_field()
-            #
-            # log.info("Computing initial misalignment angles...")
-            # chi_initial = NS_population_initial.misalignment_angle()
-            #
-            # log.info("Computing initial periods...")
-            # P_initial = NS_population_initial.period()
-            #
-            # timer.checkpoint(
-            #     "[Initial field strengths, misalignment angles and periods]"
-            # )
-            #
-            # # Determining the initial period derivatives.
-            # log.info("Computing initial period derivatives...")
-            # period_derivative_vect = np.vectorize(pdv.period_derivative)
-            # P_dot_initial = period_derivative_vect(
-            #     B_initial, chi_initial, P_initial
-            # )
-            #
-            # timer.checkpoint("[Initial period derivatives]")
-
-            # # Adding the parameters to a data frame for export.
-            # log.info("Creating data frame for exporting...")
-            #
-            # # Generating two header lines and merging them using MultiIndex.
-            # parameters_initial = [
-            #     "age",
-            #     "x",
-            #     "y",
-            #     "z",
-            #     "vk_r",
-            #     "vk_phi",
-            #     "vk_z",
-            #     "v_orb",
-            #     # "B",
-            #     # "chi",
-            #     # "P",
-            #     # "P_dot",
-            # ]
-            # units_initial = [
-            #     "[yr]",
-            #     "[kpc]",
-            #     "[kpc]",
-            #     "[kpc]",
-            #     "[kpc/yr]",
-            #     "[kpc/yr]",
-            #     "[kpc/yr]",
-            #     "[kpc/yr]",
-            #     # "[G]",
-            #     # "[rad]",
-            #     # "[s]",
-            #     # "[s/yr]",
-            # ]
-            #
-            # header_initial = pd.MultiIndex.from_arrays(
-            #     [parameters_initial, units_initial]
-            # )
-            #
-            # df_initial = pd.DataFrame(
-            #     data=np.array(
-            #         [
-            #             age,
-            #             x_initial,
-            #             y_initial,
-            #             z_initial,
-            #             vk_r,
-            #             vk_phi,
-            #             vk_z,
-            #             v_orb,
-            #             # B_initial,
-            #             # chi_initial,
-            #             # P_initial,
-            #             # P_dot_initial,
-            #         ]
-            #     ).T,
-            #     columns=header_initial,
-            # )
-
-            # # Save the data frame as compressed binary file.
-            # initial_output_path = pathlib.Path().joinpath(
-            #     output_path, f"init_pop_dyn_{cfg["galactic_model"]}_{cfg["spiral_arms"]}_{cfg["kick_model"]}.pkl.gz"
-            # )
-            # df_initial.to_pickle(initial_output_path, compression="gzip")
-            #
-            # timer.checkpoint("[Export]")
-            #
-            # log.info(
-            #     f"Output of the initial population generated in {os.getcwd()}/{initial_output_path}"
-            # )
-
         ############################################################################
+        # Evolve population
 
         with timewith.TimeWith(
             "[EvolvePopulation]",
@@ -313,18 +224,6 @@ def simulate_population(
                 v_r_final, v_phi_final, v_z_final, phi_final
             )
 
-            # Convert galactocentric coordinates and velocities into ICRS frame.
-            (
-                ra_final,
-                dec_final,
-                sun_dist,
-                v_ra_final,
-                v_dec_final,
-                v_ls,
-            ) = coco.galactocentric_to_icrs(
-                x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
-            )
-
             if configuration.cfg["save_dyn_evolution"]:
                 # Save dictionary containing evolution information to output path in a .json file.
                 dyn_evolution_dump_path = pathlib.Path().joinpath(
@@ -376,37 +275,6 @@ def simulate_population(
 
             timer.checkpoint("[Final angular momentum]")
 
-            # # Determine the evolved magnetic field, misalignment angle and rotation period.
-            # log.info(
-            #     "Evolving magnetic field, misalignment angle and rotation period..."
-            # )
-            # (
-            #     B_final,
-            #     chi_final,
-            #     P_final,
-            #     magrot_evol_dict,
-            # ) = mre.magneto_rotational_evolution(
-            #     B_initial, chi_initial, P_initial, age,
-            # )
-            #
-            # if configuration.cfg["save_magrot_evolution"]:
-            #     # Save dictionary containing evolution information to output path in a .json file.
-            #     magrot_evolution_dump_path = pathlib.Path().joinpath(
-            #         output_path, "magrot_evolution.json"
-            #     )
-            #     with open(magrot_evolution_dump_path, "w") as f:
-            #         json.dump(magrot_evol_dict, f, indent=4, sort_keys=True)
-            #
-            # timer.checkpoint(
-            #     "[Final field strengths, misalignment angles and periods]"
-            # )
-            #
-            # # Determining the final period derivatives.
-            # log.info("Computing final period derivatives...")
-            # P_dot_final = period_derivative_vect(B_final, chi_final, P_final)
-            #
-            # timer.checkpoint("[Final period derivatives]")
-
             # Adding the evolution output to a data frame for export.
             log.info("Creating data frame for exporting...")
 
@@ -416,38 +284,18 @@ def simulate_population(
                 "x",
                 "y",
                 "z",
-                "RA",
-                "DEC",
-                "d",
                 "v_r",
                 "v_phi",
                 "v_z",
-                "v_RA",
-                "v_DEC",
-                "v_ls",
-                # "B",
-                # "chi",
-                # "P",
-                # "P_dot",
             ]
             units_final = [
                 "[yr]",
                 "[kpc]",
                 "[kpc]",
                 "[kpc]",
-                "[deg]",
-                "[deg]",
-                "[kpc]",
                 "[km/s]",
                 "[km/s]",
                 "[km/s]",
-                "[mas/yr]",
-                "[mas/yr]",
-                "[km/s]",
-                # "[G]",
-                # "[rad]",
-                # "[s]",
-                # "[s/yr]",
             ]
             header_final = pd.MultiIndex.from_arrays(
                 [parameters_final, units_final]
@@ -460,19 +308,9 @@ def simulate_population(
                         x_final,
                         y_final,
                         z_final,
-                        ra_final,
-                        dec_final,
-                        sun_dist,
                         v_r_final,
                         v_phi_final,
                         v_z_final,
-                        v_ra_final,
-                        v_dec_final,
-                        v_ls,
-                        # B_final,
-                        # chi_final,
-                        # P_final,
-                        # P_dot_final,
                     ]
                 ).T,
                 columns=header_final,
@@ -480,8 +318,7 @@ def simulate_population(
 
             # Save the data frame as a compressed binary file.
             final_output_path = pathlib.Path().joinpath(
-                output_path,
-                "final_pop_dyn_{}.pkl.gz".format(cfg["galactic_model"]),
+                output_path, "final_pop_dyn.pkl.gz",
             )
             df_final.to_pickle(final_output_path, compression="gzip")
 
