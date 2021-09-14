@@ -71,7 +71,7 @@ cfg["seed"] = None
 cfg["resolution"] = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 100000
+cfg["NS_number"] = 10000000
 
 # Number of spiral arms in the galaxy. If set to 5 the Local arm is included.
 cfg["arm_number"] = 4
@@ -80,7 +80,7 @@ cfg["arm_number"] = 4
 cfg["t_age_min"] = 1.0
 
 # Maximum age for the neutron stars in [yr].
-cfg["t_age_max"] = 1e7
+cfg["t_age_max"] = 3e7
 
 # Time step for the dynamical evolution [yr].
 cfg["dyn_time_step"] = 1e4
