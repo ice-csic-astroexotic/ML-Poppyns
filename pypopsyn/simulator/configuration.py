@@ -71,7 +71,7 @@ cfg["seed"] = None
 cfg["resolution"] = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 300000
+cfg["NS_number"] = 10000000
 
 # Number of spiral arms in the galaxy. If set to 5 the Local arm is included.
 cfg["arm_number"] = 5
