@@ -147,7 +147,7 @@ class SurveyRadioBase:
         RA_range: np.ndarray,
         DEC_range: np.ndarray,
         l_range: np.ndarray,
-        b_range: np.ndarray,
+        b_range_abs: np.ndarray,
     ):
         """
         Radio survey initialization.
@@ -167,7 +167,7 @@ class SurveyRadioBase:
             RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
             DEC_range (np.ndarray): range of the sky covered by the survey in DEC [deg].
             l_range (np.ndarray): range of the sky covered by the survey in galactic longitude l [deg].
-            b_range (np.ndarray): range of the sky covered by the survey in galactic latitude b [deg].
+            b_range_abs (np.ndarray): absolute value of the range of the sky covered by the survey in galactic latitude b [deg].
 
         Returns:
             Nothing.
@@ -188,7 +188,7 @@ class SurveyRadioBase:
         self.RA_range = RA_range
         self.DEC_range = DEC_range
         self.l_range = l_range
-        self.b_range = b_range
+        self.b_range_abs = b_range_abs
 
     def sky_coverage(
         self,
@@ -216,8 +216,8 @@ class SurveyRadioBase:
             & (DEC < self.DEC_range[1])
             & (l_gal > self.l_range[0])
             & (l_gal < self.l_range[1])
-            & (b_gal > self.b_range[0])
-            & (b_gal < self.b_range[1])
+            & (np.abs(b_gal) > self.b_range_abs[0])
+            & (np.abs(b_gal) < self.b_range_abs[1])
         )
 
         return coverage
@@ -347,12 +347,12 @@ class SurveyRadioPMPS(SurveyRadioBase):
 
     def __init__(
         self,
-        beta=1.2,
-        G0=0.7,
+        beta=1.5,
+        G0=0.64,
         t_obs=2100.0,
         t_samp=250.0e-6,
         T_sys=25.0,
-        nu_central=1.352e9,
+        nu_central=1.374e9,
         BW=288.0e6,
         channel_width=3.0e6,
         n_p=2,
@@ -360,8 +360,8 @@ class SurveyRadioPMPS(SurveyRadioBase):
         SN_th=9.0,
         RA_range=np.array([0.0, 360.0]),
         DEC_range=np.array([-90.0, 90.0]),
-        l_range=np.array([-150.0, 50.0]),
-        b_range=np.array([-6.0, 6.0]),
+        l_range=np.array([-100.0, 50.0]),
+        b_range_abs=np.array([0.0, 5.0]),
     ) -> None:
 
         super().__init__(
@@ -379,7 +379,7 @@ class SurveyRadioPMPS(SurveyRadioBase):
             RA_range,
             DEC_range,
             l_range,
-            b_range,
+            b_range_abs,
         )
 
 
@@ -405,7 +405,7 @@ class SurveyRadioSMPS(SurveyRadioBase):
         RA_range=np.array([0.0, 360.0]),
         DEC_range=np.array([-90.0, 90.0]),
         l_range=np.array([-100.0, 50.0]),
-        b_range=np.array([-5.0, 15.0]),
+        b_range_abs=np.array([5.0, 30.0]),
     ) -> None:
         super().__init__(
             beta,
@@ -422,5 +422,5 @@ class SurveyRadioSMPS(SurveyRadioBase):
             RA_range,
             DEC_range,
             l_range,
-            b_range,
+            b_range_abs,
         )
