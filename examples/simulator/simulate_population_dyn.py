@@ -206,23 +206,10 @@ def simulate_population(
             v_phi_final = final_population[:, 4]
             v_z_final = final_population[:, 5]
 
-            # Convert from polar coordinates to cartesian coordinates.
-            x_final, y_final = coco.polar_to_cartesian(r_final, phi_final)
-
             # Convert velocities from [kpc/yr] into [km/s].
             v_r_final = v_r_final * const.KPC_TO_KM / const.YR_TO_S
             v_phi_final = v_phi_final * const.KPC_TO_KM / const.YR_TO_S
             v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
-
-            # Convert velocity component from galactocentric cylindrical coordinates
-            # to galactocentric cartesian coordinates.
-            (
-                v_x_final,
-                v_y_final,
-                v_z_final,
-            ) = coco.speed_cylindrical_to_cartesian(
-                v_r_final, v_phi_final, v_z_final, phi_final
-            )
 
             if configuration.cfg["save_dyn_evolution"]:
                 # Save dictionary containing evolution information to output path in a .json file.
@@ -281,8 +268,8 @@ def simulate_population(
             # Generating two header lines and merging them using MultiIndex.
             parameters_final = [
                 "age",
-                "x",
-                "y",
+                "r",
+                "phi",
                 "z",
                 "v_r",
                 "v_phi",
@@ -291,7 +278,7 @@ def simulate_population(
             units_final = [
                 "[yr]",
                 "[kpc]",
-                "[kpc]",
+                "[rad]",
                 "[kpc]",
                 "[km/s]",
                 "[km/s]",
@@ -305,8 +292,8 @@ def simulate_population(
                 data=np.array(
                     [
                         age,
-                        x_final,
-                        y_final,
+                        r_final,
+                        phi_final,
                         z_final,
                         v_r_final,
                         v_phi_final,
