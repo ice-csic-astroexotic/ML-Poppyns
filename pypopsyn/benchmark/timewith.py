@@ -31,6 +31,7 @@ SOFTWARE.
 import json
 import os
 import time
+from typing import Tuple
 
 import termcolor
 
@@ -43,8 +44,8 @@ class TimeWith:
     def __init__(
         self,
         name: str = "",
-        log_filename: str = None,
-        json_filename: str = None,
+        log_filename: str = "profile.log",
+        json_filename: str = "profile.json",
         show: bool = True,
     ) -> None:
         """
@@ -55,7 +56,9 @@ class TimeWith:
 
             name (str): A name for the context to be used when printing info.
 
-            filename (str): Name of the file to dump profiling information.
+            log_filename (str): Name of the LOG file to dump profiling information.
+
+            json_filename (str): Name of the JSON file to dump profiling information.
 
             show (bool): Whether or not to print info to terminal.
 
@@ -87,7 +90,7 @@ class TimeWith:
             with open(self.json_filename, "w") as f:
                 json.dump(data, f, indent=2)
 
-    def elapsed(self) -> None:
+    def elapsed(self) -> Tuple[float, float]:
         """
         Elapsed time getter since start of scope and between individual elapsed
         calls (i.e., time between checkpoints).

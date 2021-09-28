@@ -199,10 +199,10 @@ def galactocentric_to_icrs(
     # we subsequently remove astropy units to obtain numpy float values.
     ra = icrs_coord.ra.degree
     dec = icrs_coord.dec.degree
-    sun_dist = icrs_coord.distance / u.kpc
-    pm_ra = icrs_coord.pm_ra_cosdec / (u.mas / u.yr)
-    pm_dec = icrs_coord.pm_dec / (u.mas / u.yr)
-    v_ls = icrs_coord.radial_velocity / (u.km / u.s)
+    sun_dist = icrs_coord.distance.value
+    pm_ra = icrs_coord.pm_ra_cosdec.value
+    pm_dec = icrs_coord.pm_dec.value
+    v_ls = icrs_coord.radial_velocity.value
 
     return ra, dec, sun_dist, pm_ra, pm_dec, v_ls
 

@@ -34,7 +34,7 @@ from pypopsyn.simulator.configuration import cfg
 
 # Redefining global variables to allow type specification.
 # Necessary right now in order to get JIT to work.
-NS_mass: float = cfg["NS_mass"]
+NS_mass: float = cfg["NS_mass"] * const.M_SUN
 NS_radius: float = cfg["NS_radius"]
 k_coefficients_2: float = cfg["k_coefficients"][2]
 
