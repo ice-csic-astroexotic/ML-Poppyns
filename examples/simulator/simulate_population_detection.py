@@ -240,7 +240,8 @@ def simulate_population(args) -> None:
                 n_detected_sim_SMPS < n_detected_real_SMPS
             ):
 
-                # Evaluate the percentage of neutron stars detected by the simulated surveys with respect to the real surveys.
+                # Evaluate the percentage of neutron stars detected by the simulated
+                # surveys with respect to the real surveys.
                 percentage_detected_PMPS = (
                     n_detected_sim_PMPS / n_detected_real_PMPS
                 )
@@ -451,7 +452,8 @@ def simulate_population(args) -> None:
                     for key, value in detected_dictionary.items()
                 }
 
-                # Remove from the dynamical database the stars that have been detected or that are out from the sky coverage of the surveys.
+                # Remove from the dynamical database the stars that have been detected or
+                # that are out from the sky coverage of the surveys.
                 idx_remove = np.concatenate((idx_remove, idx_det), axis=None)
 
                 age = np.delete(age, idx_remove)

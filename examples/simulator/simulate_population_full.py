@@ -57,17 +57,15 @@ from pypopsyn.simulator.configuration import cfg
 log = logging.getLogger(__name__)
 
 
-def simulate_population(
-    output_path: pathlib.Path, json_override_path: pathlib.Path = None
-) -> None:
+def simulate_population(args) -> None:
     """
     Generating a neutron star population starting from some initial
-    conditions and evolving it forward in time.
+    conditions and dynamically evolving it forward in time.
 
     Args:
-
-        output_path (pathlib.Path): Output directory for the run.
-        json_override_path (pathlib.Path): Path to JSON with parameter overrides.
+        args:
+            output_path (pathlib.Path): Output directory for the run.
+            json_override_path (pathlib.Path): Path to JSON with parameter overrides.
 
     Returns:
 
@@ -75,17 +73,42 @@ def simulate_population(
 
     """
 
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
+    # If the output directory does not exist, create it.
+    output_path = pathlib.Path(args.output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Update path-dependent configurations prepending the specified output path.
+    configuration.cfg["profile_log"] = str(
+        pathlib.Path().joinpath(output_path, configuration.cfg["profile_log"])
+    )
+    configuration.cfg["profile_json"] = str(
+        pathlib.Path().joinpath(output_path, configuration.cfg["profile_json"])
+    )
+
+    # Initialize seed randomly if no seed was specified.
+    if cfg["seed"] is None:
+        cfg["seed"] = int(time.time())
+
+    # Set NumPy random seed globally.
+    log.info("Seed: {}".format(cfg["seed"]))
+    np.random.seed(cfg["seed"])
+
     # Update simulator configuration with the provided JSON override (if any).
     cfg_override = {}
-    if json_override_path:
+    if args.parameter_override:
+        json_override_path = pathlib.Path(args.parameter_override)
         with open(json_override_path) as f:
             cfg_override = json.load(f)
             configuration.update_configuration(cfg_override)
 
-    # Dump configuration override to output path.
-    override_dump_path = pathlib.Path().joinpath(output_path, "override.json")
-    with open(override_dump_path, "w") as f:
-        json.dump(cfg_override, f, indent=4, sort_keys=True)
+    # Dump updated configuration to output path.
+    config_dump_path = pathlib.Path().joinpath(
+        output_path, "configuration.json"
+    )
+    with open(config_dump_path, "w") as f:
+        json.dump(configuration.cfg, f, indent=4, sort_keys=True)
 
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
@@ -754,18 +777,4 @@ if __name__ == "__main__":
 
     args = args.parse_args()
 
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-
-    # If the output directory does not exist, create it.
-    output_path = pathlib.Path(args.output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    # Update path-dependent configurations prepending the specified output path.
-    configuration.cfg["profile_log"] = pathlib.Path().joinpath(
-        output_path, configuration.cfg["profile_log"]
-    )
-    configuration.cfg["profile_json"] = pathlib.Path().joinpath(
-        output_path, configuration.cfg["profile_json"]
-    )
-
-    simulate_population(output_path, args.parameter_override)
+    simulate_population(args)
