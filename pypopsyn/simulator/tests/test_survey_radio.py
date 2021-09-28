@@ -54,10 +54,10 @@ def test_case_1():
         "T_sky_expected": np.array([3.00651602, 1.25853108]),
         "coverage_expected": np.array([True, False], dtype=bool),
         "offset2": np.array([5, 10]),
-        "G_expected": np.array([0.65224292, 0.60774404]),
+        "G_expected": np.array([0.59633638, 0.55565169]),
         "S_radio": np.array([0.01, 100]),
         "P": np.array([0.1, 0.01]),
-        "SN_expected": np.array([1806.55305876, 0.0]),
+        "SN_expected": np.array([1321.36366827, 0.0]),
         "detected_expected": np.array([True, False], dtype=bool),
     }
 
@@ -102,12 +102,12 @@ def test_effective_pulse_width(monkeypatch, test_case_1):
     ).all()
 
 
-def test_sky_temeperature(test_case_1):
+def test_sky_temeperature_approx(test_case_1):
     """
     Verifying that the sky temperature is computed correctly.
     """
 
-    T_sky_out = sr.sky_temperature(
+    T_sky_out = sr.sky_temperature_approx(
         test_case_1["l_gal"], test_case_1["b_gal"], test_case_1["nu"]
     )
 

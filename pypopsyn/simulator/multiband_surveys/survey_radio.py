@@ -3,7 +3,8 @@ Model for the pulsar radio surveys.
 
 We consider the following surveys:
 
-1) PMPS: the Parks Multibeam Pulsar Survey (see Manchester et al. 2001)
+1) PMPS: the Parks Multibeam Pulsar Survey (see Manchester et al. 2001, Lorimer et al. 2006)
+2) SMPS: the Swinburne Multibeam Pulsar Survey (see Edwards et al. 2001, Jacoby et al. 2009)
 
 Authors:
 
@@ -29,10 +30,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import abc
-from typing import Tuple
-
 import numpy as np
+from astropy.coordinates import SkyCoord
+from astropy.io import fits
+from astropy.wcs import WCS
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
@@ -96,7 +97,7 @@ def effective_pulse_width(
     return w_eff
 
 
-def sky_temperature(
+def sky_temperature_approx(
     l_gal: np.ndarray, b_gal: np.ndarray, nu: float
 ) -> np.ndarray:
     """
@@ -118,7 +119,46 @@ def sky_temperature(
         (1.0 + (l_gal / 42.0) ** 2) * (1.0 + (b_gal / 3.0) ** 2)
     )
 
-    # Rescale to the wanted frequency.
+    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6 (Johnston et al. 1992).
+    T_sky_nu = T_sky_400 * (408.0e6 / nu) ** 2.6
+
+    return T_sky_nu
+
+
+def sky_temperature(
+    l_gal: np.ndarray, b_gal: np.ndarray, nu: float
+) -> np.ndarray:
+    """
+    Sky temperature as a function of galactic longitude and latitude (l, b) and frequency.
+    We use the map from Haslam et al. 1981, downloadable here:
+    https://lambda.gsfc.nasa.gov/product/foreground/haslam_408.cfm.
+
+    Args:
+        l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
+        b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
+        nu (np.ndarray): central frequency at which the observation is performed [Hz].
+
+    Returns:
+        (np.ndarray): measured sky temperature in [K] as a function of the galactic coordinates at frequency nu.
+    """
+
+    # Read the sky temperature map.
+    file = "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81.fits"
+    hdulist = fits.open(file)
+    hdu = hdulist["TEMPERATURE"]
+    data = hdu.data
+
+    # Convert coordinates into astropy coordinates object.
+    coord = SkyCoord(l_gal, b_gal, frame="galactic", unit="deg")
+
+    # Convert sky coordinates into pixel coordinates and extract the temperatures.
+    wcs = WCS(hdu.header)
+    x_pixel, y_pixel = wcs.world_to_pixel(coord)
+    x_pixel = x_pixel.astype(int)
+    y_pixel = y_pixel.astype(int)
+    T_sky_400 = data[y_pixel, x_pixel]
+
+    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6 (Johnston et al. 1992).
     T_sky_nu = T_sky_400 * (408.0e6 / nu) ** 2.6
 
     return T_sky_nu
@@ -342,7 +382,7 @@ class SurveyRadioBase:
 class SurveyRadioPMPS(SurveyRadioBase):
     """
     Class that model the Parks Multibeam Pulsar Survey.
-    The survey parameters are taken from Manchester et al. (2001) (see also Bates et al. 2014 and Chakraborty et al. 2020).
+    The survey parameters are taken from Chakraborty et al. 2020.
     """
 
     def __init__(
@@ -386,7 +426,7 @@ class SurveyRadioPMPS(SurveyRadioBase):
 class SurveyRadioSMPS(SurveyRadioBase):
     """
     Class that model the Swinburne Multibeam Pulsar Survey.
-    # The survey parameters are taken from Edwards et al. (2001) (see also Chakraborty et al. 2020).
+    The survey parameters are taken from Chakraborty et al. 2020.
     """
 
     def __init__(
