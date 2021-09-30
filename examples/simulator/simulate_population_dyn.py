@@ -82,12 +82,12 @@ def simulate_population(args) -> None:
     )
 
     # Initialize seed randomly if no seed was specified.
-    if cfg["seed"] is None:
-        cfg["seed"] = int(time.time())
+    if cfg["seed_dyn"] is None:
+        cfg["seed_dyn"] = int(time.time())
 
     # Set NumPy random seed globally.
-    log.info("Seed: {}".format(cfg["seed"]))
-    np.random.seed(cfg["seed"])
+    log.info("Seed: {}".format(cfg["seed_dyn"]))
+    np.random.seed(cfg["seed_dyn"])
 
     # Update simulator configuration with the provided JSON override (if any).
     cfg_override = {}

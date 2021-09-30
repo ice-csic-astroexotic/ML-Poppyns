@@ -49,14 +49,18 @@ cfg["save_magrot_evolution"] = False
 
 # Initial population class parameters.
 
-# Seed for the random number generation.
-cfg["seed"] = None
+# Seed for the random number generation for the simulate_population_full.py.
+cfg["seed_full"] = None
+# Seed for the random number generation for the simulate_population_dyn.py.
+cfg["seed_dyn"] = None
+# Seed for the random number generation for the simulate_population_magrot_det.py.
+cfg["seed_magrot"] = None
 
 # Resolution for the spatial grid in the initial population.
 cfg["resolution"] = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 10000000
+cfg["NS_number"] = 300000
 
 # Sun's distance from the galactocentric axis in [kpc].
 cfg["R_sun"] = 8.3

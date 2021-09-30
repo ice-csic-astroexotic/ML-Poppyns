@@ -2,6 +2,10 @@
 Simulating a final population of neutron stars.
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved in time according to their age.
+We simulate both the dynamical evolution in the galaxy and the magneto-rotational
+evolution.
+Finally we model the radio emission and simulate the detection from two radio surveys,
+Parkes multibeam and Swinburne.
 
     Authors:
 
@@ -88,12 +92,12 @@ def simulate_population(args) -> None:
     )
 
     # Initialize seed randomly if no seed was specified.
-    if cfg["seed"] is None:
-        cfg["seed"] = int(time.time())
+    if cfg["seed_full"] is None:
+        cfg["seed_full"] = int(time.time())
 
     # Set NumPy random seed globally.
-    log.info("Seed: {}".format(cfg["seed"]))
-    np.random.seed(cfg["seed"])
+    log.info("Seed: {}".format(cfg["seed_full"]))
+    np.random.seed(cfg["seed_full"])
 
     # Update simulator configuration with the provided JSON override (if any).
     cfg_override = {}
@@ -114,20 +118,13 @@ def simulate_population(args) -> None:
     gm.initialize_galactic_model()
     sm.initialize_spiral_model()
 
-    # Initialize seed randomly if no seed was specified.
-    if cfg["seed"] is None:
-        cfg["seed"] = int(time.time())
-
-    # Set NumPy random seed globally.
-    log.info("Seed: {}".format(cfg["seed"]))
-    np.random.seed(cfg["seed"])
-
     with timewith.TimeWith(
         "[TotalSimulation]",
         cfg["profile_log"],
         cfg["profile_json"],
         cfg["show_profiling"],
     ):
+        # ===================== INITIALIZE THE POPULATION ========================
         with timewith.TimeWith(
             "[InitialPopulation]",
             cfg["profile_log"],
@@ -294,7 +291,7 @@ def simulate_population(args) -> None:
                 f"Output of the initial population generated in {os.getcwd()}/{initial_output_path}"
             )
 
-        ############################################################################
+        # ===================== DYNAMICAL EVOLUTION ========================
 
         with timewith.TimeWith(
             "[DynamicalEvolution]",
@@ -423,7 +420,7 @@ def simulate_population(args) -> None:
 
             timer.checkpoint("[Final angular momentum]")
 
-        ############################################################################
+        # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
 
         with timewith.TimeWith(
             "[MagnetoRotationalEvolution]",
@@ -432,47 +429,17 @@ def simulate_population(args) -> None:
             cfg["show_profiling"],
         ) as timer:
 
-            # Initialize the final parameters.
-            B_final = np.zeros(cfg["NS_number"])
-            chi_final = np.zeros(cfg["NS_number"])
-            P_final = np.zeros(cfg["NS_number"])
-            P_dot_final = np.zeros(cfg["NS_number"])
-
-            # Select the surveys.
-            survey_PMPS = sr.SurveyRadioPMPS()
-            survey_SMPS = sr.SurveyRadioSMPS()
-
-            # Determine which stars to evolve according to if they fall in the sky region covered by the survey.
-            coverage_PMPS = survey_PMPS.sky_coverage(
-                ra_final, dec_final, l_final, b_final
-            )
-            coverage_SMPS = survey_SMPS.sky_coverage(
-                ra_final, dec_final, l_final, b_final
-            )
-
-            coverage_tot = coverage_PMPS | coverage_SMPS
-
-            fraction_coverage = (
-                np.count_nonzero(coverage_tot) / cfg["NS_number"]
-            )
-            log.info(
-                f"Fraction of pulsars in the covered sky region: {fraction_coverage}"
-            )
-
             # Determine the evolved magnetic field, misalignment angle and rotation period.
             log.info(
                 "Evolving magnetic field, misalignment angle and rotation period..."
             )
             (
-                B_final[coverage_tot],
-                chi_final[coverage_tot],
-                P_final[coverage_tot],
+                B_final,
+                chi_final,
+                P_final,
                 magrot_evol_dict,
             ) = mre.magneto_rotational_evolution(
-                B_initial[coverage_tot],
-                chi_initial[coverage_tot],
-                P_initial[coverage_tot],
-                age[coverage_tot],
+                B_initial, chi_initial, P_initial, age,
             )
 
             if configuration.cfg["save_magrot_evolution"]:
@@ -489,89 +456,52 @@ def simulate_population(args) -> None:
 
             # Determining the final period derivatives.
             log.info("Computing final period derivatives...")
-            P_dot_final[coverage_tot] = period_derivative_vect(
-                B_final[coverage_tot],
-                chi_final[coverage_tot],
-                P_final[coverage_tot],
-            )
+            P_dot_final = period_derivative_vect(B_final, chi_final, P_final,)
 
             timer.checkpoint("[Final period derivatives]")
 
-        ############################################################################
+        # ===================== RADIO EMISSION ========================
 
         with timewith.TimeWith(
-            "[RadioDetection]",
-            configuration.cfg["profile_log"],
-            configuration.cfg["profile_json"],
-            configuration.cfg["show_profiling"],
+            "[RadioEmission]",
+            cfg["profile_log"],
+            cfg["profile_json"],
+            cfg["show_profiling"],
         ) as timer:
 
             # Determining the luminosity in different electromagnetic bands.
-            log.info("Computing the luminosity in radio...")
+            log.info("Computing radio fluxes and intrinsic pulse widths...")
 
-            L_radio = np.zeros(cfg["NS_number"])
-            L_radio[coverage_tot] = er.pdf_radio_luminosity(
-                P_final[coverage_tot],
-                P_dot_final[coverage_tot] / const.YR_TO_S,
+            L_radio = er.pdf_radio_luminosity(
+                P_final, P_dot_final / const.YR_TO_S,
             )
-
-            # Select only the pulsars that actually intersect our LOS.
-            log.info("Selecting pulsars pointing at us...")
 
             # Determining the radio beam angular aperture.
-            theta_beam = np.zeros(cfg["NS_number"])
-            theta_beam[coverage_tot] = er.beam_aperture(
-                P_final[coverage_tot], configuration.cfg["r_em"]
-            )
+            theta_beam = er.beam_aperture(P_final, configuration.cfg["r_em"])
 
             # Determining the fraction of solid angle spanned by the two radio beams in a star complete rotation.
-            beam_frac = np.zeros(cfg["NS_number"])
-            beam_frac[coverage_tot] = er.beam_fraction(
-                chi_final[coverage_tot], theta_beam[coverage_tot]
-            )
+            beam_frac = er.beam_fraction(chi_final, theta_beam)
 
             # Drawing a random angular intercept for the LOS.
-            # Note that since we assume simmetry between the northern and southern hemisphere of the star we
+            # Note that since we assume symmetry between the northern and southern hemisphere of the star we
             # can only consider the northern hemisphere.
-            los_rand = np.zeros(cfg["NS_number"])
             los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-            los_rand[coverage_tot] = cc.random_from_pdf(
-                los_grid, np.sin, np.count_nonzero(coverage_tot)
-            )
+            los_rand = cc.random_from_pdf(los_grid, np.sin, cfg["NS_number"])
 
             # Selecting the pulsars whose radio beam intercepts our line of sight.
-            intercepted_radio = np.zeros(cfg["NS_number"], dtype=bool)
-            intercepted_radio[coverage_tot] = er.los_intercept(
-                chi_final[coverage_tot],
-                theta_beam[coverage_tot],
-                los_rand[coverage_tot],
+            intercepted_radio = er.los_intercept(
+                chi_final, theta_beam, los_rand,
             )
 
             fraction_intercepted = len(
                 intercepted_radio[intercepted_radio]
             ) / len(intercepted_radio)
             log.info(
-                f"Fraction of intercepted pulsars: {fraction_intercepted}"
+                f"Fraction of pulsars beaming towards us in radio: {fraction_intercepted}"
             )
-
-            timer.checkpoint("[Pulsars LOS selection]")
-
-            # ONLY for the intercepted pulsars.
-            log.info("Measuring the properties of selected pulsars...")
-
-            # Computing the DM.
-            DM = np.zeros(cfg["NS_number"])
-            DM[intercepted_radio] = edm.compute_DM(
-                l_final[intercepted_radio],
-                b_final[intercepted_radio],
-                sun_dist_gal[intercepted_radio],
-                cfg["fed_model"],
-            )
-
-            timer.checkpoint("[DM computation]")
 
             # Computing the intrinsic pulse width of the radio pulse.
-            w_intrinsic = np.zeros(configuration.cfg["NS_number"])
+            w_intrinsic = np.zeros(cfg["NS_number"])
             w_intrinsic[intercepted_radio] = er.pulse_width(
                 chi_final[intercepted_radio],
                 theta_beam[intercepted_radio],
@@ -581,7 +511,7 @@ def simulate_population(args) -> None:
             w_intrinsic_s = w_intrinsic * P_final / (2.0 * np.pi)
 
             # Computing the radio flux observed on Earth.
-            S_radio = np.zeros(configuration.cfg["NS_number"])
+            S_radio = np.zeros(cfg["NS_number"])
             S_radio[intercepted_radio] = er.erg_flux_radio(
                 L_radio[intercepted_radio],
                 sun_dist_icrs[intercepted_radio],
@@ -592,6 +522,49 @@ def simulate_population(args) -> None:
             S_radio_Jy = S_radio / const.JY_TO_ERG
 
             timer.checkpoint("[Radio emission]")
+
+        # ===================== RADIO DETECTION ========================
+
+        with timewith.TimeWith(
+            "[RadioDetection]",
+            configuration.cfg["profile_log"],
+            configuration.cfg["profile_json"],
+            configuration.cfg["show_profiling"],
+        ) as timer:
+
+            # Select the surveys.
+            survey_PMPS = sr.SurveyRadioPMPS()
+            survey_SMPS = sr.SurveyRadioSMPS()
+
+            # Determine which stars fall in the sky region covered by the surveys.
+            coverage_PMPS = survey_PMPS.sky_coverage(
+                ra_final, dec_final, l_final, b_final
+            )
+            coverage_SMPS = survey_SMPS.sky_coverage(
+                ra_final, dec_final, l_final, b_final
+            )
+
+            coverage_tot = coverage_PMPS | coverage_SMPS
+
+            fraction_coverage = (
+                np.count_nonzero(coverage_tot) / cfg["NS_number"]
+            )
+            log.info(
+                f"Fraction of pulsars in the covered sky region: {fraction_coverage}"
+            )
+
+            timer.checkpoint("[total sky coverage]")
+
+            # Computing the DM.
+            DM = np.zeros(cfg["NS_number"])
+            DM[intercepted_radio & coverage_tot] = edm.compute_DM(
+                l_final[intercepted_radio & coverage_tot],
+                b_final[intercepted_radio & coverage_tot],
+                sun_dist_gal[intercepted_radio & coverage_tot],
+                cfg["fed_model"],
+            )
+
+            timer.checkpoint("[DM computation]")
 
             # simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
@@ -639,7 +612,9 @@ def simulate_population(args) -> None:
                 f"Fraction of detected pulsars by SMPS: {fraction_detected_radio_SMPS}"
             )
 
-        ###################################################################################################
+            timer.checkpoint("[Radio surveys detection]")
+
+        # ===================== EXPORT OUTPUT ========================
 
         # Adding the evolution output to a data frame for export.
         log.info("Creating data frame for exporting...")
