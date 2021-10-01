@@ -48,7 +48,7 @@ Loader parent class
 
 Multichannel array loader
 *************************
-.. automodule:: pypopsyn.learning.loaders.loader_multichannel_array
+.. automodule:: pypopsyn.learning.loaders.loader_multichannel_array2
   :members: loader_multichannel_array
 
 Multichannel image loader
@@ -87,6 +87,16 @@ Negative log-likelihood loss
 .. automodule:: pypopsyn.learning.losses.loss_nll
   :members: loss_nll
 
+Mean absolute error (MAE) loss
+**********************************
+.. automodule:: pypopsyn.learning.losses.loss_mae
+  :members: loss_mae
+
+Mean square error (MSE) loss
+**********************************
+.. automodule:: pypopsyn.learning.losses.loss_rmse
+  :members: loss_rmse
+
 Root mean square error (RMSE) loss
 **********************************
 .. automodule:: pypopsyn.learning.losses.loss_rmse
@@ -105,6 +115,21 @@ Root mean square error (RMSE) metric
 .. automodule:: pypopsyn.learning.metrics.metric_rmse
   :members: metric_rmse
 
+Mean absolute error (MAE) metric
+************************************
+.. automodule:: pypopsyn.learning.metrics.metric_mae
+  :members: metric_mae
+
+Mean square error (MSE) metric
+************************************
+.. automodule:: pypopsyn.learning.metrics.metric_mse
+  :members: metric_mse
+
+Chi square error metric
+************************************
+.. automodule:: pypopsyn.learning.metrics.metric_chi2
+  :members: metric_chi2
+
 Metric monitoring and update
 ****************************
 .. automodule:: pypopsyn.learning.metrics.metric_accuracy
@@ -122,6 +147,11 @@ Linear fully connected model
 ****************************
 .. automodule:: pypopsyn.learning.models.model_linear
   :members: model_linear
+
+Convolutional model
+*******************
+.. automodule:: pypopsyn.learning.models.model_conv
+  :members: model_conv
 
 Trainers
 ########
