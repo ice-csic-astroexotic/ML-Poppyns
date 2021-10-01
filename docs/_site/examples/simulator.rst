@@ -33,6 +33,7 @@ For example you can set the number of neutron stars to simulate, the models for 
 This will generate a new folder :code:`simulated_data` if it does not exist, in which the simulation results will be saved: the initial population in compressed binary format `initial_population.pkl.gz`, the final population in the same format `final_population.pkl.gz`, the profiles for the simulation if enabled and the dictionary containing the configuration parameters in `configuration.json` for reproducibility.
 
 If the user opts to save the full evolutionary output for the dynamical and/or the magneto-rotational evolution by setting :code:`cfg["save_dyn_evolution"]` or :code:`cfg["save_magrot_evolution"]` to :code:`True` in the configuration file, a JSON file with the full time-stamped parameter evolution is also generated.
+Note that since saving the entire output requires a big computational cost and storage space, this feature should be enabled only for testing purposes when running the simulation on a reduced number of stars.
 
 For more information about the simulation script, issue the :code:`--h` argument:
 
@@ -111,4 +112,21 @@ Here it is important to distinguish between two types of arguments for the helpe
 
 The script automatically checks the compatibility of the present parameters for the selected options, e.g., :code:`vk_c` cannot be specified if :code:`km_maxell` has been chosen as kick model. This is done using the dictionary :code:`examples/simulator/config_sweeper.json` which specifies a list of exclusive parameters for each option.
 
-To visualize the outcome of a given population a number of jupyter notebooks are provided: the first one :code:`initial_population_plots.ipynb` plots the initial conditions of the simulation, the second one :code:`final_population_plots.ipynb` plots the outcome of the simulation after the dynamical evolution. A comparison between the synthetic and the real observed pulsar population is performed in :code:`observation_comparison.ipynb`. Finally, the full dynamical evolution of different parameters can be visualized with the notebook :code:`evolution_plots.ipynb`.
+Visualize simulation results
+############################
+
+To visualize the outcome of a given simulation a number of jupyter notebooks are provided.
+In particular to check the output of a full simulation run through the script :code:`examples/simulator/simulate_population_full.py` you can use the following ones:
+
+1) :code:`initial_population_plots.ipynb` plots the initial parameter distributions of the population, by using the information stored in a `initial_population.pkl.gz` file.
+
+2) :code:`final_population_plots.ipynb` plots the outcome of the simulation after the dynamical and magneto-rotational evolution and the detection, by using the information stored in a in a `final_population.pkl.gz` file.
+
+3) To visualize and compare the initial and final parameter distributions for a simulation you can use the :code:`initial_final_comparison.ipynb` notebook.
+
+4) To check the dynamical properties only, a comparison between the synthetic and the real observed pulsar population is performed in :code:`dynamics_sim_vs_obs.ipynb`.
+
+5) The full dynamical and magneto-rotational evolution can be visualized with the notebook :code:`evolution_plots.ipynb`.
+This requires that you have saved the full dynamical and magneto-rotational output from the simulation.
+
+To check the output of a simulation run through the script :code:`examples/simulator/simulate_population_magrot_det.py` and compare it to observations you can use the :code:`survey_sim_vs_obs.ipynb` notebook.
