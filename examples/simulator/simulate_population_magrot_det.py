@@ -227,8 +227,12 @@ def simulate_population(args) -> None:
             }
 
             n_created = 0
+            n_created_PMPS = 0
+            n_created_SMPS = 0
             n_detected_sim_PMPS = 0
             n_detected_sim_SMPS = 0
+            stop_PMPS = False
+            stop_SMPS = False
 
             # To speed up the simulation, generate new neutron stars in batches.
             n_batchsize = 100000
@@ -395,6 +399,13 @@ def simulate_population(args) -> None:
                 log.info(
                     f"Total number of neutron stars detected by the Parkes multibeam survey: {n_detected_sim_PMPS}"
                 )
+                # Store the value of created neutron stars once the number of detected pulsars with PMPS is reached.
+                # This is needed to compute the birth rate derived from the PMPS detections.
+                if (n_detected_sim_PMPS > n_detected_real_PMPS) & (
+                    stop_PMPS is False
+                ):
+                    stop_PMPS = True
+                    n_created_PMPS = n_created
 
                 # simulating the SMPS survey.
                 detected_radio_SMPS = np.zeros(len(age_d), dtype=bool)
@@ -412,6 +423,13 @@ def simulate_population(args) -> None:
                 log.info(
                     f"Total number of neutron stars detected by the Swinburne pulsar survey: {n_detected_sim_SMPS}"
                 )
+                # Store the value of created neutron stars once the number of detected pulsars with SMPS is reached.
+                # This is needed to compute the birth rate derived from the SMPS detections.
+                if (n_detected_sim_SMPS > n_detected_real_SMPS) & (
+                    stop_SMPS is False
+                ):
+                    stop_SMPS = True
+                    n_created_SMPS = n_created
 
                 # Select only neutron stars that are detected by one of the surveys.
                 detected = detected_radio_PMPS | detected_radio_SMPS
@@ -462,6 +480,15 @@ def simulate_population(args) -> None:
                 l_final = np.delete(l_final, idx_remove)
                 b_final = np.delete(b_final, idx_remove)
                 sun_dist_icrs = np.delete(sun_dist_icrs, idx_remove)
+
+            # Determine the Galactic neutron star birth rate for the different surveys.
+            t_max = cfg["t_age_max"] / 100  # Maximum time in centuries.
+            log.info(
+                f"Galactic neutron star birth rate according to PMPS: {n_created_PMPS/t_max} neutron stars per century."
+            )
+            log.info(
+                f"Galactic neutron star birth rate according to SMPS: {n_created_SMPS / t_max} neutron stars per century."
+            )
 
         ###################################################################################################
 
