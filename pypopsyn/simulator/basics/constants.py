@@ -27,8 +27,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import numpy as np
+
 # Unit conversions.
 
+DEG_TO_RAD = np.pi / 180.0  # Convert from [deg] to [rad].
 KPC_TO_KM = 3.08567758e16  # Convert from [kpc] to [km].
 KPC_TO_CM = 3.08567758e21  # Convert from [kpc] to [cm].
 PC_TO_CM = 3.08567758e18  # Convert from [pc] to [cm].

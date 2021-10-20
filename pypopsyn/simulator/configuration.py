@@ -123,12 +123,12 @@ cfg["NS_mass"] = 1.4
 # Field, misalignment angle and period evolution parameters for a crust-based model.
 
 # Mean and standard deviation for the Gaussian distributed initial periods in [s].
-cfg["P_initial_mean"] = 0.22
-cfg["P_initial_sigma"] = 0.42
+cfg["P_initial_mean"] = 0.2
+cfg["P_initial_sigma"] = 0.15
 
-# Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
-cfg["B_initial_log10_mean"] = 13.20
-cfg["B_initial_log10_sigma"] = 0.62
+# Mean and standard deviation for the log-normally distributed initial magnetic fields in [G].
+cfg["B_initial_log10_mean"] = 13.0
+cfg["B_initial_log10_sigma"] = 0.5
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
@@ -140,7 +140,7 @@ cfg["k_coefficients"] = [1.0, 1.0, 1.0]
 cfg["sigma"] = 1e24
 
 # Characteristic length scale of the magnetic field in [cm].
-cfg["L"] = 1e5
+cfg["L"] = 4e4
 
 # Characteristic electron density in [g/cm^3].
 cfg["n_e"] = 1e36
@@ -160,12 +160,18 @@ cfg["L_radio_log10_sigma"] = 0.9
 cfg["epsilon1"] = -1.5
 cfg["epsilon2"] = 0.5
 
+# Mean and standard deviation for the log-normally distributed gamma luminosity in [erg s^(-1)].
+cfg["L_gamma_log10_mean"] = 16.5
+cfg["L_gamma_log10_sigma"] = 0.9
+cfg["epsilon"] = 0.5
+
 # free electron density model for the Galaxy.
 cfg["fed_model"] = "ymw16"
 
 # number of neutron stars detected by the considered surveys.
 cfg["detected_real_PMPS"] = 961
-cfg["detected_real_SMPS"] = 170
+cfg["detected_real_SMPS"] = 172
+cfg["detected_real_fermiLAT"] = 74
 
 
 def update_configuration(new_configuration) -> None:

@@ -49,8 +49,14 @@ def beam_aperture(P: np.ndarray, r_em: float) -> np.ndarray:
     """
 
     theta_b = np.sqrt(9.0 * np.pi * r_em / (2.0 * const.c * P))
+    log_theta_b = np.log10(theta_b)
+    dispersion = 0.15
 
-    return theta_b
+    theta_b_rand = 10 ** np.random.normal(
+        log_theta_b, dispersion, len(log_theta_b)
+    )
+
+    return theta_b_rand
 
 
 def pulse_width(
@@ -159,14 +165,114 @@ def pdf_radio_luminosity(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     return L_radio
 
 
+def spindown_power(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
+    """
+    Evaluate the spin-down power of pulsars.
+
+    Args:
+        P (np.ndarray): array of spin periods of the pulsars in [s].
+        P_dot (np.ndarray): array of spin period derivatives of the pulsars in [s/s].
+
+    Returns:
+        (np.ndarray): pulsar spin-down powers in [erg s^(-1)].
+    """
+    # Canonical neutron star moment of inertia in [g cm^2] assuming a perfect solid sphere.
+    NS_inertia = (
+        2.0 / 5.0 * cfg["NS_mass"] * const.M_SUN * cfg["NS_radius"] ** 2
+    )
+
+    # Evaluate the rotational power.
+    Erot_dot = 4.0 * np.pi ** 2 * NS_inertia * P_dot * P ** (-3)
+
+    return Erot_dot
+
+
+def radio_efficiency(Erot_dot: np.ndarray) -> np.ndarray:
+    """
+    Evaluate the radio emission efficiency of pulsars as a function of their spin-down power.
+    We assume an efficiency that goes as Erot_dot^(-0.9) as in Szary et al. 2014.
+
+    Args:
+        Erot_dot (np.ndarray): array of spin-down powers in [erg s^(-1)].
+
+    Returns:
+        (np.ndarray): pulsar radio emission efficiency in [Hz^(-1)].
+    """
+
+    eff_max = 1.0
+
+    efficiency = eff_max * (1.0e30 / Erot_dot) ** (0.9)
+
+    log_eff = np.log10(efficiency)
+    sigma = 0.8
+
+    eff_rand = 10 ** np.random.normal(log_eff, sigma, len(log_eff))
+    eff_rand[eff_rand > eff_max] = np.zeros(len(eff_rand[eff_rand > eff_max]))
+
+    return eff_rand
+
+
+def radio_spectral_index(Erot_dot: np.ndarray) -> np.ndarray:
+    """
+    Evaluate radio spectral index from an empirical fit.
+
+    Args:
+       Erot_dot (np.ndarray): array of spin-down powers in [erg s^(-1)].
+
+    Returns:
+        (np.ndarray): radio spectral index.
+    """
+    alpha = -1.68 * (Erot_dot / 10 ** 32.6) ** 0.13
+    alpha_disp = 0.9
+
+    alpha_rand = np.random.normal(alpha, alpha_disp, len(Erot_dot))
+
+    return alpha_rand
+
+
+def radio_luminosity(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
+    """
+    Evaluate radio luminosities assuming that it depends on the spin-down power and a radio efficiency.
+
+    Args:
+        P (np.ndarray): array of spin periods of the pulsars in [s].
+        P_dot (np.ndarray): array of spin period derivatives of the pulsars in [s/s].
+
+    Returns:
+        (np.ndarray): pulsar radio luminosity [erg s^(-1) Hz^(-1)].
+    """
+    Erot_dot = spindown_power(P, P_dot)
+    eff_radio = radio_efficiency(Erot_dot)
+    L_radio_tot = eff_radio * Erot_dot
+
+    # alpha = radio_spectral_index(Erot_dot)
+    alpha = -1.7
+
+    nu_min = 1.0e7
+    nu_max = 1.0e11
+    nu_c = 1.374e9
+
+    L_radio_1400 = (
+        (1 + alpha)
+        * L_radio_tot
+        * nu_c ** alpha
+        / (nu_max ** (1 + alpha) - nu_min ** (1 + alpha))
+    )
+
+    return L_radio_1400
+
+
 def erg_flux_radio(
-    L_radio: np.ndarray, d: np.ndarray, beam_frac: np.ndarray, w: np.ndarray
+    L_radio_1400: np.ndarray,
+    d: np.ndarray,
+    beam_frac: np.ndarray,
+    w: np.ndarray,
 ) -> np.ndarray:
     """
     Compute the radio flux observed here on Earth for each pulsars in erg s^(-1) cm^(-2) Hz^(-1).
 
     Args:
-        L_radio (np.ndarray): pulsar radio luminosity in [erg s^(-1) Hz^(-1)].
+        L_radio_1400 (np.ndarray): pulsar radio luminosity in [erg s^(-1) Hz^(-1)].
         d (np.ndarray): distance from the pulsar in [kpc].
         beam_frac (np.ndarray): beam fraction.
         w (np.ndarray): intrinsic pulse width in [rad].
@@ -180,6 +286,6 @@ def erg_flux_radio(
     # Compute the duty cycle.
     duty_cycle = w / (2.0 * np.pi)
 
-    S_radio = L_radio / (4.0 * np.pi * beam_frac * d_cm ** 2) * duty_cycle
+    S_radio = L_radio_1400 / (4.0 * np.pi * beam_frac * d_cm ** 2) * duty_cycle
 
     return S_radio
