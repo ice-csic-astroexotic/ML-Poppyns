@@ -87,7 +87,7 @@ def pdf_radial_density_VV21(r: np.ndarray) -> np.ndarray:
     """
     The Milky Way's radial density of supernova remnants including both core-collapse
     and thermonuclear supernovae. The model distribution is the exponential model from eq. (9)
-    from the work of Verberne & Vinc (2021).
+    from the work of Verberne & Vink (2021).
 
     Args:
 
@@ -99,15 +99,15 @@ def pdf_radial_density_VV21(r: np.ndarray) -> np.ndarray:
 
     """
 
-    # check range of input
+    # Check range of input.
     coco.check_radial_coordinate(r)
 
-    # Here we keep R_sun = 8. kpc for consistency with the results
-    # of Verberne & Vinc (2021).
+    # Here we keep R_sun = 8.0 kpc for consistency with the results
+    # of Verberne & Vink (2021).
     rsun = 8.0  # Sun's distance from the galactic center in [kpc].
     b = 2.46  # +0.39 -0.33
 
-    # SNR surface density following eq. (9) of Verberne & Vinc (2021).
+    # SNR surface density following eq. (9) of Verberne & Vink (2021).
     rho = np.exp(-b * (r - rsun) / (rsun))
 
     # Multiply the stellar surface density with the area element in polar coordinates.

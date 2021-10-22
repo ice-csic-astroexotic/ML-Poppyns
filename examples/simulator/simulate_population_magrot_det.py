@@ -76,7 +76,7 @@ def simulate_population(args) -> None:
     output_path = pathlib.Path(args.output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    # Check if the parsed dynamically simulated populations directory exists.
+    # Check if the parsed dynamically simulated population directory exists.
     dyn_path = pathlib.Path(args.dyn_data)
     dyn_path = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.pkl.gz")
     dyn_path_config = pathlib.Path().joinpath(dyn_path, "override.json")
@@ -143,7 +143,7 @@ def simulate_population(args) -> None:
             cfg["show_profiling"],
         ):
 
-            # Load a final_pop_dyn.pkl.gz`.
+            # Load the file containing the dynamically evolved population parameters.
             df_dyn = pd.read_pickle(f"{dyn_path}", compression="gzip")
 
             age = df_dyn["age"]["[yr]"].to_numpy()
@@ -154,11 +154,11 @@ def simulate_population(args) -> None:
             v_phi_final = df_dyn["v_phi"]["[km/s]"].to_numpy()
             v_z_final = df_dyn["v_z"]["[km/s]"].to_numpy()
 
-            # Convert from polar coordinates to cartesian coordinates.
+            # Convert from polar coordinates to Cartesian coordinates.
             x_final, y_final = coco.polar_to_cartesian(r_final, phi_final)
 
             # Convert velocity components from galactocentric cylindrical coordinates
-            # to galactocentric cartesian coordinates.
+            # to galactocentric Cartesian coordinates.
             (
                 v_x_final,
                 v_y_final,
@@ -308,7 +308,7 @@ def simulate_population(args) -> None:
                     NS_number=len(age_d)
                 )
 
-                # Computing the initial field strengths, misalignment angles, and periods
+                # Computing the initial field strengths, misalignment angles, and periods.
                 B_initial = pop_initial.magnetic_field()
                 chi_initial = pop_initial.misalignment_angle()
                 P_initial = pop_initial.period()

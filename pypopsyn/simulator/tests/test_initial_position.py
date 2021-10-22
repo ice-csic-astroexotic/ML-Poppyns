@@ -113,7 +113,7 @@ def test_pdf_radial_density_YK04(test_case_1):
 
 def test_pdf_radial_density_VV21(test_case_1):
     """
-    Verifying that the pdf for the pulsar radial density from Verberne & Vinc (2021) is correctly calculated.
+    Verifying that the pdf for the pulsar radial density from Verberne & Vink (2021) is correctly calculated.
     """
     pdf_r_out = ip.pdf_radial_density_VV21(test_case_1["r"])
     assert np.abs(pdf_r_out - test_case_1["pdf_r_VV21_expected"]) < TOL

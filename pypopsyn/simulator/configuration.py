@@ -98,7 +98,7 @@ cfg["spiral_arms"] = "saYMW17"
 # Model pdf for the radial density distribution of neutron star progenitors. Choose between "rmYK04" or "rmVV21".
 cfg["radial_model"] = "rmYK04"
 
-# Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_2maxwell.
+# Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_2maxwell".
 cfg["kick_model"] = "km_maxwell"
 
 # Characteristic kick velocity in [km/s] for the exponential kick velocity pdf.
@@ -151,7 +151,7 @@ cfg["magrot_time_step_log10"] = 1e-2
 
 # Radio emission model parameters.
 
-# distance from the center of the star where the radio emission is supposed to be generated [cm].
+# Distance from the center of the star where the radio emission is supposed to be generated [cm].
 cfg["r_em"] = 3.0e7
 
 # Mean and standard deviation for the log-normally distributed radio luminosity in [erg s^(-1) Hz^(-1)].
@@ -160,12 +160,12 @@ cfg["L_radio_log10_sigma"] = 0.9
 cfg["epsilon1"] = -1.5
 cfg["epsilon2"] = 0.5
 
-# free electron density model for the Galaxy.
+# Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["fed_model"] = "ymw16"
 
-# number of neutron stars detected by the considered surveys.
+# Number of Galactic isolated neutron stars detected by the considered surveys.
 cfg["detected_real_PMPS"] = 961
-cfg["detected_real_SMPS"] = 170
+cfg["detected_real_SMPS"] = 172
 
 
 def update_configuration(new_configuration) -> None:

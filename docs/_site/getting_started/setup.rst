@@ -47,7 +47,7 @@ The main folder is :code:`pypopsyn` which contains four sub-folders: :code:`simu
 
 * The :code:`simulator` sub-folder contains all the modules and functions necessary to simulate a population of synthetic neutron stars. We group modules according to their physics, i.e., separating those that are associated with the dynamical evolution, the magneto-rotational evolution, the emission in different electromagnetic wavelengths and the modelled surveys.
 
-* The :code:`generator` sub-folder acts as the link between the physics and the machine-learning algorithms. It contains all the modules and functions necessary to represent our mock neutron star population in a way that is suitable for the machine-learning pipeline. We, for example, represent the star's properties as density and feature maps.
+* The :code:`generator` sub-folder acts as the link between the physics and the machine-learning algorithms. It contains all the modules and functions necessary to represent our mock neutron star population in a way that is suitable for the machine-learning pipeline. We, for example, represent the stars' properties as density and feature maps.
 
 * The :code:`learning` sub-folder contains all the modules and functions necessary for the machine-learning pipeline, including model architectures, initialization techniques, loss function definitions, training schemes and so on.
 

@@ -103,7 +103,7 @@ def sky_temperature_approx(
     """
     Sky temperature as a function of galactic longitude and latitude (l, b) and frequency.
     We use an empirical fit from Narayan (1987) and rescale to the given frequency using
-    a relation from Johnston et al. 1992 (see also Yousifov & Kucuk 2004).
+    a relation from Johnston et al. (1992) (see also Yusifov & Küçük 2004).
 
     Args:
         l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
@@ -130,7 +130,7 @@ def sky_temperature(
 ) -> np.ndarray:
     """
     Sky temperature as a function of galactic longitude and latitude (l, b) and frequency.
-    We use the map from Haslam et al. 1981, downloadable here:
+    We use the map from Haslam et al. (1981), downloadable here:
     https://lambda.gsfc.nasa.gov/product/foreground/haslam_408.cfm.
 
     Args:
@@ -265,10 +265,10 @@ class SurveyRadioBase:
     def detection_offset(self, n_detection: int) -> np.ndarray:
         """
         Generating a random offset with respect to the beam center for the detections.
-        A gaussian beam pattern is assumed (see Lorimer et al. 1993).
+        A Gaussian beam pattern is assumed (see Lorimer et al. 1993).
 
         Args:
-            n_detection (int): number of detection to simulate.
+            n_detection (int): number of detections to simulate.
 
         Returns:
             (np.ndarray): square of the offset from the beam center for each detection in [arcmin^2] .
@@ -279,8 +279,8 @@ class SurveyRadioBase:
 
     def gain_gaussian_beam(self, offset2: np.ndarray) -> np.ndarray:
         """
-        This method simulate the gain pattern of a receiver.
-        A gaussian beam pattern is assumed (see Lorimer et al. 1993).
+        This method simulates the gain pattern of a receiver.
+        A Gaussian beam pattern is assumed (see Lorimer et al. 1993).
 
         Args:
             offset2 (np.ndarray): squared offset from the beam center in [arcmin^2].
@@ -307,10 +307,10 @@ class SurveyRadioBase:
 
         Args:
             S_radio (np.ndarray): radio flux in Jy.
-            G (np.ndarray): Gain of the telescope for the given detection in [K Jy^(-1)].
+            G (np.ndarray): gain of the telescope for the given detection in [K Jy^(-1)].
             w_eff (np.ndarray): effective pulse width in [s].
             P (np.ndarray): spin period in [s].
-            T_sky (np.ndarray): Sky temperature for every detection in [K].
+            T_sky (np.ndarray): sky temperature for every detection in [K].
 
         Returns:
             (np.ndarray): signal to noise ratio of the detection.
@@ -381,8 +381,8 @@ class SurveyRadioBase:
 
 class SurveyRadioPMPS(SurveyRadioBase):
     """
-    Class that model the Parks Multibeam Pulsar Survey.
-    The survey parameters are taken from Chakraborty et al. 2020.
+    Class that models the Parks Multibeam Pulsar Survey.
+    The survey parameters are taken from Chakraborty et al. (2020).
     """
 
     def __init__(

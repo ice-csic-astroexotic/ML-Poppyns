@@ -102,7 +102,7 @@ def test_effective_pulse_width(monkeypatch, test_case_1):
     ).all()
 
 
-def test_sky_temeperature_approx(test_case_1):
+def test_sky_temperature_approx(test_case_1):
     """
     Verifying that the sky temperature is computed correctly.
     """
@@ -133,7 +133,7 @@ def test_sky_coverage_PMPS(test_case_1):
 
 def test_gain_gaussian_beam_PMPS(test_case_1):
     """
-    Verifying that the gaussian beam gain for an offset observation is computed correctly.
+    Verifying that the Gaussian beam gain for an offset observation is computed correctly.
     """
 
     G_out = PMPS.gain_gaussian_beam(test_case_1["offset2"])
