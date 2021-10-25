@@ -117,7 +117,7 @@ cfg["h_c"] = 0.18
 cfg["NS_radius"] = 1.1e6
 
 # Characteristic neutron star mass in solar masses.
-cfg["NS_mass"] = 1.4
+cfg["NS_mass"] = 1.4 * const.M_SUN
 
 
 # Field, misalignment angle and period evolution parameters for a crust-based model.
@@ -161,7 +161,7 @@ cfg["epsilon1"] = -1.5
 cfg["epsilon2"] = 0.5
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
-cfg["fed_model"] = "ymw16"
+cfg["ed_model"] = "ymw16"
 
 # Number of Galactic isolated neutron stars detected by the considered surveys.
 cfg["detected_real_PMPS"] = 961

@@ -195,8 +195,7 @@ def galactocentric_to_icrs(
     icrs_coord = gc_coord.transform_to(coord.ICRS)
 
     # Determine RA and DEC in [deg] in the ranges [0, 360] and [-90, 90],
-    # respectively, and proper motion in RA and DEC in units of [mas/yr];
-    # we subsequently remove astropy units to obtain numpy float values.
+    # respectively, and drop the units to the astropy objects by taking only the values.
     ra = icrs_coord.ra.degree
     dec = icrs_coord.dec.degree
     sun_dist = icrs_coord.distance.value
@@ -218,7 +217,8 @@ def galactocentric_to_galactic(
     np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray
 ]:
     """
-        Calculating the galactic coordinates l, b, distance, pm_l, pm_b, v_ls from the
+        Calculating the galactic longitude l, galactic latitude b, distance,
+        pm_l, pm_b proper motion components and line of sight velocity v_ls from the
         galactocentric coordinates x, y, z and velocity v_x, v_y, v_z.
         The galactocentric coordinates refer to the galactocentric reference frame
         defined as a right-handed reference frame with the Sun located at the coordinate

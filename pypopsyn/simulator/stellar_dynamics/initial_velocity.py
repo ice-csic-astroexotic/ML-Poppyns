@@ -40,7 +40,6 @@ def pdf_kick_velocity_exp(v: np.ndarray) -> np.ndarray:
     """
     Spherically symmetric exponential probability density function for the neutron stars' initial
     kick velocity magnitude following eq. (5) in Ofek (2009).
-    The three components of the kick velocity follow decaying exponential distribution.
 
     Args:
         v (np.ndarray): initial kick velocity magnitude in [km/s].
@@ -57,7 +56,7 @@ def pdf_kick_velocity_exp(v: np.ndarray) -> np.ndarray:
 def pdf_kick_velocity_maxwell(v: np.ndarray) -> np.ndarray:
     """
     Maxwell probability density function for the neutron stars' initial kick
-    velocity magnitude following Hobbs et al. (2005).
+    velocity magnitude following section 6.2 in Hobbs et al. (2005).
 
     Args:
         v (np.ndarray): initial kick velocity magnitude in [km/s].
@@ -79,7 +78,7 @@ def pdf_kick_velocity_maxwell(v: np.ndarray) -> np.ndarray:
 def pdf_kick_velocity_2maxwell(v: np.ndarray) -> np.ndarray:
     """
     Double Maxwell probability density function for the neutron stars' initial kick
-    velocity magnitude following Igoshev (2020).
+    velocity magnitude following eq. (5) and section 4.2 in Igoshev (2020).
 
     Args:
         v (np.ndarray): initial kick velocity magnitude in [km/s].
@@ -87,8 +86,11 @@ def pdf_kick_velocity_2maxwell(v: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: stellar kick velocity distribution in [1/(km/s)].
     """
+
+    # Define the dispersions of the two Maxwellian components.
     sigma_1 = 55
-    sigma_2 = 330
+    sigma_2 = 334
+    # Define the fractional contribution of the first Maxwellian.
     w = 0.19
 
     pdf_maxwell_1 = (

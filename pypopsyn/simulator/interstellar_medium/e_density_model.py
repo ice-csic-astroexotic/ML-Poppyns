@@ -1,7 +1,7 @@
 """
 Model for the free electron density to compute the DM values and the scattering timescales.
 
-We use the library pygedm available from astropy.
+We use the library pygedm available from astropy (see also Price et al. 2021)
 See https://pygedm.readthedocs.io/en/latest/pygedm.html for the related documentation.
 
 Authors:
@@ -38,15 +38,14 @@ def compute_DM(
     l_gal: np.ndarray, b_gal: np.ndarray, d: np.ndarray, ed_model: str,
 ) -> np.ndarray:
     """
-    Given a specified electron density model between 'ymw16' and 'ne2001' compute
-    the dispersion measure DM related to a given heliocentric distance.
+    Given a specified electron density model (either 'ymw16' or 'ne2001') compute
+    the dispersion measures DMs related to the given heliocentric distances.
 
     Args:
-        l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
-        b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
+        l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] [deg].
+        b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] [deg].
         d (np.ndarray): heliocentric distance in [kpc].
         ed_model (str): free electron density model, either 'ymw16' or 'ne2001'.
-        NS_number (int): number of neutron stars.
 
     Returns:
         (np.ndarray): values of the DM in [pc cm^-3].
@@ -56,7 +55,8 @@ def compute_DM(
 
     DM = np.zeros(n)
 
-    d_pc = d * 1000  # Convert distance from kpc to pc.
+    # Convert distance from [kpc] to [pc].
+    d_pc = d * 1000
 
     for i in range(n):
         # The function dist_to_dm accepts only floats as input and the distance must be in [pc].
@@ -67,16 +67,16 @@ def compute_DM(
     return DM
 
 
-def compute_tau_sc(DM: np.ndarray, nu: float) -> np.ndarray:
+def compute_tau_sc(DM: np.ndarray, f: float) -> np.ndarray:
     """
     Given a value of DM compute the scattering timescale at the given specified observation frequency.
     We use the empirical fit performed by Krishnakumar et al. (2015) who fitted the scattering times
-    obtained at a frequency of 327 MHz. To rescale to any frequency we assume a Kolmogorov spectrum
-    tau(nu) ~ nu^-4.4.
+    obtained at a frequency of 327 MHz (see section 3, pag. 5, right column). To rescale to any frequency
+    we assume a Kolmogorov spectrum tau(f) ~ f^-4.4.
 
     Args:
         DM (np.ndarray): dispersion measure in [pc cm^-3].
-        nu (np.ndarray): frequency at which the observation is computed [Hz].
+        f (np.ndarray): frequency at which the scattering timescale is computed [Hz].
 
     Returns:
         (np.ndarray): values of the scattering timescale at the frequency nu in [s].
@@ -89,7 +89,7 @@ def compute_tau_sc(DM: np.ndarray, nu: float) -> np.ndarray:
     # Krishnakumar et al. (2015).
     tau_sc = 10 ** np.random.normal(np.log10(tau_sc_mean), 0.5)
 
-    # Convert the scattering time to a given observation frequency nu assuming a Kolmogorov spectrum.
-    tau_sc_nu = tau_sc * (nu / 327.0e6) ** (-4.4)
+    # Convert the scattering time to a given observation frequency f assuming a Kolmogorov spectrum.
+    tau_sc_f = tau_sc * (f / 327.0e6) ** (-4.4)
 
-    return tau_sc_nu
+    return tau_sc_f

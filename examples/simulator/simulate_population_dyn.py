@@ -1,5 +1,6 @@
 """
 Dynamically evolving a population of neutron stars.
+
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved dynamically in time according to their age.
 
@@ -57,9 +58,9 @@ def simulate_population(args) -> None:
     conditions and dynamically evolving it forward in time.
 
     Args:
-        args:
-            output_path (pathlib.Path): Output directory for the run.
-            json_override_path (pathlib.Path): Path to JSON with parameter overrides.
+
+        output_path (pathlib.Path): Output directory for the run.
+        json_override_path (pathlib.Path): Path to JSON with parameter overrides.
 
     Returns:
 

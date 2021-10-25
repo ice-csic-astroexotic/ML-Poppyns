@@ -142,6 +142,15 @@ Constants
 .. automodule:: simulator.basics.constants
   :members: constants
 
+Interstellar Medium
+###################
+
+Galactic Electron Density Model
+*******************************
+
+.. automodule:: simulator.interstellar_medium.e_density_model
+  :members: e_density_model
+
 Magneto-rotational Physics
 #############################
 
@@ -174,6 +183,24 @@ Period Derivative
 
 .. automodule:: simulator.magneto_rotational_physics.period_derivative
   :members: period_derivative
+
+Multi-band Electromagnetic Emission
+###################################
+
+Emission Radio
+**************
+
+.. automodule:: simulator.multiband_emission.emission_radio
+  :members: emission_radio
+
+Multi-band Surveys
+##################
+
+Survey Radio
+************
+
+.. automodule:: simulator.multiband_surveys.survey_radio
+  :members: survey_radio
 
 Stellar Dynamics
 ###################
@@ -213,30 +240,3 @@ Spiral Model
 
 .. automodule:: simulator.stellar_dynamics.spiral_model
   :members: spiral_model
-
-Interstellar medium
-###################
-
-Galactic electron density model
-*******************************
-
-.. automodule:: simulator.interstellar_medium.e_density_model
-  :members: e_density_model
-
-Multi-band electromagnetic emission
-###################################
-
-emission radio
-**************
-
-.. automodule:: simulator.multiband_emission.emission_radio
-  :members: emission_radio
-
-Multi-band surveys
-##################
-
-survey radio
-************
-
-.. automodule:: simulator.multiband_surveys.survey_radio
-  :members: survey_radio

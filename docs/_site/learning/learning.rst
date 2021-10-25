@@ -82,11 +82,6 @@ Loss parent class
 .. automodule:: pypopsyn.learning.losses.loss_base
   :members: loss_base
 
-Negative log-likelihood loss
-****************************
-.. automodule:: pypopsyn.learning.losses.loss_nll
-  :members: loss_nll
-
 Mean absolute error (MAE) loss
 **********************************
 .. automodule:: pypopsyn.learning.losses.loss_mae
@@ -96,6 +91,11 @@ Mean square error (MSE) loss
 **********************************
 .. automodule:: pypopsyn.learning.losses.loss_rmse
   :members: loss_rmse
+
+Negative log-likelihood loss
+****************************
+.. automodule:: pypopsyn.learning.losses.loss_nll
+  :members: loss_nll
 
 Root mean square error (RMSE) loss
 **********************************
@@ -110,10 +110,10 @@ Metric parent class
 .. automodule:: pypopsyn.learning.metrics.metric_base
   :members: metric_base
 
-Root mean square error (RMSE) metric
+Chi square error metric
 ************************************
-.. automodule:: pypopsyn.learning.metrics.metric_rmse
-  :members: metric_rmse
+.. automodule:: pypopsyn.learning.metrics.metric_chi2
+  :members: metric_chi2
 
 Mean absolute error (MAE) metric
 ************************************
@@ -125,10 +125,10 @@ Mean square error (MSE) metric
 .. automodule:: pypopsyn.learning.metrics.metric_mse
   :members: metric_mse
 
-Chi square error metric
+Root mean square error (RMSE) metric
 ************************************
-.. automodule:: pypopsyn.learning.metrics.metric_chi2
-  :members: metric_chi2
+.. automodule:: pypopsyn.learning.metrics.metric_rmse
+  :members: metric_rmse
 
 Metric monitoring and update
 ****************************

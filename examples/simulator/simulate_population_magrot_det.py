@@ -59,10 +59,10 @@ def simulate_population(args) -> None:
     population database.
 
     Args:
-        args:
-            dyn_data (str): Path to a dynamically evolved population database.
-            output_path (str): Output directory for the run.
-            parameter_override (str): Path to JSON with parameter overrides.
+
+        dyn_data (str): Path to a dynamically evolved population database.
+        output_path (str): Output directory for the run.
+        parameter_override (str): Path to JSON with parameter overrides.
 
     Returns:
 
@@ -240,6 +240,7 @@ def simulate_population(args) -> None:
             flag_80 = False
             flag_95 = False
 
+            # Continue to simulate stars until the detected number of pulsars for all the surveys is reached.
             while (n_detected_sim_PMPS < n_detected_real_PMPS) | (
                 n_detected_sim_SMPS < n_detected_real_SMPS
             ):
@@ -291,9 +292,6 @@ def simulate_population(args) -> None:
                 coverage_SMPS = survey_SMPS.sky_coverage(ra_d, dec_d, l_d, b_d)
 
                 coverage_tot = coverage_PMPS | coverage_SMPS
-                out_coverage = np.invert(coverage_tot)
-
-                idx_remove = idx[out_coverage]
                 idx_det = idx[coverage_tot]
 
                 age_d = age_d[coverage_tot]
@@ -302,6 +300,10 @@ def simulate_population(args) -> None:
                 dist_d = dist_d[coverage_tot]
                 coverage_PMPS = coverage_PMPS[coverage_tot]
                 coverage_SMPS = coverage_SMPS[coverage_tot]
+
+                # Remove stars that fall out from the total sky coverage.
+                out_coverage = np.invert(coverage_tot)
+                idx_remove = idx[out_coverage]
 
                 # Initialize neutron star population properties.
                 pop_initial = ipop.InitialNeutronStarPopulation(
@@ -329,9 +331,9 @@ def simulate_population(args) -> None:
                 # Determining the fraction of solid angle spanned by the two radio beams in a star complete rotation.
                 beam_frac = er.beam_fraction(chi_d, theta_beam)
 
-                # Drawing a random angular intercept for the LOS.
-                # Note that since we assume symmetry between the northern and southern hemisphere of the star we
-                # can only consider the northern hemisphere.
+                # Drawing a random angular intercept for the line of sight.
+                # Note that since we assume symmetry between the northern and southern hemisphere of the star
+                # we only need to consider one hemisphere, e.g., the northern one.
                 los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
                 los_rand = cc.random_from_pdf(los_grid, np.sin, len(age_d))
 
@@ -370,7 +372,7 @@ def simulate_population(args) -> None:
 
                 # Computing the intrinsic pulse width of the radio pulse.
                 w_intrinsic = er.pulse_width(chi_d, theta_beam_d, los_rand_d,)
-                # Convert pulse width in [s].
+                # Convert pulse width from [rad] to [s].
                 w_intrinsic_s = w_intrinsic * P_d / (2.0 * np.pi)
 
                 # Computing the radio flux observed on Earth.
@@ -381,7 +383,7 @@ def simulate_population(args) -> None:
                 S_radio_Jy = S_radio / const.JY_TO_ERG
 
                 # Computing the DM.
-                DM = edm.compute_DM(l_d, b_d, dist_d, cfg["fed_model"],)
+                DM = edm.compute_DM(l_d, b_d, dist_d, cfg["ed_model"],)
 
                 # Simulating the PMPS survey.
                 detected_radio_PMPS = np.zeros(len(age_d), dtype=bool)

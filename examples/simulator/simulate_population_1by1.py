@@ -1,5 +1,6 @@
 """
 Simulating a final population of neutron stars.
+
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved in time according to their age.
 Neutron stars are created and evolved one by one until a predefined number of

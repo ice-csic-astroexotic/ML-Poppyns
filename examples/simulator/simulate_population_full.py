@@ -1,11 +1,12 @@
 """
 Simulating a final population of neutron stars.
+
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved in time according to their age.
 We simulate both the dynamical evolution in the Galaxy and the magneto-rotational
 evolution.
 Finally we model the radio emission and simulate the detection from two radio surveys,
-Parkes multibeam and Swinburne.
+Parkes multibeam (PMPS) and Swinburne (SMPS).
 
     Authors:
 
@@ -67,9 +68,9 @@ def simulate_population(args) -> None:
     conditions and dynamically evolving it forward in time.
 
     Args:
-        args:
-            output_path (pathlib.Path): Output directory for the run.
-            json_override_path (pathlib.Path): Path to JSON with parameter overrides.
+
+        output_path (pathlib.Path): Output directory for the run.
+        json_override_path (pathlib.Path): Path to JSON with parameter overrides.
 
     Returns:
 
@@ -124,7 +125,9 @@ def simulate_population(args) -> None:
         cfg["profile_json"],
         cfg["show_profiling"],
     ):
+
         # ===================== INITIALIZE THE POPULATION ========================
+
         with timewith.TimeWith(
             "[InitialPopulation]",
             cfg["profile_log"],
@@ -479,12 +482,12 @@ def simulate_population(args) -> None:
             # Determining the radio beam angular aperture.
             theta_beam = er.beam_aperture(P_final, configuration.cfg["r_em"])
 
-            # Determining the fraction of solid angle spanned by the two radio beams in a star complete rotation.
+            # Determining the fraction of solid angle spanned by the two radio beams in one complete stellar rotation.
             beam_frac = er.beam_fraction(chi_final, theta_beam)
 
-            # Drawing a random angular intercept for the LOS.
-            # Note that since we assume symmetry between the northern and southern hemisphere of the star we
-            # can only consider the northern hemisphere.
+            # Drawing a random angular intercept for the line of sight.
+            # Note that since we assume symmetry between the northern and southern hemisphere of the star
+            # we only need to consider one hemisphere, e.g., the northern one.
             los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
             los_rand = cc.random_from_pdf(los_grid, np.sin, cfg["NS_number"])
 
@@ -507,7 +510,7 @@ def simulate_population(args) -> None:
                 theta_beam[intercepted_radio],
                 los_rand[intercepted_radio],
             )
-            # Convert pulse width in [s].
+            # Convert pulse width from [rad] to [s].
             w_intrinsic_s = w_intrinsic * P_final / (2.0 * np.pi)
 
             # Computing the radio flux observed on Earth.
@@ -544,6 +547,7 @@ def simulate_population(args) -> None:
                 ra_final, dec_final, l_final, b_final
             )
 
+            # Determine which stars fall in the sky region covered by any of the considered radio surveys.
             coverage_tot = coverage_PMPS | coverage_SMPS
 
             fraction_coverage = (
@@ -555,13 +559,16 @@ def simulate_population(args) -> None:
 
             timer.checkpoint("[Total sky coverage]")
 
-            # Computing the DM.
+            detectable_radio = intercepted_radio & coverage_tot
+
+            # Computing the DM for the stars that falls in the surveys' sky coverage and whose
+            # radio beam intercepts our line of sight.
             DM = np.zeros(cfg["NS_number"])
-            DM[intercepted_radio & coverage_tot] = edm.compute_DM(
-                l_final[intercepted_radio & coverage_tot],
-                b_final[intercepted_radio & coverage_tot],
-                sun_dist_gal[intercepted_radio & coverage_tot],
-                cfg["fed_model"],
+            DM[detectable_radio] = edm.compute_DM(
+                l_final[detectable_radio],
+                b_final[detectable_radio],
+                sun_dist_gal[detectable_radio],
+                cfg["ed_model"],
             )
 
             timer.checkpoint("[DM computation]")
@@ -570,16 +577,15 @@ def simulate_population(args) -> None:
             log.info("Simulate detection with PMPS...")
 
             detected_radio_PMPS = np.zeros(cfg["NS_number"], dtype=bool)
+            detectable_radio_PMPS = intercepted_radio & coverage_PMPS
 
-            detected_radio_PMPS[
-                intercepted_radio & coverage_PMPS
-            ] = survey_PMPS.detect(
-                S_radio_Jy[intercepted_radio & coverage_PMPS],
-                DM[intercepted_radio & coverage_PMPS],
-                l_final[intercepted_radio & coverage_PMPS],
-                b_final[intercepted_radio & coverage_PMPS],
-                w_intrinsic_s[intercepted_radio & coverage_PMPS],
-                P_final[intercepted_radio & coverage_PMPS],
+            detected_radio_PMPS[detectable_radio_PMPS] = survey_PMPS.detect(
+                S_radio_Jy[detectable_radio_PMPS],
+                DM[detectable_radio_PMPS],
+                l_final[detectable_radio_PMPS],
+                b_final[detectable_radio_PMPS],
+                w_intrinsic_s[detectable_radio_PMPS],
+                P_final[detectable_radio_PMPS],
             )
 
             fraction_detected_radio_PMPS = len(
@@ -593,16 +599,15 @@ def simulate_population(args) -> None:
             log.info("Simulate detection with SMPS...")
 
             detected_radio_SMPS = np.zeros(cfg["NS_number"], dtype=bool)
+            detectable_radio_SMPS = intercepted_radio & coverage_SMPS
 
-            detected_radio_SMPS[
-                intercepted_radio & coverage_SMPS
-            ] = survey_SMPS.detect(
-                S_radio_Jy[intercepted_radio & coverage_SMPS],
-                DM[intercepted_radio & coverage_SMPS],
-                l_final[intercepted_radio & coverage_SMPS],
-                b_final[intercepted_radio & coverage_SMPS],
-                w_intrinsic_s[intercepted_radio & coverage_SMPS],
-                P_final[intercepted_radio & coverage_SMPS],
+            detected_radio_SMPS[detectable_radio_SMPS] = survey_SMPS.detect(
+                S_radio_Jy[detectable_radio_SMPS],
+                DM[detectable_radio_SMPS],
+                l_final[detectable_radio_SMPS],
+                b_final[detectable_radio_SMPS],
+                w_intrinsic_s[detectable_radio_SMPS],
+                P_final[detectable_radio_SMPS],
             )
 
             fraction_detected_radio_SMPS = len(
