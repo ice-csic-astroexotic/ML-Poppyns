@@ -2,7 +2,7 @@
 Simulating a final population of neutron stars.
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved in time according to their age.
-We simulate both the dynamical evolution in the galaxy and the magneto-rotational
+We simulate both the dynamical evolution in the Galaxy and the magneto-rotational
 evolution.
 Finally we model the radio emission and simulate the detection from two radio surveys,
 Parkes multibeam and Swinburne.
@@ -148,12 +148,12 @@ def simulate_population(args) -> None:
             ) = NS_population_initial.position(
                 t_age=age, spiral_model=sm.spiral_model
             )
-            # Convert from polar coordinates to cartesian coordinates.
+            # Convert from polar coordinates to Cartesian coordinates.
             x_initial, y_initial = coco.polar_to_cartesian(
                 r_initial, phi_initial
             )
 
-            # Convert from polar coordinates to cartesian coordinates.
+            # Convert from polar coordinates to Cartesian coordinates.
             x_initial, y_initial = coco.polar_to_cartesian(
                 r_initial, phi_initial
             )
@@ -328,7 +328,7 @@ def simulate_population(args) -> None:
             v_phi_final = dyn_evol_output[:, 4]
             v_z_final = dyn_evol_output[:, 5]
 
-            # Convert from polar coordinates to cartesian coordinates.
+            # Convert from polar coordinates to Cartesian coordinates.
             x_final, y_final = coco.polar_to_cartesian(r_final, phi_final)
 
             # Convert velocities from [kpc/yr] into [km/s].
@@ -337,7 +337,7 @@ def simulate_population(args) -> None:
             v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
 
             # Convert velocity component from galactocentric cylindrical coordinates
-            # to galactocentric cartesian coordinates.
+            # to galactocentric Cartesian coordinates.
             (
                 v_x_final,
                 v_y_final,
@@ -518,7 +518,7 @@ def simulate_population(args) -> None:
                 beam_frac[intercepted_radio],
                 w_intrinsic[intercepted_radio],
             )
-            # Convert Radio flux in Jy.
+            # Convert radio flux in [Jy].
             S_radio_Jy = S_radio / const.JY_TO_ERG
 
             timer.checkpoint("[Radio emission]")
@@ -536,7 +536,7 @@ def simulate_population(args) -> None:
             survey_PMPS = sr.SurveyRadioPMPS()
             survey_SMPS = sr.SurveyRadioSMPS()
 
-            # Determine which stars fall in the sky region covered by the surveys.
+            # Determine which stars fall into the sky region covered by the surveys.
             coverage_PMPS = survey_PMPS.sky_coverage(
                 ra_final, dec_final, l_final, b_final
             )
@@ -553,7 +553,7 @@ def simulate_population(args) -> None:
                 f"Fraction of pulsars in the covered sky region: {fraction_coverage}"
             )
 
-            timer.checkpoint("[total sky coverage]")
+            timer.checkpoint("[Total sky coverage]")
 
             # Computing the DM.
             DM = np.zeros(cfg["NS_number"])
@@ -566,7 +566,7 @@ def simulate_population(args) -> None:
 
             timer.checkpoint("[DM computation]")
 
-            # simulating the PMPS survey.
+            # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
 
             detected_radio_PMPS = np.zeros(cfg["NS_number"], dtype=bool)
@@ -589,7 +589,7 @@ def simulate_population(args) -> None:
                 f"Fraction of detected pulsars by PMPS: {fraction_detected_radio_PMPS}"
             )
 
-            # simulating the SMPS survey.
+            # Simulating the SMPS survey.
             log.info("Simulate detection with SMPS...")
 
             detected_radio_SMPS = np.zeros(cfg["NS_number"], dtype=bool)

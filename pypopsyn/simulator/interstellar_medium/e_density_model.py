@@ -1,7 +1,7 @@
 """
 Model for the free electron density to compute the DM values and the scattering timescales.
 
-We use the library pygedm avalilable from astropy.
+We use the library pygedm available from astropy.
 See https://pygedm.readthedocs.io/en/latest/pygedm.html for the related documentation.
 
 Authors:
@@ -51,7 +51,7 @@ def compute_DM(
     Returns:
         (np.ndarray): values of the DM in [pc cm^-3].
     """
-    # Store the number of object that need computation of DM.
+    # Store the number of objects that need computation of DM.
     n = len(l_gal)
 
     DM = np.zeros(n)
@@ -59,7 +59,7 @@ def compute_DM(
     d_pc = d * 1000  # Convert distance from kpc to pc.
 
     for i in range(n):
-        # The function dist_to_dm accept only floats as input and the distance must be in [pc].
+        # The function dist_to_dm accepts only floats as input and the distance must be in [pc].
         dm, _ = pygedm.dist_to_dm(l_gal[i], b_gal[i], d_pc[i], method=ed_model)
 
         DM[i] = dm.value
@@ -84,9 +84,9 @@ def compute_tau_sc(DM: np.ndarray, nu: float) -> np.ndarray:
     # Compute the average tau scattering in [s] at 327 MHz from the empirical formula in Krishnakumar et al. (2015).
     tau_sc_mean = 3.6e-9 * DM ** 2.2 * (1.0 + 1.94e-3 * DM ** 2.0)
 
-    # We pick the values of tau_sc from a gaussian distribution centered on np.log10(tau_sc_mean)
+    # We pick the values of tau_sc from a Gaussian distribution centered on np.log10(tau_sc_mean)
     # with a fiducial sigma of 0.5 in log10 to roughly reproduce the scatter in the data as in Fig. 3 in
-    # krishnakumar et al. (2015).
+    # Krishnakumar et al. (2015).
     tau_sc = 10 ** np.random.normal(np.log10(tau_sc_mean), 0.5)
 
     # Convert the scattering time to a given observation frequency nu assuming a Kolmogorov spectrum.

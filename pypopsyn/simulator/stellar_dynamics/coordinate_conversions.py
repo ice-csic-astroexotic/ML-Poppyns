@@ -220,7 +220,7 @@ def galactocentric_to_galactic(
     """
         Calculating the galactic coordinates l, b, distance, pm_l, pm_b, v_ls from the
         galactocentric coordinates x, y, z and velocity v_x, v_y, v_z.
-        The galactocentric coordinates refers to the galactocentric reference frame
+        The galactocentric coordinates refer to the galactocentric reference frame
         defined as a right-handed reference frame with the Sun located at the coordinate
         point (x = 0 kpc, y = 8.3 kpc, z = 0.02 kpc).
         We use the astropy.coordinates package that allows automatic conversions
@@ -229,25 +229,25 @@ def galactocentric_to_galactic(
         and ranges in the interval [-180, 180] deg while b is in the range [-90, 90] deg.
 
         Args:
-            x (np.ndarray): x coordinate in kpc in the galactocentric reference frame.
-            y (np.ndarray): y coordinate in kpc in the galactocentric reference frame.
-            z (np.ndarray): z coordinate in kpc in the galactocentric reference frame.
-            v_x (np.ndarray): x component of the velocity in km/s in galactocentric reference frame.
-            v_y (np.ndarray): y component of the velocity in km/s in galactocentric reference frame.
-            v_z (np.ndarray): z component of the velocity in km/s in galactocentric reference frame.
+            x (np.ndarray): x coordinate in [kpc] in the galactocentric reference frame.
+            y (np.ndarray): y coordinate in [kpc] in the galactocentric reference frame.
+            z (np.ndarray): z coordinate in [kpc] in the galactocentric reference frame.
+            v_x (np.ndarray): x component of the velocity in [km/s] in galactocentric reference frame.
+            v_y (np.ndarray): y component of the velocity in [km/s] in galactocentric reference frame.
+            v_z (np.ndarray): z component of the velocity in [km/s] in galactocentric reference frame.
 
         Returns:
             (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray): galactic longitude l,
-            galactic latitude b in deg, distance in kpc, pm_l, pm_b proper motion components in mas / yr
-            and line of sight velocity v_ls in km/s.
+            galactic latitude b in [deg], distance in [kpc], pm_l, pm_b proper motion components in [mas/yr]
+            and line of sight velocity v_ls in [km/s].
         """
 
     # The galactocentric reference frame used for the input is a right-handed
     # reference frame with the Sun located at the coordinate point (x = 0 kpc,
     # y = 8.3 kpc, z = 0.02 kpc).
     # The module astropy.coordinates.Galactocentric deals with galactocentric
-    # coordinates but it is defined with the x, y, axes rotated of 90 degrees
-    # clockwise respect to the galactocentric reference frame used in the simulation.
+    # coordinates but it is defined with the x, y, axes rotated by 90 degrees
+    # clockwise with respect to the galactocentric reference frame used in the simulation.
     # In this new frame the position of the Sun is (x = -8.3 kpc, y = 0 kpc, z = 0.02
     # kpc). We therefore need to convert the galactocentric coordinates we used
     # into the galactocentric frame defined in astropy. To do that we
