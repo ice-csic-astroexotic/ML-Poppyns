@@ -143,6 +143,7 @@ def simulate_population(args) -> None:
             cfg["show_profiling"],
         ):
 
+            # ===================== INITIALIZE THE POPULATION ========================
             # Load the file containing the dynamically evolved population parameters.
             df_dyn = pd.read_pickle(f"{dyn_path}", compression="gzip")
 
@@ -240,6 +241,8 @@ def simulate_population(args) -> None:
             flag_80 = False
             flag_95 = False
 
+            # ===================== EVOLVE AND DETECT ========================
+
             # Continue to simulate stars until the detected number of pulsars for all the surveys is reached.
             while (n_detected_sim_PMPS < n_detected_real_PMPS) | (
                 n_detected_sim_SMPS < n_detected_real_SMPS
@@ -310,6 +313,8 @@ def simulate_population(args) -> None:
                     NS_number=len(age_d)
                 )
 
+                # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
+
                 # Computing the initial field strengths, misalignment angles, and periods.
                 B_initial = pop_initial.magnetic_field()
                 chi_initial = pop_initial.misalignment_angle()
@@ -325,11 +330,13 @@ def simulate_population(args) -> None:
                     B_initial, chi_initial, P_initial, age_d,
                 )
 
+                # ===================== RADIO EMISSION ========================
+
                 # Determining the radio beam angular aperture.
-                theta_beam = er.beam_aperture(P_d, cfg["r_em"])
+                rho_beam = er.beam_aperture(P_d, cfg["r_em"])
 
                 # Determining the fraction of solid angle spanned by the two radio beams in a star complete rotation.
-                beam_frac = er.beam_fraction(chi_d, theta_beam)
+                beam_frac = er.beam_fraction(chi_d, rho_beam)
 
                 # Drawing a random angular intercept for the line of sight.
                 # Note that since we assume symmetry between the northern and southern hemisphere of the star
@@ -339,7 +346,7 @@ def simulate_population(args) -> None:
 
                 # Determining if the pulsar's radio beam intercepts our line of sight.
                 intercepted_radio = er.los_intercept(
-                    chi_d, theta_beam, los_rand,
+                    chi_d, rho_beam, los_rand,
                 )
 
                 # Select only neutron stars that points at us.
@@ -352,7 +359,7 @@ def simulate_population(args) -> None:
                 B_d = B_d[intercepted_radio]
                 chi_d = chi_d[intercepted_radio]
                 P_d = P_d[intercepted_radio]
-                theta_beam_d = theta_beam[intercepted_radio]
+                rho_beam_d = rho_beam[intercepted_radio]
                 los_rand_d = los_rand[intercepted_radio]
                 beam_frac_d = beam_frac[intercepted_radio]
                 coverage_PMPS = coverage_PMPS[intercepted_radio]
@@ -371,7 +378,7 @@ def simulate_population(args) -> None:
                 )
 
                 # Computing the intrinsic pulse width of the radio pulse.
-                w_intrinsic = er.pulse_width(chi_d, theta_beam_d, los_rand_d,)
+                w_intrinsic = er.pulse_width(chi_d, rho_beam_d, los_rand_d,)
                 # Convert pulse width from [rad] to [s].
                 w_intrinsic_s = w_intrinsic * P_d / (2.0 * np.pi)
 
@@ -384,6 +391,8 @@ def simulate_population(args) -> None:
 
                 # Computing the DM.
                 DM = edm.compute_DM(l_d, b_d, dist_d, cfg["ed_model"],)
+
+                # ===================== RADIO DETECTION ========================
 
                 # Simulating the PMPS survey.
                 detected_radio_PMPS = np.zeros(len(age_d), dtype=bool)
@@ -492,7 +501,7 @@ def simulate_population(args) -> None:
                 f"Galactic neutron star birth rate according to SMPS: {n_created_SMPS / t_max} neutron stars per century."
             )
 
-        ###################################################################################################
+        # ===================== EXPORT OUTPUT ========================
 
         with timewith.TimeWith(
             "[Export]",

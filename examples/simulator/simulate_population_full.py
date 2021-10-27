@@ -156,11 +156,6 @@ def simulate_population(args) -> None:
                 r_initial, phi_initial
             )
 
-            # Convert from polar coordinates to Cartesian coordinates.
-            x_initial, y_initial = coco.polar_to_cartesian(
-                r_initial, phi_initial
-            )
-
             # Generating initial velocities by summing the kick
             # velocities at birth and the orbital velocities.
             log.info("Generating initial kick velocities...")
@@ -480,10 +475,11 @@ def simulate_population(args) -> None:
             )
 
             # Determining the radio beam angular aperture.
-            theta_beam = er.beam_aperture(P_final, configuration.cfg["r_em"])
+            rho_beam = er.beam_aperture(P_final, configuration.cfg["r_em"])
+            print(np.mean(rho_beam) / np.pi * 180)
 
             # Determining the fraction of solid angle spanned by the two radio beams in one complete stellar rotation.
-            beam_frac = er.beam_fraction(chi_final, theta_beam)
+            beam_frac = er.beam_fraction(chi_final, rho_beam)
 
             # Drawing a random angular intercept for the line of sight.
             # Note that since we assume symmetry between the northern and southern hemisphere of the star
@@ -493,7 +489,7 @@ def simulate_population(args) -> None:
 
             # Selecting the pulsars whose radio beam intercepts our line of sight.
             intercepted_radio = er.los_intercept(
-                chi_final, theta_beam, los_rand,
+                chi_final, rho_beam, los_rand,
             )
 
             fraction_intercepted = len(
@@ -507,7 +503,7 @@ def simulate_population(args) -> None:
             w_intrinsic = np.zeros(cfg["NS_number"])
             w_intrinsic[intercepted_radio] = er.pulse_width(
                 chi_final[intercepted_radio],
-                theta_beam[intercepted_radio],
+                rho_beam[intercepted_radio],
                 los_rand[intercepted_radio],
             )
             # Convert pulse width from [rad] to [s].

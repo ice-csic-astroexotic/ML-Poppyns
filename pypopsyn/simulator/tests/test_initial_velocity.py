@@ -54,7 +54,7 @@ def test_case_1():
         "v": 300,
         "pdf_vk_exp_expected": 0.001749,
         "pdf_vk_maxwell_expected": 0.002033,
-        "pdf_vk_2maxwell_expected": 0.001071,
+        "pdf_vk_2maxwell_expected": 0.001043,
     }
 
     return data

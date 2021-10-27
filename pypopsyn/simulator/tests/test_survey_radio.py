@@ -1,5 +1,5 @@
 """
-Tests for the radio survey.
+Tests for the radio survey module.
 
     Authors:
 
@@ -143,12 +143,12 @@ def test_gain_gaussian_beam_PMPS(test_case_1):
     ).all()
 
 
-def test_antenna_equation_PMPS(test_case_1):
+def test_radiometer_equation_PMPS(test_case_1):
     """
-    Verifying that the signal to noise values are computed correctly using the antenna equation.
+    Verifying that the signal to noise values are computed correctly using the radiometer equation.
     """
 
-    SN_out = PMPS.antenna_equation(
+    SN_out = PMPS.radiometer_equation(
         test_case_1["S_radio"],
         test_case_1["G_expected"],
         test_case_1["w_eff_expected"],

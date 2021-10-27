@@ -48,23 +48,23 @@ def beam_aperture(P: np.ndarray, r_em: float) -> np.ndarray:
         (np.ndarray): half angular aperture of the radio beam in [rad].
     """
 
-    theta_b = np.sqrt(9.0 * np.pi * r_em / (2.0 * const.c * P))
+    rho_b = np.sqrt(9.0 * np.pi * r_em / (2.0 * const.c * P))
 
-    return theta_b
+    return rho_b
 
 
 def pulse_width(
-    chi: np.ndarray, theta_b: np.ndarray, los: np.ndarray
+    chi: np.ndarray, rho_b: np.ndarray, los: np.ndarray
 ) -> np.ndarray:
     """
     Formula to evaluate the pulse width in [rad] from the radio beam angular aperture.
     This assumes that the line of sight intercepts the radio beam with an angle beta with
-    respect to the center of the beam, so that -rho < beta < rho, with rho the angular
+    respect to the center of the beam, so that -rho_b < beta < rho_b, with rho the angular
     aperture of the beam. See eq. (1) in Maciesiak et al. (2011a) and eq. (3.26) in Lorimer & Kramer (2004).
 
     Args:
         chi (np.ndarray): array of inclination angles between the magnetic axis and the rotation axis [rad].
-        theta_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
+        rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
         los (np.ndarray): polar angles of the line of sight intercept computed with respect
         to the rotation axis of the star [rad].
 
@@ -72,49 +72,49 @@ def pulse_width(
         (np.ndarray): array of pulse widths in [rad].
     """
 
-    # Compute the angular distance between the LOS intercept and the center of the beam.
+    # Compute the impact parameter, i.e., the angular distance between the LOS intercept and the center of the beam.
     beta = los - chi
 
-    # Compute the quantity sin(w/4).
+    # Compute the quantity sin(w/4) where w is the pulse width.
     sin_w_4 = np.array(
         np.sqrt(
-            (np.sin(theta_b / 2.0) ** 2 - np.sin(beta / 2) ** 2)
+            (np.sin(rho_b / 2.0) ** 2 - np.sin(beta / 2) ** 2)
             / (np.sin(chi + beta) * np.sin(chi))
         )
     )
     # If sin(w/4) > 1 set w = 2*np.pi.
-    sin_w_4[sin_w_4 > 1] = np.ones(len(sin_w_4[sin_w_4 > 1]))
+    sin_w_4[sin_w_4 > 1] = 1.0
 
     width = 4.0 * np.arcsin(sin_w_4)
 
     return width
 
 
-def beam_fraction(chi: np.ndarray, theta_b: np.ndarray) -> np.ndarray:
+def beam_fraction(chi: np.ndarray, rho_b: np.ndarray) -> np.ndarray:
     """
     Fraction of solid angle covered by the radio beam in an entire pulsar rotation
-    as a function of the inclination angle chi of the magnetic axis
-    with respect to the rotation axis and the radio beam aperture.
+    as a function of the inclination angle chi and the radio beam aperture.
     This is also the probability that the radio beam intercepts our line of sight.
     See Appendix in Emmering and Chevalier (1989).
 
     Args:
-        chi (np.ndarray): array of inclination angles of the pulsars in [rad].
-        theta_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
+        chi (np.ndarray): array of inclination angles of the magnetic axis
+        with respect to the rotation axis of the pulsars in [rad].
+        rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
 
     Returns:
         (np.ndarray): fraction of solid angle swept by the radio beam.
     """
 
-    beam_frac = np.cos(np.maximum(0, (chi - theta_b))) - np.cos(
-        np.minimum(np.pi / 2.0, (chi + theta_b))
+    beam_frac = np.cos(np.maximum(0, (chi - rho_b))) - np.cos(
+        np.minimum(np.pi / 2.0, (chi + rho_b))
     )
 
     return beam_frac
 
 
 def los_intercept(
-    chi: np.ndarray, theta_b: np.ndarray, los: np.ndarray
+    chi: np.ndarray, rho_b: np.ndarray, los: np.ndarray
 ) -> np.ndarray:
     """
     Evaluate if the radio beam intercepts the line of sight (LOS), assuming random
@@ -122,7 +122,7 @@ def los_intercept(
 
     Args:
         chi (np.ndarray): array of inclination angles of the pulsars in [rad].
-        theta_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
+        rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
         los (np.ndarray): polar angle of the line of sight intercept computed with respect
         to the rotation axis of the star [rad].
 
@@ -130,7 +130,7 @@ def los_intercept(
         (np.ndarray): array of boolean variables: true if the radio beam intercepts the LOS and false if not.
     """
 
-    condition = (los > chi - theta_b) & (los < chi + theta_b)
+    condition = (los > chi - rho_b) & (los < chi + rho_b)
     intercepted = np.array(condition)
 
     return intercepted
@@ -154,7 +154,7 @@ def pdf_radio_luminosity(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     L_0 = 10 ** np.random.normal(
         cfg["L_radio_log10_mean"], cfg["L_radio_log10_sigma"], NS_number
     )
-    L_radio = L_0 * P ** cfg["epsilon1"] * P_dot ** cfg["epsilon2"]
+    L_radio = L_0 * P ** cfg["epsilon_P"] * P_dot ** cfg["epsilon_Pdot"]
 
     return L_radio
 
@@ -163,7 +163,7 @@ def erg_flux_radio(
     L_radio: np.ndarray, d: np.ndarray, beam_frac: np.ndarray, w: np.ndarray
 ) -> np.ndarray:
     """
-    Compute the radio flux observed here on Earth for each pulsars in erg s^(-1) cm^(-2) Hz^(-1).
+    Compute the radio flux observed here on Earth for each pulsars in [erg s^(-1) cm^(-2) Hz^(-1)].
 
     Args:
         L_radio (np.ndarray): pulsar radio luminosity in [erg s^(-1) Hz^(-1)].
@@ -172,11 +172,12 @@ def erg_flux_radio(
         w (np.ndarray): intrinsic pulse width in [rad].
 
     Returns:
-        (np.ndarray): observed pulsar radio flux in erg s^(-1) cm^(-2) Hz^(-1).
+        (np.ndarray): observed pulsar radio flux in [erg s^(-1) cm^(-2) Hz^(-1)].
     """
 
     # Convert distance from [kpc] to [cm].
     d_cm = d * const.KPC_TO_CM
+
     # Compute the duty cycle.
     duty_cycle = w / (2.0 * np.pi)
 

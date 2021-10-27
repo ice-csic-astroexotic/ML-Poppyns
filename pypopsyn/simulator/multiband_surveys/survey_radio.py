@@ -78,13 +78,14 @@ def effective_pulse_width(
 ) -> np.ndarray:
     """
     Measured effective pulse width which is smeared out by the inter-channel dispersion, the scattering
-    with the interstellar medium and by the instrumental sampling time.
+    with the interstellar medium and by the instrumental sampling time (see eq. 2 in Cordes & McLaughlin 2003).
 
     Args:
         w_int (np.ndarray): intrinsic pulse width in [s].
         DM (np.ndarray): dispersion measure in [pc cm^-3].
         channel_width (float): width in frequency of a single frequency channel of the receiver in [Hz].
         nu (float): central frequency at which the observation is performed [Hz].
+        t_samp (float): sampling time for the radio survey [s].
 
     Returns:
         (np.ndarray): measured effective pulse width in [s].
@@ -103,7 +104,7 @@ def sky_temperature_approx(
     """
     Sky temperature as a function of galactic longitude and latitude (l, b) and frequency.
     We use an empirical fit from Narayan (1987) and rescale to the given frequency using
-    a relation from Johnston et al. (1992) (see also Yusifov & Küçük 2004).
+    a relation from Johnston et al. (1992) (see also eq. 5 in Yusifov & Küçük 2004).
 
     Args:
         l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
@@ -119,7 +120,8 @@ def sky_temperature_approx(
         (1.0 + (l_gal / 42.0) ** 2) * (1.0 + (b_gal / 3.0) ** 2)
     )
 
-    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6 (Johnston et al. 1992).
+    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6 (see Lawson et al. 1987,
+    # Johnston et al. 1992).
     T_sky_nu = T_sky_400 * (408.0e6 / nu) ** 2.6
 
     return T_sky_nu
@@ -158,7 +160,8 @@ def sky_temperature(
     y_pixel = y_pixel.astype(int)
     T_sky_400 = data[y_pixel, x_pixel]
 
-    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6 (Johnston et al. 1992).
+    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6 (see Lawson et al. 1987,
+    # Johnston et al. 1992).
     T_sky_nu = T_sky_400 * (408.0e6 / nu) ** 2.6
 
     return T_sky_nu
@@ -173,7 +176,7 @@ class SurveyRadioBase:
 
     def __init__(
         self,
-        beta: float,
+        deg_factor: float,
         G0: float,
         t_obs: float,
         t_samp: float,
@@ -181,7 +184,7 @@ class SurveyRadioBase:
         nu_central: float,
         BW: float,
         channel_width: float,
-        n_p: float,
+        n_pol: float,
         FWHM: float,
         SN_th: float,
         RA_range: np.ndarray,
@@ -193,7 +196,7 @@ class SurveyRadioBase:
         Radio survey initialization.
 
         Args:
-            beta (float): degradation factor.
+            deg_factor (float): degradation factor.
             G0 (float): gain at the beam center [K Jy^(-1)].
             t_obs (float): integration time [s].
             t_samp (float): sampling time [s].
@@ -201,20 +204,21 @@ class SurveyRadioBase:
             nu_central (float): central frequency of the bandwidth [Hz].
             BW (float): frequency bandwidth [Hz].
             channel_width (float): width of a single frequency channel [Hz].
-            n_p (float): number of polarizations.
+            n_pol (float): number of polarizations.
             FWHM (float): FWHM of the beam [arcmin].
             SN_th (float): threshold signal to noise ratio.
             RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
             DEC_range (np.ndarray): range of the sky covered by the survey in DEC [deg].
             l_range (np.ndarray): range of the sky covered by the survey in galactic longitude l [deg].
-            b_range_abs (np.ndarray): absolute value of the range of the sky covered by the survey in galactic latitude b [deg].
+            b_range_abs (np.ndarray): absolute value of the range of the sky covered by the survey in
+            galactic latitude b [deg].
 
         Returns:
             Nothing.
 
         """
 
-        self.beta = beta
+        self.deg_factor = deg_factor
         self.G0 = G0
         self.t_obs = t_obs
         self.t_samp = t_samp
@@ -222,7 +226,7 @@ class SurveyRadioBase:
         self.nu_central = nu_central
         self.BW = BW
         self.channel_width = channel_width
-        self.n_p = n_p
+        self.n_pol = n_pol
         self.FWHM = FWHM
         self.SN_th = SN_th
         self.RA_range = RA_range
@@ -280,7 +284,7 @@ class SurveyRadioBase:
     def gain_gaussian_beam(self, offset2: np.ndarray) -> np.ndarray:
         """
         This method simulates the gain pattern of a receiver.
-        A Gaussian beam pattern is assumed (see Lorimer et al. 1993).
+        A Gaussian beam pattern is assumed (see eq. 14 in Lorimer et al. 1993 and eq. 29 in Bates et. al 2014).
 
         Args:
             offset2 (np.ndarray): squared offset from the beam center in [arcmin^2].
@@ -293,7 +297,7 @@ class SurveyRadioBase:
 
         return G
 
-    def antenna_equation(
+    def radiometer_equation(
         self,
         S_radio: np.ndarray,
         G: np.ndarray,
@@ -303,10 +307,11 @@ class SurveyRadioBase:
     ) -> np.ndarray:
         """
         Antenna equation used to compute the signal to noise ratio of each pulsars given the radio flux
-        at a given frequency nu, the effective pulse width, the spin period and the survey parameters.
+        at a given frequency nu, the effective pulse width, the spin period and the survey parameters
+        (see eq. A1.22 in Lorimer & Kramer 2005).
 
         Args:
-            S_radio (np.ndarray): radio flux in Jy.
+            S_radio (np.ndarray): radio flux in [Jy].
             G (np.ndarray): gain of the telescope for the given detection in [K Jy^(-1)].
             w_eff (np.ndarray): effective pulse width in [s].
             P (np.ndarray): spin period in [s].
@@ -324,9 +329,9 @@ class SurveyRadioBase:
         SN[cond] = (
             S_radio[cond]
             * G[cond]
-            * np.sqrt(self.n_p * self.t_obs * self.BW)
+            * np.sqrt(self.n_pol * self.t_obs * self.BW)
             * np.sqrt((P[cond] - w_eff[cond]) / w_eff[cond])
-            / (self.beta * (self.T_sys + T_sky[cond]))
+            / (self.deg_factor * (self.T_sys + T_sky[cond]))
         )
 
         return SN
@@ -345,7 +350,7 @@ class SurveyRadioBase:
         then the pulsar is detected.
 
         Args:
-            S_radio (np.ndarray): radio flux in Jy.
+            S_radio (np.ndarray): total radio flux from a source in Jy.
             DM (np.ndarray): dispersion measure in [pc cm^-3].
             l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
@@ -370,9 +375,7 @@ class SurveyRadioBase:
         # Compute the Sky temperature in the coordinates of each detection at the central frequency of the survey.
         T_sky = sky_temperature(l_gal, b_gal, self.nu_central)
 
-        SN_detection = np.zeros(n)
-
-        SN_detection = self.antenna_equation(S_radio, G, w_eff, P, T_sky)
+        SN_detection = self.radiometer_equation(S_radio, G, w_eff, P, T_sky)
 
         detected = SN_detection > self.SN_th
 
@@ -381,13 +384,13 @@ class SurveyRadioBase:
 
 class SurveyRadioPMPS(SurveyRadioBase):
     """
-    Class that models the Parks Multibeam Pulsar Survey.
+    Class that models the Parks Multibeam Pulsar Survey (see Manchester et al. 2001, Lorimer et al. 2006).
     The survey parameters are taken from Chakraborty et al. (2020).
     """
 
     def __init__(
         self,
-        beta=1.5,
+        deg_factor=1.5,
         G0=0.64,
         t_obs=2100.0,
         t_samp=250.0e-6,
@@ -395,7 +398,7 @@ class SurveyRadioPMPS(SurveyRadioBase):
         nu_central=1.374e9,
         BW=288.0e6,
         channel_width=3.0e6,
-        n_p=2,
+        n_pol=2,
         FWHM=14.0,
         SN_th=9.0,
         RA_range=np.array([0.0, 360.0]),
@@ -405,7 +408,7 @@ class SurveyRadioPMPS(SurveyRadioBase):
     ) -> None:
 
         super().__init__(
-            beta,
+            deg_factor,
             G0,
             t_obs,
             t_samp,
@@ -413,7 +416,7 @@ class SurveyRadioPMPS(SurveyRadioBase):
             nu_central,
             BW,
             channel_width,
-            n_p,
+            n_pol,
             FWHM,
             SN_th,
             RA_range,
@@ -425,13 +428,13 @@ class SurveyRadioPMPS(SurveyRadioBase):
 
 class SurveyRadioSMPS(SurveyRadioBase):
     """
-    Class that model the Swinburne Multibeam Pulsar Survey.
+    Class that models the Swinburne Multibeam Pulsar Survey (see Jacoby et al. 2009).
     The survey parameters are taken from Chakraborty et al. 2020.
     """
 
     def __init__(
         self,
-        beta=1.5,
+        deg_factor=1.5,
         G0=0.64,
         t_obs=265.0,
         t_samp=125.0e-6,
@@ -439,7 +442,7 @@ class SurveyRadioSMPS(SurveyRadioBase):
         nu_central=1.374e9,
         BW=288.0e6,
         channel_width=3.0e6,
-        n_p=2,
+        n_pol=2,
         FWHM=14.0,
         SN_th=9.0,
         RA_range=np.array([0.0, 360.0]),
@@ -448,7 +451,7 @@ class SurveyRadioSMPS(SurveyRadioBase):
         b_range_abs=np.array([5.0, 30.0]),
     ) -> None:
         super().__init__(
-            beta,
+            deg_factor,
             G0,
             t_obs,
             t_samp,
@@ -456,7 +459,7 @@ class SurveyRadioSMPS(SurveyRadioBase):
             nu_central,
             BW,
             channel_width,
-            n_p,
+            n_pol,
             FWHM,
             SN_th,
             RA_range,

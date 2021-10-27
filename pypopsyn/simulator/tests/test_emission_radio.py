@@ -1,5 +1,5 @@
 """
-Tests for the radio emission.
+Tests for the radio emission module.
 
     Authors:
 
@@ -37,8 +37,8 @@ TOL = 1e-5
 cfg["NS_number"] = 2
 cfg["L_radio_log10_mean"] = 26.0
 cfg["L_radio_log10_sigma"] = 0.9
-cfg["epsilon1"] = -1.5
-cfg["epsilon2"] = 0.5
+cfg["epsilon_P"] = -1.5
+cfg["epsilon_Pdot"] = 0.5
 
 
 @pytest.fixture()
@@ -48,7 +48,7 @@ def test_case_1():
         "P": np.array([0.1, 1.0]),
         "P_dot": np.array([1.0e-15]),
         "chi": np.array([np.pi / 3.0, np.pi / 4.0]),
-        "theta_b": np.array([0.3, 0.1]),
+        "rho_b": np.array([0.3, 0.1]),
         "los": np.array([0.3, 0.8]),
         "beam_aperture_expected": np.array([0.37612, 0.11894]),
         "w_expected": np.array([0.277910]),
@@ -87,10 +87,10 @@ def test_pulse_width(test_case_1):
     the pulse width is evaluated correctly.
     """
     chi = np.array(test_case_1["chi"][1])
-    theta_b = np.array(test_case_1["theta_b"][1])
+    rho_b = np.array(test_case_1["rho_b"][1])
     los = np.array(test_case_1["los"][1])
 
-    w_out = er.pulse_width(chi, theta_b, los)
+    w_out = er.pulse_width(chi, rho_b, los)
 
     assert np.isclose(
         test_case_1["w_expected"], w_out, rtol=TOL, atol=1.0e-5
@@ -104,7 +104,7 @@ def test_beam_fraction(test_case_1):
     """
 
     beam_fraction_out = er.beam_fraction(
-        test_case_1["chi"], test_case_1["theta_b"],
+        test_case_1["chi"], test_case_1["rho_b"],
     )
 
     assert np.isclose(
@@ -122,7 +122,7 @@ def test_los_intercept(test_case_1):
     """
 
     intercepted_out = er.los_intercept(
-        test_case_1["chi"], test_case_1["theta_b"], test_case_1["los"]
+        test_case_1["chi"], test_case_1["rho_b"], test_case_1["los"]
     )
 
     assert np.isclose(
