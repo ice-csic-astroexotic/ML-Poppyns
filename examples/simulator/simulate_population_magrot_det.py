@@ -85,11 +85,11 @@ def simulate_population(args) -> None:
         sys.exit()
 
     # Update path-dependent configurations prepending the specified output path.
-    configuration.cfg["profile_log"] = str(
-        pathlib.Path().joinpath(output_path, configuration.cfg["profile_log"])
+    cfg["profile_log"] = str(
+        pathlib.Path().joinpath(output_path, cfg["profile_log"])
     )
-    configuration.cfg["profile_json"] = str(
-        pathlib.Path().joinpath(output_path, configuration.cfg["profile_json"])
+    cfg["profile_json"] = str(
+        pathlib.Path().joinpath(output_path, cfg["profile_json"])
     )
 
     # Initialize seed randomly if no seed was specified.
@@ -121,7 +121,7 @@ def simulate_population(args) -> None:
         output_path, "configuration.json"
     )
     with open(config_dump_path, "w") as f:
-        json.dump(configuration.cfg, f, indent=4, sort_keys=True)
+        json.dump(cfg, f, indent=4, sort_keys=True)
 
     # Initialize the surveys.
     survey_PMPS = sr.SurveyRadioPMPS()
@@ -586,7 +586,7 @@ def simulate_population(args) -> None:
             )
 
         # Cleanup. Reset seed to empty value.
-        configuration.cfg["seed"] = None
+        cfg["seed_magrot"] = None
 
 
 if __name__ == "__main__":

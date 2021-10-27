@@ -85,11 +85,11 @@ def simulate_population(args) -> None:
     output_path.mkdir(parents=True, exist_ok=True)
 
     # Update path-dependent configurations prepending the specified output path.
-    configuration.cfg["profile_log"] = str(
-        pathlib.Path().joinpath(output_path, configuration.cfg["profile_log"])
+    cfg["profile_log"] = str(
+        pathlib.Path().joinpath(output_path, cfg["profile_log"])
     )
-    configuration.cfg["profile_json"] = str(
-        pathlib.Path().joinpath(output_path, configuration.cfg["profile_json"])
+    cfg["profile_json"] = str(
+        pathlib.Path().joinpath(output_path, cfg["profile_json"])
     )
 
     # Initialize seed randomly if no seed was specified.
@@ -113,7 +113,7 @@ def simulate_population(args) -> None:
         output_path, "configuration.json"
     )
     with open(config_dump_path, "w") as f:
-        json.dump(configuration.cfg, f, indent=4, sort_keys=True)
+        json.dump(cfg, f, indent=4, sort_keys=True)
 
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
@@ -367,7 +367,7 @@ def simulate_population(args) -> None:
                 x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
             )
 
-            if configuration.cfg["save_dyn_evolution"]:
+            if cfg["save_dyn_evolution"]:
                 # Save dictionary containing evolution information to output path in a .json file.
                 dyn_evolution_dump_path = pathlib.Path().joinpath(
                     output_path, "dyn_evolution.json"
@@ -440,7 +440,7 @@ def simulate_population(args) -> None:
                 B_initial, chi_initial, P_initial, age,
             )
 
-            if configuration.cfg["save_magrot_evolution"]:
+            if cfg["save_magrot_evolution"]:
                 # Save dictionary containing evolution information to output path in a .json file.
                 magrot_evolution_dump_path = pathlib.Path().joinpath(
                     output_path, "magrot_evolution.json"
@@ -526,9 +526,9 @@ def simulate_population(args) -> None:
 
         with timewith.TimeWith(
             "[RadioDetection]",
-            configuration.cfg["profile_log"],
-            configuration.cfg["profile_json"],
-            configuration.cfg["show_profiling"],
+            cfg["profile_log"],
+            cfg["profile_json"],
+            cfg["show_profiling"],
         ) as timer:
 
             # Select the surveys.
@@ -728,7 +728,7 @@ def simulate_population(args) -> None:
         timer.checkpoint("[Export]")
 
     # Cleanup. Reset seed to empty value.
-    configuration.cfg["seed"] = None
+    cfg["seed_full"] = None
 
 
 if __name__ == "__main__":

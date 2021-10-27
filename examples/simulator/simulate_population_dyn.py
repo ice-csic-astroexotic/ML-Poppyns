@@ -74,11 +74,11 @@ def simulate_population(args) -> None:
     output_path.mkdir(parents=True, exist_ok=True)
 
     # Update path-dependent configurations prepending the specified output path.
-    configuration.cfg["profile_log"] = str(
-        pathlib.Path().joinpath(output_path, configuration.cfg["profile_log"])
+    cfg["profile_log"] = str(
+        pathlib.Path().joinpath(output_path, cfg["profile_log"])
     )
-    configuration.cfg["profile_json"] = str(
-        pathlib.Path().joinpath(output_path, configuration.cfg["profile_json"])
+    cfg["profile_json"] = str(
+        pathlib.Path().joinpath(output_path, cfg["profile_json"])
     )
 
     # Initialize seed randomly if no seed was specified.
@@ -102,7 +102,7 @@ def simulate_population(args) -> None:
         output_path, "configuration.json"
     )
     with open(config_dump_path, "w") as f:
-        json.dump(configuration.cfg, f, indent=4, sort_keys=True)
+        json.dump(cfg, f, indent=4, sort_keys=True)
 
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
@@ -110,9 +110,9 @@ def simulate_population(args) -> None:
 
     with timewith.TimeWith(
         "[TotalSimulation]",
-        configuration.cfg["profile_log"],
-        configuration.cfg["profile_json"],
-        configuration.cfg["show_profiling"],
+        cfg["profile_log"],
+        cfg["profile_json"],
+        cfg["show_profiling"],
     ):
 
         ############################################################################
@@ -120,9 +120,9 @@ def simulate_population(args) -> None:
 
         with timewith.TimeWith(
             "[InitialPopulation]",
-            configuration.cfg["profile_log"],
-            configuration.cfg["profile_json"],
-            configuration.cfg["show_profiling"],
+            cfg["profile_log"],
+            cfg["profile_json"],
+            cfg["show_profiling"],
         ) as timer:
 
             # Generate an initial neutron star population.
@@ -188,9 +188,9 @@ def simulate_population(args) -> None:
 
         with timewith.TimeWith(
             "[EvolvePopulation]",
-            configuration.cfg["profile_log"],
-            configuration.cfg["profile_json"],
-            configuration.cfg["show_profiling"],
+            cfg["profile_log"],
+            cfg["profile_json"],
+            cfg["show_profiling"],
         ) as timer:
 
             # Evolve the initial population.
@@ -226,7 +226,7 @@ def simulate_population(args) -> None:
             v_phi_final = v_phi_final * const.KPC_TO_KM / const.YR_TO_S
             v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
 
-            if configuration.cfg["save_dyn_evolution"]:
+            if cfg["save_dyn_evolution"]:
                 # Save dictionary containing evolution information to output path in a .json file.
                 dyn_evolution_dump_path = pathlib.Path().joinpath(
                     output_path, "dyn_evolution.json"
@@ -331,7 +331,7 @@ def simulate_population(args) -> None:
             timer.checkpoint("[Export]")
 
     # Cleanup. Reset seed to empty value.
-    configuration.cfg["seed"] = None
+    cfg["seed_dyn"] = None
 
 
 if __name__ == "__main__":

@@ -43,8 +43,8 @@ cfg["profile_json"] = "profile.json"
 cfg["show_profiling"] = True
 
 # Save time evolution output
-cfg["save_dyn_evolution"] = True
-cfg["save_magrot_evolution"] = True
+cfg["save_dyn_evolution"] = False
+cfg["save_magrot_evolution"] = False
 
 
 # Initial population class parameters.
@@ -60,7 +60,7 @@ cfg["seed_magrot"] = None
 cfg["resolution"] = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 10000
+cfg["NS_number"] = 300000
 
 # Sun's distance from the galactocentric axis in [kpc].
 cfg["R_sun"] = 8.3
@@ -84,7 +84,7 @@ cfg["arm_number"] = 5
 cfg["t_age_min"] = 1.0
 
 # Maximum age for the neutron stars in [yr].
-cfg["t_age_max"] = 1e7
+cfg["t_age_max"] = 3e7
 
 # Time step for the dynamical evolution [yr].
 cfg["dyn_time_step"] = 1e4
