@@ -124,8 +124,15 @@ def simulate_population(args) -> None:
         json.dump(cfg, f, indent=4, sort_keys=True)
 
     # Initialize the surveys.
-    survey_PMPS = sr.SurveyRadioPMPS()
-    survey_SMPS = sr.SurveyRadioSMPS()
+    PMPS_par_path = (
+        "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
+    )
+    SMPS_par_path = (
+        "pypopsyn/simulator/multiband_surveys/Swinburne_parameters.json"
+    )
+
+    survey_PMPS = sr.SurveyRadio(PMPS_par_path)
+    survey_SMPS = sr.SurveyRadio(SMPS_par_path)
 
     n_detected_real_PMPS = cfg["detected_real_PMPS"]
     n_detected_real_SMPS = cfg["detected_real_SMPS"]

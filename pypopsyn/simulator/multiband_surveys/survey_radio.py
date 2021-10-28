@@ -30,6 +30,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import json
+
 import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
@@ -167,72 +169,64 @@ def sky_temperature(
     return T_sky_nu
 
 
-class SurveyRadioBase:
+class SurveyRadio:
     """
-    Base class for any radio survey model to ensure that a common interface between all of
-    them is respected. The following abstract methods must be implemented or an error
-    will be raised.
+    Class for any radio survey with a gaussian telescope beam pattern.
+    The parameters for the survey are imported from a JSON file.
     """
 
-    def __init__(
-        self,
-        deg_factor: float,
-        G0: float,
-        t_obs: float,
-        t_samp: float,
-        T_sys: float,
-        nu_central: float,
-        BW: float,
-        channel_width: float,
-        n_pol: float,
-        FWHM: float,
-        SN_th: float,
-        RA_range: np.ndarray,
-        DEC_range: np.ndarray,
-        l_range: np.ndarray,
-        b_range_abs: np.ndarray,
-    ):
+    def __import_parameters(self, parameters_path):
         """
-        Radio survey initialization.
+        Import dataset statistics for normalization and standardization.
+
+        This routine import the parameters of a radio survey.
 
         Args:
-            deg_factor (float): degradation factor.
-            G0 (float): gain at the beam center [K Jy^(-1)].
-            t_obs (float): integration time [s].
-            t_samp (float): sampling time [s].
-            T_sys (float): system temperature [K].
-            nu_central (float): central frequency of the bandwidth [Hz].
-            BW (float): frequency bandwidth [Hz].
-            channel_width (float): width of a single frequency channel [Hz].
-            n_pol (float): number of polarizations.
-            FWHM (float): FWHM of the beam [arcmin].
-            SN_th (float): threshold signal to noise ratio.
-            RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
-            DEC_range (np.ndarray): range of the sky covered by the survey in DEC [deg].
-            l_range (np.ndarray): range of the sky covered by the survey in galactic longitude l [deg].
-            b_range_abs (np.ndarray): absolute value of the range of the sky covered by the survey in
-            galactic latitude b [deg].
+            parameters_path (str): path to the survey_parameter.json file containing the parameters
+                of the radio survey.
 
         Returns:
             Nothing.
 
         """
 
-        self.deg_factor = deg_factor
-        self.G0 = G0
-        self.t_obs = t_obs
-        self.t_samp = t_samp
-        self.T_sys = T_sys
-        self.nu_central = nu_central
-        self.BW = BW
-        self.channel_width = channel_width
-        self.n_pol = n_pol
-        self.FWHM = FWHM
-        self.SN_th = SN_th
-        self.RA_range = RA_range
-        self.DEC_range = DEC_range
-        self.l_range = l_range
-        self.b_range_abs = b_range_abs
+        # Load parameters from JSON file.
+        with open(parameters_path) as read_file:
+            self.parameters = json.load(read_file)
+
+        # Save the parameters.
+        self.deg_factor = self.parameters["deg_factor"]
+        self.G0 = self.parameters["G0"]
+        self.t_obs = self.parameters["t_obs"]
+        self.t_samp = self.parameters["t_samp"]
+        self.T_sys = self.parameters["T_sys"]
+        self.nu_central = self.parameters["nu_central"]
+        self.BW = self.parameters["BW"]
+        self.channel_width = self.parameters["channel_width"]
+        self.n_pol = self.parameters["n_pol"]
+        self.FWHM = self.parameters["FWHM"]
+        self.SN_th = self.parameters["SN_th"]
+        self.RA_range = self.parameters["RA_range"]
+        self.DEC_range = self.parameters["DEC_range"]
+        self.l_range = self.parameters["l_range"]
+        self.b_range_abs = self.parameters["b_range_abs"]
+
+    def __init__(
+        self, parameters_path,
+    ):
+        """
+        Radio survey initialization.
+
+        Args:
+            parameters_path (str): path to the survey_parameter.json file containing the parameters
+                of the radio survey.
+
+        Returns:
+            Nothing.
+
+        """
+
+        self.__import_parameters(parameters_path)
 
     def sky_coverage(
         self,
@@ -380,90 +374,3 @@ class SurveyRadioBase:
         detected = SN_detection > self.SN_th
 
         return detected
-
-
-class SurveyRadioPMPS(SurveyRadioBase):
-    """
-    Class that models the Parks Multibeam Pulsar Survey (see Manchester et al. 2001, Lorimer et al. 2006).
-    The survey parameters are taken from Chakraborty et al. (2020).
-    """
-
-    def __init__(
-        self,
-        deg_factor=1.5,
-        G0=0.64,
-        t_obs=2100.0,
-        t_samp=250.0e-6,
-        T_sys=25.0,
-        nu_central=1.374e9,
-        BW=288.0e6,
-        channel_width=3.0e6,
-        n_pol=2,
-        FWHM=14.0,
-        SN_th=9.0,
-        RA_range=np.array([0.0, 360.0]),
-        DEC_range=np.array([-90.0, 90.0]),
-        l_range=np.array([-100.0, 50.0]),
-        b_range_abs=np.array([0.0, 5.0]),
-    ) -> None:
-
-        super().__init__(
-            deg_factor,
-            G0,
-            t_obs,
-            t_samp,
-            T_sys,
-            nu_central,
-            BW,
-            channel_width,
-            n_pol,
-            FWHM,
-            SN_th,
-            RA_range,
-            DEC_range,
-            l_range,
-            b_range_abs,
-        )
-
-
-class SurveyRadioSMPS(SurveyRadioBase):
-    """
-    Class that models the Swinburne Multibeam Pulsar Survey (see Jacoby et al. 2009).
-    The survey parameters are taken from Chakraborty et al. 2020.
-    """
-
-    def __init__(
-        self,
-        deg_factor=1.5,
-        G0=0.64,
-        t_obs=265.0,
-        t_samp=125.0e-6,
-        T_sys=25.0,
-        nu_central=1.374e9,
-        BW=288.0e6,
-        channel_width=3.0e6,
-        n_pol=2,
-        FWHM=14.0,
-        SN_th=9.0,
-        RA_range=np.array([0.0, 360.0]),
-        DEC_range=np.array([-90.0, 90.0]),
-        l_range=np.array([-100.0, 50.0]),
-        b_range_abs=np.array([5.0, 30.0]),
-    ) -> None:
-        super().__init__(
-            deg_factor,
-            G0,
-            t_obs,
-            t_samp,
-            T_sys,
-            nu_central,
-            BW,
-            channel_width,
-            n_pol,
-            FWHM,
-            SN_th,
-            RA_range,
-            DEC_range,
-            l_range,
-            b_range_abs,
-        )

@@ -1,0 +1,17 @@
+{
+  "deg_factor": 1.5,
+  "G0": 0.64,
+  "t_obs": 2100.0,
+  "t_samp": 250.0e-6,
+  "T_sys": 25.0,
+  "nu_central": 1.374e9,
+  "BW": 288.0e6,
+  "channel_width": 3.0e6,
+  "n_pol": 2,
+  "FWHM": 14.0,
+  "SN_th": 9.0,
+  "RA_range": [0.0, 360.0],
+  "DEC_range": [-90.0, 90.0],
+  "l_range": [-100.0, 50.0],
+  "b_range_abs": [0.0, 5.0]
+}

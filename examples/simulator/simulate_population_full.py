@@ -531,9 +531,14 @@ def simulate_population(args) -> None:
             cfg["show_profiling"],
         ) as timer:
 
-            # Select the surveys.
-            survey_PMPS = sr.SurveyRadioPMPS()
-            survey_SMPS = sr.SurveyRadioSMPS()
+            # Initialize the surveys.
+            PMPS_par_path = (
+                "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
+            )
+            SMPS_par_path = "pypopsyn/simulator/multiband_surveys/Swinburne_parameters.json"
+
+            survey_PMPS = sr.SurveyRadio(PMPS_par_path)
+            survey_SMPS = sr.SurveyRadio(SMPS_par_path)
 
             # Determine which stars fall into the sky region covered by the surveys.
             coverage_PMPS = survey_PMPS.sky_coverage(

@@ -33,7 +33,8 @@ import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 
 TOL = 1e-5
 
-PMPS = sr.SurveyRadioPMPS()
+PMPS_par_path = "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
+PMPS = sr.SurveyRadio(PMPS_par_path)
 
 
 @pytest.fixture()
