@@ -57,7 +57,8 @@ def test_case_1():
         "log10_L_0": np.array([26.0]),
         "L_radio_expected": np.array([3.162278e18]),
         "d": np.array([10.0]),
-        "S_radio_expected": np.array([8.27960e-29]),
+        "f_survey": 1.4e9,
+        "S_radio_expected": np.array([1.8369116212979515e-39]),
     }
 
     return data
@@ -165,6 +166,7 @@ def test_erg_flux_radio(test_case_1):
         test_case_1["d"],
         beam_frac,
         test_case_1["w_expected"],
+        f_survey=test_case_1["f_survey"],
     )
 
     assert np.isclose(

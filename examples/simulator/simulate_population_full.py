@@ -119,6 +119,17 @@ def simulate_population(args) -> None:
     gm.initialize_galactic_model()
     sm.initialize_spiral_model()
 
+    # Initialize the surveys.
+    PMPS_par_path = (
+        "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
+    )
+    SMPS_par_path = (
+        "pypopsyn/simulator/multiband_surveys/Swinburne_parameters.json"
+    )
+
+    survey_PMPS = sr.SurveyRadio(PMPS_par_path)
+    survey_SMPS = sr.SurveyRadio(SMPS_par_path)
+
     with timewith.TimeWith(
         "[TotalSimulation]",
         cfg["profile_log"],
@@ -475,8 +486,7 @@ def simulate_population(args) -> None:
             )
 
             # Determining the radio beam angular aperture.
-            rho_beam = er.beam_aperture(P_final, configuration.cfg["r_em"])
-            print(np.mean(rho_beam) / np.pi * 180)
+            rho_beam = er.beam_aperture(P_final, cfg["r_em"])
 
             # Determining the fraction of solid angle spanned by the two radio beams in one complete stellar rotation.
             beam_frac = er.beam_fraction(chi_final, rho_beam)
@@ -516,6 +526,7 @@ def simulate_population(args) -> None:
                 sun_dist_icrs[intercepted_radio],
                 beam_frac[intercepted_radio],
                 w_intrinsic[intercepted_radio],
+                f_survey=survey_PMPS.f_central,
             )
             # Convert radio flux in [Jy].
             S_radio_Jy = S_radio / const.JY_TO_ERG
@@ -530,15 +541,6 @@ def simulate_population(args) -> None:
             cfg["profile_json"],
             cfg["show_profiling"],
         ) as timer:
-
-            # Initialize the surveys.
-            PMPS_par_path = (
-                "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
-            )
-            SMPS_par_path = "pypopsyn/simulator/multiband_surveys/Swinburne_parameters.json"
-
-            survey_PMPS = sr.SurveyRadio(PMPS_par_path)
-            survey_SMPS = sr.SurveyRadio(SMPS_par_path)
 
             # Determine which stars fall into the sky region covered by the surveys.
             coverage_PMPS = survey_PMPS.sky_coverage(

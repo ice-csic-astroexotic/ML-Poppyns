@@ -4,7 +4,7 @@
   "t_obs": 265.0,
   "t_samp": 125.0e-6,
   "T_sys": 25.0,
-  "nu_central": 1.374e9,
+  "f_central": 1.374e9,
   "BW": 288.0e6,
   "channel_width": 3.0e6,
   "n_pol": 2,

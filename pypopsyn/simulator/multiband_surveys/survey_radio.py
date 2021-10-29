@@ -75,7 +75,7 @@ def effective_pulse_width(
     w_int: np.ndarray,
     DM: np.ndarray,
     channel_width: float,
-    nu: float,
+    f: float,
     t_samp: float,
 ) -> np.ndarray:
     """
@@ -86,22 +86,22 @@ def effective_pulse_width(
         w_int (np.ndarray): intrinsic pulse width in [s].
         DM (np.ndarray): dispersion measure in [pc cm^-3].
         channel_width (float): width in frequency of a single frequency channel of the receiver in [Hz].
-        nu (float): central frequency at which the observation is performed [Hz].
+        f (float): central frequency at which the observation is performed [Hz].
         t_samp (float): sampling time for the radio survey [s].
 
     Returns:
         (np.ndarray): measured effective pulse width in [s].
     """
 
-    tau_DM = smearing_in_channel(DM, channel_width, nu)
-    tau_sc = edm.compute_tau_sc(DM, nu)
+    tau_DM = smearing_in_channel(DM, channel_width, f)
+    tau_sc = edm.compute_tau_sc(DM, f)
     w_eff = np.sqrt(w_int ** 2 + tau_sc ** 2 + tau_DM ** 2 + t_samp ** 2)
 
     return w_eff
 
 
 def sky_temperature_approx(
-    l_gal: np.ndarray, b_gal: np.ndarray, nu: float
+    l_gal: np.ndarray, b_gal: np.ndarray, f: float
 ) -> np.ndarray:
     """
     Sky temperature as a function of galactic longitude and latitude (l, b) and frequency.
@@ -111,7 +111,7 @@ def sky_temperature_approx(
     Args:
         l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
-        nu (np.ndarray): central frequency at which the observation is performed [Hz].
+        f (np.ndarray): central frequency at which the observation is performed [Hz].
 
     Returns:
         (np.ndarray): measured sky temperature in [K] as a function of the galactic coordinates at frequency nu.
@@ -124,13 +124,13 @@ def sky_temperature_approx(
 
     # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6 (see Lawson et al. 1987,
     # Johnston et al. 1992).
-    T_sky_nu = T_sky_400 * (408.0e6 / nu) ** 2.6
+    T_sky_f = T_sky_400 * (408.0e6 / f) ** 2.6
 
-    return T_sky_nu
+    return T_sky_f
 
 
 def sky_temperature(
-    l_gal: np.ndarray, b_gal: np.ndarray, nu: float
+    l_gal: np.ndarray, b_gal: np.ndarray, f: float
 ) -> np.ndarray:
     """
     Sky temperature as a function of galactic longitude and latitude (l, b) and frequency.
@@ -140,7 +140,7 @@ def sky_temperature(
     Args:
         l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
-        nu (np.ndarray): central frequency at which the observation is performed [Hz].
+        f (np.ndarray): central frequency at which the observation is performed [Hz].
 
     Returns:
         (np.ndarray): measured sky temperature in [K] as a function of the galactic coordinates at frequency nu.
@@ -164,9 +164,9 @@ def sky_temperature(
 
     # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6 (see Lawson et al. 1987,
     # Johnston et al. 1992).
-    T_sky_nu = T_sky_400 * (408.0e6 / nu) ** 2.6
+    T_sky_f = T_sky_400 * (408.0e6 / f) ** 2.6
 
-    return T_sky_nu
+    return T_sky_f
 
 
 class SurveyRadio:
@@ -200,7 +200,7 @@ class SurveyRadio:
         self.t_obs = self.parameters["t_obs"]
         self.t_samp = self.parameters["t_samp"]
         self.T_sys = self.parameters["T_sys"]
-        self.nu_central = self.parameters["nu_central"]
+        self.f_central = self.parameters["f_central"]
         self.BW = self.parameters["BW"]
         self.channel_width = self.parameters["channel_width"]
         self.n_pol = self.parameters["n_pol"]
@@ -359,7 +359,7 @@ class SurveyRadio:
 
         # Compute the effective pulse width.
         w_eff = effective_pulse_width(
-            w_int, DM, self.channel_width, self.nu_central, self.t_samp,
+            w_int, DM, self.channel_width, self.f_central, self.t_samp,
         )
         # Draw a random offset from the telescope beam center.
         offset2 = self.detection_offset(n)
@@ -367,7 +367,7 @@ class SurveyRadio:
         G = self.gain_gaussian_beam(offset2)
 
         # Compute the Sky temperature in the coordinates of each detection at the central frequency of the survey.
-        T_sky = sky_temperature(l_gal, b_gal, self.nu_central)
+        T_sky = sky_temperature(l_gal, b_gal, self.f_central)
 
         SN_detection = self.radiometer_equation(S_radio, G, w_eff, P, T_sky)
 

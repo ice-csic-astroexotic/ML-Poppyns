@@ -138,7 +138,8 @@ def los_intercept(
 
 def pdf_radio_luminosity(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     """
-    Draw random radio luminosities from a distribution that depends on the spin period and spin period derivative.
+    Draw random blolometric radio luminosities from a distribution that depends on the spin period
+     and spin period derivative.
     We assume a random log-normal spread for the normalization constant L_0.
 
     Args:
@@ -146,7 +147,7 @@ def pdf_radio_luminosity(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
         P_dot (np.ndarray): array of spin period derivatives of the pulsars in [s/s].
 
     Returns:
-        (np.ndarray): pulsar radio luminosity [erg s^(-1) Hz^(-1)] drawn from a log-normal distribution.
+        (np.ndarray): pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.
     """
 
     NS_number = len(P)
@@ -160,7 +161,14 @@ def pdf_radio_luminosity(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
 
 
 def erg_flux_radio(
-    L_radio: np.ndarray, d: np.ndarray, beam_frac: np.ndarray, w: np.ndarray
+    L_radio: np.ndarray,
+    d: np.ndarray,
+    beam_frac: np.ndarray,
+    w: np.ndarray,
+    f_survey: float,
+    spectral_index: float = -1.6,
+    f_min: float = 1.0e7,
+    f_max: float = 1.0e11,
 ) -> np.ndarray:
     """
     Compute the radio flux observed here on Earth for each pulsars in [erg s^(-1) cm^(-2) Hz^(-1)].
@@ -170,10 +178,22 @@ def erg_flux_radio(
         d (np.ndarray): distance to the pulsar in [kpc].
         beam_frac (np.ndarray): beam fraction.
         w (np.ndarray): intrinsic pulse width in [rad].
+        f_survey (float): frequency at which the radio survey is performed [Hz].
+        spectral_index (float): spectral index of the radio emission, assuming a power-law spectrum.
+        f_min (float): frequency lower limit of the radio emission spectrum [Hz].
+        f_max (float): frequency upper limit of the radio emission spectrum [Hz].
 
     Returns:
         (np.ndarray): observed pulsar radio flux in [erg s^(-1) cm^(-2) Hz^(-1)].
     """
+
+    # Compute the radio luminosity at the frequency of the survey assuming a power law spectrum.
+    L_radio_f = (
+        (spectral_index + 1)
+        * L_radio
+        / (f_max ** (spectral_index + 1) - f_min ** (spectral_index + 1))
+        * f_survey ** spectral_index
+    )
 
     # Convert distance from [kpc] to [cm].
     d_cm = d * const.KPC_TO_CM
@@ -181,6 +201,6 @@ def erg_flux_radio(
     # Compute the duty cycle.
     duty_cycle = w / (2.0 * np.pi)
 
-    S_radio = L_radio / (4.0 * np.pi * beam_frac * d_cm ** 2) * duty_cycle
+    S_radio_f = L_radio_f / (4.0 * np.pi * beam_frac * d_cm ** 2) * duty_cycle
 
-    return S_radio
+    return S_radio_f

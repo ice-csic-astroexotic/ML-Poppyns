@@ -155,10 +155,10 @@ cfg["magrot_time_step_log10"] = 1e-2
 cfg["r_em"] = 3.0e7
 
 # Mean and standard deviation for the log-normally distributed radio luminosity in [erg s^(-1) Hz^(-1)].
-cfg["L_radio_log10_mean"] = 26.0
+cfg["L_radio_log10_mean"] = 31.0
 cfg["L_radio_log10_sigma"] = 0.9
-cfg["epsilon_P"] = -1.5
-cfg["epsilon_Pdot"] = 0.5
+cfg["epsilon_P"] = -3.0 / 10.0
+cfg["epsilon_Pdot"] = 1.0 / 10.0
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["ed_model"] = "ymw16"

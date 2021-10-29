@@ -391,7 +391,11 @@ def simulate_population(args) -> None:
 
                 # Computing the radio flux observed on Earth.
                 S_radio = er.erg_flux_radio(
-                    L_radio, dist_d, beam_frac_d, w_intrinsic,
+                    L_radio,
+                    dist_d,
+                    beam_frac_d,
+                    w_intrinsic,
+                    f_survey=survey_PMPS.f_central,
                 )
                 # Convert Radio flux in Jy.
                 S_radio_Jy = S_radio / const.JY_TO_ERG
@@ -545,8 +549,8 @@ def simulate_population(args) -> None:
                 "L_radio",
                 "S_radio",
                 "w_int",
-                "survey_PMPS",
-                "survey_SMPS",
+                "detected_radio_PMPS",
+                "detected_radio_SMPS",
             ]
             units_final = [
                 "[yr]",

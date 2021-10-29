@@ -43,7 +43,7 @@ def test_case_1():
         "w_int": np.array([1.0e-3, 1.0e-4]),
         "DM": np.array([100, 1000]),
         "tau_sc": np.array([1.0e-4, 1.0e-2]),
-        "nu": 1.4e9,
+        "f": 1.4e9,
         "channel_width": 3.0e6,
         "t_samp": 250e-6,
         "tau_DM_expected": np.array([0.00090717, 0.00907173]),
@@ -71,7 +71,7 @@ def test_smearing_in_channel(test_case_1):
     """
 
     tau_DM_out = sr.smearing_in_channel(
-        test_case_1["DM"], test_case_1["channel_width"], test_case_1["nu"]
+        test_case_1["DM"], test_case_1["channel_width"], test_case_1["f"]
     )
 
     assert np.isclose(
@@ -94,7 +94,7 @@ def test_effective_pulse_width(monkeypatch, test_case_1):
         test_case_1["w_int"],
         test_case_1["DM"],
         test_case_1["channel_width"],
-        test_case_1["nu"],
+        test_case_1["f"],
         test_case_1["t_samp"],
     )
 
@@ -109,7 +109,7 @@ def test_sky_temperature_approx(test_case_1):
     """
 
     T_sky_out = sr.sky_temperature_approx(
-        test_case_1["l_gal"], test_case_1["b_gal"], test_case_1["nu"]
+        test_case_1["l_gal"], test_case_1["b_gal"], test_case_1["f"]
     )
 
     assert np.isclose(
