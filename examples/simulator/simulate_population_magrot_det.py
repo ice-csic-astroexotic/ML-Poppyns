@@ -151,6 +151,7 @@ def simulate_population(args) -> None:
         ):
 
             # ===================== INITIALIZE THE POPULATION ========================
+
             # Load the file containing the dynamically evolved population parameters.
             df_dyn = pd.read_pickle(f"{dyn_path}", compression="gzip")
 
@@ -334,7 +335,10 @@ def simulate_population(args) -> None:
                     P_d,
                     NS_magrot_evol_dict,
                 ) = mre.magneto_rotational_evolution(
-                    B_initial, chi_initial, P_initial, age_d,
+                    B_initial,
+                    chi_initial,
+                    P_initial,
+                    age_d,
                 )
 
                 # ===================== RADIO EMISSION ========================
@@ -353,7 +357,9 @@ def simulate_population(args) -> None:
 
                 # Determining if the pulsar's radio beam intercepts our line of sight.
                 intercepted_radio = er.los_intercept(
-                    chi_d, rho_beam, los_rand,
+                    chi_d,
+                    rho_beam,
+                    los_rand,
                 )
 
                 # Select only neutron stars that points at us.
@@ -377,15 +383,24 @@ def simulate_population(args) -> None:
 
                 # Determining the final period derivative.
                 period_derivative_vect = np.vectorize(pdv.period_derivative)
-                P_dot_d = period_derivative_vect(B_d, chi_d, P_d,)
+                P_dot_d = period_derivative_vect(
+                    B_d,
+                    chi_d,
+                    P_d,
+                )
 
                 # Determining the luminosity in different electromagnetic bands.
                 L_radio = er.pdf_radio_luminosity(
-                    P_d, P_dot_d / const.YR_TO_S,
+                    P_d,
+                    P_dot_d / const.YR_TO_S,
                 )
 
                 # Computing the intrinsic pulse width of the radio pulse.
-                w_intrinsic = er.pulse_width(chi_d, rho_beam_d, los_rand_d,)
+                w_intrinsic = er.pulse_width(
+                    chi_d,
+                    rho_beam_d,
+                    los_rand_d,
+                )
                 # Convert pulse width from [rad] to [s].
                 w_intrinsic_s = w_intrinsic * P_d / (2.0 * np.pi)
 
@@ -401,7 +416,12 @@ def simulate_population(args) -> None:
                 S_radio_Jy = S_radio / const.JY_TO_ERG
 
                 # Computing the DM.
-                DM = edm.compute_DM(l_d, b_d, dist_d, cfg["ed_model"],)
+                DM = edm.compute_DM(
+                    l_d,
+                    b_d,
+                    dist_d,
+                    cfg["ed_model"],
+                )
 
                 # ===================== RADIO DETECTION ========================
 
