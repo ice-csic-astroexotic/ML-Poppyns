@@ -56,9 +56,10 @@ def test_case_1():
         "coverage_expected": np.array([True, False], dtype=bool),
         "offset2": np.array([5, 10]),
         "G_expected": np.array([0.59633638, 0.55565169]),
-        "S_radio": np.array([0.01, 100]),
+        "S_radio_int": np.array([0.01, 100]),
+        "S_radio_obs_expected": np.array([0.00726343, 0.74049939]),
         "P": np.array([0.1, 0.01]),
-        "SN_expected": np.array([1321.36366827, 0.0]),
+        "SN_expected": np.array([959.7632509, 0.0]),
         "detected_expected": np.array([True, False], dtype=bool),
     }
 
@@ -100,6 +101,25 @@ def test_effective_pulse_width(monkeypatch, test_case_1):
 
     assert np.isclose(
         test_case_1["w_eff_expected"], w_eff_out, rtol=TOL, atol=1.0e-7
+    ).all()
+
+
+def test_flux_radio_obs(test_case_1):
+    """
+    Verifying that the observed radio flux of a pulsar is correctly evaluated.
+    """
+
+    S_radio_obs_out = sr.flux_radio_obs(
+        test_case_1["S_radio_int"],
+        test_case_1["w_int"],
+        test_case_1["w_eff_expected"],
+    )
+
+    assert np.isclose(
+        test_case_1["S_radio_obs_expected"],
+        S_radio_obs_out,
+        rtol=TOL,
+        atol=1.0e-35,
     ).all()
 
 
@@ -150,7 +170,7 @@ def test_radiometer_equation_PMPS(test_case_1):
     """
 
     SN_out = PMPS.radiometer_equation(
-        test_case_1["S_radio"],
+        test_case_1["S_radio_obs_expected"],
         test_case_1["G_expected"],
         test_case_1["w_eff_expected"],
         test_case_1["P"],
@@ -162,17 +182,22 @@ def test_radiometer_equation_PMPS(test_case_1):
     ).all()
 
 
-def test_detect_PMPS(test_case_1):
+def test_detect_PMPS(monkeypatch, test_case_1):
     """
     Verifying that the pulsars are correctly detected by the survey.
     """
 
+    # Mocking the sky temperature.
+    def mock_T_sky(*args, **kwargs):
+        return test_case_1["T_sky_expected"]
+
+    monkeypatch.setattr(sr, "sky_temperature", mock_T_sky)
+
     detected_out = PMPS.detect(
-        test_case_1["S_radio"],
-        test_case_1["DM"],
+        test_case_1["S_radio_obs_expected"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],
-        test_case_1["w_int"],
+        test_case_1["w_eff_expected"],
         test_case_1["P"],
     )
 

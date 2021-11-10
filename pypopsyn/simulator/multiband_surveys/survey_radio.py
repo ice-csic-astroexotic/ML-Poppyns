@@ -100,6 +100,36 @@ def effective_pulse_width(
     return w_eff
 
 
+def flux_radio_obs(
+    S_radio_f: np.ndarray, w_int: np.ndarray, w_eff: np.ndarray,
+) -> np.ndarray:
+    """
+    Compute the mean flux density received by the telescope after taking into account that the pulse have been
+    broadened by the propagation in the interstellar medium.
+    We assume that the total fluence = S_radio x w_int is conserved as the pulse propagates in the
+    interstellar medium. Since the pulse is broadened as it propagates, the flux received on Earth is given by
+    S_radio_obs = fluence / w_eff, therefore S_radio_obs < S_radio.
+    Also, since in our simulation we are assuming a simple squared pulse shape, the mean flux density is equal
+    to the peak flux density.
+
+    Args:
+        S_radio_f (np.ndarray): intrinsic pulsar radio flux in [Jy].
+        w_int (np.ndarray): intrinsic pulse width in [rad].
+        w_eff (np.ndarray): effective pulse width in [rad].
+
+    Returns:
+        (np.ndarray): observed pulsar radio flux in [Jy].
+    """
+
+    # Compute the total fluence.
+    fluence_f = S_radio_f * w_int
+
+    # Compute the observed radio flux in [Jy].
+    S_radio_f_obs = fluence_f / w_eff
+
+    return S_radio_f_obs
+
+
 def sky_temperature_approx(
     l_gal: np.ndarray, b_gal: np.ndarray, f: float
 ) -> np.ndarray:
@@ -177,8 +207,6 @@ class SurveyRadio:
 
     def __import_parameters(self, parameters_path):
         """
-        Import dataset statistics for normalization and standardization.
-
         This routine import the parameters of a radio survey.
 
         Args:
@@ -195,6 +223,22 @@ class SurveyRadio:
             self.parameters = json.load(read_file)
 
         # Save the parameters.
+        # deg_factor (float): degradation factor.
+        # G0 (float): gain at the beam center [KJy ^ (-1)].
+        # t_obs (float): integration time [s].
+        # t_samp (float): sampling time [s].
+        # T_sys (float): system temperature [K].
+        # nu_central (float): central frequency of the bandwidth [Hz].
+        # BW (float): frequency bandwidth [Hz].
+        # channel_width (float): width of a single frequency channel [Hz].
+        # n_pol (float): number of polarizations.
+        # FWHM (float): FWHM of the beam[arcmin].
+        # SN_th (float): threshold signal to noise ratio.
+        # RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
+        # DEC_range(np.ndarray): range of the sky covered by the survey in DEC [deg].
+        # l_range(np.ndarray): range of the sky covered by the survey in galactic longitude l[deg].
+        # b_range_abs(np.ndarray): absolute value of the range of the sky covered by the survey in galactic latitude
+        # b [deg].
         self.deg_factor = self.parameters["deg_factor"]
         self.G0 = self.parameters["G0"]
         self.t_obs = self.parameters["t_obs"]
@@ -263,7 +307,8 @@ class SurveyRadio:
     def detection_offset(self, n_detection: int) -> np.ndarray:
         """
         Generating a random offset with respect to the beam center for the detections.
-        A Gaussian beam pattern is assumed (see Lorimer et al. 1993).
+        A Gaussian beam pattern is assumed to account for sensitivity decay for off-center detections.
+        See Lorimer et al. (1993) and paragraph following eq. (29) in Bates et al. (2014).
 
         Args:
             n_detection (int): number of detections to simulate.
@@ -293,19 +338,21 @@ class SurveyRadio:
 
     def radiometer_equation(
         self,
-        S_radio: np.ndarray,
+        S_radio_obs: np.ndarray,
         G: np.ndarray,
         w_eff: np.ndarray,
         P: np.ndarray,
         T_sky: np.ndarray,
     ) -> np.ndarray:
         """
-        Antenna equation used to compute the signal to noise ratio of each pulsars given the radio flux
+        Radiometer equation used to compute the signal to noise ratio of each pulsars given the observed radio flux
         at a given frequency nu, the effective pulse width, the spin period and the survey parameters
         (see eq. A1.22 in Lorimer & Kramer 2005).
+        We are assuming a square pulse shape for simplicity with height equal to the observed flux and width equal
+        to the effective width.
 
         Args:
-            S_radio (np.ndarray): radio flux in [Jy].
+            S_radio_obs (np.ndarray): observed radio flux density in [Jy].
             G (np.ndarray): gain of the telescope for the given detection in [K Jy^(-1)].
             w_eff (np.ndarray): effective pulse width in [s].
             P (np.ndarray): spin period in [s].
@@ -314,14 +361,14 @@ class SurveyRadio:
         Returns:
             (np.ndarray): signal to noise ratio of the detection.
         """
-        SN = np.zeros(len(S_radio))
+        SN = np.zeros(len(S_radio_obs))
 
         # If the effective pulse width is larger than the spin period, then the pulsar is not detected.
         cond = w_eff < P
 
         # Compute the SN of each detection using the antenna equation.
         SN[cond] = (
-            S_radio[cond]
+            S_radio_obs[cond]
             * G[cond]
             * np.sqrt(self.n_pol * self.t_obs * self.BW)
             * np.sqrt((P[cond] - w_eff[cond]) / w_eff[cond])
@@ -332,11 +379,10 @@ class SurveyRadio:
 
     def detect(
         self,
-        S_radio: np.ndarray,
-        DM: np.ndarray,
+        S_radio_obs: np.ndarray,
         l_gal: np.ndarray,
         b_gal: np.ndarray,
-        w_int: np.ndarray,
+        w_eff: np.ndarray,
         P: np.ndarray,
     ) -> np.ndarray:
         """
@@ -344,23 +390,19 @@ class SurveyRadio:
         then the pulsar is detected.
 
         Args:
-            S_radio (np.ndarray): total radio flux from a source in Jy.
-            DM (np.ndarray): dispersion measure in [pc cm^-3].
+            S_radio_obs (np.ndarray): observed radio flux density from a source in [Jy].
             l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
-            w_int (np.ndarray): intrinsic pulse width in [s].
+            w_eff (np.ndarray): effective pulse width in [s].
             P (np.ndarray): spin period in [s].
 
         Returns:
-            (np.ndarray): array of boolean variables: true if the pulsar is detected, false if not.
+            (np.ndarray): array of boolean variables: true if the pulsar is detected, false if
+            not.
         """
         # Store the total number of sources.
-        n = len(S_radio)
+        n = len(S_radio_obs)
 
-        # Compute the effective pulse width.
-        w_eff = effective_pulse_width(
-            w_int, DM, self.channel_width, self.f_central, self.t_samp,
-        )
         # Draw a random offset from the telescope beam center.
         offset2 = self.detection_offset(n)
         # Compute the gain corresponding to the offset detections.
@@ -369,7 +411,9 @@ class SurveyRadio:
         # Compute the Sky temperature in the coordinates of each detection at the central frequency of the survey.
         T_sky = sky_temperature(l_gal, b_gal, self.f_central)
 
-        SN_detection = self.radiometer_equation(S_radio, G, w_eff, P, T_sky)
+        SN_detection = self.radiometer_equation(
+            S_radio_obs, G, w_eff, P, T_sky
+        )
 
         detected = SN_detection > self.SN_th
 

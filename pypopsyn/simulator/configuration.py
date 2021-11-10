@@ -123,12 +123,12 @@ cfg["NS_mass"] = 1.4 * const.M_SUN
 # Field, misalignment angle and period evolution parameters for a crust-based model.
 
 # Mean and standard deviation for the Gaussian distributed initial periods in [s].
-cfg["P_initial_mean"] = 0.22
-cfg["P_initial_sigma"] = 0.42
+cfg["P_initial_mean"] = 0.3
+cfg["P_initial_sigma"] = 0.2
 
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
-cfg["B_initial_log10_mean"] = 13.20
-cfg["B_initial_log10_sigma"] = 0.62
+cfg["B_initial_log10_mean"] = 13.25
+cfg["B_initial_log10_sigma"] = 0.75
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
@@ -151,14 +151,13 @@ cfg["magrot_time_step_log10"] = 1e-2
 
 # Radio emission model parameters.
 
-# Distance from the center of the star where the radio emission is supposed to be generated [cm].
+# Distance from the center of the star where the radio emission is supposed to be generated in [cm].
 cfg["r_em"] = 3.0e7
 
 # Mean and standard deviation for the log-normally distributed radio luminosity in [erg s^(-1) Hz^(-1)].
-cfg["L_radio_log10_mean"] = 31.0
-cfg["L_radio_log10_sigma"] = 0.9
-cfg["epsilon_P"] = -3.0 / 10.0
-cfg["epsilon_Pdot"] = 1.0 / 10.0
+cfg["L_radio_log10_mean"] = 33.0
+cfg["L_radio_log10_sigma"] = 0.8
+cfg["epsilon_L"] = 0.44
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["ed_model"] = "ymw16"

@@ -149,6 +149,9 @@ def simulate_population(args) -> None:
             # Generate an initial neutron star population.
             NS_population_initial = ipop.InitialNeutronStarPopulation()
 
+            # Generate an array of indices.
+            NS_idx = np.arange(cfg["NS_number"], dtype=int)
+
             # Generating ages.
             log.info("Randomizing population age...")
             age = NS_population_initial.age()
@@ -225,8 +228,9 @@ def simulate_population(args) -> None:
             # Determining the initial period derivatives.
             log.info("Computing initial period derivatives...")
             period_derivative_vect = np.vectorize(pdv.period_derivative)
-            P_dot_initial = period_derivative_vect(
-                B_initial, chi_initial, P_initial
+            P_dot_initial = (
+                period_derivative_vect(B_initial, chi_initial, P_initial)
+                / const.YR_TO_S
             )
 
             timer.checkpoint("[Initial period derivatives]")
@@ -261,7 +265,7 @@ def simulate_population(args) -> None:
                 "[G]",
                 "[rad]",
                 "[s]",
-                "[s yr^-1]",
+                "[s s^-1]",
             ]
 
             header_initial = pd.MultiIndex.from_arrays(
@@ -465,7 +469,10 @@ def simulate_population(args) -> None:
 
             # Determining the final period derivatives.
             log.info("Computing final period derivatives...")
-            P_dot_final = period_derivative_vect(B_final, chi_final, P_final,)
+            P_dot_final = (
+                period_derivative_vect(B_final, chi_final, P_final,)
+                / const.YR_TO_S
+            )
 
             timer.checkpoint("[Final period derivatives]")
 
@@ -481,15 +488,13 @@ def simulate_population(args) -> None:
             # Determining the luminosity in different electromagnetic bands.
             log.info("Computing radio fluxes and intrinsic pulse widths...")
 
-            L_radio = er.pdf_radio_luminosity(
-                P_final, P_dot_final / const.YR_TO_S,
-            )
+            L_radio_bol = er.pdf_luminosity_radio(P_final, P_dot_final,)
 
             # Determining the radio beam angular aperture.
             rho_beam = er.beam_aperture(P_final, cfg["r_em"])
 
-            # Determining the fraction of solid angle spanned by the two radio beams in one complete stellar rotation.
-            beam_frac = er.beam_fraction(chi_final, rho_beam)
+            # Determining the solid angle covered by the two radio beams.
+            solid_angle_beam = er.solid_angle_radio_beams(rho_beam)
 
             # Drawing a random angular intercept for the line of sight.
             # Note that since we assume symmetry between the northern and southern hemisphere of the star
@@ -510,26 +515,22 @@ def simulate_population(args) -> None:
             )
 
             # Computing the intrinsic pulse width of the radio pulse.
-            w_intrinsic = np.zeros(cfg["NS_number"])
-            w_intrinsic[intercepted_radio] = er.pulse_width(
+            w_int = np.zeros(cfg["NS_number"])
+            w_int[intercepted_radio] = er.pulse_width(
                 chi_final[intercepted_radio],
                 rho_beam[intercepted_radio],
                 los_rand[intercepted_radio],
             )
             # Convert pulse width from [rad] to [s].
-            w_intrinsic_s = w_intrinsic * P_final / (2.0 * np.pi)
+            w_int_s = w_int * P_final / (2.0 * np.pi)
 
-            # Computing the radio flux observed on Earth.
-            S_radio = np.zeros(cfg["NS_number"])
-            S_radio[intercepted_radio] = er.erg_flux_radio(
-                L_radio[intercepted_radio],
+            # Computing the intrinsic bolometric radio flux.
+            S_radio_bol = np.zeros(cfg["NS_number"])
+            S_radio_bol[intercepted_radio] = er.flux_radio(
+                L_radio_bol[intercepted_radio],
                 sun_dist_icrs[intercepted_radio],
-                beam_frac[intercepted_radio],
-                w_intrinsic[intercepted_radio],
-                f_survey=survey_PMPS.f_central,
+                solid_angle_beam[intercepted_radio],
             )
-            # Convert radio flux in [Jy].
-            S_radio_Jy = S_radio / const.JY_TO_ERG
 
             timer.checkpoint("[Radio emission]")
 
@@ -550,7 +551,7 @@ def simulate_population(args) -> None:
                 ra_final, dec_final, l_final, b_final
             )
 
-            # Determine which stars fall in the sky region covered by any of the considered radio surveys.
+            # Determine which stars fall into the sky region covered by any of the considered radio surveys.
             coverage_tot = coverage_PMPS | coverage_SMPS
 
             fraction_coverage = (
@@ -564,7 +565,7 @@ def simulate_population(args) -> None:
 
             detectable_radio = intercepted_radio & coverage_tot
 
-            # Computing the DM for the stars that falls in the surveys' sky coverage and whose
+            # Computing the DM for the stars that fall into the surveys' sky coverage and whose
             # radio beam intercepts our line of sight.
             DM = np.zeros(cfg["NS_number"])
             DM[detectable_radio] = edm.compute_DM(
@@ -576,6 +577,34 @@ def simulate_population(args) -> None:
 
             timer.checkpoint("[DM computation]")
 
+            # Since PMPS and SMPS surveys share the same parameters we compute the following quantities only
+            # by considering the PMPS parameters. If other surveys with different parameters are to be added
+            # we would need to compute the following quantities for each survey.
+
+            # Computing the intrinsic radio flux density in [Jy].
+            S_radio_f = np.zeros(cfg["NS_number"])
+            S_radio_f[detectable_radio] = er.flux_density_radio(
+                S_radio_bol[detectable_radio], f=survey_PMPS.f_central,
+            )
+
+            # Compute the effective pulse width in [s].
+            w_eff = np.zeros(cfg["NS_number"])
+            w_eff[detectable_radio] = sr.effective_pulse_width(
+                w_int_s[detectable_radio],
+                DM[detectable_radio],
+                survey_PMPS.channel_width,
+                survey_PMPS.f_central,
+                survey_PMPS.t_samp,
+            )
+
+            # Compute the observed radio flux in [Jy].
+            S_radio_obs = np.zeros(cfg["NS_number"])
+            S_radio_obs[detectable_radio] = sr.flux_radio_obs(
+                S_radio_f[detectable_radio],
+                w_int_s[detectable_radio],
+                w_eff[detectable_radio],
+            )
+
             # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
 
@@ -583,11 +612,10 @@ def simulate_population(args) -> None:
             detectable_radio_PMPS = intercepted_radio & coverage_PMPS
 
             detected_radio_PMPS[detectable_radio_PMPS] = survey_PMPS.detect(
-                S_radio_Jy[detectable_radio_PMPS],
-                DM[detectable_radio_PMPS],
+                S_radio_obs[detectable_radio_PMPS],
                 l_final[detectable_radio_PMPS],
                 b_final[detectable_radio_PMPS],
-                w_intrinsic_s[detectable_radio_PMPS],
+                w_eff[detectable_radio_PMPS],
                 P_final[detectable_radio_PMPS],
             )
 
@@ -605,11 +633,10 @@ def simulate_population(args) -> None:
             detectable_radio_SMPS = intercepted_radio & coverage_SMPS
 
             detected_radio_SMPS[detectable_radio_SMPS] = survey_SMPS.detect(
-                S_radio_Jy[detectable_radio_SMPS],
-                DM[detectable_radio_SMPS],
+                S_radio_obs[detectable_radio_SMPS],
                 l_final[detectable_radio_SMPS],
                 b_final[detectable_radio_SMPS],
-                w_intrinsic_s[detectable_radio_SMPS],
+                w_eff[detectable_radio_SMPS],
                 P_final[detectable_radio_SMPS],
             )
 
@@ -622,10 +649,15 @@ def simulate_population(args) -> None:
 
             timer.checkpoint("[Radio surveys detection]")
 
+            NS_idx_PMPS = NS_idx[detected_radio_PMPS]
+            NS_idx_SMPS = NS_idx[detected_radio_SMPS]
+
         # ===================== EXPORT OUTPUT ========================
 
-        # Adding the evolution output to a data frame for export.
+        # Adding the final output to a data frame for export.
         log.info("Creating data frame for exporting...")
+
+        # Exporting the final population file containing the intrinsic properties of the entire population.
 
         # Generating two header lines and merging them using MultiIndex.
         parameters_final = [
@@ -637,7 +669,6 @@ def simulate_population(args) -> None:
             "DEC",
             "l",
             "b",
-            "DM",
             "d",
             "v_r",
             "v_phi",
@@ -649,12 +680,10 @@ def simulate_population(args) -> None:
             "chi",
             "P",
             "P_dot",
-            "L_radio",
-            "S_radio",
+            "L_radio_bol",
+            "S_radio_bol",
             "w_int",
             "intercepted_radio",
-            "detected_radio_PMPS",
-            "detected_radio_SMPS",
         ]
         units_final = [
             "[yr]",
@@ -665,7 +694,6 @@ def simulate_population(args) -> None:
             "[deg]",
             "[deg]",
             "[deg]",
-            "[pc cm^-3]",
             "[kpc]",
             "[km s^-1]",
             "[km s^-1]",
@@ -676,12 +704,10 @@ def simulate_population(args) -> None:
             "[G]",
             "[rad]",
             "[s]",
-            "[s yr^-1]",
-            "[erg s^-1 Hz^-1]",
-            "[Jy]",
+            "[s s^-1]",
+            "[erg s^-1]",
+            "[erg s^-1 cm^(-2)]",
             "[s]",
-            " ",
-            " ",
             " ",
         ]
         header_final = pd.MultiIndex.from_arrays(
@@ -699,7 +725,6 @@ def simulate_population(args) -> None:
                     dec_final,
                     l_final,
                     b_final,
-                    DM,
                     sun_dist_icrs,
                     v_r_final,
                     v_phi_final,
@@ -711,12 +736,10 @@ def simulate_population(args) -> None:
                     chi_final,
                     P_final,
                     P_dot_final,
-                    L_radio,
-                    S_radio_Jy,
-                    w_intrinsic_s,
+                    L_radio_bol,
+                    S_radio_bol,
+                    w_int_s,
                     intercepted_radio,
-                    detected_radio_PMPS,
-                    detected_radio_SMPS,
                 ]
             ).T,
             columns=header_final,
@@ -730,6 +753,138 @@ def simulate_population(args) -> None:
 
         log.info(
             f"Output of the evolved population generated in {os.getcwd()}/{final_output_path}"
+        )
+
+        # Exporting the population file containing the observed properties of neutron stars detected by PMPS.
+
+        # Generating two header lines and merging them using MultiIndex.
+        parameters_PMPS = [
+            "NS_idx",
+            "RA",
+            "DEC",
+            "l",
+            "b",
+            "d",
+            "DM",
+            "pm_RA",
+            "pm_DEC",
+            "P",
+            "P_dot",
+            "S_radio_obs",
+            "w_eff",
+        ]
+        units_PMPS = [
+            " ",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[kpc]",
+            "[pc cm^-3]",
+            "[mas yr^-1]",
+            "[mas yr^-1]",
+            "[s]",
+            "[s s^-1]",
+            "[Jy]",
+            "[s]",
+        ]
+        header_PMPS = pd.MultiIndex.from_arrays([parameters_PMPS, units_PMPS])
+
+        df_PMPS = pd.DataFrame(
+            data=np.array(
+                [
+                    NS_idx_PMPS,
+                    ra_final[NS_idx_PMPS],
+                    dec_final[NS_idx_PMPS],
+                    l_final[NS_idx_PMPS],
+                    b_final[NS_idx_PMPS],
+                    sun_dist_icrs[NS_idx_PMPS],
+                    DM[NS_idx_PMPS],
+                    pm_ra_final[NS_idx_PMPS],
+                    pm_dec_final[NS_idx_PMPS],
+                    P_final[NS_idx_PMPS],
+                    P_dot_final[NS_idx_PMPS],
+                    S_radio_obs[NS_idx_PMPS],
+                    w_eff[NS_idx_PMPS],
+                ]
+            ).T,
+            columns=header_PMPS,
+        )
+
+        # Save the data frame as a compressed binary file.
+        PMPS_output_path = pathlib.Path().joinpath(
+            output_path, "survey_PMPS_results.pkl.gz"
+        )
+        df_PMPS.to_pickle(PMPS_output_path, compression="gzip")
+
+        log.info(
+            f"Output of the PMPS survey generated in {os.getcwd()}/{PMPS_output_path}"
+        )
+
+        # Exporting the population file containing the observed properties of neutron stars detected by SMPS.
+
+        # Generating two header lines and merging them using MultiIndex.
+        parameters_SMPS = [
+            "NS_idx",
+            "RA",
+            "DEC",
+            "l",
+            "b",
+            "d",
+            "DM",
+            "pm_RA",
+            "pm_DEC",
+            "P",
+            "P_dot",
+            "S_radio_obs",
+            "w_eff",
+        ]
+        units_SMPS = [
+            " ",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[kpc]",
+            "[pc cm^-3]",
+            "[mas yr^-1]",
+            "[mas yr^-1]",
+            "[s]",
+            "[s s^-1]",
+            "[Jy]",
+            "[s]",
+        ]
+        header_SMPS = pd.MultiIndex.from_arrays([parameters_SMPS, units_SMPS])
+
+        df_SMPS = pd.DataFrame(
+            data=np.array(
+                [
+                    NS_idx_SMPS,
+                    ra_final[NS_idx_SMPS],
+                    dec_final[NS_idx_SMPS],
+                    l_final[NS_idx_SMPS],
+                    b_final[NS_idx_SMPS],
+                    sun_dist_icrs[NS_idx_SMPS],
+                    DM[NS_idx_SMPS],
+                    pm_ra_final[NS_idx_SMPS],
+                    pm_dec_final[NS_idx_SMPS],
+                    P_final[NS_idx_SMPS],
+                    P_dot_final[NS_idx_SMPS],
+                    S_radio_obs[NS_idx_SMPS],
+                    w_eff[NS_idx_SMPS],
+                ]
+            ).T,
+            columns=header_SMPS,
+        )
+
+        # Save the data frame as a compressed binary file.
+        SMPS_output_path = pathlib.Path().joinpath(
+            output_path, "survey_SMPS_results.pkl.gz"
+        )
+        df_SMPS.to_pickle(SMPS_output_path, compression="gzip")
+
+        log.info(
+            f"Output of the SMPS survey generated in {os.getcwd()}/{SMPS_output_path}"
         )
 
         timer.checkpoint("[Export]")

@@ -1,84 +1,84 @@
 {
   "[TotalSimulation]": {
-    "time": 294.6035189628601
+    "time": 304.6432149410248
   },
   "[InitialPopulation]": {
-    "time": 5.893335580825806,
+    "time": 5.680013179779053,
     "[Initial position and velocity]": {
-      "elapsed_time": 1.4180290699005127,
-      "cumulative_time": 1.4180290699005127
+      "elapsed_time": 1.4240822792053223,
+      "cumulative_time": 1.4240822792053223
     },
     "[Initial energy]": {
-      "elapsed_time": 1.7596790790557861,
-      "cumulative_time": 3.177708148956299
+      "elapsed_time": 1.7694556713104248,
+      "cumulative_time": 3.193537950515747
     },
     "[Initial angular momentum]": {
-      "elapsed_time": 0.32992053031921387,
-      "cumulative_time": 3.5076286792755127
+      "elapsed_time": 0.3151102066040039,
+      "cumulative_time": 3.508648157119751
     },
     "[Initial field strengths, misalignment angles and periods]": {
-      "elapsed_time": 1.2908549308776855,
-      "cumulative_time": 4.798483610153198
+      "elapsed_time": 1.0038402080535889,
+      "cumulative_time": 4.51248836517334
     },
     "[Initial period derivatives]": {
-      "elapsed_time": 0.07748007774353027,
-      "cumulative_time": 4.8759636878967285
+      "elapsed_time": 0.08070993423461914,
+      "cumulative_time": 4.593198299407959
     },
     "[Export]": {
-      "elapsed_time": 1.016833782196045,
-      "cumulative_time": 5.892797470092773
+      "elapsed_time": 1.086371660232544,
+      "cumulative_time": 5.679569959640503
     }
   },
   "[DynamicalEvolution]": {
-    "time": 109.12446665763855,
+    "time": 105.53921246528625,
     "[Dynamical evolution]": {
-      "elapsed_time": 109.10696005821228,
-      "cumulative_time": 109.10696005821228
+      "elapsed_time": 105.52323341369629,
+      "cumulative_time": 105.52323341369629
     },
     "[Final energy]": {
-      "elapsed_time": 0.015291213989257812,
-      "cumulative_time": 109.12225127220154
+      "elapsed_time": 0.013404607772827148,
+      "cumulative_time": 105.53663802146912
     },
     "[Final angular momentum]": {
-      "elapsed_time": 0.0018575191497802734,
-      "cumulative_time": 109.12410879135132
+      "elapsed_time": 0.002180337905883789,
+      "cumulative_time": 105.538818359375
     }
   },
   "[MagnetoRotationalEvolution]": {
-    "time": 155.94667673110962,
+    "time": 172.43434286117554,
     "[Final field strengths, misalignment angles and periods]": {
-      "elapsed_time": 155.7981994152069,
-      "cumulative_time": 155.7981994152069
+      "elapsed_time": 172.3350145816803,
+      "cumulative_time": 172.3350145816803
     },
     "[Final period derivatives]": {
-      "elapsed_time": 0.1479198932647705,
-      "cumulative_time": 155.94611930847168
+      "elapsed_time": 0.09885597229003906,
+      "cumulative_time": 172.43387055397034
     }
   },
   "[RadioEmission]": {
-    "time": 0.1289656162261963,
+    "time": 0.1115865707397461,
     "[Radio emission]": {
-      "elapsed_time": 0.12839889526367188,
-      "cumulative_time": 0.12839889526367188
+      "elapsed_time": 0.11107492446899414,
+      "cumulative_time": 0.11107492446899414
     }
   },
   "[RadioDetection]": {
-    "time": 21.061741828918457,
-    "[total sky coverage]": {
-      "elapsed_time": 0.0050122737884521484,
-      "cumulative_time": 0.0050122737884521484
+    "time": 18.422343969345093,
+    "[Total sky coverage]": {
+      "elapsed_time": 0.00545954704284668,
+      "cumulative_time": 0.00545954704284668
     },
     "[DM computation]": {
-      "elapsed_time": 21.010531187057495,
-      "cumulative_time": 21.015543460845947
+      "elapsed_time": 18.372825384140015,
+      "cumulative_time": 18.37828493118286
     },
     "[Radio surveys detection]": {
-      "elapsed_time": 0.04572296142578125,
-      "cumulative_time": 21.06126642227173
+      "elapsed_time": 0.04336881637573242,
+      "cumulative_time": 18.421653747558594
     },
     "[Export]": {
-      "elapsed_time": 2.439558506011963,
-      "cumulative_time": 23.50130033493042
+      "elapsed_time": 2.4476068019866943,
+      "cumulative_time": 20.869950771331787
     }
   }
 }

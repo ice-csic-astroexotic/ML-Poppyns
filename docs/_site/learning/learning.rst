@@ -48,7 +48,7 @@ Loader parent class
 
 Multichannel array loader
 *************************
-.. automodule:: pypopsyn.learning.loaders.loader_multichannel_array2
+.. automodule:: pypopsyn.learning.loaders.loader_multichannel_array_stat
   :members: loader_multichannel_array
 
 Multichannel image loader

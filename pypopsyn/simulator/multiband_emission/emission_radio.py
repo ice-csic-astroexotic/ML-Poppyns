@@ -90,6 +90,22 @@ def pulse_width(
     return width
 
 
+def solid_angle_radio_beams(rho_b: np.ndarray) -> np.ndarray:
+    """
+    Total solid angle covered by the two radio beams as a function of the radio beam aperture.
+
+    Args:
+        rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
+
+    Returns:
+        (np.ndarray): Total solid angle covered by the radio beams.
+    """
+
+    solid_angle = 4 * np.pi * (1 - np.cos(rho_b))
+
+    return solid_angle
+
+
 def beam_fraction(chi: np.ndarray, rho_b: np.ndarray) -> np.ndarray:
     """
     Fraction of solid angle covered by the radio beam in an entire pulsar rotation
@@ -136,9 +152,9 @@ def los_intercept(
     return intercepted
 
 
-def pdf_radio_luminosity(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
+def pdf_luminosity_radio(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     """
-    Draw random blolometric radio luminosities from a distribution that depends on the spin period
+    Draw random bolometric radio luminosities from a distribution that depends on the spin period
      and spin period derivative.
     We assume a random log-normal spread for the normalization constant L_0.
 
@@ -155,52 +171,60 @@ def pdf_radio_luminosity(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     L_0 = 10 ** np.random.normal(
         cfg["L_radio_log10_mean"], cfg["L_radio_log10_sigma"], NS_number
     )
-    L_radio = L_0 * P ** cfg["epsilon_P"] * P_dot ** cfg["epsilon_Pdot"]
+    L_radio = L_0 * (P ** (-3) * P_dot) ** cfg["epsilon_L"]
 
     return L_radio
 
 
-def erg_flux_radio(
-    L_radio: np.ndarray,
-    d: np.ndarray,
-    beam_frac: np.ndarray,
-    w: np.ndarray,
-    f_survey: float,
+def flux_radio(
+    L_radio: np.ndarray, d: np.ndarray, solid_angle: np.ndarray,
+) -> np.ndarray:
+    """
+    Compute the intrinsic bolometric mean radio flux for each pulsars in [erg s^(-1) cm^(-2)].
+
+    Args:
+        L_radio (np.ndarray): pulsar bolometric radio luminosity in [erg s^(-1)].
+        d (np.ndarray): distance to the pulsar in [kpc].
+        solid_angle (np.ndarray): solid angle covered by the radio beams in [sterad].
+
+    Returns:
+        (np.ndarray): observed pulsar radio flux in [erg s^(-1) cm^(-2)].
+    """
+
+    # Convert distance from [kpc] to [cm].
+    d_cm = d * const.KPC_TO_CM
+
+    S_radio = L_radio / (solid_angle * d_cm ** 2)
+
+    return S_radio
+
+
+def flux_density_radio(
+    S_radio_bol: np.ndarray,
+    f: float,
     spectral_index: float = -1.6,
     f_min: float = 1.0e7,
     f_max: float = 1.0e11,
 ) -> np.ndarray:
     """
-    Compute the radio flux observed here on Earth for each pulsars in [erg s^(-1) cm^(-2) Hz^(-1)].
+    Compute the radio flux density at a given frequency f assuming a power law spectral shape for the radio emission.
 
     Args:
-        L_radio (np.ndarray): pulsar radio luminosity in [erg s^(-1) Hz^(-1)].
-        d (np.ndarray): distance to the pulsar in [kpc].
-        beam_frac (np.ndarray): beam fraction.
-        w (np.ndarray): intrinsic pulse width in [rad].
-        f_survey (float): frequency at which the radio survey is performed [Hz].
+        S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
+        f (float): frequency in [Hz] at which the radio luminosity has to be computed.
         spectral_index (float): spectral index of the radio emission, assuming a power-law spectrum.
         f_min (float): frequency lower limit of the radio emission spectrum [Hz].
         f_max (float): frequency upper limit of the radio emission spectrum [Hz].
 
     Returns:
-        (np.ndarray): observed pulsar radio flux in [erg s^(-1) cm^(-2) Hz^(-1)].
+        (np.ndarray): pulsar radio flux density in [Jy] at the frequency f.
     """
 
-    # Compute the radio luminosity at the frequency of the survey assuming a power law spectrum.
-    L_radio_f = (
+    S_radio_f = (
         (spectral_index + 1)
-        * L_radio
+        * S_radio_bol
         / (f_max ** (spectral_index + 1) - f_min ** (spectral_index + 1))
-        * f_survey ** spectral_index
-    )
-
-    # Convert distance from [kpc] to [cm].
-    d_cm = d * const.KPC_TO_CM
-
-    # Compute the duty cycle.
-    duty_cycle = w / (2.0 * np.pi)
-
-    S_radio_f = L_radio_f / (4.0 * np.pi * beam_frac * d_cm ** 2) * duty_cycle
+        * f ** spectral_index
+    ) / const.JY_TO_ERG
 
     return S_radio_f

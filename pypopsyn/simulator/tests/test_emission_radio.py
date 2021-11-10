@@ -37,8 +37,7 @@ TOL = 1e-5
 cfg["NS_number"] = 2
 cfg["L_radio_log10_mean"] = 26.0
 cfg["L_radio_log10_sigma"] = 0.9
-cfg["epsilon_P"] = -1.5
-cfg["epsilon_Pdot"] = 0.5
+cfg["epsilon_L"] = 0.5
 
 
 @pytest.fixture()
@@ -46,19 +45,21 @@ def test_case_1():
     data = {
         "r_em": cfg["r_em"],
         "P": np.array([0.1, 1.0]),
-        "P_dot": np.array([1.0e-15]),
+        "P_dot": np.array([1.0e-15, 1.0e-13]),
         "chi": np.array([np.pi / 3.0, np.pi / 4.0]),
         "rho_b": np.array([0.3, 0.1]),
         "los": np.array([0.3, 0.8]),
+        "solid_angle_expected": np.array([0.56126, 0.062780]),
         "beam_aperture_expected": np.array([0.37612, 0.11894]),
         "w_expected": np.array([0.277910]),
         "beam_fraction_expected": np.array([0.51186, 0.14119]),
         "intercepted_expected": np.array([False, True]),
-        "log10_L_0": np.array([26.0]),
-        "L_radio_expected": np.array([3.162278e18]),
-        "d": np.array([10.0]),
+        "log10_L_0": np.array([26.0, 25.0]),
+        "L_radio_expected": np.array([1.0e20, 3.1622777e18]),
+        "d": np.array([10.0, 5.0]),
         "f_survey": 1.4e9,
-        "S_radio_expected": np.array([1.8369116212979515e-39]),
+        "S_radio_expected": np.array([1.871269e-25, 2.116123e-25]),
+        "S_radio_f_expected": np.array([4.151595e-13, 4.694829e-13]),
     }
 
     return data
@@ -98,6 +99,22 @@ def test_pulse_width(test_case_1):
     ).all()
 
 
+def test_solid_angle_radio_beams(test_case_1):
+    """
+    Verifying that for a given choice of beam aperture the
+    solid angle covered by the radio beams is correctly calculated.
+    """
+
+    solid_angle_out = er.solid_angle_radio_beams(test_case_1["rho_b"],)
+
+    assert np.isclose(
+        test_case_1["solid_angle_expected"],
+        solid_angle_out,
+        rtol=TOL,
+        atol=1.0e-5,
+    ).all()
+
+
 def test_beam_fraction(test_case_1):
     """
     Verifying that for a given choice of inclination angle and beam aperture the
@@ -134,7 +151,7 @@ def test_los_intercept(test_case_1):
     ).all()
 
 
-def test_pdf_radio_luminosity(monkeypatch, test_case_1):
+def test_pdf_luminosity_radio(monkeypatch, test_case_1):
     """
     Verifying that the effective pulse width is computed correctly.
     """
@@ -145,8 +162,8 @@ def test_pdf_radio_luminosity(monkeypatch, test_case_1):
 
     monkeypatch.setattr(np.random, "normal", mock_log10_L_0)
 
-    L_radio_out = er.pdf_radio_luminosity(
-        np.array([test_case_1["P"][1]]), test_case_1["P_dot"],
+    L_radio_out = er.pdf_luminosity_radio(
+        np.array([test_case_1["P"]]), test_case_1["P_dot"],
     )
 
     assert np.isclose(
@@ -154,21 +171,38 @@ def test_pdf_radio_luminosity(monkeypatch, test_case_1):
     ).all()
 
 
-def test_erg_flux_radio(test_case_1):
+def test_flux_radio(test_case_1):
     """
     Verifying that the radio flux of a pulsar is correctly evaluated.
     """
 
-    beam_frac = np.array(test_case_1["beam_fraction_expected"][1])
-
-    S_radio_out = er.erg_flux_radio(
+    S_radio_out = er.flux_radio(
         test_case_1["L_radio_expected"],
         test_case_1["d"],
-        beam_frac,
-        test_case_1["w_expected"],
-        f_survey=test_case_1["f_survey"],
+        test_case_1["solid_angle_expected"],
     )
 
     assert np.isclose(
         test_case_1["S_radio_expected"], S_radio_out, rtol=TOL, atol=1.0e-35
+    ).all()
+
+
+def test_flux_density_radio(test_case_1):
+    """
+    Verifying that the radio flux density at a given frequency f is correctly evaluated.
+    """
+
+    S_radio_f_out = er.flux_density_radio(
+        test_case_1["S_radio_expected"],
+        test_case_1["f_survey"],
+        spectral_index=-1.6,
+        f_min=1.0e7,
+        f_max=1.0e11,
+    )
+
+    assert np.isclose(
+        test_case_1["S_radio_f_expected"],
+        S_radio_f_out,
+        rtol=TOL,
+        atol=1.0e-35,
     ).all()
