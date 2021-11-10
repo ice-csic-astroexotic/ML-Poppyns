@@ -115,8 +115,7 @@ def simulate_population(args) -> None:
         cfg["show_profiling"],
     ):
 
-        ############################################################################
-        # Initialize population
+        # ===================== INITIALIZE THE POPULATION ========================
 
         with timewith.TimeWith(
             "[InitialPopulation]",
@@ -145,7 +144,11 @@ def simulate_population(args) -> None:
             # Generating initial velocities by summing the kick
             # velocities at birth and the orbital velocities.
             log.info("Generating initial kick velocities...")
-            (vk_r, vk_phi, vk_z,) = NS_population_initial.kick_velocity()
+            (
+                vk_r,
+                vk_phi,
+                vk_z,
+            ) = NS_population_initial.kick_velocity()
 
             log.info("Computing orbital velocities...")
             v_orb = NS_population_initial.orbital_velocity(
@@ -183,8 +186,7 @@ def simulate_population(args) -> None:
 
             timer.checkpoint("[Initial Angular momentum]")
 
-        ############################################################################
-        # Evolve population
+        # ===================== DYNAMICAL EVOLUTION ========================
 
         with timewith.TimeWith(
             "[EvolvePopulation]",
@@ -277,6 +279,8 @@ def simulate_population(args) -> None:
 
             timer.checkpoint("[Final angular momentum]")
 
+            # ===================== EXPORT OUTPUT ========================
+
             # Adding the evolution output to a data frame for export.
             log.info("Creating data frame for exporting...")
 
@@ -320,7 +324,8 @@ def simulate_population(args) -> None:
 
             # Save the data frame as a compressed binary file.
             final_output_path = pathlib.Path().joinpath(
-                output_path, "final_pop_dyn.pkl.gz",
+                output_path,
+                "final_pop_dyn.pkl.gz",
             )
             df_final.to_pickle(final_output_path, compression="gzip")
 

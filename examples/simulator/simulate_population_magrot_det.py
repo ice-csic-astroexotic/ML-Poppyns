@@ -151,6 +151,7 @@ def simulate_population(args) -> None:
         ):
 
             # ===================== INITIALIZE THE POPULATION ========================
+
             # Load the file containing the dynamically evolved population parameters.
             df_dyn = pd.read_pickle(f"{dyn_path}", compression="gzip")
 

@@ -16,7 +16,7 @@ The simulation of a Galactic population of neutron stars can be performed by usi
    The output of the dynamical evolution can be then used as a database for running the other steps of the simulations.
    Through the script :code:`examples/simulator/simulate_population_magrot_det.py` you then select stars from the dynamically evolved database according to the sky coverage of a given survey, evolve their properties in time and finally establish if they are detected or not by the surveys.
    New stars are selected and evolved until the desired number of detected sources is reached (for example to match the number of detected pulsars in a given survey in the ATNF catalog).
-   This approach allows to find a posteriori the birth rate of the neutron stars by looking at the total number of neutron stars that have been created for a specified evolution time to reach the desired number of detections .
+   This approach allows to find a posteriori the birth rate of the neutron stars by looking at the total number of neutron stars that have been created for a specified evolution time to reach the desired number of detections.
 
 3) Initialize and evolve the neutron stars one-by-one until a number N of neutron stars has been simulated.
    For this third approach you have to run the script :code:`examples/simulator/simulate_population_1by1.py`.
@@ -41,7 +41,7 @@ This will generate a new folder :code:`simulated_data` if it does not exist, in 
 
 If the user opts to save the full evolutionary output for the dynamical and/or the magneto-rotational evolution by setting :code:`cfg["save_dyn_evolution"]` or :code:`cfg["save_magrot_evolution"]` to :code:`True` in the configuration file, a JSON file with the full time-stamped parameter evolution is also generated.
 Note that since evolving the full population and saving the entire output requires a big computational cost and storage space, this feature should be enabled only for testing purposes when running the simulation on a reduced number of stars.
-For example to evolve and save both the full dynamical and magneto-rotational evolution for :math:`10^4` stars with a maximum age of :math:`10^7` years it takes around 2 minutes and the JSON files containing the evolution outputs have a weight of around 1 Gb each.
+For example, to evolve and save both the full dynamical and magneto-rotational evolution for :math:`10^4` stars with a maximum age of :math:`10^7` years, the computation takes around 2 minutes and the JSON files containing the evolution outputs have a size of around 1 GB each.
 
 
 
@@ -54,7 +54,7 @@ If you instead want to run separately the dynamical evolution to create a databa
 This will create a population of neutron stars according to the initial conditions specified in the :code:`pypopsyn/simulator/configuration.py` and evolve it in time dynamically.
 The output is saved in the specified output folder and as explained above it consists of the `initial_population.pkl.gz`, the final population in the same format `final_population.pkl.gz`, the profiles for the simulation if enabled and the dictionary containing the configuration parameters in `configuration.json` for reproducibility.
 The user should ensure that the number of neutron stars evolved in this way is high enough to allow a proper determination of the birth rate in the following steps.
-A safe number of neutron stars should be 30 per century, which according to our understanding is around 10 times the average core-collapse supernova rate we have in our Galaxy.
+A safe number of neutron stars should be 30 per century, which is around 10 times the average core-collapse supernova rate in our Galaxy.
 
 After the creation of the dynamical database you can run the script:
 
