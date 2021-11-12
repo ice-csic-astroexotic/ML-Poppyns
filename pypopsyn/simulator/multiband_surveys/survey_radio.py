@@ -60,8 +60,8 @@ def smearing_in_channel(
 
     dt = (
         2
-        * const.e ** 2
-        / (2 * np.pi * const.m_e * const.c)
+        * const.E ** 2
+        / (2 * np.pi * const.M_E * const.C)
         * channel_width
         / nu ** 3.0
         * DM

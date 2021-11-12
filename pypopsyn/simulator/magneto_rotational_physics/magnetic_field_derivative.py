@@ -55,7 +55,7 @@ def timescale_ohmic(L: float, sigma: float) -> float:
         (float): ohmic diffusion timescale in [yr].
     """
 
-    tau_ohm = 4 * np.pi * sigma * L ** 2 / (const.c ** 2 * const.YR_TO_S)
+    tau_ohm = 4 * np.pi * sigma * L ** 2 / (const.C ** 2 * const.YR_TO_S)
 
     return tau_ohm
 
@@ -79,7 +79,7 @@ def timescale_Hall(B: float, L: float, n_e: float) -> float:
     """
 
     tau_Hall = (
-        4 * np.pi * const.e * n_e * L ** 2 / (const.c * B * const.YR_TO_S)
+        4 * np.pi * const.E * n_e * L ** 2 / (const.C * B * const.YR_TO_S)
     )
 
     return tau_Hall
