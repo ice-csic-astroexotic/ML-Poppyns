@@ -51,7 +51,7 @@ class InitializerKaiming(InitializerBase):
         deep into rectifiers: Surpassing human-level performance on ImageNet
         classification" - He, K. et al. (2015)) in which the values of are
         sampled from a uniform distribution U(-bound,bound) where:
-            bound = gain * sqrt(3 / fan_mode).
+        bound = gain * sqrt(3 / fan_mode).
         Biases are just filled with a constant close-to-zero value (0.01).
 
         Args:

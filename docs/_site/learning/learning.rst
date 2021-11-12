@@ -89,7 +89,7 @@ Mean absolute error (MAE) loss
 
 Mean square error (MSE) loss
 **********************************
-.. automodule:: pypopsyn.learning.losses.loss_rmse
+.. automodule:: pypopsyn.learning.losses.loss_mse
   :members: loss_rmse
 
 Negative log-likelihood loss
