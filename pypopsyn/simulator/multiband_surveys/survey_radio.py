@@ -80,7 +80,7 @@ def effective_pulse_width(
 ) -> np.ndarray:
     """
     Measured effective pulse width which is smeared out by the inter-channel dispersion, the scattering
-    with the interstellar medium and by the instrumental sampling time (see eq. 2 in Cordes & McLaughlin 2003).
+    with the interstellar medium and by the instrumental sampling time (see eq. (2) in Cordes & McLaughlin 2003).
 
     Args:
         w_int (np.ndarray): intrinsic pulse width in [s].
@@ -104,11 +104,10 @@ def flux_radio_obs(
     S_radio_f: np.ndarray, w_int: np.ndarray, w_eff: np.ndarray,
 ) -> np.ndarray:
     """
-    Compute the mean flux density received by the telescope after taking into account that the pulse have been
-    broadened by the propagation in the interstellar medium.
-    We assume that the total fluence = S_radio x w_int is conserved as the pulse propagates in the
-    interstellar medium. Since the pulse is broadened as it propagates, the flux received on Earth is given by
-    S_radio_obs = fluence / w_eff, therefore S_radio_obs < S_radio.
+    Compute the mean flux density received by the telescope after taking into account that the pulse has been
+    broadened by the propagation in the interstellar medium. We assume that the total fluence = S_radio_f x w_int
+    is conserved as the pulse propagates in the interstellar medium. Since the pulse is broadened as it propagates,
+    the flux received on Earth is given by S_radio_obs = fluence / w_eff, therefore S_radio_obs < S_radio_f.
     Also, since in our simulation we are assuming a simple squared pulse shape, the mean flux density is equal
     to the peak flux density.
 
@@ -134,17 +133,17 @@ def sky_temperature_approx(
     l_gal: np.ndarray, b_gal: np.ndarray, f: float
 ) -> np.ndarray:
     """
-    Sky temperature as a function of galactic longitude and latitude (l, b) and frequency.
+    Sky temperature as a function of Galactic longitude and latitude (l, b) and frequency f.
     We use an empirical fit from Narayan (1987) and rescale to the given frequency using
-    a relation from Johnston et al. (1992) (see also eq. 5 in Yusifov & Küçük 2004).
+    a relation from Johnston et al. (1992) (see also eq. (5) in Yusifov & Küçük 2004).
 
     Args:
-        l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
-        b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
+        l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
+        b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
         f (np.ndarray): central frequency at which the observation is performed [Hz].
 
     Returns:
-        (np.ndarray): measured sky temperature in [K] as a function of the galactic coordinates at frequency nu.
+        (np.ndarray): measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
     """
 
     # Sky temperature at 408 Mhz from Narayan (1987).
@@ -152,8 +151,8 @@ def sky_temperature_approx(
         (1.0 + (l_gal / 42.0) ** 2) * (1.0 + (b_gal / 3.0) ** 2)
     )
 
-    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6 (see Lawson et al. 1987,
-    # Johnston et al. 1992).
+    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6
+    # (see Lawson et al. 1987, Johnston et al. 1992).
     T_sky_f = T_sky_400 * (408.0e6 / f) ** 2.6
 
     return T_sky_f
@@ -163,17 +162,17 @@ def sky_temperature(
     l_gal: np.ndarray, b_gal: np.ndarray, f: float
 ) -> np.ndarray:
     """
-    Sky temperature as a function of galactic longitude and latitude (l, b) and frequency.
+    Sky temperature as a function of Galactic longitude and latitude (l, b) and frequency f.
     We use the map from Haslam et al. (1981), downloadable here:
     https://lambda.gsfc.nasa.gov/product/foreground/haslam_408.cfm.
 
     Args:
-        l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
-        b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
+        l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
+        b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
         f (np.ndarray): central frequency at which the observation is performed [Hz].
 
     Returns:
-        (np.ndarray): measured sky temperature in [K] as a function of the galactic coordinates at frequency nu.
+        (np.ndarray): measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
     """
 
     # Read the sky temperature map.
@@ -192,8 +191,8 @@ def sky_temperature(
     y_pixel = y_pixel.astype(int)
     T_sky_400 = data[y_pixel, x_pixel]
 
-    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6 (see Lawson et al. 1987,
-    # Johnston et al. 1992).
+    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6
+    # (see Lawson et al. 1987, Johnston et al. 1992).
     T_sky_f = T_sky_400 * (408.0e6 / f) ** 2.6
 
     return T_sky_f
@@ -201,17 +200,17 @@ def sky_temperature(
 
 class SurveyRadio:
     """
-    Class for any radio survey with a gaussian telescope beam pattern.
+    Class for any radio survey with a Gaussian telescope beam pattern.
     The parameters for the survey are imported from a JSON file.
     """
 
     def __import_parameters(self, parameters_path):
         """
-        This routine import the parameters of a radio survey.
+        This routine imports the parameters of a radio survey.
 
         Args:
-            parameters_path (str): path to the survey_parameter.json file containing the parameters
-                of the radio survey.
+            parameters_path (str): path to the survey_parameter.json file
+                containing the parameters of the radio survey.
 
         Returns:
             Nothing.
@@ -233,12 +232,12 @@ class SurveyRadio:
         # channel_width (float): width of a single frequency channel [Hz].
         # n_pol (float): number of polarizations.
         # FWHM (float): FWHM of the beam[arcmin].
-        # SN_th (float): threshold signal to noise ratio.
+        # SNR_th (float): threshold signal to noise ratio.
         # RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
         # DEC_range(np.ndarray): range of the sky covered by the survey in DEC [deg].
-        # l_range(np.ndarray): range of the sky covered by the survey in galactic longitude l[deg].
-        # b_range_abs(np.ndarray): absolute value of the range of the sky covered by the survey in galactic latitude
-        # b [deg].
+        # l_range(np.ndarray): range of the sky covered by the survey in Galactic longitude l[deg].
+        # b_range_abs(np.ndarray): absolute value of the range of the sky covered
+        #   by the survey in Galactic latitude b [deg].
         self.deg_factor = self.parameters["deg_factor"]
         self.G0 = self.parameters["G0"]
         self.t_obs = self.parameters["t_obs"]
@@ -249,7 +248,7 @@ class SurveyRadio:
         self.channel_width = self.parameters["channel_width"]
         self.n_pol = self.parameters["n_pol"]
         self.FWHM = self.parameters["FWHM"]
-        self.SN_th = self.parameters["SN_th"]
+        self.SNR_th = self.parameters["SNR_th"]
         self.RA_range = self.parameters["RA_range"]
         self.DEC_range = self.parameters["DEC_range"]
         self.l_range = self.parameters["l_range"]
@@ -262,8 +261,8 @@ class SurveyRadio:
         Radio survey initialization.
 
         Args:
-            parameters_path (str): path to the survey_parameter.json file containing the parameters
-                of the radio survey.
+            parameters_path (str): path to the survey_parameter.json file
+                containing the parameters of the radio survey.
 
         Returns:
             Nothing.
@@ -285,8 +284,8 @@ class SurveyRadio:
             Args:
                 RA (np.ndarray): right ascension in [deg] defined between [0, 360] deg in ICRS frame.
                 DEC (np.ndarray): declination in [deg] defined between [-90, 90] deg in ICRS frame.
-                l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
-                b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
+                l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
+                b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
 
             Returns:
                 (np.ndarray): array of boolean variables: true if the pulsar is in the covered sky region, false if not.
@@ -308,7 +307,7 @@ class SurveyRadio:
         """
         Generating a random offset with respect to the beam center for the detections.
         A Gaussian beam pattern is assumed to account for sensitivity decay for off-center detections.
-        See Lorimer et al. (1993) and paragraph following eq. (29) in Bates et al. (2014).
+        See Lorimer et al. (1993) and the paragraph following eq. (29) in Bates et al. (2014).
 
         Args:
             n_detection (int): number of detections to simulate.
@@ -323,7 +322,8 @@ class SurveyRadio:
     def gain_gaussian_beam(self, offset2: np.ndarray) -> np.ndarray:
         """
         This method simulates the gain pattern of a receiver.
-        A Gaussian beam pattern is assumed (see eq. 14 in Lorimer et al. 1993 and eq. 29 in Bates et. al 2014).
+        A Gaussian beam pattern is assumed to account for sensitivity decay for off-center detections.
+        See Lorimer et al. (1993) and the paragraph following eq. (29) in Bates et al. (2014).
 
         Args:
             offset2 (np.ndarray): squared offset from the beam center in [arcmin^2].
@@ -346,10 +346,9 @@ class SurveyRadio:
     ) -> np.ndarray:
         """
         Radiometer equation used to compute the signal to noise ratio of each pulsars given the observed radio flux
-        at a given frequency nu, the effective pulse width, the spin period and the survey parameters
-        (see eq. A1.22 in Lorimer & Kramer 2005).
-        We are assuming a square pulse shape for simplicity with height equal to the observed flux and width equal
-        to the effective width.
+        at a given frequency, the effective pulse width, the spin period and the survey parameters
+        (see eq. (A1.22) in Lorimer & Kramer 2005). We are assuming a square pulse shape for simplicity
+        with height equal to the observed flux and width equal to the effective width.
 
         Args:
             S_radio_obs (np.ndarray): observed radio flux density in [Jy].
@@ -361,13 +360,14 @@ class SurveyRadio:
         Returns:
             (np.ndarray): signal to noise ratio of the detection.
         """
-        SN = np.zeros(len(S_radio_obs))
+        SNR = np.zeros(len(S_radio_obs))
 
-        # If the effective pulse width is larger than the spin period, then the pulsar is not detected.
+        # If the effective pulse width is larger than the spin period,
+        # emission is continuous and the neutron star cannot be detected as a pulsar.
         cond = w_eff < P
 
-        # Compute the SN of each detection using the antenna equation.
-        SN[cond] = (
+        # Compute the SNR of each detection using the radiometer equation.
+        SNR[cond] = (
             S_radio_obs[cond]
             * G[cond]
             * np.sqrt(self.n_pol * self.t_obs * self.BW)
@@ -375,7 +375,7 @@ class SurveyRadio:
             / (self.deg_factor * (self.T_sys + T_sky[cond]))
         )
 
-        return SN
+        return SNR
 
     def detect(
         self,
@@ -386,35 +386,36 @@ class SurveyRadio:
         P: np.ndarray,
     ) -> np.ndarray:
         """
-        Simulate a detection: if the measured SN surpasses the threshold SN_th of the survey
+        Simulate a detection: if the measured SNR surpasses the threshold SNR_th of the survey
         then the pulsar is detected.
 
         Args:
             S_radio_obs (np.ndarray): observed radio flux density from a source in [Jy].
-            l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
-            b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
+            l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
+            b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
             w_eff (np.ndarray): effective pulse width in [s].
             P (np.ndarray): spin period in [s].
 
         Returns:
-            (np.ndarray): array of boolean variables: true if the pulsar is detected, false if
-            not.
+            (np.ndarray): array of boolean variables: true if the pulsar is detected,
+                false if not.
         """
         # Store the total number of sources.
         n = len(S_radio_obs)
 
         # Draw a random offset from the telescope beam center.
         offset2 = self.detection_offset(n)
+
         # Compute the gain corresponding to the offset detections.
         G = self.gain_gaussian_beam(offset2)
 
-        # Compute the Sky temperature in the coordinates of each detection at the central frequency of the survey.
+        # Compute the sky temperature in the coordinates of each detection at the central frequency of the survey.
         T_sky = sky_temperature(l_gal, b_gal, self.f_central)
 
-        SN_detection = self.radiometer_equation(
+        SNR_detection = self.radiometer_equation(
             S_radio_obs, G, w_eff, P, T_sky
         )
 
-        detected = SN_detection > self.SN_th
+        detected = SNR_detection > self.SNR_th
 
         return detected

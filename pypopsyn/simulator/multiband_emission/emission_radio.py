@@ -57,9 +57,9 @@ def pulse_width(
     chi: np.ndarray, rho_b: np.ndarray, los: np.ndarray
 ) -> np.ndarray:
     """
-    Formula to evaluate the pulse width in [rad] from the radio beam angular aperture.
+    Formula to evaluate the intrinsic pulse width in [rad] from the radio beam angular aperture.
     This assumes that the line of sight intercepts the radio beam with an angle beta with
-    respect to the center of the beam, so that -rho_b < beta < rho_b, with rho the angular
+    respect to the center of the beam, so that -rho_b < beta < rho_b, with rho_b the angular
     aperture of the beam. See eq. (1) in Maciesiak et al. (2011a) and eq. (3.26) in Lorimer & Kramer (2004).
 
     Args:
@@ -69,7 +69,7 @@ def pulse_width(
         to the rotation axis of the star [rad].
 
     Returns:
-        (np.ndarray): array of pulse widths in [rad].
+        (np.ndarray): array of intrinsic pulse widths in [rad].
     """
 
     # Compute the impact parameter, i.e., the angular distance between the LOS intercept and the center of the beam.
@@ -85,9 +85,9 @@ def pulse_width(
     # If sin(w/4) > 1 set w = 2*np.pi.
     sin_w_4[sin_w_4 > 1] = 1.0
 
-    width = 4.0 * np.arcsin(sin_w_4)
+    w_int = 4.0 * np.arcsin(sin_w_4)
 
-    return width
+    return w_int
 
 
 def solid_angle_radio_beams(rho_b: np.ndarray) -> np.ndarray:
@@ -98,7 +98,7 @@ def solid_angle_radio_beams(rho_b: np.ndarray) -> np.ndarray:
         rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
 
     Returns:
-        (np.ndarray): Total solid angle covered by the radio beams.
+        (np.ndarray): total solid angle covered by the radio beams.
     """
 
     solid_angle = 4 * np.pi * (1 - np.cos(rho_b))
@@ -155,8 +155,7 @@ def los_intercept(
 def pdf_luminosity_radio(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     """
     Draw random bolometric radio luminosities from a distribution that depends on the spin period
-     and spin period derivative.
-    We assume a random log-normal spread for the normalization constant L_0.
+    and spin period derivative. We assume a random log-normal spread for the normalization constant L_0.
 
     Args:
         P (np.ndarray): array of spin periods of the pulsars in [s].
@@ -185,7 +184,7 @@ def flux_radio(
     Args:
         L_radio (np.ndarray): pulsar bolometric radio luminosity in [erg s^(-1)].
         d (np.ndarray): distance to the pulsar in [kpc].
-        solid_angle (np.ndarray): solid angle covered by the radio beams in [sterad].
+        solid_angle (np.ndarray): solid angle covered by the radio beams in [sr].
 
     Returns:
         (np.ndarray): observed pulsar radio flux in [erg s^(-1) cm^(-2)].

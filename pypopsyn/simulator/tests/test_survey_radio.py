@@ -59,7 +59,7 @@ def test_case_1():
         "S_radio_int": np.array([0.01, 100]),
         "S_radio_obs_expected": np.array([0.00726343, 0.74049939]),
         "P": np.array([0.1, 0.01]),
-        "SN_expected": np.array([959.7632509, 0.0]),
+        "SNR_expected": np.array([959.7632509, 0.0]),
         "detected_expected": np.array([True, False], dtype=bool),
     }
 
@@ -169,7 +169,7 @@ def test_radiometer_equation_PMPS(test_case_1):
     Verifying that the signal to noise values are computed correctly using the radiometer equation.
     """
 
-    SN_out = PMPS.radiometer_equation(
+    SNR_out = PMPS.radiometer_equation(
         test_case_1["S_radio_obs_expected"],
         test_case_1["G_expected"],
         test_case_1["w_eff_expected"],
@@ -178,7 +178,7 @@ def test_radiometer_equation_PMPS(test_case_1):
     )
 
     assert np.isclose(
-        test_case_1["SN_expected"], SN_out, rtol=TOL, atol=1.0e-5
+        test_case_1["SNR_expected"], SNR_out, rtol=TOL, atol=1.0e-5
     ).all()
 
 
