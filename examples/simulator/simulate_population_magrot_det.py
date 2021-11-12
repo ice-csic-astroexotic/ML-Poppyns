@@ -116,13 +116,6 @@ def simulate_population(args) -> None:
             cfg_override = json.load(f)
             configuration.update_configuration(cfg_override)
 
-    # Dump updated configuration to output path.
-    config_dump_path = pathlib.Path().joinpath(
-        output_path, "configuration.json"
-    )
-    with open(config_dump_path, "w") as f:
-        json.dump(cfg, f, indent=4, sort_keys=True)
-
     # Initialize the surveys.
     PMPS_par_path = (
         "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
@@ -554,14 +547,26 @@ def simulate_population(args) -> None:
 
             # Determine the Galactic neutron star birth rate for the different surveys.
             t_max = cfg["t_age_max"] / 100  # Maximum time in centuries.
+            birth_rate_PMPS = n_created_PMPS / t_max
+            birth_rate_SMPS = n_created_SMPS / t_max
+
             log.info(
-                f"Galactic neutron star birth rate according to PMPS: {n_created_PMPS/t_max} neutron stars per century."
+                f"Galactic neutron star birth rate according to PMPS: {birth_rate_PMPS} neutron stars per century."
             )
-            print(n_created_PMPS)
-            print(t_max)
             log.info(
-                f"Galactic neutron star birth rate according to SMPS: {n_created_SMPS / t_max} neutron stars per century."
+                f"Galactic neutron star birth rate according to SMPS: {birth_rate_SMPS} neutron stars per century."
             )
+
+            # Add the information of the birth rates to the configuration file.
+            cfg["birth_rate_PMPS"] = birth_rate_PMPS
+            cfg["birth_rate_SMPS"] = birth_rate_SMPS
+
+            # Dump updated configuration to output path.
+            config_dump_path = pathlib.Path().joinpath(
+                output_path, "configuration.json"
+            )
+            with open(config_dump_path, "w") as f:
+                json.dump(cfg, f, indent=4, sort_keys=True)
 
         # ===================== EXPORT OUTPUT ========================
 
