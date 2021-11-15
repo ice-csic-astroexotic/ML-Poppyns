@@ -5,7 +5,9 @@ channels:
 dependencies:
   - astropy=4.0.1
   - black=19.10b0
+  - f2c
   - ffmpeg
+  - graphviz
   - hydra-core=0.11.3
   - ipykernel=5.1.0
   - jupyter=1.0.0
@@ -18,7 +20,8 @@ dependencies:
   - olefile=0.46
   - pandas=0.25.3
   - pillow=6.2.0
-  - pre-commit=1.21.0
+  - pip
+  - pre-commit=2.9.2
   - pyinstrument=3.1.3
   - pytest=5.3.2
   - pytest-cov=2.6.1
@@ -34,3 +37,6 @@ dependencies:
   - tensorboard>=1.14.0
   - termcolor=1.1.0
   - torchvision>=0.4.0
+  - pip:
+      - pydeps
+      - pygedm --global-option=build_ext --global-option="-I${CONDA_PREFIX}/include:/usr/local/include"

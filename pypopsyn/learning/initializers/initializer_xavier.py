@@ -51,7 +51,7 @@ class InitializerXavier(InitializerBase):
         "Understanding the difficulty of training deep feedforward neural
         networks" - Glorot, X. & Bengio, Y. (2010) in which the values of are
         sampled from a uniform distribution U(-a,a) where:
-            a = gain * sqrt(6 / (fan_in + fan_out)).
+        a = gain * sqrt(6 / (fan_in + fan_out)).
         Biases are just filled with a constant close-to-zero value (0.01).
 
         Args:

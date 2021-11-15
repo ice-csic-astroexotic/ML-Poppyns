@@ -37,6 +37,10 @@ TOL = 1e-5
 
 # Select the galactic model from Marchetti et al. (2019) for the test.
 cfg["galactic_model"] = "gmM19"
+# Select the characteristic kick velocity of the exponential model for the test.
+cfg["vk_c"] = 180.0
+# Select the kick velocity dispersion of the Maxwell model for the test.
+cfg["sigma_k"] = 265.0
 
 
 @pytest.fixture()
@@ -48,8 +52,9 @@ def test_case_1():
 
     data = {
         "v": 300,
-        "pdf_vk_exp_expected": 0.00119,
+        "pdf_vk_exp_expected": 0.001749,
         "pdf_vk_maxwell_expected": 0.002033,
+        "pdf_vk_2maxwell_expected": 0.001043,
     }
 
     return data
@@ -83,6 +88,15 @@ def test_pdf_kick_velocity_maxwell(test_case_1):
     """
     pdf_vk_out = iv.pdf_kick_velocity_maxwell(test_case_1["v"])
     assert np.abs(test_case_1["pdf_vk_maxwell_expected"] - pdf_vk_out) < TOL
+
+
+def test_pdf_kick_velocity_2maxwell(test_case_1):
+    """
+    Verifying that the proper velocity distribution is correctly calculated
+    for the double Maxwell distribution.
+    """
+    pdf_vk_out = iv.pdf_kick_velocity_2maxwell(test_case_1["v"])
+    assert np.abs(test_case_1["pdf_vk_2maxwell_expected"] - pdf_vk_out) < TOL
 
 
 def test_circular_velocity(test_case_2):

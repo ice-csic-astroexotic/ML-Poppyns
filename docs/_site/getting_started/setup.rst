@@ -45,21 +45,25 @@ Repository structure
 The repository is structured in a modular way to allow for easy adjustments and additions as we continue to improve our software package.
 The main folder is :code:`pypopsyn` which contains four sub-folders: :code:`simulator`, :code:`generator` and :code:`learning` and :code:`benchmark`.
 
-* The :code:`simulator` sub-folder contains all the modules and functions necessary to simulate a population of synthetic neutron stars. We group modules according to their physics, i.e., separating those that are associated with the dynamical evolution and those with the magneto-rotational evolution.
+* The :code:`simulator` sub-folder contains all the modules and functions necessary to simulate a population of synthetic neutron stars.
+  We group modules according to their physics, i.e., separating those that are associated with the dynamical evolution, the magneto-rotational evolution, the emission in different electromagnetic wavelengths and the modelled surveys.
 
-* The :code:`generator` sub-folder acts as the link between the physics and the machine-learning algorithms. It contains all the modules and functions necessary to represent our mock neutron star population in a way that is suitable for the machine-learning pipeline. We, for example, represent the star's dynamical properties as density and velocity maps.
+* The :code:`generator` sub-folder acts as the link between the physics and the machine-learning algorithms.
+  It contains all the modules and functions necessary to represent our mock neutron star population in a way that is suitable for the machine-learning pipeline.
+  We, for example, represent the stars' properties as density and feature maps.
 
-* The :code:`learning` sub-folder contains all the modules and functions necessary for the machine-learning pipeline, including initialization techniques, loss function definitions, training schemes and so on.
+* The :code:`learning` sub-folder contains all the modules and functions necessary for the machine-learning pipeline, including model architectures, initialization techniques, loss function definitions, training schemes and so on.
 
-* The :code:`benchmark` sub-folder contains all the modules and functions necessary to profile our code. We use this functionality to optimize the run-time of our code.
+* The :code:`benchmark` sub-folder contains all the modules and functions necessary to profile our code.
+  We use this functionality to optimize the run-time of our code.
 
 
 The :code:`examples` folder contains four main sub-folders: :code:`simulator`, :code:`generator`, :code:`learning` and :code:`data`.
 The purpose of these examples is to demonstrate the functionality and usage of the respective modules and functions in :code:`pypopsyn`.
 
-* The :code:`simulator` sub-folder contains the script :code:`initialize_evolve_population.py` that simulates a population of neutron stars (by default the one specified in :code:`pypopsyn/simulator/configuration.py`) as well as a :code:`simulation_helper.py` script to execute a range of simulations in an automated way.
+* The :code:`simulator` sub-folder contains various scripts that simulate a population of neutron stars (the default population parameters are specified in :code:`pypopsyn/simulator/configuration.py`) from its dynamical evolution to the detection with different surveys as well as a :code:`simulation_helper.py` script to execute a range of simulations in an automated way.
 
-* The :code:`generator` sub-folder contains the script :code:`generate_dataset.py` that reads the simulated data and creates a dataset of density and velocity maps.
+* The :code:`generator` sub-folder contains the script :code:`generate_dataset.py` that reads the simulated data and creates a dataset of feature maps.
 
 * The :code:`learning` sub-folder contains the script :code:`train.py` that trains a neural network on the provided dataset and the script :code:`infer.py` that tests the predictive power of a trained neural network on a test dataset.
 

@@ -64,7 +64,7 @@ def misalignment_angle_derivative(B: float, chi: float, P: float) -> float:
     NS_inertia = 2.0 / 5.0 * NS_mass * NS_radius ** 2
 
     # Auxiliary quantity beta as defined in eq. (72) of Pons & Vigano (2019).
-    beta = np.pi ** 2 * NS_radius ** 6 / (NS_inertia * const.c ** 3)
+    beta = np.pi ** 2 * NS_radius ** 6 / (NS_inertia * const.C ** 3)
 
     # Misalignment angle derivative.
     chi_deriv = (

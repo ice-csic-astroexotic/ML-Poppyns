@@ -45,6 +45,10 @@ cfg["seed"] = 42
 cfg["spiral_arms"] = "saFK06"
 # Set the number of spiral arms to 4 for the tests.
 cfg["arm_number"] = 4
+# Select the Maxwell kick velocity model for the test.
+cfg["kick_model"] = "km_maxwell"
+# Select the Yusifov & Küçük (2004) radial density model for the test.
+cfg["radial_model"] = "rmYK04"
 
 sm.initialize_spiral_model()
 

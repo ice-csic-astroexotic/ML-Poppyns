@@ -1,5 +1,6 @@
 """
 Simulating a final population of neutron stars.
+
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved in time according to their age.
 Neutron stars are created and evolved one by one until a predefined number of
@@ -137,6 +138,8 @@ def simulate_population(
 
         while NS_count < cfg["NS_number"]:
 
+            # ===================== INITIALIZE THE POPULATION ========================
+
             log.info(f"Simulating neutron star number {NS_count}...")
 
             log.info("Generating neutron star initial conditions...")
@@ -149,9 +152,11 @@ def simulate_population(
             age.append(float(t_age))
 
             # Generating initial position.
-            (r_i, phi_i, z_i,) = NS_initial.position(
-                t_age=t_age, spiral_model=sm.spiral_model
-            )
+            (
+                r_i,
+                phi_i,
+                z_i,
+            ) = NS_initial.position(t_age=t_age, spiral_model=sm.spiral_model)
 
             r_initial.append(float(r_i))
             phi_initial.append(float(phi_i))
@@ -159,7 +164,11 @@ def simulate_population(
 
             # Generating initial velocity by summing the kick
             # velocity at birth and the orbital velocity.
-            (vk_r, vk_phi, vk_z,) = NS_initial.kick_velocity()
+            (
+                vk_r,
+                vk_phi,
+                vk_z,
+            ) = NS_initial.kick_velocity()
 
             v_kick_r.append(float(vk_r))
             v_kick_phi.append(float(vk_phi))
@@ -188,6 +197,8 @@ def simulate_population(
             P_i = NS_initial.period()
             P_initial.append(float(P_i))
 
+            # ===================== DYNAMICAL EVOLUTION ========================
+
             # Define the initial conditions for the dynamical evolution.
             initial_cond = np.array([r_i, phi_i, z_i, v_r_i, omega_i, v_z_i]).T
 
@@ -213,13 +224,20 @@ def simulate_population(
             v_phi_final.append(float(NS_final[:, 4]))
             v_z_final.append(float(NS_final[:, 5]))
 
+            # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
+
             # Determine the evolved magnetic field, misalignment angle and rotation period.
             (
                 B_f,
                 chi_f,
                 P_f,
                 NS_magrot_evol_dict,
-            ) = mre.magneto_rotational_evolution(B_i, chi_i, P_i, t_age,)
+            ) = mre.magneto_rotational_evolution(
+                B_i,
+                chi_i,
+                P_i,
+                t_age,
+            )
 
             if configuration.cfg["save_magrot_evolution"]:
                 # Update the dictionary containing the evolution information.
@@ -343,6 +361,8 @@ def simulate_population(
         )
 
         timer.checkpoint("[Energy conservation]")
+
+        # ===================== EXPORT OUTPUT ========================
 
         # Adding the initial condition parameters to a data frame for export.
         log.info("Creating data frame for exporting...")

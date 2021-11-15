@@ -1,7 +1,8 @@
 """
-Simulating a final population of neutron stars.
+Dynamically evolving a population of neutron stars.
+
 An initial neutron star population of uniformly distributed ages is generated
-and the respective objects evolved in time according to their age.
+and the respective objects evolved dynamically in time according to their age.
 
     Authors:
 
@@ -42,7 +43,6 @@ import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population as ipop
-import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
@@ -51,12 +51,10 @@ from pypopsyn.simulator.configuration import cfg
 log = logging.getLogger(__name__)
 
 
-def simulate_population(
-    output_path: pathlib.Path, json_override_path: pathlib.Path = None
-) -> None:
+def simulate_population(args) -> None:
     """
     Generating a neutron star population starting from some initial
-    conditions and evolving it forward in time.
+    conditions and dynamically evolving it forward in time.
 
     Args:
 
@@ -69,45 +67,61 @@ def simulate_population(
 
     """
 
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
+    # If the output directory does not exist, create it.
+    output_path = pathlib.Path(args.output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Update path-dependent configurations prepending the specified output path.
+    cfg["profile_log"] = str(
+        pathlib.Path().joinpath(output_path, cfg["profile_log"])
+    )
+    cfg["profile_json"] = str(
+        pathlib.Path().joinpath(output_path, cfg["profile_json"])
+    )
+
+    # Initialize seed randomly if no seed was specified.
+    if cfg["seed_dyn"] is None:
+        cfg["seed_dyn"] = int(time.time())
+
+    # Set NumPy random seed globally.
+    log.info("Seed: {}".format(cfg["seed_dyn"]))
+    np.random.seed(cfg["seed_dyn"])
+
     # Update simulator configuration with the provided JSON override (if any).
     cfg_override = {}
-    if json_override_path:
+    if args.parameter_override:
+        json_override_path = pathlib.Path(args.parameter_override)
         with open(json_override_path) as f:
             cfg_override = json.load(f)
             configuration.update_configuration(cfg_override)
 
-    # Dump configuration override to output path.
-    override_dump_path = pathlib.Path().joinpath(output_path, "override.json")
-    with open(override_dump_path, "w") as f:
-        json.dump(cfg_override, f, indent=4, sort_keys=True)
+    # Dump updated configuration to output path.
+    config_dump_path = pathlib.Path().joinpath(
+        output_path, "configuration.json"
+    )
+    with open(config_dump_path, "w") as f:
+        json.dump(cfg, f, indent=4, sort_keys=True)
 
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
     sm.initialize_spiral_model()
 
-    # Initialize seed randomly if no seed was specified.
-    if cfg["seed"] is None:
-        cfg["seed"] = int(time.time())
-
-    # Set NumPy random set globally.
-    log.info("Seed: {}".format(cfg["seed"]))
-    np.random.seed(cfg["seed"])
-
     with timewith.TimeWith(
         "[TotalSimulation]",
-        configuration.cfg["profile_log"],
-        configuration.cfg["profile_json"],
-        configuration.cfg["show_profiling"],
+        cfg["profile_log"],
+        cfg["profile_json"],
+        cfg["show_profiling"],
     ):
 
-        ############################################################################
-        # Initialize population
+        # ===================== INITIALIZE THE POPULATION ========================
 
         with timewith.TimeWith(
             "[InitialPopulation]",
-            configuration.cfg["profile_log"],
-            configuration.cfg["profile_json"],
-            configuration.cfg["show_profiling"],
+            cfg["profile_log"],
+            cfg["profile_json"],
+            cfg["show_profiling"],
         ) as timer:
 
             # Generate an initial neutron star population.
@@ -130,7 +144,11 @@ def simulate_population(
             # Generating initial velocities by summing the kick
             # velocities at birth and the orbital velocities.
             log.info("Generating initial kick velocities...")
-            (vk_r, vk_phi, vk_z,) = NS_population_initial.kick_velocity()
+            (
+                vk_r,
+                vk_phi,
+                vk_z,
+            ) = NS_population_initial.kick_velocity()
 
             log.info("Computing orbital velocities...")
             v_orb = NS_population_initial.orbital_velocity(
@@ -168,14 +186,13 @@ def simulate_population(
 
             timer.checkpoint("[Initial Angular momentum]")
 
-        ############################################################################
-        # Evolve population
+        # ===================== DYNAMICAL EVOLUTION ========================
 
         with timewith.TimeWith(
             "[EvolvePopulation]",
-            configuration.cfg["profile_log"],
-            configuration.cfg["profile_json"],
-            configuration.cfg["show_profiling"],
+            cfg["profile_log"],
+            cfg["profile_json"],
+            cfg["show_profiling"],
         ) as timer:
 
             # Evolve the initial population.
@@ -211,7 +228,7 @@ def simulate_population(
             v_phi_final = v_phi_final * const.KPC_TO_KM / const.YR_TO_S
             v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
 
-            if configuration.cfg["save_dyn_evolution"]:
+            if cfg["save_dyn_evolution"]:
                 # Save dictionary containing evolution information to output path in a .json file.
                 dyn_evolution_dump_path = pathlib.Path().joinpath(
                     output_path, "dyn_evolution.json"
@@ -262,6 +279,8 @@ def simulate_population(
 
             timer.checkpoint("[Final angular momentum]")
 
+            # ===================== EXPORT OUTPUT ========================
+
             # Adding the evolution output to a data frame for export.
             log.info("Creating data frame for exporting...")
 
@@ -305,7 +324,8 @@ def simulate_population(
 
             # Save the data frame as a compressed binary file.
             final_output_path = pathlib.Path().joinpath(
-                output_path, "final_pop_dyn.pkl.gz",
+                output_path,
+                "final_pop_dyn.pkl.gz",
             )
             df_final.to_pickle(final_output_path, compression="gzip")
 
@@ -316,7 +336,7 @@ def simulate_population(
             timer.checkpoint("[Export]")
 
     # Cleanup. Reset seed to empty value.
-    configuration.cfg["seed"] = None
+    cfg["seed_dyn"] = None
 
 
 if __name__ == "__main__":
@@ -341,18 +361,4 @@ if __name__ == "__main__":
 
     args = args.parse_args()
 
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-
-    # If the output directory does not exist, create it.
-    output_path = pathlib.Path(args.output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    # Update path-dependent configurations prepending the specified output path.
-    configuration.cfg["profile_log"] = pathlib.Path().joinpath(
-        output_path, configuration.cfg["profile_log"]
-    )
-    configuration.cfg["profile_json"] = pathlib.Path().joinpath(
-        output_path, configuration.cfg["profile_json"]
-    )
-
-    simulate_population(output_path, args.parameter_override)
+    simulate_population(args)

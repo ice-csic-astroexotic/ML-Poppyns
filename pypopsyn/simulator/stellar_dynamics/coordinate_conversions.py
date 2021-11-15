@@ -151,7 +151,7 @@ def galactocentric_to_icrs(
 
         Returns:
             (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray): RA, DEC coordinates in [deg],
-            distance from the ICRS origin in [kpc], proper motion v_RA, v_DEC components
+            distance from the ICRS origin in [kpc], proper motion pm_RA, pm_DEC components
             in [mas/yr] in the ICRS reference frame and the line of sight velocity in [km/s].
         """
 
@@ -195,13 +195,94 @@ def galactocentric_to_icrs(
     icrs_coord = gc_coord.transform_to(coord.ICRS)
 
     # Determine RA and DEC in [deg] in the ranges [0, 360] and [-90, 90],
-    # respectively, and proper motion in RA and DEC in units of [mas/yr];
-    # we subsequently remove astropy units to obtain numpy float values.
+    # respectively, and drop the units to the astropy objects by taking only the values.
     ra = icrs_coord.ra.degree
     dec = icrs_coord.dec.degree
-    sun_dist = icrs_coord.distance / u.kpc
-    v_ra = icrs_coord.pm_ra_cosdec / (u.mas / u.yr)
-    v_dec = icrs_coord.pm_dec / (u.mas / u.yr)
-    v_ls = icrs_coord.radial_velocity / (u.km / u.s)
+    sun_dist = icrs_coord.distance.value
+    pm_ra = icrs_coord.pm_ra_cosdec.value
+    pm_dec = icrs_coord.pm_dec.value
+    v_ls = icrs_coord.radial_velocity.value
 
-    return ra, dec, sun_dist, v_ra, v_dec, v_ls
+    return ra, dec, sun_dist, pm_ra, pm_dec, v_ls
+
+
+def galactocentric_to_galactic(
+    x: np.ndarray,
+    y: np.ndarray,
+    z: np.ndarray,
+    v_x: np.ndarray,
+    v_y: np.ndarray,
+    v_z: np.ndarray,
+) -> Tuple[
+    np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray
+]:
+    """
+        Calculating the galactic longitude l, galactic latitude b, distance,
+        pm_l, pm_b proper motion components and line of sight velocity v_ls from the
+        galactocentric coordinates x, y, z and velocity v_x, v_y, v_z.
+        The galactocentric coordinates refer to the galactocentric reference frame
+        defined as a right-handed reference frame with the Sun located at the coordinate
+        point (x = 0 kpc, y = 8.3 kpc, z = 0.02 kpc).
+        We use the astropy.coordinates package that allows automatic conversions
+        between coordinate systems. l = 0 deg, b = 0 deg corresponds to the location of the Galactic
+        center, l increase anticlockwise (in the direction of galactic rotation as seen from the Sun)
+        and ranges in the interval [-180, 180] deg while b is in the range [-90, 90] deg.
+
+        Args:
+            x (np.ndarray): x coordinate in [kpc] in the galactocentric reference frame.
+            y (np.ndarray): y coordinate in [kpc] in the galactocentric reference frame.
+            z (np.ndarray): z coordinate in [kpc] in the galactocentric reference frame.
+            v_x (np.ndarray): x component of the velocity in [km/s] in galactocentric reference frame.
+            v_y (np.ndarray): y component of the velocity in [km/s] in galactocentric reference frame.
+            v_z (np.ndarray): z component of the velocity in [km/s] in galactocentric reference frame.
+
+        Returns:
+            (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray): galactic longitude l,
+            galactic latitude b in [deg], distance in [kpc], pm_l, pm_b proper motion components in [mas/yr]
+            and line of sight velocity v_ls in [km/s].
+        """
+
+    # The galactocentric reference frame used for the input is a right-handed
+    # reference frame with the Sun located at the coordinate point (x = 0 kpc,
+    # y = 8.3 kpc, z = 0.02 kpc).
+    # The module astropy.coordinates.Galactocentric deals with galactocentric
+    # coordinates but it is defined with the x, y, axes rotated by 90 degrees
+    # clockwise with respect to the galactocentric reference frame used in the simulation.
+    # In this new frame the position of the Sun is (x = -8.3 kpc, y = 0 kpc, z = 0.02
+    # kpc). We therefore need to convert the galactocentric coordinates we used
+    # into the galactocentric frame defined in astropy. To do that we
+    # apply the transformation (x_gal -> y_astropy, y_gal -> -x_astropy, z_gal -> z_astropy).
+
+    # Set the astropy galactocentric frame with the parameter
+    # values from astropy version 4.0.
+    _ = galactocentric_frame_defaults.set("v4.0")
+
+    # Create an object containing the coordinates using the class
+    # coordinates.Galactocentric from astropy.
+    c = coord.Galactocentric(
+        x=-y * u.kpc,
+        y=x * u.kpc,
+        z=z * u.kpc,
+        v_x=-v_y * u.km / u.s,
+        v_y=v_x * u.km / u.s,
+        v_z=-v_z * u.km / u.s,
+        z_sun=cfg["z_sun"] * u.kpc,
+        galcen_distance=cfg["R_sun"] * u.kpc,
+    )
+
+    # Transform from galactocentric to galactic frame.
+    galactic = c.transform_to(coord.Galactic())
+
+    # Make the galactic longitude ranging in [-180, 180] deg with the galactic center at (0, 0) deg.
+    l_gal = galactic.l.value
+    l_gal[(l_gal > 180.0) & (l_gal <= 360.0)] = (
+        l_gal[(l_gal > 180.0) & (l_gal <= 360.0)] - 360.0
+    )
+    b_gal = galactic.b.value
+    distance = galactic.distance.value
+
+    pm_l_cosb = galactic.pm_l_cosb.value
+    pm_b = galactic.pm_b.value
+    radial_velocity = galactic.radial_velocity.value
+
+    return l_gal, b_gal, distance, pm_l_cosb, pm_b, radial_velocity
