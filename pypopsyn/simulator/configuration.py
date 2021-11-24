@@ -116,7 +116,7 @@ cfg["h_c"] = 0.18
 # Characteristic neutron star radius in [cm].
 cfg["NS_radius"] = 1.1e6
 
-# Characteristic neutron star mass in solar masses.
+# Characteristic neutron star mass in [g].
 cfg["NS_mass"] = 1.4 * const.M_SUN
 
 
