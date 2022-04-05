@@ -33,8 +33,8 @@ from typing import Tuple
 import numpy as np
 
 import pypopsyn.benchmark.pyinstrument as benchmark
-import pypopsyn.simulator.basics.cdf_calculator as cc
 import pypopsyn.simulator.basics.constants as const
+import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.initial_position as ip
@@ -90,7 +90,7 @@ class InitialNeutronStarPopulation:
         output_dir=cfg["profiles_dir"],
     )
     def position(
-        self, t_age: np.ndarray, spiral_model: sm.SpiralModelBase
+        self, t_age: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Calculating the position at birth of each random neutron star in
@@ -99,7 +99,6 @@ class InitialNeutronStarPopulation:
         Args:
 
             t_age (np.ndarray): array of neutron star ages in [yr].
-            spiral_model (sm.SpiralModelBase): a class specifying the spiral arm structure model.
 
         Returns:
 
@@ -116,7 +115,7 @@ class InitialNeutronStarPopulation:
 
         # Drawing a random distance from the galactic center in [kpc] and a random
         # azimuthal angle in [rad] according to the 2d density model.
-        r_rand, phi_rand = cc.random_from_pdf_2d(
+        r_rand, phi_rand = rs.random_from_pdf_2d(
             r_grid, phi_grid, NS_density_model, self.NS_number
         )
 
@@ -130,7 +129,7 @@ class InitialNeutronStarPopulation:
         z_grid = np.logspace(
             np.log10(0.0001), np.log10(cfg["z_extent"]), cfg["resolution"]
         )
-        z_pdf_rand = cc.random_from_pdf(
+        z_pdf_rand = rs.random_from_pdf(
             z_grid, ip.pdf_initial_height, self.NS_number
         )
 
@@ -170,7 +169,7 @@ class InitialNeutronStarPopulation:
         # neutron star according to the underlying velocity probability density
         # function.
         vk_grid = np.linspace(0.0, cfg["vk_extent"], cfg["resolution"])
-        vk_rand = cc.random_from_pdf(vk_grid, pdf_vkick, self.NS_number)
+        vk_rand = rs.random_from_pdf(vk_grid, pdf_vkick, self.NS_number)
         # Convert from [km/s] to [kpc/yr].
         vk_rand = vk_rand * const.YR_TO_S / const.KPC_TO_KM
 
@@ -180,7 +179,7 @@ class InitialNeutronStarPopulation:
         # angle [rad] in the range [0, np.pi] according to the PDF np.sin.
         psi_rand = np.random.uniform(0, 2 * np.pi, self.NS_number)
         theta_grid = np.linspace(0.0, np.pi, cfg["resolution"])
-        theta_rand = cc.random_from_pdf(theta_grid, np.sin, self.NS_number)
+        theta_rand = rs.random_from_pdf(theta_grid, np.sin, self.NS_number)
 
         # Project the velocity on a Cartesian reference frame co-moving with each
         # star, where the local x-axis points always in the r-direction of our
@@ -269,6 +268,6 @@ class InitialNeutronStarPopulation:
         """
 
         chi_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-        chi_rand = cc.random_from_pdf(chi_grid, np.sin, self.NS_number)
+        chi_rand = rs.random_from_pdf(chi_grid, np.sin, self.NS_number)
 
         return chi_rand

@@ -28,7 +28,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import Callable
+from typing import Callable, Tuple
 
 import numpy as np
 import scipy.integrate as integrate
@@ -99,7 +99,7 @@ def random_from_pdf(
 
 def random_from_pdf_2d(
     x1: np.ndarray, x2: np.ndarray, pdf_2d: np.ndarray, num_draw: int,
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Drawing random values from a given 2D probability density function.
     x1 is the variable corresponding to the rows (axis=0), x2 is the variable corresponding to
@@ -112,7 +112,7 @@ def random_from_pdf_2d(
         num_draw (int): number of values to draw.
 
     Returns:
-        np.ndarray: random points of coordinate (x1, x2) drawn from the pdf.
+        (np.ndarray, np.ndarray): random points of coordinates (x1, x2) drawn from the pdf.
     """
 
     # Build the cumulative function grid by computing a cumulative function

@@ -30,7 +30,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.basics.cdf_calculator as cc
+import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.stellar_dynamics.initial_position as ip
 
 TOL = 1e-5
@@ -62,7 +62,7 @@ def test_cdf_calculator(test_case_1):
     """
     Checking that the cdf is correctly calculated for given pdf and x array.
     """
-    cdf_out = cc.cdf_calculator(test_case_1["x"], ip.pdf_initial_height)
+    cdf_out = rs.cdf_calculator(test_case_1["x"], ip.pdf_initial_height)
     assert np.isclose(cdf_out, test_case_1["cdf_expected"]).all()
 
 
@@ -76,7 +76,7 @@ def test_random_from_cdf(monkeypatch, test_case_2):
 
     monkeypatch.setattr(np.random, "uniform", mock_cdf_rand)
 
-    x_rand_out = cc.random_from_cdf(
+    x_rand_out = rs.random_from_cdf(
         test_case_2["x"], test_case_2["cdf"], test_case_2["num_draw"]
     )
 
@@ -96,7 +96,7 @@ def test_random_from_pdf(monkeypatch, test_case_2):
 
     monkeypatch.setattr(np.random, "uniform", mock_cdf_rand)
 
-    x_rand_out = cc.random_from_pdf(
+    x_rand_out = rs.random_from_pdf(
         test_case_2["x"], pdf, test_case_2["num_draw"]
     )
 
