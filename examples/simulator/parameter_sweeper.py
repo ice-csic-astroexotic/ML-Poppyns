@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    parameter sweeper script.
+    Parameter sweeper script.
 
     This script generates the files necessary to launch multiple simulations with different parameter values
     on HTCondor.
@@ -31,10 +31,9 @@
 
     Authors:
 
-        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
 
-    Copyright (c) MAGNESIA (ICE-CSIC) 2020
+    Copyright (c) MAGNESIA (ICE-CSIC) 2022
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -196,7 +195,7 @@ def check_expand_args(args_dict: dict) -> (list, list):
     cli_args: list = []
     cli_str: list = []
 
-    # Open the parameters dictionary with required values for the selection ones.
+    # Open the parameter dictionary to load requirements.
     f = open("examples/simulator/config_sweeper.json")
     check_arg = json.load(f)
 
@@ -244,7 +243,7 @@ def check_expand_args(args_dict: dict) -> (list, list):
                     ]
                 )
             else:
-                # If the value for such argument is not on the dictionary of
+                # If the value for such argument is not in the dictionary of
                 # possible values we throw an exception.
                 raise ValueError(
                     f"The value {value} is not feasible for parameter {arg}"
@@ -255,8 +254,8 @@ def check_expand_args(args_dict: dict) -> (list, list):
             # three values if sampling_type = grid or two values if sampling_type = random.
 
             if args_dict["sampling_type"] == "grid":
-                # The three values [low, high, steps] are used to expand each one of the
-                # argument with the linear space in the range [low, high] with a number of specified steps.
+                # The three values [low, high, steps] are used to expand each of the
+                # argument with linear spacing in the range [low, high] with a number of specified steps.
                 if len(value) != 3:
                     raise ValueError(
                         f"In grid mode the list must have length 3 for parameter {arg}"
@@ -313,7 +312,7 @@ def main(args):
 
     if args_dict["sampling_type"] == "grid":
         # Create a generator of all the possible combinations of parameters based on
-        # their expanded range lists
+        # their expanded range lists.
         parameter_sets_gen = itertools.product(*var_expanded_ranges)
 
     elif args_dict["sampling_type"] == "random":
@@ -321,7 +320,7 @@ def main(args):
         var_expanded_ranges = np.array(var_expanded_ranges).T.tolist()
         parameter_sets_gen = list(map(tuple, var_expanded_ranges))
 
-    # Queue each set of parameter as a different simulation in the pool.
+    # Save the input arguments to run each simulation in a file.
     log.info("Generating simulation parameter sets...")
 
     output_path = pathlib.Path(args.output_dir)
