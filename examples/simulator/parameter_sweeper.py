@@ -338,6 +338,7 @@ def main(args):
             log.info(s)
 
             # Generate output folder for the simulation.
+            # Note that the numbering of the folders is limited to 6 digits here.
             simulation_output_path = pathlib.Path().joinpath(
                 output_path, f"{simulation_number:06}"
             )
