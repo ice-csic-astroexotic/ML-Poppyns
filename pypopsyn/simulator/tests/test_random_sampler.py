@@ -58,6 +58,28 @@ def test_case_2():
     return data
 
 
+@pytest.fixture()
+def test_case_3():
+    data = {
+        "x1": np.linspace(0.0, 10.0, 5),
+        "x2": np.linspace(0.0, 10.0, 5),
+        "pdf2D": np.array(
+            [
+                [0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.5, 0.5, 0.5, 0.0],
+                [0.0, 0.5, 1.0, 0.5, 0.0],
+                [0.0, 0.5, 0.5, 0.5, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0],
+            ]
+        ),
+        "num_draw": 1,
+        "x1_rand_expected": np.array([5.0]),
+        "x2_rand_expected": np.array([5.0]),
+    }
+
+    return data
+
+
 def test_cdf_calculator(test_case_1):
     """
     Checking that the cdf is correctly calculated for given pdf and x array.
@@ -101,3 +123,24 @@ def test_random_from_pdf(monkeypatch, test_case_2):
     )
 
     assert np.abs(test_case_2["x_rand_expected"] - x_rand_out) < TOL
+
+
+def test_random_from_pdf2d(monkeypatch, test_case_3):
+    """
+    Checking that random numbers are correctly drawn from a 2D pdf.
+    """
+
+    def mock_cdf_rand(*args, **kwargs):
+        return 0.5
+
+    monkeypatch.setattr(np.random, "uniform", mock_cdf_rand)
+
+    x1_rand_out, x2_rand_out = rs.random_from_pdf_2d(
+        test_case_3["x1"],
+        test_case_3["x2"],
+        test_case_3["pdf2D"],
+        test_case_3["num_draw"],
+    )
+
+    assert np.abs(test_case_3["x1_rand_expected"] - x1_rand_out) < TOL
+    assert np.abs(test_case_3["x2_rand_expected"] - x2_rand_out) < TOL
