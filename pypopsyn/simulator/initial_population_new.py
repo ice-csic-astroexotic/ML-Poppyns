@@ -107,9 +107,13 @@ class InitialNeutronStarPopulation:
             for each generated neutron star.
         """
 
+        # Load the neutron star density model table in rho in (r, phi) coordinates.
+        # The density in the table is already multiplied by the galactocentric distance r
+        # to take into account the element of area correction.
         NS_density_model = np.load(
             "pypopsyn/simulator/stellar_dynamics/YMW16_density_model.npy"
         )
+        # Define the grid of coordinates.
         r_grid = np.linspace(0.0, 20.0, NS_density_model.shape[0])
         phi_grid = np.linspace(0.0, 2.0 * np.pi, NS_density_model.shape[1])
 
