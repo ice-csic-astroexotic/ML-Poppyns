@@ -104,11 +104,11 @@ def flux_radio_obs(
     S_radio_f: np.ndarray, w_int: np.ndarray, w_eff: np.ndarray,
 ) -> np.ndarray:
     """
-    Compute the mean flux density received by the telescope after taking into account that the pulse has been
+    Compute the flux density received by the telescope after taking into account that the pulse has been
     broadened by the propagation in the interstellar medium. We assume that the total fluence = S_radio_f x w_int
     is conserved as the pulse propagates in the interstellar medium. Since the pulse is broadened as it propagates,
     the flux received on Earth is given by S_radio_obs = fluence / w_eff, therefore S_radio_obs < S_radio_f.
-    Also, since in our simulation we are assuming a simple squared pulse shape, the mean flux density is equal
+    Also, since in our simulation we are assuming a simple squared pulse shape, the flux density computed here is equal
     to the peak flux density.
 
     Args:
@@ -338,20 +338,20 @@ class SurveyRadio:
 
     def radiometer_equation(
         self,
-        S_radio_obs: np.ndarray,
+        S_radio_obs_mean: np.ndarray,
         G: np.ndarray,
         w_eff: np.ndarray,
         P: np.ndarray,
         T_sky: np.ndarray,
     ) -> np.ndarray:
         """
-        Radiometer equation used to compute the signal to noise ratio of each pulsars given the observed radio flux
-        at a given frequency, the effective pulse width, the spin period and the survey parameters
-        (see eq. (A1.22) in Lorimer & Kramer 2005). We are assuming a square pulse shape for simplicity
-        with height equal to the observed flux and width equal to the effective width.
+        Radiometer equation used to compute the signal to noise ratio of each pulsars given the observed
+        period-averaged radio flux at a given frequency, the effective pulse width, the spin period and
+        the survey parameters (see eq. (A1.22) in Lorimer & Kramer 2005). We are assuming a square pulse
+        shape for simplicity with height equal to the observed flux and width equal to the effective width.
 
         Args:
-            S_radio_obs (np.ndarray): observed radio flux density in [Jy].
+            S_radio_obs_mean (np.ndarray): observed period-averaged radio flux density in [Jy].
             G (np.ndarray): gain of the telescope for the given detection in [K Jy^(-1)].
             w_eff (np.ndarray): effective pulse width in [s].
             P (np.ndarray): spin period in [s].
@@ -360,7 +360,7 @@ class SurveyRadio:
         Returns:
             (np.ndarray): signal to noise ratio of the detection.
         """
-        SNR = np.zeros(len(S_radio_obs))
+        SNR = np.zeros(len(S_radio_obs_mean))
 
         # If the effective pulse width is larger than the spin period,
         # emission is continuous and the neutron star cannot be detected as a pulsar.
@@ -368,7 +368,7 @@ class SurveyRadio:
 
         # Compute the SNR of each detection using the radiometer equation.
         SNR[cond] = (
-            S_radio_obs[cond]
+            S_radio_obs_mean[cond]
             * G[cond]
             * np.sqrt(self.n_pol * self.t_obs * self.BW)
             * np.sqrt((P[cond] - w_eff[cond]) / w_eff[cond])
@@ -379,7 +379,7 @@ class SurveyRadio:
 
     def detect(
         self,
-        S_radio_obs: np.ndarray,
+        S_radio_obs_mean: np.ndarray,
         l_gal: np.ndarray,
         b_gal: np.ndarray,
         w_eff: np.ndarray,
@@ -390,7 +390,7 @@ class SurveyRadio:
         then the pulsar is detected.
 
         Args:
-            S_radio_obs (np.ndarray): observed radio flux density from a source in [Jy].
+            S_radio_obs_mean (np.ndarray): observed period-averaged radio flux density in [Jy].
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
             w_eff (np.ndarray): effective pulse width in [s].
@@ -401,7 +401,7 @@ class SurveyRadio:
                 false if not.
         """
         # Store the total number of sources.
-        n = len(S_radio_obs)
+        n = len(S_radio_obs_mean)
 
         # Draw a random offset from the telescope beam center.
         offset2 = self.detection_offset(n)
@@ -413,7 +413,7 @@ class SurveyRadio:
         T_sky = sky_temperature(l_gal, b_gal, self.f_central)
 
         SNR_detection = self.radiometer_equation(
-            S_radio_obs, G, w_eff, P, T_sky
+            S_radio_obs_mean, G, w_eff, P, T_sky
         )
 
         detected = SNR_detection > self.SNR_th

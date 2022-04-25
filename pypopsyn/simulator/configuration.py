@@ -143,7 +143,7 @@ cfg["sigma"] = 1e24
 cfg["L"] = 1e5
 
 # Characteristic electron density in [g/cm^3].
-cfg["n_e"] = 1e36
+cfg["n_e"] = 1e35
 
 # Time step for the magneto-rotational evolution [yr].
 cfg["magrot_time_step_log10"] = 1e-2
@@ -155,9 +155,9 @@ cfg["magrot_time_step_log10"] = 1e-2
 cfg["r_em"] = 3.0e7
 
 # Mean and standard deviation for the log-normally distributed radio luminosity in [erg s^(-1) Hz^(-1)].
-cfg["L_radio_log10_mean"] = 33.0
+cfg["L_radio_log10_mean"] = 35.0
 cfg["L_radio_log10_sigma"] = 0.8
-cfg["epsilon_L"] = 0.44
+cfg["epsilon_L"] = 0.5
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["ed_model"] = "ymw16"

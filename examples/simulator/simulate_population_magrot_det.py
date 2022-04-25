@@ -216,7 +216,7 @@ def simulate_population(args) -> None:
                 "P": [],
                 "Pdot": [],
                 "L_radio_bol": [],
-                "S_radio_obs": [],
+                "S_radio_obs_mean": [],
                 "w_int": [],
                 "w_eff": [],
             }
@@ -237,7 +237,7 @@ def simulate_population(args) -> None:
                 "P": [],
                 "Pdot": [],
                 "L_radio_bol": [],
-                "S_radio_obs": [],
+                "S_radio_obs_mean": [],
                 "w_int": [],
                 "w_eff": [],
             }
@@ -423,13 +423,16 @@ def simulate_population(args) -> None:
                 # Compute the observed radio flux in [Jy].
                 S_radio_obs = sr.flux_radio_obs(S_radio_f, w_int_s, w_eff)
 
+                # Compute the period-averaged flux in [Jy].
+                S_radio_obs_mean = S_radio_obs * w_eff / P_d
+
                 # ===================== RADIO DETECTION ========================
 
                 # Simulating the PMPS survey.
                 detected_radio_PMPS = np.zeros(len(age_d), dtype=bool)
 
                 detected_radio_PMPS[coverage_PMPS] = survey_PMPS.detect(
-                    S_radio_obs[coverage_PMPS],
+                    S_radio_obs_mean[coverage_PMPS],
                     l_d[coverage_PMPS],
                     b_d[coverage_PMPS],
                     w_eff[coverage_PMPS],
@@ -452,7 +455,7 @@ def simulate_population(args) -> None:
                 detected_radio_SMPS = np.zeros(len(age_d), dtype=bool)
 
                 detected_radio_SMPS[coverage_SMPS] = survey_SMPS.detect(
-                    S_radio_obs[coverage_SMPS],
+                    S_radio_obs_mean[coverage_SMPS],
                     l_d[coverage_SMPS],
                     b_d[coverage_SMPS],
                     w_eff[coverage_SMPS],
@@ -492,7 +495,9 @@ def simulate_population(args) -> None:
                     "P": P_d[detected_radio_PMPS].tolist(),
                     "Pdot": P_dot_d[detected_radio_PMPS].tolist(),
                     "L_radio_bol": L_radio_bol[detected_radio_PMPS].tolist(),
-                    "S_radio_obs": S_radio_obs[detected_radio_PMPS].tolist(),
+                    "S_radio_obs_mean": S_radio_obs_mean[
+                        detected_radio_PMPS
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_PMPS].tolist(),
                     "w_eff": w_eff[detected_radio_PMPS].tolist(),
                 }
@@ -519,7 +524,9 @@ def simulate_population(args) -> None:
                     "P": P_d[detected_radio_SMPS].tolist(),
                     "Pdot": P_dot_d[detected_radio_SMPS].tolist(),
                     "L_radio_bol": L_radio_bol[detected_radio_SMPS].tolist(),
-                    "S_radio_obs": S_radio_obs[detected_radio_SMPS].tolist(),
+                    "S_radio_obs_mean": S_radio_obs_mean[
+                        detected_radio_SMPS
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_SMPS].tolist(),
                     "w_eff": w_eff[detected_radio_SMPS].tolist(),
                 }
@@ -597,7 +604,7 @@ def simulate_population(args) -> None:
                 "P",
                 "P_dot",
                 "L_radio_bol",
-                "S_radio_obs",
+                "S_radio_obs_mean",
                 "w_int",
                 "w_eff",
             ]
