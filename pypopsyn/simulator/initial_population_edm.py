@@ -1,6 +1,7 @@
 """
 Generating an initial population of neutron stars in the Milky Way with
-random parameters.
+random parameters. For the initial positions we assume that the distribution
+of progenitors follows the free electron density model ymw16 from Yau et al. (2016).
 
     Authors:
 
@@ -94,7 +95,11 @@ class InitialNeutronStarPopulation:
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Calculating the position at birth of each random neutron star in
-        cylindrical reference frame.
+        cylindrical reference frame according to the Galactic electron density
+        distribution ymw16 (see Yau et al. 2016).
+        Using the notebook ns_distribution_ne_model.ipynb we create a 2D numpy array containing the
+        electron density distribution in polar coordinates (r, phi).
+        This 2D array is used to sample the neutron star positions in the Galaxy.
 
         Args:
 
@@ -107,14 +112,16 @@ class InitialNeutronStarPopulation:
             for each generated neutron star.
         """
 
-        # Load the neutron star density model table in rho in (r, phi) coordinates.
+        # Load the neutron star density model table.
+        # The model table has been generated through the Jupyter notebook ns_distributio_ne_model.ipynb.
+        # It contains an 2D array of density rho in cylindrical coordinates (r, phi).
         # The density in the table is already multiplied by the galactocentric distance r
         # to take into account the element of area correction.
         NS_density_model = np.load(
             "pypopsyn/simulator/stellar_dynamics/YMW16_density_model.npy"
         )
         # Define the grid of coordinates.
-        r_grid = np.linspace(0.0, 20.0, NS_density_model.shape[0])
+        r_grid = np.linspace(0.0, cfg["r_extent"], NS_density_model.shape[0])
         phi_grid = np.linspace(0.0, 2.0 * np.pi, NS_density_model.shape[1])
 
         # Drawing a random distance from the galactic center in [kpc] and a random
@@ -125,7 +132,7 @@ class InitialNeutronStarPopulation:
 
         # Propagating the azimuthal coordinate of each object backwards in time
         # (according to its age) to account for the rotation of the galactic arms;
-        # we assume that the arm structure itself remains rigid.
+        # we assume that the density structure itself remains rigid.
         phi_rand = ip.spiral_arm_time_evol(phi_rand, t_age)
 
         # Drawing a random distance from the galactic plane in [kpc] for each neutron

@@ -47,7 +47,7 @@ import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.configuration as configuration
-import pypopsyn.simulator.initial_population_new as ipop
+import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv

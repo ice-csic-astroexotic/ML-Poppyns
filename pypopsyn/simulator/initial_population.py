@@ -1,6 +1,8 @@
 """
 Generating an initial population of neutron stars in the Milky Way with
-random parameters.
+random parameters. For the initial positions we assume that the distribution
+of progenitors follows a given radial distribution and the spiral arms with a given
+parametrized shape.
 
     Authors:
 
