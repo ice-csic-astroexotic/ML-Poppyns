@@ -32,6 +32,7 @@ SOFTWARE.
 
 import json
 
+import healpy as hp
 import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
@@ -60,10 +61,10 @@ def smearing_in_channel(
 
     dt = (
         2
-        * const.E ** 2
+        * const.E**2
         / (2 * np.pi * const.M_E * const.C)
         * channel_width
-        / nu ** 3.0
+        / nu**3.0
         * DM
         * const.PC_TO_CM
     )
@@ -95,13 +96,15 @@ def effective_pulse_width(
 
     tau_DM = smearing_in_channel(DM, channel_width, f)
     tau_sc = edm.compute_tau_sc(DM, f)
-    w_eff = np.sqrt(w_int ** 2 + tau_sc ** 2 + tau_DM ** 2 + t_samp ** 2)
+    w_eff = np.sqrt(w_int**2 + tau_sc**2 + tau_DM**2 + t_samp**2)
 
     return w_eff
 
 
 def flux_radio_obs(
-    S_radio_f: np.ndarray, w_int: np.ndarray, w_eff: np.ndarray,
+    S_radio_f: np.ndarray,
+    w_int: np.ndarray,
+    w_eff: np.ndarray,
 ) -> np.ndarray:
     """
     Compute the flux density received by the telescope after taking into account that the pulse has been
@@ -158,7 +161,7 @@ def sky_temperature_approx(
     return T_sky_f
 
 
-def sky_temperature(
+def sky_temperature_H81(
     l_gal: np.ndarray, b_gal: np.ndarray, f: float
 ) -> np.ndarray:
     """
@@ -190,6 +193,49 @@ def sky_temperature(
     x_pixel = x_pixel.astype(int)
     y_pixel = y_pixel.astype(int)
     T_sky_400 = data[y_pixel, x_pixel]
+
+    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6
+    # (see Lawson et al. 1987, Johnston et al. 1992).
+    T_sky_f = T_sky_400 * (408.0e6 / f) ** 2.6
+
+    return T_sky_f
+
+
+def sky_temperature_H81refined(
+    l_gal: np.ndarray, b_gal: np.ndarray, f: float
+) -> np.ndarray:
+    """
+    Sky temperature as a function of Galactic longitude and latitude (l, b) and frequency f.
+    We use the map from Remazeilles et al (2014) which is a refinment of the map from Haslam et al. (1981).
+    The map is downloadable here:
+    https://lambda.gsfc.nasa.gov/product/foreground/fg_2014_haslam_408_get.html.
+
+    Args:
+        l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
+        b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+        f (np.ndarray): central frequency at which the observation is performed [Hz].
+
+    Returns:
+        (np.ndarray): measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
+    """
+
+    # Read the sky temperature map.
+    file = (
+        "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81_refined.fits"
+    )
+    T_sky_map = hp.read_map(file)
+
+    # Convert coordinates into astropy coordinates object.
+    coord = SkyCoord(l_gal, b_gal, frame="galactic", unit="deg")
+
+    # Convert sky coordinates into pixel coordinates and extract the temperatures.
+    l_g = coord.l.degree
+    b_g = coord.b.degree
+    vec = hp.rotator.dir2vec(l_g, b_g, lonlat=True)
+    n_side = 512
+    pix = hp.pixelfunc.vec2pix(n_side, vec[0], vec[1], vec[2], nest=False)
+
+    T_sky_400 = T_sky_map[pix]
 
     # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6
     # (see Lawson et al. 1987, Johnston et al. 1992).
@@ -255,7 +301,8 @@ class SurveyRadio:
         self.b_range_abs = self.parameters["b_range_abs"]
 
     def __init__(
-        self, parameters_path,
+        self,
+        parameters_path,
     ):
         """
         Radio survey initialization.
@@ -279,16 +326,16 @@ class SurveyRadio:
         b_gal: np.ndarray,
     ) -> np.ndarray:
         """
-            Determine which neutron stars are in the sky region covered by the survey.
+        Determine which neutron stars are in the sky region covered by the survey.
 
-            Args:
-                RA (np.ndarray): right ascension in [deg] defined between [0, 360] deg in ICRS frame.
-                DEC (np.ndarray): declination in [deg] defined between [-90, 90] deg in ICRS frame.
-                l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
-                b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+        Args:
+            RA (np.ndarray): right ascension in [deg] defined between [0, 360] deg in ICRS frame.
+            DEC (np.ndarray): declination in [deg] defined between [-90, 90] deg in ICRS frame.
+            l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
+            b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
 
-            Returns:
-                (np.ndarray): array of boolean variables: true if the pulsar is in the covered sky region, false if not.
+        Returns:
+            (np.ndarray): array of boolean variables: true if the pulsar is in the covered sky region, false if not.
         """
         coverage = (
             (RA > self.RA_range[0])
@@ -315,7 +362,7 @@ class SurveyRadio:
         Returns:
             (np.ndarray): square of the offset from the beam center for each detection in [arcmin^2] .
         """
-        offset2 = np.random.uniform(0.0, self.FWHM ** 2 / 4.0, n_detection)
+        offset2 = np.random.uniform(0.0, self.FWHM**2 / 4.0, n_detection)
 
         return offset2
 
@@ -332,7 +379,7 @@ class SurveyRadio:
             (np.ndarray): gain of the telescope for the given offset in [K Jy^(-1)].
         """
 
-        G = self.G0 * np.exp(-2.77 * offset2 / self.FWHM ** 2)
+        G = self.G0 * np.exp(-2.77 * offset2 / self.FWHM**2)
 
         return G
 
@@ -410,7 +457,7 @@ class SurveyRadio:
         G = self.gain_gaussian_beam(offset2)
 
         # Compute the sky temperature in the coordinates of each detection at the central frequency of the survey.
-        T_sky = sky_temperature(l_gal, b_gal, self.f_central)
+        T_sky = sky_temperature_H81refined(l_gal, b_gal, self.f_central)
 
         SNR_detection = self.radiometer_equation(
             S_radio_obs_mean, G, w_eff, P, T_sky

@@ -7,11 +7,16 @@ repos:
     rev: v4.3.21
     hooks:
     - id: isort
--   repo: https://github.com/ambv/black
-    rev: stable
+#-   repo: https://github.com/ambv/black
+#    rev: stable
+#    hooks:
+#    - id: black
+#      language_version: python3.7
+-   repo: https://github.com/psf/black
+    rev: 22.1.0
     hooks:
     - id: black
-      language_version: python3.7
+      additional_dependencies: ['click==8.0.4']
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.4.0
     hooks:
