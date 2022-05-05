@@ -3,9 +3,11 @@
 """
 Generation of the HTCondor scripts.
 
-This script generates all the scripts needed to sequentially run chunks of simulations, i.e., a group of simulations for a given set of parameters, in a single job using Dagman tool of HTCondor.
+This script generates all the scripts needed to sequentially run chunks of simulations, i.e., a group of simulations for
+a given set of parameters since each simulation has its own set of parameters, in a single job using Dagman tool of
+HTCondor.
 Note that this script needs the output from the `parameter_sweeper.py` script.
-In the argument --output_dir_htcondor we specify where it will be saved all the submit files for each job and a
+In the argument --output_dir_htcondor we specified where it will be saved all the submit files for each job and a
 dagman file for sequentially running each of those jobs.
 
 
