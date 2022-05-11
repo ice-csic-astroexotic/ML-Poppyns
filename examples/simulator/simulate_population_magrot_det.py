@@ -41,7 +41,7 @@ import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.configuration as configuration
-import pypopsyn.simulator.initial_population as ipop
+import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
@@ -343,7 +343,10 @@ def simulate_population(args) -> None:
                     P_d,
                     NS_magrot_evol_dict,
                 ) = mre.magneto_rotational_evolution(
-                    B_initial, chi_initial, P_initial, age_d,
+                    B_initial,
+                    chi_initial,
+                    P_initial,
+                    age_d,
                 )
 
                 # ===================== RADIO EMISSION ========================
@@ -362,7 +365,9 @@ def simulate_population(args) -> None:
 
                 # Determining if the pulsar's radio beam intercepts our line of sight.
                 intercepted_radio = er.los_intercept(
-                    chi_d, rho_beam, los_rand,
+                    chi_d,
+                    rho_beam,
+                    los_rand,
                 )
 
                 # Select only neutron stars that point at us.
@@ -387,7 +392,12 @@ def simulate_population(args) -> None:
                 # Determining the final period derivative.
                 period_derivative_vect = np.vectorize(pdv.period_derivative)
                 P_dot_d = (
-                    period_derivative_vect(B_d, chi_d, P_d,) / const.YR_TO_S
+                    period_derivative_vect(
+                        B_d,
+                        chi_d,
+                        P_d,
+                    )
+                    / const.YR_TO_S
                 )
 
                 # Determining the luminosity in different electromagnetic bands.
@@ -395,21 +405,33 @@ def simulate_population(args) -> None:
 
                 # Computing the intrinsic bolometric radio flux.
                 S_radio_bol = er.flux_radio(
-                    L_radio_bol, dist_d, solid_angle_beam,
+                    L_radio_bol,
+                    dist_d,
+                    solid_angle_beam,
                 )
 
                 # Computing the intrinsic radio flux density in [Jy].
                 S_radio_f = er.flux_density_radio(
-                    S_radio_bol, f=survey_PMPS.f_central,
+                    S_radio_bol,
+                    f=survey_PMPS.f_central,
                 )
 
                 # Computing the intrinsic pulse width of the radio pulse.
-                w_int = er.pulse_width(chi_d, rho_beam_d, los_rand_d,)
+                w_int = er.pulse_width(
+                    chi_d,
+                    rho_beam_d,
+                    los_rand_d,
+                )
                 # Convert pulse width from [rad] to [s].
                 w_int_s = w_int * P_d / (2.0 * np.pi)
 
                 # Computing the DM.
-                DM = edm.compute_DM(l_d, b_d, dist_d, cfg["ed_model"],)
+                DM = edm.compute_DM(
+                    l_d,
+                    b_d,
+                    dist_d,
+                    cfg["ed_model"],
+                )
 
                 # Compute the effective pulse width in [s].
                 w_eff = sr.effective_pulse_width(
