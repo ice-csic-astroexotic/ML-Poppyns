@@ -75,7 +75,7 @@ def generate_job_submit(
         f.close()
 
 
-def main(args):
+def dagman_generator(args):
 
     full_path_dagman = pathlib.Path().joinpath(
         "/data/magnesia/common", args.output_dir_htcondor
@@ -200,4 +200,4 @@ if __name__ == "__main__":
 
     args = args.parse_args()
 
-    main(args)
+    dagman_generator(args)
