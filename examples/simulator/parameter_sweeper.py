@@ -183,15 +183,15 @@ def set_default(args_dict: dict) -> None:  # noqa: C901
 
 def check_expand_args(args_dict: dict) -> (list, list):
     """
-        Check if the parsed input arguments are coherent and have the correct shape.
-        If in grid mode: expand each simulation parameter in linear space in the specified ranges.
-        If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
-        Args:
-            args_dict: dictionary of the parsed argument via CLI.
-        Return:
-            (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
-            expanded parameters.
-        """
+    Check if the parsed input arguments are coherent and have the correct shape.
+    If in grid mode: expand each simulation parameter in linear space in the specified ranges.
+    If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
+    Args:
+        args_dict: dictionary of the parsed argument via CLI.
+    Return:
+        (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
+        expanded parameters.
+    """
     cli_args: list = []
     cli_str: list = []
 
@@ -297,7 +297,6 @@ def check_expand_args(args_dict: dict) -> (list, list):
 
 
 def main(args):
-
     # Parse arguments provided to the parameter sweeper script.
     log.info("Parsing arguments...")
 
@@ -339,6 +338,9 @@ def main(args):
 
             # Generate output folder for the simulation.
             # Note that the numbering of the folders is limited to 6 digits here.
+            output_path = pathlib.Path().joinpath(
+                "/data/magnesia/common", output_path
+            )
             simulation_output_path = pathlib.Path().joinpath(
                 output_path, f"{simulation_number:06}"
             )
@@ -350,6 +352,9 @@ def main(args):
             for i in range(len(s)):
                 simulation_override_json[var_names[i]] = s[i]
 
+            simulation_output_path = pathlib.Path().joinpath(
+                "/data/magnesia/common", simulation_output_path
+            )
             simulation_override_json_path = pathlib.Path().joinpath(
                 simulation_output_path, "override.json"
             )
