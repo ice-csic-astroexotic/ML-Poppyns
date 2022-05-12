@@ -38,6 +38,7 @@ import time
 
 import numpy as np
 import pandas as pd
+from memory_profiler import profile
 
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
@@ -51,6 +52,7 @@ from pypopsyn.simulator.configuration import cfg
 log = logging.getLogger(__name__)
 
 
+@profile
 def simulate_population(args) -> None:
     """
     Generating a neutron star population starting from some initial
@@ -325,9 +327,9 @@ def simulate_population(args) -> None:
             # Save the data frame as a compressed binary file.
             final_output_path = pathlib.Path().joinpath(
                 output_path,
-                "final_pop_dyn.pkl.gz",
+                "final_pop_dyn.csv",
             )
-            df_final.to_pickle(final_output_path, compression="gzip")
+            df_final.to_csv(final_output_path)
 
             log.info(
                 f"Output of the evolved population generated in {os.getcwd()}/{final_output_path}"

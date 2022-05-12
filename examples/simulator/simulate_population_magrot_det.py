@@ -36,6 +36,7 @@ import time
 
 import numpy as np
 import pandas as pd
+import psutil
 
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.cdf_calculator as cc
@@ -78,7 +79,7 @@ def simulate_population(args) -> None:
 
     # Check if the parsed dynamically simulated population directory exists.
     dyn_path = pathlib.Path(args.dyn_data)
-    dyn_path = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.pkl.gz")
+    dyn_path = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.csv")
     dyn_path_config = pathlib.Path().joinpath(dyn_path, "override.json")
     if not dyn_path.exists():
         log.error(f"File {dyn_path} not found...")
@@ -146,7 +147,21 @@ def simulate_population(args) -> None:
             # ===================== INITIALIZE THE POPULATION ========================
 
             # Load the file containing the dynamically evolved population parameters.
-            df_dyn = pd.read_pickle(f"{dyn_path}", compression="gzip")
+            start = time.time()
+            df_dyn_chunked = pd.read_csv(
+                f"{dyn_path}", header=[0, 1], chunksize=100000
+            )
+            df_dyn = pd.concat(df_dyn_chunked)
+            df_dyn_memory = df_dyn.memory_usage().sum()
+            end = time.time()
+
+            # start = time.time()
+            # df_dyn = pd.read_csv(f"{dyn_path}", header=[0,1])
+            # df_dyn_memory = df_dyn.memory_usage().sum()
+            # end = time.time()
+
+            print("Read csv time: ", (end - start), "sec")
+            print("Memory: ", df_dyn_memory / 1024 / 1024, "MB")
 
             age = df_dyn["age"]["[yr]"].to_numpy()
             r_final = df_dyn["r"]["[kpc]"].to_numpy()
@@ -673,6 +688,9 @@ def simulate_population(args) -> None:
 
         # Cleanup. Reset seed to empty value.
         cfg["seed_magrot"] = None
+
+        process = psutil.Process(os.getpid())
+        print("Memory usage", process.memory_info().rss / 1024 / 1024, "in MB")
 
 
 if __name__ == "__main__":
