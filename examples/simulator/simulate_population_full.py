@@ -44,10 +44,10 @@ import numpy as np
 import pandas as pd
 
 import pypopsyn.benchmark.timewith as timewith
-import pypopsyn.simulator.basics.cdf_calculator as cc
 import pypopsyn.simulator.basics.constants as const
+import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.configuration as configuration
-import pypopsyn.simulator.initial_population as ipop
+import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
@@ -162,9 +162,7 @@ def simulate_population(args) -> None:
                 r_initial,
                 phi_initial,
                 z_initial,
-            ) = NS_population_initial.position(
-                t_age=age, spiral_model=sm.spiral_model
-            )
+            ) = NS_population_initial.position(t_age=age)
             # Convert from polar coordinates to Cartesian coordinates.
             x_initial, y_initial = coco.polar_to_cartesian(
                 r_initial, phi_initial
@@ -173,7 +171,11 @@ def simulate_population(args) -> None:
             # Generating initial velocities by summing the kick
             # velocities at birth and the orbital velocities.
             log.info("Generating initial kick velocities...")
-            (vk_r, vk_phi, vk_z,) = NS_population_initial.kick_velocity()
+            (
+                vk_r,
+                vk_phi,
+                vk_z,
+            ) = NS_population_initial.kick_velocity()
 
             log.info("Computing orbital velocities...")
             v_orb = NS_population_initial.orbital_velocity(
@@ -189,7 +191,7 @@ def simulate_population(args) -> None:
             # Compute the magnitude of the initial velocity vector for each star.
             v_initial = (
                 np.sqrt(
-                    v_r_initial ** 2 + v_phi_initial ** 2 + v_z_initial ** 2
+                    v_r_initial**2 + v_phi_initial**2 + v_z_initial**2
                 )
                 * const.KPC_TO_KM
                 / const.YR_TO_S
@@ -394,7 +396,7 @@ def simulate_population(args) -> None:
 
             # Compute the magnitude of the initial velocity vector for each star.
             v_final = np.sqrt(
-                v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2
+                v_r_final**2 + v_phi_final**2 + v_z_final**2
             )
 
             # Compute the total energy of the system after the dynamical evolution.
@@ -452,7 +454,10 @@ def simulate_population(args) -> None:
                 P_final,
                 magrot_evol_dict,
             ) = mre.magneto_rotational_evolution(
-                B_initial, chi_initial, P_initial, age,
+                B_initial,
+                chi_initial,
+                P_initial,
+                age,
             )
 
             if cfg["save_magrot_evolution"]:
@@ -470,7 +475,11 @@ def simulate_population(args) -> None:
             # Determining the final period derivatives.
             log.info("Computing final period derivatives...")
             P_dot_final = (
-                period_derivative_vect(B_final, chi_final, P_final,)
+                period_derivative_vect(
+                    B_final,
+                    chi_final,
+                    P_final,
+                )
                 / const.YR_TO_S
             )
 
@@ -488,7 +497,10 @@ def simulate_population(args) -> None:
             # Determining the luminosity in different electromagnetic bands.
             log.info("Computing radio fluxes and intrinsic pulse widths...")
 
-            L_radio_bol = er.pdf_luminosity_radio(P_final, P_dot_final,)
+            L_radio_bol = er.pdf_luminosity_radio(
+                P_final,
+                P_dot_final,
+            )
 
             # Determining the radio beam angular aperture.
             rho_beam = er.beam_aperture(P_final, cfg["r_em"])
@@ -500,11 +512,13 @@ def simulate_population(args) -> None:
             # Note that since we assume symmetry between the northern and southern hemisphere of the star
             # we only need to consider one hemisphere, e.g., the northern one.
             los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-            los_rand = cc.random_from_pdf(los_grid, np.sin, cfg["NS_number"])
+            los_rand = rs.random_from_pdf(los_grid, np.sin, cfg["NS_number"])
 
             # Selecting the pulsars whose radio beam intercepts our line of sight.
             intercepted_radio = er.los_intercept(
-                chi_final, rho_beam, los_rand,
+                chi_final,
+                rho_beam,
+                los_rand,
             )
 
             fraction_intercepted = len(
@@ -584,7 +598,8 @@ def simulate_population(args) -> None:
             # Computing the intrinsic radio flux density in [Jy].
             S_radio_f = np.zeros(cfg["NS_number"])
             S_radio_f[detectable_radio] = er.flux_density_radio(
-                S_radio_bol[detectable_radio], f=survey_PMPS.f_central,
+                S_radio_bol[detectable_radio],
+                f=survey_PMPS.f_central,
             )
 
             # Compute the effective pulse width in [s].
