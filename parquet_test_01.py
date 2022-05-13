@@ -2,6 +2,7 @@ import os
 import random
 from datetime import datetime
 
+import numpy as np
 import pandas as pd
 import psutil
 from memory_profiler import profile
@@ -13,19 +14,29 @@ print("Memory usage in MB:", process.memory_info().rss / 1024 / 1024)
 
 
 @profile
-def memory_test():
+def parquet_test():
     start_time = datetime.now()
-    n = cfg["NS_number"]  # number of records in file
-    s = 5000  # desired sample size
-    filename = "dyn_database_csv_1e8/final_pop_dyn.csv"
+    array = np.linspace(0, 100, 21)
 
-    skip = sorted(random.sample(range(2, n + 1), n - s))
-    df = pd.read_csv(filename, skiprows=skip, header=[0, 1])
+    column_index_1 = [
+        "array 1",
+        "array 2",
+    ]
+    column_index_2 = [
+        "[yr]",
+        "[kpc]",
+    ]
+    header = pd.MultiIndex.from_arrays([column_index_1, column_index_2])
 
-    print("df memory usage in MB:", df.memory_usage().sum() / 1024 / 1024)
+    df = pd.DataFrame(
+        data=np.array([array, array]).T,
+        columns=header,
+    )
 
     print(df)
-    df.to_csv("memory_example_01.csv")
+
+    df.to_parquet("parquet_example_01.parquet", engine="pyarrow")
+    df.to_csv("parquet_example_01.csv")
 
     process = psutil.Process(os.getpid())
     print("Memory usage in MB:", process.memory_info().rss / 1024 / 1024)
@@ -35,4 +46,4 @@ def memory_test():
 
 
 if __name__ == "__main__":
-    memory_test()
+    parquet_test()
