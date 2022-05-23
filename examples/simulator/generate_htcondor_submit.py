@@ -54,16 +54,18 @@ def generate_job_submit(path_output: pathlib.Path):
     # Path where each submit file will be saved.
     path_submit = pathlib.Path().joinpath(path_output, "job.submit")
     path_arguments_chunk = str(path_output) + "/arguments.txt"
-
     # Writing the HTCondor submit file, specifying the relevant arguments, output/error paths and queue structure.
 
     with open(path_submit, "w") as f:
         f.write("universe        = vanilla \n")
         f.write("executable      = " + str(path_output) + "/wrapper.sh \n")
-        f.write("arguments       = $(arg1) $(arg2) \n")
-        f.write("output          = $(arg1)/out.txt \n")
-        f.write("error           = $(arg1)/error.txt \n")
-        f.write("Queue arg1 arg2 from " + str(path_arguments_chunk) + "\n")
+        f.write(
+            "output          = " + str(path_output) + "/$(ProcId)-out.txt \n"
+        )
+        f.write(
+            "error           = " + str(path_output) + "/$(ProcId)-error.txt \n"
+        )
+        f.write("Queue arguments from " + str(path_arguments_chunk) + "\n")
         f.close()
 
 
@@ -107,6 +109,8 @@ def generate_wrapper(path_wrapper):
 
 
 def submit_generator(args):
+
+    common_path = "/data/magnesia/common/"
 
     simulation_output_path = pathlib.Path(args.output_dir_simulation)
 
@@ -170,7 +174,8 @@ def submit_generator(args):
             ]
 
             path_arguments_chunk = pathlib.Path().joinpath(
-                submit_folder_path, "arguments" + str(j + 1) + ".txt"
+                common_path,
+                str(submit_folder_path) + "/arguments" + str(j + 1) + ".txt",
             )
 
             np.savetxt(path_arguments_chunk, arguments_chunk, fmt="%s")
