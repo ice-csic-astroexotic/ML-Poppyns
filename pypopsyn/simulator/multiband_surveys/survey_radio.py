@@ -206,7 +206,7 @@ def sky_temperature_H81refined(
 ) -> np.ndarray:
     """
     Sky temperature as a function of Galactic longitude and latitude (l, b) and frequency f.
-    We use the map from Remazeilles et al (2014) which is a refinment of the map from Haslam et al. (1981).
+    We use the map from Remazeilles et al (2015) which is a refinment of the map from Haslam et al. (1981).
     The map is downloadable here:
     https://lambda.gsfc.nasa.gov/product/foreground/fg_2014_haslam_408_get.html.
 
