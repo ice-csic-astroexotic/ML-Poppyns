@@ -33,7 +33,7 @@ import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 from pypopsyn.simulator.configuration import cfg
 
-TOL = 1e-10
+TOL = 1e-5
 
 # Update the number of simulated objects for testing purposes.
 cfg["NS_number"] = 2
@@ -71,7 +71,7 @@ def test_case_1():
         "P_initial": np.array([1.0]),
         "t": 0.0,
         "dy_expected": np.array(
-            [-241210.98078460823, -6.538793128119392e-9, 2.642621780886504e-8]
+            [-382181.695, -6.538793128119392e-9, 2.642621780886504e-8]
         ),
     }
 
@@ -85,7 +85,7 @@ def test_case_2():
         "chi_initial": np.array([0.0, np.pi / 3]),
         "P_initial": np.array([1e-2, 1.0]),
         "t_age": np.array([10, 10]),
-        "B_final_expected": np.array([9.999979686e9, 999.997829102e9]),
+        "B_final_expected": np.array([9.99997956e9, 9.99996560e11]),
         "chi_final_expected": np.array([0.0, 1.0471974923]),
         "P_final_expected": np.array([0.01000000136, 1.00000023784]),
         "magrot_evol_dict_expected": {
@@ -112,7 +112,10 @@ def test_combined_derivatives(test_case_1):
     dy_out = mre.combined_derivatives(0, y, test_case_1["B_initial"][0])
 
     assert np.isclose(
-        dy_out, test_case_1["dy_expected"], rtol=TOL, atol=1.0e-30,
+        dy_out,
+        test_case_1["dy_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     ).all()
 
 

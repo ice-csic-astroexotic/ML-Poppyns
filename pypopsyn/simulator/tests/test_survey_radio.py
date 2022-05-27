@@ -191,7 +191,7 @@ def test_detect_PMPS(monkeypatch, test_case_1):
     def mock_T_sky(*args, **kwargs):
         return test_case_1["T_sky_expected"]
 
-    monkeypatch.setattr(sr, "sky_temperature", mock_T_sky)
+    monkeypatch.setattr(sr, "sky_temperature_H81refined", mock_T_sky)
 
     detected_out = PMPS.detect(
         test_case_1["S_radio_obs_expected"],

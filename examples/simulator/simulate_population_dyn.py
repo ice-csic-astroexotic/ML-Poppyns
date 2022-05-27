@@ -42,7 +42,7 @@ import pandas as pd
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
-import pypopsyn.simulator.initial_population as ipop
+import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
@@ -137,9 +137,7 @@ def simulate_population(args) -> None:
                 r_initial,
                 phi_initial,
                 z_initial,
-            ) = NS_population_initial.position(
-                t_age=age, spiral_model=sm.spiral_model
-            )
+            ) = NS_population_initial.position(t_age=age)
 
             # Generating initial velocities by summing the kick
             # velocities at birth and the orbital velocities.
@@ -164,7 +162,7 @@ def simulate_population(args) -> None:
             # Compute the magnitude of the initial velocity vector for each star.
             v_initial = (
                 np.sqrt(
-                    v_r_initial ** 2 + v_phi_initial ** 2 + v_z_initial ** 2
+                    v_r_initial**2 + v_phi_initial**2 + v_z_initial**2
                 )
                 * const.KPC_TO_KM
                 / const.YR_TO_S
@@ -240,7 +238,7 @@ def simulate_population(args) -> None:
 
             # Compute the magnitude of the initial velocity vector for each star.
             v_final = np.sqrt(
-                v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2
+                v_r_final**2 + v_phi_final**2 + v_z_final**2
             )
 
             # Compute the total energy of the system after the dynamical evolution.
