@@ -85,7 +85,7 @@ def generate_wrapper(path_wrapper):
         Nothing.
     """
 
-    # Writing the `wrapper.sh` file where we loop over the lines of the `arguments<i>.txt` file.
+    # Writing the `wrapper.sh` file where we loop over the lines of the `"/arguments_job" + str(j + 1) + ".txt"` file.
 
     with open(path_wrapper, "w") as f:
 
@@ -155,11 +155,13 @@ def submit_generator(args):
 
         n_sim_folder = len(sim_week)
 
-        # Calculate the number of files ´argument_job<j>.txt´ we need to have ´args.n_sim_job´ simulations per each job.
+        # Calculate the number of ´argument_job<j>.txt´ files we need in order to have ´args.n_sim_job´ simulations
+        # per each job, i.e., ´args.n_sim_job´ lines in each ´argument_job<j>.txt´ .
+
         if n_sim_folder % args.n_sim_job == 0:
-            n_arg_job = int(n_sim_folder / args.n_sim_job)
+            n_args = int(n_sim_folder / args.n_sim_job)
         else:
-            n_arg_job = int(n_sim_folder / args.n_sim_job) + 1
+            n_args = int(n_sim_folder / args.n_sim_job) + 1
 
         # Create the ´wrapper.sh´.
         path_wrapper = pathlib.Path().joinpath(week_folder_path, "wrapper.sh")
@@ -174,10 +176,10 @@ def submit_generator(args):
 
         list_arguments_week = []
 
-        # Looping through the number of jobs to create each `argument_job<i>.txt` file.
-        for j in range(n_arg_job):
+        # Looping through the `n_args` to create each `"/arguments_job" + str(j + 1) + ".txt"` file.
+        for j in range(n_args):
 
-            n_arguments_job = sim_week[
+            chunk_sim_job = sim_week[
                 j * args.n_sim_job : (j + 1) * args.n_sim_job
             ]
 
@@ -186,8 +188,9 @@ def submit_generator(args):
                 str(week_folder_path) + "/arguments_job" + str(j + 1) + ".txt",
             )
 
-            np.savetxt(path_arguments_job, n_arguments_job, fmt="%s")
-            # List of all the path of each `argument<i>.txt` file
+            np.savetxt(path_arguments_job, chunk_sim_job, fmt="%s")
+
+            # List of all the paths of each `"/arguments_job" + str(j + 1) + ".txt"` file
             list_arguments_week.append(path_arguments_job)
 
         np.savetxt(path_arguments, list_arguments_week, fmt="%s")
