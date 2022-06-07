@@ -34,61 +34,27 @@ from numba import float64, jit, prange
 from scipy import interpolate
 from scipy.integrate import odeint
 
-import pypopsyn.simulator.magneto_rotational_physics.magnetic_field_derivative as mfdv
+import pypopsyn.simulator.basics.interpolator as itp
 import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivative as madv
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.configuration import cfg
 
+# Load the table containing the magnetic field evolution.
 B_evol_table = np.load(
     "pypopsyn/simulator/magneto_rotational_physics/Bfield_evol_table.npy"
 )
-t_val = 10 * np.logspace(0.0, np.log10(5.0e8), 1000)
-B0_val = np.array(
-    [1.0e10, 1.0e11, 1.0e12, 1.0e13, 1.0e14, 1.0e15, 1.0e16], dtype=np.float64
+# Define the time and magnetic field grid on which the table is build.
+t_grid = np.logspace(0.0, np.log10(5.0e8), 1000)
+B0_grid = np.array(
+    [1.0e10, 1.0e11, 1.0e12, 1.0e13, 1.0e14, 1.0e15, 1.0e16, 1.0e17],
+    dtype=np.float64,
 )
+
+# Create an interpolator using scipy.
+# We won't use it together with numba because scipy is not compatible with the numba library.
 B_interpolator: scipy.interpolate.interp2d = interpolate.interp2d(
-    t_val, B0_val, B_evol_table, kind="linear"
+    t_grid, B0_grid, B_evol_table, kind="linear"
 )
-
-
-# @jit(float64[:,:](float64[:], float64[:], float64[:,:], float64[:], float64[:]), fastmath=True, nogil=True, cache=True, parallel=True)
-# fastmath=True, nogil=True, cache=True
-@jit(nopython=True)
-def bilinear_interpolation(
-    x_in: np.ndarray,
-    y_in: np.ndarray,
-    f_in: np.ndarray,
-    x_out: np.ndarray,
-    y_out: np.ndarray,
-) -> np.ndarray:
-    f_out = np.zeros((y_out.size, x_out.size), dtype=np.float64)
-
-    for i in range(f_out.shape[1]):
-        idx = np.searchsorted(x_in, x_out[i])
-
-        x1 = x_in[idx - 1]
-        x2 = x_in[idx]
-        x = x_out[i]
-
-        for j in range(f_out.shape[0]):
-            idy = np.searchsorted(y_in, y_out[j])
-            y1 = y_in[idy - 1]
-            y2 = y_in[idy]
-            y = y_out[j]
-
-            f11 = f_in[idy - 1, idx - 1]
-            f21 = f_in[idy - 1, idx]
-            f12 = f_in[idy, idx - 1]
-            f22 = f_in[idy, idx]
-
-            f_out[j, i] = (
-                f11 * (x2 - x) * (y2 - y)
-                + f21 * (x - x1) * (y2 - y)
-                + f12 * (x2 - x) * (y - y1)
-                + f22 * (x - x1) * (y - y1)
-            ) / ((x2 - x1) * (y2 - y1))
-
-    return f_out
 
 
 @jit(float64[:](float64, float64[:], float64))
@@ -117,11 +83,12 @@ def combined_derivatives(
     # Specifying the two derivatives.
     dy = np.zeros(len(y), dtype=np.float64)
 
-    t_arr = np.array([t], dtype=np.float64)
-    B_arr = np.array([B_initial], dtype=np.float64)
-
     # Interpolate the magnetic field evolution table.
-    B = bilinear_interpolation(t_val, B0_val, B_evol_table, t_arr, B_arr)
+    t_interp = np.array([t], dtype=np.float64)
+    B0_interp = np.array([B_initial], dtype=np.float64)
+    B = itp.bilinear_interpolation(
+        t_grid, B0_grid, B_evol_table, t_interp, B0_interp
+    )
     B = B[0, 0]
 
     dy[0] = madv.misalignment_angle_derivative(B, chi, P)
@@ -204,6 +171,7 @@ def magneto_rotational_evolution(
             )
         )
 
+        # Use the scipy interpolator to get the magnetic field evolution.
         B_t = B_interpolator(time_grid, B_initial[i])
 
         if cfg["save_magrot_evolution"]:
