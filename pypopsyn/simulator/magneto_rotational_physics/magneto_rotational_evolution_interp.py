@@ -46,7 +46,18 @@ B_evol_table = np.load(
 # Define the time and magnetic field grid on which the table is build.
 t_grid = np.logspace(0.0, np.log10(5.0e8), 1000)
 B0_grid = np.array(
-    [1.0e10, 1.0e11, 1.0e12, 1.0e13, 1.0e14, 1.0e15, 1.0e16, 1.0e17],
+    [
+        1.0e9,
+        1.0e10,
+        1.0e11,
+        1.0e12,
+        1.0e13,
+        1.0e14,
+        1.0e15,
+        1.0e16,
+        1.0e17,
+        1.0e18,
+    ],
     dtype=np.float64,
 )
 
