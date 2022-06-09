@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Random sampling a subset of k lines from a csv file with n lines.
+Sampling a random subset from a csv file.
 
 
     Authors:
@@ -34,57 +34,88 @@ from typing import List, Optional
 
 import numpy as np
 import pandas as pd
+from memory_profiler import profile
 
 random.seed(1)
 
 
 def choose_rows(
-    number_of_rows_to_select,
-    total_number_of_rows,
+    number_of_rows_to_select: int,
+    total_number_of_rows: int,
     previously_chosen_rows: Optional[List[int]] = None,
 ) -> List[int]:
 
+    """
+    Choose a subset of random indexes from the whole database.
+
+    Args:
+
+        number_of_rows_to_select (pathlib.Path): Number of rows to randomly selected from the full dataset.
+        total_number_of_rows (int) : Number of rows in the full dataset.
+        previously_chosen_rows (pathlib.Path): Rows previously chosen for the previous subset.
+
+    Returns:
+
+        A sorted list of the chosen indexes.
+    """
+
     if previously_chosen_rows is None:
         previously_chosen_rows = []
-    sample = random.sample(
-        range(1, total_number_of_rows), number_of_rows_to_select
+
+    # We remove from the list of indexes those that were previously chosen.
+    data_set = np.setdiff1d(
+        np.arange(total_number_of_rows), np.array(previously_chosen_rows)
     )
-    while (
-        len(np.intersect1d(np.array(sample), np.array(previously_chosen_rows)))
-        > 0
-    ):
-        diff = np.setdiff1d(np.array(sample), np.array(previously_chosen_rows))
-        new_sample = random.sample(
-            range(1, total_number_of_rows),
-            number_of_rows_to_select - len(diff),
-        )
-        concat = np.concatenate([diff, np.array(new_sample)])
-        if np.max(np.unique(concat, return_counts=True)[1]) != 1:
-            print(" ")
-        sample = list(concat)
+
+    sample = random.sample(data_set.tolist(), number_of_rows_to_select)
 
     return sorted(sample)
 
 
 def select(
-    file_path, k, n, previously_chosen_rows: Optional[List[int]] = None
+    file_path: pathlib.Path,
+    size_subset: int,
+    size_full_dataset: int,
+    previously_chosen_rows: Optional[List[int]] = None,
 ):
-    selected_rows = choose_rows(k, n, previously_chosen_rows)
+
+    """
+    Select a random subset from the whole dataset.
+
+    Args:
+
+        file_path (pathlib.Path): Path to the full dataset.
+        size_full_dataset (int): Number of rows to randomly selected from the full dataset.
+        size_subset (int) : Number of rows in the full dataset.
+        previously_chosen_rows (list): Rows previously chosen for the subset.
+
+    Returns:
+
+        A sorted list of the chosen indexes.
+    """
+
+    selected_rows = choose_rows(
+        size_subset, size_full_dataset, previously_chosen_rows
+    )
+
     data = []
+
     with file_path.open("r") as f:
         header_1 = f.readline()
         header_2 = f.readline()
         iterator = iter(f)
+
         for i, value in enumerate(selected_rows):
+
             if i == 0:
                 data += list(islice(iterator, value, value + 1))
             else:
                 loc = value - selected_rows[i - 1] - 1
-                print("loc", value, selected_rows[i - 1])
-                if loc < 0:
-                    print(" ")
+
                 data += list(islice(iterator, loc, loc + 1))
+
         result = [header_1, header_2] + data
+
     df = pd.read_csv(StringIO("".join(result)), header=[0, 1])
     df = df.set_index(("Unnamed: 0_level_0", "Unnamed: 0_level_1"))
     df.index.name = ""

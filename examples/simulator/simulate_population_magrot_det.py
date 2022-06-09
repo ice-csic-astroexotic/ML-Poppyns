@@ -56,6 +56,7 @@ log = logging.getLogger(__name__)
 
 
 def simulate_population(args) -> None:
+
     """
     Simulating a detected neutron star population starting from a dynamically evolved
     population database.
@@ -157,7 +158,7 @@ def simulate_population(args) -> None:
 
         # ===================== EVOLVE AND DETECT ========================
 
-        n_batchsize = 10
+        n_batchsize = 100000
 
         # Continue to simulate stars until the detected number of pulsars for all the surveys is reached.
         while (n_detected_sim_PMPS < n_detected_real_PMPS) | (
@@ -573,35 +574,28 @@ def simulate_population(args) -> None:
                 idx_det_tot = idx_det[detected]
                 idx_remove += idx_det_tot.tolist()
 
-                # age = np.delete(age, idx_remove)
-                # ra_final = np.delete(ra_final, idx_remove)
-                # dec_final = np.delete(dec_final, idx_remove)
-                # l_final = np.delete(l_final, idx_remove)
-                # b_final = np.delete(b_final, idx_remove)
-                # sun_dist_icrs = np.delete(sun_dist_icrs, idx_remove)
+        # Determine the Galactic neutron star birth rate per century for the different surveys.
+        t_max = cfg["t_age_max"] / 100  # Maximum time in centuries.
+        birth_rate_PMPS = n_created_PMPS / t_max
+        birth_rate_SMPS = n_created_SMPS / t_max
 
-            # Determine the Galactic neutron star birth rate per century for the different surveys.
-            t_max = cfg["t_age_max"] / 100  # Maximum time in centuries.
-            birth_rate_PMPS = n_created_PMPS / t_max
-            birth_rate_SMPS = n_created_SMPS / t_max
+        log.info(
+            f"Galactic neutron star birth rate per century according to PMPS: {birth_rate_PMPS} neutron stars per century."
+        )
+        log.info(
+            f"Galactic neutron star birth rate per century according to SMPS: {birth_rate_SMPS} neutron stars per century."
+        )
 
-            log.info(
-                f"Galactic neutron star birth rate per century according to PMPS: {birth_rate_PMPS} neutron stars per century."
-            )
-            log.info(
-                f"Galactic neutron star birth rate per century according to SMPS: {birth_rate_SMPS} neutron stars per century."
-            )
+        # Add the information of the birth rates to the configuration file.
+        cfg["birth_rate_PMPS"] = birth_rate_PMPS
+        cfg["birth_rate_SMPS"] = birth_rate_SMPS
 
-            # Add the information of the birth rates to the configuration file.
-            cfg["birth_rate_PMPS"] = birth_rate_PMPS
-            cfg["birth_rate_SMPS"] = birth_rate_SMPS
-
-            # Dump updated configuration to output path.
-            config_dump_path = pathlib.Path().joinpath(
-                output_path, "configuration.json"
-            )
-            with open(config_dump_path, "w") as f:
-                json.dump(cfg, f, indent=4, sort_keys=True)
+        # Dump updated configuration to output path.
+        config_dump_path = pathlib.Path().joinpath(
+            output_path, "configuration.json"
+        )
+        with open(config_dump_path, "w") as f:
+            json.dump(cfg, f, indent=4, sort_keys=True)
 
         # ===================== EXPORT OUTPUT ========================
 
