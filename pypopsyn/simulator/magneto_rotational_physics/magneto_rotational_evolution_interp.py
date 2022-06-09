@@ -43,7 +43,7 @@ from pypopsyn.simulator.configuration import cfg
 B_evol_table = np.load(
     "pypopsyn/simulator/magneto_rotational_physics/Bfield_evol_table.npy"
 )
-# Define the time and magnetic field grid on which the table is build.
+# Define the time and magnetic field grid on which the table is built.
 t_grid = np.logspace(0.0, np.log10(5.0e8), 1000)
 B0_grid = np.array(
     [
@@ -149,8 +149,6 @@ def magneto_rotational_evolution(
 
     # Initial conditions for the three parameters.
     y_initial = np.column_stack((chi_initial, P_initial))
-
-    # bilinear_interpolation.inspect_types()
 
     for i in range(n):
 
