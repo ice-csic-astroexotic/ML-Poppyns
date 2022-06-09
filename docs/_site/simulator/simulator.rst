@@ -124,17 +124,23 @@ Configuration File
 Initial NS Population
 **********************
 
-.. automodule:: simulator.initial_population
-  :members:
+.. automodule:: pypopsyn.simulator.initial_population
+  :members: initial_population
+
+Initial NS Population from electron density model
+*************************************************
+
+.. automodule:: pypopsyn.simulator.initial_population_edm
+  :members: initial_population_edm
 
 Basics
 #######
 
-CDF Calculator
-***************
+Random Sampler
+**************
 
-.. automodule:: simulator.basics.cdf_calculator
-  :members: cdf_calculator
+.. automodule:: simulator.basics.random_sampler
+  :members: random_sampler
 
 Constants
 *************
