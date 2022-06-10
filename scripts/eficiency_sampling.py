@@ -46,7 +46,7 @@ def choose_rows(
 ) -> List[int]:
 
     """
-    Choose a subset of random indexes from the whole database.
+    Choose a subset of random indexes from all the indexes of a dataframe.
 
     Args:
 
@@ -56,7 +56,7 @@ def choose_rows(
 
     Returns:
 
-        A sorted list of the chosen indexes.
+        A sorted list of the randomly chosen indexes.
     """
 
     if previously_chosen_rows is None:
@@ -80,18 +80,18 @@ def select(
 ):
 
     """
-    Select a random subset from the whole dataset.
+    Select a random subset from a dataset.
 
     Args:
 
         file_path (pathlib.Path): Path to the full dataset.
-        size_full_dataset (int): Number of rows to randomly selected from the full dataset.
+        size_full_dataset (int): Number of rows of the desired random subset.
         size_subset (int) : Number of rows in the full dataset.
-        previously_chosen_rows (list): Rows previously chosen for the subset.
+        previously_chosen_rows (list): Rows previously chosen for the previous subset.
 
     Returns:
 
-        A sorted list of the chosen indexes.
+        Dataframe of the random subset.
     """
 
     selected_rows = choose_rows(

@@ -52,7 +52,6 @@ from pypopsyn.simulator.configuration import cfg
 log = logging.getLogger(__name__)
 
 
-@profile
 def simulate_population(args) -> None:
     """
     Generating a neutron star population starting from some initial
