@@ -41,22 +41,23 @@ from pypopsyn.simulator.configuration import cfg
 
 # Load the table containing the magnetic field evolution.
 B_evol_table = np.load(
-    "pypopsyn/simulator/magneto_rotational_physics/Bfield_evol_table.npy"
+    "/home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis/pypopsyn/simulator/magneto_rotational_physics/Bfield_evol_table.npy"
 )
 # Define the time and magnetic field grid on which the table is built.
 t_grid = np.logspace(0.0, np.log10(5.0e8), 1000)
+t_grid = np.insert(t_grid, 0, 0.0, axis=0)
 B0_grid = np.array(
     [
-        1.0e9,
-        1.0e10,
-        1.0e11,
-        1.0e12,
-        1.0e13,
-        1.0e14,
-        1.0e15,
-        1.0e16,
-        1.0e17,
-        1.0e18,
+        1.1e9,
+        1.01e10,
+        1.001e11,
+        1.0001e12,
+        1.00001e13,
+        1.000001e14,
+        1.0000001e15,
+        1.00000001e16,
+        1.000000001e17,
+        1.0000000001e18,
     ],
     dtype=np.float64,
 )
