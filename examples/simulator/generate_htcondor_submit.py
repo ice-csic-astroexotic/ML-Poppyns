@@ -92,6 +92,7 @@ def generate_wrapper(path_wrapper):
         f.write(
             "#!/bin/bash  \n"
             " \n"
+            "export PATH=/data/magnesia/software/anaconda3/bin:$PATH \n"
             "conda init bash \n"
             "source /data/magnesia/software/anaconda3/etc/profile.d/conda.sh \n"
             "conda activate /data/magnesia/software/anaconda3/envs/pop_syn \n"
@@ -130,7 +131,7 @@ def submit_generator(args):
 
     n_sim_total = len(simulation_arguments)
 
-    # How many simulations we want to run per each week.
+    # How many weeks we need for running all the simulations if in each week we run `args.n_sim_week` simulations.
     if n_sim_total % args.n_sim_week == 0:
         n_week = int(n_sim_total / args.n_sim_week)
     else:
@@ -138,7 +139,7 @@ def submit_generator(args):
 
     for i in range(n_week):
 
-        # We create one folder per each week.
+        # We create one folder per week.
         week_folder_path = pathlib.Path().joinpath(
             output_htcondor_path, "week-" + str(i)
         )
@@ -156,7 +157,7 @@ def submit_generator(args):
         n_sim_folder = len(sim_week)
 
         # Calculate the number of ´argument_job<j>.txt´ files we need in order to have ´args.n_sim_job´ simulations
-        # per each job, i.e., ´args.n_sim_job´ lines in each ´argument_job<j>.txt´ .
+        # per job, i.e., ´args.n_sim_job´ lines in each ´argument_job<j>.txt´ .
 
         if n_sim_folder % args.n_sim_job == 0:
             n_args = int(n_sim_folder / args.n_sim_job)
