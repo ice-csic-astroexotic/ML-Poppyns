@@ -158,6 +158,7 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 cfg["r_em"]: float = 3.0e7
 
 # Mean and standard deviation for the log-normally distributed radio luminosity in [erg s^(-1) Hz^(-1)].
+# Parameters were adjusted to match observed data.
 cfg["L_radio_log10_mean"]: float = 35.0
 cfg["L_radio_log10_sigma"]: float = 0.8
 cfg["epsilon_L"]: float = 0.5
