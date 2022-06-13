@@ -153,7 +153,8 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 
 # Radio emission model parameters.
 
-# Distance from the center of the star where the radio emission is supposed to be generated in [cm].
+# Distance from the center of the star where the radio emission is supposed to be generated in [cm]
+# (see Johnston et al. 2020).
 cfg["r_em"]: float = 3.0e7
 
 # Mean and standard deviation for the log-normally distributed radio luminosity in [erg s^(-1) Hz^(-1)].
