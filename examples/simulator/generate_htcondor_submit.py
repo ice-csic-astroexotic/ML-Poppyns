@@ -131,7 +131,8 @@ def submit_generator(args):
 
     n_sim_total = len(simulation_arguments)
 
-    # How many weeks we need for running all the simulations if in each week we run `args.n_sim_week` simulations.
+    # Determine the number of weeks required to run all the simulations, where we assume args.n_sim_week simulations
+    # can be run each week.
     if n_sim_total % args.n_sim_week == 0:
         n_week = int(n_sim_total / args.n_sim_week)
     else:
