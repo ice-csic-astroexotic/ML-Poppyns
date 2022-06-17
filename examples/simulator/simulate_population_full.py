@@ -620,6 +620,11 @@ def simulate_population(args) -> None:
                 w_eff[detectable_radio],
             )
 
+            # Compute the period-averaged flux in [Jy].
+            S_radio_obs_mean = sr.flux_radio_obs_period_average(
+                S_radio_obs, P_final, w_eff
+            )
+
             # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
 
@@ -627,7 +632,7 @@ def simulate_population(args) -> None:
             detectable_radio_PMPS = intercepted_radio & coverage_PMPS
 
             detected_radio_PMPS[detectable_radio_PMPS] = survey_PMPS.detect(
-                S_radio_obs[detectable_radio_PMPS],
+                S_radio_obs_mean[detectable_radio_PMPS],
                 l_final[detectable_radio_PMPS],
                 b_final[detectable_radio_PMPS],
                 w_eff[detectable_radio_PMPS],
@@ -648,7 +653,7 @@ def simulate_population(args) -> None:
             detectable_radio_SMPS = intercepted_radio & coverage_SMPS
 
             detected_radio_SMPS[detectable_radio_SMPS] = survey_SMPS.detect(
-                S_radio_obs[detectable_radio_SMPS],
+                S_radio_obs_mean[detectable_radio_SMPS],
                 l_final[detectable_radio_SMPS],
                 b_final[detectable_radio_SMPS],
                 w_eff[detectable_radio_SMPS],
@@ -785,7 +790,7 @@ def simulate_population(args) -> None:
             "pm_DEC",
             "P",
             "P_dot",
-            "S_radio_obs",
+            "S_radio_obs_mean",
             "w_eff",
         ]
         units_PMPS = [
@@ -819,7 +824,7 @@ def simulate_population(args) -> None:
                     pm_dec_final[NS_idx_PMPS],
                     P_final[NS_idx_PMPS],
                     P_dot_final[NS_idx_PMPS],
-                    S_radio_obs[NS_idx_PMPS],
+                    S_radio_obs_mean[NS_idx_PMPS],
                     w_eff[NS_idx_PMPS],
                 ]
             ).T,
@@ -851,7 +856,7 @@ def simulate_population(args) -> None:
             "pm_DEC",
             "P",
             "P_dot",
-            "S_radio_obs",
+            "S_radio_obs_mean",
             "w_eff",
         ]
         units_SMPS = [
@@ -885,7 +890,7 @@ def simulate_population(args) -> None:
                     pm_dec_final[NS_idx_SMPS],
                     P_final[NS_idx_SMPS],
                     P_dot_final[NS_idx_SMPS],
-                    S_radio_obs[NS_idx_SMPS],
+                    S_radio_obs_mean[NS_idx_SMPS],
                     w_eff[NS_idx_SMPS],
                 ]
             ).T,

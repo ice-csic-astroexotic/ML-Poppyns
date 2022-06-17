@@ -32,6 +32,7 @@ SOFTWARE.
 
 import json
 
+import healpy as hp
 import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
@@ -60,10 +61,10 @@ def smearing_in_channel(
 
     dt = (
         2
-        * const.E ** 2
+        * const.E**2
         / (2 * np.pi * const.M_E * const.C)
         * channel_width
-        / nu ** 3.0
+        / nu**3.0
         * DM
         * const.PC_TO_CM
     )
@@ -95,20 +96,22 @@ def effective_pulse_width(
 
     tau_DM = smearing_in_channel(DM, channel_width, f)
     tau_sc = edm.compute_tau_sc(DM, f)
-    w_eff = np.sqrt(w_int ** 2 + tau_sc ** 2 + tau_DM ** 2 + t_samp ** 2)
+    w_eff = np.sqrt(w_int**2 + tau_sc**2 + tau_DM**2 + t_samp**2)
 
     return w_eff
 
 
 def flux_radio_obs(
-    S_radio_f: np.ndarray, w_int: np.ndarray, w_eff: np.ndarray,
+    S_radio_f: np.ndarray,
+    w_int: np.ndarray,
+    w_eff: np.ndarray,
 ) -> np.ndarray:
     """
-    Compute the mean flux density received by the telescope after taking into account that the pulse has been
+    Compute the flux density received by the telescope after taking into account that the pulse has been
     broadened by the propagation in the interstellar medium. We assume that the total fluence = S_radio_f x w_int
     is conserved as the pulse propagates in the interstellar medium. Since the pulse is broadened as it propagates,
     the flux received on Earth is given by S_radio_obs = fluence / w_eff, therefore S_radio_obs < S_radio_f.
-    Also, since in our simulation we are assuming a simple squared pulse shape, the mean flux density is equal
+    Also, since in our simulation we are assuming a simple squared pulse shape, the flux density computed here is equal
     to the peak flux density.
 
     Args:
@@ -129,12 +132,36 @@ def flux_radio_obs(
     return S_radio_f_obs
 
 
+def flux_radio_obs_period_average(
+    S_radio_f_obs: np.ndarray,
+    P: np.ndarray,
+    w_eff: np.ndarray,
+) -> np.ndarray:
+    """
+    Compute the mean flux density received by the telescope averaged over a spin period.
+    We are assuming a simple squared pulse shape.
+
+    Args:
+        S_radio_f_obs (np.ndarray): observed pulsar radio flux in [Jy].
+        P (np.ndarray): spin period of the pulsar in [s].
+        w_eff (np.ndarray): effective pulse width in [s].
+
+    Returns:
+        (np.ndarray): observed pulsar radio flux averaged over a period in [Jy].
+    """
+
+    # Compute the observed radio flux in [Jy].
+    S_radio_f_obs_mean = S_radio_f_obs * w_eff / P
+
+    return S_radio_f_obs_mean
+
+
 def sky_temperature_approx(
     l_gal: np.ndarray, b_gal: np.ndarray, f: float
 ) -> np.ndarray:
     """
     Sky temperature as a function of Galactic longitude and latitude (l, b) and frequency f.
-    We use an empirical fit from Narayan (1987) and rescale to the given frequency using
+    This function uses an empirical fit from Narayan (1987) and rescale to the given frequency using
     a relation from Johnston et al. (1992) (see also eq. (5) in Yusifov & Küçük 2004).
 
     Args:
@@ -146,7 +173,7 @@ def sky_temperature_approx(
         (np.ndarray): measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
     """
 
-    # Sky temperature at 408 Mhz from Narayan (1987).
+    # Sky temperature at 408 MHz from Narayan (1987).
     T_sky_400 = 25.0 + 275.0 / (
         (1.0 + (l_gal / 42.0) ** 2) * (1.0 + (b_gal / 3.0) ** 2)
     )
@@ -158,12 +185,12 @@ def sky_temperature_approx(
     return T_sky_f
 
 
-def sky_temperature(
+def sky_temperature_H81(
     l_gal: np.ndarray, b_gal: np.ndarray, f: float
 ) -> np.ndarray:
     """
     Sky temperature as a function of Galactic longitude and latitude (l, b) and frequency f.
-    We use the map from Haslam et al. (1981), downloadable here:
+    This function implements the sky temperature map at 408 MHz from Haslam et al. (1981), downloadable here:
     https://lambda.gsfc.nasa.gov/product/foreground/haslam_408.cfm.
 
     Args:
@@ -190,6 +217,50 @@ def sky_temperature(
     x_pixel = x_pixel.astype(int)
     y_pixel = y_pixel.astype(int)
     T_sky_400 = data[y_pixel, x_pixel]
+
+    # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6
+    # (see Lawson et al. 1987, Johnston et al. 1992).
+    T_sky_f = T_sky_400 * (408.0e6 / f) ** 2.6
+
+    return T_sky_f
+
+
+def sky_temperature_H81refined(
+    l_gal: np.ndarray, b_gal: np.ndarray, f: float
+) -> np.ndarray:
+    """
+    Sky temperature as a function of Galactic longitude and latitude (l, b) and frequency f.
+    This function implements the sky temperature map at 408 MHz from Remazeilles et al (2015) which is a
+    refinment of the map from Haslam et al. (1981).
+    The map is downloadable here:
+    https://lambda.gsfc.nasa.gov/product/foreground/fg_2014_haslam_408_get.html.
+
+    Args:
+        l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
+        b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+        f (np.ndarray): central frequency at which the observation is performed [Hz].
+
+    Returns:
+        (np.ndarray): measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
+    """
+
+    # Read the sky temperature map.
+    file = (
+        "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81_refined.fits"
+    )
+    T_sky_map = hp.read_map(file, dtype=np.float64)
+
+    # Convert coordinates into astropy coordinates object.
+    coord = SkyCoord(l_gal, b_gal, frame="galactic", unit="deg")
+
+    # Convert sky coordinates into pixel coordinates and extract the temperatures.
+    l_g = coord.l.degree
+    b_g = coord.b.degree
+    vec = hp.rotator.dir2vec(l_g, b_g, lonlat=True)
+    n_side = 512
+    pix = hp.pixelfunc.vec2pix(n_side, vec[0], vec[1], vec[2], nest=False)
+
+    T_sky_400 = T_sky_map[pix]
 
     # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6
     # (see Lawson et al. 1987, Johnston et al. 1992).
@@ -255,7 +326,8 @@ class SurveyRadio:
         self.b_range_abs = self.parameters["b_range_abs"]
 
     def __init__(
-        self, parameters_path,
+        self,
+        parameters_path,
     ):
         """
         Radio survey initialization.
@@ -279,16 +351,16 @@ class SurveyRadio:
         b_gal: np.ndarray,
     ) -> np.ndarray:
         """
-            Determine which neutron stars are in the sky region covered by the survey.
+        Determine which neutron stars are in the sky region covered by the survey.
 
-            Args:
-                RA (np.ndarray): right ascension in [deg] defined between [0, 360] deg in ICRS frame.
-                DEC (np.ndarray): declination in [deg] defined between [-90, 90] deg in ICRS frame.
-                l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
-                b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+        Args:
+            RA (np.ndarray): right ascension in [deg] defined between [0, 360] deg in ICRS frame.
+            DEC (np.ndarray): declination in [deg] defined between [-90, 90] deg in ICRS frame.
+            l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
+            b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
 
-            Returns:
-                (np.ndarray): array of boolean variables: true if the pulsar is in the covered sky region, false if not.
+        Returns:
+            (np.ndarray): array of boolean variables: true if the pulsar is in the covered sky region, false if not.
         """
         coverage = (
             (RA > self.RA_range[0])
@@ -315,7 +387,7 @@ class SurveyRadio:
         Returns:
             (np.ndarray): square of the offset from the beam center for each detection in [arcmin^2] .
         """
-        offset2 = np.random.uniform(0.0, self.FWHM ** 2 / 4.0, n_detection)
+        offset2 = np.random.uniform(0.0, self.FWHM**2 / 4.0, n_detection)
 
         return offset2
 
@@ -332,26 +404,26 @@ class SurveyRadio:
             (np.ndarray): gain of the telescope for the given offset in [K Jy^(-1)].
         """
 
-        G = self.G0 * np.exp(-2.77 * offset2 / self.FWHM ** 2)
+        G = self.G0 * np.exp(-2.77 * offset2 / self.FWHM**2)
 
         return G
 
     def radiometer_equation(
         self,
-        S_radio_obs: np.ndarray,
+        S_radio_obs_mean: np.ndarray,
         G: np.ndarray,
         w_eff: np.ndarray,
         P: np.ndarray,
         T_sky: np.ndarray,
     ) -> np.ndarray:
         """
-        Radiometer equation used to compute the signal to noise ratio of each pulsars given the observed radio flux
-        at a given frequency, the effective pulse width, the spin period and the survey parameters
-        (see eq. (A1.22) in Lorimer & Kramer 2005). We are assuming a square pulse shape for simplicity
-        with height equal to the observed flux and width equal to the effective width.
+        Radiometer equation used to compute the signal to noise ratio of each pulsars given the observed
+        period-averaged radio flux at a given frequency, the effective pulse width, the spin period and
+        the survey parameters (see eq. (A1.22) in Lorimer & Kramer 2005). We are assuming a square pulse
+        shape for simplicity with height equal to the observed flux and width equal to the effective width.
 
         Args:
-            S_radio_obs (np.ndarray): observed radio flux density in [Jy].
+            S_radio_obs_mean (np.ndarray): observed period-averaged radio flux density in [Jy].
             G (np.ndarray): gain of the telescope for the given detection in [K Jy^(-1)].
             w_eff (np.ndarray): effective pulse width in [s].
             P (np.ndarray): spin period in [s].
@@ -360,7 +432,7 @@ class SurveyRadio:
         Returns:
             (np.ndarray): signal to noise ratio of the detection.
         """
-        SNR = np.zeros(len(S_radio_obs))
+        SNR = np.zeros(len(S_radio_obs_mean))
 
         # If the effective pulse width is larger than the spin period,
         # emission is continuous and the neutron star cannot be detected as a pulsar.
@@ -368,7 +440,7 @@ class SurveyRadio:
 
         # Compute the SNR of each detection using the radiometer equation.
         SNR[cond] = (
-            S_radio_obs[cond]
+            S_radio_obs_mean[cond]
             * G[cond]
             * np.sqrt(self.n_pol * self.t_obs * self.BW)
             * np.sqrt((P[cond] - w_eff[cond]) / w_eff[cond])
@@ -379,7 +451,7 @@ class SurveyRadio:
 
     def detect(
         self,
-        S_radio_obs: np.ndarray,
+        S_radio_obs_mean: np.ndarray,
         l_gal: np.ndarray,
         b_gal: np.ndarray,
         w_eff: np.ndarray,
@@ -390,7 +462,7 @@ class SurveyRadio:
         then the pulsar is detected.
 
         Args:
-            S_radio_obs (np.ndarray): observed radio flux density from a source in [Jy].
+            S_radio_obs_mean (np.ndarray): observed period-averaged radio flux density in [Jy].
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
             w_eff (np.ndarray): effective pulse width in [s].
@@ -401,7 +473,7 @@ class SurveyRadio:
                 false if not.
         """
         # Store the total number of sources.
-        n = len(S_radio_obs)
+        n = len(S_radio_obs_mean)
 
         # Draw a random offset from the telescope beam center.
         offset2 = self.detection_offset(n)
@@ -410,10 +482,11 @@ class SurveyRadio:
         G = self.gain_gaussian_beam(offset2)
 
         # Compute the sky temperature in the coordinates of each detection at the central frequency of the survey.
-        T_sky = sky_temperature(l_gal, b_gal, self.f_central)
+        # We choose here to use the refined map from Remazeilles et al (2015).
+        T_sky = sky_temperature_H81refined(l_gal, b_gal, self.f_central)
 
         SNR_detection = self.radiometer_equation(
-            S_radio_obs, G, w_eff, P, T_sky
+            S_radio_obs_mean, G, w_eff, P, T_sky
         )
 
         detected = SNR_detection > self.SNR_th
