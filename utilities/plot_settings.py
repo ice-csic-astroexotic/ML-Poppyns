@@ -23,24 +23,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import matplotlib as mpl
 from matplotlib import rc, rcParams
 
 # Set `usetex=False' if you do not have LaTeX installed.
-rc("text", usetex=False)
+# rc("text", usetex=False)
 rc("font", family="serif")
-mpl.rcParams["text.latex.preamble"] = [r"\usepackage{amsmath}"]
+rcParams["text.latex.preamble"] = [r"\usepackage{amsmath}"]
 
 rcParams["mathtext.fontset"] = "stix"
 rcParams["font.family"] = "Liberation serif"
-rcParams["font.size"] = "30"
 # rcParams['font.weight']='bold'
+
 rcParams["figure.figsize"] = "8.0, 7.0"
 rcParams["figure.autolayout"] = True
 
 rcParams["axes.linewidth"] = "1.7"
 rcParams["axes.labelpad"] = "15.0"
 rcParams["axes.titlepad"] = "15.0"
+rcParams["axes.labelsize"] = "30.0"
+rcParams["axes.titlesize"] = "30.0"
+
+rcParams["legend.fontsize"] = "30.0"
 
 rcParams["xtick.direction"] = "in"
 rcParams["xtick.top"] = True
