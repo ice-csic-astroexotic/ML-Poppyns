@@ -33,11 +33,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import time
 from typing import Tuple
 
 import numpy as np
-from numba import float64, jit
-from scipy.integrate import odeint
+from julia import Main
+from numba import cfunc, float64, jit, njit
+from scipy.integrate import odeint, solve_ivp
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
@@ -88,7 +90,7 @@ def dynamical_eq_system(
     dz_dt = initial_cond[5]
 
     # Second derivatives.
-    d2r_dt2 = r * dphi_dt ** 2 - gradient_mw_pot[0]
+    d2r_dt2 = r * dphi_dt * dphi_dt - gradient_mw_pot[0]
     d2phi_dt2 = -2 * dr_dt * dphi_dt / r - gradient_mw_pot[1]
     d2z_dt2 = -gradient_mw_pot[2]
 
@@ -136,7 +138,37 @@ def dynamical_evolution(
     v_r_final = np.zeros(n)
     v_phi_final = np.zeros(n)
     v_z_final = np.zeros(n)
+    time_avg = 0
+    # Loop inside julia
 
+    Main.include("julia_solvers.jl")
+
+    Main.n = n
+    Main.initial_cond = initial_cond
+    Main.time_step = cfg["dyn_time_step"]
+    Main.t_age = t_age
+    Main.save_dyn_evolution = cfg["save_dyn_evolution"]
+
+    (
+        r_final,
+        phi_final,
+        z_final,
+        v_r_final,
+        v_phi_final,
+        v_z_final,
+        evolution_dictionary,
+    ) = Main.eval("solver_calls()")
+
+    tmpDict = {}
+    for k1, v1 in evolution_dictionary.items():
+        v2 = {k: v.tolist() for k, v in v1.items()}
+        tmpDict[k1] = v2
+
+    evolution_dictionary = tmpDict
+
+    # Original code
+
+    """
     for i in range(n):
 
         # Linear time grid in years over which the dynamical evolution is performed;
@@ -145,19 +177,38 @@ def dynamical_evolution(
             np.arange(0.0, t_age[i], cfg["dyn_time_step"]), t_age[i],
         )
 
+        #time_grid = np.append(
+        #    np.arange(0.0, 1.4708565048135614e7, 10000.0), 1.4708565048135614e7,
+        #)
+
+        #print(len(time_grid), time_grid)
+
         # Save the odeint output which is a two-dimensional array of
         # shape (len(time_grid), 6).
         # We set tfirst=True to unify the structure of the input ODEs in order to be able
         # to compare different scipy functions to solve the ODEs.
+
+        #u0 = [0.1021811020701645, 3.988563758793204, -0.007834562002312783, -1.4791582530956602e-7, 3.8563040038054056e-9, 1.1408224933522102e-7]
+        #tr = (0.0, 1.4708565048135614e7)
+
+
+        start = time.time()
         evol_output = np.array(
             odeint(
                 dynamical_eq_system,
                 y0=initial_cond[i],
                 t=time_grid,
                 args=(gm.galactic_model,),
+                #rtol = 1e-5, atol = 1e-5,
                 tfirst=True,
             )
         )
+        end = time.time()
+        time_avg = time_avg + end - start
+        #print(i, end - start)
+        #print(evol_output[-1,:])
+
+        #exit()
 
         if cfg["save_dyn_evolution"]:
 
@@ -183,7 +234,8 @@ def dynamical_evolution(
                 }
             }
             # Update the dictionary containing the evolution information of all the neutron stars.
-            evolution_dictionary = {**evolution_dictionary, **evolution}
+            #evolution_dictionary = {**evolution_dictionary, **evolution}
+            evolution_dictionary.update(evolution)
 
         # Save the final position and velocity.
         # Note: We save directly the v_phi velocity component and not the angular velocity omega.
@@ -194,6 +246,8 @@ def dynamical_evolution(
         omega_final = evol_output[-1, 4]
         v_phi_final[i] = omega_final * r_final[i]
         v_z_final[i] = evol_output[-1, 5]
+    """
+    print("Ode solver avg ", time_avg / n)
 
     final_population = np.array(
         [r_final, phi_final, z_final, v_r_final, v_phi_final, v_z_final]
