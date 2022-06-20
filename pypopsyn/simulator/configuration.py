@@ -43,7 +43,7 @@ cfg["profile_json"] = "profile.json"
 cfg["show_profiling"] = True
 
 # Save time evolution output
-cfg["save_dyn_evolution"] = False
+cfg["save_dyn_evolution"] = True
 cfg["save_magrot_evolution"] = False
 
 
@@ -52,7 +52,7 @@ cfg["save_magrot_evolution"] = False
 # Seed for the random number generation for the simulate_population_full.py.
 cfg["seed_full"] = None
 # Seed for the random number generation for the simulate_population_dyn.py.
-cfg["seed_dyn"] = None
+cfg["seed_dyn"] = 1234
 # Seed for the random number generation for the simulate_population_magrot_det.py.
 cfg["seed_magrot"] = None
 
@@ -60,7 +60,7 @@ cfg["seed_magrot"] = None
 cfg["resolution"] = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 300000
+cfg["NS_number"] = 3000
 
 # Sun's distance from the galactocentric axis in [kpc].
 cfg["R_sun"] = 8.3
