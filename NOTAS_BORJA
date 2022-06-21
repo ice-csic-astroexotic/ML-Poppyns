@@ -127,4 +127,4 @@ INFO:__main__:Percentage variation of z-component of total angular momentum of t
 
 Save dynamics (3000 stars)
 numba                     0m54,999
-julia lsoda(), tol=1e-9   0m38,689
+julia lsoda(), tol=1e-9   1m4,726s

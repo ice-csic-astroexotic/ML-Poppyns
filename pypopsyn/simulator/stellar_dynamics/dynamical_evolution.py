@@ -141,7 +141,8 @@ def dynamical_evolution(
     time_avg = 0
     # Loop inside julia
 
-    Main.include("julia_solvers.jl")
+    Main.galactic_model_input = cfg["galactic_model"]
+    Main.include("julia_solvers_classes.jl")
 
     Main.n = n
     Main.initial_cond = initial_cond
@@ -158,13 +159,6 @@ def dynamical_evolution(
         v_z_final,
         evolution_dictionary,
     ) = Main.eval("solver_calls()")
-
-    tmpDict = {}
-    for k1, v1 in evolution_dictionary.items():
-        v2 = {k: v.tolist() for k, v in v1.items()}
-        tmpDict[k1] = v2
-
-    evolution_dictionary = tmpDict
 
     # Original code
 

@@ -51,6 +51,13 @@ from pypopsyn.simulator.configuration import cfg
 log = logging.getLogger(__name__)
 
 
+class NumpyArrayEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
+
 def simulate_population(args) -> None:
     """
     Generating a neutron star population starting from some initial
@@ -232,7 +239,13 @@ def simulate_population(args) -> None:
                     output_path, "dyn_evolution.json"
                 )
                 with open(dyn_evolution_dump_path, "w") as f:
-                    json.dump(dyn_evol_dict, f, indent=4, sort_keys=True)
+                    json.dump(
+                        dyn_evol_dict,
+                        f,
+                        indent=4,
+                        sort_keys=True,
+                        cls=NumpyArrayEncoder,
+                    )
 
             timer.checkpoint("[Dynamic evolution]")
 
