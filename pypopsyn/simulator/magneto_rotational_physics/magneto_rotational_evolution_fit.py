@@ -40,12 +40,39 @@ import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.configuration import cfg
 
 
-@jit(float64(float64, float64, float64, float64, float64))
+def magnetic_field_evolution_fit_numpy(
+    B_initial: float, t: np.ndarray, a: float, b: float, B_asymptotic: float
+) -> np.ndarray:
+    """
+    An analytical function for the magnetic field evolution curves from the magneto-thermal evolution simulations.
+
+    Args:
+        B_initial(float): initial magnetic field strength in [G].
+        t(np.ndarray): time in [s].
+        a(float): power law index of the early time evolution.
+        b(float): power law index of the late time evolution.
+        B_asymptotic(float): asymptotic magnetic field strength at late times in [G].
+
+    Returns:
+        (np.ndarray): magnetic field evolution in [G] as a function of time t.
+    """
+    # Define the two timescales as a function of the initial B field.
+    tau1 = (9.0e16 / B_initial) ** 1.0
+    tau2 = (3.0e29 / B_initial) ** 0.4
+
+    B = (B_initial - B_asymptotic) * (1 + t / tau1) ** (-a) * (
+        1 + t / tau2
+    ) ** (-b) + B_asymptotic
+
+    return B
+
+
+@jit([float64(float64, float64, float64, float64, float64)], nopython=True)
 def magnetic_field_evolution_fit(
     B_initial: float, t: float, a: float, b: float, B_asymptotic: float
 ) -> float:
     """
-    an analytical fit for the magnetic field evolution curves from the magneto-thermal evolution simulations.
+    An analytical fit for the magnetic field evolution curves from the magneto-thermal evolution simulations.
 
     Args:
         B_initial(float): initial magnetic field strength in [G].
@@ -58,8 +85,8 @@ def magnetic_field_evolution_fit(
         (float): magnetic field value in [G] at time t.
     """
     # Define the two timescales as a function of the initial B field.
-    tau1 = 2.0e17 / B_initial**1.01
-    tau2 = 2.0e10 / B_initial**0.3
+    tau1 = (9.0e16 / B_initial) ** 1.0
+    tau2 = (3.0e29 / B_initial) ** 0.4
 
     B = (B_initial - B_asymptotic) * (1 + t / tau1) ** (-a) * (
         1 + t / tau2
@@ -68,7 +95,10 @@ def magnetic_field_evolution_fit(
     return B
 
 
-@jit(float64[:](float64, float64[:], float64, float64, float64, float64))
+@jit(
+    [float64[:](float64, float64[:], float64, float64, float64, float64)],
+    nopython=True,
+)
 def combined_derivatives(
     t: float,
     y: np.ndarray,
@@ -152,10 +182,6 @@ def magneto_rotational_evolution(
     # Initial conditions for the three parameters.
     y_initial = np.column_stack((chi_initial, P_initial))
 
-    magnetic_field_evolution_fit_vectorized = np.vectorize(
-        magnetic_field_evolution_fit
-    )
-
     # Draw a random asymptotic value of the magnetic field at late time from a log-Normal distribution.
     # This asymptotic value is based on the distribution of inferred magnetic fields for the old population
     # of millisecond pulsars.
@@ -188,14 +214,14 @@ def magneto_rotational_evolution(
                 combined_derivatives,
                 y0=y_initial[i],
                 t=time_grid,
-                args=(B_initial[i], 0.12, 3.0, B_asymptotic[i]),
+                args=(B_initial[i], 0.14, 3.0, B_asymptotic[i]),
                 tfirst=True,
             )
         )
 
         # Evaluate the magnetic field evolution.
-        B_t = magnetic_field_evolution_fit_vectorized(
-            B_initial[i], time_grid, 0.12, 3.0, B_asymptotic[i]
+        B_t = magnetic_field_evolution_fit_numpy(
+            B_initial[i], time_grid, 0.14, 3.0, B_asymptotic[i]
         )
 
         if cfg["save_magrot_evolution"]:
