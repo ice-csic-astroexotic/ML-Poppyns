@@ -38,7 +38,6 @@ import time
 
 import numpy as np
 import pandas as pd
-from memory_profiler import profile
 
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const

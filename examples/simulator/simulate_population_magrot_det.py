@@ -30,13 +30,11 @@ import json
 import logging
 import os
 import pathlib
-import random
 import sys
 import time
 
 import numpy as np
 import pandas as pd
-import psutil
 
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
@@ -50,7 +48,7 @@ import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 from pypopsyn.simulator.configuration import cfg
-from scripts.eficiency_sampling import select
+from scripts.memory_efficient_sampling import select
 
 log = logging.getLogger(__name__)
 
@@ -140,25 +138,29 @@ def simulate_population(args) -> None:
         cfg["show_profiling"],
     ):
 
+        # These variables count how many stars we create to reach the desirable number in each survey.
         n_created = 0
         n_created_PMPS = 0
         n_created_SMPS = 0
+
         n_detected_sim_PMPS = 0
         n_detected_sim_SMPS = 0
         stop_PMPS = False
         stop_SMPS = False
 
-        # To speed up the simulation, generate new neutron stars in batches.
-
-        flag_80 = False
-        flag_95 = False
-
-        # In the first run we will not remove any index.
+        # In the first iteration, we are not removing any indices.
         idx_remove = []
 
         # ===================== EVOLVE AND DETECT ========================
 
+        # To speed up the simulation, generate new neutron stars in batches.
         n_batchsize = 100000
+
+        # If we have already detected 80% or 95% of the NS in both surveys we reduce the batch size to speed up
+        # the simulations.
+
+        flag_80 = False
+        flag_95 = False
 
         # Continue to simulate stars until the detected number of pulsars for all the surveys is reached.
         while (n_detected_sim_PMPS < n_detected_real_PMPS) | (
@@ -316,7 +318,8 @@ def simulate_population(args) -> None:
                 coverage_SMPS = survey_SMPS.sky_coverage(ra_d, dec_d, l_d, b_d)
 
                 idx = df_dyn.index.values
-                # Building a table from index of the whole csv to their index in the subset.
+
+                # Saving the full dataset indexes of the select rows.
                 idx_pos = np.arange(len(idx))
                 df_index = pd.DataFrame(
                     data={"index position": idx_pos}, index=idx
@@ -681,9 +684,6 @@ def simulate_population(args) -> None:
         # Cleanup. Reset seed to empty value.
         cfg["seed_magrot"] = None
 
-        process = psutil.Process(os.getpid())
-        print("Memory usage", process.memory_info().rss / 1024 / 1024, "in MB")
-
 
 if __name__ == "__main__":
 
@@ -718,7 +718,7 @@ if __name__ == "__main__":
         nargs="?",
         type=int,
         default=1000000,
-        help="Number of lines in the dynamical database.",
+        help="Number of lines in the dynamical database without the headers, which we assume that has 2 headers.",
     )
 
     args = args.parse_args()

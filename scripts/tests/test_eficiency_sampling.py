@@ -1,5 +1,5 @@
 """
-Test for the axes_scaling.py module
+Test for the memory_efficient_sampling.py module.
 
     Authors:
 
@@ -22,16 +22,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-
+import pathlib
 import random
 
 import numpy as np
-import pytest
+import pandas as pd
 
-from scripts.eficiency_sampling import choose_rows, select
+from scripts.memory_efficient_sampling import choose_rows, select
 
 
-def test_uniqueness_rows():
+def test_choose_rows():
     """
     Verifying that the returned rows are unique.
     """
@@ -45,3 +45,16 @@ def test_uniqueness_rows():
     )
 
     assert np.max(np.unique(selected_rows, return_counts=True)[1]) == 1
+
+
+def test_select():
+
+    """
+    Verifying that this function returns a Dataframe.
+    """
+
+    path_file_test = pathlib.Path("data_example.csv")
+
+    df = select(path_file_test, 5, 20)
+
+    assert isinstance(df, pd.DataFrame)
