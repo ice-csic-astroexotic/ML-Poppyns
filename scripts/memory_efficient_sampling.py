@@ -39,8 +39,10 @@ import pandas as pd
 from pypopsyn.simulator.configuration import cfg
 
 # Initialize seed randomly if no seed was specified.
-if cfg["seed_dyn"] is None:
+if cfg["seed_sampling"] is None:
     cfg["seed_sampling"] = int(time.time())
+
+random.seed(cfg["seed_sampling"])
 
 
 def choose_rows(
