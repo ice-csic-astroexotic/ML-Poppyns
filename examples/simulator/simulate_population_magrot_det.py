@@ -162,6 +162,49 @@ def simulate_population(args) -> None:
         flag_80 = False
         flag_95 = False
 
+        # Initializing the dictionaries where we save the detected neutron stars per each survey.
+        dictionary_detected_PMPS = {
+            "age": [],
+            "ra": [],
+            "dec": [],
+            "l": [],
+            "b": [],
+            "DM": [],
+            "dist": [],
+            "pm_ra": [],
+            "pm_dec": [],
+            "v_ls": [],
+            "B": [],
+            "chi": [],
+            "P": [],
+            "Pdot": [],
+            "L_radio_bol": [],
+            "S_radio_obs": [],
+            "w_int": [],
+            "w_eff": [],
+        }
+
+        dictionary_detected_SMPS = {
+            "age": [],
+            "ra": [],
+            "dec": [],
+            "l": [],
+            "b": [],
+            "DM": [],
+            "dist": [],
+            "pm_ra": [],
+            "pm_dec": [],
+            "v_ls": [],
+            "B": [],
+            "chi": [],
+            "P": [],
+            "Pdot": [],
+            "L_radio_bol": [],
+            "S_radio_obs": [],
+            "w_int": [],
+            "w_eff": [],
+        }
+
         # Continue to simulate stars until the detected number of pulsars for all the surveys is reached.
         while (n_detected_sim_PMPS < n_detected_real_PMPS) | (
             n_detected_sim_SMPS < n_detected_real_SMPS
@@ -264,58 +307,20 @@ def simulate_population(args) -> None:
                 cfg["show_profiling"],
             ):
 
-                dictionary_detected_PMPS = {
-                    "age": [],
-                    "ra": [],
-                    "dec": [],
-                    "l": [],
-                    "b": [],
-                    "DM": [],
-                    "dist": [],
-                    "pm_ra": [],
-                    "pm_dec": [],
-                    "v_ls": [],
-                    "B": [],
-                    "chi": [],
-                    "P": [],
-                    "Pdot": [],
-                    "L_radio_bol": [],
-                    "S_radio_obs": [],
-                    "w_int": [],
-                    "w_eff": [],
-                }
-
-                dictionary_detected_SMPS = {
-                    "age": [],
-                    "ra": [],
-                    "dec": [],
-                    "l": [],
-                    "b": [],
-                    "DM": [],
-                    "dist": [],
-                    "pm_ra": [],
-                    "pm_dec": [],
-                    "v_ls": [],
-                    "B": [],
-                    "chi": [],
-                    "P": [],
-                    "Pdot": [],
-                    "L_radio_bol": [],
-                    "S_radio_obs": [],
-                    "w_int": [],
-                    "w_eff": [],
-                }
-
-                age_d = age
-                ra_d = ra_final
-                dec_d = dec_final
-                l_d = l_final
-                b_d = b_final
-                dist_d = sun_dist_icrs
+                age_datab = age
+                ra_datab = ra_final
+                dec_datab = dec_final
+                l_datab = l_final
+                b_datab = b_final
+                dist_datab = sun_dist_icrs
 
                 # Select only neutron stars that fall into the sky region covered by the surveys.
-                coverage_PMPS = survey_PMPS.sky_coverage(ra_d, dec_d, l_d, b_d)
-                coverage_SMPS = survey_SMPS.sky_coverage(ra_d, dec_d, l_d, b_d)
+                coverage_PMPS = survey_PMPS.sky_coverage(
+                    ra_datab, dec_datab, l_datab, b_datab
+                )
+                coverage_SMPS = survey_SMPS.sky_coverage(
+                    ra_datab, dec_datab, l_datab, b_datab
+                )
 
                 idx = df_dyn.index.values
 
@@ -329,10 +334,10 @@ def simulate_population(args) -> None:
                 coverage_tot = coverage_PMPS | coverage_SMPS
                 idx_det = idx[coverage_tot]
 
-                age_d = age_d[coverage_tot]
-                l_d = l_d[coverage_tot]
-                b_d = b_d[coverage_tot]
-                dist_d = dist_d[coverage_tot]
+                age_datab = age_datab[coverage_tot]
+                l_datab = l_datab[coverage_tot]
+                b_datab = b_datab[coverage_tot]
+                dist_datab = dist_datab[coverage_tot]
                 coverage_PMPS = coverage_PMPS[coverage_tot]
                 coverage_SMPS = coverage_SMPS[coverage_tot]
 
@@ -342,7 +347,7 @@ def simulate_population(args) -> None:
 
                 # Initialize neutron star population properties.
                 pop_initial = ipop.InitialNeutronStarPopulation(
-                    NS_number=len(age_d)
+                    NS_number=len(age_datab)
                 )
 
                 # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
@@ -362,7 +367,7 @@ def simulate_population(args) -> None:
                     B_initial,
                     chi_initial,
                     P_initial,
-                    age_d,
+                    age_datab,
                 )
 
                 # ===================== RADIO EMISSION ========================
@@ -377,7 +382,7 @@ def simulate_population(args) -> None:
                 # Note that since we assume symmetry between the northern and southern hemisphere of the star
                 # we only need to consider one hemisphere, e.g., the northern one.
                 los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-                los_rand = rs.random_from_pdf(los_grid, np.sin, len(age_d))
+                los_rand = rs.random_from_pdf(los_grid, np.sin, len(age_datab))
 
                 # Determining if the pulsar's radio beam intercepts our line of sight.
                 intercepted_radio = er.los_intercept(
@@ -389,10 +394,10 @@ def simulate_population(args) -> None:
                 # Select only neutron stars that point at us.
                 idx_det = idx_det[intercepted_radio]
 
-                age_d = age_d[intercepted_radio]
-                l_d = l_d[intercepted_radio]
-                b_d = b_d[intercepted_radio]
-                dist_d = dist_d[intercepted_radio]
+                age_datab = age_datab[intercepted_radio]
+                l_datab = l_datab[intercepted_radio]
+                b_datab = b_datab[intercepted_radio]
+                dist_datab = dist_datab[intercepted_radio]
                 B_d = B_d[intercepted_radio]
                 chi_d = chi_d[intercepted_radio]
                 P_d = P_d[intercepted_radio]
@@ -422,7 +427,7 @@ def simulate_population(args) -> None:
                 # Computing the intrinsic bolometric radio flux.
                 S_radio_bol = er.flux_radio(
                     L_radio_bol,
-                    dist_d,
+                    dist_datab,
                     solid_angle_beam,
                 )
 
@@ -443,9 +448,9 @@ def simulate_population(args) -> None:
 
                 # Computing the DM.
                 DM = edm.compute_DM(
-                    l_d,
-                    b_d,
-                    dist_d,
+                    l_datab,
+                    b_datab,
+                    dist_datab,
                     cfg["ed_model"],
                 )
 
@@ -464,12 +469,12 @@ def simulate_population(args) -> None:
                 # ===================== RADIO DETECTION ========================
 
                 # Simulating the PMPS survey.
-                detected_radio_PMPS = np.zeros(len(age_d), dtype=bool)
+                detected_radio_PMPS = np.zeros(len(age_datab), dtype=bool)
 
                 detected_radio_PMPS[coverage_PMPS] = survey_PMPS.detect(
                     S_radio_obs[coverage_PMPS],
-                    l_d[coverage_PMPS],
-                    b_d[coverage_PMPS],
+                    l_datab[coverage_PMPS],
+                    b_datab[coverage_PMPS],
                     w_eff[coverage_PMPS],
                     P_d[coverage_PMPS],
                 )
@@ -487,12 +492,12 @@ def simulate_population(args) -> None:
                     n_created_PMPS = n_created
 
                 # Simulating the SMPS survey.
-                detected_radio_SMPS = np.zeros(len(age_d), dtype=bool)
+                detected_radio_SMPS = np.zeros(len(age_datab), dtype=bool)
 
                 detected_radio_SMPS[coverage_SMPS] = survey_SMPS.detect(
                     S_radio_obs[coverage_SMPS],
-                    l_d[coverage_SMPS],
-                    b_d[coverage_SMPS],
+                    l_datab[coverage_SMPS],
+                    b_datab[coverage_SMPS],
                     w_eff[coverage_SMPS],
                     P_d[coverage_SMPS],
                 )
