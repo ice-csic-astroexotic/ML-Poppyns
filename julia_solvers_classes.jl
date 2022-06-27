@@ -1,6 +1,5 @@
 using OrdinaryDiffEq
 using LSODA
-using JSON
 
 include("galactic_model.jl")
 
@@ -8,7 +7,7 @@ include("galactic_model.jl")
 
 const galactic_model = initialize_galactic_model(galactic_model_input)
 
-function rober(du,u,p,t)
+function rhs(du,u,p,t)
 
     r, _, z, du[1], du[2], du[3] = u
 
@@ -24,22 +23,43 @@ end
 
 function odeint(u0, tr)
 
-    prob = ODEProblem(rober,u0,tr,save_everystep=false)
+    prob = ODEProblem(rhs,u0,tr,save_everystep=false)
 
-    solution = solve(prob,lsoda(), save_everystep=false,reltol=1e-9,abstol=1e-9)
+    solution = solve(prob,lsoda(), save_everystep=false,reltol=1e-8,abstol=1e-8)
     return solution.u
 end
 
 
-function odeint_saveat(t0, u0, tr)
+function odeint(t0, u0, tr)
 
-    prob = ODEProblem(rober,u0,tr,save_everystep=false, saveat=t0)
+    prob = ODEProblem(rhs,u0,tr,save_everystep=false, saveat=t0)
 
-    solution = solve(prob,lsoda(), save_everystep=false,reltol=1e-9,abstol=1e-9)
+    solution = solve(prob,lsoda(), save_everystep=false,reltol=1e-8,abstol=1e-8)
     return solution.u
 end
 
 
+
+function save_evolution(evol_output, time_grid)
+
+    evol_output = reduce(hcat,evol_output)
+
+    v_r_evol = evol_output[4, :] * KPC_TO_KM / YR_TO_S
+    v_phi_evol = evol_output[1, :] .* evol_output[5, :] * KPC_TO_KM / YR_TO_S
+    v_z_evol = evol_output[6, :] * KPC_TO_KM / YR_TO_S
+
+    # Save the evolution output of the i-th neutron star in a dictionary.
+    return Dict(
+        "t" => time_grid, 
+        "r(t)" => evol_output[1, :], 
+        "phi(t)" => evol_output[2, :], 
+        "z(t)" => evol_output[3, :],
+        "v_r(t)" => v_r_evol,
+        "v_phi(t)" => v_phi_evol,
+        "v_z(t)" => v_z_evol,
+        )
+
+end 
 
 function solver_calls()
 
@@ -74,22 +94,8 @@ function solver_calls()
         append!(v_z_final, last_item[6])
 
         if save_dyn_evolution
-            evol_output = reduce(hcat,evol_output)
-
-            v_r_evol = evol_output[4, :] * KPC_TO_KM / YR_TO_S
-            v_phi_evol = evol_output[1, :] .* evol_output[5, :] * KPC_TO_KM / YR_TO_S
-            v_z_evol = evol_output[6, :] * KPC_TO_KM / YR_TO_S
-
             # Save the evolution output of the i-th neutron star in a dictionary.
-            evolution_dictionary[i-1] = Dict(
-                "t" => time_grid, 
-                "r(t)" => evol_output[1, :], 
-                "phi(t)" => evol_output[2, :], 
-                "z(t)" => evol_output[3, :],
-                "v_r(t)" => v_r_evol,
-                "v_phi(t)" => v_phi_evol,
-                "v_z(t)" => v_z_evol,
-                )
+            evolution_dictionary[string(i-1)] = save_evolution(evol_output, time_grid)
         end
 
 

@@ -138,9 +138,8 @@ def dynamical_evolution(
     v_r_final = np.zeros(n)
     v_phi_final = np.zeros(n)
     v_z_final = np.zeros(n)
-    time_avg = 0
-    # Loop inside julia
 
+    # Loop inside julia
     Main.galactic_model_input = cfg["galactic_model"]
     Main.include("julia_solvers_classes.jl")
 
@@ -217,7 +216,7 @@ def dynamical_evolution(
 
             # Save the evolution output of the i-th neutron star in a dictionary.
             evolution = {
-                i: {
+                str(i): {
                     "t": time_grid.tolist(),
                     "r(t)": evol_output[:, 0].tolist(),
                     "phi(t)": evol_output[:, 1].tolist(),
@@ -241,8 +240,6 @@ def dynamical_evolution(
         v_phi_final[i] = omega_final * r_final[i]
         v_z_final[i] = evol_output[-1, 5]
     """
-    print("Ode solver avg ", time_avg / n)
-
     final_population = np.array(
         [r_final, phi_final, z_final, v_r_final, v_phi_final, v_z_final]
     ).T
