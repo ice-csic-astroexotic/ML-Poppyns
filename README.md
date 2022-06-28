@@ -7,7 +7,8 @@ These instructions will provide you with a copy of the project and help you get 
 and running on your local machine. First, you should clone the repository on your 
 computer. The repo contains an environment file that can be installed by running
 ```
-$ conda env create -f environment.yaml python=3.8
+$ conda env create -f environment.yaml
+
 ```
 This environment can be activated using
 ```
@@ -17,6 +18,11 @@ We recommend working within this environment when using the code. To install the
 `pypopsyn` package and work with the code run
 ```
 $ python setup.py develop
+```
+To install Julia follow instructions from https://julialang.org/downloads/
+Then install required packages
+```
+julia -e 'using Pkg; Pkg.add.(["PyCall", "OrdinaryDiffEq", "LSODA"])'
 ```
 To automate the workflow and improve as well as maintain code quality standards, we 
 have set up pre-commit hooks. To set the hooks run
@@ -34,3 +40,5 @@ are modified and the steps (i) - (iii) have to be repeated. For more info see
 Documentation is held in `docs` and can be compiled into an HTML webpage or to a PDF LaTeX file using
 `make html` or `make latexpdf` respectively inside the `docs` folder with the environment activated. Both
 commands will generate their output in `docs/_build`.
+
+To run code which uses Julia, the call should be made using `python-jl` instead of `python`.

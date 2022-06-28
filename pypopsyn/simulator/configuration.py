@@ -52,7 +52,7 @@ cfg["save_magrot_evolution"] = False
 # Seed for the random number generation for the simulate_population_full.py.
 cfg["seed_full"] = None
 # Seed for the random number generation for the simulate_population_dyn.py.
-cfg["seed_dyn"] = 1234
+cfg["seed_dyn"] = None
 # Seed for the random number generation for the simulate_population_magrot_det.py.
 cfg["seed_magrot"] = None
 
