@@ -7,7 +7,7 @@ These instructions will provide you with a copy of the project and help you get 
 and running on your local machine. First, you should clone the repository on your 
 computer. The repo contains an environment file that can be installed by running
 ```
-$ conda env create -f environment.yaml
+$ conda env create -f environment.yaml python=3.8
 ```
 This environment can be activated using
 ```

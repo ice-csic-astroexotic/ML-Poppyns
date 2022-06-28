@@ -10,6 +10,7 @@ dependencies:
   - graphviz
   - hydra-core=0.11.3
   - ipykernel=5.1.0
+  - julia>=0.5.7
   - jupyter=1.0.0
   - libtiff=4.1.0
   - matplotlib=3.1.1
@@ -18,6 +19,7 @@ dependencies:
   - numba=0.50.1
   - numpy=1.18.1
   - olefile=0.46
+  - orjson>=3.7.2
   - pandas=0.25.3
   - pillow=6.2.0
   - pip

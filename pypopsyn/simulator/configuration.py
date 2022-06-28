@@ -62,6 +62,9 @@ cfg["resolution"] = 10000
 # Integer number of neutron stars for the population.
 cfg["NS_number"] = 300000
 
+# ODE solver tolerance
+cfg["ODE_solver_tol"] = 1e-8
+
 # Sun's distance from the galactocentric axis in [kpc].
 cfg["R_sun"] = 8.3
 

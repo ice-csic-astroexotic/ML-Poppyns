@@ -49,8 +49,8 @@ import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolutio
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
-import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
+from julia import Main
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
@@ -87,7 +87,8 @@ def simulate_population(
         json.dump(cfg_override, f, indent=4, sort_keys=True)
 
     # Initialize components of the simulator that need it.
-    gm.initialize_galactic_model()
+    Main.galactic_model_input = cfg["galactic_model"]
+    Main.include("julia/galactic_model.jl")
     sm.initialize_spiral_model()
 
     # Initialize seed randomly if no seed was specified.
@@ -332,20 +333,26 @@ def simulate_population(
 
         # Compute the magnitude of the initial velocity vector for each star in [km/s].
         v_initial = np.sqrt(
-            v_r_initial ** 2 + v_phi_initial ** 2 + v_z_initial ** 2
+            v_r_initial**2 + v_phi_initial**2 + v_z_initial**2
         )
 
         # Compute the total initial energy of the system.
-        total_energy_initial = gm.galactic_model.total_energy(
-            v_initial, r_initial, z_initial
+        Main.v_initial = v_initial
+        Main.r_initial = r_initial
+        Main.z_initial = z_initial
+        total_energy_initial = Main.eval(
+            "total_energy(v_initial, r_initial, z_initial)"
         )
 
         # Compute the magnitude of the final velocity vector for each star.
-        v_final = np.sqrt(v_r_final ** 2 + v_phi_final ** 2 + v_z_final ** 2)
+        v_final = np.sqrt(v_r_final**2 + v_phi_final**2 + v_z_final**2)
 
         # Compute the total energy of the system after the dynamical evolution.
-        total_energy_final = gm.galactic_model.total_energy(
-            v_final, r_final, z_final
+        Main.v_final = v_final
+        Main.r_final = r_final
+        Main.z_final = z_final
+        total_energy_final = Main.eval(
+            "total_energy(v_final, r_final, z_final)"
         )
 
         # Compute the percentage variation in total energy during the simulation

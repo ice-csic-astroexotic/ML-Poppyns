@@ -32,7 +32,7 @@ SOFTWARE.
 
 import numpy as np
 
-import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
+from julia import Main
 from pypopsyn.simulator.configuration import cfg
 
 
@@ -48,7 +48,7 @@ def pdf_kick_velocity_exp(v: np.ndarray) -> np.ndarray:
         np.ndarray: stellar kick velocity distribution in [1/(km/s)].
     """
     vk_mean = cfg["vk_c"]
-    pdf_vk = v / vk_mean ** 2 * np.exp(-v / vk_mean)
+    pdf_vk = v / vk_mean**2 * np.exp(-v / vk_mean)
 
     return pdf_vk
 
@@ -67,9 +67,9 @@ def pdf_kick_velocity_maxwell(v: np.ndarray) -> np.ndarray:
     sigma = cfg["sigma_k"]
     pdf_vk = (
         np.sqrt(2 / np.pi)
-        * v ** 2
-        / (sigma ** 3)
-        * np.exp(-(v ** 2) / (2 * sigma ** 2))
+        * v**2
+        / (sigma**3)
+        * np.exp(-(v**2) / (2 * sigma**2))
     )
 
     return pdf_vk
@@ -95,16 +95,16 @@ def pdf_kick_velocity_2maxwell(v: np.ndarray) -> np.ndarray:
 
     pdf_maxwell_1 = (
         np.sqrt(2 / np.pi)
-        * v ** 2
-        / (sigma_1 ** 3)
-        * np.exp(-(v ** 2) / (2 * sigma_1 ** 2))
+        * v**2
+        / (sigma_1**3)
+        * np.exp(-(v**2) / (2 * sigma_1**2))
     )
 
     pdf_maxwell_2 = (
         np.sqrt(2 / np.pi)
-        * v ** 2
-        / (sigma_2 ** 3)
-        * np.exp(-(v ** 2) / (2 * sigma_2 ** 2))
+        * v**2
+        / (sigma_2**3)
+        * np.exp(-(v**2) / (2 * sigma_2**2))
     )
 
     pdf_vk = w * pdf_maxwell_1 + (1.0 - w) * pdf_maxwell_2
@@ -128,8 +128,12 @@ def circular_velocity(r: float, z: float) -> float:
         (float): value of the circular velocity in [kpc/yr].
     """
 
-    pot_mw_gradient = gm.galactic_model.cylind_coord_gradient_mw_potential(
-        r, z
+    Main.r = r
+    Main.z = z
+    Main.galactic_model_input = cfg["galactic_model"]
+    Main.include("julia/galactic_model.jl")
+    pot_mw_gradient = Main.eval(
+        "cylind_coord_gradient_mw_potential(galactic_model, r, z)"
     )
     v_circular = np.sqrt(r * pot_mw_gradient[0])
 

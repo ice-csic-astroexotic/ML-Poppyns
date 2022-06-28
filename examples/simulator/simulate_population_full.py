@@ -55,8 +55,8 @@ import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
-import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
+from julia import Main
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
@@ -116,7 +116,8 @@ def simulate_population(args) -> None:
         json.dump(cfg, f, indent=4, sort_keys=True)
 
     # Initialize components of the simulator that need it.
-    gm.initialize_galactic_model()
+    Main.galactic_model_input = cfg["galactic_model"]
+    Main.include("julia/galactic_model.jl")
     sm.initialize_spiral_model()
 
     # Initialize the surveys.
@@ -200,15 +201,20 @@ def simulate_population(args) -> None:
             timer.checkpoint("[Initial position and velocity]")
 
             # Compute the total initial energy of the system.
-            total_energy_initial = gm.galactic_model.total_energy(
-                v_initial, r_initial, z_initial
+            Main.v_initial = v_initial
+            Main.r_initial = r_initial
+            Main.z_initial = z_initial
+            total_energy_initial = Main.eval(
+                "total_energy(v_initial, r_initial, z_initial)"
             )
 
             timer.checkpoint("[Initial energy]")
 
             # Compute the initial z-component of the total angular momentum of the system.
-            L_z_initial = gm.galactic_model.total_angular_momentum_z(
-                v_phi_initial * const.KPC_TO_KM / const.YR_TO_S, r_initial
+            Main.v_phi_initial = v_phi_initial
+            Main.r_initial = r_initial
+            L_z_initial = Main.eval(
+                "total_angular_momentum_z(v_phi_initial * KPC_TO_KM / YR_TO_S, r_initial)"
             )
 
             timer.checkpoint("[Initial angular momentum]")
@@ -400,8 +406,11 @@ def simulate_population(args) -> None:
             )
 
             # Compute the total energy of the system after the dynamical evolution.
-            total_energy_final = gm.galactic_model.total_energy(
-                v_final, r_final, z_final
+            Main.v_final = v_final
+            Main.r_final = r_final
+            Main.z_final = z_final
+            total_energy_final = Main.eval(
+                "total_energy(v_final, r_final, z_final)"
             )
 
             # Compute the percentage variation in total energy during the simulation
@@ -419,8 +428,10 @@ def simulate_population(args) -> None:
             timer.checkpoint("[Final energy]")
 
             # Compute the final z-component of the total angular momentum of the system.
-            L_z_final = gm.galactic_model.total_angular_momentum_z(
-                v_phi_final, r_final
+            Main.v_phi_final = v_phi_final
+            Main.r_final = r_final
+            L_z_final = Main.eval(
+                "total_angular_momentum_z(v_phi_final, r_final)"
             )
 
             # Compute the percentage variation in total energy during the simulation
