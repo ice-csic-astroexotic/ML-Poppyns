@@ -19,6 +19,10 @@ We recommend working within this environment when using the code. To install the
 ```
 $ python setup.py develop
 ```
+Uninstall pip's version of ipython 
+```
+$ pip uninstall ipython
+```
 To install Julia follow instructions from https://julialang.org/downloads/
 Then install required packages
 ```

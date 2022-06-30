@@ -3,13 +3,14 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - astropy=5.0.4
+  - astropy=4.1
   - black=19.10b0
   - f2c
   - ffmpeg
   - graphviz
   - hydra-core=0.11.3
-  - ipykernel=5.3.4
+  - ipykernel=6.9.1
+  - IPython=8.3.0
   - jupyter=1.0.0
   - libtiff=4.2.0
   - matplotlib=3.5.1
@@ -18,20 +19,20 @@ dependencies:
   - numba=0.55.1
   - numpy=1.21.6
   - olefile=0.46
-  - orjson>=3.7.2
-  - pandas=1.2.5
+  - orjson=3.7.5
+  - pandas=1.4.2
   - pillow=9.0.1
   - pip
   - pre-commit=2.19.0
   - pyinstrument=4.1.1
-  - pytest=7.1.1
+  - pytest=7.1.2
   - pytest-cov=3.0.0
   - pytest-runner=5.3.1
-  - python=3.8.2
+  - python=3.9.0
   - pytorch=1.7.1
   - pyyaml=6.0
   - recommonmark
-  - scipy=1.5.3
+  - scipy=1.6.2
   - sphinx
   - zstd=1.5.2
   - tensorboardx
@@ -41,4 +42,4 @@ dependencies:
   - pip:
       - pydeps
       - pygedm --global-option=build_ext --global-option="-I${CONDA_PREFIX}/include:/usr/local/include"
-      - julia>=0.5.7
+      - julia
