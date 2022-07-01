@@ -408,7 +408,7 @@ def simulate_population(args) -> None:
                 coverage_SMPS = coverage_SMPS[intercepted_radio]
 
                 if np.count_nonzero(intercepted_radio) == 0:
-                    continue
+                    break
 
                 # Determining the final period derivative.
                 period_derivative_vect = np.vectorize(pdv.period_derivative)
