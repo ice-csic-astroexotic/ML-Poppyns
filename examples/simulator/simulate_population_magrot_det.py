@@ -79,6 +79,7 @@ def simulate_population(args) -> None:
 
     # Check if the parsed dynamically simulated population directory exists.
     dyn_path = pathlib.Path(args.dyn_data)
+    dyn_path_json = pathlib.Path().joinpath(dyn_path, "configuration.json")
     dyn_path = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.csv")
     dyn_path_config = pathlib.Path().joinpath(dyn_path, "override.json")
     if not dyn_path.exists():
@@ -250,9 +251,11 @@ def simulate_population(args) -> None:
                 log.info(f"Total number of created neutron stars: {n_created}")
 
                 # Load the chunk of the file containing the dynamically evolved population parameters.
+                with open(dyn_path_json, "r") as f:
+                    conf_json = json.load(f)
 
                 df_dyn = select(
-                    dyn_path, n_batchsize, args.size_database, idx_remove
+                    dyn_path, n_batchsize, conf_json["NS_number"], idx_remove
                 )
 
                 age = df_dyn["age"]["[yr]"].to_numpy()
@@ -716,14 +719,6 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Path to JSON containing the parameter override values.",
-    )
-
-    args.add_argument(
-        "--size_database",
-        nargs="?",
-        type=int,
-        default=1000000,
-        help="Number of lines in the dynamical database without the headers, which we assume that has 2 headers.",
     )
 
     args = args.parse_args()
