@@ -120,7 +120,8 @@ def select(
         iterator = iter(f)
 
         for i, value in enumerate(selected_rows):
-            # Note that since we use the iter tool we need to deal carefully with the indexes.
+            # At each step in the loop the iterator object is located at the line where the previous iterator object was
+            # and the zero index of this iterator starts at this line.
             if i == 0:
                 data += list(islice(iterator, value, value + 1))
             else:

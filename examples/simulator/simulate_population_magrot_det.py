@@ -322,9 +322,9 @@ def simulate_population(args) -> None:
                     ra_datab, dec_datab, l_datab, b_datab
                 )
 
-                idx = df_dyn.index.values
-
                 # Saving the full dataset indexes of the select rows.
+
+                idx = df_dyn.index.values
                 idx_pos = np.arange(len(idx))
                 df_index = pd.DataFrame(
                     data={"index position": idx_pos}, index=idx
