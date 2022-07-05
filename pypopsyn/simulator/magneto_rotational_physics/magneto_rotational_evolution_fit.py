@@ -80,8 +80,8 @@ def magnetic_field_evolution_fit_numpy(
     # At late times we assume a simple power-law evolution.
     B[late_times] = (
         B_initial
-        * (1 + t[late_times] / tau1) ** (-a1_cfg)
-        * (1 + t[late_times] / tau2) ** (-a2_cfg)
+        * (1 + t_trans_cfg / tau1) ** (-a1_cfg)
+        * (1 + t_trans_cfg / tau2) ** (-a2_cfg)
     ) * (t[late_times] / t_trans_cfg) ** (-a_late_t_cfg)
 
     # If the magnetic field becomes lower than an asymptotic value derived from the old millisecond pulsar population,
