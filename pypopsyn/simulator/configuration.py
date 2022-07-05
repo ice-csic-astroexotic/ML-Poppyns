@@ -150,6 +150,23 @@ cfg["n_e"]: float = 1e35
 # Time step for the magneto-rotational evolution [yr].
 cfg["magrot_time_step_log10"]: float = 1e-2
 
+# Parameters of the analytical expression use to mimic the simulated magnetic field evolution curves.
+# Power-law indices.
+cfg["a1"]: float = 0.14
+cfg["a2"]: float = 3.0
+# Timescale parameters, normalization and power-law index.
+cfg["tau1_norm"]: float = 9.0e16
+cfg["tau1_a"]: float = 1.0
+cfg["tau2_norm"]: float = 6.2e11
+cfg["tau2_a"]: float = 0.4
+# Time in [yr] when transitioning from the simulated curve to the simple power-law evolution.
+cfg["t_trans"]: float = 1.0e6
+# Late time power-law index.
+cfg["a_late_t"]: float = 1.0
+
+# Parameters for a log-normal distribution of the magnetic fields of the old millisecond pulsars.
+cfg["B_millisec_mean"] = 8.5
+cfg["B_millisec_sigma"] = 0.5
 
 # Radio emission model parameters.
 
