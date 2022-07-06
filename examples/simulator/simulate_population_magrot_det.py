@@ -54,7 +54,6 @@ log = logging.getLogger(__name__)
 
 
 def simulate_population(args) -> None:
-
     """
     Simulating a detected neutron star population starting from a dynamically evolved
     population database.
@@ -180,7 +179,7 @@ def simulate_population(args) -> None:
             "P": [],
             "Pdot": [],
             "L_radio_bol": [],
-            "S_radio_obs": [],
+            "S_radio_obs_mean": [],
             "w_int": [],
             "w_eff": [],
         }
@@ -201,7 +200,7 @@ def simulate_population(args) -> None:
             "P": [],
             "Pdot": [],
             "L_radio_bol": [],
-            "S_radio_obs": [],
+            "S_radio_obs_mean": [],
             "w_int": [],
             "w_eff": [],
         }
@@ -326,7 +325,6 @@ def simulate_population(args) -> None:
                 )
 
                 # Saving the full dataset indexes of the select rows.
-
                 idx = df_dyn.index.values
                 idx_pos = np.arange(len(idx))
                 df_index = pd.DataFrame(
@@ -337,10 +335,10 @@ def simulate_population(args) -> None:
                 coverage_tot = coverage_PMPS | coverage_SMPS
                 idx_det = idx[coverage_tot]
 
-                age_datab = age_datab[coverage_tot]
-                l_datab = l_datab[coverage_tot]
-                b_datab = b_datab[coverage_tot]
-                dist_datab = dist_datab[coverage_tot]
+                age_det = age_datab[coverage_tot]
+                l_det = l_datab[coverage_tot]
+                b_det = b_datab[coverage_tot]
+                dist_det = dist_datab[coverage_tot]
                 coverage_PMPS = coverage_PMPS[coverage_tot]
                 coverage_SMPS = coverage_SMPS[coverage_tot]
 
@@ -350,7 +348,7 @@ def simulate_population(args) -> None:
 
                 # Initialize neutron star population properties.
                 pop_initial = ipop.InitialNeutronStarPopulation(
-                    NS_number=len(age_datab)
+                    NS_number=len(age_det)
                 )
 
                 # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
@@ -362,21 +360,21 @@ def simulate_population(args) -> None:
 
                 # Determine the evolved magnetic field, misalignment angle and rotation period.
                 (
-                    B_d,
-                    chi_d,
-                    P_d,
+                    B_det,
+                    chi_det,
+                    P_det,
                     NS_magrot_evol_dict,
                 ) = mre.magneto_rotational_evolution(
                     B_initial,
                     chi_initial,
                     P_initial,
-                    age_datab,
+                    age_det,
                 )
 
                 # ===================== RADIO EMISSION ========================
 
                 # Determining the radio beam angular aperture.
-                rho_beam = er.beam_aperture(P_d, cfg["r_em"])
+                rho_beam = er.beam_aperture(P_det, cfg["r_em"])
 
                 # Determining the solid angle covered by the two radio beams.
                 solid_angle_beam = er.solid_angle_radio_beams(rho_beam)
@@ -385,11 +383,11 @@ def simulate_population(args) -> None:
                 # Note that since we assume symmetry between the northern and southern hemisphere of the star
                 # we only need to consider one hemisphere, e.g., the northern one.
                 los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-                los_rand = rs.random_from_pdf(los_grid, np.sin, len(age_datab))
+                los_rand = rs.random_from_pdf(los_grid, np.sin, len(age_det))
 
                 # Determining if the pulsar's radio beam intercepts our line of sight.
                 intercepted_radio = er.los_intercept(
-                    chi_d,
+                    chi_det,
                     rho_beam,
                     los_rand,
                 )
@@ -397,15 +395,15 @@ def simulate_population(args) -> None:
                 # Select only neutron stars that point at us.
                 idx_det = idx_det[intercepted_radio]
 
-                age_datab = age_datab[intercepted_radio]
-                l_datab = l_datab[intercepted_radio]
-                b_datab = b_datab[intercepted_radio]
-                dist_datab = dist_datab[intercepted_radio]
-                B_d = B_d[intercepted_radio]
-                chi_d = chi_d[intercepted_radio]
-                P_d = P_d[intercepted_radio]
-                rho_beam_d = rho_beam[intercepted_radio]
-                los_rand_d = los_rand[intercepted_radio]
+                age_det = age_det[intercepted_radio]
+                l_det = l_det[intercepted_radio]
+                b_det = b_det[intercepted_radio]
+                dist_det = dist_det[intercepted_radio]
+                B_det = B_det[intercepted_radio]
+                chi_det = chi_det[intercepted_radio]
+                P_det = P_det[intercepted_radio]
+                rho_beam_det = rho_beam[intercepted_radio]
+                los_rand_det = los_rand[intercepted_radio]
                 solid_angle_beam = solid_angle_beam[intercepted_radio]
                 coverage_PMPS = coverage_PMPS[intercepted_radio]
                 coverage_SMPS = coverage_SMPS[intercepted_radio]
@@ -415,22 +413,22 @@ def simulate_population(args) -> None:
 
                 # Determining the final period derivative.
                 period_derivative_vect = np.vectorize(pdv.period_derivative)
-                P_dot_d = (
+                P_dot_det = (
                     period_derivative_vect(
-                        B_d,
-                        chi_d,
-                        P_d,
+                        B_det,
+                        chi_det,
+                        P_det,
                     )
                     / const.YR_TO_S
                 )
 
                 # Determining the luminosity in different electromagnetic bands.
-                L_radio_bol = er.pdf_luminosity_radio(P_d, P_dot_d)
+                L_radio_bol = er.pdf_luminosity_radio(P_det, P_dot_det)
 
                 # Computing the intrinsic bolometric radio flux.
                 S_radio_bol = er.flux_radio(
                     L_radio_bol,
-                    dist_datab,
+                    dist_det,
                     solid_angle_beam,
                 )
 
@@ -442,18 +440,18 @@ def simulate_population(args) -> None:
 
                 # Computing the intrinsic pulse width of the radio pulse.
                 w_int = er.pulse_width(
-                    chi_d,
-                    rho_beam_d,
-                    los_rand_d,
+                    chi_det,
+                    rho_beam_det,
+                    los_rand_det,
                 )
                 # Convert pulse width from [rad] to [s].
-                w_int_s = w_int * P_d / (2.0 * np.pi)
+                w_int_s = w_int * P_det / (2.0 * np.pi)
 
                 # Computing the DM.
                 DM = edm.compute_DM(
-                    l_datab,
-                    b_datab,
-                    dist_datab,
+                    l_det,
+                    b_det,
+                    dist_det,
                     cfg["ed_model"],
                 )
 
@@ -469,17 +467,22 @@ def simulate_population(args) -> None:
                 # Compute the observed radio flux in [Jy].
                 S_radio_obs = sr.flux_radio_obs(S_radio_f, w_int_s, w_eff)
 
+                # Compute the period-averaged flux in [Jy].
+                S_radio_obs_mean = sr.flux_radio_obs_period_average(
+                    S_radio_obs, P_det, w_eff
+                )
+
                 # ===================== RADIO DETECTION ========================
 
                 # Simulating the PMPS survey.
-                detected_radio_PMPS = np.zeros(len(age_datab), dtype=bool)
+                detected_radio_PMPS = np.zeros(len(age_det), dtype=bool)
 
                 detected_radio_PMPS[coverage_PMPS] = survey_PMPS.detect(
-                    S_radio_obs[coverage_PMPS],
-                    l_datab[coverage_PMPS],
-                    b_datab[coverage_PMPS],
+                    S_radio_obs_mean[coverage_PMPS],
+                    l_det[coverage_PMPS],
+                    b_det[coverage_PMPS],
                     w_eff[coverage_PMPS],
-                    P_d[coverage_PMPS],
+                    P_det[coverage_PMPS],
                 )
 
                 n_detected_sim_PMPS += np.count_nonzero(detected_radio_PMPS)
@@ -495,14 +498,14 @@ def simulate_population(args) -> None:
                     n_created_PMPS = n_created
 
                 # Simulating the SMPS survey.
-                detected_radio_SMPS = np.zeros(len(age_datab), dtype=bool)
+                detected_radio_SMPS = np.zeros(len(age_det), dtype=bool)
 
                 detected_radio_SMPS[coverage_SMPS] = survey_SMPS.detect(
-                    S_radio_obs[coverage_SMPS],
-                    l_datab[coverage_SMPS],
-                    b_datab[coverage_SMPS],
+                    S_radio_obs_mean[coverage_SMPS],
+                    l_det[coverage_SMPS],
+                    b_det[coverage_SMPS],
                     w_eff[coverage_SMPS],
-                    P_d[coverage_SMPS],
+                    P_det[coverage_SMPS],
                 )
 
                 n_detected_sim_SMPS += np.count_nonzero(detected_radio_SMPS)
@@ -536,12 +539,14 @@ def simulate_population(args) -> None:
                     "pm_ra": pm_ra_final[idx_det_PMPS].tolist(),
                     "pm_dec": pm_dec_final[idx_det_PMPS].tolist(),
                     "v_ls": v_ls_icrs[idx_det_PMPS].tolist(),
-                    "B": B_d[detected_radio_PMPS].tolist(),
-                    "chi": chi_d[detected_radio_PMPS].tolist(),
-                    "P": P_d[detected_radio_PMPS].tolist(),
-                    "Pdot": P_dot_d[detected_radio_PMPS].tolist(),
+                    "B": B_det[detected_radio_PMPS].tolist(),
+                    "chi": chi_det[detected_radio_PMPS].tolist(),
+                    "P": P_det[detected_radio_PMPS].tolist(),
+                    "Pdot": P_dot_det[detected_radio_PMPS].tolist(),
                     "L_radio_bol": L_radio_bol[detected_radio_PMPS].tolist(),
-                    "S_radio_obs": S_radio_obs[detected_radio_PMPS].tolist(),
+                    "S_radio_obs_mean": S_radio_obs_mean[
+                        detected_radio_PMPS
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_PMPS].tolist(),
                     "w_eff": w_eff[detected_radio_PMPS].tolist(),
                 }
@@ -563,12 +568,14 @@ def simulate_population(args) -> None:
                     "pm_ra": pm_ra_final[idx_det_SMPS].tolist(),
                     "pm_dec": pm_dec_final[idx_det_SMPS].tolist(),
                     "v_ls": v_ls_icrs[idx_det_SMPS].tolist(),
-                    "B": B_d[detected_radio_SMPS].tolist(),
-                    "chi": chi_d[detected_radio_SMPS].tolist(),
-                    "P": P_d[detected_radio_SMPS].tolist(),
-                    "Pdot": P_dot_d[detected_radio_SMPS].tolist(),
+                    "B": B_det[detected_radio_SMPS].tolist(),
+                    "chi": chi_det[detected_radio_SMPS].tolist(),
+                    "P": P_det[detected_radio_SMPS].tolist(),
+                    "Pdot": P_dot_det[detected_radio_SMPS].tolist(),
                     "L_radio_bol": L_radio_bol[detected_radio_SMPS].tolist(),
-                    "S_radio_obs": S_radio_obs[detected_radio_SMPS].tolist(),
+                    "S_radio_obs_mean": S_radio_obs_mean[
+                        detected_radio_SMPS
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_SMPS].tolist(),
                     "w_eff": w_eff[detected_radio_SMPS].tolist(),
                 }
@@ -637,7 +644,7 @@ def simulate_population(args) -> None:
                 "P",
                 "P_dot",
                 "L_radio_bol",
-                "S_radio_obs",
+                "S_radio_obs_mean",
                 "w_int",
                 "w_eff",
             ]

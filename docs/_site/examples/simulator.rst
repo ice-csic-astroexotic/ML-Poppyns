@@ -35,7 +35,7 @@ To simulate populations with different initial parameters, the user can directly
 
   python examples/simulator/simulate_population_full.py --output_dir simulated_data --parameter_override parameter_override.json
 
-For example you can set the number of neutron stars to simulate, the models for the kick velocity distribution, the galactic potential and the structure of the Galactic spiral arms, the number of spiral arms to include (5 or 4 depending if you want to include or not the Local arm) and several other parameters.
+For example you can set the number of neutron stars to simulate, the models for the kick velocity distribution, the structure of the Galactic spiral arms, the number of spiral arms to include (5 or 4 depending if you want to include or not the Local arm) and several other parameters.
 
 This will generate a new folder :code:`simulated_data` if it does not exist, in which the simulation results will be saved: the initial population in compressed binary format `initial_population.pkl.gz`, the final population in the same format `final_population.pkl.gz`, the profiles for the simulation if enabled and the dictionary containing the configuration parameters in `configuration.json` for reproducibility.
 
@@ -76,11 +76,10 @@ This script performs the following steps in a loop until the specified number of
    A luminosity is associated with these pulsars and their flux is computed.
 
 4) It finally applies the modeled surveys to select the pulsars that are detected according to the limiting flux of each survey.
-   A flag is assigned to each pulsar specifying which survey it was detected in.
 
 You can specify the number of pulsars you want to detect for each survey in the configuration file.
 The simulation keeps track of the total number of created pulsars so that an estimate of the birth rate can be made a posteriori by knowing the maximum neutron star age that has been used for the simulation.
-In this case the output of the simulation will consist of the parameters of the detected pulsars, a `profile.json` file and a `configuration.json` file containing the entire set of parameters used to simulate both the dynamical evolution, the magneto-rotational evolution and the detection models.
+In this case the output of the simulation will consist of separated files containing the parameters of the detected pulsars for each survey, a `profile.json` file and a `configuration.json` file containing the entire set of parameters used to simulate both the dynamical evolution, the magneto-rotational evolution and the detection models.
 
 Simulations with parameter sweep
 ################################

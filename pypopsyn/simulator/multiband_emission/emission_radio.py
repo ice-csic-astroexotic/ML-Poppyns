@@ -179,7 +179,7 @@ def flux_radio(
     L_radio: np.ndarray, d: np.ndarray, solid_angle: np.ndarray,
 ) -> np.ndarray:
     """
-    Compute the intrinsic bolometric mean radio flux for each pulsars in [erg s^(-1) cm^(-2)].
+    Compute the intrinsic bolometric radio flux for each pulsars in [erg s^(-1) cm^(-2)].
 
     Args:
         L_radio (np.ndarray): pulsar bolometric radio luminosity in [erg s^(-1)].
@@ -187,7 +187,7 @@ def flux_radio(
         solid_angle (np.ndarray): solid angle covered by the radio beams in [sr].
 
     Returns:
-        (np.ndarray): observed pulsar radio flux in [erg s^(-1) cm^(-2)].
+        (np.ndarray): intrinsic pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
     """
 
     # Convert distance from [kpc] to [cm].
@@ -216,7 +216,7 @@ def flux_density_radio(
         f_max (float): frequency upper limit of the radio emission spectrum [Hz].
 
     Returns:
-        (np.ndarray): pulsar radio flux density in [Jy] at the frequency f.
+        (np.ndarray): intrinsic pulsar radio flux density in [Jy] at the frequency f.
     """
 
     S_radio_f = (
