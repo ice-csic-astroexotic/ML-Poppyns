@@ -621,7 +621,9 @@ def simulate_population(args) -> None:
             )
 
             # Compute the period-averaged flux in [Jy].
-            S_radio_obs_mean = S_radio_obs * w_eff / P_final
+            S_radio_obs_mean = sr.flux_radio_obs_period_average(
+                S_radio_obs, P_final, w_eff
+            )
 
             # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")

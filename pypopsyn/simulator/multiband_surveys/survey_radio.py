@@ -132,12 +132,36 @@ def flux_radio_obs(
     return S_radio_f_obs
 
 
+def flux_radio_obs_period_average(
+    S_radio_f_obs: np.ndarray,
+    P: np.ndarray,
+    w_eff: np.ndarray,
+) -> np.ndarray:
+    """
+    Compute the mean flux density received by the telescope averaged over a spin period.
+    We are assuming a simple squared pulse shape.
+
+    Args:
+        S_radio_f_obs (np.ndarray): observed pulsar radio flux in [Jy].
+        P (np.ndarray): spin period of the pulsar in [s].
+        w_eff (np.ndarray): effective pulse width in [s].
+
+    Returns:
+        (np.ndarray): observed pulsar radio flux averaged over a period in [Jy].
+    """
+
+    # Compute the observed radio flux in [Jy].
+    S_radio_f_obs_mean = S_radio_f_obs * w_eff / P
+
+    return S_radio_f_obs_mean
+
+
 def sky_temperature_approx(
     l_gal: np.ndarray, b_gal: np.ndarray, f: float
 ) -> np.ndarray:
     """
     Sky temperature as a function of Galactic longitude and latitude (l, b) and frequency f.
-    We use an empirical fit from Narayan (1987) and rescale to the given frequency using
+    This function uses an empirical fit from Narayan (1987) and rescale to the given frequency using
     a relation from Johnston et al. (1992) (see also eq. (5) in Yusifov & Küçük 2004).
 
     Args:
@@ -149,7 +173,7 @@ def sky_temperature_approx(
         (np.ndarray): measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
     """
 
-    # Sky temperature at 408 Mhz from Narayan (1987).
+    # Sky temperature at 408 MHz from Narayan (1987).
     T_sky_400 = 25.0 + 275.0 / (
         (1.0 + (l_gal / 42.0) ** 2) * (1.0 + (b_gal / 3.0) ** 2)
     )
@@ -166,7 +190,7 @@ def sky_temperature_H81(
 ) -> np.ndarray:
     """
     Sky temperature as a function of Galactic longitude and latitude (l, b) and frequency f.
-    We use the map from Haslam et al. (1981), downloadable here:
+    This function implements the sky temperature map at 408 MHz from Haslam et al. (1981), downloadable here:
     https://lambda.gsfc.nasa.gov/product/foreground/haslam_408.cfm.
 
     Args:
@@ -206,7 +230,8 @@ def sky_temperature_H81refined(
 ) -> np.ndarray:
     """
     Sky temperature as a function of Galactic longitude and latitude (l, b) and frequency f.
-    We use the map from Remazeilles et al (2015) which is a refinment of the map from Haslam et al. (1981).
+    This function implements the sky temperature map at 408 MHz from Remazeilles et al (2015) which is a
+    refinment of the map from Haslam et al. (1981).
     The map is downloadable here:
     https://lambda.gsfc.nasa.gov/product/foreground/fg_2014_haslam_408_get.html.
 
@@ -223,7 +248,7 @@ def sky_temperature_H81refined(
     file = (
         "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81_refined.fits"
     )
-    T_sky_map = hp.read_map(file)
+    T_sky_map = hp.read_map(file, dtype=np.float64)
 
     # Convert coordinates into astropy coordinates object.
     coord = SkyCoord(l_gal, b_gal, frame="galactic", unit="deg")
@@ -457,6 +482,7 @@ class SurveyRadio:
         G = self.gain_gaussian_beam(offset2)
 
         # Compute the sky temperature in the coordinates of each detection at the central frequency of the survey.
+        # We choose here to use the refined map from Remazeilles et al (2015).
         T_sky = sky_temperature_H81refined(l_gal, b_gal, self.f_central)
 
         SNR_detection = self.radiometer_equation(
