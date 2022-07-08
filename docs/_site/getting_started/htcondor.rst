@@ -2,7 +2,7 @@
 HTCondor
 ################################################
 
-This document is a guide to submit the population synthesis dynamics simulations to the HTCondor infrastructure at PIC. The documentation provided by PIC about HTCondor is here: https://pwiki.pic.es/index.php?title=HTCondor_User_Guide
+This document is a guide to submit the population synthesis dynamical simulations to the HTCondor infrastructure at PIC. The documentation provided by PIC about HTCondor is here: https://pwiki.pic.es/index.php?title=HTCondor_User_Guide
 However the principle commands needed to run the simulations will be explained in this document.
 
 **********************
@@ -49,7 +49,7 @@ Steps to run the dynamical simulations
   .. note::
     Steps 3 and 4 should be done every time that we log in to the server.
 
-* In  order to submit jobs with HTCondor we need two different scripts: an HTCondor submit file and a wrapper (see below). The former is the file needed to submit a job in HTCondor and the latter takes care of executing python relevant commands as well as running our python scripts. These two scripts are saved in /data/magnesia/common/test_htcondor.
+* In  order to submit jobs with HTCondor we need two different scripts: an HTCondor submit file and a wrapper (see below). The former is the file needed to submit a job in HTCondor and the latter takes care of executing python relevant commands as well as running our python scripts. These two scripts are saved in :code:`/data/magnesia/common/test_htcondor`.
 
   * The HTCondor submit file looks like the following:
 
@@ -71,24 +71,24 @@ Steps to run the dynamical simulations
     queue
 
 
-  In our case the executable is a wrapper (explained below) where we call the .py file. Using  HTCondor the simulations are run in a remote host. To see what is printed in the terminal (stdout) or errors arising during the execution (stderr) we save the details in the path specified in the output, log and error variables. The path :code:`OUTPUT/hello.out.$(Cluster).$(Process).txt` is an example. You can choose the path that is more convenient for you. In this case we want the output to be saved in a folder called OUTPUT in the same folder where the submit file is located and with the name :code:`hello.out.$(Cluster).$(Process).txt`. For example, we could change the path of the output to
+  In our case the executable is a wrapper (explained below) where we call the .py file. Using  HTCondor the simulations are run in a remote host. To see what is printed in the terminal (stdout) or errors arising during the execution (stderr) we save the details in the path specified in the output, log and error variables. The path :code:`OUTPUT/hello.out.$(Cluster).$(Process).txt` is an example. You can choose the path that is more convenient for you. In this case we want the output to be saved in a folder called :code:`OUTPUT` in the same folder where the submit file is located and with the name :code:`hello.out.$(Cluster).$(Process).txt`. For example, we could change the path of the output to
 
   .. code-block:: bash
 
     output = test.txt
 
-  and the output (what is printed in the terminal during the execution of the wrapper) will be saved in the same folder as the submit file with the name test.txt. Note that if we want the path to be as in the previous example (:code:`OUTPUT/hello.out.$(Cluster).$(Process).txt`) we have to first create the OUTPUT directory where the submit file is; if it is not created an error will arise. In the script above :code:`$(Cluster)` means the cluster identifier and :code:`$(Process)` the process identifier. We use the cluster id and process id to differentiate between different runs and jobs. :code:`Queue` is the start "button".
+  and the output (what is printed in the terminal during the execution of the wrapper) will be saved in the same folder as the submit file with the name :code:`test.txt`. Note that if we want the path to be as in the previous example (:code:`OUTPUT/hello.out.$(Cluster).$(Process).txt`) we have to first create the :code:`OUTPUT` directory where the submit file is; if it is not created an error will arise. In the script above :code:`$(Cluster)` means the cluster identifier and :code:`$(Process)` the process identifier. We use the cluster id and process id to differentiate between different runs and jobs. :code:`Queue` is the start "button".
 
   .. note::
     Files saved in the scratch directory are removed after the run. To transfer these files to a directory we need to specify it in the submit file.
 
-  For example, if the output file is called output1.txt and we want to keep that file we need to add to the submit file the following line:
+  For example, if the output file is called :code:`output1.txt` and we want to keep that file we need to add to the submit file the following line:
 
   .. code-block:: bash
 
     transfer_output_files= output1.txt
 
-  Then output1.txt will be saved in the same directory as the submit file.
+  Then :code:`output1.txt` will be saved in the same directory as the submit file.
 
   * The wrapper looks like this:
 
@@ -99,9 +99,6 @@ Steps to run the dynamical simulations
 
     # Set where the anaconda installation is located in order to be able to use conda commands.
     export PATH=/data/magnesia/software/anaconda3/bin:$PATH
-
-    # Set where python has to look for our modules imported in the code.
-    export PYTHONPATH="${PYTHONPATH}:/data/magnesia/software/MAGNESIA_population_synthesis"
 
     # Initialize anaconda in the bash shell.
     conda init bash
@@ -115,8 +112,8 @@ Steps to run the dynamical simulations
     # Run the simulation specifying the path for the output.
     python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn_test.py --output /data/magnesia/common/test_HTCondor
 
-    .. note::
-      We can't save the output from the simulations in the same folder as the repo since the remote host doesn't have writing access. Thus, we save the output in the common folder.
+  .. note::
+    We can't save the output from the simulations in the same folder as the repo since the remote host doesn't have writing access. Thus, we save the output in the common folder.
 
 * In order to submit a job (= running the simulation on the server) we use:
 
@@ -157,14 +154,14 @@ Steps to run the dynamical simulations
 
     condor_q -const 'JobStatus == 5' -af HoldReason
 
-  If we want to remove any job, then we execute condor_q to search for the job_id that we want to remove. For example with the output from condor_q above if we want to remove the job with id 5888825.0 we would do the following:
+  If we want to remove any job, then we execute :code:`condor_q` to search for the :code:`job_id` that we want to remove. For example with the output from :code:`condor_q` above if we want to remove the job with id 5888825.0 we would do the following:
 
   .. code-block:: bash
 
     condor_rm 5888825.0
 
   .. note::
-    The first job (the submitted time is always the earliest) that appears running is the jupyter notebook. Do not remove this one because you will close the jupyter session.
+    The first job in the  :code:`condor_q` output (the submitted time is always the earliest) that appears running is the jupyter notebook. Do not remove this one because you will close the jupyter session.
 
   If we want to enter the working node where the job is running we can use the following command:
 
@@ -193,19 +190,20 @@ Running different jobs in parallel
 ***********************************
 
 To take advantage of HTCondor we show here how to submit and process multiple jobs in parallel. There is a specific way to do this in HTCondor using the parameter "argument" in the .submit file.
-For example if we want to run our :code:`/simulate_population_dyn_test.py` with two different values of h_c. We should do the following steps:
-#. We create 2 different jsons (let us call them :code:`test1.json` and :code:`test2.json`) with the values of h_c. Then test1.json looks like:
+For example if we want to run our :code:`/simulate_population_dyn.py` with two different values of :code:`h_c` (in this example :code:`h_c` = 1.7 and 1.9). We should do the following steps:
+
+* We create 2 different jsons (let us call them :code:`test1.json` and :code:`test2.json`) with the values of :code:`h_c`. Then :code:`test1.json` looks like:
 
   .. code-block:: bash
 
-    (base) [cpardoar@gpu05 ~]$  cat tes1.json
+    (base) [cpardoar@gpu05 ~]$  cat test1.json
     {"h_c":1.7}
 
   and
 
   .. code-block:: bash
 
-    (base) [cpardoar@gpu05 ~]$  cat tes2.json
+    (base) [cpardoar@gpu05 ~]$  cat test2.json
     {"h_c":1.9}
 
 * Then we have to specify in the submit file the jsons that will be taken as an argument for the :code:`parameter_override`. Also we have to specify 2 different directories to not mix the output from the simulation. Thus, we have that our submit file is the same as before apart from the last lines:
@@ -229,7 +227,6 @@ For example if we want to run our :code:`/simulate_population_dyn_test.py` with 
     #!/bin/bash
 
     export PATH=/data/magnesia/software/anaconda3/bin:$PATH
-    export PYTHONPATH="${PYTHONPATH}:/data/magnesia/software/MAGNESIA_population_synthesis"
     conda init bash
     source /data/magnesia/software/anaconda3/etc/profile.d/conda.sh
     conda activate /data/magnesia/software/anaconda3/envs/pop_syn
