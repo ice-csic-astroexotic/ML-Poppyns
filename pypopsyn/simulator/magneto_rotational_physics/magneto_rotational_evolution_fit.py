@@ -40,10 +40,10 @@ from pypopsyn.simulator.configuration import cfg
 # Necessary right now in order to get JIT to work.
 a1_cfg: float = cfg["a1"]
 a2_cfg: float = cfg["a2"]
-tau1_norm_cfg: float = cfg["tau1_norm"]
-tau2_norm_cfg: float = cfg["tau2_norm"]
-tau1_a_cfg: float = cfg["tau1_a"]
-tau2_a_cfg: float = cfg["tau2_a"]
+A1_cfg: float = cfg["A1"]
+A2_cfg: float = cfg["A2"]
+b1_cfg: float = cfg["b1"]
+b2_cfg: float = cfg["b2"]
 t_trans_cfg: float = cfg["t_trans"]
 a_late_t_cfg: float = cfg["a_late_t"]
 
@@ -63,8 +63,8 @@ def magnetic_field_evolution_fit_numpy(
         (np.ndarray): magnetic field evolution in [G] as a function of time t.
     """
     # Define the two timescales as a function of the initial B field.
-    tau1 = tau1_norm_cfg * B_initial ** (-tau1_a_cfg)
-    tau2 = tau2_norm_cfg * B_initial ** (-tau2_a_cfg)
+    tau1 = A1_cfg * B_initial ** (-b1_cfg)
+    tau2 = A2_cfg * B_initial ** (-b2_cfg)
 
     B = np.zeros(len(t))
     early_times = t < t_trans_cfg
@@ -107,8 +107,8 @@ def magnetic_field_evolution_fit(
         (float): magnetic field value in [G] at time t.
     """
     # Define the two timescales as a function of the initial B field.
-    tau1 = tau1_norm_cfg * B_initial ** (-tau1_a_cfg)
-    tau2 = tau2_norm_cfg * B_initial ** (-tau2_a_cfg)
+    tau1 = A1_cfg * B_initial ** (-b1_cfg)
+    tau2 = A2_cfg * B_initial ** (-b2_cfg)
 
     # At early times the curves are fixed to reproduce the simulated magnetic field evolution from the magneto-thermal
     # code. At late times we assume a simple power-law evolution.
@@ -233,11 +233,7 @@ def magneto_rotational_evolution(
         # current age value.
         time_grid = np.append(
             10
-            ** np.arange(
-                0,
-                np.log10(t_age[i]),
-                cfg["magrot_time_step_log10"],
-            ),
+            ** np.arange(0, np.log10(t_age[i]), cfg["magrot_time_step_log10"]),
             t_age[i],
         )
 
@@ -254,12 +250,13 @@ def magneto_rotational_evolution(
             )
         )
 
-        # Evaluate the magnetic field evolution.
-        B_t = magnetic_field_evolution_fit_numpy(
-            B_initial[i], time_grid, B_asymptotic[i]
-        )
-
         if cfg["save_magrot_evolution"]:
+
+            # Evaluate the magnetic field evolution.
+            B_t = magnetic_field_evolution_fit_numpy(
+                B_initial[i], time_grid, B_asymptotic[i]
+            )
+
             # Save the evolution output of the i-th neutron star in a dictionary.
             evolution = {
                 i: {
@@ -272,9 +269,10 @@ def magneto_rotational_evolution(
             # Update the dictionary containing the evolution information.
             evolution_dictionary = {**evolution_dictionary, **evolution}
 
-        # The solution evaluated at the times t_eval=time_grid can be accessed via .y.
-        # The last value in the array corresponds to the current field strength.
-        B_final[i] = B_t[-1]
+        # Save the final values of the magnetic field, inclination angle and spin period.
+        B_final[i] = magnetic_field_evolution_fit(
+            B_initial[i], t_age[i], B_asymptotic[i]
+        )
         chi_final[i] = evol_output[-1, 0]
         P_final[i] = evol_output[-1, 1]
 
