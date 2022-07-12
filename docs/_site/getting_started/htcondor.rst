@@ -2,15 +2,14 @@
 HTCondor
 ################################################
 
-This document is a guide to submit the population synthesis dynamical simulations to the HTCondor infrastructure at PIC. The documentation provided by PIC about HTCondor is here: https://pwiki.pic.es/index.php?title=HTCondor_User_Guide
-However the principle commands needed to run the simulations will be explained in this document.
+In this document we will focus on explaining the structure of the files and the main commands needed to submit the simulations in the HTCondor infrastructure at PIC. The documentation provided by PIC about HTCondor is here: https://pwiki.pic.es/index.php?title=HTCondor_User_Guide
 
 **********************
 Location of the files
 **********************
 
 #. The repo is in the folder :code:`/data/magnesia/software`. Note that the repo was cloned here following the PIC guidelines: we should use the software folder for shared repositories. The repo was cloned in such a way that every user of magnesia has writing, execution and reading access. A user would be able to clone the repo in their own home directories, but this should be avoided due to limited disk space.
-#. The scripts to submit a job in HTCondor are in the common folder /data/magnesia/common. We use this folder to store the HTCondor files since it is the recommended folder by PIC to store intermediate data.
+#. The scripts to submit a job in HTCondor are in the common folder :code:`/data/magnesia/common`. We use this folder to store the HTCondor files since it is the recommended folder by PIC to store intermediate data.
 #. There is a scratch folder in the magnesia disk space where the output files of each run could be saved. These will however be deleted after each run and thus need to be transferred elsewhere if required. Below we explain how to transfer files from this scratch directory.
 
 ***************************
@@ -47,7 +46,7 @@ Steps to run the dynamical simulations
   #. Then follow these instructions to add your new ssh-key to GitHub: https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account
 
   .. note::
-    Steps 3 and 4 should be done every time that we log in to the server.
+    To :code:`git pull` and :code:`git push` steps 3 and 4 should be done every time that we log in to the server.
 
 * In  order to submit jobs with HTCondor we need two different scripts: an HTCondor submit file and a wrapper (see below). The former is the file needed to submit a job in HTCondor and the latter takes care of executing python relevant commands as well as running our python scripts. These two scripts are saved in :code:`/data/magnesia/common/test_htcondor`.
 
