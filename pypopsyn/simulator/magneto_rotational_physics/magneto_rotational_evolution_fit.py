@@ -214,7 +214,7 @@ def magneto_rotational_evolution(
     chi_final = np.zeros(n)
     P_final = np.zeros(n)
 
-    # Initial conditions for the three parameters.
+    # Initial conditions for the two parameters.
     y_initial = np.column_stack((chi_initial, P_initial))
 
     # Draw a random asymptotic value of the magnetic field at late time from a log-Normal distribution.
