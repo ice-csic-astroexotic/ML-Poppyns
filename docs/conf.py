@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath("../pypopsyn"))
 # -- Project information -----------------------------------------------------
 
 project = "pypopsyn"
-copyright = "2020-2021, MAGNESIA"
+copyright = "2020-2022, MAGNESIA"
 author = "MAGNESIA"
 
 
