@@ -208,7 +208,7 @@ class SpiralModelYMW17(SpiralModelBase):
     Spiral structure of Yau & Manchester (2017), see also Hou et al. (2014).
     Spiral arm parameters from table 1 in Yau & Manchester (2016) assuming a Sun
     galactocentric distance R_sun = 8.3 kpc. The Local arm has a radial extension
-     ~ 1.05 rad in the range [0.87, 1.92] rad (see Hou et al. 2014).
+    ~ 1.05 rad in the range [0.87, 1.92] rad (see Hou et al. 2014).
     """
 
     def __init__(self):
