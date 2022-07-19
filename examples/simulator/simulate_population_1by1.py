@@ -86,8 +86,10 @@ def simulate_population(
     with open(override_dump_path, "w") as f:
         json.dump(cfg_override, f, indent=4, sort_keys=True)
 
-    # Initialize components of the simulator that need it.
+    # Sending Python values to Julia to initialize some of the components needed for the simulator.
     Main.galactic_model_input = cfg["galactic_model"]
+
+    # Importing the ´galactic_model.jl´ file with Julia code into our Main Julia.
     Main.include("julia/galactic_model.jl")
     sm.initialize_spiral_model()
 
@@ -337,9 +339,13 @@ def simulate_population(
         )
 
         # Compute the total initial energy of the system.
+
+        # Setting names in the ´Main´ module to send Python values to Julia.
         Main.v_initial = v_initial
         Main.r_initial = r_initial
         Main.z_initial = z_initial
+
+        # Evaluating the total energy function in Julia.
         total_energy_initial = Main.eval(
             "total_energy(v_initial, r_initial, z_initial)"
         )
@@ -348,9 +354,13 @@ def simulate_population(
         v_final = np.sqrt(v_r_final**2 + v_phi_final**2 + v_z_final**2)
 
         # Compute the total energy of the system after the dynamical evolution.
+        # Setting names in the ´Main´ module to send Python values to Julia.
+
         Main.v_final = v_final
         Main.r_final = r_final
         Main.z_final = z_final
+
+        # Evaluating the total energy function in Julia.
         total_energy_final = Main.eval(
             "total_energy(v_final, r_final, z_final)"
         )

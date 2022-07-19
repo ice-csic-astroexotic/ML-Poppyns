@@ -1,5 +1,5 @@
-#=
-Model for the Milky Way gravitational potential.
+"""
+Model for the Milky Way gravitational potential in Julia.
 
 We consider two different models:
 
@@ -13,11 +13,8 @@ a Miyamoto-Nagai disk (Miyamoto & Nagai 1975) and a Navarro-Frenk-White halo (Na
 et al. 1996). The parameters of the model are taken from Table 1 in Marchetti et al.
 (2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy 2015).
 
-To improve performance when evolving the neutron stars' position in the galactic
-potential (see dynamical_evolution.py), we add Numba's jit decorator to all functions.
-
 Authors:
-
+        Borja Miñano (borja.minano@uib.es)
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
 
@@ -39,7 +36,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-=#
+"""
+
+
 include("constants.jl")
 
 
@@ -53,6 +52,8 @@ a Miyamoto-Nagai disk (Miyamoto & Nagai 1975) and a Navarro-Frenk-White halo
 Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of
 the Milky Way (Bovy 2015).
 """
+
+# Julia uses the struct keyword to define variables types. Here we define all the variables needed for the galactic model.
 struct GalaxyModelM19 <:GalacticModel
     a_d::Float64
     b_d::Float64
@@ -92,6 +93,7 @@ function initialize_galactic_model(input)
     parameters from Kuijken & Gilmore (1989)) and Galaxy model from Marchetti et al.
     (2019). The galactic_model variable is made available on a global level.
     """
+    # The ´cmp´ command compares two strings, if they are equal returns 0.
 	if cmp(input, "gmM19") == 0
         # Parameters of the model, values from Table 1 in Marchetti et al. (2019).
 		return GalaxyModelM19(3.0,              # Scale length of the disk in [kpc].
@@ -119,7 +121,7 @@ function initialize_galactic_model(input)
     throw("The galactic model does not exist. Choose between gmFK06 or gmM19.")
 end
 
-# Galactic model initialization
+# Galactic model initialization. Constant variables in Julia are global variables which its type can not change.
 const galactic_model = initialize_galactic_model(galactic_model_input)
 
 
