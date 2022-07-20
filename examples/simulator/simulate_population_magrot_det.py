@@ -81,6 +81,7 @@ def simulate_population(args) -> None:
     dyn_path_json = pathlib.Path().joinpath(dyn_path, "configuration.json")
     dyn_path = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.csv")
     dyn_path_config = pathlib.Path().joinpath(dyn_path, "override.json")
+
     if not dyn_path.exists():
         log.error(f"File {dyn_path} not found...")
         sys.exit()
@@ -137,6 +138,7 @@ def simulate_population(args) -> None:
         cfg["profile_json"],
         cfg["show_profiling"],
     ):
+        # ===================== EVOLVE AND DETECT ========================
 
         # These variables count how many stars we create to reach the desirable number in each survey.
         n_created = 0
@@ -148,21 +150,19 @@ def simulate_population(args) -> None:
         stop_PMPS = False
         stop_SMPS = False
 
+        # Define a list to store the indices of the detected neutron stars to avoid resampling.
         # In the first iteration, we are not removing any indices.
         idx_remove = []
-
-        # ===================== EVOLVE AND DETECT ========================
 
         # To speed up the simulation, generate new neutron stars in batches.
         n_batchsize = 100000
 
-        # If we have already detected 80% or 95% of the NS in both surveys we reduce the batch size to speed up
-        # the simulations.
-
+        # Once we have detected 80% or 95% of the NS in both surveys, we reduce the batch size to speed up the
+        # simulations. We initialize these flags as false.
         flag_80 = False
         flag_95 = False
 
-        # Initializing the dictionaries where we save the detected neutron stars per each survey.
+        # Initializing the dictionaries where we save the detected neutron stars for each survey.
         dictionary_detected_PMPS = {
             "age": [],
             "ra": [],
@@ -324,7 +324,7 @@ def simulate_population(args) -> None:
                     ra_datab, dec_datab, l_datab, b_datab
                 )
 
-                # Saving the full dataset indexes of the select rows.
+                # Saving the full dataset indices of the selected rows.
                 idx = df_dyn.index.values
                 idx_pos = np.arange(len(idx))
                 df_index = pd.DataFrame(
@@ -342,7 +342,7 @@ def simulate_population(args) -> None:
                 coverage_PMPS = coverage_PMPS[coverage_tot]
                 coverage_SMPS = coverage_SMPS[coverage_tot]
 
-                # Remove stars that fall out from the total sky coverage.
+                # Remove stars that do not fall into the total sky coverage.
                 out_coverage = np.invert(coverage_tot)
                 idx_remove += idx[out_coverage].tolist()
 
@@ -587,7 +587,7 @@ def simulate_population(args) -> None:
                 }
 
                 # Remove from the dynamical database the stars that have been detected or
-                # that are out from the sky coverage of the surveys.
+                # that are outside of the sky coverage of the surveys.
                 detected = detected_radio_PMPS | detected_radio_SMPS
                 idx_det_tot = idx_det[detected]
                 idx_remove += idx_det_tot.tolist()

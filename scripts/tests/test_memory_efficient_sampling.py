@@ -53,7 +53,7 @@ def test_select():
     Verifying that this function returns a Dataframe.
     """
 
-    path_file_test = pathlib.Path("data_example.csv")
+    path_file_test = pathlib.Path("examples/data/final_pop_dyn.csv")
 
     df = select(path_file_test, 5, 20)
 
