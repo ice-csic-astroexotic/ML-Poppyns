@@ -1,5 +1,6 @@
 """
-Combined evolution of the pulsar period, misalignment angle and magnetic field.
+Combined evolution of the pulsar period, misalignment angle and magnetic field
+relying on fits to magneto-thermal simulations.
 
 Authors:
 
@@ -66,6 +67,7 @@ def magnetic_field_evolution_fit_numpy(
     tau1 = A1_cfg * B_initial ** (-b1_cfg)
     tau2 = A2_cfg * B_initial ** (-b2_cfg)
 
+    # We split our time-domain into two regions using different prescriptions for early and late times.
     B = np.zeros(len(t))
     early_times = t < t_trans_cfg
     late_times = t >= t_trans_cfg
@@ -85,7 +87,7 @@ def magnetic_field_evolution_fit_numpy(
     ) * (t[late_times] / t_trans_cfg) ** (-a_late_t_cfg)
 
     # If the magnetic field becomes lower than an asymptotic value derived from the old millisecond pulsar population,
-    # fix the magnetic field to that asymptotic value.
+    # fix the magnetic field to that constant asymptotic value.
     B[B < B_asymptotic] = B_asymptotic
 
     return B
@@ -110,6 +112,7 @@ def magnetic_field_evolution_fit(
     tau1 = A1_cfg * B_initial ** (-b1_cfg)
     tau2 = A2_cfg * B_initial ** (-b2_cfg)
 
+    # We split our time-domain into two regions using different prescriptions for early and late times.
     # At early times the curves are fixed to reproduce the simulated magnetic field evolution from the magneto-thermal
     # code. At late times we assume a simple power-law evolution.
     if t < t_trans_cfg:
@@ -127,7 +130,7 @@ def magnetic_field_evolution_fit(
         )
 
     # If the magnetic field becomes lower than an asymptotic value derived from the old millisecond pulsar population,
-    # fix the magnetic field to that asymptotic value.
+    # fix the magnetic field to that constant asymptotic value.
     if B < B_asymptotic:
         B = B_asymptotic
 
@@ -217,7 +220,7 @@ def magneto_rotational_evolution(
     # Initial conditions for the two parameters.
     y_initial = np.column_stack((chi_initial, P_initial))
 
-    # Draw a random asymptotic value of the magnetic field at late time from a log-Normal distribution.
+    # Draw a random asymptotic value of the magnetic field at late times from a log-normal distribution.
     # This asymptotic value is based on the distribution of inferred magnetic fields for the old population
     # of millisecond pulsars.
     B_asymptotic = 10 ** np.random.normal(

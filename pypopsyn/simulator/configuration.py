@@ -150,17 +150,27 @@ cfg["n_e"]: float = 1e35
 # Time step for the magneto-rotational evolution [yr].
 cfg["magrot_time_step_log10"]: float = 1e-2
 
-# Parameters of the analytical expression use to mimic the simulated magnetic field evolution curves.
+# Parameters of the analytical expression used to mimic the simulated magnetic field evolution curves.
+# For the magneto-thermal simulation the following setup has been employed.
+# The equation of state is Sly4 EoS, the NS mass is 1.4 Msun, the radius is 11.74 km and the impurity
+# in the pasta layer is fixed to 100. Instead, for the impurity in the outer crust and the inner crust
+# (excluding pasta layer), the fit of Carreau et al. (2020) has been used (see figure 5 in that paper).
+# The envelope model is taken from Potekhin et al. (2015).
+# The gaps are taken from Andersson et al. (2005) and are the following:
+# SFB                Superfluid model for n crust [0=deactivate] (see superfluid.f in the magneto-thermal code)
+# TToa               Superfluid model for n core [0=deactivate] (see superfluid.f in the magneto-thermal code)
+# CCDKp              Superfluid model for p core [0=deactivate] (see superfluid.f in the magneto-thermal code)
+
 # Power-law indices.
 cfg["a1"]: float = 0.14
 cfg["a2"]: float = 3.0
-# Timescale parameters, normalization and power-law index.
+# Timescale parameters, normalizations and power-law indices.
 cfg["A1"]: float = 9.0e16
 cfg["b1"]: float = 1.0
 cfg["A2"]: float = 6.2e11
 cfg["b2"]: float = 0.4
-# Time in [yr] when transitioning from the simulated curve to the simple power-law evolution.
-cfg["t_trans"]: float = 1.0e6
+# Time in [yr] when transitioning from the simulated curves to the simple power-law evolution.
+cfg["t_trans"]: float = 5.0e5
 # Late time power-law index.
 cfg["a_late_t"]: float = 1.0
 

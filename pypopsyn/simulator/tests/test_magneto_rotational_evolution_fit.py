@@ -37,24 +37,6 @@ TOL = 1e-5
 # Update the number of simulated objects for testing purposes.
 cfg["NS_number"] = 2
 
-# Update the neutron star radius in [cm] for testing purposes.
-cfg["NS_radius"] = 1.1e6
-
-# Update neutron star mass in solar masses for testing purposes.
-cfg["NS_mass"] = 1.4 * const.M_SUN
-
-# Update the force-free magnetosphere coefficients for testing purposes.
-cfg["k_coefficients"] = np.array([1.0, 1.0, 1.0])
-
-# Update the conductivity coefficient for testing purposes.
-cfg["sigma"] = 1e24
-
-# Update the characteristic length scale of the magnetic field in [cm] for testing purposes.
-cfg["L"] = 1e5
-
-# Update the characteristic electron density in [g/cm^3] for testing purposes.
-cfg["n_e"] = 1e36
-
 # Update the logarithmic time step for testing purposes.
 cfg["magrot_time_step_log10"] = 1
 
@@ -80,7 +62,7 @@ def test_case_2():
         "B_initial": 1e12,
         "t": np.array([1.0e4, 1.0e7]),
         "B_asymptotic": 1e8,
-        "B_expected": np.array([982355579256.808, 52733256279.99179]),
+        "B_expected": np.array([982355579256.808, 3.31116452e10]),
     }
 
     return data
