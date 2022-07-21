@@ -57,6 +57,8 @@ cfg["seed_full"]: int = None
 cfg["seed_dyn"]: int = None
 # Seed for the random number generation for the simulate_population_magrot_det.py.
 cfg["seed_magrot"]: int = None
+# Seed for the random number generation for the memory_efficient_sampling.py
+cfg["seed_sampling"] = None
 
 # Resolution for the spatial grid in the initial population.
 cfg["resolution"]: int = 10000
