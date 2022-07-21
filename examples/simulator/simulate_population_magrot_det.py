@@ -79,10 +79,10 @@ def simulate_population(args) -> None:
     # Check if the parsed dynamically simulated population directory exists.
     dyn_path = pathlib.Path(args.dyn_data)
     dyn_path_json = pathlib.Path().joinpath(dyn_path, "configuration.json")
-    dyn_path = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.csv")
+    dyn_path_pop = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.csv")
     dyn_path_config = pathlib.Path().joinpath(dyn_path, "override.json")
 
-    if not dyn_path.exists():
+    if not dyn_path_pop.exists():
         log.error(f"File {dyn_path} not found...")
         sys.exit()
 
@@ -254,7 +254,10 @@ def simulate_population(args) -> None:
                     conf_json = json.load(f)
 
                 df_dyn = select(
-                    dyn_path, n_batchsize, conf_json["NS_number"], idx_remove
+                    dyn_path_pop,
+                    n_batchsize,
+                    conf_json["NS_number"],
+                    idx_remove,
                 )
 
                 age = df_dyn["age"]["[yr]"].to_numpy()
