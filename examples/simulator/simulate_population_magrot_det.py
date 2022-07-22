@@ -52,6 +52,9 @@ from scripts.memory_efficient_sampling import select
 
 log = logging.getLogger(__name__)
 
+# Suppressing healpy related logging output.
+logging.getLogger("healpy").setLevel(logging.WARNING)
+
 
 def simulate_population(args) -> None:
     """
