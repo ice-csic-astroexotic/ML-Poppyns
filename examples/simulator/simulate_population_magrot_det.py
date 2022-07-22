@@ -42,7 +42,7 @@ import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
-import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
+import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
@@ -51,6 +51,9 @@ from pypopsyn.simulator.configuration import cfg
 from scripts.memory_efficient_sampling import select
 
 log = logging.getLogger(__name__)
+
+# Suppressing healpy related logging output.
+logging.getLogger("healpy").setLevel(logging.WARNING)
 
 
 def simulate_population(args) -> None:
@@ -79,10 +82,10 @@ def simulate_population(args) -> None:
     # Check if the parsed dynamically simulated population directory exists.
     dyn_path = pathlib.Path(args.dyn_data)
     dyn_path_json = pathlib.Path().joinpath(dyn_path, "configuration.json")
-    dyn_path = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.csv")
+    dyn_path_pop = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.csv")
     dyn_path_config = pathlib.Path().joinpath(dyn_path, "override.json")
 
-    if not dyn_path.exists():
+    if not dyn_path_pop.exists():
         log.error(f"File {dyn_path} not found...")
         sys.exit()
 
@@ -157,9 +160,9 @@ def simulate_population(args) -> None:
         # To speed up the simulation, generate new neutron stars in batches.
         n_batchsize = 100000
 
-        # Once we have detected 80% or 95% of the NS in both surveys, we reduce the batch size to speed up the
+        # Once we have detected 90% or 95% of the NS in both surveys, we reduce the batch size to speed up the
         # simulations. We initialize these flags as false.
-        flag_80 = False
+        flag_90 = False
         flag_95 = False
 
         # Initializing the dictionaries where we save the detected neutron stars for each survey.
@@ -228,13 +231,13 @@ def simulate_population(args) -> None:
                     n_detected_sim_SMPS / n_detected_real_SMPS
                 )
 
-                # If the percentage of both surveys is over 80% reduce the batch size.
+                # If the percentage of both surveys is over 90% reduce the batch size.
                 if (
-                    (percentage_detected_PMPS > 0.8)
-                    & (percentage_detected_SMPS > 0.8)
-                    & (flag_80 is False)
+                    (percentage_detected_PMPS > 0.9)
+                    & (percentage_detected_SMPS > 0.9)
+                    & (flag_90 is False)
                 ):
-                    flag_80 = True
+                    flag_90 = True
                     n_batchsize = 10000
                 elif (
                     (percentage_detected_PMPS > 0.95)
@@ -254,7 +257,10 @@ def simulate_population(args) -> None:
                     conf_json = json.load(f)
 
                 df_dyn = select(
-                    dyn_path, n_batchsize, conf_json["NS_number"], idx_remove
+                    dyn_path_pop,
+                    n_batchsize,
+                    conf_json["NS_number"],
+                    idx_remove,
                 )
 
                 age = df_dyn["age"]["[yr]"].to_numpy()
