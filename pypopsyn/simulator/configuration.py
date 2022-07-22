@@ -34,6 +34,9 @@ import pypopsyn.simulator.basics.constants as const
 
 cfg = {}
 
+
+# ===================== GENERAL SIMULATION PARAMETERS ========================
+
 # Function-specific profiling configuration.
 cfg["enable_profiles"]: bool = False
 cfg["show_profiles"]: bool = False
@@ -44,20 +47,20 @@ cfg["profile_log"]: str = "profile.log"
 cfg["profile_json"]: str = "profile.json"
 cfg["show_profiling"]: bool = True
 
-# Save time evolution output
+# Save time evolution output.
 cfg["save_dyn_evolution"]: bool = False
 cfg["save_magrot_evolution"]: bool = False
 
 
-# Initial population class parameters.
+# ===================== INITIAL POPULATION CLASS PARAMETERS ========================
 
-# Seed for the random number generation for the simulate_population_full.py.
+# Seed for the random number generation for simulate_population_full.py.
 cfg["seed_full"]: int = None
-# Seed for the random number generation for the simulate_population_dyn.py.
+# Seed for the random number generation for simulate_population_dyn.py.
 cfg["seed_dyn"]: int = None
-# Seed for the random number generation for the simulate_population_magrot_det.py.
+# Seed for the random number generation for simulate_population_magrot_det.py.
 cfg["seed_magrot"]: int = None
-# Seed for the random number generation for the memory_efficient_sampling.py
+# Seed for the random number generation for memory_efficient_sampling.py
 cfg["seed_sampling"] = None
 
 # Resolution for the spatial grid in the initial population.
@@ -81,7 +84,7 @@ cfg["z_extent"]: float = 5.0
 # Maximum kick velocity magnitude in [km/s].
 cfg["vk_extent"]: float = 2500.0
 
-# Number of spiral arms in the galaxy. If set to 5 the Local arm is included.
+# Number of spiral arms in the Galaxy. If set to 5 the Local arm is included.
 cfg["arm_number"]: int = 5
 
 # Minimum age for the neutron stars in [yr].
@@ -115,7 +118,7 @@ cfg["sigma_k"]: float = 265.0
 cfg["h_c"]: float = 0.18
 
 
-# Canonical neutron star parameters.
+# ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
 
 # Characteristic neutron star radius in [cm].
 cfg["NS_radius"]: float = 1.1e6
@@ -124,7 +127,7 @@ cfg["NS_radius"]: float = 1.1e6
 cfg["NS_mass"]: float = 1.4 * const.M_SUN
 
 
-# Field, misalignment angle and period evolution parameters for a crust-based model.
+# ===================== MAGNETO-ROTATIONAL PARAMETERS FOR A CRUST-BASED MODEL ========================
 
 # Mean and standard deviation for the Gaussian distributed initial periods in [s].
 cfg["P_initial_mean"]: float = 0.3
@@ -152,27 +155,32 @@ cfg["n_e"]: float = 1e35
 # Time step for the magneto-rotational evolution [yr].
 cfg["magrot_time_step_log10"]: float = 1e-2
 
-# Parameters of the analytical expression used to mimic the simulated magnetic field evolution curves.
-# For the magneto-thermal simulation the following setup has been employed.
-# The equation of state is Sly4 EoS, the NS mass is 1.4 Msun, the radius is 11.74 km and the impurity
-# in the pasta layer is fixed to 100. Instead, for the impurity in the outer crust and the inner crust
-# (excluding pasta layer), the fit of Carreau et al. (2020) has been used (see figure 5 in that paper).
+
+# ===================== FIT PARAMETERS FOR MAGNETO-THERMAL SIMULATIONS ========================
+
+# For the magneto-thermal simulations the following set-up was employed:
+# The equation of state is SLy4 with a NS mass of 1.4 Msun and radius of 11.74 km.
+# The impurity parameter in the pasta layer is fixed to 100. For the impurity in the outer and inner crust
+# (excluding the pasta layer), the fits of Carreau et al. (2020) have been used (see Figure 5 in that paper).
 # The envelope model is taken from Potekhin et al. (2015).
-# The gaps are taken from Andersson et al. (2005) and are the following:
-# SFB                Superfluid model for n crust [0=deactivate] (see superfluid.f in the magneto-thermal code)
-# TToa               Superfluid model for n core [0=deactivate] (see superfluid.f in the magneto-thermal code)
-# CCDKp              Superfluid model for p core [0=deactivate] (see superfluid.f in the magneto-thermal code)
+# Superfluid and superconducting gap parametrisations are taken from Ho et al. (2015):
+# SFB for crustal neutrons, TToa for core neutrons and CCDKp for core protons.
+# We fit a functional equation of the form: B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**a2
+# with tau1 = A1 * B_initial**b1 and tau2 = A2 * B_initial**b2.
 
 # Power-law indices.
 cfg["a1"]: float = 0.14
 cfg["a2"]: float = 3.0
+
 # Timescale parameters, normalizations and power-law indices.
 cfg["A1"]: float = 9.0e16
 cfg["b1"]: float = 1.0
 cfg["A2"]: float = 6.2e11
 cfg["b2"]: float = 0.4
+
 # Time in [yr] when transitioning from the simulated curves to the simple power-law evolution.
 cfg["t_trans"]: float = 5.0e5
+
 # Late time power-law index.
 cfg["a_late_t"]: float = 1.0
 
@@ -180,7 +188,8 @@ cfg["a_late_t"]: float = 1.0
 cfg["B_millisec_mean"] = 8.5
 cfg["B_millisec_sigma"] = 0.5
 
-# Radio emission model parameters.
+
+# ===================== RADIO EMISSION-MODEL PARAMETERS ========================
 
 # Distance from the center of the star where the radio emission is supposed to be generated in [cm]
 # (see Johnston et al. 2020).
