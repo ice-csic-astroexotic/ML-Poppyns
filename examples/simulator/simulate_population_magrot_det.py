@@ -160,7 +160,7 @@ def simulate_population(args) -> None:
         # To speed up the simulation, generate new neutron stars in batches.
         n_batchsize = 100000
 
-        # Once we have detected 80% or 95% of the NS in both surveys, we reduce the batch size to speed up the
+        # Once we have detected 90% or 95% of the NS in both surveys, we reduce the batch size to speed up the
         # simulations. We initialize these flags as false.
         flag_90 = False
         flag_95 = False
@@ -231,7 +231,7 @@ def simulate_population(args) -> None:
                     n_detected_sim_SMPS / n_detected_real_SMPS
                 )
 
-                # If the percentage of both surveys is over 80% reduce the batch size.
+                # If the percentage of both surveys is over 90% reduce the batch size.
                 if (
                     (percentage_detected_PMPS > 0.9)
                     & (percentage_detected_SMPS > 0.9)

@@ -54,6 +54,8 @@ def magnetic_field_evolution_fit_numpy(
 ) -> np.ndarray:
     """
     An analytical function for the magnetic field evolution curves from the magneto-thermal evolution simulations.
+    This method is compatible with numpy arrays and is used if one wants to save the entire evolution output in the
+    magneto_rotational_evolution method.
 
     Args:
         B_initial(float): initial magnetic field strength in [G].

@@ -7,14 +7,14 @@ dependencies:
   - f2c=20210323183018
   - ffmpeg=4.4.2
   - graphviz=4.0.0
-  - healpy
+  - healpy=1.16.0
   - ipykernel=6.13.1
   - jupyter=1.0.0
   - libtiff=4.4.0
   - matplotlib=3.5.2
   - nb_conda=2.2.1
   - ninja=1.11.0
-  - numba=0.55.1
+  - numba=0.53.1
   - numpy=1.22.4
   - olefile=0.46
   - pandas=1.4.2
