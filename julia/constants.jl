@@ -1,3 +1,5 @@
+# Defining global constant needed for the dynamical evolution.
+
 const M_SUN = 2.0e33
 const G = 6.67e-8
 const KPC_TO_CM = 3.08567758e21

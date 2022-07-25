@@ -41,6 +41,8 @@ SOFTWARE.
 
 include("constants.jl")
 
+#= Defining an abstract type for the galactic model. Note that Julia is not an object-oriented language, i.e.
+we define types not classes. =#
 
 abstract type GalacticModel end
 
@@ -53,7 +55,9 @@ Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of
 the Milky Way (Bovy 2015).
 """
 
-# Julia uses the struct keyword to define variables types. Here we define all the variables needed for the galactic model.
+#= Julia uses the struct similarly to objects in object-oriented languages. With struct we can define the field of each
+"class", similarly to the __init__ in Python. Here we define all the variables needed for each galactic model. =#
+
 struct GalaxyModelM19 <:GalacticModel
     a_d::Float64
     b_d::Float64
@@ -87,12 +91,22 @@ end
 
 
 function initialize_galactic_model(input)
+
     """
     Initializing the galactic model employed in the simulation. We have implemented two
     versions, i.e., the galactic structure of Faucher-Giguère & Kaspi (2006) (with
     parameters from Kuijken & Gilmore (1989)) and Galaxy model from Marchetti et al.
     (2019). The galactic_model variable is made available on a global level.
+
+    Args:
+        input (str): Type of Galactic model to be used, i.e. gmFK06 or gmM19.
+
+    Returns:
+        GalacticModel (abstract type): GalacticModel abstract type for each of the different galactic model
+        we have defined.
+
     """
+
     # The ´cmp´ command compares two strings, if they are equal returns 0.
 	if cmp(input, "gmM19") == 0
         # Parameters of the model, values from Table 1 in Marchetti et al. (2019).
@@ -121,7 +135,11 @@ function initialize_galactic_model(input)
     throw("The galactic model does not exist. Choose between gmFK06 or gmM19.")
 end
 
-# Galactic model initialization. Constant variables in Julia are global variables which its type can not change.
+#= Galactic model initialization. Constant variables in Julia are global variables which its type can not change.
+# The variable galactic_model_input it is saved in the Main of Julia. To do so, we add this line of code
+Main.galactic_model_input = cfg["galactic_model"] in the main script.=#
+
+
 const galactic_model = initialize_galactic_model(galactic_model_input)
 
 
@@ -135,6 +153,7 @@ function shape_parameter(galactic_model::GalaxyModelM19, z)
     Second term in the denominator of eq. (8) in Marchetti et al. (2019).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         z (float): height from the galactic disk in [kpc].
 
     Returns:
@@ -157,6 +176,7 @@ function r_derivative_b_potential(galactic_model::GalaxyModelM19, r)
     defined in eq. (7) in Marchetti et al. (2019).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         r (float): distance in the galactic disk from the galactic centre in [kpc].
 
     Returns:
@@ -174,6 +194,7 @@ function r_derivative_n_potential(galactic_model::GalaxyModelM19, r)
     defined in eq. (7) in Marchetti et al. (2019).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         r (float): distance in the galactic disk from the galactic centre in [kpc].
 
     Returns:
@@ -191,6 +212,7 @@ function r_derivative_h_potential(galactic_model::GalaxyModelM19, r)
     defined in eq. (9) in Marchetti et al. (2019).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         r (float): distance in the galactic disk from the galactic centre in [kpc].
 
     Returns:
@@ -214,6 +236,7 @@ function r_z_derivatives_d_potential(galactic_model::GalaxyModelM19, r, z)
     potential defined in eq. (8) in Marchetti et al. (2019).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         r (float): distance in the galactic disk from the galactic centre in [kpc].
         z (float): height from the galactic disk in [kpc].
 
@@ -246,6 +269,7 @@ function cylind_coord_gradient_mw_potential(galactic_model::GalaxyModelM19, r, z
     the components defined in eq. (7,8,9) in Marchetti et al. (2019).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         r (float): distance in the galactic disk from the galactic centre in [kpc].
         z (float): height from the galactic disk in [kpc].
 
@@ -272,6 +296,7 @@ function d_potential(galactic_model::GalaxyModelM19, r, z)
     Marchetti et al. (2019).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
         z (np.ndarray): height from the galactic disk in [kpc].
 
@@ -292,6 +317,7 @@ function b_potential(galactic_model::GalaxyModelM19, r)
     Marchetti et al. (2019).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
     Returns:
@@ -309,6 +335,7 @@ function n_potential(galactic_model::GalaxyModelM19, r)
     Marchetti et al. (2019).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
     Returns:
@@ -326,10 +353,11 @@ function h_potential(galactic_model::GalaxyModelM19, r)
     eq. (9) in Marchetti et al. (2019).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
     Returns:
-        (np.ndarray): value of the bulge potential in [erg/g].
+        (np.ndarray): value of the halo potential in [erg/g].
     """
 
     pot_h = -G * galactic_model.M_h ./ (r .* KPC_TO_CM) .* log1p.(r ./ galactic_model.r_h)
@@ -342,6 +370,7 @@ function MW_potential(galactic_model::GalaxyModelM19, r, z)
     Total Milky Way gravitational potential in Marchetti et al. (2019).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
         z (np.ndarray): height from the galactic disk in [kpc].
 
@@ -370,6 +399,7 @@ function shape_parameter(galactic_model::GalaxyModelFK06, z)
     Kaspi (2006).
 
     Args:
+        galactic_model (abstract type) : gmM19 model parameters.
         z (float): height from the galactic disk in [kpc].
 
     Returns:
@@ -399,6 +429,7 @@ function r_z_derivatives_dh_potential(galactic_model::GalaxyModelFK06, r, z)
     potential defined in eq. (14) in Faucher-Giguère & Kaspi (2006).
 
     Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
         r (float): distance in the galactic disk from the galactic centre in [kpc].
         z (float): height from the galactic disk in [kpc].
 
@@ -433,6 +464,7 @@ function r_derivative_b_potential(galactic_model::GalaxyModelFK06, r)
     defined in eq. (15) in Faucher-Giguère & Kaspi (2006).
 
     Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
         r (float): distance in the galactic disk from the galactic centre in [kpc].
 
     Returns:
@@ -452,6 +484,7 @@ function r_derivative_n_potential(galactic_model::GalaxyModelFK06, r)
     defined in eq. (15) in Faucher-Giguère & Kaspi (2006).
 
     Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
         r (float): distance in the galactic disk from the galactic centre in [kpc].
 
     Returns:
@@ -472,6 +505,7 @@ function cylind_coord_gradient_mw_potential(galactic_model::GalaxyModelFK06, r, 
     defined in eq. (13) in Faucher-Giguère & Kaspi (2006).
 
     Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
         r (float): distance in the galactic disk from the galactic centre in [kpc].
         z (float): height from the galactic disk in [kpc].
 
@@ -499,6 +533,7 @@ function dh_potential(galactic_model::GalaxyModelFK06, r, z)
     Faucher-Giguère & Kaspi (2006).
 
     Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
         r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
         z (np.ndarray): height from the galactic disk in [kpc].
 
@@ -523,6 +558,7 @@ function b_potential(galactic_model::GalaxyModelFK06, r)
     Faucher-Giguère & Kaspi (2006).
 
     Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
         r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
     Returns:
@@ -540,6 +576,7 @@ function n_potential(galactic_model::GalaxyModelFK06, r)
     Faucher-Giguère & Kaspi (2006).
 
     Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
         r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
 
     Returns:
@@ -557,6 +594,7 @@ function MW_potential(galactic_model::GalaxyModelFK06, r, z)
     Faucher-Giguère & Kaspi (2006).
 
     Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
         r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
         z (np.ndarray): height from the galactic disk in [kpc].
 

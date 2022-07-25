@@ -83,10 +83,13 @@ def dynamical_evolution(
     v_phi_final = np.zeros(n)
     v_z_final = np.zeros(n)
 
-    # Loop inside julia
+    # Setting names in the ´Main´ module to send Python values to Julia.
     Main.galactic_model_input = cfg["galactic_model"]
+
+    # Importing the ´julia_solver.jl´ file with Julia code into our Main Julia.
     Main.include("julia/julia_solver.jl")
 
+    # Setting names in the ´Main´ module to send Python values to Julia.
     Main.n = n
     Main.initial_cond = initial_cond
     Main.time_step = cfg["dyn_time_step"]
@@ -94,6 +97,7 @@ def dynamical_evolution(
     Main.save_dyn_evolution = cfg["save_dyn_evolution"]
     Main.tolerance = cfg["ODE_solver_tol"]
 
+    # Solving the ODEs with Julia.
     (
         r_final,
         phi_final,

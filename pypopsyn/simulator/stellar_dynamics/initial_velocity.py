@@ -128,10 +128,14 @@ def circular_velocity(r: float, z: float) -> float:
         (float): value of the circular velocity in [kpc/yr].
     """
 
+    # Setting names in the ´Main´ module to send Python values to Julia.
     Main.r = r
     Main.z = z
     Main.galactic_model_input = cfg["galactic_model"]
+
+    # Importing the ´galactic_model.jl´ file with Julia code into our Main Julia.
     Main.include("julia/galactic_model.jl")
+    # Evaluating cylind_coord_gradient_mw_potential function in Julia.
     pot_mw_gradient = Main.eval(
         "cylind_coord_gradient_mw_potential(galactic_model, r, z)"
     )
