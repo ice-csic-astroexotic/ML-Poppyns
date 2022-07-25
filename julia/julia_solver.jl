@@ -1,10 +1,39 @@
+"""
+Dynamical evolution of the neutron stars in the galactic potential in Julia.
+
+We solve the system of dynamical differential equations in cylindrical coordinates,
+using a galactocentric reference frame. Here we are using the Julia OrdinaryDiffEq
+package which uses the method 'LSODA' (Adams/BDF method with automatic stiffness
+detection and switching) from the Fortran library ODEPACK.
+
+Authors:
+        Borja Miñano (borja.minano@uib.es)
+
+MIT License
+Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 using OrdinaryDiffEq
 using LSODA
 
 include("galactic_model.jl")
 
 
-function rhs(du,u,p,t)
+function rhs(du, u, p, t)
 
     """
     System of dynamical equations to solve to determine the orbits of the neutron
@@ -38,23 +67,25 @@ end
 function odeint(u0, tr, tol)
 
     """
-    Solve a system of ordinary differential equations with ODEProblem using lsoda.
-    The solution is given at time tr.
+    Solve a system of ordinary differential equations with ODEProblem using LSODA.
+    The solution is evaluated in the time range tr, but only the solution at the
+    final time point is saved.
 
     Args:
         u0 (Array): array of 6 components defining the initial
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
         with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
-        tr (float): time range for which the ODEs are solved.
+        tr (float): time range in which the ODEs are solved.
         tol (float): minimum tolerance to solve the ODEs.
 
     Returns:
-        solution.u (float) : solution of the ODEs evaluated at time tr.
+        solution.u (float) : solution of the ODEs evaluated at the final time point.
 
     """
-    prob = ODEProblem(rhs,u0,tr,save_everystep=false)
+    prob = ODEProblem(rhs, u0, tr, save_everystep=false)
 
-    solution = solve(prob,lsoda(), save_everystep=false,reltol=tol,abstol=tol)
+    solution = solve(prob, lsoda(), save_everystep=false, reltol=tol, abstol=tol)
+
     return solution.u
 end
 
@@ -62,15 +93,16 @@ end
 function odeint(t0, u0, tr, tol)
 
     """
-    Solve a system of ordinary differential equations with ODEProblem using lsoda.
-    The solution is given at times t0.
+    Solve a system of ordinary differential equations with ODEProblem using LSODA.
+    The solution is evaluated in the time range tr and saved at the time points specified in the
+    array t0.
 
     Args:
         t0 (Array): array of times where the solution is evaluated.
         u0 (Array): array of 6 components defining the initial
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
         with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
-        tr (float): time range for which the ODEs are solved.
+        tr (float): time range in which the ODEs are solved.
         tol (float): minimum tolerance to solve the ODEs.
 
     Returns:
@@ -78,12 +110,12 @@ function odeint(t0, u0, tr, tol)
 
     """
 
-    prob = ODEProblem(rhs,u0,tr,save_everystep=false, saveat=t0)
+    prob = ODEProblem(rhs, u0, tr, save_everystep=false, saveat=t0)
 
-    solution = solve(prob,lsoda(), save_everystep=false,reltol=tol,abstol=tol)
+    solution = solve(prob, lsoda(), save_everystep=false, reltol=tol, abstol=tol)
+
     return solution.u
 end
-
 
 
 function save_evolution(evol_output, time_grid)
@@ -92,7 +124,8 @@ function save_evolution(evol_output, time_grid)
     Saving the evolved output at times time_grid.
 
     Args:
-        evol_output (Array): array of the dynamical evolution at times time_grid with size (time_grid,6).
+        evol_output (Array): array of the dynamical evolution at times time_grid with size
+        (time_grid,6).
         time_grid (Array): array of times at which the output is evaluated.
 
     Returns:
@@ -101,9 +134,7 @@ function save_evolution(evol_output, time_grid)
     """
     #= The evol_output is a matrix of (time_grid,6), with the reduce and hcat command of Julia we transform into a
     matrix of (6,time_grid) size. =#
-
-    evol_output = reduce(hcat,evol_output)
-
+    evol_output = reduce(hcat, evol_output)
 
     v_r_evol = evol_output[4, :] * KPC_TO_KM / YR_TO_S
     v_phi_evol = evol_output[1, :] .* evol_output[5, :] * KPC_TO_KM / YR_TO_S
@@ -121,6 +152,7 @@ function save_evolution(evol_output, time_grid)
         )
 
 end 
+
 
 function solver_calls()
 
@@ -152,10 +184,12 @@ function solver_calls()
         if save_dyn_evolution
             time_grid = append!(collect(0.0:time_step:t_age[i]), t_age[i])
             evol_output = odeint(time_grid, initial_cond[i, :], timerange, tolerance)
+
+            # Save the evolution output of the i-th neutron star in a dictionary.
+            evolution_dictionary[string(i-1)] = save_evolution(evol_output, time_grid)
         else
             evol_output = odeint(initial_cond[i, :], timerange, tolerance)
         end
-
 
         # Save the final position and velocity of the i-th neutron star.
         # Note: We save directly the v_phi velocity component and not the angular velocity omega.
@@ -168,14 +202,7 @@ function solver_calls()
         append!(v_phi_final, omega_final * r_final[i])
         append!(v_z_final, last_item[6])
 
-        if save_dyn_evolution
-            # Save the evolution output of the i-th neutron star in a dictionary.
-            evolution_dictionary[string(i-1)] = save_evolution(evol_output, time_grid)
-        end
-
-
     end
-
 
     return r_final, phi_final, z_final, v_r_final, v_phi_final, v_z_final, evolution_dictionary
 

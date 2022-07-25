@@ -14,6 +14,7 @@ et al. 1996). The parameters of the model are taken from Table 1 in Marchetti et
 (2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy 2015).
 
 Authors:
+
         Borja Miñano (borja.minano@uib.es)
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
@@ -41,10 +42,13 @@ SOFTWARE.
 
 include("constants.jl")
 
-#= Defining an abstract type for the galactic model. Note that Julia is not an object-oriented language, i.e.
-we define types not classes. =#
-
+#= Defining an abstract type for the galactic model. Note that Julia is not an object-oriented
+language, i.e., we define types not classes. =#
 abstract type GalacticModel end
+
+#= Julia uses the struct similarly to objects in object-oriented languages. With struct we can
+define the field of each "class", similarly to the __init__ in Python. Here we define all the
+variables needed for each galactic model. =#
 
 """
 Galaxy model from Marchetti et al. (2019). This is a four-component galactic
@@ -54,10 +58,6 @@ a Miyamoto-Nagai disk (Miyamoto & Nagai 1975) and a Navarro-Frenk-White halo
 Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of
 the Milky Way (Bovy 2015).
 """
-
-#= Julia uses the struct similarly to objects in object-oriented languages. With struct we can define the field of each
-"class", similarly to the __init__ in Python. Here we define all the variables needed for each galactic model. =#
-
 struct GalaxyModelM19 <:GalacticModel
     a_d::Float64
     b_d::Float64
@@ -91,7 +91,6 @@ end
 
 
 function initialize_galactic_model(input)
-
     """
     Initializing the galactic model employed in the simulation. We have implemented two
     versions, i.e., the galactic structure of Faucher-Giguère & Kaspi (2006) (with
@@ -102,8 +101,8 @@ function initialize_galactic_model(input)
         input (str): Type of Galactic model to be used, i.e. gmFK06 or gmM19.
 
     Returns:
-        GalacticModel (abstract type): GalacticModel abstract type for each of the different galactic model
-        we have defined.
+        GalacticModel (abstract type): GalacticModel abstract type for each of the different
+        galactic model we have defined.
 
     """
 
@@ -120,6 +119,7 @@ function initialize_galactic_model(input)
                             5.4e11 * M_SUN,     # Halo mass in [g].
                             15.62)              # Core radius of the halo component in [kpc].
     end
+
 	if cmp(input, "gmFK06") == 0
         # Parameter values from Table B1 in Kuijken & Gilmore (1989).
 		return GalaxyModelFK06(2.4,             # Scale length of the disk in [kpc].
@@ -135,13 +135,14 @@ function initialize_galactic_model(input)
     throw("The galactic model does not exist. Choose between gmFK06 or gmM19.")
 end
 
-#= Galactic model initialization. Constant variables in Julia are global variables which its type can not change.
-# The variable galactic_model_input it is saved in the Main of Julia. To do so, we add this line of code
-Main.galactic_model_input = cfg["galactic_model"] in the main script.=#
+#= Galactic model initialization. Constant variables in Julia are global variables which means
+their type can not change.
+The variable galactic_model_input is saved in the Main of Julia. To do so, in the main script we
+add this line of code:
+Main.galactic_model_input = cfg["galactic_model"] .=#
 
 
 const galactic_model = initialize_galactic_model(galactic_model_input)
-
 
 
 #= Galactic model M19 functions=#
@@ -170,6 +171,7 @@ function shape_parameter(galactic_model::GalaxyModelM19, z)
     return K, dK_dz
 end
 
+
 function r_derivative_b_potential(galactic_model::GalaxyModelM19, r)
     """
     Derivative with respect to r of the bulge component gravitational potential
@@ -188,6 +190,7 @@ function r_derivative_b_potential(galactic_model::GalaxyModelM19, r)
     return dpot_b_dr
 end
 
+
 function r_derivative_n_potential(galactic_model::GalaxyModelM19, r)
     """
     Derivative with respect to r of the nucleus component gravitational potential
@@ -205,6 +208,7 @@ function r_derivative_n_potential(galactic_model::GalaxyModelM19, r)
 
     return dpot_n_dr
 end
+
 
 function r_derivative_h_potential(galactic_model::GalaxyModelM19, r)
     """
@@ -230,6 +234,7 @@ function r_derivative_h_potential(galactic_model::GalaxyModelM19, r)
 
 end
 
+
 function r_z_derivatives_d_potential(galactic_model::GalaxyModelM19, r, z)
     """
     Derivative with respect to r and z of the disk component gravitational
@@ -246,15 +251,15 @@ function r_z_derivatives_d_potential(galactic_model::GalaxyModelM19, r, z)
  
     K, dK_dz = shape_parameter(galactic_model, z)
  
-    sqrt =  (r .* r .+ K .* K) .^ (-3.0 / 2.0)
+    _sqrt =  (r .* r .+ K .* K) .^ (-3.0 / 2.0)
  
     dpot_d_dr = (
-        G_KPC_YR * galactic_model.M_d * r .* sqrt
+        G_KPC_YR * galactic_model.M_d * r .* _sqrt
     )
     dpot_d_dz = (
         G_KPC_YR
         * galactic_model.M_d
-        * sqrt
+        * _sqrt
         .* K
         .* dK_dz
     )
@@ -311,6 +316,7 @@ function d_potential(galactic_model::GalaxyModelM19, r, z)
     return pot_d
 end
 
+
 function b_potential(galactic_model::GalaxyModelM19, r)
     """
     The Hernquist bulge component gravitational potential defined in eq. (7) in
@@ -328,6 +334,7 @@ function b_potential(galactic_model::GalaxyModelM19, r)
 
     return pot_b
 end
+
 
 function n_potential(galactic_model::GalaxyModelM19, r)
     """
@@ -347,6 +354,7 @@ function n_potential(galactic_model::GalaxyModelM19, r)
     return pot_n
 end
 
+
 function h_potential(galactic_model::GalaxyModelM19, r)
     """
     The Navarro-Frenk-White halo component gravitational potential defined in
@@ -364,6 +372,7 @@ function h_potential(galactic_model::GalaxyModelM19, r)
 
     return pot_h
 end
+
 
 function MW_potential(galactic_model::GalaxyModelM19, r, z)
     """
@@ -444,19 +453,20 @@ function r_z_derivatives_dh_potential(galactic_model::GalaxyModelFK06, r, z)
         G_KPC_YR
         * galactic_model.M_dh
         .* r
-        .* (K.*K .+ galactic_model.b_dh*galactic_model.b_dh .+ r.*r) .^ (-1.5)
+        .* (K .* K .+ galactic_model.b_dh * galactic_model.b_dh .+ r .* r) .^ (-1.5)
     )
     
     dpot_dh_dz = (
         G_KPC_YR
         * galactic_model.M_dh
-        .* (K.*K .+ galactic_model.b_dh*galactic_model.b_dh .+ r.*r) .^ (-1.5)
+        .* (K .* K .+ galactic_model.b_dh * galactic_model.b_dh .+ r .* r) .^ (-1.5)
         .* K
         .* dK_dz
     )
 
     return dpot_dh_dr, dpot_dh_dz
 end
+
 
 function r_derivative_b_potential(galactic_model::GalaxyModelFK06, r)
     """
@@ -472,11 +482,12 @@ function r_derivative_b_potential(galactic_model::GalaxyModelFK06, r)
     """
 
     dpot_b_dr = (
-        G_KPC_YR * galactic_model.M_b .* r .* (galactic_model.b_b*galactic_model.b_b .+ r.*r) .^ (-1.5)
+        G_KPC_YR * galactic_model.M_b .* r .* (galactic_model.b_b * galactic_model.b_b .+ r .* r) .^ (-1.5)
     )
 
     return dpot_b_dr
 end
+
 
 function r_derivative_n_potential(galactic_model::GalaxyModelFK06, r)
     """
@@ -492,7 +503,7 @@ function r_derivative_n_potential(galactic_model::GalaxyModelFK06, r)
     """
     
     dpot_n_dr = (
-        G_KPC_YR * galactic_model.M_n .* r .* (galactic_model.b_n*galactic_model.b_n .+ r.*r) .^ (-1.5)
+        G_KPC_YR * galactic_model.M_n .* r .* (galactic_model.b_n * galactic_model.b_n .+ r .* r) .^ (-1.5)
     )
 
     return dpot_n_dr
@@ -515,9 +526,7 @@ function cylind_coord_gradient_mw_potential(galactic_model::GalaxyModelFK06, r, 
     """
 
     dpot_dh_dr, dpot_dh_dz = r_z_derivatives_dh_potential(galactic_model, r, z)
-    
     dpot_b_dr = r_derivative_b_potential(galactic_model, r)
-    
     dpot_n_dr = r_derivative_n_potential(galactic_model, r)
 
     dpot_mw_dr = dpot_dh_dr + dpot_b_dr + dpot_n_dr
@@ -526,6 +535,7 @@ function cylind_coord_gradient_mw_potential(galactic_model::GalaxyModelFK06, r, 
 
     return dpot_mw_dr, dpot_mw_dphi, dpot_mw_dz
 end
+
 
 function dh_potential(galactic_model::GalaxyModelFK06, r, z)
     """
@@ -552,6 +562,7 @@ function dh_potential(galactic_model::GalaxyModelFK06, r, z)
     return pot_dh
 end
 
+
 function b_potential(galactic_model::GalaxyModelFK06, r)
     """
     The bulge component gravitational potential defined in eq. (15) in
@@ -565,10 +576,11 @@ function b_potential(galactic_model::GalaxyModelFK06, r)
         (np.ndarray): value of the bulge potential in [erg/g].
     """
 
-    pot_b = -G * galactic_model.M_b ./ (sqrt.(galactic_model.b_b*galactic_model.b_b .+ r.*r) * KPC_TO_CM)
+    pot_b = -G * galactic_model.M_b ./ (sqrt.(galactic_model.b_b * galactic_model.b_b .+ r .* r) * KPC_TO_CM)
 
     return pot_b
 end
+
 
 function n_potential(galactic_model::GalaxyModelFK06, r)
     """
@@ -583,10 +595,11 @@ function n_potential(galactic_model::GalaxyModelFK06, r)
         (np.ndarray): value of the nucleus potential.
     """
 
-    pot_n = -G * galactic_model.M_n ./ (sqrt.(galactic_model.b_n*galactic_model.b_n .+ r.*r) * KPC_TO_CM)
+    pot_n = -G * galactic_model.M_n ./ (sqrt.(galactic_model.b_n * galactic_model.b_n .+ r .* r) * KPC_TO_CM)
 
     return pot_n
 end
+
 
 function MW_potential(galactic_model::GalaxyModelFK06, r, z)
     """
@@ -608,6 +621,7 @@ function MW_potential(galactic_model::GalaxyModelFK06, r, z)
 
     return MW_pot
 end
+
 
 function total_energy(v, r, z)
     """
@@ -634,6 +648,7 @@ function total_energy(v, r, z)
 
     return tot_energy
 end
+
 
 function total_angular_momentum_z(v_phi, r)
     """
