@@ -14,20 +14,18 @@ This environment can be activated using
 ```
 $ conda activate pop_syn
 ```
-We recommend working within this environment when using the code. To install the 
-`pypopsyn` package and work with the code run
-```
-$ python setup.py develop
-```
-Uninstall pip's version of ipython 
-```
-$ pip uninstall ipython
-```
-To install Julia follow instructions from https://julialang.org/downloads/
-Then install required packages
+We recommend working within this environment when using the code.
+After activating the environment a few Julia packages need to be installed manually by 
+running the following command in a terminal
 ```
 julia -e 'using Pkg; Pkg.add.(["PyCall", "OrdinaryDiffEq", "LSODA"])'
 ```
+Finally, to install the `pypopsyn` package and work with the code run
+```
+$ python setup.py develop
+```
+
+
 To automate the workflow and improve as well as maintain code quality standards, we 
 have set up pre-commit hooks. To set the hooks run
 ```
