@@ -68,8 +68,8 @@ function odeint(u0, tr, tol)
 
     """
     Solve a system of ordinary differential equations with ODEProblem using LSODA.
-    The solution is evaluated in the time range tr, but only the solution at the
-    final time point is saved.
+    The solution is computed in the time range tr and interpolated and saved at the final time point (t_age).
+
 
     Args:
         u0 (Array): array of 6 components defining the initial
@@ -94,15 +94,15 @@ function odeint(t0, u0, tr, tol)
 
     """
     Solve a system of ordinary differential equations with ODEProblem using LSODA.
-    The solution is evaluated in the time range tr and saved at the time points specified in the
-    array t0.
+    The solution is computed in the time range tr and interpolated and saved at the time points specified in the array
+    t0.
 
     Args:
-        t0 (Array): array of times where the solution is evaluated.
+        t0 (Array): array of times where the solution is saved.
         u0 (Array): array of 6 components defining the initial
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
         with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
-        tr (float): time range in which the ODEs are solved.
+        tr (float): time range in which the ODEs are computed.
         tol (float): minimum tolerance to solve the ODEs.
 
     Returns:
@@ -132,9 +132,12 @@ function save_evolution(evol_output, time_grid)
        (Dict) : Dictionary with the output.
 
     """
-    #= The evol_output is a matrix of (time_grid,6), with the reduce and hcat command of Julia we transform into a
-    matrix of (6,time_grid) size. =#
+    #= The evol_output is a vector of vectors where each individual vector is the set of parameters at the time step t,
+     with the reduce and hcat command of Julia we transform into a matrix of (6,time_grid) size to easily access the
+     evolution for each of the parameters. =#
+
     evol_output = reduce(hcat, evol_output)
+
 
     v_r_evol = evol_output[4, :] * KPC_TO_KM / YR_TO_S
     v_phi_evol = evol_output[1, :] .* evol_output[5, :] * KPC_TO_KM / YR_TO_S
