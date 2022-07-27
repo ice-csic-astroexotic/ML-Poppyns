@@ -43,8 +43,8 @@ import pandas as pd
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
-import pypopsyn.simulator.initial_population_edm as ipop
-import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
+import pypopsyn.simulator.initial_population_edm_julia as ipop
+import pypopsyn.simulator.stellar_dynamics.dynamical_evolution_julia as dyn
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 from julia import Main
 from pypopsyn.simulator.configuration import cfg

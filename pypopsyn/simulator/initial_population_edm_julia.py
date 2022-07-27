@@ -39,7 +39,7 @@ import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.initial_position as ip
-import pypopsyn.simulator.stellar_dynamics.initial_velocity as iv
+import pypopsyn.simulator.stellar_dynamics.initial_velocity_julia as iv
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 from pypopsyn.simulator.configuration import cfg
 
