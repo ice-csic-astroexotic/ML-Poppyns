@@ -42,7 +42,7 @@ def beam_aperture(P: np.ndarray, r_em: float) -> np.ndarray:
     Args:
         P (np.ndarray): array of spin periods of the pulsars in [s].
         r_em (float): distance from the center of the star where the radio emission
-                      is supposed to be generated [cm].
+        is supposed to be generated [cm].
 
     Returns:
         (np.ndarray): half angular aperture of the radio beam in [rad].
@@ -176,10 +176,12 @@ def pdf_luminosity_radio(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
 
 
 def flux_radio(
-    L_radio: np.ndarray, d: np.ndarray, solid_angle: np.ndarray,
+    L_radio: np.ndarray,
+    d: np.ndarray,
+    solid_angle: np.ndarray,
 ) -> np.ndarray:
     """
-    Compute the intrinsic bolometric mean radio flux for each pulsars in [erg s^(-1) cm^(-2)].
+    Compute the intrinsic bolometric radio flux for each pulsars in [erg s^(-1) cm^(-2)].
 
     Args:
         L_radio (np.ndarray): pulsar bolometric radio luminosity in [erg s^(-1)].
@@ -187,13 +189,13 @@ def flux_radio(
         solid_angle (np.ndarray): solid angle covered by the radio beams in [sr].
 
     Returns:
-        (np.ndarray): observed pulsar radio flux in [erg s^(-1) cm^(-2)].
+        (np.ndarray): intrinsic pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
     """
 
     # Convert distance from [kpc] to [cm].
     d_cm = d * const.KPC_TO_CM
 
-    S_radio = L_radio / (solid_angle * d_cm ** 2)
+    S_radio = L_radio / (solid_angle * d_cm**2)
 
     return S_radio
 
@@ -216,14 +218,14 @@ def flux_density_radio(
         f_max (float): frequency upper limit of the radio emission spectrum [Hz].
 
     Returns:
-        (np.ndarray): pulsar radio flux density in [Jy] at the frequency f.
+        (np.ndarray): intrinsic pulsar radio flux density in [Jy] at the frequency f.
     """
 
     S_radio_f = (
         (spectral_index + 1)
         * S_radio_bol
         / (f_max ** (spectral_index + 1) - f_min ** (spectral_index + 1))
-        * f ** spectral_index
+        * f**spectral_index
     ) / const.JY_TO_ERG
 
     return S_radio_f

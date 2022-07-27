@@ -26,148 +26,190 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from typing import List
+
 import numpy as np
 
 import pypopsyn.simulator.basics.constants as const
 
 cfg = {}
 
+
+# ===================== GENERAL SIMULATION PARAMETERS ========================
+
 # Function-specific profiling configuration.
-cfg["enable_profiles"] = False
-cfg["show_profiles"] = False
-cfg["profiles_dir"] = "profiles"
+cfg["enable_profiles"]: bool = False
+cfg["show_profiles"]: bool = False
+cfg["profiles_dir"]: str = "profiles"
 
 # General profiling configuration.
-cfg["profile_log"] = "profile.log"
-cfg["profile_json"] = "profile.json"
-cfg["show_profiling"] = True
+cfg["profile_log"]: str = "profile.log"
+cfg["profile_json"]: str = "profile.json"
+cfg["show_profiling"]: bool = True
 
-# Save time evolution output
-cfg["save_dyn_evolution"] = False
-cfg["save_magrot_evolution"] = False
+# Save time evolution output.
+cfg["save_dyn_evolution"]: bool = False
+cfg["save_magrot_evolution"]: bool = False
 
 
-# Initial population class parameters.
+# ===================== INITIAL POPULATION CLASS PARAMETERS ========================
 
-# Seed for the random number generation for the simulate_population_full.py.
-cfg["seed_full"] = None
-# Seed for the random number generation for the simulate_population_dyn.py.
-cfg["seed_dyn"] = None
-# Seed for the random number generation for the simulate_population_magrot_det.py.
-cfg["seed_magrot"] = None
+# Seed for the random number generation for simulate_population_full.py.
+cfg["seed_full"]: int = None
+# Seed for the random number generation for simulate_population_dyn.py.
+cfg["seed_dyn"]: int = None
+# Seed for the random number generation for simulate_population_magrot_det.py.
+cfg["seed_magrot"]: int = None
+# Seed for the random number generation for memory_efficient_sampling.py
+cfg["seed_sampling"] = None
 
 # Resolution for the spatial grid in the initial population.
-cfg["resolution"] = 10000
+cfg["resolution"]: int = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"] = 300000
+cfg["NS_number"]: int = 300000
 
 # ODE solver tolerance
 cfg["ODE_solver_tol"] = 1e-8
 
 # Sun's distance from the galactocentric axis in [kpc].
-cfg["R_sun"] = 8.3
+cfg["R_sun"]: float = 8.3
 
 # Sun's distance from the galactic plane in [kpc].
-cfg["z_sun"] = 0.02
+cfg["z_sun"]: float = 0.02
 
 # Total radial extent of our simulation from the galactic center in [kpc].
-cfg["r_extent"] = 20.0
+cfg["r_extent"]: float = 20.0
 
 # Total vertical extent of our simulation from the galactic plane in [kpc].
-cfg["z_extent"] = 5.0
+cfg["z_extent"]: float = 5.0
 
 # Maximum kick velocity magnitude in [km/s].
-cfg["vk_extent"] = 2500.0
+cfg["vk_extent"]: float = 2500.0
 
-# Number of spiral arms in the galaxy. If set to 5 the Local arm is included.
-cfg["arm_number"] = 5
+# Number of spiral arms in the Galaxy. If set to 5 the Local arm is included.
+cfg["arm_number"]: int = 5
 
 # Minimum age for the neutron stars in [yr].
-cfg["t_age_min"] = 1.0
+cfg["t_age_min"]: float = 1.0
 
 # Maximum age for the neutron stars in [yr].
-cfg["t_age_max"] = 3e7
+cfg["t_age_max"]: float = 3e7
 
 # Time step for the dynamical evolution [yr].
-cfg["dyn_time_step"] = 1e4
+cfg["dyn_time_step"]: float = 1e4
 
 # Galactic potential model used in the simulation. Choose between gmM19 or gmFK06.
-cfg["galactic_model"] = "gmM19"
+cfg["galactic_model"]: str = "gmM19"
 
 # Spiral arms model used in the simulation. Choose between saYMW17 or saFK06.
-cfg["spiral_arms"] = "saYMW17"
+cfg["spiral_arms"]: str = "saYMW17"
 
 # Model pdf for the radial density distribution of neutron star progenitors. Choose between "rmYK04" or "rmVV21".
-cfg["radial_model"] = "rmYK04"
+cfg["radial_model"]: str = "rmYK04"
 
 # Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_2maxwell".
-cfg["kick_model"] = "km_maxwell"
+cfg["kick_model"]: str = "km_maxwell"
 
 # Characteristic kick velocity in [km/s] for the exponential kick velocity pdf.
-cfg["vk_c"] = 180.0
+cfg["vk_c"]: float = 180.0
 
 # Sigma in [km/s] for the Maxwell kick velocity pdf.
-cfg["sigma_k"] = 265.0
+cfg["sigma_k"]: float = 265.0
 
 # Characteristic height in [kpc] from the galactic plane.
-cfg["h_c"] = 0.18
+cfg["h_c"]: float = 0.18
 
 
-# Canonical neutron star parameters.
+# ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
 
 # Characteristic neutron star radius in [cm].
-cfg["NS_radius"] = 1.1e6
+cfg["NS_radius"]: float = 1.1e6
 
 # Characteristic neutron star mass in [g].
-cfg["NS_mass"] = 1.4 * const.M_SUN
+cfg["NS_mass"]: float = 1.4 * const.M_SUN
 
 
-# Field, misalignment angle and period evolution parameters for a crust-based model.
+# ===================== MAGNETO-ROTATIONAL PARAMETERS FOR A CRUST-BASED MODEL ========================
 
 # Mean and standard deviation for the Gaussian distributed initial periods in [s].
-cfg["P_initial_mean"] = 0.3
-cfg["P_initial_sigma"] = 0.2
+cfg["P_initial_mean"]: float = 0.3
+cfg["P_initial_sigma"]: float = 0.2
 
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
-cfg["B_initial_log10_mean"] = 13.25
-cfg["B_initial_log10_sigma"] = 0.75
+cfg["B_initial_log10_mean"]: float = 13.25
+cfg["B_initial_log10_sigma"]: float = 0.75
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
 # For comparison, in vacuum k_0 = 0 and k_1 = k_2 = 2/3.
-cfg["k_coefficients"] = [1.0, 1.0, 1.0]
+cfg["k_coefficients"]: List[float] = [1.0, 1.0, 1.0]
 
 # Dominant conductivity based on phonon or impurity scattering, in [1/s].
 # For details see Cumming et al. (2004) or Gourgouliatos and Cumming (2014).
-cfg["sigma"] = 1e24
+cfg["sigma"]: float = 1e24
 
 # Characteristic length scale of the magnetic field in [cm].
-cfg["L"] = 1e5
+cfg["L"]: float = 1e5
 
 # Characteristic electron density in [g/cm^3].
-cfg["n_e"] = 1e36
+cfg["n_e"]: float = 1e35
 
 # Time step for the magneto-rotational evolution [yr].
-cfg["magrot_time_step_log10"] = 1e-2
+cfg["magrot_time_step_log10"]: float = 1e-2
 
 
-# Radio emission model parameters.
+# ===================== FIT PARAMETERS FOR MAGNETO-THERMAL SIMULATIONS ========================
 
-# Distance from the center of the star where the radio emission is supposed to be generated in [cm].
-cfg["r_em"] = 3.0e7
+# For the magneto-thermal simulations the following set-up was employed:
+# The equation of state is SLy4 with a NS mass of 1.4 Msun and radius of 11.74 km.
+# The impurity parameter in the pasta layer is fixed to 100. For the impurity in the outer and inner crust
+# (excluding the pasta layer), the fits of Carreau et al. (2020) have been used (see Figure 5 in that paper).
+# The envelope model is taken from Potekhin et al. (2015).
+# Superfluid and superconducting gap parametrisations are taken from Ho et al. (2015):
+# SFB for crustal neutrons, TToa for core neutrons and CCDKp for core protons.
+# We fit a functional equation of the form: B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**a2
+# with tau1 = A1 * B_initial**b1 and tau2 = A2 * B_initial**b2.
+
+# Power-law indices.
+cfg["a1"]: float = 0.14
+cfg["a2"]: float = 3.0
+
+# Timescale parameters, normalizations and power-law indices.
+cfg["A1"]: float = 9.0e16
+cfg["b1"]: float = 1.0
+cfg["A2"]: float = 6.2e11
+cfg["b2"]: float = 0.4
+
+# Time in [yr] when transitioning from the simulated curves to the simple power-law evolution.
+cfg["t_trans"]: float = 5.0e5
+
+# Late time power-law index.
+cfg["a_late_t"]: float = 1.0
+
+# Parameters for a log-normal distribution of the magnetic fields of the old millisecond pulsars.
+cfg["B_millisec_mean"] = 8.5
+cfg["B_millisec_sigma"] = 0.5
+
+
+# ===================== RADIO EMISSION-MODEL PARAMETERS ========================
+
+# Distance from the center of the star where the radio emission is supposed to be generated in [cm]
+# (see Johnston et al. 2020).
+cfg["r_em"]: float = 3.0e7
 
 # Mean and standard deviation for the log-normally distributed radio luminosity in [erg s^(-1) Hz^(-1)].
-cfg["L_radio_log10_mean"] = 33.0
-cfg["L_radio_log10_sigma"] = 0.8
-cfg["epsilon_L"] = 0.44
+# Parameters were adjusted to match observed data.
+cfg["L_radio_log10_mean"]: float = 35.0
+cfg["L_radio_log10_sigma"]: float = 0.8
+cfg["epsilon_L"]: float = 0.5
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
-cfg["ed_model"] = "ymw16"
+cfg["ed_model"]: str = "ymw16"
 
 # Number of Galactic isolated neutron stars detected by the considered surveys.
-cfg["detected_real_PMPS"] = 961
-cfg["detected_real_SMPS"] = 172
+cfg["detected_real_PMPS"]: int = 961
+cfg["detected_real_SMPS"]: int = 172
 
 
 def update_configuration(new_configuration) -> None:

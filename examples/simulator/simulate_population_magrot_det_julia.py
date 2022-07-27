@@ -30,7 +30,6 @@ import json
 import logging
 import os
 import pathlib
-import random
 import sys
 import time
 
@@ -43,14 +42,18 @@ import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
-import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
+import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 from pypopsyn.simulator.configuration import cfg
+from scripts.memory_efficient_sampling import select
 
 log = logging.getLogger(__name__)
+
+# Suppressing healpy related logging output.
+logging.getLogger("healpy").setLevel(logging.WARNING)
 
 
 def simulate_population(args) -> None:
@@ -78,9 +81,11 @@ def simulate_population(args) -> None:
 
     # Check if the parsed dynamically simulated population directory exists.
     dyn_path = pathlib.Path(args.dyn_data)
-    dyn_path = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.pkl.gz")
+    dyn_path_json = pathlib.Path().joinpath(dyn_path, "configuration.json")
+    dyn_path_pop = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.csv")
     dyn_path_config = pathlib.Path().joinpath(dyn_path, "override.json")
-    if not dyn_path.exists():
+
+    if not dyn_path_pop.exists():
         log.error(f"File {dyn_path} not found...")
         sys.exit()
 
@@ -136,132 +141,86 @@ def simulate_population(args) -> None:
         cfg["profile_json"],
         cfg["show_profiling"],
     ):
-        with timewith.TimeWith(
-            "[LoadPopulationDynamics]",
-            cfg["profile_log"],
-            cfg["profile_json"],
-            cfg["show_profiling"],
+        # ===================== EVOLVE AND DETECT ========================
+
+        # These variables count how many stars we create to reach the desirable number in each survey.
+        n_created = 0
+        n_created_PMPS = 0
+        n_created_SMPS = 0
+
+        n_detected_sim_PMPS = 0
+        n_detected_sim_SMPS = 0
+        stop_PMPS = False
+        stop_SMPS = False
+
+        # Define a list to store the indices of the detected neutron stars to avoid resampling.
+        # In the first iteration, we are not removing any indices.
+        idx_remove = []
+
+        # To speed up the simulation, generate new neutron stars in batches.
+        n_batchsize = 100000
+
+        # Once we have detected 90% or 95% of the NS in both surveys, we reduce the batch size to speed up the
+        # simulations. We initialize these flags as false.
+        flag_90 = False
+        flag_95 = False
+
+        # Initializing the dictionaries where we save the detected neutron stars for each survey.
+        dictionary_detected_PMPS = {
+            "age": [],
+            "ra": [],
+            "dec": [],
+            "l": [],
+            "b": [],
+            "DM": [],
+            "dist": [],
+            "pm_ra": [],
+            "pm_dec": [],
+            "v_ls": [],
+            "B": [],
+            "chi": [],
+            "P": [],
+            "Pdot": [],
+            "L_radio_bol": [],
+            "S_radio_obs_mean": [],
+            "w_int": [],
+            "w_eff": [],
+        }
+
+        dictionary_detected_SMPS = {
+            "age": [],
+            "ra": [],
+            "dec": [],
+            "l": [],
+            "b": [],
+            "DM": [],
+            "dist": [],
+            "pm_ra": [],
+            "pm_dec": [],
+            "v_ls": [],
+            "B": [],
+            "chi": [],
+            "P": [],
+            "Pdot": [],
+            "L_radio_bol": [],
+            "S_radio_obs_mean": [],
+            "w_int": [],
+            "w_eff": [],
+        }
+
+        # Continue to simulate stars until the detected number of pulsars for all the surveys is reached.
+        while (n_detected_sim_PMPS < n_detected_real_PMPS) | (
+            n_detected_sim_SMPS < n_detected_real_SMPS
         ):
 
-            # ===================== INITIALIZE THE POPULATION ========================
-
-            # Load the file containing the dynamically evolved population parameters.
-            df_dyn = pd.read_pickle(f"{dyn_path}", compression="gzip")
-
-            age = df_dyn["age"]["[yr]"].to_numpy()
-            r_final = df_dyn["r"]["[kpc]"].to_numpy()
-            phi_final = df_dyn["phi"]["[rad]"].to_numpy()
-            z_final = df_dyn["z"]["[kpc]"].to_numpy()
-            v_r_final = df_dyn["v_r"]["[km/s]"].to_numpy()
-            v_phi_final = df_dyn["v_phi"]["[km/s]"].to_numpy()
-            v_z_final = df_dyn["v_z"]["[km/s]"].to_numpy()
-
-            # Convert from polar coordinates to Cartesian coordinates.
-            x_final, y_final = coco.polar_to_cartesian(r_final, phi_final)
-
-            # Convert velocity components from galactocentric cylindrical coordinates
-            # to galactocentric Cartesian coordinates.
-            (
-                v_x_final,
-                v_y_final,
-                v_z_final,
-            ) = coco.speed_cylindrical_to_cartesian(
-                v_r_final, v_phi_final, v_z_final, phi_final
-            )
-
-            # Convert galactocentric coordinates and velocities into ICRS frame.
-            (
-                ra_final,
-                dec_final,
-                sun_dist_icrs,
-                pm_ra_final,
-                pm_dec_final,
-                v_ls_icrs,
-            ) = coco.galactocentric_to_icrs(
-                x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
-            )
-
-            # Convert galactocentric coordinates and velocities into galactic coordinates.
-            (
-                l_final,
-                b_final,
-                sun_dist_gal,
-                pm_l_final,
-                pm_b_final,
-                v_ls_gal,
-            ) = coco.galactocentric_to_galactic(
-                x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
-            )
-
-        with timewith.TimeWith(
-            "[SimulatePopulationDetection]",
-            cfg["profile_log"],
-            cfg["profile_json"],
-            cfg["show_profiling"],
-        ):
-
-            dictionary_detected_PMPS = {
-                "age": [],
-                "ra": [],
-                "dec": [],
-                "l": [],
-                "b": [],
-                "DM": [],
-                "dist": [],
-                "pm_ra": [],
-                "pm_dec": [],
-                "v_ls": [],
-                "B": [],
-                "chi": [],
-                "P": [],
-                "Pdot": [],
-                "L_radio_bol": [],
-                "S_radio_obs": [],
-                "w_int": [],
-                "w_eff": [],
-            }
-
-            dictionary_detected_SMPS = {
-                "age": [],
-                "ra": [],
-                "dec": [],
-                "l": [],
-                "b": [],
-                "DM": [],
-                "dist": [],
-                "pm_ra": [],
-                "pm_dec": [],
-                "v_ls": [],
-                "B": [],
-                "chi": [],
-                "P": [],
-                "Pdot": [],
-                "L_radio_bol": [],
-                "S_radio_obs": [],
-                "w_int": [],
-                "w_eff": [],
-            }
-
-            n_created = 0
-            n_created_PMPS = 0
-            n_created_SMPS = 0
-            n_detected_sim_PMPS = 0
-            n_detected_sim_SMPS = 0
-            stop_PMPS = False
-            stop_SMPS = False
-
-            # To speed up the simulation, generate new neutron stars in batches.
-            n_batchsize = 100000
-
-            flag_80 = False
-            flag_95 = False
-
-            # ===================== EVOLVE AND DETECT ========================
-
-            # Continue to simulate stars until the detected number of pulsars for all the surveys is reached.
-            while (n_detected_sim_PMPS < n_detected_real_PMPS) | (
-                n_detected_sim_SMPS < n_detected_real_SMPS
+            with timewith.TimeWith(
+                "[LoadPopulationDynamics]",
+                cfg["profile_log"],
+                cfg["profile_json"],
+                cfg["show_profiling"],
             ):
+
+                # ===================== INITIALIZE THE POPULATION ========================
 
                 # Evaluate the percentage of neutron stars detected by the simulated
                 # surveys with respect to the real surveys.
@@ -272,13 +231,13 @@ def simulate_population(args) -> None:
                     n_detected_sim_SMPS / n_detected_real_SMPS
                 )
 
-                # If the percentage of both surveys is over 80% reduce the batch size.
+                # If the percentage of both surveys is over 90% reduce the batch size.
                 if (
-                    (percentage_detected_PMPS > 0.8)
-                    & (percentage_detected_SMPS > 0.8)
-                    & (flag_80 is False)
+                    (percentage_detected_PMPS > 0.9)
+                    & (percentage_detected_SMPS > 0.9)
+                    & (flag_90 is False)
                 ):
-                    flag_80 = True
+                    flag_90 = True
                     n_batchsize = 10000
                 elif (
                     (percentage_detected_PMPS > 0.95)
@@ -293,40 +252,109 @@ def simulate_population(args) -> None:
 
                 log.info(f"Total number of created neutron stars: {n_created}")
 
-                # Select random neutron stars from the database.
-                idx = np.array(
-                    random.sample(range(len(ra_final)), n_batchsize)
+                # Load the chunk of the file containing the dynamically evolved population parameters.
+                with open(dyn_path_json, "r") as f:
+                    conf_json = json.load(f)
+
+                df_dyn = select(
+                    dyn_path_pop,
+                    n_batchsize,
+                    conf_json["NS_number"],
+                    idx_remove,
                 )
 
-                age_d = np.array(age[idx])
-                ra_d = np.array(ra_final[idx])
-                dec_d = np.array(dec_final[idx])
-                l_d = np.array(l_final[idx])
-                b_d = np.array(b_final[idx])
-                dist_d = np.array(sun_dist_icrs[idx])
+                age = df_dyn["age"]["[yr]"].to_numpy()
+                r_final = df_dyn["r"]["[kpc]"].to_numpy()
+                phi_final = df_dyn["phi"]["[rad]"].to_numpy()
+                z_final = df_dyn["z"]["[kpc]"].to_numpy()
+                v_r_final = df_dyn["v_r"]["[km/s]"].to_numpy()
+                v_phi_final = df_dyn["v_phi"]["[km/s]"].to_numpy()
+                v_z_final = df_dyn["v_z"]["[km/s]"].to_numpy()
+
+                # Convert from polar coordinates to Cartesian coordinates.
+                x_final, y_final = coco.polar_to_cartesian(r_final, phi_final)
+
+                # Convert velocity components from galactocentric cylindrical coordinates
+                # to galactocentric Cartesian coordinates.
+                (
+                    v_x_final,
+                    v_y_final,
+                    v_z_final,
+                ) = coco.speed_cylindrical_to_cartesian(
+                    v_r_final, v_phi_final, v_z_final, phi_final
+                )
+
+                # Convert galactocentric coordinates and velocities into ICRS frame.
+                (
+                    ra_final,
+                    dec_final,
+                    sun_dist_icrs,
+                    pm_ra_final,
+                    pm_dec_final,
+                    v_ls_icrs,
+                ) = coco.galactocentric_to_icrs(
+                    x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
+                )
+
+                # Convert galactocentric coordinates and velocities into galactic coordinates.
+                (
+                    l_final,
+                    b_final,
+                    sun_dist_gal,
+                    pm_l_final,
+                    pm_b_final,
+                    v_ls_gal,
+                ) = coco.galactocentric_to_galactic(
+                    x_final, y_final, z_final, v_x_final, v_y_final, v_z_final
+                )
+
+            with timewith.TimeWith(
+                "[SimulatePopulationDetection]",
+                cfg["profile_log"],
+                cfg["profile_json"],
+                cfg["show_profiling"],
+            ):
+
+                age_datab = age
+                ra_datab = ra_final
+                dec_datab = dec_final
+                l_datab = l_final
+                b_datab = b_final
+                dist_datab = sun_dist_icrs
 
                 # Select only neutron stars that fall into the sky region covered by the surveys.
-                coverage_PMPS = survey_PMPS.sky_coverage(ra_d, dec_d, l_d, b_d)
-                coverage_SMPS = survey_SMPS.sky_coverage(ra_d, dec_d, l_d, b_d)
+                coverage_PMPS = survey_PMPS.sky_coverage(
+                    ra_datab, dec_datab, l_datab, b_datab
+                )
+                coverage_SMPS = survey_SMPS.sky_coverage(
+                    ra_datab, dec_datab, l_datab, b_datab
+                )
+
+                # Saving the full dataset indices of the selected rows.
+                idx = df_dyn.index.values
+                idx_pos = np.arange(len(idx))
+                df_index = pd.DataFrame(
+                    data={"index position": idx_pos}, index=idx
+                )
 
                 # Determine which stars fall into the sky region covered by any of the considered radio surveys.
                 coverage_tot = coverage_PMPS | coverage_SMPS
                 idx_det = idx[coverage_tot]
 
-                age_d = age_d[coverage_tot]
-                l_d = l_d[coverage_tot]
-                b_d = b_d[coverage_tot]
-                dist_d = dist_d[coverage_tot]
+                age_det = age_datab[coverage_tot]
+                l_det = l_datab[coverage_tot]
+                b_det = b_datab[coverage_tot]
+                dist_det = dist_datab[coverage_tot]
                 coverage_PMPS = coverage_PMPS[coverage_tot]
                 coverage_SMPS = coverage_SMPS[coverage_tot]
 
-                # Remove stars that fall out from the total sky coverage.
+                # Remove stars that do not fall into the total sky coverage.
                 out_coverage = np.invert(coverage_tot)
-                idx_remove = idx[out_coverage]
+                idx_remove += idx[out_coverage].tolist()
 
                 # Initialize neutron star population properties.
                 pop_initial = ipop.InitialNeutronStarPopulation(
-                    NS_number=len(age_d)
+                    NS_number=len(age_det)
                 )
 
                 # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
@@ -338,21 +366,21 @@ def simulate_population(args) -> None:
 
                 # Determine the evolved magnetic field, misalignment angle and rotation period.
                 (
-                    B_d,
-                    chi_d,
-                    P_d,
+                    B_det,
+                    chi_det,
+                    P_det,
                     NS_magrot_evol_dict,
                 ) = mre.magneto_rotational_evolution(
                     B_initial,
                     chi_initial,
                     P_initial,
-                    age_d,
+                    age_det,
                 )
 
                 # ===================== RADIO EMISSION ========================
 
                 # Determining the radio beam angular aperture.
-                rho_beam = er.beam_aperture(P_d, cfg["r_em"])
+                rho_beam = er.beam_aperture(P_det, cfg["r_em"])
 
                 # Determining the solid angle covered by the two radio beams.
                 solid_angle_beam = er.solid_angle_radio_beams(rho_beam)
@@ -361,11 +389,11 @@ def simulate_population(args) -> None:
                 # Note that since we assume symmetry between the northern and southern hemisphere of the star
                 # we only need to consider one hemisphere, e.g., the northern one.
                 los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-                los_rand = rs.random_from_pdf(los_grid, np.sin, len(age_d))
+                los_rand = rs.random_from_pdf(los_grid, np.sin, len(age_det))
 
                 # Determining if the pulsar's radio beam intercepts our line of sight.
                 intercepted_radio = er.los_intercept(
-                    chi_d,
+                    chi_det,
                     rho_beam,
                     los_rand,
                 )
@@ -373,15 +401,15 @@ def simulate_population(args) -> None:
                 # Select only neutron stars that point at us.
                 idx_det = idx_det[intercepted_radio]
 
-                age_d = age_d[intercepted_radio]
-                l_d = l_d[intercepted_radio]
-                b_d = b_d[intercepted_radio]
-                dist_d = dist_d[intercepted_radio]
-                B_d = B_d[intercepted_radio]
-                chi_d = chi_d[intercepted_radio]
-                P_d = P_d[intercepted_radio]
-                rho_beam_d = rho_beam[intercepted_radio]
-                los_rand_d = los_rand[intercepted_radio]
+                age_det = age_det[intercepted_radio]
+                l_det = l_det[intercepted_radio]
+                b_det = b_det[intercepted_radio]
+                dist_det = dist_det[intercepted_radio]
+                B_det = B_det[intercepted_radio]
+                chi_det = chi_det[intercepted_radio]
+                P_det = P_det[intercepted_radio]
+                rho_beam_det = rho_beam[intercepted_radio]
+                los_rand_det = los_rand[intercepted_radio]
                 solid_angle_beam = solid_angle_beam[intercepted_radio]
                 coverage_PMPS = coverage_PMPS[intercepted_radio]
                 coverage_SMPS = coverage_SMPS[intercepted_radio]
@@ -391,22 +419,22 @@ def simulate_population(args) -> None:
 
                 # Determining the final period derivative.
                 period_derivative_vect = np.vectorize(pdv.period_derivative)
-                P_dot_d = (
+                P_dot_det = (
                     period_derivative_vect(
-                        B_d,
-                        chi_d,
-                        P_d,
+                        B_det,
+                        chi_det,
+                        P_det,
                     )
                     / const.YR_TO_S
                 )
 
                 # Determining the luminosity in different electromagnetic bands.
-                L_radio_bol = er.pdf_luminosity_radio(P_d, P_dot_d)
+                L_radio_bol = er.pdf_luminosity_radio(P_det, P_dot_det)
 
                 # Computing the intrinsic bolometric radio flux.
                 S_radio_bol = er.flux_radio(
                     L_radio_bol,
-                    dist_d,
+                    dist_det,
                     solid_angle_beam,
                 )
 
@@ -418,18 +446,18 @@ def simulate_population(args) -> None:
 
                 # Computing the intrinsic pulse width of the radio pulse.
                 w_int = er.pulse_width(
-                    chi_d,
-                    rho_beam_d,
-                    los_rand_d,
+                    chi_det,
+                    rho_beam_det,
+                    los_rand_det,
                 )
                 # Convert pulse width from [rad] to [s].
-                w_int_s = w_int * P_d / (2.0 * np.pi)
+                w_int_s = w_int * P_det / (2.0 * np.pi)
 
                 # Computing the DM.
                 DM = edm.compute_DM(
-                    l_d,
-                    b_d,
-                    dist_d,
+                    l_det,
+                    b_det,
+                    dist_det,
                     cfg["ed_model"],
                 )
 
@@ -445,17 +473,22 @@ def simulate_population(args) -> None:
                 # Compute the observed radio flux in [Jy].
                 S_radio_obs = sr.flux_radio_obs(S_radio_f, w_int_s, w_eff)
 
+                # Compute the period-averaged flux in [Jy].
+                S_radio_obs_mean = sr.flux_radio_obs_period_average(
+                    S_radio_obs, P_det, w_eff
+                )
+
                 # ===================== RADIO DETECTION ========================
 
                 # Simulating the PMPS survey.
-                detected_radio_PMPS = np.zeros(len(age_d), dtype=bool)
+                detected_radio_PMPS = np.zeros(len(age_det), dtype=bool)
 
                 detected_radio_PMPS[coverage_PMPS] = survey_PMPS.detect(
-                    S_radio_obs[coverage_PMPS],
-                    l_d[coverage_PMPS],
-                    b_d[coverage_PMPS],
+                    S_radio_obs_mean[coverage_PMPS],
+                    l_det[coverage_PMPS],
+                    b_det[coverage_PMPS],
                     w_eff[coverage_PMPS],
-                    P_d[coverage_PMPS],
+                    P_det[coverage_PMPS],
                 )
 
                 n_detected_sim_PMPS += np.count_nonzero(detected_radio_PMPS)
@@ -471,14 +504,14 @@ def simulate_population(args) -> None:
                     n_created_PMPS = n_created
 
                 # Simulating the SMPS survey.
-                detected_radio_SMPS = np.zeros(len(age_d), dtype=bool)
+                detected_radio_SMPS = np.zeros(len(age_det), dtype=bool)
 
                 detected_radio_SMPS[coverage_SMPS] = survey_SMPS.detect(
-                    S_radio_obs[coverage_SMPS],
-                    l_d[coverage_SMPS],
-                    b_d[coverage_SMPS],
+                    S_radio_obs_mean[coverage_SMPS],
+                    l_det[coverage_SMPS],
+                    b_det[coverage_SMPS],
                     w_eff[coverage_SMPS],
-                    P_d[coverage_SMPS],
+                    P_det[coverage_SMPS],
                 )
 
                 n_detected_sim_SMPS += np.count_nonzero(detected_radio_SMPS)
@@ -497,6 +530,9 @@ def simulate_population(args) -> None:
                 idx_det_PMPS = idx_det[detected_radio_PMPS]
                 idx_det_SMPS = idx_det[detected_radio_SMPS]
 
+                idx_det_PMPS = df_index["index position"][idx_det_PMPS].values
+                idx_det_SMPS = df_index["index position"][idx_det_SMPS].values
+
                 # Update the database of detected neutron stars.
                 update_dictionary_detected_PMPS = {
                     "age": age[idx_det_PMPS].tolist(),
@@ -509,12 +545,14 @@ def simulate_population(args) -> None:
                     "pm_ra": pm_ra_final[idx_det_PMPS].tolist(),
                     "pm_dec": pm_dec_final[idx_det_PMPS].tolist(),
                     "v_ls": v_ls_icrs[idx_det_PMPS].tolist(),
-                    "B": B_d[detected_radio_PMPS].tolist(),
-                    "chi": chi_d[detected_radio_PMPS].tolist(),
-                    "P": P_d[detected_radio_PMPS].tolist(),
-                    "Pdot": P_dot_d[detected_radio_PMPS].tolist(),
+                    "B": B_det[detected_radio_PMPS].tolist(),
+                    "chi": chi_det[detected_radio_PMPS].tolist(),
+                    "P": P_det[detected_radio_PMPS].tolist(),
+                    "Pdot": P_dot_det[detected_radio_PMPS].tolist(),
                     "L_radio_bol": L_radio_bol[detected_radio_PMPS].tolist(),
-                    "S_radio_obs": S_radio_obs[detected_radio_PMPS].tolist(),
+                    "S_radio_obs_mean": S_radio_obs_mean[
+                        detected_radio_PMPS
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_PMPS].tolist(),
                     "w_eff": w_eff[detected_radio_PMPS].tolist(),
                 }
@@ -536,12 +574,14 @@ def simulate_population(args) -> None:
                     "pm_ra": pm_ra_final[idx_det_SMPS].tolist(),
                     "pm_dec": pm_dec_final[idx_det_SMPS].tolist(),
                     "v_ls": v_ls_icrs[idx_det_SMPS].tolist(),
-                    "B": B_d[detected_radio_SMPS].tolist(),
-                    "chi": chi_d[detected_radio_SMPS].tolist(),
-                    "P": P_d[detected_radio_SMPS].tolist(),
-                    "Pdot": P_dot_d[detected_radio_SMPS].tolist(),
+                    "B": B_det[detected_radio_SMPS].tolist(),
+                    "chi": chi_det[detected_radio_SMPS].tolist(),
+                    "P": P_det[detected_radio_SMPS].tolist(),
+                    "Pdot": P_dot_det[detected_radio_SMPS].tolist(),
                     "L_radio_bol": L_radio_bol[detected_radio_SMPS].tolist(),
-                    "S_radio_obs": S_radio_obs[detected_radio_SMPS].tolist(),
+                    "S_radio_obs_mean": S_radio_obs_mean[
+                        detected_radio_SMPS
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_SMPS].tolist(),
                     "w_eff": w_eff[detected_radio_SMPS].tolist(),
                 }
@@ -553,42 +593,33 @@ def simulate_population(args) -> None:
                 }
 
                 # Remove from the dynamical database the stars that have been detected or
-                # that are out from the sky coverage of the surveys.
+                # that are outside of the sky coverage of the surveys.
                 detected = detected_radio_PMPS | detected_radio_SMPS
                 idx_det_tot = idx_det[detected]
-                idx_remove = np.concatenate(
-                    (idx_remove, idx_det_tot), axis=None
-                )
+                idx_remove += idx_det_tot.tolist()
 
-                age = np.delete(age, idx_remove)
-                ra_final = np.delete(ra_final, idx_remove)
-                dec_final = np.delete(dec_final, idx_remove)
-                l_final = np.delete(l_final, idx_remove)
-                b_final = np.delete(b_final, idx_remove)
-                sun_dist_icrs = np.delete(sun_dist_icrs, idx_remove)
+        # Determine the Galactic neutron star birth rate per century for the different surveys.
+        t_max = cfg["t_age_max"] / 100  # Maximum time in centuries.
+        birth_rate_PMPS = n_created_PMPS / t_max
+        birth_rate_SMPS = n_created_SMPS / t_max
 
-            # Determine the Galactic neutron star birth rate per century for the different surveys.
-            t_max = cfg["t_age_max"] / 100  # Maximum time in centuries.
-            birth_rate_PMPS = n_created_PMPS / t_max
-            birth_rate_SMPS = n_created_SMPS / t_max
+        log.info(
+            f"Galactic neutron star birth rate per century according to PMPS: {birth_rate_PMPS} neutron stars per century."
+        )
+        log.info(
+            f"Galactic neutron star birth rate per century according to SMPS: {birth_rate_SMPS} neutron stars per century."
+        )
 
-            log.info(
-                f"Galactic neutron star birth rate per century according to PMPS: {birth_rate_PMPS} neutron stars per century."
-            )
-            log.info(
-                f"Galactic neutron star birth rate per century according to SMPS: {birth_rate_SMPS} neutron stars per century."
-            )
+        # Add the information of the birth rates to the configuration file.
+        cfg["birth_rate_PMPS"] = birth_rate_PMPS
+        cfg["birth_rate_SMPS"] = birth_rate_SMPS
 
-            # Add the information of the birth rates to the configuration file.
-            cfg["birth_rate_PMPS"] = birth_rate_PMPS
-            cfg["birth_rate_SMPS"] = birth_rate_SMPS
-
-            # Dump updated configuration to output path.
-            config_dump_path = pathlib.Path().joinpath(
-                output_path, "configuration.json"
-            )
-            with open(config_dump_path, "w") as f:
-                json.dump(cfg, f, indent=4, sort_keys=True)
+        # Dump updated configuration to output path.
+        config_dump_path = pathlib.Path().joinpath(
+            output_path, "configuration.json"
+        )
+        with open(config_dump_path, "w") as f:
+            json.dump(cfg, f, indent=4, sort_keys=True)
 
         # ===================== EXPORT OUTPUT ========================
 
@@ -619,7 +650,7 @@ def simulate_population(args) -> None:
                 "P",
                 "P_dot",
                 "L_radio_bol",
-                "S_radio_obs",
+                "S_radio_obs_mean",
                 "w_int",
                 "w_eff",
             ]

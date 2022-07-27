@@ -52,7 +52,7 @@ def test_case_2():
     data = {
         "B_initial": 1e13,
         "B": 5e12,
-        "B_deriv_expected": -1519323.11712,
+        "B_deriv_expected": -5043591.01648,
     }
 
     return data
@@ -65,7 +65,10 @@ def test_timescale_ohmic(test_case_1):
     tau_ohm_out = mfdv.timescale_ohmic(test_case_1["L"], test_case_1["sigma"])
 
     assert np.isclose(
-        tau_ohm_out, test_case_1["tau_ohm_expected"], rtol=TOL, atol=1.0e-30,
+        tau_ohm_out,
+        test_case_1["tau_ohm_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
 
 
@@ -78,7 +81,10 @@ def test_timescale_Hall(test_case_1):
     )
 
     assert np.isclose(
-        tau_Hall_out, test_case_1["tau_Hall_expected"], rtol=TOL, atol=1.0e-30,
+        tau_Hall_out,
+        test_case_1["tau_Hall_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
 
 
@@ -91,5 +97,8 @@ def test_field_derivative(test_case_2):
     )
 
     assert np.isclose(
-        B_deriv_out, test_case_2["B_deriv_expected"], rtol=TOL, atol=1.0e-30,
+        B_deriv_out,
+        test_case_2["B_deriv_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
