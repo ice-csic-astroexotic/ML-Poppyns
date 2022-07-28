@@ -47,14 +47,14 @@ import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.configuration as configuration
-import pypopsyn.simulator.initial_population_edm as ipop
+import pypopsyn.simulator.initial_population_edm_julia as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
-import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
+import pypopsyn.simulator.stellar_dynamics.dynamical_evolution_julia as dyn
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 from julia import Main
 from pypopsyn.simulator.configuration import cfg
