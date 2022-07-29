@@ -49,7 +49,7 @@ import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population_edm_julia as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
-import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
+import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_julia as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
@@ -238,6 +238,11 @@ def simulate_population(args) -> None:
 
             log.info("Computing initial periods...")
             P_initial = NS_population_initial.period()
+
+            # Setting names in the ´Main´ module to send Python values to Julia.
+            Main.B_initial = B_initial
+            Main.P_initial = P_initial
+            Main.chi_initial = chi_initial
 
             timer.checkpoint(
                 "[Initial field strengths, misalignment angles and periods]"

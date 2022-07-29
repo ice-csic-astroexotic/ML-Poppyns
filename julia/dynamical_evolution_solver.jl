@@ -1,5 +1,5 @@
 """
-Dynamical evolution of the neutron stars in the galactic potential in Julia.
+Solver for the dynamical evolution of the neutron stars in the galactic potential in Julia.
 
 We solve the system of dynamical differential equations in cylindrical coordinates,
 using a galactocentric reference frame. Here we are using the Julia OrdinaryDiffEq
@@ -185,13 +185,13 @@ function solver_calls()
         timerange = (0.0, t_age[i])
         
         if save_dyn_evolution
-            time_grid = append!(collect(0.0:time_step:t_age[i]), t_age[i])
-            evol_output = odeint(time_grid, initial_cond[i, :], timerange, tolerance)
+            time_grid = append!(collect(0.0:dyn_time_step:t_age[i]), t_age[i])
+            evol_output = odeint(time_grid, dyn_initial_cond[i, :], timerange, tolerance)
 
             # Save the evolution output of the i-th neutron star in a dictionary.
             evolution_dictionary[string(i-1)] = save_evolution(evol_output, time_grid)
         else
-            evol_output = odeint(initial_cond[i, :], timerange, tolerance)
+            evol_output = odeint(dyn_initial_cond[i, :], timerange, tolerance)
         end
 
         # Save the final position and velocity of the i-th neutron star.
