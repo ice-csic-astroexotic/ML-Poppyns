@@ -103,8 +103,6 @@ def magneto_rotational_evolution(
     Main.b2_cfg = cfg["b2"]
     Main.t_trans_cfg = cfg["t_trans"]
     Main.a_late_t_cfg = cfg["a_late_t"]
-    Main.B_millisec_mean = cfg["B_millisec_mean"]
-    Main.B_millisec_sigma = cfg["B_millisec_sigma"]
 
     Main.n = n
     Main.initial_cond_magrot = initial_cond
@@ -112,6 +110,13 @@ def magneto_rotational_evolution(
     Main.t_age = t_age
     Main.save_magrot_evolution = cfg["save_magrot_evolution"]
     Main.tolerance = cfg["ODE_solver_tol"]
+
+    # Draw a random asymptotic value of the magnetic field at late times from a log-normal distribution.
+    # This asymptotic value is based on the distribution of inferred magnetic fields for the old population
+    # of millisecond pulsars.
+    Main.B_asymptotic = 10 ** np.random.normal(
+        cfg["B_millisec_mean"], cfg["B_millisec_sigma"], n
+    )
 
     # Solving the ODEs with Julia.
     (

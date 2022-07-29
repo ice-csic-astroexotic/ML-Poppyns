@@ -60,14 +60,14 @@ function magnetic_field_evolution_fit_array(B_initial, t, B_asymptotic)
     # code.
     B[early_times] = (
         B_initial
-        .* (1 + t[early_times] ./ tau1) .^ (-a1_cfg)
-        .* (1 + t[early_times] ./ tau2) .^ (-a2_cfg)
+        .* (1 .+ t[early_times] ./ tau1) .^ (-a1_cfg)
+        .* (1 .+ t[early_times] ./ tau2) .^ (-a2_cfg)
     )
     # At late times we assume a simple power-law evolution.
     B[late_times] = (
         B_initial
-        .* (1 + t_trans_cfg ./ tau1) .^ (-a1_cfg)
-        .* (1 + t_trans_cfg ./ tau2) .^ (-a2_cfg)
+        .* (1 .+ t_trans_cfg ./ tau1) .^ (-a1_cfg)
+        .* (1 .+ t_trans_cfg ./ tau2) .^ (-a2_cfg)
     ) .* (t[late_times] ./ t_trans_cfg) .^ (-a_late_t_cfg)
 
     # If the magnetic field becomes lower than an asymptotic value derived from the old millisecond pulsar population,
@@ -263,11 +263,6 @@ function solver_calls()
 
     # Initialization of a dictionary that will contain the evolution in time of B, chi and P.
     evolution_dictionary = Dict()
-
-    # Draw a random asymptotic value of the magnetic field at late times from a log-normal distribution.
-    # This asymptotic value is based on the distribution of inferred magnetic fields for the old population
-    # of millisecond pulsars.
-    B_asymptotic = 10 .^ rand(Normal(B_millisec_mean, B_millisec_sigma), n)
 
     for i in 1:n
 
