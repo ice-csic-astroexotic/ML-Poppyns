@@ -18,7 +18,7 @@ We recommend working within this environment when using the code.
 After activating the environment a few Julia packages need to be installed manually by 
 running the following command in a terminal
 ```
-julia -e 'using Pkg; Pkg.add.(["PyCall", "OrdinaryDiffEq", "LSODA"])'
+julia -e 'using Pkg; Pkg.add.(["PyCall", "OrdinaryDiffEq", "LSODA", "Distributions"])'
 ```
 Finally, to install the `pypopsyn` package and work with the code run
 ```
