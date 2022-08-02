@@ -135,10 +135,12 @@ function initialize_galactic_model(input)
     throw("The galactic model does not exist. Choose between gmFK06 or gmM19.")
 end
 
-#= Galactic model initialization. Constant variables in Julia are global variables which means
-their type can not change.
-The variable galactic_model_input is saved in the Main of Julia. To do so, in the main script (e.g. simulate_populate_dyn.py ) we
-add this line of code: Main.galactic_model_input = cfg["galactic_model"] .=#
+#= Galactic model initialization.=#
+
+#= Constant variables in Julia are global variables which means their type can not change.
+The variable galactic_model_input is saved in the Main of Julia. To do so, in the main script
+(e.g. simulate_populate_dyn_julia.py ) we add this line of code:
+`Main.galactic_model_input = cfg["galactic_model"]` =#
 
 
 const galactic_model = initialize_galactic_model(galactic_model_input)
