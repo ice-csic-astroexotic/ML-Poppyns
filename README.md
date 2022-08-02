@@ -8,7 +8,6 @@ and running on your local machine. First, you should clone the repository on you
 computer. The repo contains an environment file that can be installed by running
 ```
 $ conda env create -f environment.yaml
-
 ```
 This environment can be activated using
 ```
