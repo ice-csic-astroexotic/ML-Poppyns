@@ -254,15 +254,15 @@ def set_default(args_dict: dict) -> None:  # noqa: C901
 
 def check_expand_args(args_dict: dict) -> (list, list):
     """
-        Check if the parsed input arguments are coherent and have the correct shape.
-        If in grid mode: expand each simulation parameter in linear space in the specified ranges.
-        If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
-        Args:
-            args_dict: dictionary of the parsed argument via CLI.
-        Return:
-            (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
-            expanded parameters.
-        """
+    Check if the parsed input arguments are coherent and have the correct shape.
+    If in grid mode: expand each simulation parameter in linear space in the specified ranges.
+    If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
+    Args:
+        args_dict: dictionary of the parsed argument via CLI.
+    Return:
+        (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
+        expanded parameters.
+    """
     cli_args: list = []
     cli_str: list = []
 
@@ -378,7 +378,14 @@ def main(args):
     # A pool of processes with a defined capacity, a process spawnign setup
     # routine and a general event to signal process execution.
     log.info(f"Initializing pool with {args.processes} processes...")
-    pool = mp.Pool(args.processes, setup_process_pool, (event, lock,))
+    pool = mp.Pool(
+        args.processes,
+        setup_process_pool,
+        (
+            event,
+            lock,
+        ),
+    )
 
     # Parse arguments provided to the simulation helper script.
     log.info("Parsing arguments...")

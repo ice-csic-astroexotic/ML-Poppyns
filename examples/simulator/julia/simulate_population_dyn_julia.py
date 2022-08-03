@@ -39,14 +39,14 @@ import time
 import numpy as np
 import orjson
 import pandas as pd
+from julia import Main
 
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
-import pypopsyn.simulator.initial_population_edm_julia as ipop
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution_julia as dyn
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
-from julia import Main
+import pypopsyn.simulator_julia.initial_population_edm_julia as ipop
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
@@ -109,7 +109,7 @@ def simulate_population(args) -> None:
     Main.galactic_model_input = cfg["galactic_model"]
 
     # Importing the ´galactic_model.jl´ file with Julia code into our Main Julia.
-    Main.include("julia/galactic_model.jl")
+    Main.include("pypopsyn/simulator_julia/galactic_model.jl")
     sm.initialize_spiral_model()
 
     with timewith.TimeWith(

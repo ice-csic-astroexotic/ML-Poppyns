@@ -31,8 +31,8 @@ SOFTWARE.
 """
 
 import numpy as np
-
 from julia import Main
+
 from pypopsyn.simulator.configuration import cfg
 
 
@@ -134,7 +134,7 @@ def circular_velocity(r: float, z: float) -> float:
     Main.galactic_model_input = cfg["galactic_model"]
 
     # Importing the ´galactic_model.jl´ file with Julia code into our Main Julia.
-    Main.include("julia/galactic_model.jl")
+    Main.include("pypopsyn/simulator_julia/galactic_model.jl")
     # Evaluating cylind_coord_gradient_mw_potential function in Julia.
     pot_mw_gradient = Main.eval(
         "cylind_coord_gradient_mw_potential(galactic_model, r, z)"

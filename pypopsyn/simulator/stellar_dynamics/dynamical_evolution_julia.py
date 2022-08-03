@@ -37,11 +37,11 @@ import time
 from typing import Tuple
 
 import numpy as np
+from julia import Main
 from numba import cfunc, float64, jit, njit
 from scipy.integrate import odeint, solve_ivp
 
 import pypopsyn.simulator.basics.constants as const
-from julia import Main
 from pypopsyn.simulator.configuration import cfg
 
 
@@ -87,7 +87,7 @@ def dynamical_evolution(
     Main.galactic_model_input = cfg["galactic_model"]
 
     # Importing the ´julia_solver.jl´ file with Julia code into our Main Julia.
-    Main.include("julia/julia_solver.jl")
+    Main.include("pypopsyn/simulator_julia/julia_solver.jl")
 
     # Setting names in the ´Main´ module to send Python values to Julia.
     Main.n = n
