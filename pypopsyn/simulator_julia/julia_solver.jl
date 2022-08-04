@@ -8,10 +8,7 @@ using a galactocentric reference frame. Here we are using the Julia OrdinaryDiff
 with automatic stiffness detection and switching).
 Alternatively, one can use the Tsit5() solver from the OrdinaryDiffEq package.
 
-
-
-
-Authors:
+    Authors:
 
         Borja Miñano (borja.minano@uib.es)
         Celsa Pardo Araujo (pardo @ csic.es)
@@ -49,8 +46,8 @@ function rhs(du, u, p, t)
     cylindrical galactocentric coordinates (r, phi, z).
 
     Args:
-        du (Array): vector where the output is saved (this is called in julia in-place form)
-        which contains 6 values of the first order and second order derivatives at each time step.
+        du (Array): vector where the output is saved (referred to as in-place format in Julia)
+        which contains 6 values, i.e., first and second order derivatives at each time step.
         u (Array): array of 6 components defining the initial
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
         with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
@@ -74,10 +71,10 @@ end
 
 
 function odeint_final_state(u0, tr, tol)
-
     """
     Solve a system of ordinary differential equations with ODEProblem using LSODA.
-    The solution is computed in the time range tr and interpolated and saved at the final time point (t_age).
+    The solution is computed in the time range tr and interpolated and saved at the
+    final time point (t_age).
 
 
     Args:
@@ -91,21 +88,22 @@ function odeint_final_state(u0, tr, tol)
         solution.u (float) : solution of the ODEs evaluated at the final time point.
 
     """
+    # Defining the ODE system.
     prob = ODEProblem(rhs, u0, tr, save_everystep=false)
 
+    # Solving the ODE with a specific solver and tolerance.
     solution = solve(prob, lsoda(), save_everystep=false, reltol=tol, abstol=tol)
 
-    # The sol.u is an array storing the solution at the corresponding time point.
+    # Accessing the solution values at the relevant times using .u.
     return solution.u
 end
 
 
 function odeint_full_output(t0, u0, tr, tol)
-
     """
     Solve a system of ordinary differential equations with ODEProblem using LSODA.
-    The solution is computed in the time range tr and interpolated and saved at the time points specified in the array
-    t0.
+    The solution is computed in the time range tr and interpolated and saved at the time
+    points specified in the array t0.
 
     Args:
         t0 (Array): array of times where the solution is saved.
@@ -119,18 +117,18 @@ function odeint_full_output(t0, u0, tr, tol)
         solution.u (Array) : solution of the ODEs evaluated at times t0.
 
     """
-
+    # Defining the ODE system.
     prob = ODEProblem(rhs, u0, tr, save_everystep=false, saveat=t0)
 
+    # Solving the ODE with a specific solver and tolerance.
     solution = solve(prob, lsoda(), save_everystep=false, reltol=tol, abstol=tol)
 
-    # The sol.u is an array storing the solution at the corresponding time points.
+    # Accessing the solution values at the relevant times using .u.
     return solution.u
 end
 
 
 function save_evolution(evol_output, time_grid)
-
     """
     Saving the evolved output at times time_grid.
 
@@ -143,14 +141,13 @@ function save_evolution(evol_output, time_grid)
        (Dict) : Dictionary with the output.
 
     """
-    #= The evol_output is a vector of vectors where each individual vector is the set of parameters at the time step t,
-     with the reduce and hcat command of Julia we transform into a matrix of (6,time_grid) size to easily access the
-     evolution for each of the parameters. =#
-
+    #= The evol_output is an array of len(time_grid) vectors, where each individual vector
+    is the set of 6 parameters at time steps t. With the reduce and hcat commands of Julia,
+    we transform the output into a matrix of (6,time_grid) size to easily access the evolution
+    for each of the parameters. =#
     evol_output = reduce(hcat, evol_output)
 
-
-    # Convert the velocity evolution output from kpc / yrs into units of km / s.
+    # Convert the velocity evolution output from [kpc/yrs] into units of [km/s].
     v_r_evol = evol_output[4, :] * KPC_TO_KM / YR_TO_S
     v_phi_evol = evol_output[1, :] .* evol_output[5, :] * KPC_TO_KM / YR_TO_S
     v_z_evol = evol_output[6, :] * KPC_TO_KM / YR_TO_S
@@ -165,12 +162,10 @@ function save_evolution(evol_output, time_grid)
         "v_phi(t)" => v_phi_evol,
         "v_z(t)" => v_z_evol,
         )
-
 end 
 
 
 function solver_calls()
-
     """
     Performing the dynamical evolution of the neutron star population for a given
     galactic potential, starting from a set of initial conditions.
@@ -182,6 +177,7 @@ function solver_calls()
         these quantities for each neutron star (if the option to save the time evolution is enabled).
     """
 
+    # Initializing the relevant variables.
     r_final = Float64[]
     phi_final = Float64[]
     z_final = Float64[]
@@ -196,8 +192,8 @@ function solver_calls()
         # Each star's position and velocity is evolved for a time equal to its age.
         timerange = (0.0, t_age[i])
 
-        # The variables t_age, time_step, initial_condition and tolerance are defined via Main in the python script that
-        # uses the solver.
+        # The variables t_age, time_step, initial_cond and tolerance are defined via Main
+        # in the python script that uses the solver.
         if save_dyn_evolution
             time_grid = append!(collect(0.0:time_step:t_age[i]), t_age[i])
             evol_output = odeint_full_output(time_grid, initial_cond[i, :], timerange, tolerance)
@@ -222,5 +218,4 @@ function solver_calls()
     end
 
     return r_final, phi_final, z_final, v_r_final, v_phi_final, v_z_final, evolution_dictionary
-
 end
