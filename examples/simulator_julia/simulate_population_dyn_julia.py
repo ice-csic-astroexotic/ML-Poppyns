@@ -298,8 +298,8 @@ def simulate_population(args) -> None:
             timer.checkpoint("[Final energy]")
 
             # Compute the final z-component of the total angular momentum of the system.
-            # Setting names in the ´Main´ module to send Python values to Julia.
 
+            # Setting names in the ´Main´ module to send Python values to Julia.
             Main.v_phi_final = v_phi_final
             Main.r_final = r_final
 
