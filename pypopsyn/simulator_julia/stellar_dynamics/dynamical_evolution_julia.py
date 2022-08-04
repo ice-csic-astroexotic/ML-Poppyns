@@ -11,7 +11,8 @@ Authors:
 
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
-        Borja Miñano (borja.minano @ uib.es)
+        Borja Miñano (borja.minano@uib.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 
@@ -83,7 +84,9 @@ def dynamical_evolution(
     Main.galactic_model_input = cfg["galactic_model"]
 
     # Importing the ´julia_solver.jl´ file with Julia code into our Main Julia.
-    Main.include("pypopsyn/simulator_julia/julia_solver.jl")
+    Main.include(
+        "pypopsyn/simulator_julia/stellar_dynamics/dynamical_evolution_solver.jl"
+    )
 
     # Setting names in the ´Main´ module to send Python values to Julia.
     Main.n = n

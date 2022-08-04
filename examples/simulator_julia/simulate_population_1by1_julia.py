@@ -52,8 +52,8 @@ import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
-import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
+import pypopsyn.simulator_julia.stellar_dynamics.dynamical_evolution_julia as dyn
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)

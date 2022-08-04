@@ -40,7 +40,7 @@ SOFTWARE.
 """
 
 
-include("constants.jl")
+include("../constants.jl")
 
 #= Defining an abstract type for the galactic model. Note that Julia is not an object-oriented
 language, i.e., we define types not classes. =#

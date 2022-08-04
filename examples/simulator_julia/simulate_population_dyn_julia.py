@@ -12,6 +12,7 @@ and the respective objects evolved dynamically in time according to their age.
         Michele Ronchi (ronchi @ ice.csic.es)
         Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
         Borja Miñano (borja.minano @ uib.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -112,7 +113,7 @@ def simulate_population(args) -> None:
     Main.galactic_model_input = cfg["galactic_model"]
 
     # Importing the ´galactic_model.jl´ file with Julia code into our Main Julia.
-    Main.include("pypopsyn/simulator_julia/galactic_model.jl")
+    Main.include("pypopsyn/simulator_julia/stellar_dynamics/galactic_model.jl")
 
     # Initializing the spiral-arm model.
     sm.initialize_spiral_model()
