@@ -1,6 +1,8 @@
 """
 Simulating a final population of neutron stars.
 
+This implementation relies on solving ODEs using julia.
+
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved in time according to their age.
 Neutron stars are created and evolved one by one until a predefined number of
@@ -11,6 +13,7 @@ simulated stars is reached.
         Vanessa Graber (graber @ ice.csic.es)
         Michele Ronchi (ronchi @ ice.csic.es)
         Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
+        Borja Miñano (borja.minano @ uib.es)
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -94,12 +97,12 @@ def simulate_population(
     sm.initialize_spiral_model()
 
     # Initialize seed randomly if no seed was specified.
-    if cfg["seed"] is None:
-        cfg["seed"] = int(time.time())
+    if cfg["seed_dyn"] is None:
+        cfg["seed_dyn"] = int(time.time())
 
     # Set NumPy random set globally.
-    log.info("Seed: {}".format(cfg["seed"]))
-    np.random.seed(cfg["seed"])
+    log.info("Seed: {}".format(cfg["seed_dyn"]))
+    np.random.seed(cfg["seed_dyn"])
 
     # Initialize the parameter lists.
     age = []
@@ -259,7 +262,7 @@ def simulate_population(
         timer.checkpoint("[Initialize and evolve population]")
 
         # Cleanup. Reset seed to empty value.
-        configuration.cfg["seed"] = None
+        configuration.cfg["seed_dyn"] = None
 
         log.info("Converting units and coordinate frames...")
 

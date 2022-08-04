@@ -1,6 +1,8 @@
 """
 Simulating a final population of neutron stars.
 
+This implementation relies on solving the ODEs using julia.
+
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved in time according to their age.
 We simulate both the dynamical evolution in the Galaxy and the magneto-rotational
@@ -13,6 +15,7 @@ Parkes multibeam (PMPS) and Swinburne (SMPS).
         Vanessa Graber (graber @ ice.csic.es)
         Michele Ronchi (ronchi @ ice.csic.es)
         Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
+        Borja Miñano (borja.minano @ uib.es)
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -54,9 +57,9 @@ import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
-import pypopsyn.simulator.stellar_dynamics.dynamical_evolution_julia as dyn
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 import pypopsyn.simulator_julia.initial_population_edm_julia as ipop
+import pypopsyn.simulator_julia.stellar_dynamics.dynamical_evolution_julia as dyn
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
@@ -120,6 +123,8 @@ def simulate_population(args) -> None:
 
     # Importing the ´galactic_model.jl´ file with Julia code into our Main Julia.
     Main.include("pypopsyn/simulator_julia/galactic_model.jl")
+
+    # Initializing the spiral-arm model.
     sm.initialize_spiral_model()
 
     # Initialize the surveys.

@@ -91,12 +91,12 @@ def simulate_population(
     sm.initialize_spiral_model()
 
     # Initialize seed randomly if no seed was specified.
-    if cfg["seed"] is None:
-        cfg["seed"] = int(time.time())
+    if cfg["seed_dyn"] is None:
+        cfg["seed_dyn"] = int(time.time())
 
     # Set NumPy random set globally.
-    log.info("Seed: {}".format(cfg["seed"]))
-    np.random.seed(cfg["seed"])
+    log.info("Seed: {}".format(cfg["seed_dyn"]))
+    np.random.seed(cfg["seed_dyn"])
 
     # Initialize the parameter lists.
     age = []
@@ -256,7 +256,7 @@ def simulate_population(
         timer.checkpoint("[Initialize and evolve population]")
 
         # Cleanup. Reset seed to empty value.
-        configuration.cfg["seed"] = None
+        configuration.cfg["seed_dyn"] = None
 
         log.info("Converting units and coordinate frames...")
 

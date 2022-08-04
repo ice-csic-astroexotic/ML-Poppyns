@@ -46,7 +46,7 @@ include("constants.jl")
 language, i.e., we define types not classes. =#
 abstract type GalacticModel end
 
-#= Julia uses the struct similarly to objects in object-oriented languages. With struct we can
+#= Julia uses the struct type similarly to objects in object-oriented languages. With struct we can
 define the field of each "class", similarly to the __init__ in Python. Here we define all the
 variables needed for each galactic model. =#
 
@@ -106,9 +106,9 @@ function initialize_galactic_model(input)
 
     """
 
-    # The ´cmp´ command compares two strings, if they are equal returns 0.
+    # The ´cmp´ command compares two strings, if they are equal return 0.
 	if cmp(input, "gmM19") == 0
-        # Parameters of the model, values from Table 1 in Marchetti et al. (2019).
+        # Parameter values from Table 1 in Marchetti et al. (2019).
 		return GalaxyModelM19(3.0,              # Scale length of the disk in [kpc].
                             0.28,               # Scale height for the disk.
                             6.8e10 * M_SUN,     # Disk+halo mass in [g].
@@ -172,6 +172,106 @@ function shape_parameter(galactic_model::GalaxyModelM19, z)
     return K, dK_dz
 end
 
+function d_potential(galactic_model::GalaxyModelM19, r, z)
+    """
+    The Miyamoto-Nagai disk component gravitational potential defined in eq. (8) in
+    Marchetti et al. (2019).
+
+    Args:
+        galactic_model (abstract type) : gmM19 model parameters.
+        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+        z (np.ndarray): height from the galactic disk in [kpc].
+
+    Returns:
+        (np.ndarray): value of the disk-halo potential in [erg/g].
+    """
+
+    K, _ = shape_parameter(galactic_model, z)
+
+    pot_d = -G * galactic_model.M_d ./ (sqrt.(K .* K .+ r .* r) * KPC_TO_CM)
+
+    return pot_d
+end
+
+function b_potential(galactic_model::GalaxyModelM19, r)
+    """
+    The Hernquist bulge component gravitational potential defined in eq. (7) in
+    Marchetti et al. (2019).
+
+    Args:
+        galactic_model (abstract type) : gmM19 model parameters.
+        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+
+    Returns:
+        (np.ndarray): value of the bulge potential in [erg/g].
+    """
+
+    pot_b = -G * galactic_model.M_b ./ ((galactic_model.r_b .+ r) .* KPC_TO_CM)
+
+    return pot_b
+end
+
+
+function n_potential(galactic_model::GalaxyModelM19, r)
+    """
+    The Hernquist nucleus component gravitational potential defined in eq. (7) in
+    Marchetti et al. (2019).
+
+    Args:
+        galactic_model (abstract type) : gmM19 model parameters.
+        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+
+    Returns:
+        (np.ndarray): value of the bulge potential in [erg/g].
+    """
+
+    pot_n = -G * galactic_model.M_n ./ ((galactic_model.r_n .+ r) .* KPC_TO_CM)
+
+    return pot_n
+end
+
+
+function h_potential(galactic_model::GalaxyModelM19, r)
+    """
+    The Navarro-Frenk-White halo component gravitational potential defined in
+    eq. (9) in Marchetti et al. (2019).
+
+    Args:
+        galactic_model (abstract type) : gmM19 model parameters.
+        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+
+    Returns:
+        (np.ndarray): value of the halo potential in [erg/g].
+    """
+
+    pot_h = -G * galactic_model.M_h ./ (r .* KPC_TO_CM) .* log1p.(r ./ galactic_model.r_h)
+
+    return pot_h
+end
+
+
+function MW_potential(galactic_model::GalaxyModelM19, r, z)
+    """
+    Total Milky Way gravitational potential in Marchetti et al. (2019).
+
+    Args:
+        galactic_model (abstract type) : gmM19 model parameters.
+        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+        z (np.ndarray): height from the galactic disk in [kpc].
+
+    Returns:
+        (np.ndarray): value of the Galactic potential in [erg].
+    """
+
+    MW_pot = (
+        d_potential(galactic_model, r, z)
+        + b_potential(galactic_model, r)
+        + n_potential(galactic_model, r)
+        + h_potential(galactic_model, r)
+    )
+
+    return MW_pot
+end
 
 function r_derivative_b_potential(galactic_model::GalaxyModelM19, r)
     """
@@ -296,107 +396,9 @@ function cylind_coord_gradient_mw_potential(galactic_model::GalaxyModelM19, r, z
     return dpot_mw_dr, dpot_mw_dphi, dpot_mw_dz
 end
 
-function d_potential(galactic_model::GalaxyModelM19, r, z)
-    """
-    The Miyamoto-Nagai disk component gravitational potential defined in eq. (8) in
-    Marchetti et al. (2019).
-
-    Args:
-        galactic_model (abstract type) : gmM19 model parameters.
-        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
-        z (np.ndarray): height from the galactic disk in [kpc].
-
-    Returns:
-        (np.ndarray): value of the disk-halo potential in [erg/g].
-    """
-
-    K, _ = shape_parameter(galactic_model, z)
-
-    pot_d = -G * galactic_model.M_d ./ (sqrt.(K .* K .+ r .* r) * KPC_TO_CM)
-
-    return pot_d
-end
 
 
-function b_potential(galactic_model::GalaxyModelM19, r)
-    """
-    The Hernquist bulge component gravitational potential defined in eq. (7) in
-    Marchetti et al. (2019).
 
-    Args:
-        galactic_model (abstract type) : gmM19 model parameters.
-        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
-
-    Returns:
-        (np.ndarray): value of the bulge potential in [erg/g].
-    """
-
-    pot_b = -G * galactic_model.M_b ./ ((galactic_model.r_b .+ r) .* KPC_TO_CM)
-
-    return pot_b
-end
-
-
-function n_potential(galactic_model::GalaxyModelM19, r)
-    """
-    The Hernquist nucleus component gravitational potential defined in eq. (7) in
-    Marchetti et al. (2019).
-
-    Args:
-        galactic_model (abstract type) : gmM19 model parameters.
-        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
-
-    Returns:
-        (np.ndarray): value of the bulge potential in [erg/g].
-    """
-
-    pot_n = -G * galactic_model.M_n ./ ((galactic_model.r_n .+ r) .* KPC_TO_CM)
-
-    return pot_n
-end
-
-
-function h_potential(galactic_model::GalaxyModelM19, r)
-    """
-    The Navarro-Frenk-White halo component gravitational potential defined in
-    eq. (9) in Marchetti et al. (2019).
-
-    Args:
-        galactic_model (abstract type) : gmM19 model parameters.
-        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
-
-    Returns:
-        (np.ndarray): value of the halo potential in [erg/g].
-    """
-
-    pot_h = -G * galactic_model.M_h ./ (r .* KPC_TO_CM) .* log1p.(r ./ galactic_model.r_h)
-
-    return pot_h
-end
-
-
-function MW_potential(galactic_model::GalaxyModelM19, r, z)
-    """
-    Total Milky Way gravitational potential in Marchetti et al. (2019).
-
-    Args:
-        galactic_model (abstract type) : gmM19 model parameters.
-        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
-        z (np.ndarray): height from the galactic disk in [kpc].
-
-    Returns:
-        (np.ndarray): value of the Galactic potential in [erg].
-    """
-    
-    MW_pot = (
-        d_potential(galactic_model, r, z)
-        + b_potential(galactic_model, r)
-        + n_potential(galactic_model, r)
-        + h_potential(galactic_model, r)
-    )
-
-    return MW_pot
-end
 
 
 #= Galactic model FK06 functions=#

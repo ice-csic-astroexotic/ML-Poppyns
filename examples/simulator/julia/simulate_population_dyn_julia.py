@@ -1,6 +1,8 @@
 """
 Dynamically evolving a population of neutron stars.
 
+This implementation relies on solving the ODEs using julia.
+
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved dynamically in time according to their age.
 
@@ -9,6 +11,7 @@ and the respective objects evolved dynamically in time according to their age.
         Vanessa Graber (graber @ ice.csic.es)
         Michele Ronchi (ronchi @ ice.csic.es)
         Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
+        Borja Miñano (borja.minano @ uib.es)
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -44,9 +47,9 @@ from julia import Main
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
-import pypopsyn.simulator.stellar_dynamics.dynamical_evolution_julia as dyn
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 import pypopsyn.simulator_julia.initial_population_edm_julia as ipop
+import pypopsyn.simulator_julia.stellar_dynamics.dynamical_evolution_julia as dyn
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
@@ -110,6 +113,8 @@ def simulate_population(args) -> None:
 
     # Importing the ´galactic_model.jl´ file with Julia code into our Main Julia.
     Main.include("pypopsyn/simulator_julia/galactic_model.jl")
+
+    # Initializing the spiral-arm model.
     sm.initialize_spiral_model()
 
     with timewith.TimeWith(
@@ -293,7 +298,6 @@ def simulate_population(args) -> None:
             timer.checkpoint("[Final energy]")
 
             # Compute the final z-component of the total angular momentum of the system.
-
             # Setting names in the ´Main´ module to send Python values to Julia.
 
             Main.v_phi_final = v_phi_final

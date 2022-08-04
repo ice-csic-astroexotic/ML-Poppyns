@@ -1,17 +1,17 @@
 """
-Dynamical evolution of the neutron stars in the galactic potential
+Dynamical evolution of the neutron stars in the galactic potential.
 
 We solve the system of dynamical differential equations in cylindrical coordinates,
-using a galactocentric reference frame. Here we are using the scipy.integrate.odeint
-package which uses the method 'LSODA' (Adams/BDF method with automatic stiffness
-detection and switching) from the Fortran library ODEPACK.
+using a galactocentric reference frame with Julia (see `julia_solver.jl` for more details).
+Here we are using the Julia package OrdinaryDiffEq which uses the method 'LSODA' (Adams/BDF method with
+automatic stiffness detection and switching).
 
-We improve performance with Numba, which allows just-in-time (JIT) compilation.
 
 Authors:
 
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
+        Borja Miñano (borja.minano @ uib.es)
 
 MIT License
 
@@ -33,15 +33,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import time
 from typing import Tuple
 
 import numpy as np
 from julia import Main
-from numba import cfunc, float64, jit, njit
-from scipy.integrate import odeint, solve_ivp
 
-import pypopsyn.simulator.basics.constants as const
 from pypopsyn.simulator.configuration import cfg
 
 

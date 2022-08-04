@@ -4,6 +4,8 @@ Constants module in Julia.
     Authors:
 
         Borja Miñano (borja.minano@uib.es)
+        Celsa Pardo Araujo (pardo @ csic.es)
+        Michele Ronchi (ronchi @ ice.csic.es)
 
 MIT License
 
@@ -25,7 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-# Defining global constant needed for the dynamical evolution.
+# Defining global constants needed for the dynamical evolution.
 
 const M_SUN = 2.0e33
 const G = 6.67e-8

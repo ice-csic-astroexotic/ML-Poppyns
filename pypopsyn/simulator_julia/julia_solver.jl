@@ -3,11 +3,20 @@ Dynamical evolution of the neutron stars in the galactic potential in Julia.
 
 We solve the system of dynamical differential equations in cylindrical coordinates,
 using a galactocentric reference frame. Here we are using the Julia OrdinaryDiffEq
-package which uses the method 'LSODA' (Adams/BDF method with automatic stiffness
-detection and switching) from the Fortran library ODEPACK.
+(https://diffeq.sciml.ai/stable/tutorials/ode_example/) package which uses the method
+'LSODA' (https://diffeq.sciml.ai/stable/solvers/ode_solve/#LSODA.jl) (Adams/BDF method
+with automatic stiffness detection and switching).
+Alternatively, one can use the Tsit5() solver from the OrdinaryDiffEq package.
+
+
+
 
 Authors:
+
         Borja Miñano (borja.minano@uib.es)
+        Celsa Pardo Araujo (pardo @ csic.es)
+        Michele Ronchi (ronchi @ ice.csic.es)
+
 
 MIT License
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
@@ -34,14 +43,14 @@ include("galactic_model.jl")
 
 
 function rhs(du, u, p, t)
-
     """
     System of dynamical equations to solve to determine the orbits of the neutron
     stars in the galactic potential. The differential equation are written in
     cylindrical galactocentric coordinates (r, phi, z).
 
     Args:
-        du (Array): vector where the output is saved (this is called in julia in-place form).
+        du (Array): vector where the output is saved (this is called in julia in-place form)
+        which contains 6 values of the first order and second order derivatives at each time step.
         u (Array): array of 6 components defining the initial
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
         with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
@@ -64,7 +73,7 @@ function rhs(du, u, p, t)
 end
 
 
-function odeint(u0, tr, tol)
+function odeint_final_state(u0, tr, tol)
 
     """
     Solve a system of ordinary differential equations with ODEProblem using LSODA.
@@ -86,11 +95,12 @@ function odeint(u0, tr, tol)
 
     solution = solve(prob, lsoda(), save_everystep=false, reltol=tol, abstol=tol)
 
+    # The sol.u is an array storing the solution at the corresponding time point.
     return solution.u
 end
 
 
-function odeint(t0, u0, tr, tol)
+function odeint_full_output(t0, u0, tr, tol)
 
     """
     Solve a system of ordinary differential equations with ODEProblem using LSODA.
@@ -114,6 +124,7 @@ function odeint(t0, u0, tr, tol)
 
     solution = solve(prob, lsoda(), save_everystep=false, reltol=tol, abstol=tol)
 
+    # The sol.u is an array storing the solution at the corresponding time points.
     return solution.u
 end
 
@@ -139,6 +150,7 @@ function save_evolution(evol_output, time_grid)
     evol_output = reduce(hcat, evol_output)
 
 
+    # Convert the velocity evolution output from kpc / yrs into units of km / s.
     v_r_evol = evol_output[4, :] * KPC_TO_KM / YR_TO_S
     v_phi_evol = evol_output[1, :] .* evol_output[5, :] * KPC_TO_KM / YR_TO_S
     v_z_evol = evol_output[6, :] * KPC_TO_KM / YR_TO_S
@@ -164,7 +176,7 @@ function solver_calls()
     galactic potential, starting from a set of initial conditions.
 
     Returns:
-        (np.ndarray, dict): Tuple consisting of a two-dimensional array of shape (NS_number, 6)
+        (Array, dict): Tuple consisting of a two-dimensional array of shape (NS_number, 6)
         defining the neutron stars' final positions r [kpc], phi [rad], z [kpc] and velocities
         in [kpc/yr] in cylindrical coordinates and a dictionary containing the time evolution of
         these quantities for each neutron star (if the option to save the time evolution is enabled).
@@ -183,15 +195,17 @@ function solver_calls()
 
         # Each star's position and velocity is evolved for a time equal to its age.
         timerange = (0.0, t_age[i])
-        
+
+        # The variables t_age, time_step, initial_condition and tolerance are defined via Main in the python script that
+        # uses the solver.
         if save_dyn_evolution
             time_grid = append!(collect(0.0:time_step:t_age[i]), t_age[i])
-            evol_output = odeint(time_grid, initial_cond[i, :], timerange, tolerance)
+            evol_output = odeint_full_output(time_grid, initial_cond[i, :], timerange, tolerance)
 
             # Save the evolution output of the i-th neutron star in a dictionary.
             evolution_dictionary[string(i-1)] = save_evolution(evol_output, time_grid)
         else
-            evol_output = odeint(initial_cond[i, :], timerange, tolerance)
+            evol_output = odeint_final_state(initial_cond[i, :], timerange, tolerance)
         end
 
         # Save the final position and velocity of the i-th neutron star.

@@ -4,8 +4,11 @@ random parameters. For the initial positions we assume that the distribution
 of progenitors follows a given radial distribution and the spiral arms with a given
 parametrized shape.
 
+This implementation relies on solving the ODEs using julia.
+
     Authors:
 
+        Borja Miñano (borja.minano @ uib.es)
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
 
@@ -40,8 +43,8 @@ import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.initial_position as ip
-import pypopsyn.simulator.stellar_dynamics.initial_velocity_julia as iv
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
+import pypopsyn.simulator_julia.stellar_dynamics.initial_velocity_julia as iv
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
