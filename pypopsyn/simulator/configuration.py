@@ -166,7 +166,7 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 # The envelope model is taken from Potekhin et al. (2015).
 # Superfluid and superconducting gap parametrisations are taken from Ho et al. (2015):
 # SFB for crustal neutrons, TToa for core neutrons and CCDKp for core protons.
-# We fit a functional equation of the form: B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**a2
+# We fit a functional equation of the form: B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**(a2-a1)
 # with tau1 = A1 * B_initial**b1 and tau2 = A2 * B_initial**b2.
 
 # Power-law indices.
