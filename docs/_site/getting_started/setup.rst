@@ -68,7 +68,12 @@ which will rebuild the PyCall package with the correct Python distribution.
 To run Python code which uses Julia (those files are named :code:`..._julia.py`),
 the call should be made using :code:`python-jl ...` instead of :code:`python ...`.
 
-The documentation for this project is held in :code:`docs` and can be compiled into an HTML webpage or to a PDF LaTeX file using :code:`make html` or :code:`make latexpdf` respectively inside the :code:`docs` folder with the environment activated. Both commands will generate their output in :code:`docs/_build`.
+Documentation
+*************
+
+The documentation for this project is held in :code:`docs` and can be compiled into an HTML webpage or to a PDF
+LaTeX file using :code:`make html` or :code:`make latexpdf` respectively inside the :code:`docs` folder with the
+environment activated. Both commands will generate their output in :code:`docs/_build`.
 
 Repository structure
 ********************

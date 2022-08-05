@@ -60,7 +60,7 @@ After the creation of the dynamical database you can run the script:
 
 .. code-block:: bash
 
-  python examples/simulator/simulate_population_magrot_det.py --dyn_data database_dyn --output_dir simulated_data
+  python examples/simulator/simulate_population_magrot_det.py --dyn_data dyn_database --output_dir simulated_data
 
 This script performs the following steps in a loop until the specified number of detections for each survey is reached:
 
@@ -84,16 +84,18 @@ In this case the output of the simulation will consist of separated files contai
 Simulation with Julia
 #####################
 
-The :code:`examples/simulator_julia` directory contains a version of the simulator scripts that uses Julia libraries to perform the dynamical evolution of the population.
-The scripts works exactly in the same way described above. However in order to launch them is necessary to run a different commands:
-To run python code that calls Julia is as simple as replacing :code:`python` with :code:`python-jl` in execution:
-For the full simulation:
+The :code:`examples/simulator_julia` directory contains a version of the simulator scripts that uses Julia libraries
+to perform the dynamical evolution of the population. The scripts work exactly in the same way described above.
+However, in order to launch them it is necessary to run a different command:
+To run python code that calls Julia is as simple as replacing :code:`python` with :code:`python-jl` in execution.
+For the full simulation, we run:
 
 .. code-block:: bash
 
-  python-jl examples/simulator/simulate_population_full_julia.py --output_dir output_folder
+  python-jl examples/simulator/simulate_population_full_julia.py --output_dir simulated_data
 
 For the dynamical simulation only:
+
 .. code-block:: bash
 
   python-jl examples/simulator_julia/simulate_population_dyn_julia.py --output_dir dyn_database
