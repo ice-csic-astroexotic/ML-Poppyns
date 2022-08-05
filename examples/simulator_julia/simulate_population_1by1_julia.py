@@ -1,6 +1,8 @@
 """
 Simulating a final population of neutron stars.
 
+This implementation relies on solving ODEs using julia.
+
 An initial neutron star population of uniformly distributed ages is generated
 and the respective objects evolved in time according to their age.
 Neutron stars are created and evolved one by one until a predefined number of
@@ -11,6 +13,8 @@ simulated stars is reached.
         Vanessa Graber (graber @ ice.csic.es)
         Michele Ronchi (ronchi @ ice.csic.es)
         Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
+        Borja Miñano (borja.minano @ uib.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -40,17 +44,17 @@ import time
 
 import numpy as np
 import pandas as pd
+from julia import Main
 
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
-import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
-import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
-import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
+import pypopsyn.simulator_julia.initial_population_julia as ipop
+import pypopsyn.simulator_julia.stellar_dynamics.dynamical_evolution_julia as dyn
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
@@ -86,8 +90,11 @@ def simulate_population(
     with open(override_dump_path, "w") as f:
         json.dump(cfg_override, f, indent=4, sort_keys=True)
 
-    # Initialize components of the simulator that need it.
-    gm.initialize_galactic_model()
+    # Sending Python values to Julia to initialize some of the components needed for the simulator.
+    Main.galactic_model_input = cfg["galactic_model"]
+
+    # Importing the ´galactic_model.jl´ file with Julia code into our Main Julia.
+    Main.include("pypopsyn/simulator_julia/stellar_dynamics/galactic_model.jl")
     sm.initialize_spiral_model()
 
     # Initialize seed randomly if no seed was specified.
@@ -336,16 +343,30 @@ def simulate_population(
         )
 
         # Compute the total initial energy of the system.
-        total_energy_initial = gm.galactic_model.total_energy(
-            v_initial, r_initial, z_initial
+
+        # Setting names in the ´Main´ module to send Python values to Julia.
+        Main.v_initial = v_initial
+        Main.r_initial = r_initial
+        Main.z_initial = z_initial
+
+        # Evaluating the total energy function in Julia.
+        total_energy_initial = Main.eval(
+            "total_energy(v_initial, r_initial, z_initial)"
         )
 
         # Compute the magnitude of the final velocity vector for each star.
         v_final = np.sqrt(v_r_final**2 + v_phi_final**2 + v_z_final**2)
 
         # Compute the total energy of the system after the dynamical evolution.
-        total_energy_final = gm.galactic_model.total_energy(
-            v_final, r_final, z_final
+        # Setting names in the ´Main´ module to send Python values to Julia.
+
+        Main.v_final = v_final
+        Main.r_final = r_final
+        Main.z_final = z_final
+
+        # Evaluating the total energy function in Julia.
+        total_energy_final = Main.eval(
+            "total_energy(v_final, r_final, z_final)"
         )
 
         # Compute the percentage variation in total energy during the simulation

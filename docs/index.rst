@@ -30,6 +30,7 @@ Welcome to pypopsyn's documentation!
    :caption: The Package
 
    _site/simulator/simulator
+   _site/simulator/simulator_julia
    _site/generator/generator
    _site/learning/learning
 

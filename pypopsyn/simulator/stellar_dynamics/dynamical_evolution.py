@@ -88,7 +88,7 @@ def dynamical_eq_system(
     dz_dt = initial_cond[5]
 
     # Second derivatives.
-    d2r_dt2 = r * dphi_dt ** 2 - gradient_mw_pot[0]
+    d2r_dt2 = r * dphi_dt**2 - gradient_mw_pot[0]
     d2phi_dt2 = -2 * dr_dt * dphi_dt / r - gradient_mw_pot[1]
     d2z_dt2 = -gradient_mw_pot[2]
 
@@ -142,7 +142,8 @@ def dynamical_evolution(
         # Linear time grid in years over which the dynamical evolution is performed;
         # each star's position and velocity is evolved for a time equal to its age.
         time_grid = np.append(
-            np.arange(0.0, t_age[i], cfg["dyn_time_step"]), t_age[i],
+            np.arange(0.0, t_age[i], cfg["dyn_time_step"]),
+            t_age[i],
         )
 
         # Save the odeint output which is a two-dimensional array of

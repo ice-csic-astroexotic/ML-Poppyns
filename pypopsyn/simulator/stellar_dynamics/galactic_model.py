@@ -111,7 +111,7 @@ class GalaxyModelBase:
         # Convert speeds into [cm/s].
         v = v * const.KM_TO_CM
 
-        tot_kin_energy = 0.5 * np.sum(v ** 2)
+        tot_kin_energy = 0.5 * np.sum(v**2)
         tot_pot_energy = np.sum(self.MW_potential(r, z))
 
         tot_energy = tot_kin_energy + tot_pot_energy
@@ -119,7 +119,9 @@ class GalaxyModelBase:
         return tot_energy
 
     def total_angular_momentum_z(
-        self, v_phi: np.ndarray, r: np.ndarray,
+        self,
+        v_phi: np.ndarray,
+        r: np.ndarray,
     ) -> float:
         """
         Value of the z-component of the total angular momentum of the system, which is a
@@ -203,9 +205,9 @@ class GalaxyModelM19(GalaxyModelBase):
         a_d = self.a_d
         b_d = self.b_d
 
-        K = a_d + np.sqrt(z ** 2 + b_d ** 2)
+        K = a_d + np.sqrt(z**2 + b_d**2)
 
-        dK_dz = z / np.sqrt(z ** 2 + b_d ** 2)
+        dK_dz = z / np.sqrt(z**2 + b_d**2)
 
         return K, dK_dz
 
@@ -226,7 +228,7 @@ class GalaxyModelM19(GalaxyModelBase):
 
         M_d = self.M_d
 
-        pot_d = -const.G * M_d / (np.sqrt(K ** 2 + r ** 2) * const.KPC_TO_CM)
+        pot_d = -const.G * M_d / (np.sqrt(K**2 + r**2) * const.KPC_TO_CM)
 
         return pot_d
 
@@ -324,12 +326,12 @@ class GalaxyModelM19(GalaxyModelBase):
 
         K, dK_dz = self.shape_parameter(z)
         dpot_d_dr = (
-            const.G_KPC_YR * M_d * r * (r ** 2 + K ** 2) ** (-3.0 / 2.0)
+            const.G_KPC_YR * M_d * r * (r**2 + K**2) ** (-3.0 / 2.0)
         )
         dpot_d_dz = (
             const.G_KPC_YR
             * M_d
-            * (r ** 2 + K ** 2) ** (-3.0 / 2.0)
+            * (r**2 + K**2) ** (-3.0 / 2.0)
             * K
             * dK_dz
         )
@@ -495,15 +497,15 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         K = (
             a_d
-            + beta[0] * np.sqrt(z ** 2 + h[0] ** 2)
-            + beta[1] * np.sqrt(z ** 2 + h[1] ** 2)
-            + beta[2] * np.sqrt(z ** 2 + h[2] ** 2)
+            + beta[0] * np.sqrt(z**2 + h[0] ** 2)
+            + beta[1] * np.sqrt(z**2 + h[1] ** 2)
+            + beta[2] * np.sqrt(z**2 + h[2] ** 2)
         )
 
         dK_dz = (
-            beta[0] * z / np.sqrt(z ** 2 + h[0] ** 2)
-            + beta[1] * z / np.sqrt(z ** 2 + h[1] ** 2)
-            + beta[2] * z / np.sqrt(z ** 2 + h[2] ** 2)
+            beta[0] * z / np.sqrt(z**2 + h[0] ** 2)
+            + beta[1] * z / np.sqrt(z**2 + h[1] ** 2)
+            + beta[2] * z / np.sqrt(z**2 + h[2] ** 2)
         )
 
         return K, dK_dz
@@ -529,7 +531,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         pot_dh = (
             -const.G
             * M_dh
-            / (np.sqrt(K ** 2 + b_dh ** 2 + r ** 2) * const.KPC_TO_CM)
+            / (np.sqrt(K**2 + b_dh**2 + r**2) * const.KPC_TO_CM)
         )
 
         return pot_dh
@@ -548,7 +550,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         M_b = self.M_b
         b_b = self.b_b
 
-        pot_b = -const.G * M_b / (np.sqrt(b_b ** 2 + r ** 2) * const.KPC_TO_CM)
+        pot_b = -const.G * M_b / (np.sqrt(b_b**2 + r**2) * const.KPC_TO_CM)
 
         return pot_b
 
@@ -566,7 +568,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         M_n = self.M_n
         b_n = self.b_n
 
-        pot_n = -const.G * M_n / (np.sqrt(b_n ** 2 + r ** 2) * const.KPC_TO_CM)
+        pot_n = -const.G * M_n / (np.sqrt(b_n**2 + r**2) * const.KPC_TO_CM)
 
         return pot_n
 
@@ -613,12 +615,12 @@ class GalaxyModelFK06(GalaxyModelBase):
             const.G_KPC_YR
             * M_dh
             * r
-            * (K ** 2 + b_dh ** 2 + r ** 2) ** (-3.0 / 2.0)
+            * (K**2 + b_dh**2 + r**2) ** (-3.0 / 2.0)
         )
         dpot_dh_dz = (
             const.G_KPC_YR
             * M_dh
-            * (K ** 2 + b_dh ** 2 + r ** 2) ** (-3.0 / 2.0)
+            * (K**2 + b_dh**2 + r**2) ** (-3.0 / 2.0)
             * K
             * dK_dz
         )
@@ -641,7 +643,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         b_b = self.b_b
 
         dpot_b_dr = (
-            const.G_KPC_YR * M_b * r * (b_b ** 2 + r ** 2) ** (-3.0 / 2.0)
+            const.G_KPC_YR * M_b * r * (b_b**2 + r**2) ** (-3.0 / 2.0)
         )
 
         return dpot_b_dr
@@ -662,7 +664,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         b_n = self.b_n
 
         dpot_n_dr = (
-            const.G_KPC_YR * M_n * r * (b_n ** 2 + r ** 2) ** (-3.0 / 2.0)
+            const.G_KPC_YR * M_n * r * (b_n**2 + r**2) ** (-3.0 / 2.0)
         )
 
         return dpot_n_dr

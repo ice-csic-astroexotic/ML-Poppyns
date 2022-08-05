@@ -60,7 +60,7 @@ After the creation of the dynamical database you can run the script:
 
 .. code-block:: bash
 
-  python examples/simulator/simulate_population_magrot_det.py --dyn_data database_dyn --output_dir simulated_data
+  python examples/simulator/simulate_population_magrot_det.py --dyn_data dyn_database --output_dir simulated_data
 
 This script performs the following steps in a loop until the specified number of detections for each survey is reached:
 
@@ -80,6 +80,26 @@ This script performs the following steps in a loop until the specified number of
 You can specify the number of pulsars you want to detect for each survey in the configuration file.
 The simulation keeps track of the total number of created pulsars so that an estimate of the birth rate can be made a posteriori by knowing the maximum neutron star age that has been used for the simulation.
 In this case the output of the simulation will consist of separated files containing the parameters of the detected pulsars for each survey, a `profile.json` file and a `configuration.json` file containing the entire set of parameters used to simulate both the dynamical evolution, the magneto-rotational evolution and the detection models.
+
+Simulation with Julia
+#####################
+
+The :code:`examples/simulator_julia` directory contains a version of the simulator scripts that uses Julia libraries
+to perform the dynamical evolution of the population. The scripts work exactly in the same way described above.
+However, in order to launch them it is necessary to run a different command:
+To run python code that calls Julia is as simple as replacing :code:`python` with :code:`python-jl` in execution.
+For the full simulation, we run:
+
+.. code-block:: bash
+
+  python-jl examples/simulator/simulate_population_full_julia.py --output_dir simulated_data
+
+For the dynamical simulation only:
+
+.. code-block:: bash
+
+  python-jl examples/simulator_julia/simulate_population_dyn_julia.py --output_dir dyn_database
+
 
 Simulations with parameter sweep
 ################################

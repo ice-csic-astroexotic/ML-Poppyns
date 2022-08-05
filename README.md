@@ -13,11 +13,13 @@ This environment can be activated using
 ```
 $ conda activate pop_syn
 ```
-We recommend working within this environment when using the code. To install the 
-`pypopsyn` package and work with the code run
+We recommend working within this environment when using the code.
+
+Finally, to install the `pypopsyn` package and work with the code run
 ```
 $ python setup.py develop
 ```
+
 To automate the workflow and improve as well as maintain code quality standards, we 
 have set up pre-commit hooks. To set the hooks run
 ```
@@ -28,6 +30,30 @@ The steps with pre-commit are as follows: (i) modify code, (ii) stage changes wi
 framework. If the pre-commit checks are passed, the changes are commit. If not files
 are modified and the steps (i) - (iii) have to be repeated. For more info see 
 [here](https://pre-commit.com/#intro) or [here](https://medium.com/staqu-dev-logs/keeping-python-code-clean-with-pre-commit-hooks-black-flake8-and-isort-cac8b01e0ea1).
+
+## Julia 
+
+To optimise run times, several of our simulation scripts are available in Julia 
+(in addition to their native Python versions). The environment created above automatically 
+installs Julia. Julia relevant files are located in the folder `julia`. However, after activating the environment a few Julia packages need to be 
+installed manually by running the following command in a terminal
+```
+julia -e 'using Pkg; Pkg.add.(["PyCall", "OrdinaryDiffEq", "LSODA"])'
+```
+Note that you might have to rebuild the `PyCall` package to link it to the correct Python distribution.
+To do so, enter a Julia console by typing `julia` into a terminal. Then type
+```
+ENV["PYTHON"]=".../anaconda3/envs/pop_syn/bin/python"
+```
+adjusting the path to the location of your conda environment as needed.
+Then, in the Julia console type a `]`, which enters the package manager. Then execute
+```
+build PyCall
+```
+which will rebuild the PyCall package with the correct Python distribution.
+
+To run Python code which uses Julia (those files are named `..._julia.py`.), 
+the call should be made using `python-jl ...` instead of `python ...`.
 
 ## Documentation
 

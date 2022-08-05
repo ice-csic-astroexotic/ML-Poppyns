@@ -1,6 +1,8 @@
 """
 Initial velocity distribution for the stellar population.
 
+This implementation relies on solving the ODEs using julia.
+
 The velocity is composed of two contributions, the neutron stars' proper motion
 caused by kicks during the supernova as well as the motion of the galaxy itself.
 For the former, we follow Gullon et al. (2014).
@@ -9,6 +11,9 @@ Authors:
 
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
+        Borja Miñano (borja.minano @ uib.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
+
 
 MIT License
 
@@ -31,8 +36,8 @@ SOFTWARE.
 """
 
 import numpy as np
+from julia import Main
 
-import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 from pypopsyn.simulator.configuration import cfg
 
 
@@ -128,8 +133,17 @@ def circular_velocity(r: float, z: float) -> float:
         (float): value of the circular velocity in [kpc/yr].
     """
 
-    pot_mw_gradient = gm.galactic_model.cylind_coord_gradient_mw_potential(
-        r, z
+    # Setting names in the ´Main´ module to send Python values to Julia.
+    Main.r = r
+    Main.z = z
+    Main.galactic_model_input = cfg["galactic_model"]
+
+    # Importing the ´galactic_model.jl´ file with Julia code into our Main Julia.
+    Main.include("pypopsyn/simulator_julia/stellar_dynamics/galactic_model.jl")
+
+    # Evaluating cylind_coord_gradient_mw_potential function in Julia.
+    pot_mw_gradient = Main.eval(
+        "cylind_coord_gradient_mw_potential(galactic_model, r, z)"
     )
     v_circular = np.sqrt(r * pot_mw_gradient[0])
 
