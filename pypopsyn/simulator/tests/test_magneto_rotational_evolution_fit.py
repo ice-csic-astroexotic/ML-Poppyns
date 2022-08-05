@@ -50,7 +50,7 @@ def test_case_1():
         "B_initial": 1e12,
         "t": 1.0e4,
         "B_asymptotic": 1e8,
-        "B_expected": 982355579256.808,
+        "B_expected": 948482242235.077,
     }
 
     return data
@@ -62,7 +62,7 @@ def test_case_2():
         "B_initial": 1e12,
         "t": np.array([1.0e4, 1.0e7]),
         "B_asymptotic": 1e8,
-        "B_expected": np.array([982355579256.808, 3.31116452e10]),
+        "B_expected": np.array([948482242235.077, 1.60959095e10]),
     }
 
     return data
@@ -90,7 +90,7 @@ def test_case_4():
         "P_initial": np.array([1e-2, 1.0]),
         "t_age": np.array([10.0, 10.0]),
         "log_B_asymptotic": np.array([8.0, 8.5]),
-        "B_final_expected": np.array([9.99999361e09, 9.99981392e11]),
+        "B_final_expected": np.array([9.99989350e9, 9.99938908e11]),
         "chi_final_expected": np.array([0.0, 1.0471974923]),
         "P_final_expected": np.array([0.01000000136, 1.00000023784]),
         "magrot_evol_dict_expected": {
