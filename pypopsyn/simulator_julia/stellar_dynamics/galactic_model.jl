@@ -50,14 +50,12 @@ abstract type GalacticModel end
 define the field of each "class", similarly to the __init__ in Python. Here we define all the
 variables needed for each galactic model. =#
 
-#=
-Galaxy model from Marchetti et al. (2019). This is a four-component galactic
+#= Galaxy model from Marchetti et al. (2019). This is a four-component galactic
 potential model consisting of a Hernquist bulge and nucleus (Hernquist 1990),
 a Miyamoto-Nagai disk (Miyamoto & Nagai 1975) and a Navarro-Frenk-White halo
 (Navarro et al. 1996). The parameters of the model are taken from Table 1 in
 Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of
-the Milky Way (Bovy 2015).
-=#
+the Milky Way (Bovy 2015). =#
 struct GalaxyModelM19 <:GalacticModel
     a_d::Float64
     b_d::Float64
@@ -70,14 +68,11 @@ struct GalaxyModelM19 <:GalacticModel
     r_h::Float64
 end
 
-#=
-Galaxy model from Faucher-Giguère & Kaspi (2006). This model consists of a
+#= Galaxy model from Faucher-Giguère & Kaspi (2006). This model consists of a
 disk-halo component, a bulge component, and a nucleus component. The
 parameters of the model are taken from Table 1 in Kuijken & Gilmore (1989)
 (in Faucher-Giguère & Kaspi (2006) the nucleus and bulge are erroneously
-inverted).
-=#
-
+inverted). =#
 struct GalaxyModelFK06 <:GalacticModel
     a_d::Float64
     h::Vector{Float64}
