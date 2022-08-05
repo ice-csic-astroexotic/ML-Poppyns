@@ -166,7 +166,8 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 # The envelope model is taken from Potekhin et al. (2015).
 # Superfluid and superconducting gap parametrisations are taken from Ho et al. (2015):
 # SFB for crustal neutrons, TToa for core neutrons and CCDKp for core protons.
-# We fit a functional equation of the form: B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**(a2-a1)
+# We fit a functional equation of the form:
+# B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**(a2-a1) * (1 + t/tau_late)**(a_late-a2)
 # with tau1 = A1 * B_initial**b1 and tau2 = A2 * B_initial**b2.
 
 # Power-law indices.
@@ -179,7 +180,7 @@ cfg["b1"]: float = -0.8
 cfg["A2"]: float = 6.0e8
 cfg["b2"]: float = -0.2
 
-# Timescale in [yr] when transitioning from the simulated curves to the late time simple power-law evolution.
+# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
 cfg["tau_late"]: float = 2.0e6
 
 # Late time power-law index.

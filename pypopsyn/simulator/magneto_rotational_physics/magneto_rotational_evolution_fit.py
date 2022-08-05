@@ -65,15 +65,16 @@ def magnetic_field_evolution_fit_numpy(
     Returns:
         (np.ndarray): magnetic field evolution in [G] as a function of time t.
     """
+    # We consider an evolution determined by three main timescales tau1, tau2 and tau_late.
+    # At early times the curves are fixed to reproduce the simulated magnetic field evolution from the magneto-thermal
+    # code. At late times after a timescale tau_late we assume that the evolution is determined by a simple power-law.
+
     B = np.zeros(len(t))
 
     # Define the two timescales as a function of the initial B field.
     tau1 = A1_cfg * B_initial**b1_cfg
     tau2 = A2_cfg * B_initial**b2_cfg
 
-    # We consider an evolution determined by three main timescales tau1, tau2 and tau_late.
-    # At early times the curves are fixed to reproduce the simulated magnetic field evolution from the magneto-thermal
-    # code. At late times after a timescale tau_late we assume that the evolution is determined by a simple power-law.
     if tau2 < tau_late_cfg:
         B = (
             B_initial
@@ -108,6 +109,8 @@ def magnetic_field_evolution_fit(
 ) -> float:
     """
     An analytical fit for the magnetic field evolution curves from the magneto-thermal evolution simulations.
+    This method is used when solving the differential equations if one wants to save only the final state in the
+    magneto_rotational_evolution method.
 
     Args:
         B_initial(float): initial magnetic field strength in [G].
@@ -117,15 +120,16 @@ def magnetic_field_evolution_fit(
     Returns:
         (float): magnetic field value in [G] at time t.
     """
+    # We consider an evolution determined by three main timescales tau1, tau2 and tau_late.
+    # At early times the curves are fixed to reproduce the simulated magnetic field evolution from the magneto-thermal
+    # code. At late times after a timescale tau_late we assume that the evolution is determined by a simple power-law.
+
     B: float = B_initial
 
     # Define the two timescales as a function of the initial B field.
     tau1 = A1_cfg * B_initial**b1_cfg
     tau2 = A2_cfg * B_initial**b2_cfg
 
-    # We consider an evolution determined by three main timescales tau1, tau2 and tau_late.
-    # At early times the curves are fixed to reproduce the simulated magnetic field evolution from the magneto-thermal
-    # code. At late times after a timescale tau_late we assume that the evolution is determined by a simple power-law.
     if tau2 < tau_late_cfg:
         B = (
             B_initial
