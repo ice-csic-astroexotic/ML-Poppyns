@@ -28,8 +28,6 @@ SOFTWARE.
 
 from typing import List
 
-import numpy as np
-
 import pypopsyn.simulator.basics.constants as const
 
 cfg = {}

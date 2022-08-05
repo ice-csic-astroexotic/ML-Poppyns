@@ -193,7 +193,7 @@ function solver_calls()
         timerange = (0.0, t_age[i])
 
         # The variables t_age, time_step, initial_cond and tolerance are defined via Main
-        # in the python script that uses the solver.
+        # in the python script `dynamical_evolution_julia.py` that uses the solver.
         if save_dyn_evolution
             time_grid = append!(collect(0.0:time_step:t_age[i]), t_age[i])
             evol_output = odeint_full_output(time_grid, initial_cond[i, :], timerange, tolerance)
