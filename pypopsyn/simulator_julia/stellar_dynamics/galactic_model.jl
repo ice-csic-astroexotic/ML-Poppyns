@@ -14,10 +14,10 @@ et al. 1996). The parameters of the model are taken from Table 1 in Marchetti et
 (2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy 2015).
 
 Authors:
-
         Borja Miñano (borja.minano@uib.es)
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 
@@ -50,14 +50,14 @@ abstract type GalacticModel end
 define the field of each "class", similarly to the __init__ in Python. Here we define all the
 variables needed for each galactic model. =#
 
-"""
+#=
 Galaxy model from Marchetti et al. (2019). This is a four-component galactic
 potential model consisting of a Hernquist bulge and nucleus (Hernquist 1990),
 a Miyamoto-Nagai disk (Miyamoto & Nagai 1975) and a Navarro-Frenk-White halo
 (Navarro et al. 1996). The parameters of the model are taken from Table 1 in
 Marchetti et al. (2019) and are chosen to fit the enclosed mass profile of
 the Milky Way (Bovy 2015).
-"""
+=#
 struct GalaxyModelM19 <:GalacticModel
     a_d::Float64
     b_d::Float64
@@ -70,13 +70,14 @@ struct GalaxyModelM19 <:GalacticModel
     r_h::Float64
 end
 
-"""
+#=
 Galaxy model from Faucher-Giguère & Kaspi (2006). This model consists of a
 disk-halo component, a bulge component, and a nucleus component. The
 parameters of the model are taken from Table 1 in Kuijken & Gilmore (1989)
 (in Faucher-Giguère & Kaspi (2006) the nucleus and bulge are erroneously
 inverted).
-"""
+=#
+
 struct GalaxyModelFK06 <:GalacticModel
     a_d::Float64
     h::Vector{Float64}
@@ -137,7 +138,7 @@ end
 
 #= Galactic model initialization.=#
 
-#= Constant variables in Julia are global variables which means their type can not change.
+#= Constant variables in Julia are variables that their type can not change.
 The variable galactic_model_input is saved in the Main of Julia. To do so, in the main script
 (e.g. simulate_populate_dyn_julia.py ) we add this line of code:
 `Main.galactic_model_input = cfg["galactic_model"]` =#
@@ -273,6 +274,38 @@ function MW_potential(galactic_model::GalaxyModelM19, r, z)
     return MW_pot
 end
 
+function r_z_derivatives_d_potential(galactic_model::GalaxyModelM19, r, z)
+    """
+    Derivative with respect to r and z of the disk component gravitational
+    potential defined in eq. (8) in Marchetti et al. (2019).
+
+    Args:
+        galactic_model (abstract type) : gmM19 model parameters.
+        r (float): distance in the galactic disk from the galactic centre in [kpc].
+        z (float): height from the galactic disk in [kpc].
+
+    Returns:
+        (float, float): derivative with respect to r and z of the disk potential.
+    """
+
+    K, dK_dz = shape_parameter(galactic_model, z)
+
+    _sqrt =  (r .* r .+ K .* K) .^ (-3.0 / 2.0)
+
+    dpot_d_dr = (
+        G_KPC_YR * galactic_model.M_d * r .* _sqrt
+    )
+    dpot_d_dz = (
+        G_KPC_YR
+        * galactic_model.M_d
+        * _sqrt
+        .* K
+        .* dK_dz
+    )
+
+    return dpot_d_dr, dpot_d_dz
+end
+
 function r_derivative_b_potential(galactic_model::GalaxyModelM19, r)
     """
     Derivative with respect to r of the bulge component gravitational potential
@@ -336,37 +369,7 @@ function r_derivative_h_potential(galactic_model::GalaxyModelM19, r)
 end
 
 
-function r_z_derivatives_d_potential(galactic_model::GalaxyModelM19, r, z)
-    """
-    Derivative with respect to r and z of the disk component gravitational
-    potential defined in eq. (8) in Marchetti et al. (2019).
 
-    Args:
-        galactic_model (abstract type) : gmM19 model parameters.
-        r (float): distance in the galactic disk from the galactic centre in [kpc].
-        z (float): height from the galactic disk in [kpc].
-
-    Returns:
-        (float, float): derivative with respect to r and z of the disk potential.
-    """
- 
-    K, dK_dz = shape_parameter(galactic_model, z)
- 
-    _sqrt =  (r .* r .+ K .* K) .^ (-3.0 / 2.0)
- 
-    dpot_d_dr = (
-        G_KPC_YR * galactic_model.M_d * r .* _sqrt
-    )
-    dpot_d_dz = (
-        G_KPC_YR
-        * galactic_model.M_d
-        * _sqrt
-        .* K
-        .* dK_dz
-    )
-
-    return dpot_d_dr, dpot_d_dz
-end 
 
 
 function cylind_coord_gradient_mw_potential(galactic_model::GalaxyModelM19, r, z)
@@ -434,6 +437,90 @@ function shape_parameter(galactic_model::GalaxyModelFK06, z)
     return K, dK_dz
 end
 
+function dh_potential(galactic_model::GalaxyModelFK06, r, z)
+    """
+    The disk-halo component gravitational potential defined in eq. (14) in
+    Faucher-Giguère & Kaspi (2006).
+
+    Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
+        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+        z (np.ndarray): height from the galactic disk in [kpc].
+
+    Returns:
+        (np.ndarray): value of the disk-halo potential in [erg/g].
+    """
+
+    K, _ = shape_parameter(galactic_model, z)
+
+    pot_dh = (
+        -G
+        * galactic_model.M_dh
+        ./ (sqrt.(K.*K .+ galactic_model.b_dh*galactic_model.b_dh .+ r.*r) * KPC_TO_CM)
+    )
+
+    return pot_dh
+end
+
+
+function b_potential(galactic_model::GalaxyModelFK06, r)
+    """
+    The bulge component gravitational potential defined in eq. (15) in
+    Faucher-Giguère & Kaspi (2006).
+
+    Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
+        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+
+    Returns:
+        (np.ndarray): value of the bulge potential in [erg/g].
+    """
+
+    pot_b = -G * galactic_model.M_b ./ (sqrt.(galactic_model.b_b * galactic_model.b_b .+ r .* r) * KPC_TO_CM)
+
+    return pot_b
+end
+
+
+function n_potential(galactic_model::GalaxyModelFK06, r)
+    """
+    The nucleus component gravitational potential defined in eq. (15) in
+    Faucher-Giguère & Kaspi (2006).
+
+    Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
+        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+
+    Returns:
+        (np.ndarray): value of the nucleus potential.
+    """
+
+    pot_n = -G * galactic_model.M_n ./ (sqrt.(galactic_model.b_n * galactic_model.b_n .+ r .* r) * KPC_TO_CM)
+
+    return pot_n
+end
+
+
+function MW_potential(galactic_model::GalaxyModelFK06, r, z)
+    """
+    Total Milky Way gravitational potential defined in eq. (13) in
+    Faucher-Giguère & Kaspi (2006).
+
+    Args:
+        galactic_model (abstract type) : gmFK06 model parameters.
+        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+        z (np.ndarray): height from the galactic disk in [kpc].
+
+    Returns:
+        (np.ndarray): value of the Galactic potential in [erg].
+    """
+
+    MW_pot = (
+        dh_potential(galactic_model, r, z) .+ b_potential(galactic_model, r) .+ n_potential(galactic_model, r)
+    )
+
+    return MW_pot
+end
 
 function r_z_derivatives_dh_potential(galactic_model::GalaxyModelFK06, r, z)
     """
@@ -540,90 +627,8 @@ function cylind_coord_gradient_mw_potential(galactic_model::GalaxyModelFK06, r, 
 end
 
 
-function dh_potential(galactic_model::GalaxyModelFK06, r, z)
-    """
-    The disk-halo component gravitational potential defined in eq. (14) in
-    Faucher-Giguère & Kaspi (2006).
-
-    Args:
-        galactic_model (abstract type) : gmFK06 model parameters.
-        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
-        z (np.ndarray): height from the galactic disk in [kpc].
-
-    Returns:
-        (np.ndarray): value of the disk-halo potential in [erg/g].
-    """
-
-    K, _ = shape_parameter(galactic_model, z)
-
-    pot_dh = (
-        -G
-        * galactic_model.M_dh
-        ./ (sqrt.(K.*K .+ galactic_model.b_dh*galactic_model.b_dh .+ r.*r) * KPC_TO_CM)
-    )
-
-    return pot_dh
-end
 
 
-function b_potential(galactic_model::GalaxyModelFK06, r)
-    """
-    The bulge component gravitational potential defined in eq. (15) in
-    Faucher-Giguère & Kaspi (2006).
-
-    Args:
-        galactic_model (abstract type) : gmFK06 model parameters.
-        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
-
-    Returns:
-        (np.ndarray): value of the bulge potential in [erg/g].
-    """
-
-    pot_b = -G * galactic_model.M_b ./ (sqrt.(galactic_model.b_b * galactic_model.b_b .+ r .* r) * KPC_TO_CM)
-
-    return pot_b
-end
-
-
-function n_potential(galactic_model::GalaxyModelFK06, r)
-    """
-    The nucleus component gravitational potential defined in eq. (15) in
-    Faucher-Giguère & Kaspi (2006).
-
-    Args:
-        galactic_model (abstract type) : gmFK06 model parameters.
-        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
-
-    Returns:
-        (np.ndarray): value of the nucleus potential.
-    """
-
-    pot_n = -G * galactic_model.M_n ./ (sqrt.(galactic_model.b_n * galactic_model.b_n .+ r .* r) * KPC_TO_CM)
-
-    return pot_n
-end
-
-
-function MW_potential(galactic_model::GalaxyModelFK06, r, z)
-    """
-    Total Milky Way gravitational potential defined in eq. (13) in
-    Faucher-Giguère & Kaspi (2006).
-
-    Args:
-        galactic_model (abstract type) : gmFK06 model parameters.
-        r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
-        z (np.ndarray): height from the galactic disk in [kpc].
-
-    Returns:
-        (np.ndarray): value of the Galactic potential in [erg].
-    """
-
-    MW_pot = (
-        dh_potential(galactic_model, r, z) .+ b_potential(galactic_model, r) .+ n_potential(galactic_model, r)
-    )
-
-    return MW_pot
-end
 
 
 function total_energy(v, r, z)
@@ -642,9 +647,9 @@ function total_energy(v, r, z)
     """
     # Convert speeds into [cm/s].
     v = v * KM_TO_CM
-    
+
     tot_kin_energy = 0.5 * sum(v.*v)
-    
+
     tot_pot_energy = sum(MW_potential(galactic_model, r, z))
 
     tot_energy = tot_kin_energy + tot_pot_energy

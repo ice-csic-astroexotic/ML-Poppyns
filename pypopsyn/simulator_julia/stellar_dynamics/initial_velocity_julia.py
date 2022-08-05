@@ -12,6 +12,7 @@ Authors:
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
         Borja Miñano (borja.minano @ uib.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 
 MIT License

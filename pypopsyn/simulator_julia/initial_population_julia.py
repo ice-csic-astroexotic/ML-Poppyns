@@ -11,6 +11,7 @@ This implementation relies on solving the ODEs using julia.
         Borja Miñano (borja.minano @ uib.es)
         Vanessa Graber (graber@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 

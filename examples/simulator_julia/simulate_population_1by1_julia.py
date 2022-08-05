@@ -14,6 +14,7 @@ simulated stars is reached.
         Michele Ronchi (ronchi @ ice.csic.es)
         Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
         Borja Miñano (borja.minano @ uib.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -48,11 +49,11 @@ from julia import Main
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
-import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
+import pypopsyn.simulator_julia.initial_population_julia as ipop
 import pypopsyn.simulator_julia.stellar_dynamics.dynamical_evolution_julia as dyn
 from pypopsyn.simulator.configuration import cfg
 
@@ -93,7 +94,7 @@ def simulate_population(
     Main.galactic_model_input = cfg["galactic_model"]
 
     # Importing the ´galactic_model.jl´ file with Julia code into our Main Julia.
-    Main.include("pypopsyn/simulator_julia/galactic_model.jl")
+    Main.include("pypopsyn/simulator_julia/stellar_dynamics/galactic_model.jl")
     sm.initialize_spiral_model()
 
     # Initialize seed randomly if no seed was specified.
