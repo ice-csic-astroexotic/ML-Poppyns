@@ -45,8 +45,8 @@ A1_cfg: float = cfg["A1"]
 A2_cfg: float = cfg["A2"]
 b1_cfg: float = cfg["b1"]
 b2_cfg: float = cfg["b2"]
-t_trans_cfg: float = cfg["t_trans"]
-a_late_t_cfg: float = cfg["a_late_t"]
+tau_late_cfg: float = cfg["tau_late"]
+a_late_cfg: float = cfg["a_late"]
 
 
 def magnetic_field_evolution_fit_numpy(
@@ -65,32 +65,39 @@ def magnetic_field_evolution_fit_numpy(
     Returns:
         (np.ndarray): magnetic field evolution in [G] as a function of time t.
     """
-    # Define the two timescales as a function of the initial B field.
-    tau1 = A1_cfg * B_initial ** (-b1_cfg)
-    tau2 = A2_cfg * B_initial ** (-b2_cfg)
-
-    # We split our time-domain into two regions using different prescriptions for early and late times.
     B = np.zeros(len(t))
-    early_times = t < t_trans_cfg
-    late_times = t >= t_trans_cfg
 
+    # Define the two timescales as a function of the initial B field.
+    tau1 = A1_cfg * B_initial**b1_cfg
+    tau2 = A2_cfg * B_initial**b2_cfg
+
+    # We consider an evolution determined by three main timescales tau1, tau2 and tau_late.
     # At early times the curves are fixed to reproduce the simulated magnetic field evolution from the magneto-thermal
-    # code.
-    B[early_times] = (
-        B_initial
-        * (1 + t[early_times] / tau1) ** (-a1_cfg)
-        * (1 + t[early_times] / tau2) ** (-a2_cfg)
-    )
-    # At late times we assume a simple power-law evolution.
-    B[late_times] = (
-        B_initial
-        * (1 + t_trans_cfg / tau1) ** (-a1_cfg)
-        * (1 + t_trans_cfg / tau2) ** (-a2_cfg)
-    ) * (t[late_times] / t_trans_cfg) ** (-a_late_t_cfg)
+    # code. At late times after a timescale tau_late we assume that the evolution is determined by a simple power-law.
+    if tau2 < tau_late_cfg:
+        B = (
+            B_initial
+            * (1 + t / tau1) ** a1_cfg
+            * (1 + t / tau2) ** (a2_cfg - a1_cfg)
+            * (1 + t / tau_late_cfg) ** (a_late_cfg - a2_cfg)
+        )
+
+    elif (tau1 < tau_late_cfg) & (tau_late_cfg < tau2):
+        B = (
+            B_initial
+            * (1 + t / tau1) ** a1_cfg
+            * (1 + t / tau_late_cfg) ** (a_late_cfg - a1_cfg)
+        )
+    elif tau_late_cfg < tau1:
+        B = B_initial * (1 + t / tau_late_cfg) ** a_late_cfg
 
     # If the magnetic field becomes lower than an asymptotic value derived from the old millisecond pulsar population,
-    # fix the magnetic field to that constant asymptotic value.
-    B[B < B_asymptotic] = B_asymptotic
+    # fix the magnetic field to that constant asymptotic value unless the initial field is already lower than this
+    # asymptotic value.
+    if B_initial < B_asymptotic:
+        B = np.ones(len(t)) * B_initial
+    elif B_initial > B_asymptotic:
+        B[B < B_asymptotic] = B_asymptotic
 
     return B
 
@@ -110,30 +117,38 @@ def magnetic_field_evolution_fit(
     Returns:
         (float): magnetic field value in [G] at time t.
     """
-    # Define the two timescales as a function of the initial B field.
-    tau1 = A1_cfg * B_initial ** (-b1_cfg)
-    tau2 = A2_cfg * B_initial ** (-b2_cfg)
+    B: float = B_initial
 
-    # We split our time-domain into two regions using different prescriptions for early and late times.
+    # Define the two timescales as a function of the initial B field.
+    tau1 = A1_cfg * B_initial**b1_cfg
+    tau2 = A2_cfg * B_initial**b2_cfg
+
+    # We consider an evolution determined by three main timescales tau1, tau2 and tau_late.
     # At early times the curves are fixed to reproduce the simulated magnetic field evolution from the magneto-thermal
-    # code. At late times we assume a simple power-law evolution.
-    if t < t_trans_cfg:
+    # code. At late times after a timescale tau_late we assume that the evolution is determined by a simple power-law.
+    if tau2 < tau_late_cfg:
         B = (
             B_initial
-            * (1 + t / tau1) ** (-a1_cfg)
-            * (1 + t / tau2) ** (-a2_cfg)
+            * (1 + t / tau1) ** a1_cfg
+            * (1 + t / tau2) ** (a2_cfg - a1_cfg)
+            * (1 + t / tau_late_cfg) ** (a_late_cfg - a2_cfg)
         )
-    else:
+
+    elif (tau1 < tau_late_cfg) & (tau_late_cfg < tau2):
         B = (
             B_initial
-            * (1 + t_trans_cfg / tau1) ** (-a1_cfg)
-            * (1 + t_trans_cfg / tau2) ** (-a2_cfg)
-            * (t / t_trans_cfg) ** (-a_late_t_cfg)
+            * (1 + t / tau1) ** a1_cfg
+            * (1 + t / tau_late_cfg) ** (a_late_cfg - a1_cfg)
         )
+    elif tau_late_cfg < tau1:
+        B = B_initial * (1 + t / tau_late_cfg) ** a_late_cfg
 
     # If the magnetic field becomes lower than an asymptotic value derived from the old millisecond pulsar population,
-    # fix the magnetic field to that constant asymptotic value.
-    if B < B_asymptotic:
+    # fix the magnetic field to that constant asymptotic value unless the initial field is already lower than this
+    # asymptotic value.
+    if B_initial < B_asymptotic:
+        B = B_initial
+    elif B < B_asymptotic:
         B = B_asymptotic
 
     return B
