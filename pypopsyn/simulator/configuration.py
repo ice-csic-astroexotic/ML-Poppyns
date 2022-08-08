@@ -166,24 +166,25 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 # The envelope model is taken from Potekhin et al. (2015).
 # Superfluid and superconducting gap parametrisations are taken from Ho et al. (2015):
 # SFB for crustal neutrons, TToa for core neutrons and CCDKp for core protons.
-# We fit a functional equation of the form: B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**a2
+# We fit a functional equation of the form:
+# B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**(a2-a1) * (1 + t/tau_late)**(a_late-a2)
 # with tau1 = A1 * B_initial**b1 and tau2 = A2 * B_initial**b2.
 
 # Power-law indices.
-cfg["a1"]: float = 0.14
-cfg["a2"]: float = 3.0
+cfg["a1"]: float = -0.13
+cfg["a2"]: float = -3.0
 
 # Timescale parameters, normalizations and power-law indices.
-cfg["A1"]: float = 9.0e16
-cfg["b1"]: float = 1.0
-cfg["A2"]: float = 6.2e11
-cfg["b2"]: float = 0.4
+cfg["A1"]: float = 1.0e14
+cfg["b1"]: float = -0.8
+cfg["A2"]: float = 6.0e8
+cfg["b2"]: float = -0.2
 
-# Time in [yr] when transitioning from the simulated curves to the simple power-law evolution.
-cfg["t_trans"]: float = 5.0e5
+# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
+cfg["tau_late"]: float = 2.0e6
 
 # Late time power-law index.
-cfg["a_late_t"]: float = 1.0
+cfg["a_late"]: float = -2.0
 
 # Parameters for a log-normal distribution of the magnetic fields of the old millisecond pulsars.
 cfg["B_millisec_mean"] = 8.5

@@ -178,6 +178,12 @@ Magneto-rotational Evolution
 .. automodule:: simulator.magneto_rotational_physics.magneto_rotational_evolution
   :members: magneto_rotational_evolution
 
+Magneto-rotational Evolution with B-field Evolution from Magneto-thermal Simulations
+************************************************************************************
+
+.. automodule:: simulator.magneto_rotational_physics.magneto_rotational_evolution_fit
+  :members: magneto_rotational_evolution_fit
+
 Misalignment Angle Derivative
 *****************************
 
