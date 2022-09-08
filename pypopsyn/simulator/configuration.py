@@ -199,7 +199,7 @@ cfg["r_em"]: float = 3.0e7
 
 # Mean and standard deviation for the log-normally distributed radio luminosity in [erg s^(-1) Hz^(-1)].
 # Parameters were adjusted to match observed data.
-cfg["L_radio_log10_mean"]: float = 35.0
+cfg["L_radio_log10_mean"]: float = 35.5
 cfg["L_radio_log10_sigma"]: float = 0.8
 cfg["epsilon_L"]: float = 0.5
 
@@ -207,8 +207,8 @@ cfg["epsilon_L"]: float = 0.5
 cfg["ed_model"]: str = "ymw16"
 
 # Number of Galactic isolated neutron stars detected by the considered surveys.
-cfg["detected_real_PMPS"]: int = 961
-cfg["detected_real_SMPS"]: int = 172
+cfg["detected_real_PMPS"]: int = 985
+cfg["detected_real_SMPS"]: int = 202
 
 
 def update_configuration(new_configuration) -> None:
