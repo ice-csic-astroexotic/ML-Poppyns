@@ -266,8 +266,10 @@ class InitialNeutronStarPopulation:
 
         """
 
-        P_rand = ipd.pdf_period(
-            cfg["P_initial_mean"], self.NS_number, cfg["P_initial_sigma"]
+        P_rand = ipd.pdf_period_lognormal(
+            cfg["P_initial_log10_mean"],
+            self.NS_number,
+            cfg["P_initial_log10_sigma"],
         )
 
         return P_rand
