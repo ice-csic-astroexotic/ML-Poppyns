@@ -1,4 +1,4 @@
-{
+{ "name" : "Swinburne multibeam",
   "ref": "Edwards+2001, Jacoby+2009",
   "deg_factor": 1.5,
   "G0": 0.64,

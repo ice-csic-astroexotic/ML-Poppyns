@@ -324,6 +324,7 @@ class SurveyRadio:
         self.DEC_range = self.parameters["DEC_range"]
         self.l_range = self.parameters["l_range"]
         self.b_range_abs = self.parameters["b_range_abs"]
+        self.name = self.parameters["name"]
 
     def __init__(
         self,
@@ -362,16 +363,34 @@ class SurveyRadio:
         Returns:
             (np.ndarray): array of boolean variables: true if the pulsar is in the covered sky region, false if not.
         """
-        coverage = (
-            (RA > self.RA_range[0])
-            & (RA < self.RA_range[1])
-            & (DEC > self.DEC_range[0])
-            & (DEC < self.DEC_range[1])
-            & (l_gal > self.l_range[0])
-            & (l_gal < self.l_range[1])
-            & (np.abs(b_gal) > self.b_range_abs[0])
-            & (np.abs(b_gal) < self.b_range_abs[1])
-        )
+        if self.name == "HTRU high":
+
+            coverage = (RA > self.RA_range[0]) & (RA < self.RA_range[1]) & (
+                DEC > self.DEC_range[0]
+            ) & (DEC < self.DEC_range[1]) & (
+                (l_gal > self.l_range[0][0]) | (l_gal > self.l_range[1][0])
+            ) & (
+                l_gal < self.l_range[0][1]
+            ) | (
+                l_gal < self.l_range[1][1]
+            ) & (
+                np.abs(b_gal) > self.b_range_abs[0]
+            ) & (
+                np.abs(b_gal) < self.b_range_abs[1]
+            )
+
+        else:
+
+            coverage = (
+                (RA > self.RA_range[0])
+                & (RA < self.RA_range[1])
+                & (DEC > self.DEC_range[0])
+                & (DEC < self.DEC_range[1])
+                & (l_gal > self.l_range[0])
+                & (l_gal < self.l_range[1])
+                & (np.abs(b_gal) > self.b_range_abs[0])
+                & (np.abs(b_gal) < self.b_range_abs[1])
+            )
 
         return coverage
 

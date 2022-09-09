@@ -1,4 +1,4 @@
-{
+{ "name" : "HTRU low",
   "ref": "M. J. Keith+2010",
   "deg_factor": 1.5,
   "G0": 0.73,
@@ -10,9 +10,9 @@
   "channel_width": 3.90625e5,
   "n_pol": 2,
   "FWHM": 14.0,
-  "SNR_th": 8.0,
+  "SNR_th": 9.0,
   "RA_range": [0.0, 360.0],
   "DEC_range": [-90.0, 90.0],
   "l_range": [-80.0, 30.0],
-  "b_range_abs": [-3.5, 3.5]
+  "b_range_abs": [0, 3.5]
 }
