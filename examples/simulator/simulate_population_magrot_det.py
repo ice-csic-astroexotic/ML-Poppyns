@@ -133,6 +133,10 @@ def simulate_population(args) -> None:
 
     t_max = conf_json["t_age_max"] / 100  # Maximum time in centuries.
 
+    # Initialize the simulation status to True. This variable will be changed to False if the birth rate exceeds a
+    # value of 5 NS / century
+    cfg["simulation_status"] = True
+
     with timewith.TimeWith(
         "[TotalSimulation]",
         cfg["profile_log"],
@@ -621,14 +625,19 @@ def simulate_population(args) -> None:
                 log.info(
                     f"Galactic neutron star birth rate per century: {birth_rate} neutron stars per century."
                 )
-                if birth_rate > 5.0:
+                if birth_rate > 5:
                     log.info(
                         "Simulation stopped! Galactic neutron star birth rate per century exceeds 5 neutron stars per century."
                     )
+                    n_created_PMPS = n_created
+                    n_created_SMPS = n_created
+
+                    # Set the simulation status to False.
+                    cfg["simulation_status"] = False
+
                     break
 
-        # Determine the Galactic neutron star birth rate per century for the different surveys in the
-        # current iteration.
+        # Determine the Galactic neutron star birth rate per century for the different surveys.
         birth_rate_PMPS = n_created_PMPS / t_max
         birth_rate_SMPS = n_created_SMPS / t_max
 
