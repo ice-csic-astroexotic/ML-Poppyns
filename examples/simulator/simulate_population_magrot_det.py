@@ -6,7 +6,7 @@ Simulating a detected population of neutron stars from a dynamically evolved pop
         Vanessa Graber (graber @ ice.csic.es)
         Michele Ronchi (ronchi @ ice.csic.es)
         Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
-        Celsa Pardo Araujo ()
+        Celsa Pardo Araujo (pardo @ ice.csic.es)
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -249,6 +249,9 @@ def simulate_population(args) -> None:
             "S_radio_obs_mean": [],
             "w_int": [],
             "w_eff": [],
+            "HTRU_low": [],
+            "HTRU_mid": [],
+            "HTRU_high": [],
         }
 
         dictionary_detected_HTRU_mid = {
@@ -270,6 +273,9 @@ def simulate_population(args) -> None:
             "S_radio_obs_mean": [],
             "w_int": [],
             "w_eff": [],
+            "HTRU_low": [],
+            "HTRU_mid": [],
+            "HTRU_high": [],
         }
 
         dictionary_detected_HTRU_high = {
@@ -291,13 +297,12 @@ def simulate_population(args) -> None:
             "S_radio_obs_mean": [],
             "w_int": [],
             "w_eff": [],
+            "HTRU_low": [],
+            "HTRU_mid": [],
+            "HTRU_high": [],
         }
 
-        n_detected_sim_HTRU = (
-            n_detected_sim_HTRU_low
-            + n_detected_sim_HTRU_mid
-            + n_detected_sim_HTRU_high
-        )
+        n_detected_sim_HTRU = 0
         # Continue to simulate stars until the detected number of pulsars for all the surveys is reached.
         while (
             (n_detected_sim_PMPS < n_detected_real_PMPS)
@@ -547,12 +552,10 @@ def simulate_population(args) -> None:
                     / const.YR_TO_S
                 )
 
-                # Determining the luminosity in different electromagnetic bands. Rotational energy, this could be apply to any source emiting in radio..
+                # Determining the luminosity in different electromagnetic bands.
                 L_radio_bol = er.pdf_luminosity_radio(P_det, P_dot_det)
 
                 # Computing the intrinsic bolometric radio flux.
-                # We pass from the luminosity to the fluxes, then we need to take in to account the geometry of the emission. Flux that you recieve if the beam cross you los at a given distance dist_det. And is bolometric since it
-                # is in all the frequencies. Luminosity is an intrisic property, saying that if we have a bombilla a 6 metros de distancia los fluxes cambian pero la luminosity no.
                 S_radio_bol = er.flux_radio(
                     L_radio_bol,
                     dist_det,
@@ -560,21 +563,23 @@ def simulate_population(args) -> None:
                 )
 
                 # Computing the intrinsic radio flux density in [Jy].
-                # calculate the flux at a particular frequency which is the frequency of the telescope
                 S_radio_f = er.flux_density_radio(
                     S_radio_bol,
                     f=survey_PMPS.f_central,
                 )
+
                 S_radio_f_HTRU = er.flux_density_radio(
                     S_radio_bol,
                     f=survey_HTRU_low.f_central,
                 )
+
                 # Computing the intrinsic pulse width of the radio pulse.
                 w_int = er.pulse_width(
                     chi_det,
                     rho_beam_det,
                     los_rand_det,
                 )
+
                 # Convert pulse width from [rad] to [s].
                 w_int_s = w_int * P_det / (2.0 * np.pi)
 
@@ -687,10 +692,10 @@ def simulate_population(args) -> None:
                 detected_radio_SMPS = np.zeros(len(age_det), dtype=bool)
 
                 detected_radio_SMPS[coverage_SMPS] = survey_SMPS.detect(
-                    S_radio_obs_mean_PMPS[coverage_SMPS],
+                    S_radio_obs_mean_SMPS[coverage_SMPS],
                     l_det[coverage_SMPS],
                     b_det[coverage_SMPS],
-                    w_eff_PMPS[coverage_SMPS],
+                    w_eff_SMPS[coverage_SMPS],
                     P_det[coverage_SMPS],
                 )
 
@@ -722,9 +727,6 @@ def simulate_population(args) -> None:
                 n_detected_sim_HTRU_low += np.count_nonzero(
                     detected_radio_HTRU_low
                 )
-                log.info(
-                    f"Total number of neutron stars detected by the HTRU low latitude survey: {n_detected_sim_HTRU_low}"
-                )
 
                 # Simulating the HTRU mid survey.
                 detected_radio_HTRU_mid = np.zeros(len(age_det), dtype=bool)
@@ -739,11 +741,17 @@ def simulate_population(args) -> None:
                     P_det[coverage_HTRU_mid],
                 )
 
+                # Since the sky coverage of both HTRU mid and low surveys overlap, we remove those stars from the mid survey
+                # that are already in the low survey.
+                overlap_mid_low = (
+                    detected_radio_HTRU_low & detected_radio_HTRU_mid
+                )
+                detected_radio_HTRU_mid = (
+                    ~overlap_mid_low & detected_radio_HTRU_mid
+                )
+
                 n_detected_sim_HTRU_mid += np.count_nonzero(
                     detected_radio_HTRU_mid
-                )
-                log.info(
-                    f"Total number of neutron stars detected by the HTRU mid latitude survey: {n_detected_sim_HTRU_mid}"
                 )
 
                 # Simulating the HTRU high survey.
@@ -762,17 +770,19 @@ def simulate_population(args) -> None:
                 n_detected_sim_HTRU_high += np.count_nonzero(
                     detected_radio_HTRU_high
                 )
-                log.info(
-                    f"Total number of neutron stars detected by the HTRU high latitude survey: {n_detected_sim_HTRU_high}"
-                )
+
                 n_detected_sim_HTRU = (
                     n_detected_sim_HTRU_low
                     + n_detected_sim_HTRU_mid
                     + n_detected_sim_HTRU_high
                 )
 
-                # Store the value of created neutron stars once the number of detected pulsars with HTRU mid is reached.
-                # This is needed to compute the birth rate derived from the HTRU mid detections.
+                log.info(
+                    f"Total number of neutron stars detected by the HTRU survey: {n_detected_sim_HTRU}"
+                )
+
+                # Store the value of created neutron stars once the number of detected pulsars with HTRU is reached.
+                # This is needed to compute the birth rate derived from the HTRU detections.
                 if (n_detected_sim_HTRU >= n_detected_real_HTRU) & (
                     stop_HTRU is False
                 ):
@@ -857,6 +867,9 @@ def simulate_population(args) -> None:
                     for key, value in dictionary_detected_SMPS.items()
                 }
 
+                type_survey_list = np.zeros(len(DM))
+                type_survey_list[overlap_mid_low] = 1
+
                 update_dictionary_detected_HTRU_low = {
                     "age": age[idx_det_HTRU_low].tolist(),
                     "ra": ra_final[idx_det_HTRU_low].tolist(),
@@ -875,11 +888,16 @@ def simulate_population(args) -> None:
                     "L_radio_bol": L_radio_bol[
                         detected_radio_HTRU_low
                     ].tolist(),
-                    "S_radio_obs_mean": S_radio_obs_mean_SMPS[
+                    "S_radio_obs_mean": S_radio_obs_mean_HTRU_low[
                         detected_radio_HTRU_low
                     ].tolist(),
                     "w_int": w_int_s[detected_radio_HTRU_low].tolist(),
-                    "w_eff": w_eff_SMPS[detected_radio_HTRU_low].tolist(),
+                    "w_eff": w_eff_HTRU_low[detected_radio_HTRU_low].tolist(),
+                    "HTRU_low": np.ones(len(idx_det_HTRU_low)).tolist(),
+                    "HTRU_mid": type_survey_list[
+                        detected_radio_HTRU_low
+                    ].tolist(),
+                    "HTRU_high": np.zeros(len(idx_det_HTRU_low)).tolist(),
                 }
 
                 # Update the dictionary containing the detection information.
@@ -906,11 +924,14 @@ def simulate_population(args) -> None:
                     "L_radio_bol": L_radio_bol[
                         detected_radio_HTRU_mid
                     ].tolist(),
-                    "S_radio_obs_mean": S_radio_obs_mean_SMPS[
+                    "S_radio_obs_mean": S_radio_obs_mean_HTRU_mid[
                         detected_radio_HTRU_mid
                     ].tolist(),
                     "w_int": w_int_s[detected_radio_HTRU_mid].tolist(),
-                    "w_eff": w_eff_SMPS[detected_radio_HTRU_mid].tolist(),
+                    "w_eff": w_eff_HTRU_mid[detected_radio_HTRU_mid].tolist(),
+                    "HTRU_low": np.zeros(len(idx_det_HTRU_mid)).tolist(),
+                    "HTRU_mid": np.ones(len(idx_det_HTRU_mid)).tolist(),
+                    "HTRU_high": np.zeros(len(idx_det_HTRU_mid)).tolist(),
                 }
 
                 # Update the dictionary containing the detection information.
@@ -937,11 +958,16 @@ def simulate_population(args) -> None:
                     "L_radio_bol": L_radio_bol[
                         detected_radio_HTRU_high
                     ].tolist(),
-                    "S_radio_obs_mean": S_radio_obs_mean_SMPS[
+                    "S_radio_obs_mean": S_radio_obs_mean_HTRU_high[
                         detected_radio_HTRU_high
                     ].tolist(),
                     "w_int": w_int_s[detected_radio_HTRU_high].tolist(),
-                    "w_eff": w_eff_SMPS[detected_radio_HTRU_high].tolist(),
+                    "w_eff": w_eff_HTRU_high[
+                        detected_radio_HTRU_high
+                    ].tolist(),
+                    "HTRU_low": np.zeros(len(idx_det_HTRU_high)).tolist(),
+                    "HTRU_mid": np.zeros(len(idx_det_HTRU_high)).tolist(),
+                    "HTRU_high": np.ones(len(idx_det_HTRU_high)).tolist(),
                 }
 
                 # Update the dictionary containing the detection information.
@@ -1043,30 +1069,84 @@ def simulate_population(args) -> None:
                 "[s]",
                 "[s]",
             ]
+
+            parameters_final_HTRU = [
+                "age",
+                "RA",
+                "DEC",
+                "l",
+                "b",
+                "DM",
+                "d",
+                "pm_RA",
+                "pm_DEC",
+                "v_ls",
+                "B",
+                "chi",
+                "P",
+                "P_dot",
+                "L_radio_bol",
+                "S_radio_obs_mean",
+                "w_int",
+                "w_eff",
+                "HTRU_low",
+                "HTRU_mid",
+                "HTRU_high",
+            ]
+            units_final_HTRU = [
+                "[yr]",
+                "[deg]",
+                "[deg]",
+                "[deg]",
+                "[deg]",
+                "[pc cm^-3]",
+                "[kpc]",
+                "[mas yr^-1]",
+                "[mas yr^-1]",
+                "[km s^-1]",
+                "[G]",
+                "[rad]",
+                "[s]",
+                "[s s^-1]",
+                "[erg s^-1]",
+                "[Jy]",
+                "[s]",
+                "[s]",
+                "",
+                "",
+                "",
+            ]
             header_final = pd.MultiIndex.from_arrays(
                 [parameters_final, units_final]
             )
-
+            header_final_HTRU = pd.MultiIndex.from_arrays(
+                [parameters_final_HTRU, units_final_HTRU]
+            )
             df_PMPS = pd.DataFrame.from_dict(data=dictionary_detected_PMPS)
+
             df_PMPS.columns = header_final
 
             df_SMPS = pd.DataFrame.from_dict(data=dictionary_detected_SMPS)
+
             df_SMPS.columns = header_final
 
             df_HTRU_low = pd.DataFrame.from_dict(
                 data=dictionary_detected_HTRU_low
             )
-            df_HTRU_low.columns = header_final
 
             df_HTRU_mid = pd.DataFrame.from_dict(
                 data=dictionary_detected_HTRU_mid
             )
-            df_HTRU_mid.columns = header_final
 
             df_HTRU_high = pd.DataFrame.from_dict(
                 data=dictionary_detected_HTRU_high
             )
-            df_HTRU_high.columns = header_final
+
+            df_HTRU = pd.concat(
+                [df_HTRU_low, df_HTRU_mid, df_HTRU_high], axis=0
+            )
+
+            df_HTRU.columns = header_final_HTRU
 
             # Save the data frame as a compressed binary file.
             PMPS_output_path = pathlib.Path().joinpath(
@@ -1079,20 +1159,10 @@ def simulate_population(args) -> None:
             )
             df_SMPS.to_pickle(SMPS_output_path, compression="gzip")
 
-            HTRU_low_output_path = pathlib.Path().joinpath(
-                output_path, "survey_HTRU_low_results.pkl.gz"
+            HTRU_output_path = pathlib.Path().joinpath(
+                output_path, "survey_HTRU_results.pkl.gz"
             )
-            df_HTRU_low.to_pickle(HTRU_low_output_path, compression="gzip")
-
-            HTRU_mid_output_path = pathlib.Path().joinpath(
-                output_path, "survey_HTRU_mid_results.pkl.gz"
-            )
-            df_HTRU_mid.to_pickle(HTRU_mid_output_path, compression="gzip")
-
-            HTRU_high_output_path = pathlib.Path().joinpath(
-                output_path, "survey_HTRU_high_results.pkl.gz"
-            )
-            df_HTRU_high.to_pickle(HTRU_high_output_path, compression="gzip")
+            df_HTRU.to_pickle(HTRU_output_path, compression="gzip")
 
             log.info(
                 f"Output of the detected population with PMPS generated in {os.getcwd()}/{PMPS_output_path}"
@@ -1101,13 +1171,7 @@ def simulate_population(args) -> None:
                 f"Output of the detected population with SMPS generated in {os.getcwd()}/{SMPS_output_path}"
             )
             log.info(
-                f"Output of the detected population with HTRU low generated in {os.getcwd()}/{HTRU_low_output_path}"
-            )
-            log.info(
-                f"Output of the detected population with HTRU mid generated in {os.getcwd()}/{HTRU_mid_output_path}"
-            )
-            log.info(
-                f"Output of the detected population with HTRU high generated in {os.getcwd()}/{HTRU_high_output_path}"
+                f"Output of the detected population with HTRU generated in {os.getcwd()}/{HTRU_output_path}"
             )
 
         # Cleanup. Reset seed to empty value.
