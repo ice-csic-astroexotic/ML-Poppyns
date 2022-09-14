@@ -1,84 +1,84 @@
 {
   "[TotalSimulation]": {
-    "time": 465.4600336551666
+    "time": 479.2225911617279
   },
   "[InitialPopulation]": {
-    "time": 7.169964790344238,
+    "time": 5.942462921142578,
     "[Initial position and velocity]": {
-      "elapsed_time": 2.989610433578491,
-      "cumulative_time": 2.989610433578491
+      "elapsed_time": 2.750432014465332,
+      "cumulative_time": 2.750432014465332
     },
     "[Initial energy]": {
-      "elapsed_time": 1.7550103664398193,
-      "cumulative_time": 4.7446208000183105
+      "elapsed_time": 1.744269609451294,
+      "cumulative_time": 4.494701623916626
     },
     "[Initial angular momentum]": {
-      "elapsed_time": 0.30628442764282227,
-      "cumulative_time": 5.050905227661133
+      "elapsed_time": 0.30354833602905273,
+      "cumulative_time": 4.798249959945679
     },
     "[Initial field strengths, misalignment angles and periods]": {
-      "elapsed_time": 0.9855692386627197,
-      "cumulative_time": 6.0364744663238525
+      "elapsed_time": 0.0656278133392334,
+      "cumulative_time": 4.863877773284912
     },
     "[Initial period derivatives]": {
-      "elapsed_time": 0.07272553443908691,
-      "cumulative_time": 6.1092000007629395
+      "elapsed_time": 0.0838165283203125,
+      "cumulative_time": 4.947694301605225
     },
     "[Export]": {
-      "elapsed_time": 1.0599455833435059,
-      "cumulative_time": 7.169145584106445
+      "elapsed_time": 0.9942507743835449,
+      "cumulative_time": 5.9419450759887695
     }
   },
   "[DynamicalEvolution]": {
-    "time": 140.72496509552002,
+    "time": 126.140469789505,
     "[Dynamical evolution]": {
-      "elapsed_time": 140.70600962638855,
-      "cumulative_time": 140.70600962638855
+      "elapsed_time": 126.11219716072083,
+      "cumulative_time": 126.11219716072083
     },
     "[Final energy]": {
-      "elapsed_time": 0.015819787979125977,
-      "cumulative_time": 140.72182941436768
+      "elapsed_time": 0.024293184280395508,
+      "cumulative_time": 126.13649034500122
     },
     "[Final angular momentum]": {
-      "elapsed_time": 0.002524852752685547,
-      "cumulative_time": 140.72435426712036
+      "elapsed_time": 0.0035338401794433594,
+      "cumulative_time": 126.14002418518066
     }
   },
   "[MagnetoRotationalEvolution]": {
-    "time": 280.0003535747528,
+    "time": 302.778874874115,
     "[Final field strengths, misalignment angles and periods]": {
-      "elapsed_time": 279.90078830718994,
-      "cumulative_time": 279.90078830718994
+      "elapsed_time": 302.6464173793793,
+      "cumulative_time": 302.6464173793793
     },
     "[Final period derivatives]": {
-      "elapsed_time": 0.09901213645935059,
-      "cumulative_time": 279.9998004436493
+      "elapsed_time": 0.1318502426147461,
+      "cumulative_time": 302.778267621994
     }
   },
   "[RadioEmission]": {
-    "time": 0.09995865821838379,
+    "time": 0.12244319915771484,
     "[Radio emission]": {
-      "elapsed_time": 0.09937310218811035,
-      "cumulative_time": 0.09937310218811035
+      "elapsed_time": 0.1218106746673584,
+      "cumulative_time": 0.1218106746673584
     }
   },
   "[RadioDetection]": {
-    "time": 34.721829414367676,
+    "time": 41.499082803726196,
     "[Total sky coverage]": {
-      "elapsed_time": 0.005093097686767578,
-      "cumulative_time": 0.005093097686767578
+      "elapsed_time": 0.006383657455444336,
+      "cumulative_time": 0.006383657455444336
     },
     "[DM computation]": {
-      "elapsed_time": 34.62126970291138,
-      "cumulative_time": 34.626362800598145
+      "elapsed_time": 41.38270950317383,
+      "cumulative_time": 41.38909316062927
     },
     "[Radio surveys detection]": {
-      "elapsed_time": 0.09478592872619629,
-      "cumulative_time": 34.72114872932434
+      "elapsed_time": 0.10931205749511719,
+      "cumulative_time": 41.49840521812439
     },
     "[Export]": {
-      "elapsed_time": 2.721357822418213,
-      "cumulative_time": 37.44318723678589
+      "elapsed_time": 2.7310619354248047,
+      "cumulative_time": 44.230144739151
     }
   }
 }

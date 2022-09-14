@@ -127,15 +127,17 @@ def simulate_population(args) -> None:
     n_detected_real_PMPS = cfg["detected_real_PMPS"]
     n_detected_real_SMPS = cfg["detected_real_SMPS"]
 
-    # Save the maximum age from the dynamical configuration file. This is needed for the computation of the birth rate.
+    # Import the maximum age value from the dynamical configuration file.
+    # This is needed for the computation of the birth rate.
     with open(dyn_path_config, "r") as f:
         conf_json = json.load(f)
 
     t_max = conf_json["t_age_max"] / 100  # Maximum time in centuries.
 
-    # Initialize the simulation status to True. This variable will be changed to False if the birth rate exceeds a
-    # value of 5 NS / century
-    cfg["simulation_status"] = True
+    # Initialize the indicator for an excess in birth rate to False.
+    # This variable will be changed to True if the birth rate exceeds a value of 5 NS / century.
+    # It is finally saved in the configuration.json file where the simulation output is stored.
+    cfg["birth_rate_excess"] = False
 
     with timewith.TimeWith(
         "[TotalSimulation]",
@@ -620,7 +622,7 @@ def simulate_population(args) -> None:
                 idx_det_tot = idx_det[detected]
                 idx_remove += idx_det_tot.tolist()
 
-                # If the current birth rate exceed an upper limit of 5 NS per century stop the simulation.
+                # If the current birth rate exceeds an upper limit of 5 NS per century stop the simulation.
                 birth_rate = n_created / t_max
                 log.info(
                     f"Galactic neutron star birth rate per century: {birth_rate} neutron stars per century."
@@ -632,8 +634,8 @@ def simulate_population(args) -> None:
                     n_created_PMPS = n_created
                     n_created_SMPS = n_created
 
-                    # Set the simulation status to False.
-                    cfg["simulation_status"] = False
+                    # Set the indicator of an excess in birth rate to True.
+                    cfg["birth_rate_excess"] = True
 
                     break
 

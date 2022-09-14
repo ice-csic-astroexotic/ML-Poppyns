@@ -31,9 +31,9 @@ import numpy as np
 
 def pdf_period_normal(mean: float, NS_number: int, sigma: float) -> np.ndarray:
     """
-    We follow Faucher-Giguère & Kaspi (2006) and Gullon et al. (2014) and assume
-    that the spin periods follow a normal (Gaussian) distribution with a certain
-    mean and standard deviation that are defined in the configuration file. Note
+    Normal (Gaussian) distribution for the initial spin periods as suggested in
+    Faucher-Giguère & Kaspi (2006) and Gullon et al. (2014).
+    The mean and standard deviation are defined in the configuration file. Note
     that for physical reasons, we reject negative spin-periods and redraw them
     again from the Gaussian distribution.
 
@@ -60,7 +60,8 @@ def pdf_period_lognormal(
     mean: float, NS_number: int, sigma: float
 ) -> np.ndarray:
     """
-    log-normal distribution for the initial spin periods as suggested in Igoshev et al. (2022).
+    Log-normal distribution for the initial spin periods as suggested in Igoshev et al. (2022).
+    The mean and standard deviation are defined in the configuration file.
 
     Args:
         mean (float): mean of the Gaussian initial period distribution, in [s].
@@ -68,7 +69,7 @@ def pdf_period_lognormal(
         sigma (float): standard deviation of the initial period distribution, in [s].
 
     Returns:
-        (np.ndarray): initial pulsar period in [s] drawn from a Gaussian distribution.
+        (np.ndarray): initial pulsar period in [s] drawn from a Log-normal distribution.
     """
 
     P_initial = 10 ** np.random.normal(mean, sigma, NS_number)

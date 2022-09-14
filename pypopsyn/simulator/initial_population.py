@@ -256,9 +256,8 @@ class InitialNeutronStarPopulation:
     def period(self) -> np.ndarray:
         """
         Determining the initial rotation periods of each pulsar in the sample,
-        as drawn from a normal (Gaussian) distribution. The characteristic
-        parameters are defined in configuration.py. Note that we only allow
-        positive values and redraw them if they fall below zero.
+        as drawn from a log-normal distribution. The characteristic
+        parameters are defined in configuration.py.
 
         Returns:
 
