@@ -130,9 +130,16 @@ cfg["NS_mass"]: float = 1.4 * const.M_SUN
 
 # ===================== MAGNETO-ROTATIONAL PARAMETERS FOR A CRUST-BASED MODEL ========================
 
+# Model pdf for the initial spin period. Choose between "normal", "log-normal".
+cfg["spin_period_model"]: str = "log-normal"
+
 # Mean and standard deviation for the Gaussian distributed initial periods in [s].
 cfg["P_initial_mean"]: float = 0.3
 cfg["P_initial_sigma"]: float = 0.2
+
+# Mean and standard deviation for the log-normal distributed initial periods in [s].
+cfg["P_initial_log10_mean"]: float = -0.6
+cfg["P_initial_log10_sigma"]: float = 0.3
 
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
 cfg["B_initial_log10_mean"]: float = 13.25
@@ -199,7 +206,7 @@ cfg["r_em"]: float = 3.0e7
 
 # Mean and standard deviation for the log-normally distributed radio luminosity in [erg s^(-1) Hz^(-1)].
 # Parameters were adjusted to match observed data.
-cfg["L_radio_log10_mean"]: float = 35.0
+cfg["L_radio_log10_mean"]: float = 35.5
 cfg["L_radio_log10_sigma"]: float = 0.8
 cfg["epsilon_L"]: float = 0.5
 
@@ -207,8 +214,8 @@ cfg["epsilon_L"]: float = 0.5
 cfg["ed_model"]: str = "ymw16"
 
 # Number of Galactic isolated neutron stars detected by the considered surveys.
-cfg["detected_real_PMPS"]: int = 961
-cfg["detected_real_SMPS"]: int = 172
+cfg["detected_real_PMPS"]: int = 985
+cfg["detected_real_SMPS"]: int = 202
 cfg["detected_real_htru"]: int = 980
 
 

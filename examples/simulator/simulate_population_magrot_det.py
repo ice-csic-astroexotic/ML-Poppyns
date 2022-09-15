@@ -80,16 +80,6 @@ def simulate_population(args) -> None:
     output_path = pathlib.Path(args.output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    # Check if the parsed dynamically simulated population directory exists.
-    dyn_path = pathlib.Path(args.dyn_data)
-    dyn_path_json = pathlib.Path().joinpath(dyn_path, "configuration.json")
-    dyn_path_pop = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.csv")
-    dyn_path_config = pathlib.Path().joinpath(dyn_path, "override.json")
-
-    if not dyn_path_pop.exists():
-        log.error(f"File {dyn_path} not found...")
-        sys.exit()
-
     # Update path-dependent configurations prepending the specified output path.
     cfg["profile_log"] = str(
         pathlib.Path().joinpath(output_path, cfg["profile_log"])
@@ -98,21 +88,14 @@ def simulate_population(args) -> None:
         pathlib.Path().joinpath(output_path, cfg["profile_json"])
     )
 
-    # Initialize seed randomly if no seed was specified.
-    if cfg["seed_magrot"] is None:
-        cfg["seed_magrot"] = int(time.time())
+    # Check if the parsed dynamically simulated population directory exists.
+    dyn_path = pathlib.Path(args.dyn_data)
+    dyn_path_config = pathlib.Path().joinpath(dyn_path, "configuration.json")
+    dyn_path_pop = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.csv")
 
-    # Set NumPy random seed globally.
-    log.info("Seed: {}".format(cfg["seed_magrot"]))
-    np.random.seed(cfg["seed_magrot"])
-
-    # Update simulator configuration with the dynamical database JSON override (if any).
-    cfg_override_dyn = {}
-    if dyn_path_config.exists():
-        json_override_path = dyn_path_config
-        with open(json_override_path) as f:
-            cfg_override_dyn = json.load(f)
-            configuration.update_configuration(cfg_override_dyn)
+    if not dyn_path_pop.exists():
+        log.error(f"File {dyn_path} not found...")
+        sys.exit()
 
     # Update simulator configuration with the provided JSON override (if any).
     cfg_override = {}
@@ -121,6 +104,14 @@ def simulate_population(args) -> None:
         with open(json_override_path) as f:
             cfg_override = json.load(f)
             configuration.update_configuration(cfg_override)
+
+    # Initialize seed randomly if no seed was specified.
+    if cfg["seed_magrot"] is None:
+        cfg["seed_magrot"] = int(time.time())
+
+    # Set NumPy random seed globally.
+    log.info("Seed: {}".format(cfg["seed_magrot"]))
+    np.random.seed(cfg["seed_magrot"])
 
     # Initialize the surveys.
     PMPS_par_path = (
@@ -150,6 +141,18 @@ def simulate_population(args) -> None:
     n_detected_real_PMPS = cfg["detected_real_PMPS"]
     n_detected_real_SMPS = cfg["detected_real_SMPS"]
     n_detected_real_HTRU = cfg["detected_real_htru"]
+
+    # Import the maximum age value from the dynamical configuration file.
+    # This is needed for the computation of the birth rate.
+    with open(dyn_path_config, "r") as f:
+        conf_json = json.load(f)
+
+    t_max = conf_json["t_age_max"] / 100  # Maximum time in centuries.
+
+    # Initialize the indicator for an excess in birth rate to False.
+    # This variable will be changed to True if the birth rate exceeds a value of 5 NS / century.
+    # It is finally saved in the configuration.json file where the simulation output is stored.
+    cfg["birth_rate_excess"] = False
 
     with timewith.TimeWith(
         "[TotalSimulation]",
@@ -356,9 +359,6 @@ def simulate_population(args) -> None:
                 log.info(f"Total number of created neutron stars: {n_created}")
 
                 # Load the chunk of the file containing the dynamically evolved population parameters.
-                with open(dyn_path_json, "r") as f:
-                    conf_json = json.load(f)
-
                 df_dyn = select(
                     dyn_path_pop,
                     n_batchsize,
@@ -418,6 +418,7 @@ def simulate_population(args) -> None:
                 cfg["show_profiling"],
             ):
 
+                dist_cutoff = sun_dist_icrs < 35.0
                 age_datab = age
                 ra_datab = ra_final
                 dec_datab = dec_final
@@ -450,6 +451,7 @@ def simulate_population(args) -> None:
                 )
 
                 # Determine which stars fall into the sky region covered by any of the considered radio surveys.
+                coverage_tot = (coverage_PMPS | coverage_SMPS) & dist_cutoff
                 coverage_tot = (
                     coverage_PMPS
                     | coverage_SMPS
@@ -590,6 +592,10 @@ def simulate_population(args) -> None:
                     dist_det,
                     cfg["ed_model"],
                 )
+
+                # ===================== RADIO DETECTION ========================
+
+                # Simulating the PMPS survey.
 
                 # Compute the effective pulse width in [s].
                 w_eff_PMPS = sr.effective_pulse_width(
@@ -987,6 +993,23 @@ def simulate_population(args) -> None:
                 )
                 idx_det_tot = idx_det[detected]
                 idx_remove += idx_det_tot.tolist()
+
+                # If the current birth rate exceeds an upper limit of 5 NS per century stop the simulation.
+                birth_rate = n_created / t_max
+                log.info(
+                    f"Galactic neutron star birth rate per century: {birth_rate} neutron stars per century."
+                )
+                if birth_rate > 5:
+                    log.info(
+                        "Simulation stopped! Galactic neutron star birth rate per century exceeds 5 neutron stars per century."
+                    )
+                    n_created_PMPS = n_created
+                    n_created_SMPS = n_created
+
+                    # Set the indicator of an excess in birth rate to True.
+                    cfg["birth_rate_excess"] = True
+
+                    break
 
         # Determine the Galactic neutron star birth rate per century for the different surveys.
         t_max = cfg["t_age_max"] / 100  # Maximum time in centuries.
