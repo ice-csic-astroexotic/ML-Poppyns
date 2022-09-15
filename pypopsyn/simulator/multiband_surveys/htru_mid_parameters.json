@@ -1,6 +1,6 @@
 { "name" : "HTRU mid",
   "ref": "M. J. Keith+2010",
-  "deg_factor": 1.5,
+  "deg_factor": 1.16,
   "G0": 0.73,
   "t_obs": 540,
   "t_samp": 64e-6,
