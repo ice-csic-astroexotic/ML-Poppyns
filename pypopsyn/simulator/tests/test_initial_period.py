@@ -35,7 +35,7 @@ def test_pdf_period_normal():
     has the correct length, corresponding to the number of pulsars in our sample.
     """
     P_initial_out = ipd.pdf_period_normal(
-        cfg["P_initial_mean"], cfg["NS_number"], cfg["P_initial_sigma"]
+        cfg["P_initial_mean"], cfg["P_initial_sigma"], cfg["NS_number"]
     )
 
     assert len(P_initial_out) == cfg["NS_number"]
@@ -49,8 +49,8 @@ def test_pdf_period_lognormal():
     """
     P_initial_out = ipd.pdf_period_lognormal(
         cfg["P_initial_log10_mean"],
-        cfg["NS_number"],
         cfg["P_initial_log10_sigma"],
+        cfg["NS_number"],
     )
 
     assert len(P_initial_out) == cfg["NS_number"]

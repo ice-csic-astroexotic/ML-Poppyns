@@ -130,6 +130,9 @@ cfg["NS_mass"]: float = 1.4 * const.M_SUN
 
 # ===================== MAGNETO-ROTATIONAL PARAMETERS FOR A CRUST-BASED MODEL ========================
 
+# Model pdf for the initial spin period. Choose between "normal", "log-normal".
+cfg["spin_period_model"]: str = "log-normal"
+
 # Mean and standard deviation for the Gaussian distributed initial periods in [s].
 cfg["P_initial_mean"]: float = 0.3
 cfg["P_initial_sigma"]: float = 0.2

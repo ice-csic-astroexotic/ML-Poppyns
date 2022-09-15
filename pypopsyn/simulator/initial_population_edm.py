@@ -239,11 +239,24 @@ class InitialNeutronStarPopulation:
 
         """
 
-        P_rand = ipd.pdf_period_lognormal(
-            cfg["P_initial_log10_mean"],
-            self.NS_number,
-            cfg["P_initial_log10_sigma"],
-        )
+        spin_period_model = cfg["spin_period_model"]
+
+        if spin_period_model == "normal":
+            P_rand = ipd.pdf_period_normal(
+                cfg["P_initial_mean"],
+                cfg["P_initial_sigma"],
+                self.NS_number,
+            )
+        elif spin_period_model == "log-normal":
+            P_rand = ipd.pdf_period_lognormal(
+                cfg["P_initial_log10_mean"],
+                cfg["P_initial_log10_sigma"],
+                self.NS_number,
+            )
+        else:
+            raise ValueError(
+                "The initial spin-period model pdf does not exist. Choose between normal or log-normal."
+            )
 
         return P_rand
 
