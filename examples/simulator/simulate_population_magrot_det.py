@@ -606,72 +606,16 @@ def simulate_population(args) -> None:
                     survey_PMPS.t_samp,
                 )
 
-                w_eff_SMPS = sr.effective_pulse_width(
-                    w_int_s,
-                    DM,
-                    survey_SMPS.channel_width,
-                    survey_SMPS.f_central,
-                    survey_SMPS.t_samp,
-                )
-                w_eff_HTRU_low = sr.effective_pulse_width(
-                    w_int_s,
-                    DM,
-                    survey_HTRU_low.channel_width,
-                    survey_HTRU_low.f_central,
-                    survey_HTRU_low.t_samp,
-                )
-                w_eff_HTRU_mid = sr.effective_pulse_width(
-                    w_int_s,
-                    DM,
-                    survey_HTRU_mid.channel_width,
-                    survey_HTRU_mid.f_central,
-                    survey_HTRU_mid.t_samp,
-                )
-                w_eff_HTRU_high = sr.effective_pulse_width(
-                    w_int_s,
-                    DM,
-                    survey_HTRU_high.channel_width,
-                    survey_HTRU_high.f_central,
-                    survey_HTRU_high.t_samp,
-                )
-
                 # Compute the observed radio flux in [Jy].
                 S_radio_obs_PMPS = sr.flux_radio_obs(
                     S_radio_f, w_int_s, w_eff_PMPS
-                )
-                S_radio_obs_SMPS = sr.flux_radio_obs(
-                    S_radio_f, w_int_s, w_eff_SMPS
-                )
-                S_radio_obs_HTRU_low = sr.flux_radio_obs(
-                    S_radio_f_HTRU, w_int_s, w_eff_HTRU_low
-                )
-                S_radio_obs_HTRU_mid = sr.flux_radio_obs(
-                    S_radio_f_HTRU, w_int_s, w_eff_HTRU_mid
-                )
-                S_radio_obs_HTRU_high = sr.flux_radio_obs(
-                    S_radio_f_HTRU, w_int_s, w_eff_HTRU_high
                 )
 
                 # Compute the period-averaged flux in [Jy].
                 S_radio_obs_mean_PMPS = sr.flux_radio_obs_period_average(
                     S_radio_obs_PMPS, P_det, w_eff_PMPS
                 )
-                S_radio_obs_mean_SMPS = sr.flux_radio_obs_period_average(
-                    S_radio_obs_SMPS, P_det, w_eff_SMPS
-                )
-                S_radio_obs_mean_HTRU_low = sr.flux_radio_obs_period_average(
-                    S_radio_obs_HTRU_low, P_det, w_eff_HTRU_low
-                )
-                S_radio_obs_mean_HTRU_mid = sr.flux_radio_obs_period_average(
-                    S_radio_obs_HTRU_mid, P_det, w_eff_HTRU_mid
-                )
-                S_radio_obs_mean_HTRU_high = sr.flux_radio_obs_period_average(
-                    S_radio_obs_HTRU_high, P_det, w_eff_HTRU_high
-                )
 
-                # ===================== RADIO DETECTION ========================
-
-                # Simulating the PMPS survey.
                 detected_radio_PMPS = np.zeros(len(age_det), dtype=bool)
 
                 detected_radio_PMPS[coverage_PMPS] = survey_PMPS.detect(
@@ -695,6 +639,23 @@ def simulate_population(args) -> None:
                     n_created_PMPS = n_created
 
                 # Simulating the SMPS survey.
+
+                w_eff_SMPS = sr.effective_pulse_width(
+                    w_int_s,
+                    DM,
+                    survey_SMPS.channel_width,
+                    survey_SMPS.f_central,
+                    survey_SMPS.t_samp,
+                )
+
+                S_radio_obs_SMPS = sr.flux_radio_obs(
+                    S_radio_f, w_int_s, w_eff_SMPS
+                )
+
+                S_radio_obs_mean_SMPS = sr.flux_radio_obs_period_average(
+                    S_radio_obs_SMPS, P_det, w_eff_SMPS
+                )
+
                 detected_radio_SMPS = np.zeros(len(age_det), dtype=bool)
 
                 detected_radio_SMPS[coverage_SMPS] = survey_SMPS.detect(
@@ -718,6 +679,23 @@ def simulate_population(args) -> None:
                     n_created_SMPS = n_created
 
                 # Simulating the HTRU low survey.
+
+                w_eff_HTRU_low = sr.effective_pulse_width(
+                    w_int_s,
+                    DM,
+                    survey_HTRU_low.channel_width,
+                    survey_HTRU_low.f_central,
+                    survey_HTRU_low.t_samp,
+                )
+
+                S_radio_obs_HTRU_low = sr.flux_radio_obs(
+                    S_radio_f_HTRU, w_int_s, w_eff_HTRU_low
+                )
+
+                S_radio_obs_mean_HTRU_low = sr.flux_radio_obs_period_average(
+                    S_radio_obs_HTRU_low, P_det, w_eff_HTRU_low
+                )
+
                 detected_radio_HTRU_low = np.zeros(len(age_det), dtype=bool)
 
                 detected_radio_HTRU_low[
@@ -735,6 +713,23 @@ def simulate_population(args) -> None:
                 )
 
                 # Simulating the HTRU mid survey.
+
+                w_eff_HTRU_mid = sr.effective_pulse_width(
+                    w_int_s,
+                    DM,
+                    survey_HTRU_mid.channel_width,
+                    survey_HTRU_mid.f_central,
+                    survey_HTRU_mid.t_samp,
+                )
+
+                S_radio_obs_HTRU_mid = sr.flux_radio_obs(
+                    S_radio_f_HTRU, w_int_s, w_eff_HTRU_mid
+                )
+
+                S_radio_obs_mean_HTRU_mid = sr.flux_radio_obs_period_average(
+                    S_radio_obs_HTRU_mid, P_det, w_eff_HTRU_mid
+                )
+
                 detected_radio_HTRU_mid = np.zeros(len(age_det), dtype=bool)
 
                 detected_radio_HTRU_mid[
@@ -749,6 +744,7 @@ def simulate_population(args) -> None:
 
                 # Since the sky coverage of both HTRU mid and low surveys overlap, we remove those stars from the mid survey
                 # that are already in the low survey.
+
                 overlap_mid_low = (
                     detected_radio_HTRU_low & detected_radio_HTRU_mid
                 )
@@ -761,6 +757,23 @@ def simulate_population(args) -> None:
                 )
 
                 # Simulating the HTRU high survey.
+
+                w_eff_HTRU_high = sr.effective_pulse_width(
+                    w_int_s,
+                    DM,
+                    survey_HTRU_high.channel_width,
+                    survey_HTRU_high.f_central,
+                    survey_HTRU_high.t_samp,
+                )
+
+                S_radio_obs_HTRU_high = sr.flux_radio_obs(
+                    S_radio_f_HTRU, w_int_s, w_eff_HTRU_high
+                )
+
+                S_radio_obs_mean_HTRU_high = sr.flux_radio_obs_period_average(
+                    S_radio_obs_HTRU_high, P_det, w_eff_HTRU_high
+                )
+
                 detected_radio_HTRU_high = np.zeros(len(age_det), dtype=bool)
 
                 detected_radio_HTRU_high[
@@ -1005,6 +1018,7 @@ def simulate_population(args) -> None:
                     )
                     n_created_PMPS = n_created
                     n_created_SMPS = n_created
+                    n_created_HTRU = n_created
 
                     # Set the indicator of an excess in birth rate to True.
                     cfg["birth_rate_excess"] = True
