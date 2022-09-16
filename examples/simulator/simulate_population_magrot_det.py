@@ -98,7 +98,6 @@ def simulate_population(args) -> None:
         sys.exit()
 
     # Update simulator configuration with the provided JSON override (if any).
-    cfg_override = {}
     if args.parameter_override:
         json_override_path = pathlib.Path(args.parameter_override)
         with open(json_override_path) as f:
@@ -124,6 +123,7 @@ def simulate_population(args) -> None:
     HTRU_low_par_path = (
         "pypopsyn/simulator/multiband_surveys/htru_low_parameters.json"
     )
+
     HTRU_mid_par_path = (
         "pypopsyn/simulator/multiband_surveys/htru_mid_parameters.json"
     )
@@ -140,7 +140,8 @@ def simulate_population(args) -> None:
 
     n_detected_real_PMPS = cfg["detected_real_PMPS"]
     n_detected_real_SMPS = cfg["detected_real_SMPS"]
-    n_detected_real_HTRU = cfg["detected_real_htru"]
+    n_detected_real_HTRU_low_mid = cfg["detected_real_htru_low_mid"]
+    n_detected_real_HTRU_high = cfg["detected_real_htru_high"]
 
     # Import the maximum age value from the dynamical configuration file.
     # This is needed for the computation of the birth rate.
@@ -166,17 +167,20 @@ def simulate_population(args) -> None:
         n_created = 0
         n_created_PMPS = 0
         n_created_SMPS = 0
-        n_created_HTRU = 0
+        n_created_HTRU_low_mid = 0
+        n_created_HTRU_high = 0
 
         n_detected_sim_PMPS = 0
         n_detected_sim_SMPS = 0
         n_detected_sim_HTRU_low = 0
         n_detected_sim_HTRU_mid = 0
         n_detected_sim_HTRU_high = 0
+        n_detected_sim_HTRU_low_mid = 0
 
         stop_PMPS = False
         stop_SMPS = False
-        stop_HTRU = False
+        stop_HTRU_low_mid = False
+        stop_HTRU_high = False
 
         # Define a list to store the indices of the detected neutron stars to avoid resampling.
         # In the first iteration, we are not removing any indices.
@@ -305,12 +309,12 @@ def simulate_population(args) -> None:
             "HTRU_high": [],
         }
 
-        n_detected_sim_HTRU = 0
         # Continue to simulate stars until the detected number of pulsars for all the surveys is reached.
         while (
             (n_detected_sim_PMPS < n_detected_real_PMPS)
             | (n_detected_sim_SMPS < n_detected_real_SMPS)
-            | (n_detected_sim_HTRU < n_detected_real_HTRU)
+            | (n_detected_sim_HTRU_low_mid < n_detected_real_HTRU_low_mid)
+            | (n_detected_sim_HTRU_high < n_detected_real_HTRU_high)
         ):
 
             with timewith.TimeWith(
@@ -330,15 +334,20 @@ def simulate_population(args) -> None:
                 percentage_detected_SMPS = (
                     n_detected_sim_SMPS / n_detected_real_SMPS
                 )
-                percentage_detected_HTRU = (
-                    n_detected_sim_HTRU
-                ) / n_detected_real_HTRU
+                percentage_detected_HTRU_low_mid = (
+                    n_detected_sim_HTRU_low_mid
+                ) / n_detected_real_HTRU_low_mid
+
+                percentage_detected_HTRU_high = (
+                    n_detected_sim_HTRU_high
+                ) / n_detected_real_HTRU_high
 
                 # If the percentage of both surveys is over 90% reduce the batch size.
                 if (
                     (percentage_detected_PMPS > 0.9)
                     & (percentage_detected_SMPS > 0.9)
-                    & (percentage_detected_HTRU > 0.9)
+                    & (percentage_detected_HTRU_low_mid > 0.9)
+                    & (percentage_detected_HTRU_high > 0.9)
                     & (flag_90 is False)
                 ):
                     flag_90 = True
@@ -347,7 +356,8 @@ def simulate_population(args) -> None:
                 elif (
                     (percentage_detected_PMPS > 0.95)
                     & (percentage_detected_SMPS > 0.95)
-                    & (percentage_detected_HTRU > 0.95)
+                    & (percentage_detected_HTRU_low_mid > 0.95)
+                    & (percentage_detected_HTRU_high > 0.95)
                     & (flag_95 is False)
                 ):
                     flag_95 = True
@@ -451,14 +461,14 @@ def simulate_population(args) -> None:
                 )
 
                 # Determine which stars fall into the sky region covered by any of the considered radio surveys.
-                coverage_tot = (coverage_PMPS | coverage_SMPS) & dist_cutoff
                 coverage_tot = (
                     coverage_PMPS
                     | coverage_SMPS
                     | coverage_HTRU_low
                     | coverage_HTRU_mid
                     | coverage_HTRU_high
-                )
+                ) & dist_cutoff
+
                 idx_det = idx[coverage_tot]
 
                 age_det = age_datab[coverage_tot]
@@ -640,6 +650,7 @@ def simulate_population(args) -> None:
 
                 # Simulating the SMPS survey.
 
+                # Compute the effective pulse width in [s].
                 w_eff_SMPS = sr.effective_pulse_width(
                     w_int_s,
                     DM,
@@ -648,10 +659,12 @@ def simulate_population(args) -> None:
                     survey_SMPS.t_samp,
                 )
 
+                # Compute the observed radio flux in [Jy].
                 S_radio_obs_SMPS = sr.flux_radio_obs(
                     S_radio_f, w_int_s, w_eff_SMPS
                 )
 
+                # Compute the period-averaged flux in [Jy].
                 S_radio_obs_mean_SMPS = sr.flux_radio_obs_period_average(
                     S_radio_obs_SMPS, P_det, w_eff_SMPS
                 )
@@ -680,6 +693,7 @@ def simulate_population(args) -> None:
 
                 # Simulating the HTRU low survey.
 
+                # Compute the effective pulse width in [s].
                 w_eff_HTRU_low = sr.effective_pulse_width(
                     w_int_s,
                     DM,
@@ -688,10 +702,12 @@ def simulate_population(args) -> None:
                     survey_HTRU_low.t_samp,
                 )
 
+                # Compute the observed radio flux in [Jy].
                 S_radio_obs_HTRU_low = sr.flux_radio_obs(
                     S_radio_f_HTRU, w_int_s, w_eff_HTRU_low
                 )
 
+                # Compute the period-averaged flux in [Jy].
                 S_radio_obs_mean_HTRU_low = sr.flux_radio_obs_period_average(
                     S_radio_obs_HTRU_low, P_det, w_eff_HTRU_low
                 )
@@ -714,6 +730,7 @@ def simulate_population(args) -> None:
 
                 # Simulating the HTRU mid survey.
 
+                # Compute the effective pulse width in [s].
                 w_eff_HTRU_mid = sr.effective_pulse_width(
                     w_int_s,
                     DM,
@@ -722,10 +739,12 @@ def simulate_population(args) -> None:
                     survey_HTRU_mid.t_samp,
                 )
 
+                # Compute the observed radio flux in [Jy].
                 S_radio_obs_HTRU_mid = sr.flux_radio_obs(
                     S_radio_f_HTRU, w_int_s, w_eff_HTRU_mid
                 )
 
+                # Compute the period-averaged flux in [Jy].
                 S_radio_obs_mean_HTRU_mid = sr.flux_radio_obs_period_average(
                     S_radio_obs_HTRU_mid, P_det, w_eff_HTRU_mid
                 )
@@ -744,20 +763,41 @@ def simulate_population(args) -> None:
 
                 # Since the sky coverage of both HTRU mid and low surveys overlap, we remove those stars from the mid survey
                 # that are already in the low survey.
-
-                overlap_mid_low = (
+                overlap_low_mid = (
                     detected_radio_HTRU_low & detected_radio_HTRU_mid
                 )
+
                 detected_radio_HTRU_mid = (
-                    ~overlap_mid_low & detected_radio_HTRU_mid
+                    ~overlap_low_mid & detected_radio_HTRU_mid
                 )
 
                 n_detected_sim_HTRU_mid += np.count_nonzero(
                     detected_radio_HTRU_mid
                 )
 
+                n_detected_sim_HTRU_low_mid = (
+                    n_detected_sim_HTRU_low + n_detected_sim_HTRU_mid
+                )
+
+                log.info(
+                    f"Total number of neutron stars detected by the HTRU mid and low latitude survey: {n_detected_sim_HTRU_low_mid}"
+                )
+
+                n_detected_sim_HTRU_low_mid = (
+                    n_detected_sim_HTRU_low + n_detected_sim_HTRU_low
+                )
+
+                # Store the value of created neutron stars once the number of detected pulsars with HTRU is reached.
+                # This is needed to compute the birth rate derived from the HTRU detections.
+                if (
+                    n_detected_sim_HTRU_low_mid >= n_detected_real_HTRU_low_mid
+                ) & (stop_HTRU_low_mid is False):
+                    stop_HTRU_low_mid = True
+                    n_created_HTRU_low_mid = n_created
+
                 # Simulating the HTRU high survey.
 
+                # Compute the effective pulse width in [s].
                 w_eff_HTRU_high = sr.effective_pulse_width(
                     w_int_s,
                     DM,
@@ -766,10 +806,12 @@ def simulate_population(args) -> None:
                     survey_HTRU_high.t_samp,
                 )
 
+                # Compute the observed radio flux in [Jy].
                 S_radio_obs_HTRU_high = sr.flux_radio_obs(
                     S_radio_f_HTRU, w_int_s, w_eff_HTRU_high
                 )
 
+                # Compute the period-averaged flux in [Jy].
                 S_radio_obs_mean_HTRU_high = sr.flux_radio_obs_period_average(
                     S_radio_obs_HTRU_high, P_det, w_eff_HTRU_high
                 )
@@ -790,23 +832,17 @@ def simulate_population(args) -> None:
                     detected_radio_HTRU_high
                 )
 
-                n_detected_sim_HTRU = (
-                    n_detected_sim_HTRU_low
-                    + n_detected_sim_HTRU_mid
-                    + n_detected_sim_HTRU_high
-                )
-
                 log.info(
-                    f"Total number of neutron stars detected by the HTRU survey: {n_detected_sim_HTRU}"
+                    f"Total number of neutron stars detected by the HTRU high latitude survey: {n_detected_sim_HTRU_high}"
                 )
 
                 # Store the value of created neutron stars once the number of detected pulsars with HTRU is reached.
                 # This is needed to compute the birth rate derived from the HTRU detections.
-                if (n_detected_sim_HTRU >= n_detected_real_HTRU) & (
-                    stop_HTRU is False
+                if (n_detected_sim_HTRU_high >= n_detected_real_HTRU_high) & (
+                    stop_HTRU_high is False
                 ):
-                    stop_HTRU = True
-                    n_created_HTRU = n_created
+                    stop_HTRU_high = True
+                    n_created_HTRU_high = n_created
 
                 # Select only neutron stars that are detected by one of the surveys.
                 idx_det_PMPS = idx_det[detected_radio_PMPS]
@@ -887,7 +923,7 @@ def simulate_population(args) -> None:
                 }
 
                 type_survey_list = np.zeros(len(DM))
-                type_survey_list[overlap_mid_low] = 1
+                type_survey_list[overlap_low_mid] = 1
 
                 update_dictionary_detected_HTRU_low = {
                     "age": age[idx_det_HTRU_low].tolist(),
@@ -1018,7 +1054,8 @@ def simulate_population(args) -> None:
                     )
                     n_created_PMPS = n_created
                     n_created_SMPS = n_created
-                    n_created_HTRU = n_created
+                    n_created_HTRU_low_mid = n_created
+                    n_created_HTRU_high = n_created
 
                     # Set the indicator of an excess in birth rate to True.
                     cfg["birth_rate_excess"] = True
@@ -1029,7 +1066,8 @@ def simulate_population(args) -> None:
         t_max = cfg["t_age_max"] / 100  # Maximum time in centuries.
         birth_rate_PMPS = n_created_PMPS / t_max
         birth_rate_SMPS = n_created_SMPS / t_max
-        birth_rate_HTRU = n_created_HTRU / t_max
+        birth_rate_HTRU_low_mid = n_created_HTRU_low_mid / t_max
+        birth_rate_HTRU_high = n_created_HTRU_high / t_max
 
         log.info(
             f"Galactic neutron star birth rate per century according to PMPS: {birth_rate_PMPS} neutron stars per century."
@@ -1038,13 +1076,16 @@ def simulate_population(args) -> None:
             f"Galactic neutron star birth rate per century according to SMPS: {birth_rate_SMPS} neutron stars per century."
         )
         log.info(
-            f"Galactic neutron star birth rate per century according to HTRU: {birth_rate_HTRU} neutron stars per century."
+            f"Galactic neutron star birth rate per century according to HTRU mid and low latitude: {birth_rate_HTRU_low_mid} neutron stars per century."
         )
-
+        log.info(
+            f"Galactic neutron star birth rate per century according to HTRU high latitude: {birth_rate_HTRU_high} neutron stars per century."
+        )
         # Add the information of the birth rates to the configuration file.
         cfg["birth_rate_PMPS"] = birth_rate_PMPS
         cfg["birth_rate_SMPS"] = birth_rate_SMPS
-        cfg["birth_rate_HTRU"] = birth_rate_HTRU
+        cfg["birth_rate_HTRU_low_mid"] = birth_rate_HTRU_low_mid
+        cfg["birth_rate_HTRU_high"] = birth_rate_HTRU_high
 
         # Dump updated configuration to output path.
         config_dump_path = pathlib.Path().joinpath(
@@ -1179,12 +1220,10 @@ def simulate_population(args) -> None:
                 data=dictionary_detected_HTRU_high
             )
 
-            df_HTRU = pd.concat(
-                [df_HTRU_low, df_HTRU_mid, df_HTRU_high], axis=0
-            )
+            df_HTRU = pd.concat([df_HTRU_low, df_HTRU_mid], axis=0)
 
             df_HTRU.columns = header_final_HTRU
-
+            df_HTRU_high.columns = header_final_HTRU
             # Save the data frame as a compressed binary file.
             PMPS_output_path = pathlib.Path().joinpath(
                 output_path, "survey_PMPS_results.pkl.gz"
@@ -1196,10 +1235,16 @@ def simulate_population(args) -> None:
             )
             df_SMPS.to_pickle(SMPS_output_path, compression="gzip")
 
-            HTRU_output_path = pathlib.Path().joinpath(
-                output_path, "survey_HTRU_results.pkl.gz"
+            HTRU_output_low_mid_path = pathlib.Path().joinpath(
+                output_path, "survey_HTRU_results_low_mid.pkl.gz"
             )
-            df_HTRU.to_pickle(HTRU_output_path, compression="gzip")
+
+            df_HTRU.to_pickle(HTRU_output_low_mid_path, compression="gzip")
+
+            HTRU_high_output_path = pathlib.Path().joinpath(
+                output_path, "survey_HTRU_results_high.pkl.gz"
+            )
+            df_HTRU_high.to_pickle(HTRU_high_output_path, compression="gzip")
 
             log.info(
                 f"Output of the detected population with PMPS generated in {os.getcwd()}/{PMPS_output_path}"
@@ -1208,7 +1253,10 @@ def simulate_population(args) -> None:
                 f"Output of the detected population with SMPS generated in {os.getcwd()}/{SMPS_output_path}"
             )
             log.info(
-                f"Output of the detected population with HTRU generated in {os.getcwd()}/{HTRU_output_path}"
+                f"Output of the detected population with HTRU low and mid latitude generated in {os.getcwd()}/{HTRU_output_low_mid_path}"
+            )
+            log.info(
+                f"Output of the detected population with HTRU high latitude generated in {os.getcwd()}/{HTRU_high_output_path}"
             )
 
         # Cleanup. Reset seed to empty value.

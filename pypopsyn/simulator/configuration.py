@@ -214,9 +214,10 @@ cfg["epsilon_L"]: float = 0.5
 cfg["ed_model"]: str = "ymw16"
 
 # Number of Galactic isolated neutron stars detected by the considered surveys.
-cfg["detected_real_PMPS"]: int = 985
-cfg["detected_real_SMPS"]: int = 202
-cfg["detected_real_htru"]: int = 980
+cfg["detected_real_PMPS"]: int = 1010
+cfg["detected_real_SMPS"]: int = 218
+cfg["detected_real_htru_low_mid"]: int = 1024
+cfg["detected_real_htru_high"]: int = 20
 
 
 def update_configuration(new_configuration) -> None:
