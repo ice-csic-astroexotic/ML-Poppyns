@@ -1098,6 +1098,9 @@ def simulate_population(args) -> None:
         cfg["t_max"] = conf_json["t_age_max"]
         cfg["NS_number"] = conf_json["NS_number"]
 
+        # Add the path of the dynamical database in the configuration file.
+        cfg["dyn_database_path"] = args.dyn_data
+
         # Dump updated configuration to output path.
         config_dump_path = pathlib.Path().joinpath(
             output_path, "configuration.json"
