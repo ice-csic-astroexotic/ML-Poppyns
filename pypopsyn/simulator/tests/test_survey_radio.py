@@ -55,12 +55,12 @@ def test_case_1():
         "T_sky_expected": np.array([3.00651602, 1.25853108]),
         "coverage_expected": np.array([True, False], dtype=bool),
         "offset2": np.array([5, 10]),
-        "G_expected": np.array([0.59633638, 0.55565169]),
+        "G_expected": np.array([0.68485507, 0.63813124]),
         "S_radio_int": np.array([0.01, 100]),
         "S_radio_obs_expected": np.array([0.00726343, 0.74049939]),
         "S_radio_obs_mean_expected": np.array([9.99999989e-5, 0.999999996]),
         "P": np.array([0.1, 0.01]),
-        "SNR_expected": np.array([959.7632509, 0.0]),
+        "SNR_expected": np.array([1285.8829469, 0.0]),
         "detected_expected": np.array([True, False], dtype=bool),
     }
 
