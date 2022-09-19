@@ -31,6 +31,7 @@ SOFTWARE.
 """
 
 import json
+import pathlib
 
 import healpy as hp
 import numpy as np
@@ -40,6 +41,7 @@ from astropy.wcs import WCS
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
+from pypopsyn.simulator.configuration import cfg
 
 
 def smearing_in_channel(
@@ -203,7 +205,10 @@ def sky_temperature_H81(
     """
 
     # Read the sky temperature map.
-    file = "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81.fits"
+    file = pathlib.Path().joinpath(
+        cfg["path_server"],
+        "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81.fits",
+    )
     hdulist = fits.open(file)
     hdu = hdulist["TEMPERATURE"]
     data = hdu.data
@@ -245,9 +250,11 @@ def sky_temperature_H81refined(
     """
 
     # Read the sky temperature map.
-    file = (
-        "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81_refined.fits"
+    file = pathlib.Path().joinpath(
+        cfg["path_server"],
+        "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81_refined.fits",
     )
+
     T_sky_map = hp.read_map(file, dtype=np.float64)
 
     # Convert coordinates into astropy coordinates object.

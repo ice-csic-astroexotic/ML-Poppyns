@@ -49,6 +49,15 @@ cfg["show_profiling"]: bool = True
 cfg["save_dyn_evolution"]: bool = False
 cfg["save_magrot_evolution"]: bool = False
 
+# To run the simulations in the server with HTCondor set cfg["server_run"] = True.
+cfg["server_run"] = True
+
+if cfg["server_run"]:
+    cfg[
+        "path_server"
+    ] = "/data/magnesia/software/MAGNESIA_population_synthesis/"
+else:
+    cfg["path_server"] = ""
 
 # ===================== INITIAL POPULATION CLASS PARAMETERS ========================
 

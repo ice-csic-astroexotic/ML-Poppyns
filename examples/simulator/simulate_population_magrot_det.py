@@ -112,24 +112,31 @@ def simulate_population(args) -> None:
     log.info("Seed: {}".format(cfg["seed_magrot"]))
     np.random.seed(cfg["seed_magrot"])
 
+    path_server = cfg["path_server"]
     # Initialize the surveys.
-    PMPS_par_path = (
-        "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
-    )
-    SMPS_par_path = (
-        "pypopsyn/simulator/multiband_surveys/Swinburne_parameters.json"
+    PMPS_par_path = pathlib.Path().joinpath(
+        path_server,
+        "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json",
     )
 
-    HTRU_low_par_path = (
-        "pypopsyn/simulator/multiband_surveys/htru_low_parameters.json"
+    SMPS_par_path = pathlib.Path().joinpath(
+        path_server,
+        "pypopsyn/simulator/multiband_surveys/Swinburne_parameters.json",
     )
 
-    HTRU_mid_par_path = (
-        "pypopsyn/simulator/multiband_surveys/htru_mid_parameters.json"
+    HTRU_low_par_path = pathlib.Path().joinpath(
+        path_server,
+        "pypopsyn/simulator/multiband_surveys/htru_low_parameters.json",
     )
 
-    HTRU_high_par_path = (
-        "pypopsyn/simulator/multiband_surveys/htru_high_parameters.json"
+    HTRU_mid_par_path = pathlib.Path().joinpath(
+        path_server,
+        "pypopsyn/simulator/multiband_surveys/htru_mid_parameters.json",
+    )
+
+    HTRU_high_par_path = pathlib.Path().joinpath(
+        path_server,
+        "pypopsyn/simulator/multiband_surveys/htru_high_parameters.json",
     )
 
     survey_PMPS = sr.SurveyRadio(PMPS_par_path)
@@ -1063,7 +1070,6 @@ def simulate_population(args) -> None:
                     break
 
         # Determine the Galactic neutron star birth rate per century for the different surveys.
-        t_max = cfg["t_age_max"] / 100  # Maximum time in centuries.
         birth_rate_PMPS = n_created_PMPS / t_max
         birth_rate_SMPS = n_created_SMPS / t_max
         birth_rate_HTRU_low_mid = n_created_HTRU_low_mid / t_max
@@ -1081,11 +1087,16 @@ def simulate_population(args) -> None:
         log.info(
             f"Galactic neutron star birth rate per century according to HTRU high latitude: {birth_rate_HTRU_high} neutron stars per century."
         )
+
         # Add the information of the birth rates to the configuration file.
         cfg["birth_rate_PMPS"] = birth_rate_PMPS
         cfg["birth_rate_SMPS"] = birth_rate_SMPS
         cfg["birth_rate_HTRU_low_mid"] = birth_rate_HTRU_low_mid
         cfg["birth_rate_HTRU_high"] = birth_rate_HTRU_high
+
+        # Add the parameters from the dynamical database to the configuration file.
+        cfg["t_max"] = conf_json["t_age_max"]
+        cfg["NS_number"] = conf_json["NS_number"]
 
         # Dump updated configuration to output path.
         config_dump_path = pathlib.Path().joinpath(
