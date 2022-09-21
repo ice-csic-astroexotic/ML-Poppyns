@@ -790,10 +790,6 @@ def simulate_population(args) -> None:
                     f"Total number of neutron stars detected by the HTRU mid and low latitude survey: {n_detected_sim_HTRU_low_mid}"
                 )
 
-                n_detected_sim_HTRU_low_mid = (
-                    n_detected_sim_HTRU_low + n_detected_sim_HTRU_low
-                )
-
                 # Store the value of created neutron stars once the number of detected pulsars with HTRU is reached.
                 # This is needed to compute the birth rate derived from the HTRU detections.
                 if (

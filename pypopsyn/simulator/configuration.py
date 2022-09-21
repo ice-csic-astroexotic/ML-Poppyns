@@ -50,7 +50,7 @@ cfg["save_dyn_evolution"]: bool = False
 cfg["save_magrot_evolution"]: bool = False
 
 # To run the simulations in the server with HTCondor set cfg["server_run"] = True.
-cfg["server_run"] = True
+cfg["server_run"] = False
 
 if cfg["server_run"]:
     cfg[

@@ -5,6 +5,7 @@ We consider the following surveys:
 
 1) PMPS: the Parks Multibeam Pulsar Survey (see Manchester et al. 2001, Lorimer et al. 2006)
 2) SMPS: the Swinburne Multibeam Pulsar Survey (see Edwards et al. 2001, Jacoby et al. 2009)
+3) HTRU: the high time resolution Universe survey (see Keith et al 2018)
 
 Authors:
 
@@ -29,7 +30,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-
 import json
 import pathlib
 
