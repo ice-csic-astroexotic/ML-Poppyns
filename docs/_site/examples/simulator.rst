@@ -23,7 +23,7 @@ The simulation of a Galactic population of neutron stars can be performed by usi
    This approach is slower since it does not exploit the vectorization power of :code:`numpy`.
    For now only the dynamical and magneto-rotational evolution are available for this approach but not the survey selection.
 
-Detailed information about the individual scripts can be obtained by issue the :code:--h argument, e.g., running:
+Detailed information about the individual scripts can be obtained by issue the :code:`--h` argument, e.g., running:
 
 .. code-block:: bash
 
@@ -69,7 +69,7 @@ This script performs the following steps in a loop until the specified number of
    This means that the dynamical database size should be bigger than this batch size, i.e., it should contain at least 100 times the neutron star number specified by the batch size.
    Simulating neutron stars in batches helps to speed up the simulation by evolving simultaneously an array of pulsars.
 
-2) It selects pulsars that fall into the sky coverage of the surveys and evolves their magnetic field, spin period and inclination angle.
+2) It selects pulsars that fall into the sky coverage of the surveys and that are not futher away than 35 kpc from the Sun and evolves their magnetic field, spin period and inclination angle.
    This pre-selection allows to not waste computational resources on pulsars that have no chance to be detected.
 
 3) The emission geometry is modeled so that only pulsars emitting towards the Earth can be selected.
@@ -79,7 +79,8 @@ This script performs the following steps in a loop until the specified number of
 
 You can specify the number of pulsars you want to detect for each survey in the configuration file.
 The simulation keeps track of the total number of created pulsars so that an estimate of the birth rate can be made a posteriori by knowing the maximum neutron star age that has been used for the simulation.
-In this case the output of the simulation will consist of separated files containing the parameters of the detected pulsars for each survey, a `profile.json` file and a `configuration.json` file containing the entire set of parameters used to simulate both the dynamical evolution, the magneto-rotational evolution and the detection models.
+If the simulated birth rate exceed a limiting value of 5 neutron stars per century, the simulation is stopped and a flag that warns about the excess in the birth rate is saved in the output configuration file.
+In this case the output of the simulation will consist of separated files containing the parameters of the detected pulsars for each survey, a `profile.json` file and a `configuration.json` file containing the entire set of parameters used to simulate the magneto-rotational evolution and the detection models.
 
 Simulation with Julia
 #####################
