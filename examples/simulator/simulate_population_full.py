@@ -124,7 +124,7 @@ def simulate_population(args) -> None:
         "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
     )
     SMPS_par_path = (
-        "pypopsyn/simulator/multiband_surveys/Swinburne_parameters.json"
+        "pypopsyn/simulator/multiband_surveys/Swinburne_Parkes_parameters.json"
     )
 
     survey_PMPS = sr.SurveyRadio(PMPS_par_path)
