@@ -121,7 +121,7 @@ def simulate_population(args) -> None:
 
     SMPS_par_path = pathlib.Path().joinpath(
         path_server,
-        "pypopsyn/simulator/multiband_surveys/Swinburne_parameters.json",
+        "pypopsyn/simulator/multiband_surveys/Swinburne_Parkes_parameters.json",
     )
 
     HTRU_low_par_path = pathlib.Path().joinpath(
@@ -769,7 +769,7 @@ def simulate_population(args) -> None:
                 )
 
                 # Since the sky coverage of both HTRU mid and low surveys overlap, we remove those stars from the mid survey
-                # that are already in the low survey.
+                # that are already in the low survey in order to not double count individual objects.
                 overlap_low_mid = (
                     detected_radio_HTRU_low & detected_radio_HTRU_mid
                 )
