@@ -222,6 +222,21 @@ def set_default(args_dict: dict) -> None:  # noqa: C901
             )
         )
 
+    if args_dict["a_late"] is None:
+        if args_dict["sampling_type"] == "grid":
+            args_dict["a_late"] = [
+                cfg["a_late"],
+                cfg["a_late"],
+                1,
+            ]
+        elif args_dict["sampling_type"] == "random":
+            args_dict["a_late"] = [
+                cfg["a_late"],
+                cfg["a_late"],
+            ]
+
+        log.info("a_late set to the default value {}".format(cfg["a_late"]))
+
 
 def check_expand_args(args_dict: dict) -> (list, list):
     """
@@ -555,6 +570,16 @@ if __name__ == "__main__":
         help="In grid mode: range for the dispersion of the log10 of the initial magnetic field strength "
         "with number of values [low, high, n_values]."
         "In random mode: range of the dispersion of the log10 initial magnetic field strength [low, high].",
+    )
+
+    args.add_argument(
+        "--a_late",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the power-law slope of the late time magnetic field evolution "
+        "with number of values [low, high, n_values]."
+        "In random mode: range of the power-law slope of the late time magnetic field evolution [low, high].",
     )
 
     args = args.parse_args()
