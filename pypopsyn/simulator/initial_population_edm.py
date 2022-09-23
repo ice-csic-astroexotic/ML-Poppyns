@@ -29,6 +29,7 @@ SOFTWARE.
 """
 
 import logging
+import pathlib
 from typing import Tuple
 
 import numpy as np
@@ -117,9 +118,13 @@ class InitialNeutronStarPopulation:
         # It contains an 2D array of density rho in cylindrical coordinates (r, phi).
         # The density in the table is already multiplied by the galactocentric distance r
         # to take into account the element of area correction.
-        NS_density_model = np.load(
-            "pypopsyn/simulator/stellar_dynamics/YMW16_density_model.npy"
+
+        file = pathlib.Path().joinpath(
+            cfg["path_server_software"],
+            "pypopsyn/simulator/stellar_dynamics/YMW16_density_model.npy",
         )
+        NS_density_model = np.load(file)
+
         # Define the grid of coordinates.
         r_grid = np.linspace(0.0, cfg["r_extent"], NS_density_model.shape[0])
         phi_grid = np.linspace(0.0, 2.0 * np.pi, NS_density_model.shape[1])

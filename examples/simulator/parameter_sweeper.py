@@ -105,42 +105,84 @@ def set_default(args_dict: dict) -> None:  # noqa: C901
         log.info("vk_c set to the default value {}".format(cfg["h_c"]))
 
     if args_dict["P_initial_mean"] is None:
-        if args_dict["sampling_type"] == "grid":
-            args_dict["P_initial_mean"] = [
-                cfg["P_initial_mean"],
-                cfg["P_initial_mean"],
-                1,
-            ]
-        elif args_dict["sampling_type"] == "random":
-            args_dict["P_initial_mean"] = [
-                cfg["P_initial_mean"],
-                cfg["P_initial_mean"],
-            ]
+        if args_dict["spin_period_model"] == "normal":
+            if args_dict["sampling_type"] == "grid":
+                args_dict["P_initial_mean"] = [
+                    cfg["P_initial_mean"],
+                    cfg["P_initial_mean"],
+                    1,
+                ]
+            elif args_dict["sampling_type"] == "random":
+                args_dict["P_initial_mean"] = [
+                    cfg["P_initial_mean"],
+                    cfg["P_initial_mean"],
+                ]
 
-        log.info(
-            "P_initial_mean set to the default value {}".format(
-                cfg["P_initial_mean"]
+            log.info(
+                "P_initial_mean set to the default value {}".format(
+                    cfg["P_initial_mean"]
+                )
             )
-        )
 
     if args_dict["P_initial_sigma"] is None:
-        if args_dict["sampling_type"] == "grid":
-            args_dict["P_initial_sigma"] = [
-                cfg["P_initial_sigma"],
-                cfg["P_initial_sigma"],
-                1,
-            ]
-        elif args_dict["sampling_type"] == "random":
-            args_dict["P_initial_sigma"] = [
-                cfg["P_initial_sigma"],
-                cfg["P_initial_sigma"],
-            ]
+        if args_dict["spin_period_model"] == "normal":
+            if args_dict["sampling_type"] == "grid":
+                args_dict["P_initial_sigma"] = [
+                    cfg["P_initial_sigma"],
+                    cfg["P_initial_sigma"],
+                    1,
+                ]
+            elif args_dict["sampling_type"] == "random":
+                args_dict["P_initial_sigma"] = [
+                    cfg["P_initial_sigma"],
+                    cfg["P_initial_sigma"],
+                ]
 
-        log.info(
-            "P_initial_sigma set to the default value {}".format(
-                cfg["P_initial_sigma"]
+            log.info(
+                "P_initial_sigma set to the default value {}".format(
+                    cfg["P_initial_sigma"]
+                )
             )
-        )
+
+    if args_dict["P_initial_log10_mean"] is None:
+        if args_dict["spin_period_model"] == "log-normal":
+            if args_dict["sampling_type"] == "grid":
+                args_dict["P_initial_log10_mean"] = [
+                    cfg["P_initial_log10_mean"],
+                    cfg["P_initial_log10_mean"],
+                    1,
+                ]
+            elif args_dict["sampling_type"] == "random":
+                args_dict["P_initial_log10_mean"] = [
+                    cfg["P_initial_log10_mean"],
+                    cfg["P_initial_log10_mean"],
+                ]
+
+            log.info(
+                "P_initial_log10_mean set to the default value {}".format(
+                    cfg["P_initial_log10_mean"]
+                )
+            )
+
+    if args_dict["P_initial_log10_sigma"] is None:
+        if args_dict["spin_period_model"] == "log-normal":
+            if args_dict["sampling_type"] == "grid":
+                args_dict["P_initial_log10_sigma"] = [
+                    cfg["P_initial_log10_sigma"],
+                    cfg["P_initial_log10_sigma"],
+                    1,
+                ]
+            elif args_dict["sampling_type"] == "random":
+                args_dict["P_initial_log10_sigma"] = [
+                    cfg["P_initial_log10_sigma"],
+                    cfg["P_initial_log10_sigma"],
+                ]
+
+            log.info(
+                "P_initial_log10_sigma set to the default value {}".format(
+                    cfg["P_initial_log10_sigma"]
+                )
+            )
 
     if args_dict["B_initial_log10_mean"] is None:
         if args_dict["sampling_type"] == "grid":
@@ -195,8 +237,13 @@ def check_expand_args(args_dict: dict) -> (list, list):
     cli_args: list = []
     cli_str: list = []
 
+    path_server_software = cfg["path_server_software"]
     # Open the parameter dictionary to load requirements.
-    f = open("examples/simulator/config_sweeper.json")
+    config_sweeper_path = pathlib.Path().joinpath(
+        path_server_software,
+        "examples/simulator/config_sweeper.json",
+    )
+    f = open(config_sweeper_path)
     check_arg = json.load(f)
 
     required_parameters = []
@@ -338,8 +385,9 @@ def main(args):
 
             # Generate output folder for the simulation.
             # Note that the numbering of the folders is limited to 6 digits here.
+            path_server_output = cfg["path_server_output"]
             output_path = pathlib.Path().joinpath(
-                "/data/magnesia/common", output_path
+                path_server_output, output_path
             )
             simulation_output_path = pathlib.Path().joinpath(
                 output_path, f"{simulation_number:06}"
@@ -353,7 +401,7 @@ def main(args):
                 simulation_override_json[var_names[i]] = s[i]
 
             simulation_output_path = pathlib.Path().joinpath(
-                "/data/magnesia/common", simulation_output_path
+                path_server_output, simulation_output_path
             )
             simulation_override_json_path = pathlib.Path().joinpath(
                 simulation_output_path, "override.json"
@@ -442,6 +490,14 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
+        "--spin_period_model",
+        nargs="?",
+        type=str,
+        default="log-normal",
+        help="PDF model for the spin period. Choose between normal or log-normal.",
+    )
+
+    args.add_argument(
         "--P_initial_mean",
         nargs="*",
         type=float,
@@ -459,6 +515,26 @@ if __name__ == "__main__":
         help="In grid mode: range of the dispersion of the initial spin period with number of values "
         "[low, high, n_values]."
         "In random mode: range of the dispersion of the initial spin period [low, high].",
+    )
+
+    args.add_argument(
+        "--P_initial_log10_mean",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range of the log10 mean initial spin period with number of values "
+        "[low, high, n_values]."
+        "In random mode: range of the log10 mean initial spin period [low, high].",
+    )
+
+    args.add_argument(
+        "--P_initial_log10_sigma",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range of the log10 dispersion of the initial spin period with number of values "
+        "[low, high, n_values]."
+        "In random mode: range of the log10 dispersion of the initial spin period [low, high].",
     )
 
     args.add_argument(
