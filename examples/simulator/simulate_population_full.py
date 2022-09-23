@@ -119,12 +119,16 @@ def simulate_population(args) -> None:
     gm.initialize_galactic_model()
     sm.initialize_spiral_model()
 
+    path_server_software = cfg["path_server_software"]
     # Initialize the surveys.
-    PMPS_par_path = (
-        "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
+    PMPS_par_path = pathlib.Path().joinpath(
+        path_server_software,
+        "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json",
     )
-    SMPS_par_path = (
-        "pypopsyn/simulator/multiband_surveys/Swinburne_parameters.json"
+
+    SMPS_par_path = pathlib.Path().joinpath(
+        path_server_software,
+        "pypopsyn/simulator/multiband_surveys/Swinburne_Parkes_parameters.json",
     )
 
     survey_PMPS = sr.SurveyRadio(PMPS_par_path)

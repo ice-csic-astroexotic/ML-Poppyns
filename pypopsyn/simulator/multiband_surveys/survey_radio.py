@@ -4,7 +4,8 @@ Model for the pulsar radio surveys.
 We consider the following surveys:
 
 1) PMPS: the Parks Multibeam Pulsar Survey (see Manchester et al. 2001, Lorimer et al. 2006)
-2) SMPS: the Swinburne Multibeam Pulsar Survey (see Edwards et al. 2001, Jacoby et al. 2009)
+2) SMPS: the Swinburne Parkes Multibeam Pulsar Survey (see Edwards et al. 2001, Jacoby et al. 2009)
+3) HTRU: the High Time Resolution Universe Survey (see Keith et al. 2018)
 
 Authors:
 
@@ -29,8 +30,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-
 import json
+import pathlib
 
 import healpy as hp
 import numpy as np
@@ -40,6 +41,7 @@ from astropy.wcs import WCS
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
+from pypopsyn.simulator.configuration import cfg
 
 
 def smearing_in_channel(
@@ -203,7 +205,10 @@ def sky_temperature_H81(
     """
 
     # Read the sky temperature map.
-    file = "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81.fits"
+    file = pathlib.Path().joinpath(
+        cfg["path_server"],
+        "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81.fits",
+    )
     hdulist = fits.open(file)
     hdu = hdulist["TEMPERATURE"]
     data = hdu.data
@@ -245,9 +250,11 @@ def sky_temperature_H81refined(
     """
 
     # Read the sky temperature map.
-    file = (
-        "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81_refined.fits"
+    file = pathlib.Path().joinpath(
+        cfg["path_server_software"],
+        "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81_refined.fits",
     )
+
     T_sky_map = hp.read_map(file, dtype=np.float64)
 
     # Convert coordinates into astropy coordinates object.
@@ -324,6 +331,7 @@ class SurveyRadio:
         self.DEC_range = self.parameters["DEC_range"]
         self.l_range = self.parameters["l_range"]
         self.b_range_abs = self.parameters["b_range_abs"]
+        self.name = self.parameters["name"]
 
     def __init__(
         self,
@@ -362,16 +370,43 @@ class SurveyRadio:
         Returns:
             (np.ndarray): array of boolean variables: true if the pulsar is in the covered sky region, false if not.
         """
-        coverage = (
-            (RA > self.RA_range[0])
-            & (RA < self.RA_range[1])
-            & (DEC > self.DEC_range[0])
-            & (DEC < self.DEC_range[1])
-            & (l_gal > self.l_range[0])
-            & (l_gal < self.l_range[1])
-            & (np.abs(b_gal) > self.b_range_abs[0])
-            & (np.abs(b_gal) < self.b_range_abs[1])
-        )
+        if self.name == "HTRU high":
+
+            coverage = (
+                (RA > self.RA_range[0])
+                & (RA < self.RA_range[1])
+                & (DEC > self.DEC_range[0])
+                & (DEC < self.DEC_range[1])
+                & (
+                    (
+                        (
+                            (l_gal > self.l_range[0][0])
+                            & (l_gal < self.l_range[0][1])
+                        )
+                        | (
+                            (l_gal > self.l_range[1][0])
+                            & (l_gal < self.l_range[1][1])
+                        )
+                    )
+                    | (
+                        (np.abs(b_gal) > self.b_range_abs[0])
+                        & (np.abs(b_gal) < self.b_range_abs[1])
+                    )
+                )
+            )
+
+        else:
+
+            coverage = (
+                (RA > self.RA_range[0])
+                & (RA < self.RA_range[1])
+                & (DEC > self.DEC_range[0])
+                & (DEC < self.DEC_range[1])
+                & (l_gal > self.l_range[0])
+                & (l_gal < self.l_range[1])
+                & (np.abs(b_gal) > self.b_range_abs[0])
+                & (np.abs(b_gal) < self.b_range_abs[1])
+            )
 
         return coverage
 

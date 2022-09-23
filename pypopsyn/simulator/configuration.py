@@ -49,6 +49,17 @@ cfg["show_profiling"]: bool = True
 cfg["save_dyn_evolution"]: bool = False
 cfg["save_magrot_evolution"]: bool = False
 
+# To run the simulations in the server with HTCondor set cfg["server_run"] = True.
+cfg["server_run"] = False
+
+if cfg["server_run"]:
+    cfg[
+        "path_server_software"
+    ] = "/data/magnesia/software/MAGNESIA_population_synthesis/"
+    cfg["path_server_output"] = "/data/magnesia/common/"
+else:
+    cfg["path_server_software"] = ""
+    cfg["path_server_output"] = ""
 
 # ===================== INITIAL POPULATION CLASS PARAMETERS ========================
 
@@ -214,8 +225,10 @@ cfg["epsilon_L"]: float = 0.5
 cfg["ed_model"]: str = "ymw16"
 
 # Number of Galactic isolated neutron stars detected by the considered surveys.
-cfg["detected_real_PMPS"]: int = 985
-cfg["detected_real_SMPS"]: int = 202
+cfg["detected_real_PMPS"]: int = 1009
+cfg["detected_real_SMPS"]: int = 218
+cfg["detected_real_htru_low_mid"]: int = 1023
+cfg["detected_real_htru_high"]: int = 20
 
 
 def update_configuration(new_configuration) -> None:
