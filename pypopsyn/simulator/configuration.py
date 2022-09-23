@@ -54,10 +54,12 @@ cfg["server_run"] = False
 
 if cfg["server_run"]:
     cfg[
-        "path_server"
+        "path_server_software"
     ] = "/data/magnesia/software/MAGNESIA_population_synthesis/"
+    cfg["path_server_output"] = "/data/magnesia/common/"
 else:
-    cfg["path_server"] = ""
+    cfg["path_server_software"] = ""
+    cfg["path_server_output"] = ""
 
 # ===================== INITIAL POPULATION CLASS PARAMETERS ========================
 
