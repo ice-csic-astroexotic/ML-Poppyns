@@ -112,7 +112,9 @@ def simulate_population(args) -> None:
     log.info("Seed: {}".format(cfg["seed_magrot"]))
     np.random.seed(cfg["seed_magrot"])
 
+    # Loading the sever path, in case simulations are run at the PIC.
     path_server = cfg["path_server"]
+
     # Initialize the surveys.
     PMPS_par_path = pathlib.Path().joinpath(
         path_server,
@@ -612,7 +614,7 @@ def simulate_population(args) -> None:
 
                 # ===================== RADIO DETECTION ========================
 
-                # Simulating the PMPS survey.
+                # ======== Simulating PMPS. ========
 
                 # Compute the effective pulse width in [s].
                 w_eff_PMPS = sr.effective_pulse_width(
@@ -645,7 +647,7 @@ def simulate_population(args) -> None:
 
                 n_detected_sim_PMPS += np.count_nonzero(detected_radio_PMPS)
                 log.info(
-                    f"Total number of neutron stars detected by the Parkes multibeam survey: {n_detected_sim_PMPS}"
+                    f"Total number of neutron stars detected by the Parkes Multibeam Survey: {n_detected_sim_PMPS}"
                 )
                 # Store the value of created neutron stars once the number of detected pulsars with PMPS is reached.
                 # This is needed to compute the birth rate derived from the PMPS detections.
@@ -655,7 +657,7 @@ def simulate_population(args) -> None:
                     stop_PMPS = True
                     n_created_PMPS = n_created
 
-                # Simulating the SMPS survey.
+                # ======== Simulating SMPS. ========
 
                 # Compute the effective pulse width in [s].
                 w_eff_SMPS = sr.effective_pulse_width(
@@ -688,7 +690,7 @@ def simulate_population(args) -> None:
 
                 n_detected_sim_SMPS += np.count_nonzero(detected_radio_SMPS)
                 log.info(
-                    f"Total number of neutron stars detected by the Swinburne pulsar survey: {n_detected_sim_SMPS}"
+                    f"Total number of neutron stars detected by the Swinburne Parkes Multibeam Survey: {n_detected_sim_SMPS}"
                 )
                 # Store the value of created neutron stars once the number of detected pulsars with SMPS is reached.
                 # This is needed to compute the birth rate derived from the SMPS detections.
@@ -698,7 +700,7 @@ def simulate_population(args) -> None:
                     stop_SMPS = True
                     n_created_SMPS = n_created
 
-                # Simulating the HTRU low survey.
+                # ======== Simulating the HTRU low survey. ========
 
                 # Compute the effective pulse width in [s].
                 w_eff_HTRU_low = sr.effective_pulse_width(
@@ -735,7 +737,7 @@ def simulate_population(args) -> None:
                     detected_radio_HTRU_low
                 )
 
-                # Simulating the HTRU mid survey.
+                # ======== Simulating the HTRU mid survey. ========
 
                 # Compute the effective pulse width in [s].
                 w_eff_HTRU_mid = sr.effective_pulse_width(
@@ -768,8 +770,8 @@ def simulate_population(args) -> None:
                     P_det[coverage_HTRU_mid],
                 )
 
-                # Since the sky coverage of both HTRU mid and low surveys overlap, we remove those stars from the mid survey
-                # that are already in the low survey in order to not double count individual objects.
+                # Since the sky coverage of the HTRU mid and low surveys overlap, we remove those stars from the mid
+                # survey that are already in the low survey in order to not double count individual objects.
                 overlap_low_mid = (
                     detected_radio_HTRU_low & detected_radio_HTRU_mid
                 )
@@ -787,7 +789,7 @@ def simulate_population(args) -> None:
                 )
 
                 log.info(
-                    f"Total number of neutron stars detected by the HTRU mid and low latitude survey: {n_detected_sim_HTRU_low_mid}"
+                    f"Total number of neutron stars detected by the HTRU mid and low latitude surveys: {n_detected_sim_HTRU_low_mid}"
                 )
 
                 # Store the value of created neutron stars once the number of detected pulsars with HTRU is reached.
@@ -798,7 +800,7 @@ def simulate_population(args) -> None:
                     stop_HTRU_low_mid = True
                     n_created_HTRU_low_mid = n_created
 
-                # Simulating the HTRU high survey.
+                # ======== Simulating the HTRU high survey. ========
 
                 # Compute the effective pulse width in [s].
                 w_eff_HTRU_high = sr.effective_pulse_width(
@@ -1035,7 +1037,7 @@ def simulate_population(args) -> None:
                 }
 
                 # Remove from the dynamical database the stars that have been detected or
-                # that are outside of the sky coverage of the surveys.
+                # that are outside the sky coverage of the surveys.
                 detected = (
                     detected_radio_PMPS
                     | detected_radio_SMPS
@@ -1078,10 +1080,10 @@ def simulate_population(args) -> None:
             f"Galactic neutron star birth rate per century according to SMPS: {birth_rate_SMPS} neutron stars per century."
         )
         log.info(
-            f"Galactic neutron star birth rate per century according to HTRU mid and low latitude: {birth_rate_HTRU_low_mid} neutron stars per century."
+            f"Galactic neutron star birth rate per century according to HTRU mid and low surveys: {birth_rate_HTRU_low_mid} neutron stars per century."
         )
         log.info(
-            f"Galactic neutron star birth rate per century according to HTRU high latitude: {birth_rate_HTRU_high} neutron stars per century."
+            f"Galactic neutron star birth rate per century according to HTRU high survey: {birth_rate_HTRU_high} neutron stars per century."
         )
 
         # Add the information of the birth rates to the configuration file.
@@ -1263,10 +1265,10 @@ def simulate_population(args) -> None:
                 f"Output of the detected population with SMPS generated in {os.getcwd()}/{SMPS_output_path}"
             )
             log.info(
-                f"Output of the detected population with HTRU low and mid latitude generated in {os.getcwd()}/{HTRU_output_low_mid_path}"
+                f"Output of the detected population with HTRU low and mid surveys generated in {os.getcwd()}/{HTRU_output_low_mid_path}"
             )
             log.info(
-                f"Output of the detected population with HTRU high latitude generated in {os.getcwd()}/{HTRU_high_output_path}"
+                f"Output of the detected population with HTRU high surveys generated in {os.getcwd()}/{HTRU_high_output_path}"
             )
 
         # Cleanup. Reset seed to empty value.
