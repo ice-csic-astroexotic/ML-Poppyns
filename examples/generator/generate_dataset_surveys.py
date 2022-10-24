@@ -1,7 +1,7 @@
 """ Generator for dataset.
 
     This module creates a dataset of the simulated populations for every
-    population simulated from the simulator `initialize_evolve_population.py`
+    population simulated from the simulator `simulate_population_magrot_det.py`
     with different initial parameters.
 
     This expects that a set of populations have been generated either using
@@ -39,6 +39,7 @@ import logging
 import os
 import pathlib
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -51,6 +52,138 @@ import pypopsyn.generator.velocity_maps as vmaps
 import pypopsyn.simulator.basics.constants as const
 
 log = logging.getLogger(__name__)
+
+
+def create_survey_maps(
+    simulation_output_path: Path,
+    dataset_path: str,
+    survey_name: str,
+    survey_filename: str,
+    sample_number: int,
+    type: str,
+    resolution_dyn: int,
+    resolution_ppdot: int,
+    dictionary_position_map_radec: dict,
+    dictionary_velocity_map_vra: dict,
+    dictionary_velocity_map_vdec: dict,
+    dictionary_ppdot_map: dict,
+) -> None:
+    """
+    This method reads the simulated population files (usually by the simulation
+    helper) folder and generates a dataset of density maps in the specified
+    format (images or arrays) and with a specified resolution.
+    All the information about the dataset are stored in a dataset.csv file
+    containing the density map files names and the set of parameter values for
+    each simulated population.
+
+    Args:
+
+        simulation_output_path (str): Path to where the simulated populations are located.
+
+        dataset_path (str): Path to where the generated dataset will be saved.
+
+        survey_name (str): survey acronym.
+
+        survey_filename (str): survey filename.
+
+        sample_number (int): number to suffix this map in the dataset.
+
+        type (str): Type of dataset to generate: array or image.
+
+        resolution_dyn (int): Resolution (number of bins per axis for the 2d
+            histograms) for the position and velocity maps to generate. In case of RA DEC maps the
+            DEC axis has half the number of bins with respect to the RA axis.
+
+        resolution_ppdot (int): Resolution (number of bins per axis for the 2d
+            histograms) for the P-Pdot density maps to generate.
+
+        dictionary_position_map_radec (dict): dictionary containing the path to the position maps in RA, DEC for
+            all the simulated surveys.
+
+        dictionary_velocity_map_vra (dict): dictionary containing the path to the proper motion maps in RA for
+            all the simulated surveys.
+
+        dictionary_velocity_map_vra (dict): dictionary containing the path to the proper motion maps in DEC for
+            all the simulated surveys.
+
+        dictionary_ppdot_map (dict): dictionary containing the path to the P-Pdot maps for
+            all the simulated surveys.
+    """
+
+    # Check if the simulated survey file exist as a precondition.
+    survey_path = pathlib.Path(
+        f"{simulation_output_path}/{sample_number:06}/{survey_filename}.pkl.gz"
+    )
+
+    if not survey_path.exists():
+        log.error(f"Survey output file not found in {survey_path}")
+        sys.exit()
+
+    # Create a data frame object of the population file.
+    df_survey = pd.read_pickle(str(survey_path), compression="gzip")
+
+    # Remove the units header row from the data frame.
+    df_survey.columns = [x[0] for x in df_survey.columns]
+
+    # Create position density maps projected on RA DEC plane.
+    pmaps.generate_position_map(
+        dataset_path,
+        f"survey_{survey_name}_position_map_radec",
+        sample_number,
+        type,
+        df_survey["RA"],
+        df_survey["DEC"],
+        resolution_dyn,
+        int(args.resolution_dyn / 2),
+        dictionary_position_map_radec,
+        x_limits=(0.0, 360.0),
+        y_limits=(-90.0, 90.0),
+    )
+
+    # Create velocity maps of component v_RA in the RA DEC plane.
+    vmaps.generate_velocity_map(
+        dataset_path,
+        f"survey_{survey_name}_velocity_map_vra",
+        sample_number,
+        type,
+        df_survey["RA"],
+        df_survey["DEC"],
+        abs(df_survey["pm_RA"]),
+        resolution_dyn,
+        int(resolution_dyn / 2),
+        dictionary_velocity_map_vra,
+        x_limits=(0.0, 360.0),
+        y_limits=(-90.0, 90.0),
+    )
+
+    # Create velocity maps of component v_DEC in the RA DEC plane.
+    vmaps.generate_velocity_map(
+        dataset_path,
+        f"survey_{survey_name}_velocity_map_vdec",
+        sample_number,
+        type,
+        df_survey["RA"],
+        df_survey["DEC"],
+        abs(df_survey["pm_DEC"]),
+        resolution_dyn,
+        int(resolution_dyn / 2),
+        dictionary_velocity_map_vdec,
+        x_limits=(0.0, 360.0),
+        y_limits=(-90.0, 90.0),
+    )
+
+    # Create P-Pdot density maps.
+    ppdmaps.generate_ppdot_map(
+        dataset_path,
+        f"survey_{survey_name}_ppdot_map",
+        sample_number,
+        type,
+        df_survey["P"],
+        df_survey["P_dot"] / const.YR_TO_S,
+        resolution_ppdot,
+        resolution_ppdot,
+        dictionary_ppdot_map,
+    )
 
 
 def generate_dataset(args) -> None:
@@ -84,15 +217,21 @@ def generate_dataset(args) -> None:
 
     # Initialize dictionaries that will contain the density map files names and
     # the corresponding set of parameters values.
-    position_map_xy_dictionary = {}
-    position_map_xz_dictionary = {}
-    position_map_radec_dictionary = {}
-    velocity_map_xy_vr_dictionary = {}
-    velocity_map_xy_vphi_dictionary = {}
-    velocity_map_xy_vz_dictionary = {}
-    velocity_map_vra_dictionary = {}
-    velocity_map_vdec_dictionary = {}
-    ppdot_map_dictionary = {}
+    survey_PMPS_position_map_radec_dictionary = {}
+    survey_PMPS_velocity_map_vra_dictionary = {}
+    survey_PMPS_velocity_map_vdec_dictionary = {}
+    survey_PMPS_ppdot_map_dictionary = {}
+
+    survey_SMPS_position_map_radec_dictionary = {}
+    survey_SMPS_velocity_map_vra_dictionary = {}
+    survey_SMPS_velocity_map_vdec_dictionary = {}
+    survey_SMPS_ppdot_map_dictionary = {}
+
+    survey_HTRU_position_map_radec_dictionary = {}
+    survey_HTRU_velocity_map_vra_dictionary = {}
+    survey_HTRU_velocity_map_vdec_dictionary = {}
+    survey_HTRU_ppdot_map_dictionary = {}
+
     param_dictionary = {}
 
     # Check if the parsed simulated populations directory exists.
@@ -111,145 +250,49 @@ def generate_dataset(args) -> None:
 
         log.info(f"Generating sample {s:06}")
 
-        # Check if the simulated population file exists as a precondition.
-        pop_path = pathlib.Path(f"{root_path}/{s:06}/final_population.pkl.gz")
-
-        if not pop_path.exists():
-            log.error(f"Population file not found in {pop_path}")
-            sys.exit()
-
-        # Create a data frame object of the population file.
-        df_pop = pd.read_pickle(str(pop_path), compression="gzip")
-
-        # Remove the units header row from the data frame.
-        df_pop.columns = [x[0] for x in df_pop.columns]
-
-        # Create position density maps projected on XY plane.
-        pmaps.generate_position_map(
+        create_survey_maps(
+            root_path,
             dataset_path,
-            "position_map_xy",
+            "PMPS",
+            "survey_PMPS_results",
             s,
             args.type,
-            df_pop["x"],
-            df_pop["y"],
             args.resolution_dyn,
             args.resolution_dyn,
-            position_map_xy_dictionary,
+            survey_PMPS_position_map_radec_dictionary,
+            survey_PMPS_velocity_map_vra_dictionary,
+            survey_PMPS_velocity_map_vdec_dictionary,
+            survey_PMPS_ppdot_map_dictionary,
         )
 
-        # Create position density maps projected on XZ plane.
-        pmaps.generate_position_map(
+        create_survey_maps(
+            root_path,
             dataset_path,
-            "position_map_xz",
+            "SMPS",
+            "survey_SMPS_results",
             s,
             args.type,
-            df_pop["x"],
-            df_pop["z"],
             args.resolution_dyn,
             args.resolution_dyn,
-            position_map_xz_dictionary,
+            survey_SMPS_position_map_radec_dictionary,
+            survey_SMPS_velocity_map_vra_dictionary,
+            survey_SMPS_velocity_map_vdec_dictionary,
+            survey_SMPS_ppdot_map_dictionary,
         )
 
-        # Create velocity maps of component v_r in the XY plane.
-        vmaps.generate_velocity_map(
+        create_survey_maps(
+            root_path,
             dataset_path,
-            "velocity_map_xy_vr",
+            "HTRU",
+            "survey_HTRU_results_low_mid",
             s,
             args.type,
-            df_pop["x"],
-            df_pop["y"],
-            abs(df_pop["v_r"]),
             args.resolution_dyn,
             args.resolution_dyn,
-            velocity_map_xy_vr_dictionary,
-        )
-
-        # Create velocity maps of component v_phi in the XY plane.
-        vmaps.generate_velocity_map(
-            dataset_path,
-            "velocity_map_xy_vphi",
-            s,
-            args.type,
-            df_pop["x"],
-            df_pop["y"],
-            abs(df_pop["v_phi"]),
-            args.resolution_dyn,
-            args.resolution_dyn,
-            velocity_map_xy_vphi_dictionary,
-        )
-
-        # Create velocity maps of component v_z in the XY plane.
-        vmaps.generate_velocity_map(
-            dataset_path,
-            "velocity_map_xy_vz",
-            s,
-            args.type,
-            df_pop["x"],
-            df_pop["y"],
-            abs(df_pop["v_z"]),
-            args.resolution_dyn,
-            args.resolution_dyn,
-            velocity_map_xy_vz_dictionary,
-        )
-
-        # Create position density maps projected on RA DEC plane.
-        pmaps.generate_position_map(
-            dataset_path,
-            "position_map_radec",
-            s,
-            args.type,
-            df_pop["RA"],
-            df_pop["DEC"],
-            args.resolution_dyn,
-            int(args.resolution_dyn / 2),
-            position_map_radec_dictionary,
-            x_limits=(0.0, 360.0),
-            y_limits=(-90.0, 90.0),
-        )
-
-        # Create velocity maps of component v_RA in the RA DEC plane.
-        vmaps.generate_velocity_map(
-            dataset_path,
-            "velocity_map_vra",
-            s,
-            args.type,
-            df_pop["RA"],
-            df_pop["DEC"],
-            abs(df_pop["v_RA"]),
-            args.resolution_dyn,
-            int(args.resolution_dyn / 2),
-            velocity_map_vra_dictionary,
-            x_limits=(0.0, 360.0),
-            y_limits=(-90.0, 90.0),
-        )
-
-        # Create velocity maps of component v_DEC in the RA DEC plane.
-        vmaps.generate_velocity_map(
-            dataset_path,
-            "velocity_map_vdec",
-            s,
-            args.type,
-            df_pop["RA"],
-            df_pop["DEC"],
-            abs(df_pop["v_DEC"]),
-            args.resolution_dyn,
-            int(args.resolution_dyn / 2),
-            velocity_map_vdec_dictionary,
-            x_limits=(0.0, 360.0),
-            y_limits=(-90.0, 90.0),
-        )
-
-        # Create P-Pdot density maps.
-        ppdmaps.generate_ppdot_map(
-            dataset_path,
-            "ppdot_map",
-            s,
-            args.type,
-            df_pop["P"],
-            df_pop["P_dot"] / const.YR_TO_S,
-            args.resolution_ppdot,
-            args.resolution_ppdot,
-            ppdot_map_dictionary,
+            survey_SMPS_position_map_radec_dictionary,
+            survey_SMPS_velocity_map_vra_dictionary,
+            survey_SMPS_velocity_map_vdec_dictionary,
+            survey_SMPS_ppdot_map_dictionary,
         )
 
         # Check if files containing labels exists as a precondition.
@@ -267,15 +310,18 @@ def generate_dataset(args) -> None:
 
     # Merge the filename and parameters dictionaries in a single dictionary.
     dataset_dictionary = {
-        **position_map_xy_dictionary,
-        **position_map_xz_dictionary,
-        **position_map_radec_dictionary,
-        **velocity_map_xy_vr_dictionary,
-        **velocity_map_xy_vphi_dictionary,
-        **velocity_map_xy_vz_dictionary,
-        **velocity_map_vra_dictionary,
-        **velocity_map_vdec_dictionary,
-        **ppdot_map_dictionary,
+        **survey_PMPS_position_map_radec_dictionary,
+        **survey_SMPS_position_map_radec_dictionary,
+        **survey_HTRU_position_map_radec_dictionary,
+        **survey_PMPS_velocity_map_vra_dictionary,
+        **survey_SMPS_velocity_map_vra_dictionary,
+        **survey_HTRU_velocity_map_vra_dictionary,
+        **survey_PMPS_velocity_map_vdec_dictionary,
+        **survey_SMPS_velocity_map_vdec_dictionary,
+        **survey_HTRU_velocity_map_vdec_dictionary,
+        **survey_PMPS_ppdot_map_dictionary,
+        **survey_SMPS_ppdot_map_dictionary,
+        **survey_HTRU_ppdot_map_dictionary,
         **param_dictionary,
     }
 

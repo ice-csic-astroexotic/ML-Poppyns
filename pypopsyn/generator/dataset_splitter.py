@@ -31,9 +31,13 @@
 
 """
 
+import logging
+import sys
 from typing import Tuple
 
 import numpy as np
+
+log = logging.getLogger(__name__)
 
 
 def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
@@ -50,6 +54,13 @@ def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
         (dict, dict): Two dictionaries providing the information on the two sub-datasets created from the split.
 
     """
+
+    # Check if the split argument falls in the range [0, 1].
+    if (split <= 0.0) or (split >= 1.0):
+        log.error(
+            f"Split argument {split} out of range. It must be in the range (0, 1)."
+        )
+        sys.exit()
 
     dataset_size = [len(x) for x in dataset_dict.values()][0]
 
