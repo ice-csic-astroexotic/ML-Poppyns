@@ -69,12 +69,9 @@ def create_survey_maps(
     dictionary_ppdot_map: dict,
 ) -> None:
     """
-    This method reads the simulated population files (usually by the simulation
-    helper) folder and generates a dataset of density maps in the specified
+    This method reads the simulated survey files (usually by the simulation
+    helper) and generates a set of density maps in the specified
     format (images or arrays) and with a specified resolution.
-    All the information about the dataset are stored in a dataset.csv file
-    containing the density map files names and the set of parameter values for
-    each simulated population.
 
     Args:
 
@@ -250,6 +247,7 @@ def generate_dataset(args) -> None:
 
         log.info(f"Generating sample {s:06}")
 
+        # Create a set of maps for each survey.
         create_survey_maps(
             root_path,
             dataset_path,

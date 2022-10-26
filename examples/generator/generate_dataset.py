@@ -1,7 +1,7 @@
 """ Generator for dataset.
 
     This module creates a dataset of the simulated populations for every
-    population simulated from the simulator `initialize_evolve_population.py`
+    population simulated from the simulator `simulate_population_full.py`
     with different initial parameters.
 
     This expects that a set of populations have been generated either using
