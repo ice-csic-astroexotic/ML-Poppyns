@@ -68,7 +68,36 @@ from pypopsyn.simulator.configuration import cfg
 log = logging.getLogger(__name__)
 
 
-def set_default(args_dict: dict) -> None:  # noqa: C901
+def set_default_parameter(args_dict: dict, parameter_name: str) -> None:
+    """
+    If a parameter related to the simulation is None, set it to the
+    default value provided in the configuration file.
+    Args:
+            args_dict: dictionary of the parsed argument via CLI.
+            parameter_name (str): name of the parameter to set.
+    """
+
+    if args_dict[parameter_name] is None:
+        if args_dict["sampling_type"] == "grid":
+            args_dict[parameter_name] = [
+                cfg[parameter_name],
+                cfg[parameter_name],
+                1,
+            ]
+        elif args_dict["sampling_type"] == "random":
+            args_dict[parameter_name] = [
+                cfg[parameter_name],
+                cfg[parameter_name],
+            ]
+
+        log.info(
+            "{} set to the default value {}".format(
+                parameter_name, cfg[parameter_name]
+            )
+        )
+
+
+def set_default_if_none(args_dict: dict) -> None:  # noqa: C901
     """
     If any of the parameters related to the simulation are None, set them to the
     default value provided in the configuration file.
@@ -76,166 +105,67 @@ def set_default(args_dict: dict) -> None:  # noqa: C901
             args_dict: dictionary of the parsed argument via CLI.
     """
 
-    if args_dict["sigma_k"] is None:
-        if args_dict["kick_model"] == "km_maxwell":
-            if args_dict["sampling_type"] == "grid":
-                args_dict["sigma_k"] = [cfg["sigma_k"], cfg["sigma_k"], 1]
-            elif args_dict["sampling_type"] == "random":
-                args_dict["sigma_k"] = [cfg["sigma_k"], cfg["sigma_k"]]
+    if args_dict["kick_model"] == "km_maxwell":
+        set_default_parameter(args_dict, "sigma_k")
 
-            log.info(
-                "sigma_k set to the default value {}".format(cfg["sigma_k"])
+    if args_dict["kick_model"] == "km_exp":
+        set_default_parameter(args_dict, "vk_c")
+
+    set_default_parameter(args_dict, "h_c")
+
+    if args_dict["spin_period_model"] == "normal":
+        set_default_parameter(args_dict, "P_initial_mean")
+        set_default_parameter(args_dict, "P_initial_sigma")
+
+    if args_dict["spin_period_model"] == "log-normal":
+        set_default_parameter(args_dict, "P_initial_log10_mean")
+        set_default_parameter(args_dict, "P_initial_log10_sigma")
+
+    set_default_parameter(args_dict, "B_initial_log10_mean")
+    set_default_parameter(args_dict, "B_initial_log10_sigma")
+    set_default_parameter(args_dict, "a_late")
+
+
+def expand_parameter(
+    args_dict: dict, parameter_name: str, range_values: list
+) -> np.ndarray:
+    """
+    Expand the simulation parameters.
+    If in grid mode: expand each simulation parameter in linear space in the specified ranges.
+    If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
+    Args:
+        args_dict: dictionary of the parsed argument via CLI.
+        parameter_name (str): name of the parameter to expand.
+        range_values (list): range of values where to expand the parameter.
+    Return:
+        (np.ndarray): a list containing the expanded range of the parameter.
+    """
+
+    expanded_parameter = []
+
+    if args_dict["sampling_type"] == "grid":
+        # The three values [low, high, steps] are used to expand each of the
+        # argument with linear spacing in the range [low, high] with a number of specified steps.
+        if len(range_values) != 3:
+            raise ValueError(
+                f"In grid mode the list must have length 3 for parameter {parameter_name}"
             )
-
-    if args_dict["vk_c"] is None:
-        if args_dict["kick_model"] == "km_exp":
-            if args_dict["sampling_type"] == "grid":
-                args_dict["vk_c"] = [cfg["vk_c"], cfg["vk_c"], 1]
-            elif args_dict["sampling_type"] == "random":
-                args_dict["vk_c"] = [cfg["vk_c"], cfg["vk_c"]]
-
-            log.info("vk_c set to the default value {}".format(cfg["vk_c"]))
-
-    if args_dict["h_c"] is None:
-        if args_dict["sampling_type"] == "grid":
-            args_dict["h_c"] = [cfg["h_c"], cfg["h_c"], 1]
-        elif args_dict["sampling_type"] == "random":
-            args_dict["h_c"] = [cfg["h_c"], cfg["h_c"]]
-
-        log.info("vk_c set to the default value {}".format(cfg["h_c"]))
-
-    if args_dict["P_initial_mean"] is None:
-        if args_dict["spin_period_model"] == "normal":
-            if args_dict["sampling_type"] == "grid":
-                args_dict["P_initial_mean"] = [
-                    cfg["P_initial_mean"],
-                    cfg["P_initial_mean"],
-                    1,
-                ]
-            elif args_dict["sampling_type"] == "random":
-                args_dict["P_initial_mean"] = [
-                    cfg["P_initial_mean"],
-                    cfg["P_initial_mean"],
-                ]
-
-            log.info(
-                "P_initial_mean set to the default value {}".format(
-                    cfg["P_initial_mean"]
-                )
-            )
-
-    if args_dict["P_initial_sigma"] is None:
-        if args_dict["spin_period_model"] == "normal":
-            if args_dict["sampling_type"] == "grid":
-                args_dict["P_initial_sigma"] = [
-                    cfg["P_initial_sigma"],
-                    cfg["P_initial_sigma"],
-                    1,
-                ]
-            elif args_dict["sampling_type"] == "random":
-                args_dict["P_initial_sigma"] = [
-                    cfg["P_initial_sigma"],
-                    cfg["P_initial_sigma"],
-                ]
-
-            log.info(
-                "P_initial_sigma set to the default value {}".format(
-                    cfg["P_initial_sigma"]
-                )
-            )
-
-    if args_dict["P_initial_log10_mean"] is None:
-        if args_dict["spin_period_model"] == "log-normal":
-            if args_dict["sampling_type"] == "grid":
-                args_dict["P_initial_log10_mean"] = [
-                    cfg["P_initial_log10_mean"],
-                    cfg["P_initial_log10_mean"],
-                    1,
-                ]
-            elif args_dict["sampling_type"] == "random":
-                args_dict["P_initial_log10_mean"] = [
-                    cfg["P_initial_log10_mean"],
-                    cfg["P_initial_log10_mean"],
-                ]
-
-            log.info(
-                "P_initial_log10_mean set to the default value {}".format(
-                    cfg["P_initial_log10_mean"]
-                )
-            )
-
-    if args_dict["P_initial_log10_sigma"] is None:
-        if args_dict["spin_period_model"] == "log-normal":
-            if args_dict["sampling_type"] == "grid":
-                args_dict["P_initial_log10_sigma"] = [
-                    cfg["P_initial_log10_sigma"],
-                    cfg["P_initial_log10_sigma"],
-                    1,
-                ]
-            elif args_dict["sampling_type"] == "random":
-                args_dict["P_initial_log10_sigma"] = [
-                    cfg["P_initial_log10_sigma"],
-                    cfg["P_initial_log10_sigma"],
-                ]
-
-            log.info(
-                "P_initial_log10_sigma set to the default value {}".format(
-                    cfg["P_initial_log10_sigma"]
-                )
-            )
-
-    if args_dict["B_initial_log10_mean"] is None:
-        if args_dict["sampling_type"] == "grid":
-            args_dict["B_initial_log10_mean"] = [
-                cfg["B_initial_log10_mean"],
-                cfg["B_initial_log10_mean"],
-                1,
-            ]
-        elif args_dict["sampling_type"] == "random":
-            args_dict["B_initial_log10_mean"] = [
-                cfg["B_initial_log10_mean"],
-                cfg["B_initial_log10_mean"],
-            ]
-
-        log.info(
-            "B_initial_log10_mean set to the default value {}".format(
-                cfg["B_initial_log10_mean"]
-            )
+        expanded_parameter = np.linspace(
+            range_values[0], range_values[1], int(range_values[2])
         )
 
-    if args_dict["B_initial_log10_sigma"] is None:
-        if args_dict["sampling_type"] == "grid":
-            args_dict["B_initial_log10_sigma"] = [
-                cfg["B_initial_log10_sigma"],
-                cfg["B_initial_log10_sigma"],
-                1,
-            ]
-        elif args_dict["sampling_type"] == "random":
-            args_dict["B_initial_log10_sigma"] = [
-                cfg["B_initial_log10_sigma"],
-                cfg["B_initial_log10_sigma"],
-            ]
-
-        log.info(
-            "B_initial_log10_sigma set to the default value {}".format(
-                cfg["B_initial_log10_sigma"]
+    elif args_dict["sampling_type"] == "random":
+        # The two values [low, high] define the range from which a number of values
+        # (specified according to the sampling_size argument) is drawn from a uniform distribution.
+        if len(range_values) != 2:
+            raise ValueError(
+                f"In random mode the list must have length 2 for parameter {parameter_name}"
             )
+        expanded_parameter = np.random.uniform(
+            range_values[0], range_values[1], int(args_dict["sampling_size"])
         )
 
-    if args_dict["a_late"] is None:
-        if args_dict["sampling_type"] == "grid":
-            args_dict["a_late"] = [
-                cfg["a_late"],
-                cfg["a_late"],
-                1,
-            ]
-        elif args_dict["sampling_type"] == "random":
-            args_dict["a_late"] = [
-                cfg["a_late"],
-                cfg["a_late"],
-            ]
-
-        log.info("a_late set to the default value {}".format(cfg["a_late"]))
+    return expanded_parameter
 
 
 def check_expand_args(args_dict: dict) -> (list, list):
@@ -314,30 +244,10 @@ def check_expand_args(args_dict: dict) -> (list, list):
         elif type(value) is list:
             # If the value is a list, we assume it will be a specification of
             # three values if sampling_type = grid or two values if sampling_type = random.
-
-            if args_dict["sampling_type"] == "grid":
-                # The three values [low, high, steps] are used to expand each of the
-                # argument with linear spacing in the range [low, high] with a number of specified steps.
-                if len(value) != 3:
-                    raise ValueError(
-                        f"In grid mode the list must have length 3 for parameter {arg}"
-                    )
-                var_range = np.linspace(value[0], value[1], int(value[2]))
-                var_expanded_ranges.append(list(var_range))
-                var_names.append(arg)
-
-            if args_dict["sampling_type"] == "random":
-                # The two values [low, high] define the range from which a number of values
-                # (specified according to the sampling_size argument) is drawn from a uniform distribution.
-                if len(value) != 2:
-                    raise ValueError(
-                        f"In random mode the list must have length 2 for parameter {arg}"
-                    )
-                var_range = np.random.uniform(
-                    value[0], value[1], int(args_dict["sampling_size"])
-                )
-                var_expanded_ranges.append(list(var_range))
-                var_names.append(arg)
+            # We then expand the parameter accordingly.
+            var_range = expand_parameter(args_dict, arg, value)
+            var_expanded_ranges.append(list(var_range))
+            var_names.append(arg)
 
     log.info(f"Required parameters {required_parameters}")
     log.info(f"Forbidden parameters {forbidden_parameters}")
@@ -366,7 +276,7 @@ def main(args):
 
     # If any of the parameters related to the simulation are None,
     # set them to the default value provided in the configuration file.
-    set_default(args_dict)
+    set_default_if_none(args_dict)
 
     # Check and expand the parameters in the provided ranges.
     var_names, var_expanded_ranges = check_expand_args(args_dict)
