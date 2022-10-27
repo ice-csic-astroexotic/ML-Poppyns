@@ -32,6 +32,7 @@ SOFTWARE.
 """
 import json
 import pathlib
+from typing import Tuple
 
 import healpy as hp
 import numpy as np
@@ -41,6 +42,7 @@ from astropy.wcs import WCS
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
+import pypopsyn.simulator.multiband_emission.emission_radio as er
 from pypopsyn.simulator.configuration import cfg
 
 
@@ -507,6 +509,7 @@ class SurveyRadio:
             (np.ndarray): array of boolean variables: true if the pulsar is detected,
                 false if not.
         """
+
         # Store the total number of sources.
         n = len(S_radio_obs_mean)
 
@@ -527,3 +530,66 @@ class SurveyRadio:
         detected = SNR_detection > self.SNR_th
 
         return detected
+
+    def radio_detection(
+        self,
+        w_int_s: np.ndarray,
+        DM: np.ndarray,
+        P: np.ndarray,
+        age: np.ndarray,
+        coverage: np.ndarray,
+        l_gal: np.ndarray,
+        b_gal: np.ndarray,
+        S_radio_bol,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+
+        """
+        Compute the pulsars detected by the survey.
+
+        Args:
+            w_int_s (np.ndarray) intrinsic pulse widths in [s]
+            DM (np.ndarray): dispersion measure in [pc cm^-3].
+            P (np.ndarray): array of spin periods of the pulsars in [s].
+            age (np.ndarray): array of neutron star ages [yrs].
+            coverage (np.ndarray): array of indexes of the pulsar within the sky coverage.
+            l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
+            b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
+            S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
+
+        Returns:
+            (np.ndarray, np.ndarray, np.ndarray): Tuple consisting of three arrays defining the indexes of the
+            pulsars detected by the survey, the effective pulse width and period-averaged flux.
+        """
+
+        # Computing the intrinsic radio flux density in [Jy].
+        S_radio_f = er.flux_density_radio(
+            S_radio_bol,
+            f=self.f_central,
+        )
+
+        # Compute the effective pulse width in [s].
+        w_eff = effective_pulse_width(
+            w_int_s,
+            DM,
+            self.channel_width,
+            self.f_central,
+            self.t_samp,
+        )
+
+        # Compute the observed radio flux in [Jy].
+        S_radio_obs = flux_radio_obs(S_radio_f, w_int_s, w_eff)
+
+        # Compute the period-averaged flux in [Jy].
+        S_radio_obs_mean = flux_radio_obs_period_average(S_radio_obs, P, w_eff)
+
+        detected_radio = np.zeros(len(age), dtype=bool)
+
+        detected_radio[coverage] = self.detect(
+            S_radio_obs_mean[coverage],
+            l_gal[coverage],
+            b_gal[coverage],
+            w_eff[coverage],
+            P[coverage],
+        )
+
+        return detected_radio, w_eff, S_radio_obs_mean

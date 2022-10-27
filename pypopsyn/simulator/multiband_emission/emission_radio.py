@@ -28,6 +28,10 @@ SOFTWARE.
 import numpy as np
 
 import pypopsyn.simulator.basics.constants as const
+import pypopsyn.simulator.basics.random_sampler as rs
+import pypopsyn.simulator.interstellar_medium.e_density_model as edm
+import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
+import pypopsyn.simulator.multiband_emission.emission_radio as er
 from pypopsyn.simulator.configuration import cfg
 
 
@@ -229,3 +233,124 @@ def flux_density_radio(
     ) / const.JY_TO_ERG
 
     return S_radio_f
+
+
+def radio_emission(
+    P: np.ndarray,
+    age: np.ndarray,
+    l_gal: np.ndarray,
+    b_gal: np.ndarray,
+    dist: np.ndarray,
+    B: np.ndarray,
+    chi: np.ndarray,
+    idx_det,
+) -> dict:
+
+    """
+
+    Compute the radio beam geometry, the intrinsic bolometric radio flux and the DM.
+    Note that the luminosity and DM is computed for only the pulsars that its beam crosses our line of sight.
+
+    Args:
+        P (np.ndarray): array of spin periods of the pulsars in [s].
+        age (np.ndarray): array of neutron star age [yrs].
+        l_gal (np.ndarray): array of galactic longitude in [deg] defined between [-180, 180] deg.
+        b_gal (np.ndarray): array of galactic latitude in [deg] defined between [-90, 90] deg.
+        dist (np.ndarray): array of distance from the ICRS origin in [kpc].
+        B (np.ndarray): array of neutron stars' final magnetic field strengths in [G].
+        chi (np.ndarray): Array of the misalignment angles in [rad].
+        idx_det (np.ndarray): Array of the indexes of detected pulsars .
+
+    Returns:
+        (Dict): dictionary with the intrinsic properties of the pulsars that its beam crosses our line of sight.
+    """
+
+    # Determining the radio beam angular aperture.
+    rho_beam = er.beam_aperture(P, cfg["r_em"])
+
+    # Determining the solid angle covered by the two radio beams.
+    solid_angle_beam = er.solid_angle_radio_beams(rho_beam)
+
+    # Drawing a random angular intercept for the line of sight.
+    # Note that since we assume symmetry between the northern and southern hemisphere of the star
+    # we only need to consider one hemisphere, e.g., the northern one.
+    los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
+    los_rand = rs.random_from_pdf(los_grid, np.sin, len(age))
+
+    # Determining if the pulsar's radio beam intercepts our line of sight.
+    intercepted_radio = er.los_intercept(
+        chi,
+        rho_beam,
+        los_rand,
+    )
+
+    # Select only neutron stars that point at us.
+    idx_det = idx_det[intercepted_radio]
+
+    age_det = age[intercepted_radio]
+    l_det = l_gal[intercepted_radio]
+    b_det = b_gal[intercepted_radio]
+    dist_det = dist[intercepted_radio]
+    B_det = B[intercepted_radio]
+    chi_det = chi[intercepted_radio]
+    P_det = P[intercepted_radio]
+    rho_beam_det = rho_beam[intercepted_radio]
+    los_rand_det = los_rand[intercepted_radio]
+    solid_angle_beam = solid_angle_beam[intercepted_radio]
+
+    # Determining the final period derivative.
+    period_derivative_vect = np.vectorize(pdv.period_derivative)
+    P_dot_det = (
+        period_derivative_vect(
+            B_det,
+            chi_det,
+            P_det,
+        )
+        / const.YR_TO_S
+    )
+
+    # Determining the luminosity in different electromagnetic bands.
+    L_radio_bol = er.pdf_luminosity_radio(P_det, P_dot_det)
+
+    # Computing the intrinsic bolometric radio flux.
+    S_radio_bol = er.flux_radio(
+        L_radio_bol,
+        dist_det,
+        solid_angle_beam,
+    )
+
+    # Computing the intrinsic pulse width of the radio pulse.
+    w_int = er.pulse_width(
+        chi_det,
+        rho_beam_det,
+        los_rand_det,
+    )
+
+    # Convert pulse width from [rad] to [s].
+    w_int_s = w_int * P_det / (2.0 * np.pi)
+
+    # Computing the DM.
+    DM = edm.compute_DM(
+        l_det,
+        b_det,
+        dist_det,
+        cfg["ed_model"],
+    )
+
+    dictionary_detected = {
+        "age_det": age_det,
+        "l_det": l_det,
+        "b_det": b_det,
+        "B_det": B_det,
+        "chi_det": chi_det,
+        "P_det": P_det,
+        "P_dot_det": P_dot_det,
+        "w_int_s": w_int_s,
+        "L_radio_bol": L_radio_bol,
+        "S_radio_bol": S_radio_bol,
+        "DM": DM,
+        "idx_det": idx_det,
+        "intercepted_radio": intercepted_radio,
+    }
+
+    return dictionary_detected
