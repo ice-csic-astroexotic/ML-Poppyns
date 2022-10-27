@@ -508,8 +508,16 @@ def simulate_population(args) -> None:
                 magrot_evolution_dump_path = pathlib.Path().joinpath(
                     output_path, "magrot_evolution.json"
                 )
-                with open(magrot_evolution_dump_path, "w") as f:
-                    json.dump(magrot_evol_dict, f, indent=4, sort_keys=True)
+
+                with open(magrot_evolution_dump_path, "wb") as f:
+                    f.write(
+                        orjson.dumps(
+                            dict(magrot_evol_dict),
+                            option=orjson.OPT_SERIALIZE_NUMPY
+                            | orjson.OPT_NON_STR_KEYS
+                            | orjson.OPT_SORT_KEYS,
+                        )
+                    )
 
             timer.checkpoint(
                 "[Final field strengths, misalignment angles and periods]"
