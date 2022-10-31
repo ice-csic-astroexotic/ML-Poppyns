@@ -262,7 +262,7 @@ def radio_emission(
         idx_det (np.ndarray): Array of the indexes of detected pulsars .
 
     Returns:
-        (Dict): dictionary with the intrinsic properties of the pulsars that its beam crosses our line of sight.
+        (Dict): dictionary with the intrinsic properties of the pulsars whose beam crosses our line of sight.
     """
 
     # Determining the radio beam angular aperture.
@@ -309,7 +309,7 @@ def radio_emission(
         / const.YR_TO_S
     )
 
-    # Determining the luminosity in different electromagnetic bands.
+    # Determining the bolometric radio luminosity.
     L_radio_bol = er.pdf_luminosity_radio(P_det, P_dot_det)
 
     # Computing the intrinsic bolometric radio flux.
@@ -337,7 +337,7 @@ def radio_emission(
         cfg["ed_model"],
     )
 
-    dictionary_detected = {
+    dictionary_intercepted_radio = {
         "age_det": age_det,
         "l_det": l_det,
         "b_det": b_det,
@@ -353,4 +353,4 @@ def radio_emission(
         "intercepted_radio": intercepted_radio,
     }
 
-    return dictionary_detected
+    return dictionary_intercepted_radio

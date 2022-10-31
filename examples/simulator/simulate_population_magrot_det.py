@@ -521,7 +521,8 @@ def simulate_population(args) -> None:
 
                 # ===================== RADIO EMISSION ========================
 
-                dictionary_detected = er.radio_emission(
+                # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties of their radio emission.
+                dictionary_intercepted_radio = er.radio_emission(
                     P_det,
                     age_det,
                     l_det,
@@ -532,19 +533,21 @@ def simulate_population(args) -> None:
                     idx_det,
                 )
 
-                age_det = dictionary_detected["age_det"]
-                l_det = dictionary_detected["l_det"]
-                b_det = dictionary_detected["b_det"]
-                B_det = dictionary_detected["B_det"]
-                chi_det = dictionary_detected["chi_det"]
-                P_det = dictionary_detected["P_det"]
-                w_int_s = dictionary_detected["w_int_s"]
-                DM = dictionary_detected["DM"]
-                idx_det = dictionary_detected["idx_det"]
-                L_radio_bol = dictionary_detected["L_radio_bol"]
-                S_radio_bol = dictionary_detected["S_radio_bol"]
-                P_dot_det = dictionary_detected["P_dot_det"]
-                intercepted_radio = dictionary_detected["intercepted_radio"]
+                age_det = dictionary_intercepted_radio["age_det"]
+                l_det = dictionary_intercepted_radio["l_det"]
+                b_det = dictionary_intercepted_radio["b_det"]
+                B_det = dictionary_intercepted_radio["B_det"]
+                chi_det = dictionary_intercepted_radio["chi_det"]
+                P_det = dictionary_intercepted_radio["P_det"]
+                w_int_s = dictionary_intercepted_radio["w_int_s"]
+                DM = dictionary_intercepted_radio["DM"]
+                idx_det = dictionary_intercepted_radio["idx_det"]
+                L_radio_bol = dictionary_intercepted_radio["L_radio_bol"]
+                S_radio_bol = dictionary_intercepted_radio["S_radio_bol"]
+                P_dot_det = dictionary_intercepted_radio["P_dot_det"]
+                intercepted_radio = dictionary_intercepted_radio[
+                    "intercepted_radio"
+                ]
 
                 coverage_PMPS = coverage_PMPS[intercepted_radio]
                 coverage_SMPS = coverage_SMPS[intercepted_radio]
