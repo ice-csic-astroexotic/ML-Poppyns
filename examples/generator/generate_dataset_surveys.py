@@ -176,7 +176,7 @@ def create_survey_maps(
         sample_number,
         type,
         df_survey["P"],
-        df_survey["P_dot"] / const.YR_TO_S,
+        df_survey["P_dot"],
         resolution_ppdot,
         resolution_ppdot,
         dictionary_ppdot_map,
