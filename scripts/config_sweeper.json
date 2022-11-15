@@ -1,0 +1,26 @@
+{
+  "kick_model": {
+    "km_maxwell": [
+        "sigma_k"
+    ],
+    "km_exp": [
+        "vk_c"
+    ]
+  },
+  "spin_period_model": {
+    "normal": [
+        "P_initial_mean",
+        "P_initial_sigma"
+    ],
+    "log-normal": [
+        "P_initial_log10_mean",
+        "P_initial_log10_sigma"
+    ]
+  },
+  "sampling_type": {
+    "random": [
+        "sampling_size"
+    ],
+    "grid": []
+  }
+}
