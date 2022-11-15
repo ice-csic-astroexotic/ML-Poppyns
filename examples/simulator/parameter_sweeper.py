@@ -1,6 +1,3 @@
-#!/usr/bin/evn python3
-# -*- coding: utf-8 -*-
-
 """
     Parameter sweeper script.
 
@@ -72,11 +69,14 @@ def set_default_parameter(args_dict: dict, parameter_name: str) -> None:
     """
     If a parameter related to the simulation is None, set it to the
     default value provided in the configuration file.
+
     Args:
-            args_dict: dictionary of the parsed argument via CLI.
+            args_dict (dict): dictionary of the parsed argument via CLI.
             parameter_name (str): name of the parameter to set.
     """
 
+    # If a parameter related to the simulation is None, set it to the
+    # default value provided in the configuration file.
     if args_dict[parameter_name] is None:
         if args_dict["sampling_type"] == "grid":
             args_dict[parameter_name] = [
@@ -97,14 +97,16 @@ def set_default_parameter(args_dict: dict, parameter_name: str) -> None:
         )
 
 
-def set_default_if_none(args_dict: dict) -> None:  # noqa: C901
+def set_default_if_none(args_dict: dict) -> None:
     """
     If any of the parameters related to the simulation are None, set them to the
     default value provided in the configuration file.
+
     Args:
-            args_dict: dictionary of the parsed argument via CLI.
+            args_dict (dict): dictionary of the parsed argument via CLI.
     """
 
+    # Setting the default parameters for the dynamical evolution.
     if args_dict["kick_model"] == "km_maxwell":
         set_default_parameter(args_dict, "sigma_k")
 
@@ -113,6 +115,7 @@ def set_default_if_none(args_dict: dict) -> None:  # noqa: C901
 
     set_default_parameter(args_dict, "h_c")
 
+    # Setting the default parameters for the magneto-rotational evolution.
     if args_dict["spin_period_model"] == "normal":
         set_default_parameter(args_dict, "P_initial_mean")
         set_default_parameter(args_dict, "P_initial_sigma")
@@ -133,8 +136,9 @@ def expand_parameter(
     Expand the simulation parameters.
     If in grid mode: expand each simulation parameter in linear space in the specified ranges.
     If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
+
     Args:
-        args_dict: dictionary of the parsed argument via CLI.
+        args_dict (dict): dictionary of the parsed argument via CLI.
         parameter_name (str): name of the parameter to expand.
         range_values (list): range of values where to expand the parameter.
     Return:
@@ -145,7 +149,7 @@ def expand_parameter(
 
     if args_dict["sampling_type"] == "grid":
         # The three values [low, high, steps] are used to expand each of the
-        # argument with linear spacing in the range [low, high] with a number of specified steps.
+        # arguments with linear spacing in the range [low, high] with a number of specified steps.
         if len(range_values) != 3:
             raise ValueError(
                 f"In grid mode the list must have length 3 for parameter {parameter_name}"
@@ -173,8 +177,9 @@ def check_expand_args(args_dict: dict) -> (list, list):
     Check if the parsed input arguments are coherent and have the correct shape.
     If in grid mode: expand each simulation parameter in linear space in the specified ranges.
     If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
+
     Args:
-        args_dict: dictionary of the parsed argument via CLI.
+        args_dict (dict): dictionary of the parsed argument via CLI.
     Return:
         (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
         expanded parameters.
