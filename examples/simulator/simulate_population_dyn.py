@@ -37,6 +37,7 @@ import sys
 import time
 
 import numpy as np
+import orjson
 import pandas as pd
 
 import pypopsyn.benchmark.timewith as timewith
@@ -231,8 +232,16 @@ def simulate_population(args) -> None:
                 dyn_evolution_dump_path = pathlib.Path().joinpath(
                     output_path, "dyn_evolution.json"
                 )
-                with open(dyn_evolution_dump_path, "w") as f:
-                    json.dump(dyn_evol_dict, f, indent=4, sort_keys=True)
+
+                with open(dyn_evolution_dump_path, "wb") as f:
+                    f.write(
+                        orjson.dumps(
+                            dict(dyn_evol_dict),
+                            option=orjson.OPT_SERIALIZE_NUMPY
+                            | orjson.OPT_NON_STR_KEYS
+                            | orjson.OPT_SORT_KEYS,
+                        )
+                    )
 
             timer.checkpoint("[Dynamic evolution]")
 
