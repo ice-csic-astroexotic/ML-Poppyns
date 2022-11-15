@@ -41,7 +41,7 @@ This will generate a new folder :code:`simulated_data` if it does not exist, in 
 
 If the user opts to save the full evolutionary output for the dynamical and/or the magneto-rotational evolution by setting :code:`cfg["save_dyn_evolution"]` or :code:`cfg["save_magrot_evolution"]` to :code:`True` in the configuration file, a JSON file with the full time-stamped parameter evolution is also generated.
 Note that since evolving the full population and saving the entire output requires a big computational cost and storage space, this feature should be enabled only for testing purposes when running the simulation on a reduced number of stars.
-For example, to evolve and save both the full dynamical and magneto-rotational evolution for :math:`10^4` stars with a maximum age of :math:`10^7` years, the computation takes around 2 minutes and the JSON files containing the evolution outputs have a size of around 1 GB each.
+For example, to evolve and save both the full dynamical and magneto-rotational evolution for :math:`10^4` stars with a maximum age of :math:`10^7` years, the computation takes around 20 seconds and the JSON files containing the evolution outputs have a size of around 600 and 400 Mb each.
 
 
 
