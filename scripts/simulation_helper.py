@@ -454,7 +454,8 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         required=True,
-        help="Name of the simulator script you want to run. Choose between simulate_population_full, simulate_population_dyn or simulate_population_magrot_det",
+        help="Name of the simulator script you want to run. Choose between simulate_population_full, "
+        "simulate_population_dyn or simulate_population_magrot_det",
     )
 
     args.add_argument(
@@ -462,7 +463,8 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default=None,
-        help="If using the simulator simulate_population_magrot_det, path to the file where the dynamically evolved population database is stored.",
+        help="If using the simulator simulate_population_magrot_det, path to the file where "
+        "the dynamically evolved population database is stored.",
     )
 
     args.add_argument(
