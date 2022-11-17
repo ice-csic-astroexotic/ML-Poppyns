@@ -184,6 +184,11 @@ def check_expand_args(args_dict: dict) -> (list, list):
         (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
         expanded parameters.
     """
+
+    # If any of the parameters related to the simulation are None,
+    # set them to the default value provided in the configuration file.
+    set_default_if_none(args_dict)
+
     cli_args: list = []
     cli_str: list = []
 
@@ -278,10 +283,6 @@ def main(args):
     log.info("Parsing arguments...")
 
     args_dict = vars(args)
-
-    # If any of the parameters related to the simulation are None,
-    # set them to the default value provided in the configuration file.
-    set_default_if_none(args_dict)
 
     # Check and expand the parameters in the provided ranges.
     var_names, var_expanded_ranges = check_expand_args(args_dict)
