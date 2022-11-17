@@ -22,5 +22,12 @@
         "sampling_size"
     ],
     "grid": []
+  },
+  "simulator_type": {
+    "simulate_population_magrot_det": [
+        "dyn_data"
+    ],
+    "simulate_population_dyn": [],
+    "simulate_population_full": []
   }
 }
