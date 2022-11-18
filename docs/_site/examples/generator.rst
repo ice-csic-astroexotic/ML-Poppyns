@@ -2,12 +2,19 @@
 Generator Example
 *****************
 
-Once a set of simulated populations is created by running the simulator script example (see above for more information about it), now you would like to generate a dataset readable by a machine learning pipeline.
-To do that you can run the :code:`examples/generator/generate_dataset.py`.
-This script can generate either a heatmap/density maps :code:`.png` images dataset or a 2D numpy :code:`.npy` arrays dataset storing the data of 2D histograms.
-For example the heatmaps (or 2D arrays) can represent the spatial density and velocity information of the simulated neutron stars in the Galaxy in galactocentric or equatorial (ICRS) reference frames and their density in a :math:`P-\dot{P}` diagram.
 
-Suppose that you have created a set of simulated populations stored in :code:`simulated_data`.
+Once a set of simulated populations is created by running one of the simulator scripts (see above for more information about it), it is possible to generate a dataset of synthetic representations of the simulations that is readable by a machine learning pipeline.
+Depending on the type of simulations that have been performed two types of generator scripts can be used, the :code:`examples/generator/generate_dataset.py` and the :code:`examples/generator/generate_dataset_survey.py`.
+
+The first script :code:`examples/generator/generate_dataset.py` can be used if simulations have been run using the :code:`simulate_population_full` script, since it will read from the :code:`final_population.pkl.gz` output files that are produced only by this type of simulator.
+For each simulated population this script can generate a set of density maps in the form of either :code:`.png` images or 2D numpy :code:`.npy` arrays.
+These maps store the spatial density and velocity information in galactocentric or equatorial (ICRS) reference frames and the density in a :math:`P-\dot{P}` diagram of all the evolved neutron stars.
+
+The second script :code:`examples/generator/generate_dataset_survey.py` can be used if simulations have been run using the :code:`simulate_population_magrot_det` script, since it will read from :code:`.pkl.gz` output files that are produced for each of the simulated surveys.
+For each simulated population this script can generate a set of density maps in the form of either :code:`.png` images or 2D numpy :code:`.npy` arrays.
+These maps store the spatial density and proper motion information in equatorial (ICRS) reference frames and their density in a :math:`P-\dot{P}` diagram of only the simulated neutron stars that have been detected by the modelled surveys.
+
+Suppose that you have created a set of simulated populations stored in :code:`simulated_data` using the :code:`simulate_population_full` script.
 If you want to create a dataset of 2D arrays storing the spatial density and the velocity information of the simulated neutron stars with a resolution of :math:`64 \times 64` and the density in the :math:`P-\dot{P}` diagram with a resolution of :math:`32 \times 32` you can run the script:
 
 .. code-block:: bash
@@ -52,6 +59,10 @@ In this case the :code:`vaild_train_split` argument will specify the fraction of
 This will create a dataset described in the file :code:`dataset.csv` along with three other files :code:`train_dataset.csv`, :code:`valid_dataset.csv` and :code:`test_dataset.csv` that will specify the samples belonging to the train dataset (80 % of the dataset not used for testing in this case), the ones belonging to the validation dataset  (20 % of the dataset not used for testing) and the ones belonging to the test set (10 % of the total dataset), respectively.
 Again the split is performed by randomly sampling the test and validation subsets from the dataset according to the specified split fractions.
 Also in this case the :code:`statistics_train.json` file will contain the statistics computed on the labels of the training set only.
+
+*******************
+Experiment Launcher
+*******************
 
 The :code:`examples/experiment_launcher.py` script allows you to specify a list of experiment commands in a text file like:
 
