@@ -30,19 +30,19 @@ def inference_running_stat(
     x: np.ndarray, targets: np.array, n_bins: int
 ) -> (np.ndarray, np.ndarray, np.ndarray):
     """
-        Calculate the variation of the root mean square error (RMSE) the mean relative error (MRE) and of the average
-        residual with sign of the predicted values x by a trained neural network model over the range of the targets
-        data.
+    Calculate the variation of the root-mean-square error (RMSE) the mean relative error (MRE) and of the average
+    residual with sign of the predicted values x by a trained neural network model over the range of the targets'
+    data.
 
-        Args:
-            x (np.ndarray): predicted values.
-            targets (np.ndarray): target values.
-            n_bins (int): number of bins.
+    Args:
+        x (np.ndarray): predicted values.
+        targets (np.ndarray): target values.
+        n_bins (int): number of bins.
 
-        Returns:
-            (np.array, np.array, np.array, np.array): array of central values of each bin, running value of the RMSE
-            corresponding to each bin, running value of the average residuals corresponding to each bin and running
-            MRE corresponding to each bin.
+    Returns:
+        (np.array, np.array, np.array, np.array): array of central values of each bin, running value of the RMSE
+        corresponding to each bin, running value of the average residuals corresponding to each bin and running
+        MRE corresponding to each bin.
     """
     inf_lim = np.min(targets)
     sup_lim = np.max(targets)
