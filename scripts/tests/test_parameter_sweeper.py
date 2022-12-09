@@ -1,5 +1,5 @@
 """
-Test for the parameter_sweeper.py module.
+Tests for the parameter_sweeper.py module.
 
     Authors:
 
@@ -67,7 +67,7 @@ def test_case_1():
 
 def test_set_default_parameter(test_case_1):
     """
-    Testing if a parameter is none it is correctly set to the default value in random mode.
+    Testing that if a parameter is None it is correctly set to the default value in random mode.
     """
     ps.set_default_parameter(
         test_case_1["args_dict"],
