@@ -75,7 +75,8 @@ def set_default_parameter(args_dict: dict, parameter_name: str) -> None:
         Nothing.
     """
 
-    # Assigning parameter ranges for unspecified parameters according to the chosen sampling approach.
+    # For unspecified parameters, assign corresponding default value according to the chosen sampling approach.
+    # We specify a list for compatibility reasons according to [default value, default value (, 1)], respectively.
     if args_dict[parameter_name] is None:
         if args_dict["sampling_type"] == "grid":
             args_dict[parameter_name] = [
@@ -229,10 +230,10 @@ def check_expand_args(args_dict: dict) -> (list, list):
 
         elif type(value) is str:
             # If the value of this parameter is a string, this can be either
-            # the directory path where to save the multirun output or a selection parameter.
-            # In this last case we must check: (a) whether the selection is valid
-            # (b) capture the list of required parameters and (c) gather
-            # the forbidden ones (probably they belong other selection).
+            # the directory path where the multirun output is saved or a selection parameter.
+            # In the latter case we have to: (a) check whether the selection is valid,
+            # (b) capture the list of required parameters, and (c) gather the forbidden ones
+            # (i.e., those that belong to other types of selections).
             if arg == "output_dir":
                 cli_args.append("--output_dir")
                 cli_str.append(value)
@@ -250,15 +251,15 @@ def check_expand_args(args_dict: dict) -> (list, list):
                     ]
                 )
             else:
-                # If the value for such argument is not in the dictionary of
-                # possible values we throw an exception.
+                # If the value for an argument is not in the dictionary of
+                # possible values, we throw an exception.
                 raise ValueError(
                     f"The value {value} is not feasible for parameter {arg}"
                 )
 
         elif type(value) is list:
-            # If the value is a list, we assume it will be a specification of
-            # three values if sampling_type = grid or two values if sampling_type = random.
+            # If the value is a list, we assume it will be a specification of three values
+            # if sampling_type = grid or two values if sampling_type = random.
             # We then expand the parameter accordingly.
             var_range = expand_parameter(args_dict, arg, value)
             var_expanded_ranges.append(list(var_range))
@@ -271,10 +272,12 @@ def check_expand_args(args_dict: dict) -> (list, list):
     for p in set(required_parameters) & set(forbidden_parameters):
         log.info(f"Intersecting parameter {p}")
         forbidden_parameters.remove(p)
+
     # Check if all the required parameters are specified.
     for p in required_parameters:
         if p not in args_dict.keys() or args_dict[p] is None:
             raise ValueError(f"Required parameter {p} not present.")
+
     # Check if none of the incompatible parameters are required.
     for p in forbidden_parameters:
         if p in args_dict.keys() and args_dict[p] is not None:
@@ -293,8 +296,7 @@ def main(args):
     var_names, var_expanded_ranges = check_expand_args(args_dict)
 
     if args_dict["sampling_type"] == "grid":
-        # Create a generator of all the possible combinations of parameters based on
-        # their expanded range lists.
+        # Create a generator of all possible combinations of parameters based on their expanded range lists.
         parameter_sets_gen = itertools.product(*var_expanded_ranges)
 
     elif args_dict["sampling_type"] == "random":
@@ -316,11 +318,12 @@ def main(args):
 
     with open(simulation_arguments_path, "w") as f_sa:
         for s in parameter_sets_gen:
-            log.info(f"parameter set for simulation {simulation_number}:")
+            log.info(f"Parameter set for simulation {simulation_number}:")
             log.info(s)
 
-            # Generate output folder for the simulation.
-            # Note that the numbering of the folders is limited to 6 digits here.
+            # Generate output folders for the simulations.
+            # Note that the numbering of the folders is limited to 6 digits here,
+            # i.e., we can only generate simulations below 10 million.
             path_server_output = cfg["path_server_output"]
             output_path = pathlib.Path().joinpath(
                 path_server_output, output_path
@@ -330,8 +333,7 @@ def main(args):
             )
             simulation_output_path.mkdir(parents=True, exist_ok=True)
 
-            # Pack combination into a JSON override file and write it to the run
-            # folder for this simulation.
+            # Pack combination into a JSON override file and write it to the folder for a given simulation.
             simulation_override_json = {}
             for i in range(len(s)):
                 simulation_override_json[var_names[i]] = s[i]
