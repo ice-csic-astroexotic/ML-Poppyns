@@ -60,7 +60,7 @@ def test_case_1():
 
 def test_split_dataset(monkeypatch, test_case_1):
     """
-    Verifying that the dataset is splitted correctly.
+    Verifying that the dataset is split correctly.
     """
 
     def mock_choice(*args, **kwargs):
