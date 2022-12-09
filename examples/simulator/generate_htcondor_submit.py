@@ -152,7 +152,7 @@ def submit_generator(args):
         ]
 
         # We need to count how many simulations we have to run in each week, since if we have that
-        # ´n_sim_total % args.n_sim_week != 0´ then we will end up with less simulations than args.n_sim_week
+        # ´n_sim_total % args.n_sim_week != 0´ then we will end up with fewer simulations than args.n_sim_week
         # in the last week.
 
         n_sim_folder = len(sim_week)
