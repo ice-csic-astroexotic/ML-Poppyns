@@ -55,7 +55,7 @@ def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
 
     """
 
-    # Check if the split argument falls in the range [0, 1].
+    # Check if the split argument falls in the range (0, 1).
     if (split <= 0.0) or (split >= 1.0):
         log.error(
             f"Split argument {split} out of range. It must be in the range (0, 1)."
