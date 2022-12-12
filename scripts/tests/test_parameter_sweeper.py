@@ -65,7 +65,42 @@ def test_case_1():
     return data
 
 
-def test_set_default_parameter(test_case_1):
+@pytest.fixture()
+def test_case_2():
+    data = {
+        "parameter_name": "sigma_k",
+        "args_dict": {
+            "output_dir": None,
+            "sampling_type": "grid",
+            "kick_model": "km_maxwell",
+            "sigma_k": None,
+            "vk_c": None,
+            "h_c": [0.1, 1.0, 5],
+            "spin_period_model": "log-normal",
+            "P_initial_mean": None,
+            "P_initial_sigma": None,
+            "P_initial_log10_mean": None,
+            "P_initial_log10_sigma": None,
+            "B_initial_log10_mean": None,
+            "B_initial_log10_sigma": None,
+            "a_late": None,
+        },
+        "h_c_expected": np.array([0.1, 0.325, 0.55, 0.775, 1.0]),
+        "var_names_expected": [
+            "sigma_k",
+            "h_c",
+            "P_initial_log10_mean",
+            "P_initial_log10_sigma",
+            "B_initial_log10_mean",
+            "B_initial_log10_sigma",
+            "a_late",
+        ],
+    }
+
+    return data
+
+
+def test_set_default_parameter_random(test_case_1):
     """
     Testing if a parameter is none it is correctly set to the default value in random mode.
     """
@@ -80,7 +115,7 @@ def test_set_default_parameter(test_case_1):
     ]
 
 
-def test_expand_parameter(test_case_1):
+def test_expand_parameter_random(test_case_1):
     """
     Testing if a parameter is correctly expanded in random mode.
     """
@@ -91,7 +126,7 @@ def test_expand_parameter(test_case_1):
     assert len(expanded_hc) == test_case_1["args_dict"]["sampling_size"]
 
 
-def test_check_expand_args(test_case_1):
+def test_check_expand_args_random(test_case_1):
     """
     Testing if the arguments are correctly checked and expanded in random mode.
     """
@@ -105,3 +140,51 @@ def test_check_expand_args(test_case_1):
         len(test_case_1["var_names_expected"]),
         test_case_1["args_dict"]["sampling_size"],
     )
+
+
+def test_set_default_parameter_grid(test_case_2):
+    """
+    Testing if a parameter is none it is correctly set to the default value in grid mode.
+    """
+    ps.set_default_parameter(
+        test_case_2["args_dict"],
+        test_case_2["parameter_name"],
+    )
+
+    assert test_case_2["args_dict"][test_case_2["parameter_name"]] == [
+        cfg[test_case_2["parameter_name"]],
+        cfg[test_case_2["parameter_name"]],
+        1,
+    ]
+
+
+def test_expand_parameter_grid(test_case_2):
+    """
+    Testing if a parameter is correctly expanded in grid mode.
+    """
+    expanded_hc = ps.expand_parameter(
+        test_case_2["args_dict"], "h_c", test_case_2["args_dict"]["h_c"]
+    )
+
+    assert (expanded_hc == test_case_2["h_c_expected"]).all()
+
+
+def test_check_expand_args_grid(test_case_2):
+    """
+    Testing if the arguments are correctly checked and expanded in grid mode.
+    """
+    var_names_out, var_expanded_ranges_out = ps.check_expand_args(
+        test_case_2["args_dict"]
+    )
+
+    assert var_names_out == test_case_2["var_names_expected"]
+
+    assert var_expanded_ranges_out == [
+        [265.0],
+        [0.1, 0.325, 0.55, 0.775, 1.0],
+        [-0.6],
+        [0.3],
+        [13.25],
+        [0.75],
+        [-2.0],
+    ]
