@@ -66,7 +66,7 @@ def dynamical_eq_system(
         conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
         with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
 
-        t (float): unused time variable, required for the integration below..
+        t (float): unused time variable, required for the integration below.
 
         galactic_model (gm.GalaxyModelBase): a galactic model to calculate
         the needed potential.
@@ -120,8 +120,8 @@ def dynamical_evolution(
         these quantities for each neutron star (if the option to save the time evolution is enabled).
     """
 
-    # Save the number of simulated neutron stars, which is flexible depending if they are simulated
-    # all at once or one by one.
+    # Save the number of simulated neutron stars, which is flexible depending on whether
+    # they are simulated all at once or one by one.
     n = len(t_age)
 
     # Initialization of a dictionary that will contain the evolution in time of

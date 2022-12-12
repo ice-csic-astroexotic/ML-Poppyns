@@ -61,8 +61,8 @@ def log_scale_vs_linear_scale(
     Args:
         x_range (float, float): horizontal range of values for the points.
         y_range (float, float): vertical range of values for the points.
-        x_log_scale (bool): if True set the x axis scale to log scale.
-        y_log_scale (bool): if True set the y axis scale to log scale.
+        x_log_scale (bool): if True set the x-axis scale to log scale.
+        y_log_scale (bool): if True set the y-axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the density map.
         n_y_bins (int): number of vertical bins for the density map.
 

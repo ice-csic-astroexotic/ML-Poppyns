@@ -70,7 +70,7 @@ def calculate_selection_weights(d: np.ndarray) -> np.ndarray:
         (np.ndarray): array of selection weights.
     """
 
-    # This function has been fine tuned to match the distribution of distances from the Sun of
+    # This function has been fine-tuned to match the distribution of distances from the Sun of
     # the 224 neutron stars with observed proper motion. In this sample we selected neutron stars
     # that are likely to be not recycled and isolated (i.e., with a spin period derivative Pdot>10^(-17)
     # and with no association to globular clusters or binary systems).
@@ -96,7 +96,7 @@ def data_sampler(args) -> None:
         uniform (bool): If True stars are selected uniformly in distance from the simulated population.
     """
 
-    # Check if the parsed simulated populations directory exists.
+    # Check if the parsed simulated populations' directory exists.
     root_path = pathlib.Path(args.data)
     if not root_path.exists():
         log.error(f"Directory {root_path} not found...")

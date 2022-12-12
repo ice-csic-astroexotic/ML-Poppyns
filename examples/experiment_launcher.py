@@ -95,7 +95,7 @@ def log_experiment(process_result: typing.Tuple[pathlib.Path, str]) -> None:
 def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
 
     """
-    Setup the process pool for multiprocessing with a global pause/resume event.
+    Set up the process pool for multiprocessing with a global pause/resume event.
 
     Args:
         event: reference to a master process event that will signal the child
@@ -121,7 +121,14 @@ def main(args):
     lock = mp.Lock()
     # A pool of processes with a defined capacity, a process spawning setup
     # routine and a general event to signal process execution.
-    pool = mp.Pool(args.processes, setup_process_pool, (event, lock,))
+    pool = mp.Pool(
+        args.processes,
+        setup_process_pool,
+        (
+            event,
+            lock,
+        ),
+    )
 
     # Read the command list file, each command should be one single line.
     with open(args.command_list) as f:
