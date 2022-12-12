@@ -294,8 +294,8 @@ def main(args):
 
     elif args_dict["sampling_type"] == "random":
         # Create a generator of the random sets of parameters.
-        var_expanded_ranges = np.array(var_expanded_ranges).T.tolist()
-        parameter_sets_gen = list(map(tuple, var_expanded_ranges))
+        list_var_expanded_ranges = np.array(var_expanded_ranges).T.tolist()
+        parameter_sets_gen = list(map(tuple, list_var_expanded_ranges))
 
     # Save the input arguments to run each simulation in a file.
     log.info("Generating simulation parameter sets...")
