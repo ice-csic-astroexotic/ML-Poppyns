@@ -38,13 +38,9 @@ import numpy as np
 import pandas as pd
 
 import pypopsyn.benchmark.timewith as timewith
-import pypopsyn.simulator.basics.constants as const
-import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
-import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
-import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
@@ -521,8 +517,10 @@ def simulate_population(args) -> None:
 
                 # ===================== RADIO EMISSION ========================
 
-                # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties of their radio emission.
-                dictionary_intercepted_radio = er.radio_emission(
+                # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
+                # of their radio emission.
+
+                dictionary_intercepted_radio = er.calculate_radio_emission(
                     P_det,
                     age_det,
                     l_det,
@@ -566,7 +564,7 @@ def simulate_population(args) -> None:
                     detected_radio_PMPS,
                     w_eff_PMPS,
                     S_radio_obs_mean_PMPS,
-                ) = survey_PMPS.radio_detection(
+                ) = survey_PMPS.detected_radio_population(
                     w_int_s,
                     DM,
                     P_det,
@@ -595,7 +593,7 @@ def simulate_population(args) -> None:
                     detected_radio_SMPS,
                     w_eff_SMPS,
                     S_radio_obs_mean_SMPS,
-                ) = survey_SMPS.radio_detection(
+                ) = survey_SMPS.detected_radio_population(
                     w_int_s,
                     DM,
                     P_det,
@@ -624,7 +622,7 @@ def simulate_population(args) -> None:
                     detected_radio_HTRU_low,
                     w_eff_HTRU_low,
                     S_radio_obs_mean_HTRU_low,
-                ) = survey_HTRU_low.radio_detection(
+                ) = survey_HTRU_low.detected_radio_population(
                     w_int_s,
                     DM,
                     P_det,
@@ -645,7 +643,7 @@ def simulate_population(args) -> None:
                     detected_radio_HTRU_mid,
                     w_eff_HTRU_mid,
                     S_radio_obs_mean_HTRU_mid,
-                ) = survey_HTRU_mid.radio_detection(
+                ) = survey_HTRU_mid.detected_radio_population(
                     w_int_s,
                     DM,
                     P_det,
@@ -692,7 +690,7 @@ def simulate_population(args) -> None:
                     detected_radio_HTRU_high,
                     w_eff_HTRU_high,
                     S_radio_obs_mean_HTRU_high,
-                ) = survey_HTRU_high.radio_detection(
+                ) = survey_HTRU_high.detected_radio_population(
                     w_int_s,
                     DM,
                     P_det,
