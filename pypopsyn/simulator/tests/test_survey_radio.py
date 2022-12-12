@@ -69,7 +69,7 @@ def test_case_1():
 
 def test_smearing_in_channel(test_case_1):
     """
-    Verifying that the inter channel dispersion smearing is computed correctly.
+    Verifying that the inter-channel dispersion smearing is computed correctly.
     """
 
     tau_DM_out = sr.smearing_in_channel(
@@ -186,7 +186,7 @@ def test_gain_gaussian_beam_PMPS(test_case_1):
 
 def test_radiometer_equation_PMPS(test_case_1):
     """
-    Verifying that the signal to noise values are computed correctly using the radiometer equation.
+    Verifying that the signal-to-noise values are computed correctly using the radiometer equation.
     """
 
     SNR_out = PMPS.radiometer_equation(

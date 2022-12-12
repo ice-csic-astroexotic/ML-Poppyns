@@ -2,24 +2,24 @@
     Parameter sweeper script.
 
     This script generates the files necessary to launch multiple simulations with different parameter values
-    on HTCondor.
-    If the --sampling_type argument is set to "grid" it parses a compact representation
-    for each tunable parameter like:
+    using HTCondor at the PIC.
+
+    If the --sampling_type argument is set to "grid", we require the following for each tunable parameter:
 
         --argument low high count
 
-    And expands it to a linspace between [low, high] with a count num of steps.
-    If the --sampling_type argument is set to "random" it parses a compact representation
-    for each tunable parameter like:
+    This expands the parameter to a linspace between [low, high] with a "count" number of steps.
+
+    If the --sampling_type argument is set to "random", we require the following for each tunable parameter:
 
         --argument low high
 
-    And expands it to a list of values between [low, high] drawn from a uniform distribution.
-    In this case the number of values to be drawn for each parameter is specified by the
-    argument --sampling_size.
-    Such expansion is done for each specified argument and then a generator produces all the possible
-    combinations of them if in "grid" mode or sets of random drawn parameter values if in "random" mode.
-    Each set will be saved in a JSON parameter override file that will be used as input to a simulation.
+    This expands the parameter to a list of values between [low, high] drawn from a uniform distribution.
+    In this case, the number of values to be drawn for each parameter is specified by the argument --sampling_size.
+
+    Both expansion types are evaluated for each specified argument. Subsequently, a generator produces all possible
+    parameter combinations if in "grid" mode or sets of random parameter values if in "random" mode.
+    Each set will be saved in a JSON "parameter_override" file that will be used as input to a simulation.
 
     Running the code:
 
@@ -51,12 +51,8 @@ import argparse
 import itertools
 import json
 import logging
-import multiprocessing as mp
 import pathlib
-import subprocess
 import sys
-import threading
-import typing
 
 import numpy as np
 
@@ -71,12 +67,16 @@ def set_default_parameter(args_dict: dict, parameter_name: str) -> None:
     default value provided in the configuration file.
 
     Args:
-            args_dict (dict): dictionary of the parsed argument via CLI.
-            parameter_name (str): name of the parameter to set.
+        args_dict (dict): dictionary of the parsed argument via CLI.
+        parameter_name (str): name of the parameter to set.
+
+    Returns:
+
+        Nothing.
     """
 
-    # If a parameter related to the simulation is None, set it to the
-    # default value provided in the configuration file.
+    # For unspecified parameters, assign corresponding default value according to the chosen sampling approach.
+    # We specify a list for compatibility reasons according to [default value, default value (, 1)], respectively.
     if args_dict[parameter_name] is None:
         if args_dict["sampling_type"] == "grid":
             args_dict[parameter_name] = [
@@ -103,7 +103,11 @@ def set_default_if_none(args_dict: dict) -> None:
     default value provided in the configuration file.
 
     Args:
-            args_dict (dict): dictionary of the parsed argument via CLI.
+        args_dict (dict): dictionary of the parsed argument via CLI.
+
+    Returns:
+
+        Nothing.
     """
 
     # Setting the default parameters for the dynamical evolution.
@@ -141,15 +145,16 @@ def expand_parameter(
         args_dict (dict): dictionary of the parsed argument via CLI.
         parameter_name (str): name of the parameter to expand.
         range_values (list): range of values where to expand the parameter.
-    Return:
+
+    Returns:
         (np.ndarray): a list containing the expanded range of the parameter.
     """
 
     expanded_parameter = []
 
     if args_dict["sampling_type"] == "grid":
-        # The three values [low, high, steps] are used to expand each of the
-        # arguments with linear spacing in the range [low, high] with a number of specified steps.
+        # The three values [low, high, steps] are used to expand each of the arguments
+        # with linear spacing in the range [low, high] with a number of specified steps.
         if len(range_values) != 3:
             raise ValueError(
                 f"In grid mode the list must have length 3 for parameter {parameter_name}"
@@ -180,7 +185,8 @@ def check_expand_args(args_dict: dict) -> (list, list):
 
     Args:
         args_dict (dict): dictionary of the parsed argument via CLI.
-    Return:
+
+    Returns:
         (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
         expanded parameters.
     """
@@ -224,10 +230,10 @@ def check_expand_args(args_dict: dict) -> (list, list):
 
         elif type(value) is str:
             # If the value of this parameter is a string, this can be either
-            # the directory path where to save the multirun output or a selection parameter.
-            # In this last case we must check: (a) whether the selection is valid
-            # (b) capture the list of required parameters and (c) gather
-            # the forbidden ones (probably they belong other selection).
+            # the directory path where the multirun output is saved or a selection parameter.
+            # In the latter case we have to: (a) check whether the selection is valid,
+            # (b) capture the list of required parameters, and (c) gather the forbidden ones
+            # (i.e., those that belong to other types of selections).
             if arg == "output_dir":
                 cli_args.append("--output_dir")
                 cli_str.append(value)
@@ -245,15 +251,15 @@ def check_expand_args(args_dict: dict) -> (list, list):
                     ]
                 )
             else:
-                # If the value for such argument is not in the dictionary of
-                # possible values we throw an exception.
+                # If the value for an argument is not in the dictionary of
+                # possible values, we throw an exception.
                 raise ValueError(
                     f"The value {value} is not feasible for parameter {arg}"
                 )
 
         elif type(value) is list:
-            # If the value is a list, we assume it will be a specification of
-            # three values if sampling_type = grid or two values if sampling_type = random.
+            # If the value is a list, we assume it will be a specification of three values
+            # if sampling_type = grid or two values if sampling_type = random.
             # We then expand the parameter accordingly.
             var_range = expand_parameter(args_dict, arg, value)
             var_expanded_ranges.append(list(var_range))
@@ -266,10 +272,12 @@ def check_expand_args(args_dict: dict) -> (list, list):
     for p in set(required_parameters) & set(forbidden_parameters):
         log.info(f"Intersecting parameter {p}")
         forbidden_parameters.remove(p)
+
     # Check if all the required parameters are specified.
     for p in required_parameters:
         if p not in args_dict.keys() or args_dict[p] is None:
             raise ValueError(f"Required parameter {p} not present.")
+
     # Check if none of the incompatible parameters are required.
     for p in forbidden_parameters:
         if p in args_dict.keys() and args_dict[p] is not None:
@@ -288,14 +296,13 @@ def main(args):
     var_names, var_expanded_ranges = check_expand_args(args_dict)
 
     if args_dict["sampling_type"] == "grid":
-        # Create a generator of all the possible combinations of parameters based on
-        # their expanded range lists.
+        # Create a generator of all possible combinations of parameters based on their expanded range lists.
         parameter_sets_gen = itertools.product(*var_expanded_ranges)
 
     elif args_dict["sampling_type"] == "random":
         # Create a generator of the random sets of parameters.
-        var_expanded_ranges = np.array(var_expanded_ranges).T.tolist()
-        parameter_sets_gen = list(map(tuple, var_expanded_ranges))
+        list_var_expanded_ranges = np.array(var_expanded_ranges).T.tolist()
+        parameter_sets_gen = list(map(tuple, list_var_expanded_ranges))
 
     # Save the input arguments to run each simulation in a file.
     log.info("Generating simulation parameter sets...")
@@ -311,11 +318,12 @@ def main(args):
 
     with open(simulation_arguments_path, "w") as f_sa:
         for s in parameter_sets_gen:
-            log.info(f"parameter set for simulation {simulation_number}:")
+            log.info(f"Parameter set for simulation {simulation_number}:")
             log.info(s)
 
-            # Generate output folder for the simulation.
-            # Note that the numbering of the folders is limited to 6 digits here.
+            # Generate output folders for the simulations.
+            # Note that the numbering of the folders is limited to 6 digits here,
+            # i.e., we can only generate simulations below 10 million.
             path_server_output = cfg["path_server_output"]
             output_path = pathlib.Path().joinpath(
                 path_server_output, output_path
@@ -325,8 +333,7 @@ def main(args):
             )
             simulation_output_path.mkdir(parents=True, exist_ok=True)
 
-            # Pack combination into a JSON override file and write it to the run
-            # folder for this simulation.
+            # Pack combination into a JSON override file and write it to the folder for a given simulation.
             simulation_override_json = {}
             for i in range(len(s)):
                 simulation_override_json[var_names[i]] = s[i]

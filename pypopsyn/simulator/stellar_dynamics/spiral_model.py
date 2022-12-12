@@ -173,14 +173,14 @@ class SpiralModelFK06(SpiralModelBase):
     """
     Spiral structure of Faucher-Giguère & Kaspi (2006) with the addition of the Local arm
     from Wainscoat et al. (1992).
-    Spiral arm parameters from table 2 in Faucher-Giguere & Kaspi (2006) and table 1 in
+    Spiral arm parameters from table 2 in Faucher-Giguère & Kaspi (2006) and table 1 in
     Wainscoat et al. (1992) assuming a Sun galactocentric distance R_sun = 8.5 kpc.
     The Local arm has a radial extension ~ 0.55 rad in the range [1.13, 1.68] rad
     (see Wainscoat et al. 1992).
     """
 
     def __init__(self):
-        # Parameters of the model, values from Table 2 in Faucher-Giguere & Kaspi (2006) and
+        # Parameters of the model, values from Table 2 in Faucher-Giguère & Kaspi (2006) and
         # table 1 in Wainscoat et al. (1992). Respectively winding constant k [rad], the inner
         # radius r0 [kpc] and the inner angle phi0 [rad]. The phi0 values in Wainscoat et al.
         # (1992) are increased by pi/2 and reported in the range [0, 2pi].
@@ -198,7 +198,7 @@ class SpiralModelFK06(SpiralModelBase):
         self.arm_probability = [0.24615, 0.24615, 0.24615, 0.24615, 0.0154]
         # Galactocentric distances where the Local arm starts and ends [kpc].
         # These values are obtained by evaluating the r coordinates from the phi coordinates
-        # specified in Wainscout et al. (2014).
+        # specified in Wainscoat et al. (2014).
         self.local_r_min = 8.10
         self.local_r_max = 9.14
 

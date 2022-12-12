@@ -30,7 +30,6 @@ import random
 import time
 from io import StringIO
 from itertools import islice
-from multiprocessing.context import assert_spawning
 from typing import List, Optional
 
 import numpy as np

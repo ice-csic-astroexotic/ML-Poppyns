@@ -40,7 +40,6 @@ import os
 import pathlib
 import sys
 
-import numpy as np
 import pandas as pd
 
 import pypopsyn.generator.compute_statistics as cs
@@ -95,7 +94,7 @@ def generate_dataset(args) -> None:
     ppdot_map_dictionary = {}
     param_dictionary = {}
 
-    # Check if the parsed simulated populations directory exists.
+    # Check if the parsed simulated populations' directory exists.
     root_path = pathlib.Path(args.data)
     if not root_path.exists():
         log.error(f"Directory {root_path} not found...")
@@ -138,7 +137,7 @@ def generate_dataset(args) -> None:
         # Create a data frame object of the population file.
         df_pop = pd.read_pickle(str(pop_path), compression="gzip")
 
-        # Remove the units header row from the data frame.
+        # Remove the unit header row from the data frame.
         df_pop.columns = [x[0] for x in df_pop.columns]
 
         # Create position density maps projected on XY plane.

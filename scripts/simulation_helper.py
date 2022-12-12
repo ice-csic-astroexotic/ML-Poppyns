@@ -20,7 +20,7 @@
     combinations of them if in "grid" mode or sets of random drawn parameter values if in "random" mode.
     Each set will spawn a new process that goes into a multithreaded
     pool for later execution, allowing the simulation of many populations to
-    run asyncrhonously in parallel with a defined maximum number of threads.
+    run asynchronously in parallel with a defined maximum number of threads.
 
     Running the code:
 
@@ -76,7 +76,7 @@ def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     Args:
         command (List): full command to execute the simulation.
     Returns:
-        The simulation command and the convolute output of the process.
+        The simulation command and the output of the process.
     """
 
     # Acquire the lock and block any other process from executing
@@ -120,7 +120,7 @@ def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
 def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
 
     """
-    Setup the process pool for multiprocessing with a global pause/resume event.
+    Set up the process pool for multiprocessing with a global pause/resume event.
     Args:
         event: reference to a master process event that will signal the child
             processes to pause or resume execution.
@@ -359,7 +359,7 @@ def main(args):
     # Lock on the master process to impose a delay in the process execution
     # so that none of them can be launched exactly at the same time.
     lock = mp.Lock()
-    # A pool of processes with a defined capacity, a process spawnign setup
+    # A pool of processes with a defined capacity, a process spawning setup
     # routine and a general event to signal process execution.
     log.info(f"Initializing pool with {args.processes} processes...")
     pool = mp.Pool(
