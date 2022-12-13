@@ -1,26 +1,25 @@
 """
     Simulator helper script.
 
-    This script helps running the simulator scripts in a multithreaded way.
-    If the --sampling_type argument is set to "grid" it parses a compact representation
-    for each tunable parameter like:
+    This script allows us to run the various simulator scripts in a multithreaded way.
+
+    If the --sampling_type argument is set to "grid", we require the following for each tunable parameter:
 
         --argument low high count
 
-    And expands it to a linspace between [low, high] with a count num of steps.
-    If the --sampling_type argument is set to "random" it parses a compact representation
-    for each tunable parameter like:
+    This expands the parameter to a linspace between [low, high] with a "count" number of steps.
+
+    If the --sampling_type argument is set to "random", we require the following for each tunable parameter:
 
         --argument low high
 
-    And expands it to a list of values between [low, high] drawn from a uniform distribution.
-    In this case the number of values to be drawn for each parameter is specified by the
-    argument --sampling_size.
-    Such expansion is done for each specified argument and then a generator produces all the possible
-    combinations of them if in "grid" mode or sets of random drawn parameter values if in "random" mode.
-    Each set will spawn a new process that goes into a multithreaded
-    pool for later execution, allowing the simulation of many populations to
-    run asynchronously in parallel with a defined maximum number of threads.
+    This expands the parameter to a list of values between [low, high] drawn from a uniform distribution.
+    In this case, the number of values to be drawn for each parameter is specified by the argument --sampling_size.
+
+    Both expansion types are evaluated for each specified argument. Subsequently, a generator produces all possible
+    parameter combinations if in "grid" mode or sets of random parameter values if in "random" mode.
+    Each parameter combination will spawn a new process that enters a multithreaded pool for later execution,
+    allowing the asynchronous simulation of many populations in parallel with a defined maximum number of threads.
 
     Running the code:
 
@@ -73,18 +72,19 @@ def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     This is the main routine for running a particular simulation. It runs the
     provided simulation command (a Python call to the simulation script with a
     set of CLI arguments) and captures all the output of the process.
+
     Args:
         command (List): full command to execute the simulation.
+
     Returns:
         The simulation command and the output of the process.
     """
 
-    # Acquire the lock and block any other process from executing
-    # for two seconds.
+    # Acquire the lock and block any other process from executing for two seconds.
     starting.acquire()
     threading.Timer(1, starting.release).start()
 
-    # Once the process has released the lock for another process to wait
+    # Once the process has released the lock for another process
     # it can proceed with the execution of the experiment.
     log.info(f"Launching simulation {command}")
 
@@ -101,9 +101,11 @@ def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
 
     """
     Callback to log all the info returned from a simulation run.
+
     Args:
         process_result: tuple containing the process simulation command and the
-          whole process output to console string.
+                        whole process output to console string.
+
     Returns:
         Nothing.
     """
@@ -121,11 +123,15 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
 
     """
     Set up the process pool for multiprocessing with a global pause/resume event.
+
     Args:
         event: reference to a master process event that will signal the child
-            processes to pause or resume execution.
+               processes to pause or resume execution.
         lock: a reference to a master process lock that will coordinate the
-            child process launching with waiting times.
+              child process launching with waiting times.
+
+    Returns:
+        Nothing.
     """
 
     global unpaused
@@ -143,10 +149,13 @@ def set_default_parameter(args_dict: dict, parameter_name: str) -> None:
     Args:
             args_dict (dict): dictionary of the parsed argument via CLI.
             parameter_name (str): name of the parameter to set.
+
+    Returns:
+        Nothing.
     """
 
-    # If a parameter related to the simulation is None, set it to the
-    # default value provided in the configuration file.
+    # For unspecified parameters, assign corresponding default value according to the chosen sampling approach.
+    # We specify a list for compatibility reasons according to [default value, default value (, 1)], respectively.
     if args_dict[parameter_name] is None:
         if args_dict["sampling_type"] == "grid":
             args_dict[parameter_name] = [
@@ -174,6 +183,9 @@ def set_default_if_none(args_dict: dict) -> None:
 
     Args:
             args_dict (dict): dictionary of the parsed argument via CLI.
+
+    Returns:
+        Nothing.
     """
 
     # Setting the default parameters for the dynamical evolution.
@@ -352,16 +364,18 @@ def check_expand_args(args_dict: dict) -> (list, list):
 
 
 def main(args):
-
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.
     event = mp.Event()
+
     # Lock on the master process to impose a delay in the process execution
     # so that none of them can be launched exactly at the same time.
     lock = mp.Lock()
+
     # A pool of processes with a defined capacity, a process spawning setup
     # routine and a general event to signal process execution.
     log.info(f"Initializing pool with {args.processes} processes...")
+
     pool = mp.Pool(
         args.processes,
         setup_process_pool,
@@ -380,8 +394,7 @@ def main(args):
     var_names, var_expanded_ranges = check_expand_args(args_dict)
 
     if args_dict["sampling_type"] == "grid":
-        # Create a generator of all the possible combinations of parameters based on
-        # their expanded range lists
+        # Create a generator of all the possible combinations of parameters based on their expanded range lists
         parameter_sets_gen = itertools.product(*var_expanded_ranges)
 
     elif args_dict["sampling_type"] == "random":
@@ -403,13 +416,14 @@ def main(args):
         log.info(s)
 
         # Generate output folder for the simulation.
+        # Note that the numbering of the folders is limited to 6 digits here,
+        # i.e., we can only generate simulations below 10 million.
         simulation_output_path = pathlib.Path().joinpath(
             args.output_dir, f"{simulation_number:06}"
         )
         simulation_output_path.mkdir(parents=True, exist_ok=True)
 
-        # Pack combination into a JSON override file and write it to the run
-        # folder for this simulation.
+        # Pack combination into a JSON override file and write it to the folder for a given simulation.
         simulation_override_json = {}
         for i in range(len(s)):
             simulation_override_json[var_names[i]] = s[i]
@@ -455,7 +469,7 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="Name of the simulator script you want to run. Choose between simulate_population_full, "
-        "simulate_population_dyn or simulate_population_magrot_det",
+        "simulate_population_dyn or simulate_population_magrot_det.",
     )
 
     args.add_argument(
@@ -514,9 +528,9 @@ if __name__ == "__main__":
         nargs="*",
         type=float,
         default=None,
-        help="In grid mode: range of kick velocity sigma for the Maxwell model with number of values "
+        help="In grid mode: range of kick-velocity sigma for the Maxwell model with number of values "
         "[low, high, n_values]."
-        "In random mode: range of kick velocity sigma for the Maxwell model [low, high].",
+        "In random mode: range of kick-velocity sigma for the Maxwell model [low, high].",
     )
 
     args.add_argument(
@@ -524,9 +538,9 @@ if __name__ == "__main__":
         nargs="*",
         type=float,
         default=None,
-        help="In grid mode: range of kick velocity vk_c for the exponential model with number of values "
+        help="In grid mode: range of kick-velocity vk_c for the exponential model with number of values "
         "[low, high, n_values]."
-        "In random mode: range of kick velocity vk_c for the exponential model [low, high].",
+        "In random mode: range of kick-velocity vk_c for the exponential model [low, high].",
     )
 
     args.add_argument(
@@ -534,9 +548,9 @@ if __name__ == "__main__":
         nargs="*",
         type=float,
         default=None,
-        help="In grid mode: range of scale height h_c of the thin disk model with number of values "
+        help="In grid mode: range of scale height h_c of the thin-disk model with number of values "
         "[low, high, n_values]."
-        "In random mode: range of scale height h_c of the thin disk model [low, high].",
+        "In random mode: range of scale height h_c of the thin-disk model [low, high].",
     )
 
     args.add_argument(
