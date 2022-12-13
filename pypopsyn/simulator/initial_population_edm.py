@@ -41,7 +41,6 @@ import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.initial_position as ip
 import pypopsyn.simulator.stellar_dynamics.initial_velocity as iv
-import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
@@ -61,7 +60,7 @@ class InitialNeutronStarPopulation:
         # The default value corresponds to the total number specified in the configuration file, so that
         # all neutron stars of the population are generated at once.
         # For a one by one simulation NS_number is set to 1 and the simulator calls this class repeatedly
-        # generiting stars in a loop until the wanted total number of objects in the population is reached.
+        # generating stars in a loop until the wanted total number of objects in the population is reached.
         self.NS_number = NS_number
 
     def age(self) -> np.ndarray:

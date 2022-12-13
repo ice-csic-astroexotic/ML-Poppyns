@@ -235,8 +235,8 @@ def sky_temperature_H81refined(
 ) -> np.ndarray:
     """
     Sky temperature as a function of Galactic longitude and latitude (l, b) and frequency f.
-    This function implements the sky temperature map at 408 MHz from Remazeilles et al (2015) which is a
-    refinment of the map from Haslam et al. (1981).
+    This function implements the sky temperature map at 408 MHz from Remazeilles et al. (2015) which is a
+    refinement of the map from Haslam et al. (1981).
     The map is downloadable here:
     https://lambda.gsfc.nasa.gov/product/foreground/fg_2014_haslam_408_get.html.
 
@@ -452,7 +452,7 @@ class SurveyRadio:
         T_sky: np.ndarray,
     ) -> np.ndarray:
         """
-        Radiometer equation used to compute the signal to noise ratio of each pulsars given the observed
+        Radiometer equation used to compute the signal-to-noise ratio of each pulsar given the observed
         period-averaged radio flux at a given frequency, the effective pulse width, the spin period and
         the survey parameters (see eq. (A1.22) in Lorimer & Kramer 2005). We are assuming a square pulse
         shape for simplicity with height equal to the observed flux and width equal to the effective width.
@@ -465,7 +465,7 @@ class SurveyRadio:
             T_sky (np.ndarray): sky temperature for every detection in [K].
 
         Returns:
-            (np.ndarray): signal to noise ratio of the detection.
+            (np.ndarray): signal-to-noise ratio of the detection.
         """
         SNR = np.zeros(len(S_radio_obs_mean))
 
@@ -517,7 +517,7 @@ class SurveyRadio:
         G = self.gain_gaussian_beam(offset2)
 
         # Compute the sky temperature in the coordinates of each detection at the central frequency of the survey.
-        # We choose here to use the refined map from Remazeilles et al (2015).
+        # We choose here to use the refined map from Remazeilles et al. (2015).
         T_sky = sky_temperature_H81refined(l_gal, b_gal, self.f_central)
 
         SNR_detection = self.radiometer_equation(

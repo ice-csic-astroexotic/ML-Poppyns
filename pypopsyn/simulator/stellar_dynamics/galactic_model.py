@@ -431,7 +431,7 @@ class GalaxyModelM19(GalaxyModelBase):
 
 
 # Class member data specification for Numba. In order for Numba to be able to
-# Jit an entire class, we need to provide an specification of all the data such
+# Jit an entire class, we need to provide a specification of all the data such
 # class holds together with its data types. The tuples contain the name of the
 # field and the Numba type of the field. By doing so the data of a jitclass
 # instance is allocated on the heap as a C-compatible structure so that any
