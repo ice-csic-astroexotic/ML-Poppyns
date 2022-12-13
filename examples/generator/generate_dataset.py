@@ -1,8 +1,10 @@
 """ Generator for dataset.
 
-    This module creates a dataset of the simulated populations for every
-    population simulated from the simulator `simulate_population_full.py`
+    This module creates a dataset of compressed representations for the output of
+    simulated populations from the simulator `simulate_population_full.py`
     with different initial parameters.
+    These compressed representations will encode both the dynamical properties
+    and the magneto-rotational properties of detected synthetic pulsars.
 
     This expects that a set of populations have been generated either using
     directly that script or using the helper with its particular directory tree.
@@ -68,7 +70,7 @@ def generate_dataset(args) -> None:
 
             save_dir (str): Path to where the generated dataset will be saved.
 
-            type (str): Type of dataset to generate: array or image.
+            data_type (str): Type of dataset to generate: array or image.
 
             resolution_dyn (int): Resolution (number of bins per axis for the 2d
             histograms) for the position and velocity maps to generate. In case of RA DEC maps the
@@ -129,7 +131,7 @@ def generate_dataset(args) -> None:
             dataset_path,
             "position_map_xy",
             s,
-            args.type,
+            args.data_type,
             df_pop["x"],
             df_pop["y"],
             args.resolution_dyn,
@@ -142,7 +144,7 @@ def generate_dataset(args) -> None:
             dataset_path,
             "position_map_xz",
             s,
-            args.type,
+            args.data_type,
             df_pop["x"],
             df_pop["z"],
             args.resolution_dyn,
@@ -155,7 +157,7 @@ def generate_dataset(args) -> None:
             dataset_path,
             "velocity_map_xy_vr",
             s,
-            args.type,
+            args.data_type,
             df_pop["x"],
             df_pop["y"],
             abs(df_pop["v_r"]),
@@ -169,7 +171,7 @@ def generate_dataset(args) -> None:
             dataset_path,
             "velocity_map_xy_vphi",
             s,
-            args.type,
+            args.data_type,
             df_pop["x"],
             df_pop["y"],
             abs(df_pop["v_phi"]),
@@ -183,7 +185,7 @@ def generate_dataset(args) -> None:
             dataset_path,
             "velocity_map_xy_vz",
             s,
-            args.type,
+            args.data_type,
             df_pop["x"],
             df_pop["y"],
             abs(df_pop["v_z"]),
@@ -197,7 +199,7 @@ def generate_dataset(args) -> None:
             dataset_path,
             "position_map_radec",
             s,
-            args.type,
+            args.data_type,
             df_pop["RA"],
             df_pop["DEC"],
             args.resolution_dyn,
@@ -212,7 +214,7 @@ def generate_dataset(args) -> None:
             dataset_path,
             "velocity_map_vra",
             s,
-            args.type,
+            args.data_type,
             df_pop["RA"],
             df_pop["DEC"],
             abs(df_pop["v_RA"]),
@@ -228,7 +230,7 @@ def generate_dataset(args) -> None:
             dataset_path,
             "velocity_map_vdec",
             s,
-            args.type,
+            args.data_type,
             df_pop["RA"],
             df_pop["DEC"],
             abs(df_pop["v_DEC"]),
@@ -244,7 +246,7 @@ def generate_dataset(args) -> None:
             dataset_path,
             "ppdot_map",
             s,
-            args.type,
+            args.data_type,
             df_pop["P"],
             df_pop["P_dot"] / const.YR_TO_S,
             args.resolution_ppdot,
@@ -433,7 +435,7 @@ if __name__ == "__main__":
         help="Path to the folder where the dataset will be saved.",
     )
     parser.add_argument(
-        "--type",
+        "--data_type",
         nargs="?",
         type=str,
         choices=["array", "image"],
