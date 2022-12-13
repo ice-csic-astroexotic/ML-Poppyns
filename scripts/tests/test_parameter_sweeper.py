@@ -144,7 +144,7 @@ def test_check_expand_args_random(test_case_1):
 
 def test_set_default_parameter_grid(test_case_2):
     """
-    Testing if a parameter is none it is correctly set to the default value in grid mode.
+    Testing that if a parameter is None it is correctly set to the default value in grid mode.
     """
     ps.set_default_parameter(
         test_case_2["args_dict"],
