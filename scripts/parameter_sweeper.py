@@ -268,11 +268,6 @@ def check_expand_args(args_dict: dict) -> (list, list):
     log.info(f"Required parameters {required_parameters}")
     log.info(f"Forbidden parameters {forbidden_parameters}")
 
-    # Remove intersecting parameters from the forbidden list.
-    for p in set(required_parameters) & set(forbidden_parameters):
-        log.info(f"Intersecting parameter {p}")
-        forbidden_parameters.remove(p)
-
     # Check if all the required parameters are specified.
     for p in required_parameters:
         if p not in args_dict.keys() or args_dict[p] is None:
