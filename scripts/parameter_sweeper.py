@@ -230,12 +230,16 @@ def check_expand_args(args_dict: dict) -> (list, list):
 
         elif type(value) is str:
             # If the value of this parameter is a string, this can be either
-            # the directory path where the multirun output is saved or a selection parameter.
+            # the directory path where the multirun output is saved, the directory path where
+            # a dynamical database is saved or a selection parameter.
             # In the latter case we have to: (a) check whether the selection is valid,
             # (b) capture the list of required parameters, and (c) gather the forbidden ones
             # (i.e., those that belong to other types of selections).
             if arg == "output_dir":
                 cli_args.append("--output_dir")
+                cli_str.append(value)
+            elif arg == "dyn_data":
+                cli_args.append("--dyn_data")
                 cli_str.append(value)
             elif value in check_arg[arg]:
                 cli_args.append(arg)
