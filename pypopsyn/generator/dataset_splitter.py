@@ -1,6 +1,6 @@
 """ Splitter for dataset.
 
-    This module splits the provided dataset into two sub-dataset according to a given split fraction.
+    This module splits the provided dataset into two sub-datasets according to a given split fraction.
 
     Running the code:
 
@@ -12,7 +12,7 @@
 
         Michele Ronchi (ronchi@ice.csic.es)
 
-    Copyright (c) MAGNESIA (ICE-CSIC)
+    Copyright (c) MAGNESIA (ICE-CSIC) 2022
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -55,7 +55,7 @@ def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
 
     """
 
-    # Check if the split argument falls in the range [0, 1].
+    # Check if the split argument falls in the range (0, 1).
     if (split <= 0.0) or (split >= 1.0):
         log.error(
             f"Split argument {split} out of range. It must be in the range (0, 1)."
@@ -65,14 +65,17 @@ def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
     dataset_size = [len(x) for x in dataset_dict.values()][0]
 
     # Evaluate the subset1 size according to the fraction defined by the split argument.
-    # Then random sample the subset1 and the subset2 from the whole dataset.
+    # Then randomly sample subset1 and subset2 from the whole dataset.
     set1_size = int(split * dataset_size)
     dataset_idx = np.arange(dataset_size)
+
     set1_idx = np.random.choice(dataset_size, set1_size, replace=False)
     set2_idx = np.array([idx for idx in dataset_idx if idx not in set1_idx])
-    # Create dictionaries for the set_1 and set_2 datasets.
+
+    # Create dictionaries for both datasets.
     set1_dataset_dictionary = {}
     set2_dataset_dictionary = {}
+
     for k in dataset_dict.keys():
         v = np.array(dataset_dict[k])
         v_set1 = v[set1_idx]
