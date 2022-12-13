@@ -42,7 +42,6 @@ import pathlib
 import sys
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 import pypopsyn.generator.compute_statistics as cs
@@ -50,7 +49,6 @@ import pypopsyn.generator.dataset_splitter as ds
 import pypopsyn.generator.position_maps as pmaps
 import pypopsyn.generator.ppdot_maps as ppdmaps
 import pypopsyn.generator.velocity_maps as vmaps
-import pypopsyn.simulator.basics.constants as const
 
 log = logging.getLogger(__name__)
 
