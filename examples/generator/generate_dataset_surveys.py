@@ -3,6 +3,7 @@
     This module creates a dataset of compressed representations for the output of
     simulated populations from the simulator `simulate_population_magrot_det.py`
     with different initial parameters.
+
     These compressed representations will encode both the dynamical properties
     and the magneto-rotational properties of detected synthetic pulsars.
 
@@ -12,7 +13,7 @@
     The user can choose to generate either a dataset of images or of 2D arrays.
 
     The information on the simulated dataset is also saved in a .csv file where the
-    corresponding input files are mapped with their paths and labels.
+    corresponding input files are specified with their paths and labels.
 
     The total dataset can be also split into a training, validation and test subsets
     and in this case three additional .csv files will be created specifying the samples
@@ -103,6 +104,9 @@ def create_survey_maps(
 
         dictionary_ppdot_map (dict): Dictionary containing the path to the P-Pdot maps for
             all the simulated surveys.
+
+    Returns:
+        Nothing.
     """
 
     # Check if the simulated survey file exists as a precondition.
@@ -202,6 +206,9 @@ def generate_dataset(args) -> None:
 
             resolution_ppdot (int): Resolution (number of bins per axis for the 2d
             histograms) for the P-Pdot density maps to generate.
+
+    Returns:
+        Nothing.
     """
 
     # Create the dataset directory path.
