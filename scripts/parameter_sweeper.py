@@ -81,6 +81,11 @@ def main(args):
         list_var_expanded_ranges = np.array(var_expanded_ranges).T.tolist()
         parameter_sets_gen = list(map(tuple, list_var_expanded_ranges))
 
+    else:
+        raise ValueError(
+            "The specified sampling type is not feasible, choose between grid or random."
+        )
+
     # Save the input arguments to run each simulation in a file.
     log.info("Generating simulation parameter sets...")
 

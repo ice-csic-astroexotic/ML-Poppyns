@@ -181,6 +181,11 @@ def main(args):
         var_expanded_ranges = np.array(var_expanded_ranges).T.tolist()
         parameter_sets_gen = list(map(tuple, var_expanded_ranges))
 
+    else:
+        raise ValueError(
+            "The specified sampling type is not feasible, choose between grid or random."
+        )
+
     # Set the simulation type and the path to the dynamical database if required.
     simulator_type = args_dict["simulator_type"]
     dyn_data_path = ""
