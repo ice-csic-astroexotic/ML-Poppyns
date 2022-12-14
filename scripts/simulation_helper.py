@@ -61,7 +61,7 @@ import typing
 
 import numpy as np
 
-import scripts.parameter_sweeper as ps
+import scripts.parameter_set_generator as psg
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
@@ -170,7 +170,7 @@ def main(args):
     args_dict = vars(args)
 
     # Check and expand the parameters in the provided ranges.
-    var_names, var_expanded_ranges = ps.check_expand_args(args_dict)
+    var_names, var_expanded_ranges = psg.check_expand_args(args_dict)
 
     if args_dict["sampling_type"] == "grid":
         # Create a generator of all the possible combinations of parameters based on their expanded range lists
