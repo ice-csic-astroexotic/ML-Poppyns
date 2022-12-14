@@ -336,117 +336,17 @@ def generate_dataset(args) -> None:
 
     log.info("File dataset.csv generated")
 
-    if args.test_split is not None and args.valid_train_split is not None:
+    # Compute the statistics on the whole dataset.
+    statistics_dictionary = cs.compute_statistics(dataset_dictionary)
 
-        # Split the dataset into training, validation and test sets.
-        (
-            test_dataset_dictionary,
-            trainval_dataset_dictionary,
-        ) = ds.split_dataset(dataset_dictionary, args.test_split)
+    # Save dictionary containing statistical information to the dataset path in a .json file.
+    statistics_dump_path = pathlib.Path().joinpath(
+        dataset_path, "statistics.json"
+    )
+    with open(statistics_dump_path, "w") as f:
+        json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
 
-        valid_dataset_dictionary, train_dataset_dictionary = ds.split_dataset(
-            trainval_dataset_dictionary, args.valid_train_split
-        )
-
-        # Write the training, validation and test dataset dictionaries into .csv files.
-        train_dataset_filename = f"{dataset_path}/dataset_train.csv"
-
-        train_df = pd.DataFrame(
-            {
-                key: pd.Series(value)
-                for key, value in train_dataset_dictionary.items()
-            }
-        )
-        train_df.to_csv(train_dataset_filename, encoding="utf-8", index=False)
-
-        valid_dataset_filename = f"{dataset_path}/dataset_valid.csv"
-        valid_df = pd.DataFrame(
-            {
-                key: pd.Series(value)
-                for key, value in valid_dataset_dictionary.items()
-            }
-        )
-        valid_df.to_csv(valid_dataset_filename, encoding="utf-8", index=False)
-
-        test_dataset_filename = f"{dataset_path}/dataset_test.csv"
-        test_df = pd.DataFrame(
-            {
-                key: pd.Series(value)
-                for key, value in test_dataset_dictionary.items()
-            }
-        )
-        test_df.to_csv(test_dataset_filename, encoding="utf-8", index=False)
-
-        log.info(
-            "Files dataset_train.csv, dataset_valid.csv and dataset_test.csv generated"
-        )
-
-        # Compute the statistics on the training dataset only.
-        statistics_dictionary = cs.compute_statistics(train_dataset_dictionary)
-
-        # Save dictionary containing statistical information to the dataset path in a .json file.
-        train_statistics_dump_path = pathlib.Path().joinpath(
-            dataset_path, "statistics_train.json"
-        )
-        with open(train_statistics_dump_path, "w") as f:
-            json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
-
-        log.info("Files statistics_train.json generated")
-
-    elif args.test_split is None and args.valid_train_split is not None:
-
-        # Split the dataset into training and validation sets only.
-        valid_dataset_dictionary, train_dataset_dictionary = ds.split_dataset(
-            dataset_dictionary, args.valid_train_split
-        )
-
-        # Write the training and validation dataset dictionaries into .csv files.
-        train_dataset_filename = f"{dataset_path}/dataset_train.csv"
-
-        train_df = pd.DataFrame(
-            {
-                key: pd.Series(value)
-                for key, value in train_dataset_dictionary.items()
-            }
-        )
-        train_df.to_csv(train_dataset_filename, encoding="utf-8", index=False)
-
-        valid_dataset_filename = f"{dataset_path}/dataset_valid.csv"
-        valid_df = pd.DataFrame(
-            {
-                key: pd.Series(value)
-                for key, value in valid_dataset_dictionary.items()
-            }
-        )
-        valid_df.to_csv(valid_dataset_filename, encoding="utf-8", index=False)
-
-        log.info("Files dataset_train.csv and dataset_valid.csv generated")
-
-        # Compute the statistics on the train dataset only.
-        statistics_dictionary = cs.compute_statistics(train_dataset_dictionary)
-
-        # Save dictionary containing statistical information to the dataset path in a .json file.
-        train_statistics_dump_path = pathlib.Path().joinpath(
-            dataset_path, "statistics_train.json"
-        )
-        with open(train_statistics_dump_path, "w") as f:
-            json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
-
-        log.info("Files statistics_train.json generated")
-
-    else:
-
-        # Compute the statistics on the whole dataset.
-        statistics_dictionary = cs.compute_statistics(dataset_dictionary)
-
-        # Save dictionary containing statistical information to the dataset path in a .json file.
-        statistics_dump_path = pathlib.Path().joinpath(
-            dataset_path, "statistics.json"
-        )
-        with open(statistics_dump_path, "w") as f:
-            json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
-
-        log.info("Files statistics.json generated")
+    log.info("Files statistics.json generated")
 
 
 if __name__ == "__main__":
