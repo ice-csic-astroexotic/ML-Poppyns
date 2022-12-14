@@ -1,7 +1,8 @@
 """
-    Parameter set generator module.
+    Parameter-set generator module.
 
-    This module contains the methods necessary to produce a sweep on the simulation parameters.
+    This module contains the methods necessary to produce a sweep of the simulation parameters,
+    used in the parameter_sweeper.py and the simulation_helper.py script.
 
     If the --sampling_type argument is set to "grid", we require the following for each tunable parameter:
 
@@ -64,7 +65,6 @@ def set_default_parameter(args_dict: dict, parameter_name: str) -> None:
         parameter_name (str): name of the parameter to set.
 
     Returns:
-
         Nothing.
     """
 
@@ -99,7 +99,6 @@ def set_default_if_none(args_dict: dict) -> None:
         args_dict (dict): dictionary of the parsed argument via CLI.
 
     Returns:
-
         Nothing.
     """
 
