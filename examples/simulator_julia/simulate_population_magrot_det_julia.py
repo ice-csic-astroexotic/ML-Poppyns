@@ -63,9 +63,10 @@ def simulate_population(args) -> None:
 
     Args:
 
-        dyn_data (str): Path to a dynamically evolved population database.
-        output_path (str): Output directory for the run.
-        parameter_override (str): Path to JSON with parameter overrides.
+        args:
+            dyn_data (str): Path to a dynamically evolved population database.
+            output_path (str): Output directory for the run.
+            parameter_override (str): Path to JSON with parameter overrides.
 
     Returns:
 
