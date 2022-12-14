@@ -171,6 +171,7 @@ def main(args):
     # Check and expand the parameters in the provided ranges.
     var_names, var_expanded_ranges = psg.check_expand_args(args_dict)
 
+    parameter_sets_gen = []
     if args_dict["sampling_type"] == "grid":
         # Create a generator of all the possible combinations of parameters based on their expanded range lists
         parameter_sets_gen = itertools.product(*var_expanded_ranges)
@@ -182,6 +183,7 @@ def main(args):
 
     # Set the simulation type and the path to the dynamical database if required.
     simulator_type = args_dict["simulator_type"]
+    dyn_data_path = ""
     if simulator_type == "simulate_population_magrot_det":
         dyn_data_path = args_dict["dyn_data"]
 
