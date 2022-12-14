@@ -39,13 +39,14 @@ The JSON file contains information about the mean, standard deviation, minimum a
 This statistical information will be used during the training process if one wants to normalize or standardize the label values.
 
 You can also choose to split the dataset into training/validation or into training/validation/test sets.
-To generate a dataset split into two subsets one specifically for training and the other for validation you can specify a fraction of the total dataset that will form the validation subset by passing the argument :code:`valid_train_split` in the generator script. For example:
+To do this you can run the :code:`dataset_splitter.py` script in the :code:`scripts` folder.
+To generate a dataset split into two subsets one specifically for training and the other for validation you can specify a fraction of the total dataset that will form the validation subset by passing the argument :code:`valid_train_split` in the :code:`dataset_splitter` script. For example:
 
 .. code-block:: bash
 
- python examples/generator/generate_dataset.py --valid_train_split 0.2 --data simulated_data --save_dir generated_dataset --type array --resolution_dyn 128 --resolution_ppdot 32
+ python scripts/dataset_splitter.py --dataset_path generated_dataset --valid_train_split 0.2
 
-This will create a dataset described in the file :code:`dataset.csv` along with two other files :code:`train_dataset.csv` and :code:`valid_dataset.csv` that will specify the samples belonging to the train dataset (80 % of the total dataset in this case) and the ones belonging to the validation dataset  (20 % of the total dataset).
+This will create two files :code:`train_dataset.csv` and :code:`valid_dataset.csv` that will specify the samples belonging to the train dataset (80 % of the total dataset in this case) and the ones belonging to the validation dataset  (20 % of the total dataset).
 The split is performed by randomly sampling the validation subset from the total dataset according to the specified split fraction.
 In this case the :code:`statistics_train.json` file will contain the statistics computed on the labels of the training set only.
 
@@ -54,9 +55,9 @@ In this case the :code:`vaild_train_split` argument will specify the fraction of
 
 .. code-block:: bash
 
- python examples/generator/generate_dataset.py --test_split 0.1 --valid_train_split 0.2 --data simulated_data --save_dir generated_dataset --type array --resolution_dyn 128 --resolution_ppdot 32
+ python scripts/dataset_splitter.py --dataset_path generated_dataset --test_split 0.1 --valid_train_split 0.2
 
-This will create a dataset described in the file :code:`dataset.csv` along with three other files :code:`train_dataset.csv`, :code:`valid_dataset.csv` and :code:`test_dataset.csv` that will specify the samples belonging to the train dataset (80 % of the dataset not used for testing in this case), the ones belonging to the validation dataset  (20 % of the dataset not used for testing) and the ones belonging to the test set (10 % of the total dataset), respectively.
+This will create three files :code:`train_dataset.csv`, :code:`valid_dataset.csv` and :code:`test_dataset.csv` that will specify the samples belonging to the train dataset (80 % of the dataset not used for testing in this case), the ones belonging to the validation dataset  (20 % of the dataset not used for testing) and the ones belonging to the test set (10 % of the total dataset), respectively.
 Again the split is performed by randomly sampling the test and validation subsets from the dataset according to the specified split fractions.
 Also in this case the :code:`statistics_train.json` file will contain the statistics computed on the labels of the training set only.
 

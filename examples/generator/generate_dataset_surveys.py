@@ -360,22 +360,6 @@ if __name__ == "__main__":
         help="Path to where the simulated populations are.",
     )
     parser.add_argument(
-        "--test_split",
-        nargs="?",
-        type=float,
-        default=None,
-        help="Fraction of the total dataset that will form the test dataset. "
-        "It must be a number in the range [0, 1].",
-    )
-    parser.add_argument(
-        "--valid_train_split",
-        nargs="?",
-        type=float,
-        default=None,
-        help="Fraction of the dataset not dedicated for testing that will form the validation dataset. "
-        "It must be a number in the range [0, 1].",
-    )
-    parser.add_argument(
         "--save_dir",
         nargs="?",
         type=str,
