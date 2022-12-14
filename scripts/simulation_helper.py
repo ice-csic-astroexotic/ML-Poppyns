@@ -62,7 +62,6 @@ import typing
 import numpy as np
 
 import scripts.parameter_set_generator as psg
-from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
 
