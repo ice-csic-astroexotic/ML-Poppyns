@@ -1,8 +1,8 @@
 """
-    Parameter sweeper script.
+    Parameter-sweeper script.
 
     This script generates the files necessary to launch multiple simulations with different parameter values
-    using HTCondor at the PIC.
+    using HTCondor at the PIC. It uses methods from the module parameter_set_generator.py.
 
     If the --sampling_type argument is set to "grid", we require the following for each tunable parameter:
 
@@ -63,7 +63,7 @@ log = logging.getLogger(__name__)
 
 
 def main(args):
-    # Parse arguments provided to the parameter sweeper script.
+    # Parse arguments provided to the parameter-sweeper script.
     log.info("Parsing arguments...")
 
     args_dict = vars(args)
