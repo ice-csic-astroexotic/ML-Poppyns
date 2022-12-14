@@ -41,12 +41,9 @@
     SOFTWARE.
 """
 
-import argparse
-import itertools
 import json
 import logging
 import pathlib
-import sys
 
 import numpy as np
 
