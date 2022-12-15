@@ -90,7 +90,7 @@ def simulate_population(
     with open(override_dump_path, "w") as f:
         json.dump(cfg_override, f, indent=4, sort_keys=True)
 
-    # Sending Python values to Julia to initialize some of the components needed for the simulator.
+    # Sending Python values to Julia to initialize some components needed for the simulator.
     Main.galactic_model_input = cfg["galactic_model"]
 
     # Importing the ´galactic_model.jl´ file with Julia code into our Main Julia.
