@@ -107,7 +107,6 @@ def simulate_population(args) -> None:
     np.random.seed(cfg["seed_magrot"])
 
     # Update simulator configuration with the dynamical database JSON override (if any).
-    cfg_override_dyn = {}
     if dyn_path_config.exists():
         json_override_path = dyn_path_config
         with open(json_override_path) as f:
