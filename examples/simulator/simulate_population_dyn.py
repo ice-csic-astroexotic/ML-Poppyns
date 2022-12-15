@@ -91,7 +91,6 @@ def simulate_population(args) -> None:
     np.random.seed(cfg["seed_dyn"])
 
     # Update simulator configuration with the provided JSON override (if any).
-    cfg_override = {}
     if args.parameter_override:
         json_override_path = pathlib.Path(args.parameter_override)
         with open(json_override_path) as f:
