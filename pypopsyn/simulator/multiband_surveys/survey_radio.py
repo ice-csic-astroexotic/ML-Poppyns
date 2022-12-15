@@ -273,7 +273,7 @@ def sky_temperature_H81refined(
 
     # Rescale to the wanted frequency assuming a sky temperature spectral index of -2.6
     # (see Lawson et al. 1987, Johnston et al. 1992).
-    T_sky_f = T_sky_400 * (408.0e6 / f) ** 2.6
+    T_sky_f = np.atleast_1d(T_sky_400 * (408.0e6 / f) ** 2.6)
 
     return T_sky_f
 
