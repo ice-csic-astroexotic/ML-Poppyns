@@ -3,19 +3,19 @@ Generator Example
 *****************
 
 
-Once a set of simulated populations is created by running one of the simulator scripts (see above for more information about it), it is possible to generate a dataset of synthetic representations of the simulations that is readable by a machine learning pipeline.
-Depending on the type of simulations that have been performed two types of generator scripts can be used, the :code:`examples/generator/generate_dataset.py` and the :code:`examples/generator/generate_dataset_survey.py`.
+Once a set of simulated populations is created by running one of the simulator scripts (see above for more information), it is possible to generate a dataset of synthetic representations of the simulations that is readable by a machine-learning pipeline.
+Depending on the type of simulations that have been performed, two types of generator scripts can be used, the :code:`examples/generator/generate_dataset.py` or the :code:`examples/generator/generate_dataset_survey.py`.
 
-The first script :code:`examples/generator/generate_dataset.py` can be used if simulations have been run using the :code:`simulate_population_full` script, since it will read from the :code:`final_population.pkl.gz` output files that are produced only by this type of simulator.
-For each simulated population this script can generate a set of density maps in the form of either :code:`.png` images or 2D numpy :code:`.npy` arrays.
+The first script :code:`examples/generator/generate_dataset.py` can be used if simulations have been run using the :code:`simulate_population_full` script, since it will read the corresponding :code:`final_population.pkl.gz` output files.
+For each simulated population, this script can generate a set of density maps in the form of either :code:`.png` images or 2D numpy :code:`.npy` arrays.
 These maps store the spatial density and velocity information in galactocentric or equatorial (ICRS) reference frames and the density in a :math:`P-\dot{P}` diagram of all the evolved neutron stars.
 
-The second script :code:`examples/generator/generate_dataset_survey.py` can be used if simulations have been run using the :code:`simulate_population_magrot_det` script, since it will read from :code:`.pkl.gz` output files that are produced for each of the simulated surveys.
-For each simulated population this script can generate a set of density maps in the form of either :code:`.png` images or 2D numpy :code:`.npy` arrays.
-These maps store the spatial density and proper motion information in equatorial (ICRS) reference frames and their density in a :math:`P-\dot{P}` diagram of only the simulated neutron stars that have been detected by the modelled surveys.
+The second script :code:`examples/generator/generate_dataset_survey.py` can be used if simulations have been run using the :code:`simulate_population_magrot_det` script, since it will read the corresponding :code:`.pkl.gz` output files that are produced for each of the simulated surveys.
+For each simulated population, this script can generate a set of density maps in the form of either :code:`.png` images or 2D numpy :code:`.npy` arrays.
+These maps store the spatial density and proper motion information in equatorial (ICRS) reference frames and the density in a :math:`P-\dot{P}` diagram of the simulated neutron stars that have been detected by the modelled surveys only.
 
 Suppose that you have created a set of simulated populations stored in :code:`simulated_data` using the :code:`simulate_population_full` script.
-If you want to create a dataset of 2D arrays storing the spatial density and the velocity information of the simulated neutron stars with a resolution of :math:`64 \times 64` and the density in the :math:`P-\dot{P}` diagram with a resolution of :math:`32 \times 32` you can run the script:
+If you want to create a dataset of 2D arrays storing the spatial density and the velocity information of the simulated neutron stars with a resolution of :math:`64 \times 64` and the density in the :math:`P-\dot{P}` diagram with a resolution of :math:`32 \times 32` you can run the following command:
 
 .. code-block:: bash
 
@@ -40,7 +40,7 @@ This statistical information will be used during the training process if one wan
 
 You can also choose to split the dataset into training/validation or into training/validation/test sets.
 To do this you can run the :code:`dataset_splitter.py` script in the :code:`scripts` folder.
-To generate a dataset split into two subsets one specifically for training and the other for validation you can specify a fraction of the total dataset that will form the validation subset by passing the argument :code:`valid_train_split` in the :code:`dataset_splitter` script. For example:
+To generate a dataset split into two subsets, one specifically for training and the other for validation, you can specify a fraction of the total dataset that will form the validation subset by passing the argument :code:`valid_train_split` in the :code:`dataset_splitter` script. For example:
 
 .. code-block:: bash
 
@@ -48,10 +48,10 @@ To generate a dataset split into two subsets one specifically for training and t
 
 This will create two files :code:`dataset_train.csv` and :code:`dataset_valid.csv` that will specify the samples belonging to the train dataset (80 % of the total dataset in this case) and the ones belonging to the validation dataset  (20 % of the total dataset).
 The split is performed by randomly sampling the validation subset from the total dataset according to the specified split fraction.
-In this case the :code:`statistics_train.json` file will contain the statistics computed on the labels of the training set only.
+In this case, the :code:`statistics_train.json` file will contain the statistics computed on the labels of the training set only.
 
-If you want to create also a test set beside the training and validation sets, you can specify the argument :code:`test_split` which sets the fraction of the total dataset to be dedicated for testing purposes.
-In this case the :code:`vaild_train_split` argument will specify the fraction of the dataset not used for testing that will be dedicated for validation.
+If you also want to create a test set in addition to the training and validation sets, you can specify the argument :code:`test_split`, which sets the fraction of the total dataset to be dedicated for testing purposes.
+In this case, the :code:`valid_train_split` argument will specify the fraction of the dataset not used for testing but instead dedicated for validation.
 
 .. code-block:: bash
 
@@ -59,7 +59,7 @@ In this case the :code:`vaild_train_split` argument will specify the fraction of
 
 This will create three files :code:`dataset_train.csv`, :code:`dataset_valid.csv` and :code:`dataset_test.csv` that will specify the samples belonging to the train dataset (80 % of the dataset not used for testing in this case), the ones belonging to the validation dataset  (20 % of the dataset not used for testing) and the ones belonging to the test set (10 % of the total dataset), respectively.
 Again the split is performed by randomly sampling the test and validation subsets from the dataset according to the specified split fractions.
-Also in this case the :code:`statistics_train.json` file will contain the statistics computed on the labels of the training set only.
+In this case, the :code:`statistics_train.json` file will also contain the statistics computed on the labels of the training set only.
 
 *******************
 Experiment Launcher

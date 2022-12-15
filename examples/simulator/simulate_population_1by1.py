@@ -64,9 +64,8 @@ def simulate_population(
     conditions and evolving it forward in time.
 
     Args:
-        args:
-            output_path (pathlib.Path): Output directory for the run.
-            json_override_path (pathlib.Path): Path to JSON with parameter overrides.
+        output_path (pathlib.Path): Output directory for the run.
+        json_override_path (pathlib.Path): Path to JSON with parameter overrides.
 
     Returns:
 

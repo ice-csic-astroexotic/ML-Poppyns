@@ -53,6 +53,7 @@ def generate_job_submit(
         path_output (pathlib.Path): Output directory for the submit file.
         index (int) : Index of the submit file.
         path_arguments_chunk (pathlib.Path): Path to a txt file with the list of arguments.
+        full_path_dagman (pathlib.Path): Path to the location of the dagman file.
 
     Returns:
 

@@ -1,7 +1,8 @@
-""" Splitter for dataset.
+"""
+    Splitter for dataset.
 
-    This module splits the provided dataset into train validation and test datasets according to
-    the given split fractions.
+    This module splits the provided dataset into training, validation and test datasets
+    according to the given split fractions.
 
     Running the code:
 
@@ -49,17 +50,15 @@ log = logging.getLogger(__name__)
 
 def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
     """
-    This method splits the provided dataset into two sub-datasets set_1 and set_2
+    This method splits the provided dataset into two sub-datasets, set_1 and set_2,
     according to a specified split fraction.
 
     Args:
         dataset_dict (dict): Dictionary containing the information on the dataset.
-
         split (float): Fraction of set_1 size with respect to the provided dataset size.
 
     Return:
         (dict, dict): Two dictionaries providing the information on the two sub-datasets created from the split.
-
     """
 
     # Check if the split argument falls in the range (0, 1).
@@ -71,8 +70,8 @@ def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
 
     dataset_size = [len(x) for x in dataset_dict.values()][0]
 
-    # Evaluate the subset1 size according to the fraction defined by the split argument.
-    # Then randomly sample subset1 and subset2 from the whole dataset.
+    # Evaluate the set_1 size according to the fraction defined by the split argument.
+    # Then randomly sample set_1 and set_2 from the whole dataset.
     set1_size = int(split * dataset_size)
     dataset_idx = np.arange(dataset_size)
 
@@ -186,7 +185,7 @@ def main(args) -> None:
 
         log.info("Files dataset_train.csv and dataset_valid.csv generated")
 
-        # Compute the statistics on the train dataset only.
+        # Compute the statistics on the training dataset only.
         statistics_dictionary = cs.compute_statistics(train_dataset_dictionary)
 
         # Save dictionary containing statistical information to the dataset path in a .json file.
@@ -210,14 +209,14 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default=None,
-        help="Path were the dataset is stored.",
+        help="Path where the simulation dataset is stored.",
     )
     parser.add_argument(
         "--test_split",
         nargs="?",
         type=float,
         default=None,
-        help="Fraction of the total dataset that will form the test dataset. "
+        help="Fraction of the total simulation dataset that will form the test dataset. "
         "It must be a number in the range [0, 1].",
     )
     parser.add_argument(
@@ -225,7 +224,7 @@ if __name__ == "__main__":
         nargs="?",
         type=float,
         default=None,
-        help="Fraction of the dataset not dedicated for testing that will form the validation dataset. "
+        help="Fraction of the simulation dataset not dedicated for testing but for training and validation. "
         "It must be a number in the range [0, 1].",
     )
 
