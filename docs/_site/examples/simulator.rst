@@ -69,7 +69,7 @@ This script performs the following steps in a loop until the specified number of
    This means that the dynamical database size should be bigger than this batch size, i.e., it should contain at least 100 times the neutron star number specified by the batch size.
    Simulating neutron stars in batches helps to speed up the simulation by evolving simultaneously an array of pulsars.
 
-2) It selects pulsars that fall into the sky coverage of the surveys and are not futher away than 35 kpc from the Sun and evolves their magnetic field, spin period and inclination angle.
+2) It selects pulsars that fall into the sky coverage of the surveys and are not further away than 35 kpc from the Sun and evolves their magnetic field, spin period and inclination angle.
    This pre-selection allows to not waste computational resources on pulsars that have no chance to be detected.
 
 3) The emission geometry is modeled so that only pulsars emitting towards the Earth can be selected.
@@ -105,39 +105,53 @@ For the dynamical simulation only:
 Simulations with parameter sweep
 ################################
 
-`NOTE: The parameter sweep simulation helper has to be modified to adapt with the current versions of the simulators. The following section applies to an older version of the simulator.`
+If you want to run simulations with a large parameter sweep, you can use the helper script called :code:`simulation_helper` in the :code:`scripts` folder.
+This script allows us to choose the type of simulation you want to run (:code:`simulate_population_dyn`, :code:`simulate_population_magrot_det` or :code:`simulate_population_full`) and to specify the relevant simulation parameters with two types of sampling, determined by the argument :code:`--sampling_type`.
 
-If you want to generate a huge parameter sweep you can use the wrapper or helper script that allows the specification of parameters with two types of sampling, determined by the argument :code:`--sampling_type`.
-If :code:`--sampling_type = grid` you should provide the parameters in a linear spacing format :code:`--parameter [low] [high] [steps]`:
-
-.. code-block:: bash
-
-  python examples/simulator/simulation_helper.py --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100 --sampling_type grid
-
-This example will generate a sweep of :code:`100` uniformly spaced samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model and the results will be dumped in the specified :code:`simulated_data` folder.
-If :code:`--sampling_type = random` you should provide the parameter ranges in the format :code:`--parameter [low] [high]` and specify the :code:`--sampling_size` argument which sets the number of values to draw from a uniform distribution for each parameter.
+If :code:`--sampling_type = grid`, you should provide the parameters in a linear spacing format :code:`--parameter [low] [high] [steps]`:
 
 .. code-block:: bash
 
-  python examples/simulator/simulation_helper.py --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 --sampling_type random --sampling_size 100
+  python scripts/simulation_helper.py --simulation_type simulate_population_dyn --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100 --sampling_type grid
 
-This example will generate a sweep of :code:`100` randomly drawn samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model and the results will be dumped in the specified :code:`simulated_data` folder.
-
-
-The parameters that can be swept with the simulation helper are :code:`vk_c` for the exponential kick velocity model  :code:`km_exp`, :code:`sigma_k` for the Maxwell kick velocity model :code:`km_maxwell`, :code:`h_c` for the galactic height distribution model of birth places, :code:`P_initial_mean` and :code:`P_initial_sigma` for the birth spin period distribution and :code:`B_initial_log10_mean` and :code:`B_initial_log10_sigma` for the birth magnetic field distribution.
-
-You can also sweep over more than one parameter by running a script like:
+This example will run the dynamical simulation only and generate a sweep of :code:`100` uniformly spaced samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model. The results will be saved in the specified :code:`simulated_data` folder.
+If :code:`--sampling_type = random` you should provide the parameter ranges in the format :code:`--parameter [low] [high]` and specify the :code:`--sampling_size` argument, which sets the number of values drawn from a uniform distribution for each parameter.
 
 .. code-block:: bash
 
-  python examples/simulator/simulation_helper.py --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100 --h_c 0.01 2 10 --sampling_type grid
+  python scripts/simulation_helper.py --simulation_type simulate_population_dyn --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 --sampling_type random --sampling_size 100
 
-In this way a population is simulated for each combination of values of :code:`vk_c` and :code:`h_c`, i.e., the above case corresponds to :code:`100 x 10 = 1000` simulations.
-The sweeper will generate a folder :code:`simulated_data` which will contain a folder for each simulation (parameter combination) named with an identifier number, i.e, :code:`000000`, :code:`000001`, :code:`000002` and so on.
+This example will generate a sweep of :code:`100` randomly drawn samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model. The results will be saved in the specified :code:`simulated_data` folder.
 
-Here it is important to distinguish between two types of arguments for the helper: options and parameters. Options are arguments which specify procedures for the simulation and they cannot be swept in a range since we assume they are not going to be outputs that will need to be predicted, e.g., the kick model. Parameters are values that we expect to use as ground truth for the learning system and therefore are to be predicted so they can be swept in a range to generate a dataset, e.g., :code:`vk_c`.
 
-The script automatically checks the compatibility of the present parameters for the selected options, e.g., :code:`vk_c` cannot be specified if :code:`km_maxell` has been chosen as kick model. This is done using the dictionary :code:`examples/simulator/config_sweeper.json` which specifies a list of exclusive parameters for each option.
+In the following, we list the parameters that can be swept with the simulation helper.
+
+For the dynamical evolution:
+
+* :code:`vk_c` for the exponential kick-velocity model :code:`km_exp`;
+* :code:`sigma_k` for the Maxwell kick-velocity model :code:`km_maxwell`;
+* :code:`h_c` for the Galactic scale-height-distribution model of birth places.
+
+For the magneto-rotational evolution:
+
+* :code:`P_initial_mean` and :code:`P_initial_sigma` for the birth spin-period :code:`normal` distribution model;
+* :code:`P_initial_log10_mean` and :code:`P_initial_log10_sigma` for the birth spin-period :code:`log-normal` distribution model;
+* :code:`B_initial_log10_mean` and :code:`B_initial_log10_sigma` for the birth magnetic-field lognormal distribution;
+* :code:`a_late` for the power-law index describing the late-time decay of the magnetic field.
+
+
+You can also sweep over more than one parameter by running the a script as follows:
+
+.. code-block:: bash
+
+  python scripts/simulation_helper.py --simulation_type simulate_population_dyn --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100 --h_c 0.01 2 10 --sampling_type grid
+
+In this way, a population is simulated for each combination of values of :code:`vk_c` and :code:`h_c`, i.e., the above case corresponds to :code:`100 x 10 = 1000` simulations.
+The sweeper will generate a directory :code:`simulated_data`, which will contain a folder for each simulation (parameter combination) named with an identifier number, i.e, :code:`000000`, :code:`000001`, :code:`000002` and so on.
+
+Note that it is important to distinguish between two types of arguments for the helper: options and parameters. Options are arguments which specify procedures for the simulation and they cannot be swept in a range, e.g., the kick model, because we assume these are not going to be outputs that will need to be predicted. Parameters are values that we expect to use as ground truth for the learning system and therefore are to be predicted. Hence, these can be swept in a range to generate a dataset, e.g., :code:`vk_c`.
+
+The script automatically checks the compatibility of the present parameters for the selected options, e.g., :code:`vk_c` cannot be specified if :code:`km_maxwell` has been chosen as kick model. This is done using the dictionary :code:`examples/simulator/config_sweeper.json`, which specifies a list of exclusive parameters for each option.
 
 Visualize simulation results
 ############################
