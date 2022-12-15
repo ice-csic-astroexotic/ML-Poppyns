@@ -1,14 +1,12 @@
-#!/usr/bin/evn python3
-# -*- coding: utf-8 -*-
 """
-Generation of the HTCondor scripts.
+    Generation of the HTCondor scripts.
 
-We generate all the scripts needed to run the whole set of simulations in chunks using HTCondor.
-Each job will run each chunk of simulations for a different set of initial parameters.
+    We generate all the scripts needed to run the whole set of simulations in chunks using HTCondor.
+    Each job will run each chunk of simulations for a different set of initial parameters.
 
-Note that this script needs the output from the `parameter_sweeper.py` script.
-As specified with the command line argument --output_dir_htcondor the submit files for each job, the
-arguments.txt and a wrapper are saved in this path.
+    Note that this script needs the output from the `parameter_sweeper.py` script.
+    As specified with the command line argument --output_dir_htcondor the submit files for each job, the
+    arguments.txt and a wrapper are saved in this path.
 
 
     Authors:
@@ -46,11 +44,10 @@ def generate_job_submit(
     Create all the submit files.
 
     Args:
-
         path_output (pathlib.Path): Output directory for the submit file.
+        path_arguments (pathlib.Path): Path for the simulation arguments.
 
     Returns:
-
         Nothing.
     """
     # Path where each submit file will be saved.
@@ -77,11 +74,9 @@ def generate_wrapper(path_wrapper):
     Create all the wrapper files.
 
     Args:
-
         path_wrapper (pathlib.Path): Output directory for the wrapper file.
 
     Returns:
-
         Nothing.
     """
 
