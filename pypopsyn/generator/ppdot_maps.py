@@ -61,7 +61,7 @@ def generate_ppdot_map(
     This method generates a discrete P-Pdot diagram map with great flexibility, the
     dimensions of the map can be chosen, the type (image or array) can also be
     decided, and the limits and resolution for it can be specified. As a result,
-    a map with the specified filename and a extension determined by the chosen
+    a map with the specified filename and an extension determined by the chosen
     type is created as output.
 
     The dictionary of P-Pdot maps for the dataset is also updated with the

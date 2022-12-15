@@ -61,7 +61,7 @@ class InitialNeutronStarPopulation:
         # The default value corresponds to the total number specified in the configuration file, so that
         # all neutron stars of the population are generated at once.
         # For a one by one simulation NS_number is set to 1 and the simulator calls this class repeatedly
-        # generiting stars in a loop until the wanted total number of objects in the population is reached.
+        # generating stars in a loop until the wanted total number of objects in the population is reached.
         self.NS_number = NS_number
 
     def age(self) -> np.ndarray:
