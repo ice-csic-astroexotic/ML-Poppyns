@@ -280,25 +280,25 @@ def generate_dataset(args) -> None:
     }
 
     # Write the whole dataset dictionary into a .csv file.
-    dataset_filename = f"{dataset_path}/dataset.csv"
+    dataset_filename = f"{dataset_path}/dataset_full.csv"
 
     df = pd.DataFrame(
         {key: pd.Series(value) for key, value in dataset_dictionary.items()}
     )
     df.to_csv(dataset_filename, encoding="utf-8", index=False)
 
-    log.info("File dataset.csv generated")
+    log.info("File dataset_full.csv generated")
 
     # Compute the statistics on the whole dataset.
     statistics_dictionary = cs.compute_statistics(dataset_dictionary)
     # Save dictionary containing statistical information to the dataset path in a .json file.
     statistics_dump_path = pathlib.Path().joinpath(
-        dataset_path, "statistics.json"
+        dataset_path, "statistics_full.json"
     )
     with open(statistics_dump_path, "w") as f:
         json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
 
-    log.info("Files statistics.json generated")
+    log.info("Files statistics_full.json generated")
 
 
 if __name__ == "__main__":

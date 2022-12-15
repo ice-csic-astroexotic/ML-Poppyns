@@ -19,10 +19,10 @@ If you want to create a dataset of 2D arrays storing the spatial density and the
 
 .. code-block:: bash
 
-  python examples/generator/generate_dataset.py --data simulated_data --save_dir generated_dataset --type array --resolution_dyn 64 --resolution_ppdot 32
+  python examples/generator/generate_dataset.py --data simulated_data --save_dir generated_dataset --data_type array --resolution_dyn 64 --resolution_ppdot 32
 
 You need to provide the path to the location where the simulated populations data are stored, the path where to save the dataset that you are going to create, the type of the representations (you can choose :code:`array` or :code:`image`) and the resolution.
-By running the script, the folder :code:`generated_dataset` is created where a set of 2D arrays are stored for each simulated population (sample) along with a :code:`dataset.csv` file containing all the information about the dataset and a :code:`statistics_train.json` file containing the statistical information on each label.
+By running the script, the folder :code:`generated_dataset` is created where a set of 2D arrays are stored for each simulated population (sample) along with a :code:`dataset_full.csv` file containing all the information about the dataset and a :code:`statistics_full.json` file containing the statistical information on each label.
 The CSV file provides one line for each sample in the dataset in which we indicate the file path for its 2D arrays (potential input channels for the machine learning pipeline) and the values for its parameters (labels) like this:
 
 ::
@@ -46,7 +46,7 @@ To generate a dataset split into two subsets one specifically for training and t
 
  python scripts/dataset_splitter.py --dataset_path generated_dataset --valid_train_split 0.2
 
-This will create two files :code:`train_dataset.csv` and :code:`valid_dataset.csv` that will specify the samples belonging to the train dataset (80 % of the total dataset in this case) and the ones belonging to the validation dataset  (20 % of the total dataset).
+This will create two files :code:`dataset_train.csv` and :code:`dataset_valid.csv` that will specify the samples belonging to the train dataset (80 % of the total dataset in this case) and the ones belonging to the validation dataset  (20 % of the total dataset).
 The split is performed by randomly sampling the validation subset from the total dataset according to the specified split fraction.
 In this case the :code:`statistics_train.json` file will contain the statistics computed on the labels of the training set only.
 
@@ -57,7 +57,7 @@ In this case the :code:`vaild_train_split` argument will specify the fraction of
 
  python scripts/dataset_splitter.py --dataset_path generated_dataset --test_split 0.1 --valid_train_split 0.2
 
-This will create three files :code:`train_dataset.csv`, :code:`valid_dataset.csv` and :code:`test_dataset.csv` that will specify the samples belonging to the train dataset (80 % of the dataset not used for testing in this case), the ones belonging to the validation dataset  (20 % of the dataset not used for testing) and the ones belonging to the test set (10 % of the total dataset), respectively.
+This will create three files :code:`dataset_train.csv`, :code:`dataset_valid.csv` and :code:`dataset_test.csv` that will specify the samples belonging to the train dataset (80 % of the dataset not used for testing in this case), the ones belonging to the validation dataset  (20 % of the dataset not used for testing) and the ones belonging to the test set (10 % of the total dataset), respectively.
 Again the split is performed by randomly sampling the test and validation subsets from the dataset according to the specified split fractions.
 Also in this case the :code:`statistics_train.json` file will contain the statistics computed on the labels of the training set only.
 
