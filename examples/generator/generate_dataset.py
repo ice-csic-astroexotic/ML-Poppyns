@@ -291,6 +291,7 @@ def generate_dataset(args) -> None:
 
     # Compute the statistics on the whole dataset.
     statistics_dictionary = cs.compute_statistics(dataset_dictionary)
+
     # Save dictionary containing statistical information to the dataset path in a .json file.
     statistics_dump_path = pathlib.Path().joinpath(
         dataset_path, "statistics.json"
