@@ -182,6 +182,12 @@ def simulate_population(args) -> None:
         n_detected_sim_HTRU_high = 0
         n_detected_sim_HTRU_low_mid = 0
 
+        # In these variables we save how many stars we detect when we reach the desirable number in each survey.
+        n_detected_PMPS_at_birthrate = 0
+        n_detected_SMPS_at_birthrate = 0
+        n_detected_HTRU_low_mid_at_birthrate = 0
+        n_detected_HTRU_high_at_birthrate = 0
+
         stop_PMPS = False
         stop_SMPS = False
         stop_HTRU_low_mid = False
@@ -584,6 +590,7 @@ def simulate_population(args) -> None:
                 if (n_detected_sim_PMPS >= n_detected_real_PMPS) & (
                     stop_PMPS is False
                 ):
+                    n_detected_PMPS_at_birthrate = n_detected_sim_PMPS
                     stop_PMPS = True
                     n_created_PMPS = n_created
 
@@ -613,6 +620,7 @@ def simulate_population(args) -> None:
                 if (n_detected_sim_SMPS >= n_detected_real_SMPS) & (
                     stop_SMPS is False
                 ):
+                    n_detected_SMPS_at_birthrate = n_detected_sim_SMPS
                     stop_SMPS = True
                     n_created_SMPS = n_created
 
@@ -681,6 +689,10 @@ def simulate_population(args) -> None:
                 if (
                     n_detected_sim_HTRU_low_mid >= n_detected_real_HTRU_low_mid
                 ) & (stop_HTRU_low_mid is False):
+
+                    n_detected_HTRU_low_mid_at_birthrate = (
+                        n_detected_sim_HTRU_low_mid
+                    )
                     stop_HTRU_low_mid = True
                     n_created_HTRU_low_mid = n_created
 
@@ -714,6 +726,9 @@ def simulate_population(args) -> None:
                 if (n_detected_sim_HTRU_high >= n_detected_real_HTRU_high) & (
                     stop_HTRU_high is False
                 ):
+                    n_detected_HTRU_high_at_birthrate = (
+                        n_detected_sim_HTRU_high
+                    )
                     stop_HTRU_high = True
                     n_created_HTRU_high = n_created
 
@@ -959,6 +974,15 @@ def simulate_population(args) -> None:
         cfg["birth_rate_SMPS"] = birth_rate_SMPS
         cfg["birth_rate_HTRU_low_mid"] = birth_rate_HTRU_low_mid
         cfg["birth_rate_HTRU_high"] = birth_rate_HTRU_high
+
+        # Add the information of the number of detected neutron star by each survey when this survey reach the number
+        # of observed neutron stars.
+        cfg["n_detected_sim_PMPS"] = n_detected_PMPS_at_birthrate
+        cfg["n_detected_sim_SMPS"] = n_detected_SMPS_at_birthrate
+        cfg[
+            "n_detected_sim_HTRU_low_mid"
+        ] = n_detected_HTRU_low_mid_at_birthrate
+        cfg["n_detected_sim_HTRU_high"] = n_detected_HTRU_high_at_birthrate
 
         # Add the parameters from the dynamical database to the configuration file.
         cfg["t_max"] = conf_json["t_age_max"]
