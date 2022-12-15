@@ -45,7 +45,6 @@ import sys
 import pandas as pd
 
 import pypopsyn.generator.compute_statistics as cs
-import pypopsyn.generator.dataset_splitter as ds
 import pypopsyn.generator.position_maps as pmaps
 import pypopsyn.generator.ppdot_maps as ppdmaps
 import pypopsyn.generator.velocity_maps as vmaps
