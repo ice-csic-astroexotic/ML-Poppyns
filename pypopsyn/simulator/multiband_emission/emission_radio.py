@@ -244,7 +244,6 @@ def calculate_radio_emission(
     chi: np.ndarray,
     idx_det,
 ) -> dict:
-
     """
     Compute the radio beam geometry, the intrinsic bolometric radio flux and the DM.
     Note that the luminosity and DM are computed for only the pulsars that its beam crosses our line of sight.
