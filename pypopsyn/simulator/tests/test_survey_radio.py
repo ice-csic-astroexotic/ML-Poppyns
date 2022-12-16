@@ -227,7 +227,7 @@ def test_detect_single_PMPS(monkeypatch, test_case_1):
     assert test_case_1["detected_expected"].all() == detected_out.all()
 
 
-def test_detect_radio_population_PMPS(monkeypatch, test_case_1):
+def test_detect_radio_population_PMPS(test_case_1):
     """
     Verifying that a population of pulsars are correctly detected by the survey.
     """
