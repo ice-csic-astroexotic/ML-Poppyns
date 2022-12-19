@@ -498,56 +498,21 @@ def simulate_population(args) -> None:
             cfg["show_profiling"],
         ) as timer:
 
-            # Determining the luminosity in different electromagnetic bands.
-            log.info("Computing radio fluxes and intrinsic pulse widths...")
-
-            L_radio_bol = er.pdf_luminosity_radio(
-                P_final,
-                P_dot_final,
-            )
-
-            # Determining the radio beam angular aperture.
-            rho_beam = er.beam_aperture(P_final, cfg["r_em"])
-
-            # Determining the solid angle covered by the two radio beams.
-            solid_angle_beam = er.solid_angle_radio_beams(rho_beam)
-
-            # Drawing a random angular intercept for the line of sight.
-            # Note that since we assume symmetry between the northern and southern hemisphere of the star
-            # we only need to consider one hemisphere, e.g., the northern one.
-            los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-            los_rand = rs.random_from_pdf(los_grid, np.sin, cfg["NS_number"])
-
-            # Selecting the pulsars whose radio beam intercepts our line of sight.
-            intercepted_radio = er.los_intercept(
-                chi_final,
-                rho_beam,
-                los_rand,
+            (
+                intercepted_radio,
+                S_radio_bol,
+                w_int_s,
+                L_radio_bol,
+            ) = er.calculate_radio_emission_full(
+                P_final, P_dot_final, sun_dist_icrs, chi_final
             )
 
             fraction_intercepted = len(
                 intercepted_radio[intercepted_radio]
             ) / len(intercepted_radio)
+
             log.info(
                 f"Fraction of pulsars beaming towards us in radio: {fraction_intercepted}"
-            )
-
-            # Computing the intrinsic pulse width of the radio pulse.
-            w_int = np.zeros(cfg["NS_number"])
-            w_int[intercepted_radio] = er.pulse_width(
-                chi_final[intercepted_radio],
-                rho_beam[intercepted_radio],
-                los_rand[intercepted_radio],
-            )
-            # Convert pulse width from [rad] to [s].
-            w_int_s = w_int * P_final / (2.0 * np.pi)
-
-            # Computing the intrinsic bolometric radio flux.
-            S_radio_bol = np.zeros(cfg["NS_number"])
-            S_radio_bol[intercepted_radio] = er.flux_radio(
-                L_radio_bol[intercepted_radio],
-                sun_dist_icrs[intercepted_radio],
-                solid_angle_beam[intercepted_radio],
             )
 
             timer.checkpoint("[Radio emission]")
