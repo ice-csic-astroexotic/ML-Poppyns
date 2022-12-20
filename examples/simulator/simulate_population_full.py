@@ -564,55 +564,37 @@ def simulate_population(args) -> None:
             # by considering the PMPS parameters. If other surveys with different parameters are to be added
             # we would need to compute the following quantities for each survey.
 
-            # Computing the intrinsic radio flux density in [Jy].
-            S_radio_f = np.zeros(cfg["NS_number"])
-            S_radio_f[detectable_radio] = er.flux_density_radio(
-                S_radio_bol[detectable_radio],
-                f=survey_PMPS.f_central,
-            )
-
-            # Compute the effective pulse width in [s].
-            w_eff = np.zeros(cfg["NS_number"])
-            w_eff[detectable_radio] = sr.effective_pulse_width(
-                w_int_s[detectable_radio],
-                DM[detectable_radio],
-                survey_PMPS.channel_width,
-                survey_PMPS.f_central,
-                survey_PMPS.t_samp,
-            )
-
-            # Compute the observed radio flux in [Jy].
-            S_radio_obs = np.zeros(cfg["NS_number"])
-            S_radio_obs[detectable_radio] = sr.flux_radio_obs(
-                S_radio_f[detectable_radio],
-                w_int_s[detectable_radio],
-                w_eff[detectable_radio],
-            )
-
-            # Compute the period-averaged flux in [Jy].
-            S_radio_obs_mean = sr.flux_radio_obs_period_average(
-                S_radio_obs, P_final, w_eff
-            )
-
             # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
 
-            detected_radio_PMPS = np.zeros(cfg["NS_number"], dtype=bool)
-            detectable_radio_PMPS = intercepted_radio & coverage_PMPS
+            S_radio_f = np.zeros(cfg["NS_number"])
+            w_eff = np.zeros(cfg["NS_number"])
+            S_radio_obs = np.zeros(cfg["NS_number"])
 
-            detected_radio_PMPS[
-                detectable_radio_PMPS
-            ] = survey_PMPS.simulate_single_detection(
-                S_radio_obs_mean[detectable_radio_PMPS],
-                l_final[detectable_radio_PMPS],
-                b_final[detectable_radio_PMPS],
-                w_eff[detectable_radio_PMPS],
-                P_final[detectable_radio_PMPS],
+            (
+                detected_radio_PMPS,
+                S_radio_obs_mean,
+                w_eff,
+                S_radio_obs,
+                S_radio_f,
+            ) = survey_PMPS.detected_radio_population_full(
+                w_int_s,
+                DM,
+                P_final,
+                l_final,
+                b_final,
+                S_radio_bol,
+                intercepted_radio,
+                coverage_PMPS,
+                S_radio_f,
+                w_eff,
+                S_radio_obs,
             )
 
             fraction_detected_radio_PMPS = len(
                 detected_radio_PMPS[detected_radio_PMPS]
             ) / len(detected_radio_PMPS)
+
             log.info(
                 f"Fraction of detected pulsars by PMPS: {fraction_detected_radio_PMPS}"
             )
@@ -620,22 +602,30 @@ def simulate_population(args) -> None:
             # Simulating the SMPS survey.
             log.info("Simulate detection with SMPS...")
 
-            detected_radio_SMPS = np.zeros(cfg["NS_number"], dtype=bool)
-            detectable_radio_SMPS = intercepted_radio & coverage_SMPS
-
-            detected_radio_SMPS[
-                detectable_radio_SMPS
-            ] = survey_SMPS.simulate_single_detection(
-                S_radio_obs_mean[detectable_radio_SMPS],
-                l_final[detectable_radio_SMPS],
-                b_final[detectable_radio_SMPS],
-                w_eff[detectable_radio_SMPS],
-                P_final[detectable_radio_SMPS],
+            (
+                detected_radio_SMPS,
+                S_radio_obs_mean,
+                w_eff,
+                S_radio_obs,
+                S_radio_f,
+            ) = survey_SMPS.detected_radio_population_full(
+                w_int_s,
+                DM,
+                P_final,
+                l_final,
+                b_final,
+                S_radio_bol,
+                intercepted_radio,
+                coverage_SMPS,
+                S_radio_f,
+                w_eff,
+                S_radio_obs,
             )
 
             fraction_detected_radio_SMPS = len(
                 detected_radio_SMPS[detected_radio_SMPS]
             ) / len(detected_radio_SMPS)
+
             log.info(
                 f"Fraction of detected pulsars by SMPS: {fraction_detected_radio_SMPS}"
             )

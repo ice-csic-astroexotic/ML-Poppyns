@@ -425,7 +425,6 @@ class SurveyRadio:
             (np.ndarray): square of the offset from the beam center for each detection in [arcmin^2] .
         """
         offset2 = np.random.uniform(0.0, self.FWHM**2 / 4.0, n_detection)
-
         return offset2
 
     def gain_gaussian_beam(self, offset2: np.ndarray) -> np.ndarray:
@@ -440,7 +439,6 @@ class SurveyRadio:
         Returns:
             (np.ndarray): gain of the telescope for the given offset in [K Jy^(-1)].
         """
-
         G = self.G0 * np.exp(-2.77 * offset2 / self.FWHM**2)
 
         return G
@@ -515,14 +513,12 @@ class SurveyRadio:
 
         # Draw a random offset from the telescope beam center.
         offset2 = self.detection_offset(n)
-
         # Compute the gain corresponding to the offset detections.
         G = self.gain_gaussian_beam(offset2)
 
         # Compute the sky temperature in the coordinates of each detection at the central frequency of the survey.
         # We choose here to use the refined map from Remazeilles et al (2015).
         T_sky = sky_temperature_H81refined(l_gal, b_gal, self.f_central)
-
         SNR_detection = self.radiometer_equation(
             S_radio_obs_mean, G, w_eff, P, T_sky
         )
@@ -593,3 +589,88 @@ class SurveyRadio:
         )
 
         return detected_radio, w_eff, S_radio_obs_mean
+
+    def detected_radio_population_full(
+        self,
+        w_int_s: np.ndarray,
+        DM: np.ndarray,
+        P: np.ndarray,
+        l_gal: np.ndarray,
+        b_gal: np.ndarray,
+        S_radio_bol,
+        intercepted_radio: np.ndarray,
+        coverage_survey: np.ndarray,
+        S_radio_f: np.ndarray,
+        w_eff: np.ndarray,
+        S_radio_obs: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+
+        """
+        Compute the pulsars detected by each survey.
+
+        Args:
+            w_int_s (np.ndarray) intrinsic pulse widths in [s]
+            DM (np.ndarray): dispersion measure in [pc cm^-3].
+            P (np.ndarray): array of spin periods of the pulsars in [s].
+            l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
+            b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
+            S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
+            intercepted_radio: (np.ndarray) array of boolean variables where true values represent stars that its
+            beam crosses our line of sight.
+            coverage_survey: (np.ndarray) array of boolean variables where true values represent stars within the
+            sky coverage of each survey.
+            S_radio_f: (np.ndarray) observed pulsar radio flux in [Jy].
+            w_eff: (np.ndarray) effective pulse width in [s].
+
+        Returns:
+            (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray): Tuple consisting of five arrays defining
+            the indexes of the pulsars detected by the survey, the observed period-averaged radio flux density,the
+            effective pulse width, the observed radio flux density and period-averaged flux.
+        """
+
+        detectable_radio_survey = intercepted_radio & coverage_survey
+
+        # Computing the intrinsic radio flux density in [Jy].
+        S_radio_f[detectable_radio_survey] = er.flux_density_radio(
+            S_radio_bol[detectable_radio_survey],
+            f=self.f_central,
+        )
+
+        # Compute the effective pulse width in [s]
+        w_eff[detectable_radio_survey] = effective_pulse_width(
+            w_int_s[detectable_radio_survey],
+            DM[detectable_radio_survey],
+            self.channel_width,
+            self.f_central,
+            self.t_samp,
+        )
+
+        # Compute the observed radio flux in [Jy].
+        S_radio_obs[detectable_radio_survey] = flux_radio_obs(
+            S_radio_f[detectable_radio_survey],
+            w_int_s[detectable_radio_survey],
+            w_eff[detectable_radio_survey],
+        )
+
+        # Compute the period-averaged flux in [Jy].
+        S_radio_obs_mean = flux_radio_obs_period_average(S_radio_obs, P, w_eff)
+
+        detected_radio_survey = np.zeros(cfg["NS_number"], dtype=bool)
+
+        detected_radio_survey[
+            detectable_radio_survey
+        ] = self.simulate_single_detection(
+            S_radio_obs_mean[detectable_radio_survey],
+            l_gal[detectable_radio_survey],
+            b_gal[detectable_radio_survey],
+            w_eff[detectable_radio_survey],
+            P[detectable_radio_survey],
+        )
+
+        return (
+            detected_radio_survey,
+            S_radio_obs_mean,
+            w_eff,
+            S_radio_obs,
+            S_radio_f,
+        )
