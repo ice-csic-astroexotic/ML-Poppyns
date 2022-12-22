@@ -182,7 +182,7 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 # The impurity parameter in the pasta layer is fixed to 100. For the impurity in the outer and inner crust
 # (excluding the pasta layer), the fits of Carreau et al. (2020) have been used (see Figure 5 in that paper).
 # The envelope model is taken from Potekhin et al. (2015).
-# Superfluid and superconducting gap parametrisations are taken from Ho et al. (2015):
+# Superfluid and superconducting gap parametrizations are taken from Ho et al. (2015):
 # SFB for crustal neutrons, TToa for core neutrons and CCDKp for core protons.
 # We fit a functional equation of the form:
 # B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**(a2-a1) * (1 + t/tau_late)**(a_late-a2)

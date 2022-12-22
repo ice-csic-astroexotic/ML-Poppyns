@@ -77,7 +77,9 @@ def random_from_cdf(
 
 
 def random_from_pdf(
-    x: np.ndarray, pdf: Callable[[np.ndarray], np.ndarray], num_draw: int,
+    x: np.ndarray,
+    pdf: Callable[[np.ndarray], np.ndarray],
+    num_draw: int,
 ) -> np.ndarray:
     """
     Drawing random values from a given probability density function.
@@ -98,7 +100,10 @@ def random_from_pdf(
 
 
 def random_from_pdf_2d(
-    x1: np.ndarray, x2: np.ndarray, pdf_2d: np.ndarray, num_draw: int,
+    x1: np.ndarray,
+    x2: np.ndarray,
+    pdf_2d: np.ndarray,
+    num_draw: int,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Drawing random values from a given 2D probability density function.
@@ -137,7 +142,7 @@ def random_from_pdf_2d(
     )
     idx = np.array(idx, dtype=int)
 
-    # Draw a random x1 from the cdfs correspondig to the given x2 values.
+    # Draw a random x1 from the cdfs corresponding to the given x2 values.
     x1_rand = np.zeros_like(x2_rand)
     for i in range(len(x2_rand)):
         x1_rand[i] = random_from_cdf(x1, cdf_x1x2[:, idx[i]], 1)

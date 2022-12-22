@@ -108,7 +108,7 @@ def pdf_radial_density_VV21(r: np.ndarray) -> np.ndarray:
     b = 2.46  # +0.39 -0.33
 
     # SNR surface density following eq. (9) of Verberne & Vink (2021).
-    rho = np.exp(-b * (r - rsun) / (rsun))
+    rho = np.exp(-b * (r - rsun) / rsun)
 
     # Multiply the stellar surface density with the area element in polar coordinates.
     pdf_r = 2 * np.pi * r * rho

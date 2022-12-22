@@ -58,8 +58,8 @@ def generate_density_map(
         y (np.ndarray): vertical coordinate values for the points.
         y_range (float, float): vertical range of values for the points.
         filename (str): file path to generate the density map image.
-        x_log_scale (bool): if True set the x axis scale to log scale.
-        y_log_scale (bool): if True set the y axis scale to log scale.
+        x_log_scale (bool): if True set the x-axis scale to log scale.
+        y_log_scale (bool): if True set the y-axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the density map.
         n_y_bins (int): number of vertical bins for the density map.
         colormap (str): colormap to use for the image.
@@ -70,7 +70,12 @@ def generate_density_map(
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(
-        x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
+        x_range,
+        y_range,
+        x_log_scale,
+        y_log_scale,
+        n_x_bins,
+        n_y_bins,
     )
 
     # Generating a 2D histogram that counts the number of objects contained
@@ -132,8 +137,8 @@ def generate_avg_weight_map(
         y_range (float, float): vertical range of values for the points.
         w (np.ndarray): weight values for the points.
         filename (str): file path to generate the heat map image.
-        x_log_scale (bool): if True set the x axis scale to log scale.
-        y_log_scale (bool): if True set the y axis scale to log scale.
+        x_log_scale (bool): if True set the x-axis scale to log scale.
+        y_log_scale (bool): if True set the y-axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the weight map.
         n_y_bins (int): number of vertical bins for the weight map.
         colormap (str): colormap to use for the image.
@@ -144,7 +149,12 @@ def generate_avg_weight_map(
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(
-        x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
+        x_range,
+        y_range,
+        x_log_scale,
+        y_log_scale,
+        n_x_bins,
+        n_y_bins,
     )
 
     # If the quantity desired as the weight can become negative, e.g.,
@@ -212,11 +222,10 @@ def generate_density_matrix(
         y (np.ndarray): vertical coordinate values for the points.
         y_range (float, float): vertical range of values for the points.
         filename (str): file path to generate the density matrix.
-        x_log_scale (bool): if True set the x axis scale to log scale.
-        y_log_scale (bool): if True set the y axis scale to log scale.
+        x_log_scale (bool): if True set the x-axis scale to log scale.
+        y_log_scale (bool): if True set the y-axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the density matrix.
         n_y_bins (int): number of vertical bins for the density matrix.
-        normalize (bool): whether to normalize bins to range [0,1].
 
     Returns:
         Nothing. A NumPy 2D array is generated in the specified file path.
@@ -224,7 +233,12 @@ def generate_density_matrix(
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(
-        x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
+        x_range,
+        y_range,
+        x_log_scale,
+        y_log_scale,
+        n_x_bins,
+        n_y_bins,
     )
 
     # Generating a 2D histogram that counts the number of objects contained
@@ -261,8 +275,8 @@ def generate_avg_weight_matrix(
         y_range (float, float): vertical range of values for the points.
         w (np.ndarray): weight values for the points.
         filename (str): file path to generate the density matrix.
-        x_log_scale (bool): if True set the x axis scale to log scale.
-        y_log_scale (bool): if True set the y axis scale to log scale.
+        x_log_scale (bool): if True set the x-axis scale to log scale.
+        y_log_scale (bool): if True set the y-axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the density matrix.
         n_y_bins (int): number of vertical bins for the density matrix.
 
@@ -272,7 +286,12 @@ def generate_avg_weight_matrix(
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(
-        x_range, y_range, x_log_scale, y_log_scale, n_x_bins, n_y_bins,
+        x_range,
+        y_range,
+        x_log_scale,
+        y_log_scale,
+        n_x_bins,
+        n_y_bins,
     )
 
     # If the quantity desired as the weight can become negative, e.g.,
