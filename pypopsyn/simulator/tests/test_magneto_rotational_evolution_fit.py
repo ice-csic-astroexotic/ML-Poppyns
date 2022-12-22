@@ -28,7 +28,6 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
 from pypopsyn.simulator.configuration import cfg
 

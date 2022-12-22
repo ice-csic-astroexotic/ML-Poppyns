@@ -35,6 +35,7 @@ import sys
 import time
 
 import numpy as np
+import orjson
 import pandas as pd
 
 import pypopsyn.benchmark.timewith as timewith
@@ -513,13 +514,29 @@ def simulate_population(args) -> None:
                     B_det,
                     chi_det,
                     P_det,
-                    NS_magrot_evol_dict,
+                    magrot_evol_dict,
                 ) = mre.magneto_rotational_evolution(
                     B_initial,
                     chi_initial,
                     P_initial,
                     age_det,
                 )
+
+                if cfg["save_magrot_evolution"]:
+                    # Save dictionary containing evolution information to output path in a .json file.
+                    magrot_evolution_dump_path = pathlib.Path().joinpath(
+                        output_path, "magrot_evolution.json"
+                    )
+
+                    with open(magrot_evolution_dump_path, "wb") as f:
+                        f.write(
+                            orjson.dumps(
+                                dict(magrot_evol_dict),
+                                option=orjson.OPT_SERIALIZE_NUMPY
+                                | orjson.OPT_NON_STR_KEYS
+                                | orjson.OPT_SORT_KEYS,
+                            )
+                        )
 
                 # ===================== RADIO EMISSION ========================
 

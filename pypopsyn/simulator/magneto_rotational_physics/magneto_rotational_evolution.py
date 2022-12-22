@@ -98,8 +98,8 @@ def magneto_rotational_evolution(
         the time evolution is enabled).
     """
 
-    # Save the number of simulated neutron stars, which is flexible depending if they are simulated
-    # all at once or one by one.
+    # Save the number of simulated neutron stars, which is flexible depending on whether
+    # they are simulated all at once or one by one.
     n = len(t_age)
 
     # Initialization of a dictionary that will contain the evolution in time of B, chi and P.
@@ -123,7 +123,9 @@ def magneto_rotational_evolution(
         time_grid = np.append(
             10
             ** np.arange(
-                0, np.log10(t_age[i]), cfg["magrot_time_step_log10"],
+                0,
+                np.log10(t_age[i]),
+                cfg["magrot_time_step_log10"],
             ),
             t_age[i],
         )
