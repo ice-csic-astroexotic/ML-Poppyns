@@ -94,7 +94,7 @@ def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
 
 def main(args) -> None:
 
-    dataset_filename = f"{args.dataset_path}/dataset.csv"
+    dataset_filename = f"{args.dataset_path}/dataset_full.csv"
     dataset_dictionary = pd.read_csv(dataset_filename, header=[0]).to_dict(
         "series"
     )
