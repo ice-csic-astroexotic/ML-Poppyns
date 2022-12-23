@@ -240,7 +240,7 @@ def generate_dataset(args) -> None:
         sys.exit()
 
     # Number of samples in the parsed directory.
-    sample_number = len(os.listdir(root_path))
+    sample_number = len(next(os.walk(root_path))[1])
 
     log.info(f"Generating {sample_number} samples...")
 
