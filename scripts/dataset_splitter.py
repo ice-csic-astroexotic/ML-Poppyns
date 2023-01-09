@@ -99,7 +99,7 @@ def main(args) -> None:
         "series"
     )
 
-    if args.test_split is not None and args.valid_train_split is not None:
+    if args.test_split is not None and args.valid_split is not None:
 
         # Split the dataset into training, validation and test sets.
         (
@@ -108,7 +108,7 @@ def main(args) -> None:
         ) = split_dataset(dataset_dictionary, args.test_split)
 
         valid_dataset_dictionary, train_dataset_dictionary = split_dataset(
-            trainval_dataset_dictionary, args.valid_train_split
+            trainval_dataset_dictionary, args.valid_split
         )
 
         # Write the training, validation and test dataset dictionaries into .csv files.
@@ -156,11 +156,11 @@ def main(args) -> None:
 
         log.info("Files statistics_train.json generated")
 
-    elif args.test_split is None and args.valid_train_split is not None:
+    elif args.test_split is None and args.valid_split is not None:
 
         # Split the dataset into training and validation sets only.
         valid_dataset_dictionary, train_dataset_dictionary = split_dataset(
-            dataset_dictionary, args.valid_train_split
+            dataset_dictionary, args.valid_split
         )
 
         # Write the training and validation dataset dictionaries into .csv files.
@@ -220,11 +220,11 @@ if __name__ == "__main__":
         "It must be a number in the range [0, 1].",
     )
     parser.add_argument(
-        "--valid_train_split",
+        "--valid_split",
         nargs="?",
         type=float,
         default=None,
-        help="Fraction of the simulation dataset not dedicated for testing but for training and validation. "
+        help="Fraction of the simulation dataset not dedicated for testing that will form the validation dataset. "
         "It must be a number in the range [0, 1].",
     )
 
