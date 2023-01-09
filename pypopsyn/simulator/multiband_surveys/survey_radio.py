@@ -10,6 +10,7 @@ We consider the following surveys:
 Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 
@@ -486,7 +487,7 @@ class SurveyRadio:
 
         return SNR
 
-    def simulate_single_detection(
+    def simulate_detection(
         self,
         S_radio_obs_mean: np.ndarray,
         l_gal: np.ndarray,
@@ -584,7 +585,7 @@ class SurveyRadio:
 
         detected_radio = np.zeros(len(age), dtype=bool)
 
-        detected_radio[coverage] = self.simulate_single_detection(
+        detected_radio[coverage] = self.simulate_detection(
             S_radio_obs_mean[coverage],
             l_gal[coverage],
             b_gal[coverage],

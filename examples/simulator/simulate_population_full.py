@@ -653,7 +653,7 @@ def simulate_population(args) -> None:
 
             detected_radio_PMPS[
                 detectable_radio_PMPS
-            ] = survey_PMPS.simulate_single_detection(
+            ] = survey_PMPS.simulate_detection(
                 S_radio_obs_mean[detectable_radio_PMPS],
                 l_final[detectable_radio_PMPS],
                 b_final[detectable_radio_PMPS],
@@ -676,7 +676,7 @@ def simulate_population(args) -> None:
 
             detected_radio_SMPS[
                 detectable_radio_SMPS
-            ] = survey_SMPS.simulate_single_detection(
+            ] = survey_SMPS.simulate_detection(
                 S_radio_obs_mean[detectable_radio_SMPS],
                 l_final[detectable_radio_SMPS],
                 b_final[detectable_radio_SMPS],

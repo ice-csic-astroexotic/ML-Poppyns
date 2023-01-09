@@ -4,6 +4,7 @@ Tests for the radio survey module.
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 
@@ -205,7 +206,7 @@ def test_radiometer_equation_PMPS(test_case_1):
     ).all()
 
 
-def test_detect_single_PMPS(monkeypatch, test_case_1):
+def test_simulate_detection_PMPS(monkeypatch, test_case_1):
     """
     Verifying that a pulsar is correctly detected by the survey.
     """
@@ -216,7 +217,7 @@ def test_detect_single_PMPS(monkeypatch, test_case_1):
 
     monkeypatch.setattr(sr, "sky_temperature_H81refined", mock_T_sky)
 
-    detected_out = PMPS.simulate_single_detection(
+    detected_out = PMPS.simulate_detection(
         test_case_1["S_radio_obs_expected"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],

@@ -4,6 +4,7 @@ Tests for the radio emission module.
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 
@@ -78,7 +79,7 @@ def test_case_2():
             "B": np.array([2.32e11, 2.57e11]),
             "chi": np.array([0.99, 0.99]),
             "idx_det": np.array([1804, 2874]),
-            "intercept_los_expected": np.array([True, True]),
+            "intercept_los_expected": np.array([False, True]),
             "los_rand": np.array([1.04, 1.05]),
             "l_radio_bol": np.array([7.85e24, 2.93e27]),
         },
@@ -95,7 +96,7 @@ def test_case_2():
             "S_radio_bol": np.array([4.04580e-19, 4.32e-17]),
             "DM": np.array([159.0975, 130.08]),
             "idx_det": np.array([1804, 2874]),
-            "intercepted_radio": np.array([True, True]),
+            "intercepted_radio": np.array([False, True]),
         },
     }
 
