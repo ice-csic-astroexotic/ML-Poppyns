@@ -63,9 +63,10 @@ def simulate_population(args) -> None:
 
     Args:
 
-        dyn_data (str): Path to a dynamically evolved population database.
-        output_path (str): Output directory for the run.
-        parameter_override (str): Path to JSON with parameter overrides.
+        args:
+            dyn_data (str): Path to a dynamically evolved population database.
+            output_path (str): Output directory for the run.
+            parameter_override (str): Path to JSON with parameter overrides.
 
     Returns:
 
@@ -106,7 +107,6 @@ def simulate_population(args) -> None:
     np.random.seed(cfg["seed_magrot"])
 
     # Update simulator configuration with the dynamical database JSON override (if any).
-    cfg_override_dyn = {}
     if dyn_path_config.exists():
         json_override_path = dyn_path_config
         with open(json_override_path) as f:
@@ -114,7 +114,6 @@ def simulate_population(args) -> None:
             configuration.update_configuration(cfg_override_dyn)
 
     # Update simulator configuration with the provided JSON override (if any).
-    cfg_override = {}
     if args.parameter_override:
         json_override_path = pathlib.Path(args.parameter_override)
         with open(json_override_path) as f:
@@ -593,7 +592,7 @@ def simulate_population(args) -> None:
                 }
 
                 # Remove from the dynamical database the stars that have been detected or
-                # that are outside of the sky coverage of the surveys.
+                # that are outside the sky coverage of the surveys.
                 detected = detected_radio_PMPS | detected_radio_SMPS
                 idx_det_tot = idx_det[detected]
                 idx_remove += idx_det_tot.tolist()

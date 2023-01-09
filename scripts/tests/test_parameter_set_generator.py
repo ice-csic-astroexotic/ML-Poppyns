@@ -1,5 +1,5 @@
 """
-Tests for the parameter_sweeper.py module.
+Tests for the parameter_set_generator.py module.
 
     Authors:
 
@@ -27,7 +27,7 @@ import numpy as np
 import pytest
 
 from pypopsyn.simulator.configuration import cfg
-from scripts import parameter_sweeper as ps
+from scripts import parameter_set_generator as psg
 
 
 @pytest.fixture()
@@ -104,7 +104,7 @@ def test_set_default_parameter_random(test_case_1):
     """
     Testing that if a parameter is None it is correctly set to the default value in random mode.
     """
-    ps.set_default_parameter(
+    psg.set_default_parameter(
         test_case_1["args_dict"],
         test_case_1["parameter_name"],
     )
@@ -119,7 +119,7 @@ def test_expand_parameter_random(test_case_1):
     """
     Testing if a parameter is correctly expanded in random mode.
     """
-    expanded_hc = ps.expand_parameter(
+    expanded_hc = psg.expand_parameter(
         test_case_1["args_dict"], "h_c", test_case_1["args_dict"]["h_c"]
     )
 
@@ -130,7 +130,7 @@ def test_check_expand_args_random(test_case_1):
     """
     Testing if the arguments are correctly checked and expanded in random mode.
     """
-    var_names_out, var_expanded_ranges_out = ps.check_expand_args(
+    var_names_out, var_expanded_ranges_out = psg.check_expand_args(
         test_case_1["args_dict"]
     )
 
@@ -146,7 +146,7 @@ def test_set_default_parameter_grid(test_case_2):
     """
     Testing that if a parameter is None it is correctly set to the default value in grid mode.
     """
-    ps.set_default_parameter(
+    psg.set_default_parameter(
         test_case_2["args_dict"],
         test_case_2["parameter_name"],
     )
@@ -162,7 +162,7 @@ def test_expand_parameter_grid(test_case_2):
     """
     Testing if a parameter is correctly expanded in grid mode.
     """
-    expanded_hc = ps.expand_parameter(
+    expanded_hc = psg.expand_parameter(
         test_case_2["args_dict"], "h_c", test_case_2["args_dict"]["h_c"]
     )
 
@@ -173,7 +173,7 @@ def test_check_expand_args_grid(test_case_2):
     """
     Testing if the arguments are correctly checked and expanded in grid mode.
     """
-    var_names_out, var_expanded_ranges_out = ps.check_expand_args(
+    var_names_out, var_expanded_ranges_out = psg.check_expand_args(
         test_case_2["args_dict"]
     )
 

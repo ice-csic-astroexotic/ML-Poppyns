@@ -58,9 +58,9 @@ def simulate_population(args) -> None:
     conditions and dynamically evolving it forward in time.
 
     Args:
-
-        output_path (pathlib.Path): Output directory for the run.
-        json_override_path (pathlib.Path): Path to JSON with parameter overrides.
+        args:
+            output_path (pathlib.Path): Output directory for the run.
+            json_override_path (pathlib.Path): Path to JSON with parameter overrides.
 
     Returns:
 
@@ -91,7 +91,6 @@ def simulate_population(args) -> None:
     np.random.seed(cfg["seed_dyn"])
 
     # Update simulator configuration with the provided JSON override (if any).
-    cfg_override = {}
     if args.parameter_override:
         json_override_path = pathlib.Path(args.parameter_override)
         with open(json_override_path) as f:
