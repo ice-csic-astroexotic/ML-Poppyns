@@ -216,7 +216,7 @@ def test_detect_single_PMPS(monkeypatch, test_case_1):
 
     monkeypatch.setattr(sr, "sky_temperature_H81refined", mock_T_sky)
 
-    detected_out = PMPS.simulate_single_detection(
+    detected_out = PMPS.simulate_detection(
         test_case_1["S_radio_obs_expected"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],
@@ -229,7 +229,7 @@ def test_detect_single_PMPS(monkeypatch, test_case_1):
 
 def test_detect_radio_population_PMPS(test_case_1):
     """
-    Verifying that a population of pulsars are correctly detected by the survey.
+    Verifying that a population of pulsars is correctly detected by the survey.
     """
 
     detected_out, w_eff, S_radio_obs_mean = PMPS.detected_radio_population(

@@ -484,7 +484,7 @@ class SurveyRadio:
 
         return SNR
 
-    def simulate_single_detection(
+    def simulate_detection(
         self,
         S_radio_obs_mean: np.ndarray,
         l_gal: np.ndarray,
@@ -580,7 +580,7 @@ class SurveyRadio:
 
         detected_radio = np.zeros(len(age), dtype=bool)
 
-        detected_radio[coverage] = self.simulate_single_detection(
+        detected_radio[coverage] = self.simulate_detection(
             S_radio_obs_mean[coverage],
             l_gal[coverage],
             b_gal[coverage],
@@ -600,13 +600,12 @@ class SurveyRadio:
         S_radio_bol,
         intercepted_radio: np.ndarray,
         coverage_survey: np.ndarray,
-        S_radio_f: np.ndarray,
-        w_eff: np.ndarray,
-        S_radio_obs: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        dist_cutoff: np.array,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
         """
-        Compute the pulsars detected by each survey.
+        Compute the pulsars detected by each survey. This function is only used in the simulate_population_full.py
+        script.
 
         Args:
             w_int_s (np.ndarray) intrinsic pulse widths in [s]
@@ -621,6 +620,7 @@ class SurveyRadio:
             sky coverage of each survey.
             S_radio_f: (np.ndarray) observed pulsar radio flux in [Jy].
             w_eff: (np.ndarray) effective pulse width in [s].
+            dist_cutoff: (np.ndarray) array of boolean variables where true values represent stars within 35 kpc.
 
         Returns:
             (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray): Tuple consisting of five arrays defining
@@ -628,15 +628,19 @@ class SurveyRadio:
             effective pulse width, the observed radio flux density and period-averaged flux.
         """
 
-        detectable_radio_survey = intercepted_radio & coverage_survey
+        detectable_radio_survey = (
+            intercepted_radio & coverage_survey & dist_cutoff
+        )
 
         # Computing the intrinsic radio flux density in [Jy].
+        S_radio_f = np.zeros(cfg["NS_number"])
         S_radio_f[detectable_radio_survey] = er.flux_density_radio(
             S_radio_bol[detectable_radio_survey],
             f=self.f_central,
         )
 
         # Compute the effective pulse width in [s]
+        w_eff = np.zeros(cfg["NS_number"])
         w_eff[detectable_radio_survey] = effective_pulse_width(
             w_int_s[detectable_radio_survey],
             DM[detectable_radio_survey],
@@ -646,6 +650,7 @@ class SurveyRadio:
         )
 
         # Compute the observed radio flux in [Jy].
+        S_radio_obs = np.zeros(cfg["NS_number"])
         S_radio_obs[detectable_radio_survey] = flux_radio_obs(
             S_radio_f[detectable_radio_survey],
             w_int_s[detectable_radio_survey],
@@ -659,7 +664,7 @@ class SurveyRadio:
 
         detected_radio_survey[
             detectable_radio_survey
-        ] = self.simulate_single_detection(
+        ] = self.simulate_detection(
             S_radio_obs_mean[detectable_radio_survey],
             l_gal[detectable_radio_survey],
             b_gal[detectable_radio_survey],
@@ -672,5 +677,4 @@ class SurveyRadio:
             S_radio_obs_mean,
             w_eff,
             S_radio_obs,
-            S_radio_f,
         )

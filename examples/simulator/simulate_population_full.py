@@ -618,16 +618,11 @@ def simulate_population(args) -> None:
             # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
 
-            S_radio_f = np.zeros(cfg["NS_number"])
-            w_eff = np.zeros(cfg["NS_number"])
-            S_radio_obs = np.zeros(cfg["NS_number"])
-
             (
                 detected_radio_PMPS,
-                S_radio_obs_mean,
-                w_eff,
-                S_radio_obs,
-                S_radio_f,
+                S_radio_obs_mean_PMPS,
+                w_eff_PMPS,
+                S_radio_obs_PMPS,
             ) = survey_PMPS.detected_radio_population_full(
                 w_int_s,
                 DM,
@@ -637,9 +632,7 @@ def simulate_population(args) -> None:
                 S_radio_bol,
                 intercepted_radio,
                 coverage_PMPS,
-                S_radio_f,
-                w_eff,
-                S_radio_obs,
+                dist_cutoff,
             )
 
             fraction_detected_radio_PMPS = len(
@@ -655,10 +648,9 @@ def simulate_population(args) -> None:
 
             (
                 detected_radio_SMPS,
-                S_radio_obs_mean,
-                w_eff,
-                S_radio_obs,
-                S_radio_f,
+                S_radio_obs_mean_SMPS,
+                w_eff_SMPS,
+                S_radio_obs_SMPS,
             ) = survey_SMPS.detected_radio_population_full(
                 w_int_s,
                 DM,
@@ -668,9 +660,7 @@ def simulate_population(args) -> None:
                 S_radio_bol,
                 intercepted_radio,
                 coverage_SMPS,
-                S_radio_f,
-                w_eff,
-                S_radio_obs,
+                dist_cutoff,
             )
 
             fraction_detected_radio_SMPS = len(
@@ -681,17 +671,14 @@ def simulate_population(args) -> None:
                 f"Fraction of detected pulsars by SMPS: {fraction_detected_radio_SMPS}"
             )
 
-            timer.checkpoint("[Radio surveys detection]")
-
             # Simulating the HTRU low latitude survey.
             log.info("Simulate detection with HTRU low latitude...")
 
             (
                 detected_radio_HTRU_low,
-                S_radio_obs_mean,
-                w_eff,
-                S_radio_obs,
-                S_radio_f,
+                S_radio_obs_mean_HTRU_low,
+                w_eff_HTRU_low,
+                S_radio_obs_HTRU_low,
             ) = survey_HTRU_low.detected_radio_population_full(
                 w_int_s,
                 DM,
@@ -701,9 +688,7 @@ def simulate_population(args) -> None:
                 S_radio_bol,
                 intercepted_radio,
                 coverage_HTRU_low,
-                S_radio_f,
-                w_eff,
-                S_radio_obs,
+                dist_cutoff,
             )
 
             fraction_detected_radio_HTRU_low = len(
@@ -719,10 +704,9 @@ def simulate_population(args) -> None:
 
             (
                 detected_radio_HTRU_mid,
-                S_radio_obs_mean,
-                w_eff,
-                S_radio_obs,
-                S_radio_f,
+                S_radio_obs_mean_HTRU_mid,
+                w_eff_HTRU_mid,
+                S_radio_obs_HTRU_mid,
             ) = survey_HTRU_mid.detected_radio_population_full(
                 w_int_s,
                 DM,
@@ -732,9 +716,7 @@ def simulate_population(args) -> None:
                 S_radio_bol,
                 intercepted_radio,
                 coverage_HTRU_mid,
-                S_radio_f,
-                w_eff,
-                S_radio_obs,
+                dist_cutoff,
             )
 
             fraction_detected_radio_HTRU_mid = len(
@@ -750,10 +732,9 @@ def simulate_population(args) -> None:
 
             (
                 detected_radio_HTRU_high,
-                S_radio_obs_mean,
-                w_eff,
-                S_radio_obs,
-                S_radio_f,
+                S_radio_obs_mean_HTRU_high,
+                w_eff_HTRU_high,
+                S_radio_obs_HTRU_high,
             ) = survey_HTRU_high.detected_radio_population_full(
                 w_int_s,
                 DM,
@@ -763,9 +744,7 @@ def simulate_population(args) -> None:
                 S_radio_bol,
                 intercepted_radio,
                 coverage_HTRU_high,
-                S_radio_f,
-                w_eff,
-                S_radio_obs,
+                dist_cutoff,
             )
 
             fraction_detected_radio_HTRU_high = len(
@@ -778,11 +757,16 @@ def simulate_population(args) -> None:
 
             timer.checkpoint("[Radio surveys detection]")
 
+            overlap_low_mid = detected_radio_HTRU_low & detected_radio_HTRU_mid
+
+            detected_radio_HTRU_mid = (
+                ~overlap_low_mid & detected_radio_HTRU_mid
+            )
+
             NS_idx_PMPS = NS_idx[detected_radio_PMPS]
             NS_idx_SMPS = NS_idx[detected_radio_SMPS]
-            NS_idx_HTRU_low_mid = NS_idx[
-                detected_radio_HTRU_low | detected_radio_HTRU_mid
-            ]
+            NS_idx_HTRU_low = NS_idx[detected_radio_HTRU_low]
+            NS_idx_HTRU_mid = NS_idx[detected_radio_HTRU_mid]
             NS_idx_HTRU_high = NS_idx[detected_radio_HTRU_high]
 
         # ===================== EXPORT OUTPUT ========================
@@ -922,7 +906,7 @@ def simulate_population(args) -> None:
             "[s]",
         ]
 
-        header_PMPS = pd.MultiIndex.from_arrays([parameters, units])
+        header = pd.MultiIndex.from_arrays([parameters, units])
 
         df_PMPS = pd.DataFrame(
             data=np.array(
@@ -938,11 +922,11 @@ def simulate_population(args) -> None:
                     pm_dec_final[NS_idx_PMPS],
                     P_final[NS_idx_PMPS],
                     P_dot_final[NS_idx_PMPS],
-                    S_radio_obs_mean[NS_idx_PMPS],
-                    w_eff[NS_idx_PMPS],
+                    S_radio_obs_mean_PMPS[NS_idx_PMPS],
+                    w_eff_PMPS[NS_idx_PMPS],
                 ]
             ).T,
-            columns=header_PMPS,
+            columns=header,
         )
 
         # Save the data frame as a compressed binary file.
@@ -956,8 +940,6 @@ def simulate_population(args) -> None:
         )
 
         # Exporting the population file containing the observed properties of neutron stars detected by SMPS.
-
-        header_SMPS = pd.MultiIndex.from_arrays([parameters, units])
 
         df_SMPS = pd.DataFrame(
             data=np.array(
@@ -973,11 +955,11 @@ def simulate_population(args) -> None:
                     pm_dec_final[NS_idx_SMPS],
                     P_final[NS_idx_SMPS],
                     P_dot_final[NS_idx_SMPS],
-                    S_radio_obs_mean[NS_idx_SMPS],
-                    w_eff[NS_idx_SMPS],
+                    S_radio_obs_mean_SMPS[NS_idx_SMPS],
+                    w_eff_SMPS[NS_idx_SMPS],
                 ]
             ).T,
-            columns=header_SMPS,
+            columns=header,
         )
 
         # Save the data frame as a compressed binary file.
@@ -991,8 +973,6 @@ def simulate_population(args) -> None:
         )
 
         # Exporting the population file containing the observed properties of neutron stars detected by HTRU high.
-
-        header_HTRU_high = pd.MultiIndex.from_arrays([parameters, units])
 
         df_HTRU_high = pd.DataFrame(
             data=np.array(
@@ -1008,11 +988,11 @@ def simulate_population(args) -> None:
                     pm_dec_final[NS_idx_HTRU_high],
                     P_final[NS_idx_HTRU_high],
                     P_dot_final[NS_idx_HTRU_high],
-                    S_radio_obs_mean[NS_idx_HTRU_high],
-                    w_eff[NS_idx_HTRU_high],
+                    S_radio_obs_mean_HTRU_high[NS_idx_HTRU_high],
+                    w_eff_HTRU_high[NS_idx_HTRU_high],
                 ]
             ).T,
-            columns=header_HTRU_high,
+            columns=header,
         )
 
         # Save the data frame as a compressed binary file.
@@ -1027,34 +1007,52 @@ def simulate_population(args) -> None:
 
         # Exporting the population file containing the observed properties of neutron stars detected by HTRU low and mid.
 
-        parameters.append("detected_HTRU_low")
-        units.append(" ")
-        header_HTRU_low_mid = pd.MultiIndex.from_arrays([parameters, units])
-
-        HTRU_low_detected = np.zeros(cfg["NS_number"])
-        HTRU_low_detected[detected_radio_HTRU_low] = 1
-
-        df_HTRU_low_mid = pd.DataFrame(
+        df_HTRU_low = pd.DataFrame(
             data=np.array(
                 [
-                    NS_idx_HTRU_low_mid,
-                    ra_final[NS_idx_HTRU_low_mid],
-                    dec_final[NS_idx_HTRU_low_mid],
-                    l_final[NS_idx_HTRU_low_mid],
-                    b_final[NS_idx_HTRU_low_mid],
-                    sun_dist_icrs[NS_idx_HTRU_low_mid],
-                    DM[NS_idx_HTRU_low_mid],
-                    pm_ra_final[NS_idx_HTRU_low_mid],
-                    pm_dec_final[NS_idx_HTRU_low_mid],
-                    P_final[NS_idx_HTRU_low_mid],
-                    P_dot_final[NS_idx_HTRU_low_mid],
-                    S_radio_obs_mean[NS_idx_HTRU_low_mid],
-                    w_eff[NS_idx_HTRU_low_mid],
-                    HTRU_low_detected[NS_idx_HTRU_low_mid],
+                    NS_idx_HTRU_low,
+                    ra_final[NS_idx_HTRU_low],
+                    dec_final[NS_idx_HTRU_low],
+                    l_final[NS_idx_HTRU_low],
+                    b_final[NS_idx_HTRU_low],
+                    sun_dist_icrs[NS_idx_HTRU_low],
+                    DM[NS_idx_HTRU_low],
+                    pm_ra_final[NS_idx_HTRU_low],
+                    pm_dec_final[NS_idx_HTRU_low],
+                    P_final[NS_idx_HTRU_low],
+                    P_dot_final[NS_idx_HTRU_low],
+                    S_radio_obs_mean_HTRU_low[NS_idx_HTRU_low],
+                    w_eff_HTRU_low[NS_idx_HTRU_low],
                 ]
             ).T,
-            columns=header_HTRU_low_mid,
+            columns=header,
         )
+
+        df_HTRU_low["detected_HTRU_low"] = np.ones(len(df_HTRU_low))
+
+        df_HTRU_mid = pd.DataFrame(
+            data=np.array(
+                [
+                    NS_idx_HTRU_mid,
+                    ra_final[NS_idx_HTRU_mid],
+                    dec_final[NS_idx_HTRU_mid],
+                    l_final[NS_idx_HTRU_mid],
+                    b_final[NS_idx_HTRU_mid],
+                    sun_dist_icrs[NS_idx_HTRU_mid],
+                    DM[NS_idx_HTRU_mid],
+                    pm_ra_final[NS_idx_HTRU_mid],
+                    pm_dec_final[NS_idx_HTRU_mid],
+                    P_final[NS_idx_HTRU_mid],
+                    P_dot_final[NS_idx_HTRU_mid],
+                    S_radio_obs_mean_HTRU_mid[NS_idx_HTRU_mid],
+                    w_eff_HTRU_mid[NS_idx_HTRU_mid],
+                ]
+            ).T,
+            columns=header,
+        )
+
+        df_HTRU_mid["detected_HTRU_low"] = np.zeros(len(df_HTRU_mid))
+        df_HTRU_low_mid = pd.concat([df_HTRU_low, df_HTRU_mid], axis=0)
 
         # Save the data frame as a compressed binary file.
         HTRU_low_mid_output_path = pathlib.Path().joinpath(

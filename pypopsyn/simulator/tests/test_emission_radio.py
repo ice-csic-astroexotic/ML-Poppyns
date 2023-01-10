@@ -258,11 +258,6 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
     Verifying that the radio emission is computed correctly.
     """
 
-    def mock_los_intercept(*args, **kwargs):
-        return test_case_2["dataset_dict"]["intercept_los_expected"]
-
-    monkeypatch.setattr(er, "los_intercept", mock_los_intercept)
-
     def mock_los_rand(*args, **kwargs):
         return test_case_2["dataset_dict"]["los_rand"]
 
@@ -300,11 +295,6 @@ def test_calculate_radio_emission_full(monkeypatch, test_case_2):
     Verifying that the radio emission is computed correctly.
     """
     cfg["NS_number"] = 2
-
-    def mock_los_intercept(*args, **kwargs):
-        return test_case_2["dataset_dict"]["intercept_los_expected"]
-
-    monkeypatch.setattr(er, "los_intercept", mock_los_intercept)
 
     def mock_los_rand(*args, **kwargs):
         return test_case_2["dataset_dict"]["los_rand"]

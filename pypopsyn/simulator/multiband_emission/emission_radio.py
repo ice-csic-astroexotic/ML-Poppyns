@@ -360,7 +360,8 @@ def calculate_radio_emission_full(
     chi: np.ndarray,
 ):
     """
-    Compute the radio beam geometry and the intrinsic bolometric radio flux.
+    Compute the radio beam geometry and the intrinsic bolometric radio flux. This function is only used in the
+    simulate_population_full.py script.
 
     Args:
         P (np.ndarray): array of spin periods of the pulsars in [s].
