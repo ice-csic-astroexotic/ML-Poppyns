@@ -533,6 +533,7 @@ def simulate_population(args) -> None:
             cfg["show_profiling"],
         ) as timer:
 
+            # Calculate the relevant radio emission parameters.
             (
                 intercepted_radio,
                 S_radio_bol,
@@ -542,6 +543,7 @@ def simulate_population(args) -> None:
                 P_final, P_dot_final, sun_dist_icrs, chi_final
             )
 
+            # Determine fraction of pulsars beamed towards us.
             fraction_intercepted = len(
                 intercepted_radio[intercepted_radio]
             ) / len(intercepted_radio)
