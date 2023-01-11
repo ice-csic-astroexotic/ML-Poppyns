@@ -4,6 +4,7 @@ Tests for the radio emission module.
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 
@@ -28,6 +29,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
+import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 from pypopsyn.simulator.configuration import cfg
 
@@ -65,6 +67,42 @@ def test_case_1():
     return data
 
 
+@pytest.fixture()
+def test_case_2():
+    data = {
+        "dataset_dict": {
+            "P": np.array([6.28, 0.54]),
+            "age": np.array([8.2e6, 1.7e6]),
+            "l_gal": np.array([-2.05, -12.2]),
+            "b_gal": np.array([-8.15, 7.51]),
+            "dist": np.array([12.0, 6.59]),
+            "B": np.array([2.32e11, 2.57e11]),
+            "chi": np.array([0.99, 0.99]),
+            "idx_det": np.array([1804, 2874]),
+            "intercept_los_expected": np.array([False, True]),
+            "los_rand": np.array([1.04, 1.05]),
+            "l_radio_bol": np.array([7.85e24, 2.93e27]),
+        },
+        "dict_expected": {
+            "age_det": np.array([8200000.0, 1700000.0]),
+            "l_det": np.array([-2.05, -12.2]),
+            "b_det": np.array([-8.15, 7.51]),
+            "B_det": np.array([2.32e11, 2.57e11]),
+            "chi_det": np.array([0.99, 0.99]),
+            "P_det": np.array([6.28, 0.54]),
+            "P_dot_det": np.array([6.9724e-18, 9.95e-17]),
+            "L_radio_bol": np.array([7.85e24, 2.93e27]),
+            "w_int_s": np.array([4.1958e-05, 3.02e-02]),
+            "S_radio_bol": np.array([4.04580e-19, 4.32e-17]),
+            "DM": np.array([159.0975, 130.08]),
+            "idx_det": np.array([1804, 2874]),
+            "intercepted_radio": np.array([False, True]),
+        },
+    }
+
+    return data
+
+
 def test_beam_aperture(test_case_1):
     """
     Verifying that for a given choice of spin period and emission radius the
@@ -72,7 +110,8 @@ def test_beam_aperture(test_case_1):
     """
 
     beam_aperture_out = er.beam_aperture(
-        test_case_1["P"], test_case_1["r_em"],
+        test_case_1["P"],
+        test_case_1["r_em"],
     )
 
     assert np.isclose(
@@ -105,7 +144,9 @@ def test_solid_angle_radio_beams(test_case_1):
     solid angle covered by the radio beams is correctly calculated.
     """
 
-    solid_angle_out = er.solid_angle_radio_beams(test_case_1["rho_b"],)
+    solid_angle_out = er.solid_angle_radio_beams(
+        test_case_1["rho_b"],
+    )
 
     assert np.isclose(
         test_case_1["solid_angle_expected"],
@@ -122,7 +163,8 @@ def test_beam_fraction(test_case_1):
     """
 
     beam_fraction_out = er.beam_fraction(
-        test_case_1["chi"], test_case_1["rho_b"],
+        test_case_1["chi"],
+        test_case_1["rho_b"],
     )
 
     assert np.isclose(
@@ -163,7 +205,8 @@ def test_pdf_luminosity_radio(monkeypatch, test_case_1):
     monkeypatch.setattr(np.random, "normal", mock_log10_L_0)
 
     L_radio_out = er.pdf_luminosity_radio(
-        np.array([test_case_1["P"]]), test_case_1["P_dot"],
+        np.array([test_case_1["P"]]),
+        test_case_1["P_dot"],
     )
 
     assert np.isclose(
@@ -206,3 +249,49 @@ def test_flux_density_radio(test_case_1):
         rtol=TOL,
         atol=1.0e-35,
     ).all()
+
+
+def test_calculate_radio_emission(monkeypatch, test_case_2):
+
+    """
+    Verifying that the radio emission is computed correctly.
+    """
+
+    def mock_los_intercept(*args, **kwargs):
+        return test_case_2["dataset_dict"]["intercept_los_expected"]
+
+    monkeypatch.setattr(er, "los_intercept", mock_los_intercept)
+
+    def mock_los_rand(*args, **kwargs):
+        return test_case_2["dataset_dict"]["los_rand"]
+
+    monkeypatch.setattr(rs, "random_from_pdf", mock_los_rand)
+
+    def mock_pdf_luminosity_radio(*args, **kwargs):
+        return test_case_2["dataset_dict"]["l_radio_bol"]
+
+    monkeypatch.setattr(er, "pdf_luminosity_radio", mock_pdf_luminosity_radio)
+
+    emission_radio_dict_out = er.calculate_radio_emission(
+        test_case_2["dataset_dict"]["P"],
+        test_case_2["dataset_dict"]["age"],
+        test_case_2["dataset_dict"]["l_gal"],
+        test_case_2["dataset_dict"]["b_gal"],
+        test_case_2["dataset_dict"]["dist"],
+        test_case_2["dataset_dict"]["B"],
+        test_case_2["dataset_dict"]["chi"],
+        test_case_2["dataset_dict"]["idx_det"],
+    )
+
+    assert (
+        emission_radio_dict_out.keys() == test_case_2["dict_expected"].keys()
+    )
+
+    for key1 in test_case_2["dict_expected"].keys():
+
+        assert np.isclose(
+            emission_radio_dict_out[key1].all(),
+            test_case_2["dict_expected"][key1].all(),
+            rtol=TOL,
+            atol=1.0e-30,
+        )

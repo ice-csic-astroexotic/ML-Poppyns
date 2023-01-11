@@ -4,6 +4,7 @@ Tests for the radio survey module.
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 
@@ -41,7 +42,9 @@ PMPS = sr.SurveyRadio(PMPS_par_path)
 def test_case_1():
     data = {
         "w_int": np.array([1.0e-3, 1.0e-4]),
+        "w_int_s": np.array([1.59e-05, 1.59e-07]),
         "DM": np.array([100, 1000]),
+        "age": np.array([1.0, 1.2]),
         "tau_sc": np.array([1.0e-4, 1.0e-2]),
         "f": 1.4e9,
         "channel_width": 3.0e6,
@@ -55,6 +58,7 @@ def test_case_1():
         "T_sky_expected": np.array([3.00651602, 1.25853108]),
         "coverage_expected": np.array([True, False], dtype=bool),
         "offset2": np.array([5, 10]),
+        "S_radio_bol": np.array([5.1e-18, 2.9e-19]),
         "G_expected": np.array([0.68485507, 0.63813124]),
         "S_radio_int": np.array([0.01, 100]),
         "S_radio_obs_expected": np.array([0.00726343, 0.74049939]),
@@ -157,7 +161,7 @@ def test_sky_temperature_approx(test_case_1):
     ).all()
 
 
-def test_sky_coverage_PMPS(test_case_1):
+def test_sky_coverage(test_case_1):
     """
     Verifying that the sky coverage of a survey is computed correctly.
     """
@@ -172,7 +176,7 @@ def test_sky_coverage_PMPS(test_case_1):
     assert test_case_1["coverage_expected"].all() == coverage_out.all()
 
 
-def test_gain_gaussian_beam_PMPS(test_case_1):
+def test_gain_gaussian_beam(test_case_1):
     """
     Verifying that the Gaussian beam gain for an offset observation is computed correctly.
     """
@@ -184,7 +188,7 @@ def test_gain_gaussian_beam_PMPS(test_case_1):
     ).all()
 
 
-def test_radiometer_equation_PMPS(test_case_1):
+def test_radiometer_equation(test_case_1):
     """
     Verifying that the signal-to-noise values are computed correctly using the radiometer equation.
     """
@@ -202,9 +206,9 @@ def test_radiometer_equation_PMPS(test_case_1):
     ).all()
 
 
-def test_detect_PMPS(monkeypatch, test_case_1):
+def test_simulate_detection(monkeypatch, test_case_1):
     """
-    Verifying that the pulsars are correctly detected by the survey.
+    Verifying that a pulsar is correctly detected by the survey.
     """
 
     # Mocking the sky temperature.
@@ -213,7 +217,7 @@ def test_detect_PMPS(monkeypatch, test_case_1):
 
     monkeypatch.setattr(sr, "sky_temperature_H81refined", mock_T_sky)
 
-    detected_out = PMPS.detect(
+    detected_out = PMPS.simulate_detection(
         test_case_1["S_radio_obs_expected"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],
@@ -221,4 +225,22 @@ def test_detect_PMPS(monkeypatch, test_case_1):
         test_case_1["P"],
     )
 
+    assert test_case_1["detected_expected"].all() == detected_out.all()
+
+
+def test_detect_radio_population(test_case_1):
+    """
+    Verifying that a population of pulsars are correctly detected by the survey.
+    """
+
+    detected_out, w_eff, S_radio_obs_mean = PMPS.detected_radio_population(
+        test_case_1["w_int_s"],
+        test_case_1["DM"],
+        test_case_1["P"],
+        test_case_1["age"],
+        test_case_1["coverage_expected"],
+        test_case_1["l_gal"],
+        test_case_1["b_gal"],
+        test_case_1["S_radio_bol"],
+    )
     assert test_case_1["detected_expected"].all() == detected_out.all()

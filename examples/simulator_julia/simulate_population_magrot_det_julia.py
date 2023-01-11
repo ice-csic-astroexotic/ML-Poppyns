@@ -482,7 +482,9 @@ def simulate_population(args) -> None:
                 # Simulating the PMPS survey.
                 detected_radio_PMPS = np.zeros(len(age_det), dtype=bool)
 
-                detected_radio_PMPS[coverage_PMPS] = survey_PMPS.detect(
+                detected_radio_PMPS[
+                    coverage_PMPS
+                ] = survey_PMPS.simulate_detection(
                     S_radio_obs_mean[coverage_PMPS],
                     l_det[coverage_PMPS],
                     b_det[coverage_PMPS],
@@ -505,7 +507,9 @@ def simulate_population(args) -> None:
                 # Simulating the SMPS survey.
                 detected_radio_SMPS = np.zeros(len(age_det), dtype=bool)
 
-                detected_radio_SMPS[coverage_SMPS] = survey_SMPS.detect(
+                detected_radio_SMPS[
+                    coverage_SMPS
+                ] = survey_SMPS.simulate_detection(
                     S_radio_obs_mean[coverage_SMPS],
                     l_det[coverage_SMPS],
                     b_det[coverage_SMPS],

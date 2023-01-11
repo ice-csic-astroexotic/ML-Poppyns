@@ -39,13 +39,9 @@ import orjson
 import pandas as pd
 
 import pypopsyn.benchmark.timewith as timewith
-import pypopsyn.simulator.basics.constants as const
-import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
-import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
-import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
@@ -186,6 +182,12 @@ def simulate_population(args) -> None:
         n_detected_sim_HTRU_mid = 0
         n_detected_sim_HTRU_high = 0
         n_detected_sim_HTRU_low_mid = 0
+
+        # In these variables we save how many stars we detect when we reach the desirable number in each survey.
+        n_detected_sim_PMPS_at_match = 0
+        n_detected_sim_SMPS_at_match = 0
+        n_detected_sim_HTRU_low_mid_at_match = 0
+        n_detected_sim_HTRU_high_at_match = 0
 
         stop_PMPS = False
         stop_SMPS = False
@@ -538,38 +540,36 @@ def simulate_population(args) -> None:
 
                 # ===================== RADIO EMISSION ========================
 
-                # Determining the radio beam angular aperture.
-                rho_beam = er.beam_aperture(P_det, cfg["r_em"])
+                # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
+                # of their radio emission.
 
-                # Determining the solid angle covered by the two radio beams.
-                solid_angle_beam = er.solid_angle_radio_beams(rho_beam)
-
-                # Drawing a random angular intercept for the line of sight.
-                # Note that since we assume symmetry between the northern and southern hemisphere of the star
-                # we only need to consider one hemisphere, e.g., the northern one.
-                los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-                los_rand = rs.random_from_pdf(los_grid, np.sin, len(age_det))
-
-                # Determining if the pulsar's radio beam intercepts our line of sight.
-                intercepted_radio = er.los_intercept(
+                dictionary_intercepted_radio = er.calculate_radio_emission(
+                    P_det,
+                    age_det,
+                    l_det,
+                    b_det,
+                    dist_det,
+                    B_det,
                     chi_det,
-                    rho_beam,
-                    los_rand,
+                    idx_det,
                 )
 
-                # Select only neutron stars that point at us.
-                idx_det = idx_det[intercepted_radio]
+                age_det = dictionary_intercepted_radio["age_det"]
+                l_det = dictionary_intercepted_radio["l_det"]
+                b_det = dictionary_intercepted_radio["b_det"]
+                B_det = dictionary_intercepted_radio["B_det"]
+                chi_det = dictionary_intercepted_radio["chi_det"]
+                P_det = dictionary_intercepted_radio["P_det"]
+                w_int_s = dictionary_intercepted_radio["w_int_s"]
+                DM = dictionary_intercepted_radio["DM"]
+                idx_det = dictionary_intercepted_radio["idx_det"]
+                L_radio_bol = dictionary_intercepted_radio["L_radio_bol"]
+                S_radio_bol = dictionary_intercepted_radio["S_radio_bol"]
+                P_dot_det = dictionary_intercepted_radio["P_dot_det"]
+                intercepted_radio = dictionary_intercepted_radio[
+                    "intercepted_radio"
+                ]
 
-                age_det = age_det[intercepted_radio]
-                l_det = l_det[intercepted_radio]
-                b_det = b_det[intercepted_radio]
-                dist_det = dist_det[intercepted_radio]
-                B_det = B_det[intercepted_radio]
-                chi_det = chi_det[intercepted_radio]
-                P_det = P_det[intercepted_radio]
-                rho_beam_det = rho_beam[intercepted_radio]
-                los_rand_det = los_rand[intercepted_radio]
-                solid_angle_beam = solid_angle_beam[intercepted_radio]
                 coverage_PMPS = coverage_PMPS[intercepted_radio]
                 coverage_SMPS = coverage_SMPS[intercepted_radio]
                 coverage_HTRU_low = coverage_HTRU_low[intercepted_radio]
@@ -579,87 +579,23 @@ def simulate_population(args) -> None:
                 if np.count_nonzero(intercepted_radio) == 0:
                     break
 
-                # Determining the final period derivative.
-                period_derivative_vect = np.vectorize(pdv.period_derivative)
-                P_dot_det = (
-                    period_derivative_vect(
-                        B_det,
-                        chi_det,
-                        P_det,
-                    )
-                    / const.YR_TO_S
-                )
-
-                # Determining the luminosity in different electromagnetic bands.
-                L_radio_bol = er.pdf_luminosity_radio(P_det, P_dot_det)
-
-                # Computing the intrinsic bolometric radio flux.
-                S_radio_bol = er.flux_radio(
-                    L_radio_bol,
-                    dist_det,
-                    solid_angle_beam,
-                )
-
-                # Computing the intrinsic radio flux density in [Jy].
-                S_radio_f = er.flux_density_radio(
-                    S_radio_bol,
-                    f=survey_PMPS.f_central,
-                )
-
-                S_radio_f_HTRU = er.flux_density_radio(
-                    S_radio_bol,
-                    f=survey_HTRU_low.f_central,
-                )
-
-                # Computing the intrinsic pulse width of the radio pulse.
-                w_int = er.pulse_width(
-                    chi_det,
-                    rho_beam_det,
-                    los_rand_det,
-                )
-
-                # Convert pulse width from [rad] to [s].
-                w_int_s = w_int * P_det / (2.0 * np.pi)
-
-                # Computing the DM.
-                DM = edm.compute_DM(
-                    l_det,
-                    b_det,
-                    dist_det,
-                    cfg["ed_model"],
-                )
-
                 # ===================== RADIO DETECTION ========================
 
                 # ======== Simulating PMPS. ========
 
-                # Compute the effective pulse width in [s].
-                w_eff_PMPS = sr.effective_pulse_width(
+                (
+                    detected_radio_PMPS,
+                    w_eff_PMPS,
+                    S_radio_obs_mean_PMPS,
+                ) = survey_PMPS.detected_radio_population(
                     w_int_s,
                     DM,
-                    survey_PMPS.channel_width,
-                    survey_PMPS.f_central,
-                    survey_PMPS.t_samp,
-                )
-
-                # Compute the observed radio flux in [Jy].
-                S_radio_obs_PMPS = sr.flux_radio_obs(
-                    S_radio_f, w_int_s, w_eff_PMPS
-                )
-
-                # Compute the period-averaged flux in [Jy].
-                S_radio_obs_mean_PMPS = sr.flux_radio_obs_period_average(
-                    S_radio_obs_PMPS, P_det, w_eff_PMPS
-                )
-
-                detected_radio_PMPS = np.zeros(len(age_det), dtype=bool)
-
-                detected_radio_PMPS[coverage_PMPS] = survey_PMPS.detect(
-                    S_radio_obs_mean_PMPS[coverage_PMPS],
-                    l_det[coverage_PMPS],
-                    b_det[coverage_PMPS],
-                    w_eff_PMPS[coverage_PMPS],
-                    P_det[coverage_PMPS],
+                    P_det,
+                    age_det,
+                    coverage_PMPS,
+                    l_det,
+                    b_det,
+                    S_radio_bol,
                 )
 
                 n_detected_sim_PMPS += np.count_nonzero(detected_radio_PMPS)
@@ -671,38 +607,25 @@ def simulate_population(args) -> None:
                 if (n_detected_sim_PMPS >= n_detected_real_PMPS) & (
                     stop_PMPS is False
                 ):
+                    n_detected_sim_PMPS_at_match = n_detected_sim_PMPS
                     stop_PMPS = True
                     n_created_PMPS = n_created
 
                 # ======== Simulating SMPS. ========
 
-                # Compute the effective pulse width in [s].
-                w_eff_SMPS = sr.effective_pulse_width(
+                (
+                    detected_radio_SMPS,
+                    w_eff_SMPS,
+                    S_radio_obs_mean_SMPS,
+                ) = survey_SMPS.detected_radio_population(
                     w_int_s,
                     DM,
-                    survey_SMPS.channel_width,
-                    survey_SMPS.f_central,
-                    survey_SMPS.t_samp,
-                )
-
-                # Compute the observed radio flux in [Jy].
-                S_radio_obs_SMPS = sr.flux_radio_obs(
-                    S_radio_f, w_int_s, w_eff_SMPS
-                )
-
-                # Compute the period-averaged flux in [Jy].
-                S_radio_obs_mean_SMPS = sr.flux_radio_obs_period_average(
-                    S_radio_obs_SMPS, P_det, w_eff_SMPS
-                )
-
-                detected_radio_SMPS = np.zeros(len(age_det), dtype=bool)
-
-                detected_radio_SMPS[coverage_SMPS] = survey_SMPS.detect(
-                    S_radio_obs_mean_SMPS[coverage_SMPS],
-                    l_det[coverage_SMPS],
-                    b_det[coverage_SMPS],
-                    w_eff_SMPS[coverage_SMPS],
-                    P_det[coverage_SMPS],
+                    P_det,
+                    age_det,
+                    coverage_SMPS,
+                    l_det,
+                    b_det,
+                    S_radio_bol,
                 )
 
                 n_detected_sim_SMPS += np.count_nonzero(detected_radio_SMPS)
@@ -714,40 +637,25 @@ def simulate_population(args) -> None:
                 if (n_detected_sim_SMPS >= n_detected_real_SMPS) & (
                     stop_SMPS is False
                 ):
+                    n_detected_sim_SMPS_at_match = n_detected_sim_SMPS
                     stop_SMPS = True
                     n_created_SMPS = n_created
 
                 # ======== Simulating the HTRU low survey. ========
 
-                # Compute the effective pulse width in [s].
-                w_eff_HTRU_low = sr.effective_pulse_width(
+                (
+                    detected_radio_HTRU_low,
+                    w_eff_HTRU_low,
+                    S_radio_obs_mean_HTRU_low,
+                ) = survey_HTRU_low.detected_radio_population(
                     w_int_s,
                     DM,
-                    survey_HTRU_low.channel_width,
-                    survey_HTRU_low.f_central,
-                    survey_HTRU_low.t_samp,
-                )
-
-                # Compute the observed radio flux in [Jy].
-                S_radio_obs_HTRU_low = sr.flux_radio_obs(
-                    S_radio_f_HTRU, w_int_s, w_eff_HTRU_low
-                )
-
-                # Compute the period-averaged flux in [Jy].
-                S_radio_obs_mean_HTRU_low = sr.flux_radio_obs_period_average(
-                    S_radio_obs_HTRU_low, P_det, w_eff_HTRU_low
-                )
-
-                detected_radio_HTRU_low = np.zeros(len(age_det), dtype=bool)
-
-                detected_radio_HTRU_low[
-                    coverage_HTRU_low
-                ] = survey_HTRU_low.detect(
-                    S_radio_obs_mean_HTRU_low[coverage_HTRU_low],
-                    l_det[coverage_HTRU_low],
-                    b_det[coverage_HTRU_low],
-                    w_eff_HTRU_low[coverage_HTRU_low],
-                    P_det[coverage_HTRU_low],
+                    P_det,
+                    age_det,
+                    coverage_HTRU_low,
+                    l_det,
+                    b_det,
+                    S_radio_bol,
                 )
 
                 n_detected_sim_HTRU_low += np.count_nonzero(
@@ -756,35 +664,19 @@ def simulate_population(args) -> None:
 
                 # ======== Simulating the HTRU mid survey. ========
 
-                # Compute the effective pulse width in [s].
-                w_eff_HTRU_mid = sr.effective_pulse_width(
+                (
+                    detected_radio_HTRU_mid,
+                    w_eff_HTRU_mid,
+                    S_radio_obs_mean_HTRU_mid,
+                ) = survey_HTRU_mid.detected_radio_population(
                     w_int_s,
                     DM,
-                    survey_HTRU_mid.channel_width,
-                    survey_HTRU_mid.f_central,
-                    survey_HTRU_mid.t_samp,
-                )
-
-                # Compute the observed radio flux in [Jy].
-                S_radio_obs_HTRU_mid = sr.flux_radio_obs(
-                    S_radio_f_HTRU, w_int_s, w_eff_HTRU_mid
-                )
-
-                # Compute the period-averaged flux in [Jy].
-                S_radio_obs_mean_HTRU_mid = sr.flux_radio_obs_period_average(
-                    S_radio_obs_HTRU_mid, P_det, w_eff_HTRU_mid
-                )
-
-                detected_radio_HTRU_mid = np.zeros(len(age_det), dtype=bool)
-
-                detected_radio_HTRU_mid[
-                    coverage_HTRU_mid
-                ] = survey_HTRU_mid.detect(
-                    S_radio_obs_mean_HTRU_mid[coverage_HTRU_mid],
-                    l_det[coverage_HTRU_mid],
-                    b_det[coverage_HTRU_mid],
-                    w_eff_HTRU_mid[coverage_HTRU_mid],
-                    P_det[coverage_HTRU_mid],
+                    P_det,
+                    age_det,
+                    coverage_HTRU_mid,
+                    l_det,
+                    b_det,
+                    S_radio_bol,
                 )
 
                 # Since the sky coverage of the HTRU mid and low surveys overlap, we remove those stars from the mid
@@ -814,40 +706,28 @@ def simulate_population(args) -> None:
                 if (
                     n_detected_sim_HTRU_low_mid >= n_detected_real_HTRU_low_mid
                 ) & (stop_HTRU_low_mid is False):
+
+                    n_detected_sim_HTRU_low_mid_at_match = (
+                        n_detected_sim_HTRU_low_mid
+                    )
                     stop_HTRU_low_mid = True
                     n_created_HTRU_low_mid = n_created
 
                 # ======== Simulating the HTRU high survey. ========
 
-                # Compute the effective pulse width in [s].
-                w_eff_HTRU_high = sr.effective_pulse_width(
+                (
+                    detected_radio_HTRU_high,
+                    w_eff_HTRU_high,
+                    S_radio_obs_mean_HTRU_high,
+                ) = survey_HTRU_high.detected_radio_population(
                     w_int_s,
                     DM,
-                    survey_HTRU_high.channel_width,
-                    survey_HTRU_high.f_central,
-                    survey_HTRU_high.t_samp,
-                )
-
-                # Compute the observed radio flux in [Jy].
-                S_radio_obs_HTRU_high = sr.flux_radio_obs(
-                    S_radio_f_HTRU, w_int_s, w_eff_HTRU_high
-                )
-
-                # Compute the period-averaged flux in [Jy].
-                S_radio_obs_mean_HTRU_high = sr.flux_radio_obs_period_average(
-                    S_radio_obs_HTRU_high, P_det, w_eff_HTRU_high
-                )
-
-                detected_radio_HTRU_high = np.zeros(len(age_det), dtype=bool)
-
-                detected_radio_HTRU_high[
-                    coverage_HTRU_high
-                ] = survey_HTRU_high.detect(
-                    S_radio_obs_mean_HTRU_high[coverage_HTRU_high],
-                    l_det[coverage_HTRU_high],
-                    b_det[coverage_HTRU_high],
-                    w_eff_HTRU_high[coverage_HTRU_high],
-                    P_det[coverage_HTRU_high],
+                    P_det,
+                    age_det,
+                    coverage_HTRU_high,
+                    l_det,
+                    b_det,
+                    S_radio_bol,
                 )
 
                 n_detected_sim_HTRU_high += np.count_nonzero(
@@ -863,6 +743,9 @@ def simulate_population(args) -> None:
                 if (n_detected_sim_HTRU_high >= n_detected_real_HTRU_high) & (
                     stop_HTRU_high is False
                 ):
+                    n_detected_sim_HTRU_high_at_match = (
+                        n_detected_sim_HTRU_high
+                    )
                     stop_HTRU_high = True
                     n_created_HTRU_high = n_created
 
@@ -1108,6 +991,15 @@ def simulate_population(args) -> None:
         cfg["birth_rate_SMPS"] = birth_rate_SMPS
         cfg["birth_rate_HTRU_low_mid"] = birth_rate_HTRU_low_mid
         cfg["birth_rate_HTRU_high"] = birth_rate_HTRU_high
+
+        # Add the information of the number of detected neutron star by each survey when this survey reach the number
+        # of observed neutron stars.
+        cfg["n_detected_sim_PMPS"] = n_detected_sim_PMPS_at_match
+        cfg["n_detected_sim_SMPS"] = n_detected_sim_SMPS_at_match
+        cfg[
+            "n_detected_sim_HTRU_low_mid"
+        ] = n_detected_sim_HTRU_low_mid_at_match
+        cfg["n_detected_sim_HTRU_high"] = n_detected_sim_HTRU_high_at_match
 
         # Add the parameters from the dynamical database to the configuration file.
         cfg["t_max"] = conf_json["t_age_max"]
