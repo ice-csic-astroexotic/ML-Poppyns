@@ -1002,7 +1002,7 @@ def simulate_population(args) -> None:
         df_HTRU_high.to_pickle(HTRU_high_output_path, compression="gzip")
 
         log.info(
-            f"Output of the HTRU high latitude survey generated in {os.getcwd()}/{HTRU_high_output_path}"
+            f"Output of the HTRU high-latitude survey generated in {os.getcwd()}/{HTRU_high_output_path}"
         )
 
         # Exporting the population file containing the observed properties of neutron stars detected by HTRU low and mid.
@@ -1061,7 +1061,7 @@ def simulate_population(args) -> None:
         df_HTRU_low_mid.to_pickle(HTRU_low_mid_output_path, compression="gzip")
 
         log.info(
-            f"Output of the HTRU low and mid latitude survey generated in {os.getcwd()}/{HTRU_low_mid_output_path}"
+            f"Output of the HTRU low and mid-latitude surveys generated in {os.getcwd()}/{HTRU_low_mid_output_path}"
         )
 
         timer.checkpoint("[Export]")
