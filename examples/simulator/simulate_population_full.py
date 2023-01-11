@@ -600,6 +600,7 @@ def simulate_population(args) -> None:
 
             timer.checkpoint("[Total sky coverage]")
 
+            # Determine which stars could in principle be detected.
             detectable_radio = intercepted_radio & coverage_tot
 
             # Computing the DM for the stars that fall into the surveys' sky coverage and whose
@@ -613,10 +614,6 @@ def simulate_population(args) -> None:
             )
 
             timer.checkpoint("[DM computation]")
-
-            # Since PMPS and SMPS surveys share the same parameters we compute the following quantities only
-            # by considering the PMPS parameters. If other surveys with different parameters are to be added
-            # we would need to compute the following quantities for each survey.
 
             # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
