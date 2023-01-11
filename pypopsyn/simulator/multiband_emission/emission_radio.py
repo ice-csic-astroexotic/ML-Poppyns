@@ -246,7 +246,8 @@ def calculate_radio_emission(
 ) -> dict:
     """
     Compute the radio beam geometry, the intrinsic bolometric radio flux and the DM.
-    Note that the luminosity and DM are computed for only the pulsars that its beam crosses our line of sight.
+    Note that the luminosity and DM are computed only for those pulsars whose beams cross our line of sight.
+    This function is used in the simulate_population_magrot_det.py script.
 
     Args:
         P (np.ndarray): array of spin periods of the pulsars in [s].
@@ -361,7 +362,7 @@ def calculate_radio_emission_full(
 ):
     """
     Compute the radio beam geometry and the intrinsic bolometric radio flux. This function is only used in the
-    simulate_population_full.py script.
+    simulate_population_full.py script, where we perform the dynamical and magneto-rotational evolution together.
 
     Args:
         P (np.ndarray): array of spin periods of the pulsars in [s].
@@ -370,7 +371,7 @@ def calculate_radio_emission_full(
         chi (np.ndarray): array of the misalignment angles in [rad].
 
     Returns:
-        intercepted_radio (np.ndarray): array of boolean with the pulsars that its beam crosses our line of sight.
+        intercepted_radio (np.ndarray): array of Booleans with the pulsars whose beams cross our line of sight.
         S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
         w_int_s (np.ndarray): intrinsic pulse widths in [s].
         L_radio_bol (np.ndarray): pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.
