@@ -46,7 +46,6 @@ import pandas as pd
 
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
-import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
@@ -671,7 +670,7 @@ def simulate_population(args) -> None:
                 f"Fraction of detected pulsars by SMPS: {fraction_detected_radio_SMPS}"
             )
 
-            # Simulating the HTRU low latitude survey.
+            # Simulating the HTRU low-latitude survey.
             log.info("Simulate detection with HTRU low latitude...")
 
             (
@@ -699,7 +698,7 @@ def simulate_population(args) -> None:
                 f"Fraction of detected pulsars by HTRU low latitude: {fraction_detected_radio_HTRU_low}"
             )
 
-            # Simulating the HTRU mid latitude survey.
+            # Simulating the HTRU mid-latitude survey.
             log.info("Simulate detection with HTRU mid latitude...")
 
             (
@@ -727,7 +726,7 @@ def simulate_population(args) -> None:
                 f"Fraction of detected pulsars by HTRU mid latitude: {fraction_detected_radio_HTRU_mid}"
             )
 
-            # Simulating the HTRU high latitude survey.
+            # Simulating the HTRU high-latitude survey.
             log.info("Simulate detection with HTRU high latitude...")
 
             (
