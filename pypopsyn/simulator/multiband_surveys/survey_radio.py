@@ -540,7 +540,8 @@ class SurveyRadio:
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
         """
-        Compute the pulsars detected by the survey.
+        Compute the pulsars detected by a survey.
+        This function is used in the simulate_population_magrot_det.py script.
 
         Args:
             w_int_s (np.ndarray) intrinsic pulse widths in [s]
@@ -604,8 +605,8 @@ class SurveyRadio:
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
         """
-        Compute the pulsars detected by each survey. This function is only used in the simulate_population_full.py
-        script.
+        Compute the pulsars detected by each survey.
+        This function is used in the simulate_population_full.py script.
 
         Args:
             w_int_s (np.ndarray) intrinsic pulse widths in [s]
@@ -618,8 +619,6 @@ class SurveyRadio:
             beam crosses our line of sight.
             coverage_survey: (np.ndarray) array of boolean variables where true values represent stars within the
             sky coverage of each survey.
-            S_radio_f: (np.ndarray) observed pulsar radio flux in [Jy].
-            w_eff: (np.ndarray) effective pulse width in [s].
             dist_cutoff: (np.ndarray) array of boolean variables where true values represent stars within 35 kpc.
 
         Returns:
