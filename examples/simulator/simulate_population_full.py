@@ -115,11 +115,13 @@ def simulate_population(args) -> None:
     with open(config_dump_path, "w") as f:
         json.dump(cfg, f, indent=4, sort_keys=True)
 
+    # Loading the sever path, in case simulations are run at the PIC.
+    path_server_software = cfg["path_server_software"]
+
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
     sm.initialize_spiral_model()
 
-    path_server_software = cfg["path_server_software"]
     # Initialize the surveys.
     PMPS_par_path = pathlib.Path().joinpath(
         path_server_software,
