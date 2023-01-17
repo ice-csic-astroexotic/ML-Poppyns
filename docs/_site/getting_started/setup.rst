@@ -19,13 +19,25 @@ This environment can be activated using
 
   conda activate pop_syn
 
+To setup the environment on the PIC server we specify the path where the environment will be saved:
+
+.. code-block:: bash
+
+  conda env create --prefix /data/magnesia/scratch/conda/env/pop_syn
+  --file /data/magnesia/software/MAGNESIA_population_synthesis/environment.yaml
+
+In this case the environment can be activated using
+
+.. code-block:: bash
+
+  conda activate /data/magnesia/scratch/conda/env/pop_syn
+
 After activating the environment to install the `Simulation Based Inference (SBI) <https://www.mackelab.org/sbi/>`_
 library run:
 
 .. code-block:: bash
 
    pip install sbi
-
 
 We recommend working within this environment when using the code. To install the :code:`pypopsyn` package and work with the code run
 
