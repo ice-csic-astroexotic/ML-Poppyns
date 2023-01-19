@@ -160,7 +160,7 @@ def test_sky_temperature_approx(test_case_1):
     ).all()
 
 
-def test_sky_coverage_PMPS(test_case_1):
+def test_sky_coverage(test_case_1):
     """
     Verifying that the sky coverage of a survey is computed correctly.
     """
@@ -175,7 +175,7 @@ def test_sky_coverage_PMPS(test_case_1):
     assert test_case_1["coverage_expected"].all() == coverage_out.all()
 
 
-def test_gain_gaussian_beam_PMPS(test_case_1):
+def test_gain_gaussian_beam(test_case_1):
     """
     Verifying that the Gaussian beam gain for an offset observation is computed correctly.
     """
@@ -187,7 +187,7 @@ def test_gain_gaussian_beam_PMPS(test_case_1):
     ).all()
 
 
-def test_radiometer_equation_PMPS(test_case_1):
+def test_radiometer_equation(test_case_1):
     """
     Verifying that the signal-to-noise values are computed correctly using the radiometer equation.
     """
@@ -205,7 +205,7 @@ def test_radiometer_equation_PMPS(test_case_1):
     ).all()
 
 
-def test_detect_single_PMPS(monkeypatch, test_case_1):
+def test_detect_single(monkeypatch, test_case_1):
     """
     Verifying that a pulsar is correctly detected by the survey.
     """
@@ -227,7 +227,7 @@ def test_detect_single_PMPS(monkeypatch, test_case_1):
     assert test_case_1["detected_expected"].all() == detected_out.all()
 
 
-def test_detect_radio_population_PMPS(test_case_1):
+def test_detect_radio_population(test_case_1):
     """
     Verifying that a population of pulsars is correctly detected by the survey.
     """
