@@ -1,84 +1,84 @@
 {
   "[TotalSimulation]": {
-    "time": 479.2225911617279
+    "time": 352.8639488220215
   },
   "[InitialPopulation]": {
-    "time": 5.942462921142578,
+    "time": 9.472826957702637,
     "[Initial position and velocity]": {
-      "elapsed_time": 2.750432014465332,
-      "cumulative_time": 2.750432014465332
+      "elapsed_time": 4.270454168319702,
+      "cumulative_time": 4.270454168319702
     },
     "[Initial energy]": {
-      "elapsed_time": 1.744269609451294,
-      "cumulative_time": 4.494701623916626
+      "elapsed_time": 3.0629706382751465,
+      "cumulative_time": 7.333424806594849
     },
     "[Initial angular momentum]": {
-      "elapsed_time": 0.30354833602905273,
-      "cumulative_time": 4.798249959945679
+      "elapsed_time": 0.46543145179748535,
+      "cumulative_time": 7.798856258392334
     },
     "[Initial field strengths, misalignment angles and periods]": {
-      "elapsed_time": 0.0656278133392334,
-      "cumulative_time": 4.863877773284912
+      "elapsed_time": 0.07993865013122559,
+      "cumulative_time": 7.87879490852356
     },
     "[Initial period derivatives]": {
-      "elapsed_time": 0.0838165283203125,
-      "cumulative_time": 4.947694301605225
+      "elapsed_time": 0.11550378799438477,
+      "cumulative_time": 7.994298696517944
     },
     "[Export]": {
-      "elapsed_time": 0.9942507743835449,
-      "cumulative_time": 5.9419450759887695
+      "elapsed_time": 1.4778122901916504,
+      "cumulative_time": 9.472110986709595
     }
   },
   "[DynamicalEvolution]": {
-    "time": 126.140469789505,
+    "time": 113.80090117454529,
     "[Dynamical evolution]": {
-      "elapsed_time": 126.11219716072083,
-      "cumulative_time": 126.11219716072083
+      "elapsed_time": 113.78695726394653,
+      "cumulative_time": 113.78695726394653
     },
     "[Final energy]": {
-      "elapsed_time": 0.024293184280395508,
-      "cumulative_time": 126.13649034500122
+      "elapsed_time": 0.011265277862548828,
+      "cumulative_time": 113.79822254180908
     },
     "[Final angular momentum]": {
-      "elapsed_time": 0.0035338401794433594,
-      "cumulative_time": 126.14002418518066
+      "elapsed_time": 0.002197742462158203,
+      "cumulative_time": 113.80042028427124
     }
   },
   "[MagnetoRotationalEvolution]": {
-    "time": 302.778874874115,
+    "time": 197.29936146736145,
     "[Final field strengths, misalignment angles and periods]": {
-      "elapsed_time": 302.6464173793793,
-      "cumulative_time": 302.6464173793793
+      "elapsed_time": 197.18197655677795,
+      "cumulative_time": 197.18197655677795
     },
     "[Final period derivatives]": {
-      "elapsed_time": 0.1318502426147461,
-      "cumulative_time": 302.778267621994
+      "elapsed_time": 0.11682486534118652,
+      "cumulative_time": 197.29880142211914
     }
   },
   "[RadioEmission]": {
-    "time": 0.12244319915771484,
+    "time": 0.09244322776794434,
     "[Radio emission]": {
-      "elapsed_time": 0.1218106746673584,
-      "cumulative_time": 0.1218106746673584
+      "elapsed_time": 0.09145283699035645,
+      "cumulative_time": 0.09145283699035645
     }
   },
   "[RadioDetection]": {
-    "time": 41.499082803726196,
+    "time": 29.138580322265625,
     "[Total sky coverage]": {
-      "elapsed_time": 0.006383657455444336,
-      "cumulative_time": 0.006383657455444336
+      "elapsed_time": 0.020582914352416992,
+      "cumulative_time": 0.020582914352416992
     },
     "[DM computation]": {
-      "elapsed_time": 41.38270950317383,
-      "cumulative_time": 41.38909316062927
+      "elapsed_time": 28.68880009651184,
+      "cumulative_time": 28.709383010864258
     },
     "[Radio surveys detection]": {
-      "elapsed_time": 0.10931205749511719,
-      "cumulative_time": 41.49840521812439
+      "elapsed_time": 0.42792677879333496,
+      "cumulative_time": 29.137309789657593
     },
     "[Export]": {
-      "elapsed_time": 2.7310619354248047,
-      "cumulative_time": 44.230144739151
+      "elapsed_time": 3.050823211669922,
+      "cumulative_time": 32.18940353393555
     }
   }
 }

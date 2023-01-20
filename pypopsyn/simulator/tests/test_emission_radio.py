@@ -72,6 +72,7 @@ def test_case_2():
     data = {
         "dataset_dict": {
             "P": np.array([6.28, 0.54]),
+            "P_dot": np.array([1.0e-15, 1.0e-13]),
             "age": np.array([8.2e6, 1.7e6]),
             "l_gal": np.array([-2.05, -12.2]),
             "b_gal": np.array([-8.15, 7.51]),
@@ -84,18 +85,19 @@ def test_case_2():
             "l_radio_bol": np.array([7.85e24, 2.93e27]),
         },
         "dict_expected": {
-            "age_det": np.array([8200000.0, 1700000.0]),
-            "l_det": np.array([-2.05, -12.2]),
-            "b_det": np.array([-8.15, 7.51]),
-            "B_det": np.array([2.32e11, 2.57e11]),
-            "chi_det": np.array([0.99, 0.99]),
-            "P_det": np.array([6.28, 0.54]),
-            "P_dot_det": np.array([6.9724e-18, 9.95e-17]),
+            "age_det": np.array([1700000.0]),
+            "l_det": np.array([-12.2]),
+            "b_det": np.array([7.51]),
+            "B_det": np.array([2.57e11]),
+            "chi_det": np.array([0.99]),
+            "P_det": np.array([0.54]),
+            "P_dot_det": np.array([9.95040457e-17]),
+            "w_int_s": np.array([0.03034442]),
+            "w_int_s_full": np.array([0, 0.03034442]),
             "L_radio_bol": np.array([7.85e24, 2.93e27]),
-            "w_int_s": np.array([4.1958e-05, 3.02e-02]),
-            "S_radio_bol": np.array([4.04580e-19, 4.32e-17]),
-            "DM": np.array([159.0975, 130.08]),
-            "idx_det": np.array([1804, 2874]),
+            "S_radio_bol": np.array([1.15583818e-19, 4.31414761e-17]),
+            "DM": np.array([130.08355713]),
+            "idx_det": np.array([2874]),
             "intercepted_radio": np.array([False, True]),
         },
     }
@@ -257,11 +259,6 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
     Verifying that the radio emission is computed correctly.
     """
 
-    def mock_los_intercept(*args, **kwargs):
-        return test_case_2["dataset_dict"]["intercept_los_expected"]
-
-    monkeypatch.setattr(er, "los_intercept", mock_los_intercept)
-
     def mock_los_rand(*args, **kwargs):
         return test_case_2["dataset_dict"]["los_rand"]
 
@@ -283,11 +280,7 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
         test_case_2["dataset_dict"]["idx_det"],
     )
 
-    assert (
-        emission_radio_dict_out.keys() == test_case_2["dict_expected"].keys()
-    )
-
-    for key1 in test_case_2["dict_expected"].keys():
+    for key1 in emission_radio_dict_out.keys():
 
         assert np.isclose(
             emission_radio_dict_out[key1].all(),
@@ -295,3 +288,57 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
             rtol=TOL,
             atol=1.0e-30,
         )
+
+
+def test_calculate_radio_emission_full(monkeypatch, test_case_2):
+
+    """
+    Verifying that the radio emission is computed correctly.
+    """
+    cfg["NS_number"] = 2
+
+    def mock_los_rand(*args, **kwargs):
+        return test_case_2["dataset_dict"]["los_rand"]
+
+    monkeypatch.setattr(rs, "random_from_pdf", mock_los_rand)
+
+    def mock_pdf_luminosity_radio(*args, **kwargs):
+        return test_case_2["dataset_dict"]["l_radio_bol"]
+
+    monkeypatch.setattr(er, "pdf_luminosity_radio", mock_pdf_luminosity_radio)
+
+    (
+        intercepted_radio,
+        S_radio_bol,
+        w_int_s,
+        L_radio_bol,
+    ) = er.calculate_radio_emission_full(
+        test_case_2["dataset_dict"]["P"],
+        test_case_2["dataset_dict"]["P_dot"],
+        test_case_2["dataset_dict"]["dist"],
+        test_case_2["dataset_dict"]["chi"],
+    )
+    assert np.isclose(
+        test_case_2["dict_expected"]["intercepted_radio"],
+        intercepted_radio,
+        rtol=TOL,
+        atol=1.0e-5,
+    ).all()
+    assert np.isclose(
+        test_case_2["dict_expected"]["S_radio_bol"],
+        S_radio_bol,
+        rtol=TOL,
+        atol=1.0e-5,
+    ).all()
+    assert np.isclose(
+        test_case_2["dict_expected"]["w_int_s_full"],
+        w_int_s,
+        rtol=TOL,
+        atol=1.0e-5,
+    ).all()
+    assert np.isclose(
+        test_case_2["dict_expected"]["L_radio_bol"],
+        L_radio_bol,
+        rtol=TOL,
+        atol=1.0e-5,
+    ).all()

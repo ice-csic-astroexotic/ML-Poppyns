@@ -230,7 +230,7 @@ def test_simulate_detection(monkeypatch, test_case_1):
 
 def test_detect_radio_population(test_case_1):
     """
-    Verifying that a population of pulsars are correctly detected by the survey.
+    Verifying that a population of pulsars is correctly detected by the survey.
     """
 
     detected_out, w_eff, S_radio_obs_mean = PMPS.detected_radio_population(
