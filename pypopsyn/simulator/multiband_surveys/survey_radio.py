@@ -10,6 +10,7 @@ We consider the following surveys:
 Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 

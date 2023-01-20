@@ -4,6 +4,7 @@ Models for the pulsars' radio beam geometry and luminosity.
 Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 

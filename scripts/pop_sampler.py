@@ -89,11 +89,12 @@ def data_sampler(args) -> None:
     of stars by randomly sampling the original evolved population file.
 
     Args:
-        data (str): Path to where the simulated populations are located.
-        save_dir (str): Path to where to save the resampled population files.
-        size (int): Number of stars to randomly sample from the population files.
-        distance_cut (float): Maximum distance from the Sun cut-off.
-        uniform (bool): If True stars are selected uniformly in distance from the simulated population.
+        args:
+            data (str): Path to where the simulated populations are located.
+            save_dir (str): Path to where to save the resampled population files.
+            size (int): Number of stars to randomly sample from the population files.
+            distance_cut (float): Maximum distance from the Sun cut-off.
+            uniform (bool): If True stars are selected uniformly in distance from the simulated population.
     """
 
     # Check if the parsed simulated populations' directory exists.

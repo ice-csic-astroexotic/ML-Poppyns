@@ -101,7 +101,6 @@ def simulate_population(args) -> None:
     np.random.seed(cfg["seed_full"])
 
     # Update simulator configuration with the provided JSON override (if any).
-    cfg_override = {}
     if args.parameter_override:
         json_override_path = pathlib.Path(args.parameter_override)
         with open(json_override_path) as f:
@@ -638,7 +637,6 @@ def simulate_population(args) -> None:
             fraction_detected_radio_PMPS = len(
                 detected_radio_PMPS[detected_radio_PMPS]
             ) / len(detected_radio_PMPS)
-
             log.info(
                 f"Fraction of detected pulsars by PMPS: {fraction_detected_radio_PMPS}"
             )
@@ -666,7 +664,6 @@ def simulate_population(args) -> None:
             fraction_detected_radio_SMPS = len(
                 detected_radio_SMPS[detected_radio_SMPS]
             ) / len(detected_radio_SMPS)
-
             log.info(
                 f"Fraction of detected pulsars by SMPS: {fraction_detected_radio_SMPS}"
             )

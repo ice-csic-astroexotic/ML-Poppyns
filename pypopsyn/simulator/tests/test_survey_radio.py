@@ -4,6 +4,7 @@ Tests for the radio survey module.
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 
@@ -205,7 +206,7 @@ def test_radiometer_equation(test_case_1):
     ).all()
 
 
-def test_detect_single(monkeypatch, test_case_1):
+def test_simulate_detection(monkeypatch, test_case_1):
     """
     Verifying that a pulsar is correctly detected by the survey.
     """

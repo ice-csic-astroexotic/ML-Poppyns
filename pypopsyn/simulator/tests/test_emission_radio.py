@@ -4,6 +4,7 @@ Tests for the radio emission module.
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
 MIT License
 
