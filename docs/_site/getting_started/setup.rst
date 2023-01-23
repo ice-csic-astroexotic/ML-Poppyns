@@ -19,14 +19,14 @@ This environment can be activated using
 
   conda activate pop_syn
 
-To setup the environment on the PIC server we specify the path where the environment will be saved:
+To set up the environment on the PIC servers, we specify the full path where the environment will be saved:
 
 .. code-block:: bash
 
   conda env create --prefix /data/magnesia/scratch/conda/env/pop_syn
   --file /data/magnesia/software/MAGNESIA_population_synthesis/environment.yaml
 
-In this case the environment can be activated using
+In this case, the environment can be activated using
 
 .. code-block:: bash
 
