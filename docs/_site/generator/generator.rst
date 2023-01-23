@@ -14,12 +14,6 @@ Compute statistics
 .. automodule:: pypopsyn.generator.compute_statistics
   :members: compute_statistics
 
-Data-set splitter
-*****************
-
-.. automodule:: pypopsyn.generator.dataset_splitter
-  :members: dataset_splitter
-
 Maps generator
 **************
 
