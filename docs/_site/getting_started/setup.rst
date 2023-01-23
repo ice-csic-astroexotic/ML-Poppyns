@@ -13,6 +13,10 @@ computer. The repo contains an environment file that can be installed by running
 
   conda env create -f environment.yaml
 
+NOTE: for OSX users the :code:`cudatoolkit` package has to be commented out in the environment file.
+Furthermore the :code:`julia` package from conda-forge is not available for Mac computers with M1 Apple
+silicon processors.
+
 This environment can be activated using
 
 .. code-block:: bash
