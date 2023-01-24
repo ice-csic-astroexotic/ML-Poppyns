@@ -5,8 +5,8 @@
     Each job will run each chunk of simulations for a different set of initial parameters.
 
     Note that this script needs the output from the `parameter_sweeper.py` script.
-    As specified with the command line argument --output_dir_htcondor the submit files for each job, the
-    arguments.txt and a wrapper are saved in this path.
+    The submit files for each job, the arguments.txt and a wrapper are saved in the path specified with the command
+    line argument --output_dir_htcondor.
 
 
     Authors:
@@ -35,6 +35,8 @@ import argparse
 import pathlib
 
 import numpy as np
+
+from pypopsyn.simulator.configuration import cfg
 
 
 def generate_job_submit(
@@ -68,47 +70,67 @@ def generate_job_submit(
         f.close()
 
 
-def generate_wrapper(path_wrapper):
+def generate_wrapper(
+    type_simulation: pathlib.Path,
+    dyn_path: pathlib.Path,
+    path_wrapper: pathlib.Path,
+):
 
     """
     Create all the wrapper files.
 
     Args:
+
+        type_simulation (str): String with the type of simulation we want to run.
         path_wrapper (pathlib.Path): Output directory for the wrapper file.
+        dyn_path (pathlib.Path): Path to where the dynamically evolved population database is stored.
+
 
     Returns:
+
         Nothing.
     """
 
     # Writing the `wrapper.sh` file where we loop over the lines of the `"/arguments_job" + str(j + 1) + ".txt"` file.
 
-    with open(path_wrapper, "w") as f:
+    if type_simulation == "dyn":
 
-        f.write(
-            "#!/bin/bash  \n"
-            " \n"
-            "export PATH=/data/magnesia/software/anaconda3/bin:$PATH \n"
-            "conda init bash \n"
-            "source /data/magnesia/software/anaconda3/etc/profile.d/conda.sh \n"
-            "conda activate /data/magnesia/software/anaconda3/envs/pop_syn \n"
-            "date \n"
-            "filename=$1 \n"
-            "while read line; do \n"
-            "# Reading each line. \n"
-            "myarr[$index]=$line \n"
-            "#Extract each element from the lines. \n"
-            "a=(${myarr[$index]}) \n"
-            "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn.py --output_dir ${a[0]} --parameter_override ${a[1]} \n"
-            "done < $filename \n"
-            "date\n"
+        exec_command = "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn.py --output_dir ${a[0]} --parameter_override ${a[1]}  \n"
+
+    elif type_simulation == "magrot":
+
+        exec_command = (
+            "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_magrot_det.py --dyn_data "
+            + str(dyn_path)
+            + " --output_dir ${a[0]} --parameter_override ${a[1]} \n"
+        )
+    else:
+        raise ValueError(
+            "The specified simulation type is not feasible, choose between dyn or magrot."
         )
 
+    with open(path_wrapper, "w") as f:
+        f.write("#!/bin/bash \n")
+        f.write("\n")
+        f.write(
+            "export PATH=/data/astro/software/centos7/conda/mambaforge_4.14.0/bin:$PATH\n"
+        )
+        f.write("conda init bash\n")
+
+        f.write(
+            "source /data/astro/software/centos7/conda/mambaforge_4.14.0/etc/profile.d/conda.sh\n"
+        )
+        f.write(
+            "conda activate /data/magnesia/scratch/conda/env/pop_syn_test\n"
+        )
+        f.write(exec_command)
+        f.write("conda deactivate")
         f.close()
 
 
 def submit_generator(args):
 
-    common_path = "/data/magnesia/common/"
+    common_path = cfg["path_server_output"]
 
     simulation_output_path = pathlib.Path(args.output_dir_simulation)
 
@@ -163,7 +185,7 @@ def submit_generator(args):
         # Create the ´wrapper.sh´.
         path_wrapper = pathlib.Path().joinpath(week_folder_path, "wrapper.sh")
 
-        generate_wrapper(path_wrapper)
+        generate_wrapper(args.type_simulation, args.dyn_data, path_wrapper)
 
         # Create the ´.submit ´ file.
         path_arguments = pathlib.Path().joinpath(
@@ -227,6 +249,23 @@ if __name__ == "__main__":
         type=int,
         default=False,
         help="Number of simulations per week.",
+    )
+
+    args.add_argument(
+        "--dyn_data",
+        nargs="?",
+        type=str,
+        default=None,
+        help="If using the simulator simulate_population_magrot_det, path to the file where "
+        "the dynamically evolved population database is stored.",
+    )
+
+    args.add_argument(
+        "--type_simulation",
+        nargs="?",
+        type=str,
+        default=None,
+        help="Type of simulation that we want to run in the PIC with HTCondor. Choose between dyn or magrot.",
     )
 
     args = args.parse_args()
