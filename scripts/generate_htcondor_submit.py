@@ -124,11 +124,11 @@ def generate_wrapper(
             "conda activate /data/magnesia/scratch/conda/env/pop_syn_test\n"
         )
         f.write(
-            "cp -R /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn ."
+            "cp -R /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn .\n"
         )
         f.write("filename=$1 \n")
-        f.write(" while read line; do \n")
-        f.write("# Reading each line. \n")
+        f.write("while read line; do \n")
+        f.write("#Reading each line. \n")
         f.write("myarr[$index]=$line \n")
         f.write("#Extract each element from the lines. \n")
         f.write("a=(${myarr[$index]})\n")
