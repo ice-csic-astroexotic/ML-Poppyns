@@ -123,6 +123,9 @@ def generate_wrapper(
         f.write(
             "conda activate /data/magnesia/scratch/conda/env/pop_syn_test\n"
         )
+        f.write(
+            "cp -R /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn ."
+        )
         f.write("filename=$1 \n")
         f.write(" while read line; do \n")
         f.write("# Reading each line. \n")
