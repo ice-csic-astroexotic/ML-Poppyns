@@ -123,7 +123,14 @@ def generate_wrapper(
         f.write(
             "conda activate /data/magnesia/scratch/conda/env/pop_syn_test\n"
         )
+        f.write("filename=$1 \n")
+        f.write(" while read line; do \n")
+        f.write("# Reading each line. \n")
+        f.write("myarr[$index]=$line \n")
+        f.write("#Extract each element from the lines. \n")
+        f.write("a=(${myarr[$index]})\n")
         f.write(exec_command)
+        f.write("done < $filename\n")
         f.write("conda deactivate")
         f.close()
 
