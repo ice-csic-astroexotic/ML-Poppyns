@@ -71,7 +71,7 @@ def generate_job_submit(
 
 
 def generate_wrapper(
-    type_simulation: pathlib.Path,
+    type_simulation: str,
     dyn_path: pathlib.Path,
     path_wrapper: pathlib.Path,
 ):
@@ -122,6 +122,9 @@ def generate_wrapper(
         )
         f.write(
             "conda activate /data/magnesia/scratch/conda/env/pop_syn_test\n"
+        )
+        f.write(
+            "# We copy the pypopsyn module in the working node to avoid problems with the path while running the simulations in the server.\n"
         )
         f.write(
             "cp -R /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn .\n"
