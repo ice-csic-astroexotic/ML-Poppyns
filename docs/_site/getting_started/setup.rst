@@ -13,11 +13,35 @@ computer. The repo contains an environment file that can be installed by running
 
   conda env create -f environment.yaml
 
+NOTE: for OSX users the :code:`cudatoolkit` package has to be commented out in the environment file.
+Furthermore the :code:`julia` package from conda-forge is not available for Mac computers with M1 Apple
+silicon processors.
+
 This environment can be activated using
 
 .. code-block:: bash
 
   conda activate pop_syn
+
+To set up the environment on the PIC servers, we specify the full path where the environment will be saved:
+
+.. code-block:: bash
+
+  conda env create --prefix /data/magnesia/scratch/conda/env/pop_syn
+  --file /data/magnesia/software/MAGNESIA_population_synthesis/environment.yaml
+
+In this case, the environment can be activated using
+
+.. code-block:: bash
+
+  conda activate /data/magnesia/scratch/conda/env/pop_syn
+
+After activating the environment to install the `Simulation Based Inference (SBI) <https://www.mackelab.org/sbi/>`_
+library run:
+
+.. code-block:: bash
+
+   pip install sbi
 
 We recommend working within this environment when using the code. To install the :code:`pypopsyn` package and work with the code run
 
@@ -67,6 +91,23 @@ which will rebuild the PyCall package with the correct Python distribution.
 
 To run Python code which uses Julia (those files are named :code:`..._julia.py`),
 the call should be made using :code:`python-jl ...` instead of :code:`python ...`.
+
+You might encounter this error when running Julia code through Python:
+
+.. code-block:: bash
+
+    ImportError: /home/michele/miniconda3/envs/pop_syn/bin/../lib/julia/libstdc++.so.6:
+    version `GLIBCXX_3.4.30' not found (required by /home/michele/miniconda3/envs/pop_syn/lib/python3.10/
+    site-packages/scipy/optimize/_highs/_highs_wrapper.cpython-310-x86_64-linux-gnu.so)
+
+If this happens, a possible solution is to run the following command in the same terminal before
+launching the simulation script:
+
+.. code-block:: bash
+
+    export LD_PRELOAD="/home/michele/miniconda3/envs/pop_syn/lib/libstdc++.so.6.0.30"
+
+taking care of using your anaconda installation path.
 
 Documentation
 *************
