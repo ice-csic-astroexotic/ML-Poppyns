@@ -64,6 +64,19 @@ which will rebuild the PyCall package with the correct Python distribution.
 To run Python code which uses Julia (those files are named `..._julia.py`.), 
 the call should be made using `python-jl ...` instead of `python ...`.
 
+You might encounter this error when running Julia code through Python:
+```
+ImportError: /home/michele/miniconda3/envs/pop_syn/bin/../lib/julia/libstdc++.so.6: 
+version `GLIBCXX_3.4.30' not found (required by /home/michele/miniconda3/envs/pop_syn/lib/python3.10/
+site-packages/scipy/optimize/_highs/_highs_wrapper.cpython-310-x86_64-linux-gnu.so)
+```
+If this happens, a possible solution is to run the following command in the same terminal before 
+launching the simulation script:
+```
+export LD_PRELOAD="/home/michele/miniconda3/envs/pop_syn/lib/libstdc++.so.6.0.30"
+```
+taking care of using your anaconda installation path.
+
 ## Documentation
 
 Documentation is held in `docs` and can be compiled into an HTML webpage or to a PDF LaTeX file using
