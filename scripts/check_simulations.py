@@ -48,6 +48,7 @@ def check_simulations(args):
         )
         files_in_directory = os.listdir(simulations_directory)
 
+        # If the simulations have finished succesfully then we will have 8 files whithin each output folder.
         if len(files_in_directory) < 8:
             count_error += 1
             fail_simulation.append(os.path.basename(simulations_directory))

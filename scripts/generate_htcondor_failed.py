@@ -140,11 +140,22 @@ def generate_htcondor_failed(args):
         f.write("Queue arg1 arg2 from " + str(failed_arguments_path) + "\n")
         f.close()
 
-    command_exec = (
-        "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_magrot_det.py --dyn_data "
-        + args.dyn_data
-        + " --output_dir $1 --parameter_override $2 \n"
-    )
+    if args.type_simulation == "dyn":
+
+        exec_command = "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn.py --output_dir ${a[0]} --parameter_override ${a[1]}  \n"
+
+    elif args.type_simulation == "magrot":
+
+        exec_command = (
+            "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_magrot_det.py --dyn_data "
+            + str(args.dyn_path)
+            + " --output_dir ${a[0]} --parameter_override ${a[1]} \n"
+        )
+    else:
+        raise ValueError(
+            "The specified simulation type is not feasible, choose between dyn or magrot."
+        )
+
     with open(failed_wrapper_path, "w") as f:
         f.write("#!/bin/bash \n")
         f.write("\n")
@@ -163,7 +174,7 @@ def generate_htcondor_failed(args):
         f.write(
             "cp -R /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn .\n"
         )
-        f.write(command_exec)
+        f.write(exec_command)
         f.write("conda deactivate")
         f.close()
 
@@ -194,6 +205,14 @@ if __name__ == "__main__":
         type=str,
         default="simulator/output",
         help="Path to the file where the dynamically evolved population database is stored.",
+    )
+
+    args.add_argument(
+        "--type_simulation",
+        nargs="?",
+        type=str,
+        default=None,
+        help="Type of simulation that we want to run in the PIC with HTCondor. Choose between dyn or magrot.",
     )
 
     args = args.parse_args()
