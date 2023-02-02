@@ -213,6 +213,7 @@ if __name__ == "__main__":
         nargs="?",
         type=int,
         default=None,
+        required=True,
         help="Number of simulations per job were chosen when running the original set of simulations with HTCondor.",
     )
 
