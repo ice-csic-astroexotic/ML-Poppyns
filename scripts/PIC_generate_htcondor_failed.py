@@ -1,14 +1,16 @@
 """
+    Generating HTCondor files for failed simulations at the PIC.
 
-With this script we create the structure needed to rerun in HTCondor
-the simulations that have failed when running the whole set of simulations.
-Note that in this case we run each simulation one by one, i.e. one simulation per job to prevent MaxwallTime problems.
+    With this script, we create the structure needed to rerun the simulations
+    that have failed when running the whole set of simulations using HTCondor.
+    Note that in this case, we run each simulation one by one,
+    i.e., one simulation per job to prevent MaxwallTime problems.
 
-Note that to run this scripts first we need to run the check_simulation.py script to generate failed_folders.csv file.
+    Note that to run this script, we first need to run the check_simulation.py script
+    to generate the failed_folders.csv file.
 
- Authors:
+    Authors:
         Celsa Pardo (pardo @ csic.es)
-
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -38,9 +40,8 @@ import pandas as pd
 
 
 def generate_htcondor_failed(args):
-
     """
-    Copying the succesfully relaunched output back to the original folders.
+    Copying the successfully relaunched output back to the original folders.
 
     Args:
         args:
@@ -48,13 +49,12 @@ def generate_htcondor_failed(args):
             failed_simulation_dir (pathlib.Path): Output directory where the failed simulation outputs are.
 
     Returns:
-
         Nothing.
-
     """
     output_simulations_path = pathlib.Path(args.output_dir_simulation)
 
-    # If we want to check the error.txt and out.txt of the failed simulations from HTCondor we need to set up this variable to True.
+    # If we want to copy and check the error.txt and out.txt of the failed simulations from HTCondor
+    # in order to assess the reason for failure, the following variable should be set to True.
     check_simulations_failed = False
 
     data_failed_folder = pd.read_csv("scripts/failed_folders.csv")
@@ -92,8 +92,10 @@ def generate_htcondor_failed(args):
             dirs_exist_ok=True,
         )
 
-        # Copying the err.txt and out.txt files of the failed simulations from the htcondor_output folder if it is needed to check why the simulations have failed.
-        # Note that we have that in each of the out.txt and err.txt files there are the _stdout and _sterr from more than one simulation, it will be as many as the args.number_sim_job.
+        # Copying the err.txt and out.txt files of the failed simulations from the htcondor_output folder
+        # if this is needed to check why the simulations have failed.
+        # Note that each of the out.txt and err.txt files contain _stdout and _sterr from more than one simulation.
+        # Specifically, there will be as many as the args.number_sim_job.
 
         if check_simulations_failed:
             out_txt_number = int(int(simulation) / args.number_sim_job) + 1
@@ -118,7 +120,7 @@ def generate_htcondor_failed(args):
             shutil.copy(out_txt_path, out_failed_txt_path)
             shutil.copy(err_txt_path, err_failed_txt_path)
 
-    # Creating the new submit, argument.txt files for relauching the failed simulations
+    # Creating the new submit and argument.txt files for relaunching the failed simulations.
     failed_arguments_path = pathlib.Path().joinpath(
         htcondor_failed_submit_path, "arguments_.txt"
     )
@@ -142,7 +144,7 @@ def generate_htcondor_failed(args):
     ]
     np.savetxt(failed_arguments_path, list_arguments, fmt="%s")
 
-    # Writing the HTCondor submit file, specifying the relevant arguments, output/error paths and queue structure.
+    # Writing the HTCondor submit files, which specify the relevant arguments, output/error paths and queue structure.
     with open(failed_submit_path, "w") as f:
         f.write("universe        = vanilla \n")
         f.write("executable      = " + str(failed_wrapper_path) + "\n")
@@ -153,7 +155,8 @@ def generate_htcondor_failed(args):
         f.write("Queue arg1 arg2 from " + str(failed_arguments_path) + "\n")
         f.close()
 
-    # We will create the wrapper file according to the args.type_simulation. For example if it is equal to dyn we generate a wrapper file that will execute the dynamical simulations.
+    # We will create the wrapper file according to the args.type_simulation argument. For example,
+    # if it is equal to 'dyn', we generate a wrapper file that will execute the dynamical simulations.
     if args.type_simulation == "dyn":
 
         exec_command = "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn.py --output_dir ${a[0]} --parameter_override ${a[1]}  \n"
@@ -167,7 +170,7 @@ def generate_htcondor_failed(args):
         )
     else:
         raise ValueError(
-            "The specified simulation type is not feasible, choose between dyn or magrot."
+            "The specified simulation type is not feasible. Choose between dyn or magrot."
         )
 
     with open(failed_wrapper_path, "w") as f:
@@ -210,7 +213,7 @@ if __name__ == "__main__":
         nargs="?",
         type=int,
         default=None,
-        help="Number of simulations per job that we chose when running the original set of simulations in HTCondor.",
+        help="Number of simulations per job were chosen when running the original set of simulations with HTCondor.",
     )
 
     args.add_argument(
