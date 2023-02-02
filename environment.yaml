@@ -41,6 +41,8 @@ dependencies:
   - torchvision=0.13.1
   - zstd=1.5.2
   - pip:
+      - corner
+      - julia
       - pydeps
       - pygedm --global-option=build_ext --global-option="-I${CONDA_PREFIX}/include:/usr/local/include"
-      - julia
+
