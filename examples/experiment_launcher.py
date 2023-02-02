@@ -1,7 +1,5 @@
-#!/usr/bin/evn python3
-# -*- coding: utf-8 -*-
-
-""" Experiment launcher script.
+"""
+    Experiment launcher script.
 
     This script helps running multiple experiments by taking a list of commands and
     executing them with a process pool. This way, a huge list of experiments can
@@ -46,7 +44,6 @@ def run_experiment(command: str) -> typing.Tuple[pathlib.Path, str]:
 
     Returns:
         The experiment command and the convoluted output of the process.
-
     """
 
     # Acquire the lock and block any other process from executing
@@ -70,7 +67,6 @@ def run_experiment(command: str) -> typing.Tuple[pathlib.Path, str]:
 
 
 def log_experiment(process_result: typing.Tuple[pathlib.Path, str]) -> None:
-
     """
     Callback to log all the info returned from an experiment run.
 
@@ -80,7 +76,6 @@ def log_experiment(process_result: typing.Tuple[pathlib.Path, str]) -> None:
 
     Returns:
         Nothing.
-
     """
 
     log.info("")
@@ -93,7 +88,6 @@ def log_experiment(process_result: typing.Tuple[pathlib.Path, str]) -> None:
 
 
 def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
-
     """
     Set up the process pool for multiprocessing with a global pause/resume event.
 
@@ -102,6 +96,9 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
             processes to pause or resume execution.
         lock: a reference to a master process lock that will coordinate the
             child process launching with waiting times.
+
+    Returns:
+        Nothing.
     """
 
     global unpaused
