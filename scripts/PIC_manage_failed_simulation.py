@@ -1,10 +1,11 @@
 """
-After the failed simulations have been launched again and finished successfully, with this script we transfer the new
-output back to the original folders.
+    Managing of failed simulations at PIC.
 
- Authors:
+    After the failed simulations have been launched again and finished successfully,
+    we use this script to transfer the new output back to the original folders.
+
+    Authors:
         Celsa Pardo (pardo @ csic.es)
-
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -34,7 +35,7 @@ import shutil
 
 def manage_failed_simulations(args):
     """
-    Copying the succesfully relaunched output back to the original folders.
+    Copying the successfully relaunched output back to the original folders.
 
     Args:
         args:
@@ -42,10 +43,9 @@ def manage_failed_simulations(args):
             failed_simulation_dir (pathlib.Path): Output directory where the failed simulation outputs are.
 
     Returns:
-
         Nothing.
-
     """
+
     output_simulations_path = args.simulation_dir
     failed_simulation_path = args.failed_simulation_dir
 
@@ -65,6 +65,7 @@ def manage_failed_simulations(args):
         )
 
         # We avoid to move the override.json to prevent permissions issues.
+        # Copying these files is not needed as they are the same as the original ones.
         for files in os.listdir(folder_failed_path):
             if files != "override.json":
                 files_path = pathlib.Path().joinpath(folder_failed_path, files)
@@ -91,7 +92,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default=None,
-        help="Path to the directory where the output from rerunning the failed simulations are.",
+        help="Path to the directory containing the output from rerunning the failed simulations.",
     )
 
     args = args.parse_args()
