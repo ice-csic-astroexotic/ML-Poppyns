@@ -1,12 +1,12 @@
 """
-    With this script we count how many of the simulations run in HTCondor have failed.
+    PIC simulation checker.
 
-    We save the folder name of those which failed in a csv called failed_folder.csv.
+    With this script, we count how many of the simulations run using HTCondor have failed.
 
+    We save the directory name of those simulations which failed in a csv called failed_folder.csv.
 
     Authors:
         Celsa Pardo (pardo @ csic.es)
-
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -35,7 +35,7 @@ import pandas as pd
 
 def check_simulations(args):
     """
-    Checking how many simulations run in HTCondor have failed.
+    Checking how many simulations run using HTCondor have failed.
     We save the name of the output folder for each of the failed simulations in the failed_folders.csv file.
 
     Args:
@@ -43,9 +43,7 @@ def check_simulations(args):
             output_dir_simulation (pathlib.Path): Output directory where the simulation outputs are.
 
     Returns:
-
         Nothing.
-
     """
 
     output_simulations_path = args.output_dir_simulation
@@ -62,7 +60,8 @@ def check_simulations(args):
         if os.path.isdir(simulations_directory):
             files_in_directory = os.listdir(simulations_directory)
 
-            # If the simulations have finished succesfully then we will have 8 files whithin each output folder.
+            # If the simulations have finished successfully, then 8 files will be located within each output folder.
+            # Hence, by checking the fil number, we can identify those simulations that have failed.
             if len(files_in_directory) < 8:
                 count_error += 1
                 fail_simulation.append(os.path.basename(simulations_directory))
