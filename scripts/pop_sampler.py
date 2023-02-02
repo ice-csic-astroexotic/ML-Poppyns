@@ -145,6 +145,7 @@ def data_sampler(args) -> None:
         if args.distance_cut is not None:
             df_pop = df_pop[df_pop["d"]["[kpc]"] < args.distance_cut]
 
+        df_select = None
         if args.uniform:
             # Select stars randomly from the simulated population.
             df_select = df_pop.sample(int(np.floor(args.size)))
