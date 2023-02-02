@@ -5,13 +5,12 @@
     Each job will run each chunk of simulations for a different set of initial parameters.
 
     Note that this script needs the output from the `parameter_sweeper.py` script.
-    The submit files for each job, the arguments.txt and a wrapper are saved in the path specified with the command
-    line argument --output_dir_htcondor.
 
+    The submit files for each job, the arguments.txt and a wrapper are saved in the path
+    specified with the command line argument --output_dir_htcondor.
 
     Authors:
         Celsa Pardo (pardo @ csic.es)
-
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -56,7 +55,6 @@ def generate_job_submit(
     path_submit = pathlib.Path().joinpath(path_output, "job.submit")
 
     # Writing the HTCondor submit file, specifying the relevant arguments, output/error paths and queue structure.
-
     with open(path_submit, "w") as f:
         f.write("universe        = vanilla \n")
         f.write("executable      = " + str(path_output) + "/wrapper.sh \n")
@@ -75,24 +73,21 @@ def generate_wrapper(
     dyn_path: pathlib.Path,
     path_wrapper: pathlib.Path,
 ):
-
     """
     Create all the wrapper files.
 
     Args:
-
         type_simulation (str): String with the type of simulation we want to run.
         path_wrapper (pathlib.Path): Output directory for the wrapper file.
         dyn_path (pathlib.Path): Path to where the dynamically evolved population database is stored.
 
-
     Returns:
-
         Nothing.
     """
 
     # Writing the `wrapper.sh` file where we loop over the lines of the `"/arguments_job" + str(j + 1) + ".txt"` file.
-    # We will create the wrapper file according to the args.type_simulation. For example if it is equal to dyn we generate a wrapper file that will execute the dynamical simulations.
+    # We will create the wrapper file according to the args.type_simulation. For example,
+    # if it is equal to 'dyn', we generate a wrapper file that will execute the dynamical simulations.
 
     if type_simulation == "dyn":
 
@@ -160,8 +155,8 @@ def submit_generator(args):
 
     n_sim_total = len(simulation_arguments)
 
-    # Determine the number of weeks required to run all the simulations, where we assume args.n_sim_week simulations
-    # can be run each week.
+    # Determine the number of weeks required to run all the simulations, assuming that
+    # args.n_sim_week simulations can be run each week.
     if n_sim_total % args.n_sim_week == 0:
         n_week = int(n_sim_total / args.n_sim_week)
     else:
@@ -169,7 +164,7 @@ def submit_generator(args):
 
     for i in range(n_week):
 
-        # We create one folder per week.
+        # Creating one folder per week.
         week_folder_path = pathlib.Path().joinpath(
             output_htcondor_path, "week-" + str(i)
         )
@@ -180,21 +175,20 @@ def submit_generator(args):
             i * args.n_sim_week : (i + 1) * args.n_sim_week
         ]
 
-        # We need to count how many simulations we have to run in each week, since if we have that
-        # ´n_sim_total % args.n_sim_week != 0´ then we will end up with fewer simulations than args.n_sim_week
-        # in the last week.
-
+        # We need to count how many simulations we have to run each week, since for
+        # ´n_sim_total % args.n_sim_week != 0´, we will end up with fewer simulations
+        # than args.n_sim_week in the last week.
         n_sim_folder = len(sim_week)
 
-        # Calculate the number of ´argument_job<j>.txt´ files we need in order to have ´args.n_sim_job´ simulations
-        # per job, i.e., ´args.n_sim_job´ lines in each ´argument_job<j>.txt´ .
+        # Calculate the number of ´argument_job<j>.txt´ files required to have
+        # ´args.n_sim_job´ simulations per job, i.e., ´args.n_sim_job´ lines in each ´argument_job<j>.txt´ .
 
         if n_sim_folder % args.n_sim_job == 0:
             n_args = int(n_sim_folder / args.n_sim_job)
         else:
             n_args = int(n_sim_folder / args.n_sim_job) + 1
 
-        # Create the ´wrapper.sh´.
+        # Create the ´wrapper.sh´ file.
         path_wrapper = pathlib.Path().joinpath(week_folder_path, "wrapper.sh")
 
         generate_wrapper(args.type_simulation, args.dyn_data, path_wrapper)
@@ -221,7 +215,7 @@ def submit_generator(args):
 
             np.savetxt(path_arguments_job, chunk_sim_job, fmt="%s")
 
-            # List of all the paths of each `"/arguments_job" + str(j + 1) + ".txt"` file
+            # List of all the paths of each `"/arguments_job" + str(j + 1) + ".txt"` file.
             list_arguments_week.append(path_arguments_job)
 
         np.savetxt(path_arguments, list_arguments_week, fmt="%s")
