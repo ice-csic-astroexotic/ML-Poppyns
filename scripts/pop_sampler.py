@@ -145,15 +145,21 @@ def data_sampler(args) -> None:
         if args.distance_cut is not None:
             df_pop = df_pop[df_pop["d"]["[kpc]"] < args.distance_cut]
 
-        df_select = None
-        if args.uniform:
-            # Select stars randomly from the simulated population.
-            df_select = df_pop.sample(int(np.floor(args.size)))
+            if args.uniform:
+                # Select stars randomly from the simulated population.
+                df_select = df_pop.sample(int(np.floor(args.size)))
 
-        if not args.uniform:
-            # Select stars according to some weights that are function of the distance from the Sun.
-            w = calculate_selection_weights(df_pop["d"]["[kpc]"].to_numpy())
-            df_select = df_pop.sample(args.size, replace=False, weights=w)
+            else:
+                # Select stars according to some weights that are function of the distance from the Sun.
+                w = calculate_selection_weights(
+                    df_pop["d"]["[kpc]"].to_numpy()
+                )
+                df_select = df_pop.sample(args.size, replace=False, weights=w)
+
+        else:
+
+            log.error("Please define a distance cut.")
+            break
 
         # Save the resampled data frame as compressed binary file.
         output_path = f"{data_path}/final_population.pkl.gz"
