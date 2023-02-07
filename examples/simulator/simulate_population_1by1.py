@@ -567,11 +567,18 @@ if __name__ == "__main__":
     output_path.mkdir(parents=True, exist_ok=True)
 
     # Update path-dependent configurations prepending the specified output path.
-    configuration.cfg["profile_log"] = pathlib.Path().joinpath(
-        output_path, configuration.cfg["profile_log"]
-    )
-    configuration.cfg["profile_json"] = pathlib.Path().joinpath(
-        output_path, configuration.cfg["profile_json"]
-    )
+
+    prof_log_path = pathlib.Path().joinpath(output_path, cfg["profile_log"])
+    prof_json_path = pathlib.Path().joinpath(output_path, cfg["profile_json"])
+
+    # Remove the profile.json and profile.log files to prevent interrupted server connections issues.
+    if os.path.exists(prof_json_path):
+        os.remove(prof_json_path)
+
+    if os.path.exists(prof_log_path):
+        os.remove(prof_log_path)
+
+    cfg["profile_json"] = str(prof_json_path)
+    cfg["profile_log"] = str(prof_log_path)
 
     simulate_population(output_path, args.parameter_override)
