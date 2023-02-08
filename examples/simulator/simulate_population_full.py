@@ -85,12 +85,18 @@ def simulate_population(args) -> None:
     output_path.mkdir(parents=True, exist_ok=True)
 
     # Update path-dependent configurations prepending the specified output path.
-    cfg["profile_log"] = str(
-        pathlib.Path().joinpath(output_path, cfg["profile_log"])
-    )
-    cfg["profile_json"] = str(
-        pathlib.Path().joinpath(output_path, cfg["profile_json"])
-    )
+    prof_log_path = pathlib.Path().joinpath(output_path, cfg["profile_log"])
+    prof_json_path = pathlib.Path().joinpath(output_path, cfg["profile_json"])
+
+    # Remove the profile.json and profile.log files to prevent interrupted server connections issues.
+    if os.path.exists(prof_json_path):
+        os.remove(prof_json_path)
+
+    if os.path.exists(prof_log_path):
+        os.remove(prof_log_path)
+
+    cfg["profile_json"] = str(prof_json_path)
+    cfg["profile_log"] = str(prof_log_path)
 
     # Initialize seed randomly if no seed was specified.
     if cfg["seed_full"] is None:
