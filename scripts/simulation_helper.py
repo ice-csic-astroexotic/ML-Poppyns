@@ -21,6 +21,9 @@
     Each parameter combination will spawn a new process that enters a multithreaded pool for later execution,
     allowing the asynchronous simulation of many populations in parallel with a defined maximum number of threads.
 
+    NOTE: if an error occurs in one of the simulations, the script will not stop until all the processes will be
+    terminated. The error will be only shown on the terminal in this case.
+
     Running the code:
 
         python3 simulator_helper.py --h
