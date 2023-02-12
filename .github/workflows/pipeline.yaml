@@ -13,5 +13,6 @@ jobs:
         with:
           fetch-depth: 0
       - name: Add conda to system path
-        run: |
-          echo $CONDA/bin >> $GITHUB_PATH
+        run: echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install environment
+        run: conda env create --file environment.yaml
