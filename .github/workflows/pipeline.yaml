@@ -14,5 +14,12 @@ jobs:
           fetch-depth: 0
       - name: Add conda to system path
         run: echo $CONDA/bin >> $GITHUB_PATH
+      - uses: actions/cache@v2
+        with:
+          path: /usr/share/miniconda3/envs/pop_syn
+          key: conda-${{ hashFiles('environment.yml') }}
+        id: cache
       - name: Install environment
         run: conda env create --file environment.yaml
+      - name: Run all tests
+        run: pytest
