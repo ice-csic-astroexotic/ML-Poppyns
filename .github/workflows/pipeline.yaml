@@ -18,18 +18,18 @@ jobs:
       - name: Setup miniconda
         uses: conda-incubator/setup-miniconda@v2
         with:
-          activate-environment: pop_syn_test
+          activate-environment: pop_syn
       - uses: actions/cache@v2
         with:
-          path: ${{ env.CONDA }}/envs/pop_syn_test
-          key: conda-${{ hashFiles('environment_test.yaml') }}
+          path: /usr/share/miniconda/envs/pop_syn
+          key: conda-${{ hashFiles('environment.yaml') }}
         id: cache
       - name: Install environment
-        run: conda env create --file environment_test.yaml --force
+        run: conda env create --file environment.yaml --force
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Always install pip dependencies
-        run: conda env update -n pop_syn --file environment_test.yaml
-#      - name: Install package in development mode
-#        run: python setup.py develop
+        run: conda env update -n pop_syn --file environment.yaml
+      - name: Install package in development mode
+        run: python setup.py develop
       - name: Run all tests
         run: pytest
