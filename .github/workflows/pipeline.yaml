@@ -1,36 +1,57 @@
-name: github action pipeline
+# Overall name of workflow.
+name: Github Action Pipeline
+# Point of execution: we execute the action at each push.
 on: push
+# Individual jobs to run.
 jobs:
   test:
+    # Name of test to execute.
     name: Run tests
+    # Operating system that is being used.
     runs-on: ubuntu-latest
+    # Specify defaults: we run commands on a bash shell.
     defaults:
       run:
         shell: bash -el {0}
+    # Specify permissions to access code.
     permissions:
       id-token: write
       contents: read
+    # Different steps to be executed for the `Run tests` job.
     steps:
-      - name: Checkout
+      # Check out the full code given in the repo.
+      - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      # Setup miniconda and create the (empty) environment.
+      # Note: this does not install any packages yet but activates the environment.
       - name: Setup miniconda
         uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: pop_syn
-      - name: Caching environment to avoid recreating at every check
+      # As it takes about 15min to generate our full environment,
+      # we cash it in the specified path to avoid recreating it at every push.
+      # We also generate the corresponding hash to check environment modifications below.
+      - name: Caching environment
         uses: actions/cache@v2
         with:
           path: /usr/share/miniconda/envs/pop_syn
           key: conda-${{ hashFiles('environment.yaml') }}
         id: cache
-      - name: Install environment
+      # Create full environment if key from previous step does not match environment.yaml hash.
+      # E.g., if the environment.yaml file has been modified, the full environment is recreated.
+      # We use the --force attribute to create the environment with the same name.
+      - name: Create environment
         run: conda env create --file environment.yaml --force
         if: steps.cache.outputs.cache-hit != 'true'
-      - name: Always install pip dependencies
+      # As the pip dependencies are not installed in /usr/share/miniconda/envs/pop_syn
+      # and therefore not cached, we update the environment every time to install pip dependencies.
+      - name: Install pip dependencies
         run: conda env update -n pop_syn --file environment.yaml
+      # Install our software package in the standard way.
       - name: Install package in development mode
         run: python setup.py develop
-      - name: Run all tests
+      # Run all the relevant tests using pytest.
+      - name: Run tests
         run: pytest
