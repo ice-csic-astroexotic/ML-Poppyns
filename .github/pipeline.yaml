@@ -1,21 +1,17 @@
-# overall name of flow
 name: github action pipeline
-# when is this executed
 on: push
-# do this upon every push
-# what are we doing
 jobs:
   test:
     name: Run tests
-    # specify operating system to run on
     runs-on: ubuntu-latest
-    # specify permissions
     permissions:
       id-token: write
       contents: read
-    # specify individual steps run sequentially
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Add conda to system path
+        run: |
+          echo $CONDA/bin >> $GITHUB_PATH
