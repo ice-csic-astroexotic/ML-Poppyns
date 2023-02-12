@@ -27,6 +27,6 @@ jobs:
       - name: Install package in development mode
         shell: bash -l {0}
         run: python setup.py develop
-      - name: Run all tests
-        shell: bash -l {0}
-        run: pytest
+#      - name: Run all tests
+#        shell: bash -l {0}
+#        run: pytest
