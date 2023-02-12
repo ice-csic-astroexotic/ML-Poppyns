@@ -15,7 +15,6 @@ jobs:
         shell: bash -el {0}
     # Specify permissions to access code.
     permissions:
-#      id-token: write
       contents: read
     # Different steps to be executed for the `Run tests` job.
     steps:
@@ -31,8 +30,8 @@ jobs:
         with:
           activate-environment: pop_syn
       # As it takes about 15min to generate our full environment,
-      # we cash it in the specified path to avoid recreating it at every push.
-      # We also generate the corresponding hash to check environment modifications below.
+      # we cash it in the specified path and subsequently restore it to avoid recreation at every push.
+      # We also use hash of corresponding yaml file as the key to check environment modifications below.
       - name: Caching environment
         uses: actions/cache@v2
         with:
