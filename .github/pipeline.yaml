@@ -1,8 +1,8 @@
 # overall name of flow
 name: github action pipeline
 # when is this executed
-on:
-  push: # do this upon every push
+on: push
+# do this upon every push
 # what are we doing
 jobs:
   test:
