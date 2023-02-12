@@ -19,7 +19,8 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: pop_syn
-      - uses: actions/cache@v2
+      - name: Caching environment to avoid recreating at every check
+        uses: actions/cache@v2
         with:
           path: /usr/share/miniconda/envs/pop_syn
           key: conda-${{ hashFiles('environment.yaml') }}
