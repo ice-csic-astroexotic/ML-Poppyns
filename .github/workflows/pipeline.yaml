@@ -56,3 +56,4 @@ jobs:
       # Run all the relevant tests using pytest.
       - name: Run tests
         run: pytest
+        # add docstrong to test
