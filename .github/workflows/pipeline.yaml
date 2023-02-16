@@ -56,4 +56,3 @@ jobs:
       # Run all the relevant tests using pytest.
       - name: Run tests
         run: pytest
-      #Add a docstring for testing purpose
