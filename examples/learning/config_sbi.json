@@ -1,0 +1,39 @@
+{
+  "name": "SBI_ConvolutionMDN",
+  "n_gpu": 1,
+
+  "arch": {
+    "type": "ModelConvSBI",
+    "args": {
+        "input_shape": [3, 32, 32],
+        "len_output_layer": 32
+    }
+  },
+
+  "density_estimator": "mdn",
+
+  "training_data_loader": {
+    "dataset_path": "toremove/output_generator32/dataset_full.csv",
+    "statistic_path": "toremove/output_generator32/statistics_full.json",
+    "filter_inputs": [9, 10, 11],
+    "filter_labels": [12,13,14,15,16],
+    "normalize": true,
+    "standardize": false
+  },
+
+  "test_data_loader": {
+    "dataset_path": "toremove/output_generator32/dataset_full.csv",
+    "statistic_path": "toremove/output_generator32/statistics_full.json",
+    "filter_inputs": [9, 10, 11],
+    "filter_labels": [12,13,14,15,16],
+    "normalize": true,
+    "standardize": false
+  },
+
+  "trainer": {
+    "validation_fraction": 0.1,
+    "batch_size": 8,
+    "lr": 5e-4,
+    "save_dir": "toremove/learning/saved"
+  }
+}
