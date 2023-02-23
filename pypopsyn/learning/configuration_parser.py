@@ -22,13 +22,13 @@ import pypopsyn.learning.utils.json as learning_utils_json
 
 class ConfigurationParser:
 
-    """ ConfigurationParser """
+    """ConfigurationParser"""
 
     def __init__(
         self, configuration, options=None, resume=None, run_id=None
     ) -> None:
 
-        """ Initialize instance. """
+        """Initialize instance."""
 
         # Load configuration file and apply specified options.
         self._configuration = self._update_configuration(
@@ -44,7 +44,7 @@ class ConfigurationParser:
         # Generate a name for the experiment/run.
         run_name = self._configuration["name"]
         if run_id is None:
-            run_id = datetime.datetime.now().strftime(r"%m%d_%H%M%S")
+            run_id = datetime.datetime.now().strftime(r"%Y%m%d_%H%M%S")
 
         # Create directory for the save dir.
         self.save_dir = pathlib.Path().joinpath(
@@ -64,7 +64,7 @@ class ConfigurationParser:
     @classmethod
     def from_args(cls, args, options=""):
 
-        """ Initialize configuration from command line arguments. """
+        """Initialize configuration from command line arguments."""
 
         # Add custom CLI options to arguments.
         for opt in options:
@@ -89,23 +89,23 @@ class ConfigurationParser:
         return cls(configuration, modification, args.weights)
 
     def init_object(self, name: str, module, *args, **kwargs):
-        """ Object handler finder.
+        """Object handler finder.
 
-            Finds an object handle with the provided name as type in the parsed
-            configuration and gets its initialized instance with the arguments.
+        Finds an object handle with the provided name as type in the parsed
+        configuration and gets its initialized instance with the arguments.
 
-            Args:
+        Args:
 
-                name: Name of the object to find.
-                module: The Python module where the object class resides.
-                args: Extra arguments for creating the instance.
-                kwargs: Extra arguments for creating the instance.
+            name: Name of the object to find.
+            module: The Python module where the object class resides.
+            args: Extra arguments for creating the instance.
+            kwargs: Extra arguments for creating the instance.
 
-            Returns:
+        Returns:
 
-                The object instance initialized with the provided arguments if
-                the name of the requested object exists in the configuration
-                dictionary. None otherwise.
+            The object instance initialized with the provided arguments if
+            the name of the requested object exists in the configuration
+            dictionary. None otherwise.
 
         """
 
@@ -119,16 +119,16 @@ class ConfigurationParser:
 
     def get_logger(self, name: str, verbosity: int = 2):
 
-        """ Logger getter.
+        """Logger getter.
 
-            Args:
+        Args:
 
-                name: TODO: document
-                verbosity: TODO: document
+            name: TODO: document
+            verbosity: TODO: document
 
-            Returns:
+        Returns:
 
-                Initialized logger with the specified name and verbosity level.
+            Initialized logger with the specified name and verbosity level.
 
         """
 
@@ -138,25 +138,25 @@ class ConfigurationParser:
 
     def __getitem__(self, name: str):
 
-        """ Dictionary-like access to the configuration class. """
+        """Dictionary-like access to the configuration class."""
         return self._configuration[name]
 
     def _update_configuration(self, configuration, modifications):
 
-        """ Helper function to update configuration dictionary.
+        """Helper function to update configuration dictionary.
 
-            Updates the configuration dictionary with custom CLI options. If no
-            modifications are provided, the same configuration dictionary is
-            returned.
+        Updates the configuration dictionary with custom CLI options. If no
+        modifications are provided, the same configuration dictionary is
+        returned.
 
-            Args:
+        Args:
 
-                configuration: The configuration dictionary.
-                modifications: Additional parsed command line options.
+            configuration: The configuration dictionary.
+            modifications: Additional parsed command line options.
 
-            Returns:
+        Returns:
 
-                The updated configuration dictionary.
+            The updated configuration dictionary.
 
         """
 

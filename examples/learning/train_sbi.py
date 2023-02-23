@@ -3,7 +3,11 @@
 
 """ Training script for sbi.
 
-    This script carries out the training in a simulation based inference framework.
+    This script carries out the training in a simulation based inference framework with the SBI package.
+    It trains density estimator to approximate the posterior distribution for a dataset of simulated data.
+    Note that with this method we can evaluate the posterior for different simulated populations without
+    having to re-train the model. This is called amortization. An amortized posterior is one that is not
+    focused on any particular observation. See https://www.mackelab.org/sbi/ for more details.
 
     Running the code:
 
@@ -13,7 +17,7 @@
 
     Authors:
 
-        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC)
 
@@ -22,9 +26,7 @@
 import argparse
 import collections
 import json
-import pathlib
 import pickle
-import time
 
 import numpy as np
 import torch
@@ -155,19 +157,10 @@ def main(config):
     )
     scalars = all_event_data["scalars"]
 
-    timestr = time.strftime("%Y%m%d-%H%M%S")
-    save_output_path = (
-        config._configuration["trainer"]["save_dir"]
-        + "/training_results_"
-        + timestr
-    )
-
-    pathlib.Path(save_output_path).mkdir(parents=True, exist_ok=True)
-
-    with open(f"{save_output_path}/trained_model.pickle", "wb") as output_file:
+    with open(f"{config.save_dir}/trained_model.pickle", "wb") as output_file:
         pickle.dump(density_estimator.cpu(), output_file)
 
-    training_statistics_path = f"{save_output_path}/training_statistics.json"
+    training_statistics_path = f"{config.log_dir}/training_statistics.json"
     with open(training_statistics_path, "w") as f:
         json.dump(scalars, f, indent=4, sort_keys=True)
 
