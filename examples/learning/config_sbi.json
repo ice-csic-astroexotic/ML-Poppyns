@@ -15,7 +15,12 @@
       "args": {}
   },
 
-  "density_estimator": "mdn",
+  "density_estimator": {
+    "type": "mdn",
+    "args": {
+      "num_components": 10
+       }
+  },
 
   "training_data_loader": {
     "dataset_path": "toremove/output_generator32/dataset_full.csv",

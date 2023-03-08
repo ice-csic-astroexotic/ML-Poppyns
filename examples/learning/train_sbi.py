@@ -93,9 +93,12 @@ def main(args, config):
     # Build density estimator ----------------------------------------------
     # The default density estimator has 3 hidden layer with a number of neurons = hidden_features.
     neural_posterior = utils.posterior_nn(
-        model=config._configuration["density_estimator"],
+        model=config._configuration["density_estimator"]["type"],
         embedding_net=embedding_net,
         hidden_features=hidden_features,
+        num_components=config._configuration["density_estimator"]["args"][
+            "num_components"
+        ],
         device=device,
     )
 
