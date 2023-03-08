@@ -1,19 +1,10 @@
 #!/usr/bin/evn python3
 # -*- coding: utf-8 -*-
 
-""" Training script for sbi.
+""" Build posterior module.
 
-    This script carries out the training in a simulation based inference framework with the SBI package.
-    It trains density estimator to approximate the posterior distribution for a dataset of simulated data.
-    Note that with this method we can evaluate the posterior for different simulated populations without
-    having to re-train the model. This is called amortization. An amortized posterior is one that is not
-    focused on any particular observation. See https://www.mackelab.org/sbi/ for more details.
-
-    Running the code:
-
-        python3 train_sbi.py --h
-
-        To obtain help about all the arguments that can be used.
+    This module build a posterior from density estimator already trained with the train_sbi script.
+    See https://www.mackelab.org/sbi/ for more details.
 
     Authors:
 
@@ -26,49 +17,44 @@
 import argparse
 import collections
 import json
+import pathlib
 import pickle
 
 import numpy as np
 import torch
 from sbi import utils
-from sbi.analysis import check_sbc, run_sbc
+from sbi.analysis import check_sbc, get_nltp, run_sbc, sbc_rank_plot
 from sbi.analysis import tensorboard_output as tbo
 from sbi.inference import SNPE
 
 import pypopsyn.learning.configuration_parser as configuration_parser
-import pypopsyn.learning.initializers.initializers as learning_initializers
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
 import pypopsyn.learning.models.models as learning_models
+import pypopsyn.learning.utils.json as learning_utils_json
 from pypopsyn.learning.utils.request_device import request_device
 
 
-def main(args, config):
+def infer(args, config):
+
+    # Create the saving directory path.
+    inference_results_path = f"{args.save_dir}"
+    pathlib.Path(inference_results_path).mkdir(parents=True, exist_ok=True)
+    config.save_dir = f"{args.save_dir}"
 
     # Get handle for the logger --------------------------------------------
-    logger = config.get_logger("train")
+    logger = config.get_logger("Inference")
     logger.info("Logger initialized...")
 
-    # Show experiment information ------------------------------------------
-    logger.info("=========================================================")
-
-    logger.info("Train configuraion: {}".format(config._configuration))
-
-    dataset_path = config._configuration["training_data_loader"][
-        "dataset_path"
-    ]
-    dataset_stat_path = config._configuration["training_data_loader"][
+    dataset_path = config._configuration["test_data_loader"]["dataset_path"]
+    dataset_stat_path = config._configuration["test_data_loader"][
         "statistic_path"
     ]
-    filter_inputs = config._configuration["training_data_loader"][
-        "filter_inputs"
-    ]
-    filter_labels = config._configuration["training_data_loader"][
-        "filter_labels"
-    ]
-    normalize = config._configuration["training_data_loader"]["normalize"]
-    standardize = config._configuration["training_data_loader"]["standardize"]
-    input_shape = config._configuration["arch"]["args"]["input_shape"]
-    hidden_features = config._configuration["arch"]["args"]["len_output_layer"]
+    filter_inputs = configuration["test_data_loader"]["filter_inputs"]
+    filter_labels = configuration["test_data_loader"]["filter_labels"]
+    normalize = configuration["test_data_loader"]["normalize"]
+    standardize = configuration["test_data_loader"]["standardize"]
+    input_shape = configuration["arch"]["args"]["input_shape"]
+    hidden_features = configuration["arch"]["args"]["len_output_layer"]
     n_parameters = len(filter_labels)
 
     # Setup GPU device if available.
@@ -76,31 +62,8 @@ def main(args, config):
     device, device_ids = request_device(logger, configuration["n_gpu"])
     logger.info("Devices obtained: {}".format(device_ids))
 
-    # Build embedding model ------------------------------------------------
-    logger.info("Building embedding model...")
-    embedding_net = config.init_object("arch", learning_models)
-    logger.info("Model architecture: {}".format(embedding_net))
-
-    # Initialize weights ---------------------------------------------------
-    logger.info("Initializing weights...")
-    weight_initializer = config.init_object(
-        "weights_initializer", learning_initializers
-    )
-    logger.info("Weight initialization: {}".format(weight_initializer))
-    # Apply the weight initialization scheme to every layer in the model.
-    embedding_net.apply(weight_initializer)
-
-    # Build density estimator ----------------------------------------------
-    # The default density estimator has 3 hidden layer with a number of neurons = hidden_features.
-    neural_posterior = utils.posterior_nn(
-        model=config._configuration["density_estimator"],
-        embedding_net=embedding_net,
-        hidden_features=hidden_features,
-        device=device,
-    )
-
-    # Load the training dataset ----------------------------------------------------------
-    logger.info("Loading the training dataset...")
+    # Load the test dataset ----------------------------------------------------------
+    logger.info("Loading the test dataset...")
     dataset = dl.DatasetMultichannelArray(
         dataset_path=dataset_path,
         statistic_path=dataset_stat_path,
@@ -115,13 +78,26 @@ def main(args, config):
         (len(dataset), input_shape[0], input_shape[1], input_shape[2])
     )
     for i, (x, theta) in enumerate(dataset):
-        print(x.shape)
         matrix[i] = np.moveaxis(x, -1, 0)
         parameter[i] = theta
 
     # Transform the maps and labels into torch.tensors
     parameter = torch.from_numpy(parameter).type(torch.float32)
     matrix = torch.from_numpy(matrix).type(torch.float32)
+
+    # Build embedding model ------------------------------------------------
+    logger.info("Building embedding model...")
+    embedding_net = config.init_object("arch", learning_models)
+    logger.info("Model architecture: {}".format(embedding_net))
+
+    # Build density estimator ----------------------------------------------
+    # The default mixture density estimator has 3 hidden layer with a number of neurons = hidden_features.
+    neural_posterior = utils.posterior_nn(
+        model=configuration["density_estimator"],
+        embedding_net=embedding_net,
+        hidden_features=hidden_features,
+        device=device,
+    )
 
     # Set prior distribution for the parameters ------------------------------------------
     logger.info("Set prior distribution...")
@@ -151,33 +127,6 @@ def main(args, config):
         prior=prior, density_estimator=neural_posterior, device=f"{device}"
     )
 
-    # Train the network --------------------------------------------------------------------
-    logger.info("Train the density estimator...")
-    density_estimator = inference.append_simulations(
-        parameter.to(device), matrix.to(device), proposal=prior
-    ).train(
-        learning_rate=config._configuration["trainer"]["lr"],
-        training_batch_size=config._configuration["trainer"]["batch_size"],
-        validation_fraction=config._configuration["trainer"][
-            "validation_fraction"
-        ],
-        show_train_summary=True,
-    )
-
-    # Save the trained model and statistics -------------------------------------------------
-    logger.info("Save the trained model and training statistics...")
-    all_event_data = tbo._get_event_data_from_log_dir(
-        inference._summary_writer.log_dir
-    )
-    scalars = all_event_data["scalars"]
-
-    with open(f"{config.save_dir}/trained_model.pickle", "wb") as output_file:
-        pickle.dump(density_estimator.cpu(), output_file)
-
-    training_statistics_path = f"{config.log_dir}/training_statistics.json"
-    with open(training_statistics_path, "w") as f:
-        json.dump(scalars, f, indent=4, sort_keys=True)
-
     # Load the trained model.
     logger.info("Loading the trained model...")
     with open(args.weights, "rb") as f:
@@ -185,7 +134,6 @@ def main(args, config):
 
     # Build the posterior.
     posterior = inference.build_posterior(trained_model.to(device))
-    print(trained_model)
 
     # Compute the average loss over the test dataset (with batch size = 1)
     logger.info("Computing the average loss on the test dataset...")
@@ -232,9 +180,8 @@ def main(args, config):
 
 
 if __name__ == "__main__":
-
     args = argparse.ArgumentParser(
-        description="Simulation Based Inference Learning"
+        description="PyPopSyn simulation based inference"
     )
 
     args.add_argument(
@@ -249,7 +196,15 @@ if __name__ == "__main__":
         "--weights",
         type=str,
         default=None,
-        help="Path to checkpoint to resume training.",
+        help="Path to pretrained model.",
+    )
+
+    args.add_argument(
+        "--save_dir",
+        nargs="?",
+        type=str,
+        default="inference_result",
+        help="Path to the directory where the inference results are saved.",
     )
 
     CustomArgs = collections.namedtuple(
@@ -258,34 +213,28 @@ if __name__ == "__main__":
 
     options = [
         CustomArgs(
-            ["--dataset_training"],
+            ["--dataset"],
             type=str,
             nargs="?",
-            target=("training_data_loader;args;dataset_path"),
+            target=("test_data_loader;dataset_path"),
         ),
         CustomArgs(
             ["--dataset_statistics"],
             type=str,
             nargs="?",
-            target=("training_data_loader;args;statistic_path"),
+            target=("test_data_loader;statistic_path"),
         ),
         CustomArgs(
             ["--filter_inputs"],
             type=int,
             nargs="*",
-            target=("training_data_loader;args;filter_inputs"),
+            target=("test_data_loader;filter_inputs"),
         ),
         CustomArgs(
             ["--filter_labels"],
             type=int,
             nargs="*",
-            target=("training_data_loader;args;filter_labels"),
-        ),
-        CustomArgs(
-            ["--batch_size"],
-            type=int,
-            nargs="?",
-            target=("training_data_loader;args;batch_size"),
+            target=("test_data_loader;filter_labels"),
         ),
         CustomArgs(
             ["--input_shape"],
@@ -300,30 +249,22 @@ if __name__ == "__main__":
             target=("arch;args;num_parameters"),
         ),
         CustomArgs(
-            ["--save_dir"],
-            type=str,
-            nargs="?",
-            target=("trainer;args;save_dir"),
-        ),
-        CustomArgs(
             ["--normalize"],
             type=bool,
             nargs="?",
-            target=("training_data_loader;args;normalize"),
+            target=("test_data_loader;normalize"),
         ),
         CustomArgs(
             ["--standardize"],
             type=bool,
             nargs="?",
-            target=("training_data_loader;args;standardize"),
-        ),
-        CustomArgs(
-            ["--lr"], type=float, nargs="?", target=("optimizer;args;lr")
+            target=("test_data_loader;standardize"),
         ),
     ]
 
     configuration = configuration_parser.ConfigurationParser.from_args(
-        args, options
+        args,
+        options,
     )
 
-    main(args.parse_args(), configuration)
+    infer(args.parse_args(), configuration)
