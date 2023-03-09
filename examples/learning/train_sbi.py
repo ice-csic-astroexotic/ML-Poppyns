@@ -18,6 +18,7 @@
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC)
 
@@ -31,7 +32,6 @@ import pickle
 import numpy as np
 import torch
 from sbi import utils
-from sbi.analysis import check_sbc, run_sbc
 from sbi.analysis import tensorboard_output as tbo
 from sbi.inference import SNPE
 
@@ -118,8 +118,9 @@ def main(args, config):
         (len(dataset), input_shape[0], input_shape[1], input_shape[2])
     )
     for i, (x, theta) in enumerate(dataset):
-        print(x.shape)
-        matrix[i] = np.moveaxis(x, -1, 0)
+        # Re-shape the matrix to have the channel number at the beginning.
+        x = np.moveaxis(x, -1, 0)
+        matrix[i] = x[None, :]
         parameter[i] = theta
 
     # Transform the maps and labels into torch.tensors
@@ -180,58 +181,6 @@ def main(args, config):
     training_statistics_path = f"{config.log_dir}/training_statistics.json"
     with open(training_statistics_path, "w") as f:
         json.dump(scalars, f, indent=4, sort_keys=True)
-
-    # Load the trained model.
-    logger.info("Loading the trained model...")
-    with open(args.weights, "rb") as f:
-        trained_model = pickle.load(f)
-
-    # Build the posterior.
-    posterior = inference.build_posterior(trained_model.to(device))
-    print(trained_model)
-
-    # Compute the average loss over the test dataset (with batch size = 1)
-    logger.info("Computing the average loss on the test dataset...")
-    test_loss_mean = torch.tensor([0.0]).to(device)
-    for i in range(len(dataset)):
-        x = matrix[i]
-        x = x[None, :]
-        print(np.shape(x))
-        test_loss_mean += posterior.log_prob(
-            parameter[i].to(device), x.to(device)
-        )
-
-    test_loss_mean = test_loss_mean / len(dataset)
-    logger.info("Average loss of the test dataset: {}".format(test_loss_mean))
-
-    print(np.shape(matrix))
-    # run SBC: for each inference we draw 1000 posterior samples.
-    num_posterior_samples = 1000
-    ranks, dap_samples = run_sbc(
-        parameter.to(device),
-        matrix.to(device),
-        posterior,
-        num_posterior_samples=num_posterior_samples,
-    )
-
-    # Check if the rank distributions follow a uniform distribution with three different tests
-    # (see [here](https://www.mackelab.org/sbi/tutorial/13_diagnostics_simulation_based_calibration/)
-    # for more details on these tests).
-    check_stats = check_sbc(
-        ranks,
-        parameter.to(device),
-        dap_samples.to(device),
-        num_posterior_samples=num_posterior_samples,
-    )
-    logger.info(
-        f"kolmogorov-smirnov p-values \ncheck_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
-    )
-    logger.info(
-        f"c2st accuracies \ncheck_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()}"
-    )
-    logger.info(
-        f"- c2st accuracies check_stats['c2st_dap'] = {check_stats['c2st_dap'].numpy()}"
-    )
 
 
 if __name__ == "__main__":

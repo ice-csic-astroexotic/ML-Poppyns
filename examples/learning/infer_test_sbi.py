@@ -1,14 +1,24 @@
 #!/usr/bin/evn python3
 # -*- coding: utf-8 -*-
 
-""" Build posterior module.
+""" Inference script for sbi.
 
-    This module build a posterior from density estimator already trained with the train_sbi script.
+    This script carries inference on a test dataset in a simulation based inference framework with the SBI package.
+    It loads a density estimator trained to approximate the posterior distribution for a dataset of simulated data
+    and check its performance on a test dataset.
+    Simulation-based calibration is also performed to check if the posterior is well behaving.
     See https://www.mackelab.org/sbi/ for more details.
+
+     Running the code:
+
+        python3 infer_test_sbi.py --h
+
+        To obtain help about all the arguments that can be used.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC)
 
@@ -16,21 +26,18 @@
 
 import argparse
 import collections
-import json
 import pathlib
 import pickle
 
 import numpy as np
 import torch
 from sbi import utils
-from sbi.analysis import check_sbc, get_nltp, run_sbc, sbc_rank_plot
-from sbi.analysis import tensorboard_output as tbo
+from sbi.analysis import check_sbc, run_sbc
 from sbi.inference import SNPE
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
 import pypopsyn.learning.models.models as learning_models
-import pypopsyn.learning.utils.json as learning_utils_json
 from pypopsyn.learning.utils.request_device import request_device
 
 
@@ -75,10 +82,13 @@ def infer(args, config):
 
     parameter = np.zeros((len(dataset), n_parameters))
     matrix = np.zeros(
-        (len(dataset), input_shape[0], input_shape[1], input_shape[2])
+        (len(dataset), 1, input_shape[0], input_shape[1], input_shape[2])
     )
     for i, (x, theta) in enumerate(dataset):
-        matrix[i] = np.moveaxis(x, -1, 0)
+        # Re-shape the matrix to have the channel number at the beginning and add an extra
+        # dimension that is needed for sbi.
+        x = np.moveaxis(x, -1, 0)
+        matrix[i] = x[None, :]
         parameter[i] = theta
 
     # Transform the maps and labels into torch.tensors
@@ -143,8 +153,6 @@ def infer(args, config):
     test_loss_mean = torch.tensor([0.0]).to(device)
     for i in range(len(dataset)):
         x = matrix[i]
-        x = x[None, :]
-        print(np.shape(x))
         test_loss_mean += posterior.log_prob(
             parameter[i].to(device), x.to(device)
         )
@@ -152,7 +160,6 @@ def infer(args, config):
     test_loss_mean = test_loss_mean / len(dataset)
     logger.info("Average loss of the test dataset: {}".format(test_loss_mean))
 
-    print(np.shape(matrix))
     # run SBC: for each inference we draw 1000 posterior samples.
     num_posterior_samples = 1000
     ranks, dap_samples = run_sbc(
