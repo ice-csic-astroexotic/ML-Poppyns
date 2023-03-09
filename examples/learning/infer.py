@@ -180,7 +180,10 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--weights", type=str, default=None, help="Path to pretrained model.",
+        "--weights",
+        type=str,
+        default=None,
+        help="Path to pretrained model.",
     )
 
     args.add_argument(
@@ -193,6 +196,14 @@ if __name__ == "__main__":
         type=str,
         default="inference_result",
         help="Path to the directory where the inference results are saved.",
+    )
+
+    args.add_argument(
+        "--infer",
+        nargs="?",
+        type=str,
+        default=True,
+        help="Flag to setup the inference saving path, if False you are in training mode.",
     )
 
     CustomArgs = collections.namedtuple(

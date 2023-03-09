@@ -198,6 +198,14 @@ if __name__ == "__main__":
         help="Path to checkpoint to resume training.",
     )
 
+    args.add_argument(
+        "--infer",
+        nargs="?",
+        type=str,
+        default=False,
+        help="Flag to setup the inference saving path, if False you are in training mode.",
+    )
+
     CustomArgs = collections.namedtuple(
         "CustomArgs", "flags type nargs target"
     )

@@ -25,7 +25,7 @@ class ConfigurationParser:
     """ConfigurationParser"""
 
     def __init__(
-        self, configuration, options=None, resume=None, run_id=None
+        self, configuration, infer, options=None, resume=None, run_id=None
     ) -> None:
 
         """Initialize instance."""
@@ -38,19 +38,22 @@ class ConfigurationParser:
         # TODO: Not used now, will be able to resume training from checkpoint.
         self.resume = resume
 
-        # Set save directory where the trained model will be saved.
-        save_dir = pathlib.Path(self._configuration["trainer"]["save_dir"])
-
         # Generate a name for the experiment/run.
         run_name = self._configuration["name"]
         if run_id is None:
             run_id = datetime.datetime.now().strftime(r"%Y%m%d_%H%M%S")
 
-        # Create directory for the save dir.
-        self.save_dir = pathlib.Path().joinpath(
-            save_dir, "models", run_name, run_id
-        )
-        self.save_dir.mkdir(parents=True, exist_ok=True)
+        # Set save directory where the trained model or the inference results will be saved.
+        if infer:
+            save_dir = pathlib.Path(self._configuration["infer"]["save_dir"])
+        else:
+            save_dir = pathlib.Path(self._configuration["trainer"]["save_dir"])
+
+            # Create directory for saving the model.
+            self.save_dir = pathlib.Path().joinpath(
+                save_dir, "models", run_name, run_id
+            )
+            self.save_dir.mkdir(parents=True, exist_ok=True)
 
         # Create directory for saving the log file.
         self.log_dir = pathlib.Path().joinpath(
@@ -86,7 +89,7 @@ class ConfigurationParser:
             o.target: getattr(args, _get_opt_name(o.flags)) for o in options
         }
 
-        return cls(configuration, modification, args.weights)
+        return cls(configuration, args.infer, modification, args.weights)
 
     def init_object(self, name: str, module, *args, **kwargs):
         """Object handler finder.

@@ -32,7 +32,7 @@ import pickle
 import numpy as np
 import torch
 from sbi import utils
-from sbi.analysis import check_sbc, run_sbc
+from sbi.analysis import check_sbc, run_sbc, sbc_rank_plot
 from sbi.inference import SNPE
 
 import pypopsyn.learning.configuration_parser as configuration_parser
@@ -43,14 +43,12 @@ from pypopsyn.learning.utils.request_device import request_device
 
 def infer(args, config):
 
-    # Create the saving directory path.
-    inference_results_path = f"{args.save_dir}"
-    pathlib.Path(inference_results_path).mkdir(parents=True, exist_ok=True)
-    config.save_dir = f"{args.save_dir}"
-
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("Inference")
     logger.info("Logger initialized...")
+
+    # Show experiment information ------------------------------------------
+    logger.info("=========================================================")
 
     dataset_path = config._configuration["test_data_loader"]["dataset_path"]
     dataset_stat_path = config._configuration["test_data_loader"][
@@ -182,11 +180,20 @@ def infer(args, config):
         f"kolmogorov-smirnov p-values \ncheck_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
     )
     logger.info(
-        f"c2st accuracies \ncheck_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()}"
+        f"c2st accuracies \n - check_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()} "
+        f"\n - check_stats['c2st_dap'] = {check_stats['c2st_dap'].numpy()}"
     )
-    logger.info(
-        f"- c2st accuracies check_stats['c2st_dap'] = {check_stats['c2st_dap'].numpy()}"
+
+    # Visually check if the ranks follow a uniform distribution.
+    # The gray band represents the 99% of the variation expected from a uniform distribution.
+    f, ax = sbc_rank_plot(
+        ranks=ranks,
+        num_posterior_samples=num_posterior_samples,
+        plot_type="hist",
+        num_bins=30,  # by passing None we use a heuristic for the number of bins.
     )
+
+    f.savefig(f"{config.log_dir}/ranks_histograms.pdf", bbox_inches="tight")
 
 
 if __name__ == "__main__":
@@ -210,11 +217,11 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--save_dir",
+        "--infer",
         nargs="?",
         type=str,
-        default="inference_result",
-        help="Path to the directory where the inference results are saved.",
+        default=True,
+        help="Flag to setup the inference saving path, if False you are in training mode.",
     )
 
     CustomArgs = collections.namedtuple(
