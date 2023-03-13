@@ -260,10 +260,10 @@ if __name__ == "__main__":
             target=("arch;args;input_shape"),
         ),
         CustomArgs(
-            ["--num_parameters"],
+            ["--len_output_layer"],
             type=int,
             nargs="?",
-            target=("arch;args;num_parameters"),
+            target=("arch;args;len_output_layer"),
         ),
         CustomArgs(
             ["--normalize"],
