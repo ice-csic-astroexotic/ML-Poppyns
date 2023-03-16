@@ -122,7 +122,8 @@ class DatasetMultichannelArray:
         statistic_path,
         filter_channels=[],
         filter_labels=[],
-        normalize=False,
+        normalize_per_channel=False,
+        normalize_per_sample=False,
         standardize=False,
         transform=None,
     ) -> None:
@@ -138,8 +139,10 @@ class DatasetMultichannelArray:
                 will be considered by the loader.
             filter_labels (list): indices of the target/labels columns in the
                 dataset that will be considered by the loader.
-            normalize (bool): whether to normalize inputs and targets or not on
-                the fly while loading samples.
+            normalize_per_channel (bool): whether to normalize inputs (on a per-channel basis)
+                and targets or not on the fly while loading samples.
+            normalize_per_sample (bool): whether to normalize inputs (on a per-sample basis)
+                and targets or not on the fly while loading samples.
             standardize (bool): whether or not to standardize inputs and targets
                 on the fly while loading samples.
             transform: transformations to apply to the arrays.
@@ -149,7 +152,8 @@ class DatasetMultichannelArray:
 
         """
 
-        self.normalize = normalize
+        self.normalize_per_channel = normalize_per_channel
+        self.normalize_per_sample = normalize_per_sample
         self.standardize = standardize
         self.transform = transform
 
@@ -218,13 +222,28 @@ class DatasetMultichannelArray:
         targets = np.array(self.dataset.iloc[index, i:], dtype=np.float32)
 
         # On-the-fly normalization of inputs and labels. Inputs are normalized
-        # on a per-sample basis whilst targets are normalized using dataset-wide
+        # on a per-channel basis whilst targets are normalized using dataset-wide
         # statistics.
-        if self.normalize:
+        if self.normalize_per_channel:
+
             per_channel_min = np.min(matrix, axis=(0, 1), keepdims=True)
             per_channel_max = np.max(matrix, axis=(0, 1), keepdims=True)
             matrix = (matrix - per_channel_min) / (
                 per_channel_max - per_channel_min
+            )
+
+            targets = (targets - self.target_min) / (
+                self.target_max - self.target_min
+            )
+
+        # On-the-fly normalization of inputs and labels. Inputs are normalized
+        # on a per-sample basis whilst targets are normalized using dataset-wide
+        # statistics.
+        if self.normalize_per_sample:
+            per_sample_min = np.min(matrix, keepdims=True)
+            per_sample_max = np.max(matrix, keepdims=True)
+            matrix = (matrix - per_sample_min) / (
+                per_sample_max - per_sample_min
             )
 
             targets = (targets - self.target_min) / (
@@ -258,7 +277,8 @@ class LoaderMultichannelArray(LoaderBase):
         filter_labels: list,
         num_workers: int = 1,
         shuffle: bool = False,
-        normalize: bool = False,
+        normalize_per_channel: bool = False,
+        normalize_per_sample: bool = False,
         standardize: bool = False,
     ):
         """
@@ -288,7 +308,8 @@ class LoaderMultichannelArray(LoaderBase):
         self.statistic_path = statistic_path
         self.filter_inputs = filter_inputs
         self.filter_labels = filter_labels
-        self.normalize = normalize
+        self.normalize_per_channel = normalize_per_channel
+        self.normalize_per_sample = normalize_per_sample
         self.standardize = standardize
 
         self.dataset = DatasetMultichannelArray(
@@ -296,7 +317,8 @@ class LoaderMultichannelArray(LoaderBase):
             self.statistic_path,
             self.filter_inputs,
             self.filter_labels,
-            self.normalize,
+            self.normalize_per_channel,
+            self.normalize_per_sample,
             self.standardize,
             transform=transformation,
         )

@@ -65,7 +65,12 @@ def main(args, config):
     filter_labels = config._configuration["training_data_loader"][
         "filter_labels"
     ]
-    normalize = config._configuration["training_data_loader"]["normalize"]
+    normalize_per_channel = config._configuration["training_data_loader"][
+        "normalize_per_channel"
+    ]
+    normalize_per_sample = config._configuration["training_data_loader"][
+        "normalize_per_sample"
+    ]
     standardize = config._configuration["training_data_loader"]["standardize"]
     input_shape = config._configuration["arch"]["args"]["input_shape"]
     hidden_features = config._configuration["arch"]["args"]["len_output_layer"]
@@ -109,7 +114,8 @@ def main(args, config):
         statistic_path=dataset_stat_path,
         filter_channels=filter_inputs,
         filter_labels=filter_labels,
-        normalize=normalize,
+        normalize_per_channel=normalize_per_channel,
+        normalize_per_sample=normalize_per_sample,
         standardize=standardize,
     )
 
@@ -129,7 +135,7 @@ def main(args, config):
 
     # Set prior distribution for the parameters ------------------------------------------
     logger.info("Set prior distribution...")
-    if normalize:
+    if normalize_per_channel or normalize_per_sample:
         # All the parameters are rescaled in the range [0, 1].
         prior = utils.BoxUniform(
             low=torch.tensor(np.zeros(n_parameters)),
@@ -201,13 +207,13 @@ if __name__ == "__main__":
         "--weights",
         type=str,
         default=None,
-        help="Path to checkpoint to resume training.",
+        help="Path to a saved trained model.",
     )
 
     args.add_argument(
         "--infer",
         nargs="?",
-        type=str,
+        type=bool,
         default=False,
         help="Flag to setup the inference saving path.",
     )
@@ -263,23 +269,27 @@ if __name__ == "__main__":
             ["--save_dir"],
             type=str,
             nargs="?",
-            target=("trainer;args;save_dir"),
+            target=("trainer;save_dir"),
         ),
         CustomArgs(
-            ["--normalize"],
+            ["--normalize_per_channel"],
             type=bool,
             nargs="?",
-            target=("training_data_loader;args;normalize"),
+            target=("training_data_loader;normalize_per_channel"),
+        ),
+        CustomArgs(
+            ["--normalize_per_sample"],
+            type=bool,
+            nargs="?",
+            target=("training_data_loader;normalize_per_sample"),
         ),
         CustomArgs(
             ["--standardize"],
             type=bool,
             nargs="?",
-            target=("training_data_loader;args;standardize"),
+            target=("training_data_loader;standardize"),
         ),
-        CustomArgs(
-            ["--lr"], type=float, nargs="?", target=("optimizer;args;lr")
-        ),
+        CustomArgs(["--lr"], type=float, nargs="?", target=("trainer;lr")),
     ]
 
     configuration = configuration_parser.ConfigurationParser.from_args(

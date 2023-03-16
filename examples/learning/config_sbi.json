@@ -27,8 +27,9 @@
     "statistic_path": "toremove/output_generator32/statistics_full.json",
     "filter_inputs": [9, 10, 11],
     "filter_labels": [12,13,14,15,16],
-    "normalize": false,
-    "standardize": true
+    "normalize_per_channel": false,
+    "normalize_per_sample": false,
+    "standardize": false
   },
 
   "test_data_loader": {
@@ -36,8 +37,9 @@
     "statistic_path": "toremove/output_generator32/statistics_full.json",
     "filter_inputs": [9, 10, 11],
     "filter_labels": [12,13,14,15,16],
-    "normalize": false,
-    "standardize": true
+    "normalize_per_channel": false,
+    "normalize_per_sample": false,
+    "standardize": false
   },
 
   "trainer": {
@@ -45,9 +47,5 @@
     "batch_size": 1,
     "lr": 5e-4,
     "save_dir": "toremove/learning"
-  },
-
-  "infer": {
-    "save_dir": "toremove/inference"
   }
 }

@@ -56,7 +56,12 @@ def infer(args, config):
     ]
     filter_inputs = configuration["test_data_loader"]["filter_inputs"]
     filter_labels = configuration["test_data_loader"]["filter_labels"]
-    normalize = configuration["test_data_loader"]["normalize"]
+    normalize_per_channel = configuration["test_data_loader"][
+        "normalize_per_channel"
+    ]
+    normalize_per_sample = configuration["test_data_loader"][
+        "normalize_per_sample"
+    ]
     standardize = configuration["test_data_loader"]["standardize"]
     input_shape = configuration["arch"]["args"]["input_shape"]
     hidden_features = configuration["arch"]["args"]["len_output_layer"]
@@ -74,7 +79,8 @@ def infer(args, config):
         statistic_path=dataset_stat_path,
         filter_channels=filter_inputs,
         filter_labels=filter_labels,
-        normalize=normalize,
+        normalize_per_channel=normalize_per_channel,
+        normalize_per_sample=normalize_per_sample,
         standardize=standardize,
     )
 
@@ -112,7 +118,7 @@ def infer(args, config):
 
     # Set prior distribution for the parameters ------------------------------------------
     logger.info("Set prior distribution...")
-    if normalize:
+    if normalize_per_channel or normalize_per_sample:
         # All the parameters are rescaled in the range [0, 1].
         prior = utils.BoxUniform(
             low=torch.tensor(np.zeros(n_parameters)),
@@ -266,10 +272,16 @@ if __name__ == "__main__":
             target=("arch;args;len_output_layer"),
         ),
         CustomArgs(
-            ["--normalize"],
+            ["--normalize_per_channel"],
             type=bool,
             nargs="?",
-            target=("test_data_loader;normalize"),
+            target=("test_data_loader;normalize_per_channel"),
+        ),
+        CustomArgs(
+            ["--normalize_per_sample"],
+            type=bool,
+            nargs="?",
+            target=("test_data_loader;normalize_per_sample"),
         ),
         CustomArgs(
             ["--standardize"],
