@@ -42,7 +42,7 @@ import pypopsyn.learning.models.models as learning_models
 from pypopsyn.learning.utils.request_device import request_device
 
 
-def main(args, config):
+def main(config):
 
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("train")
@@ -201,7 +201,7 @@ if __name__ == "__main__":
         "--weights",
         type=str,
         default=None,
-        help="Path to checkpoint to resume training.",
+        help="Path to checkpoint to resume training. This argument is not used at the moment",
     )
 
     args.add_argument(
@@ -263,27 +263,25 @@ if __name__ == "__main__":
             ["--save_dir"],
             type=str,
             nargs="?",
-            target=("trainer;args;save_dir"),
+            target=("trainer;save_dir"),
         ),
         CustomArgs(
             ["--normalize"],
             type=bool,
             nargs="?",
-            target=("training_data_loader;args;normalize"),
+            target=("training_data_loader;normalize"),
         ),
         CustomArgs(
             ["--standardize"],
             type=bool,
             nargs="?",
-            target=("training_data_loader;args;standardize"),
+            target=("training_data_loader;standardize"),
         ),
-        CustomArgs(
-            ["--lr"], type=float, nargs="?", target=("optimizer;args;lr")
-        ),
+        CustomArgs(["--lr"], type=float, nargs="?", target=("trainer;lr")),
     ]
 
     configuration = configuration_parser.ConfigurationParser.from_args(
         args, options
     )
 
-    main(args.parse_args(), configuration)
+    main(configuration)
