@@ -1,7 +1,5 @@
-#!/usr/bin/evn python3
-# -*- coding: utf-8 -*-
-
-""" Inference script.
+"""
+    Inference script.
 
     This script infers a set of samples from a dataset by leveraging a
     pretrained model and its architecture.
@@ -38,12 +36,8 @@
 
 import argparse
 import collections
-import logging
 import pathlib
-import sys
-from collections import OrderedDict
 
-import numpy as np
 import pandas as pd
 import torch
 
@@ -203,7 +197,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default=True,
-        help="Flag to setup the inference saving path, if False you are in training mode.",
+        help="Flag to set up the inference saving path. If False you are in training mode.",
     )
 
     CustomArgs = collections.namedtuple(

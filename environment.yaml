@@ -4,6 +4,7 @@ channels:
 dependencies:
   - astropy=5.2
   - black=22.10.0
+  - corner
   - cudatoolkit=11.6 # If you are a OSX user comment out this package.
   - f2c=20210323183018
   - ffmpeg=5.1.2
@@ -40,7 +41,6 @@ dependencies:
   - torchvision=0.13.0
   - zstd=1.5.2
   - pip:
-      - corner
       - julia
       - pydeps
       - pygedm --global-option=build_ext --global-option="-I${CONDA_PREFIX}/include:/usr/local/include"

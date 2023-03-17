@@ -1,7 +1,5 @@
-#!/usr/bin/evn python3
-# -*- coding: utf-8 -*-
-
-""" Training script.
+"""
+    Training script.
 
     This script carries out the training for a machine learning architecture
     using the specified run configuration file.
@@ -22,10 +20,7 @@
 
 import argparse
 import collections
-import time
-import typing
 
-import numpy as np
 import torch
 
 import pypopsyn.learning.configuration_parser as configuration_parser

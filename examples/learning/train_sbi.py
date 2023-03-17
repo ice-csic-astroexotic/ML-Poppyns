@@ -1,7 +1,5 @@
-#!/usr/bin/evn python3
-# -*- coding: utf-8 -*-
-
-""" Training script for sbi.
+"""
+    Training script for sbi.
 
     This script carries out the training in a simulation based inference framework with the SBI package.
     It trains density estimator to approximate the posterior distribution for a dataset of simulated data.

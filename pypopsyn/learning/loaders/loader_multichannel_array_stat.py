@@ -31,9 +31,7 @@ import json
 
 import numpy as np
 import pandas as pd
-import torch
 import torchvision.transforms
-from PIL import Image
 
 from .loader_base import LoaderBase
 

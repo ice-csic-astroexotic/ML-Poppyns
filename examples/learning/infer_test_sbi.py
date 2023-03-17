@@ -1,7 +1,5 @@
-#!/usr/bin/evn python3
-# -*- coding: utf-8 -*-
-
-""" Inference script for sbi.
+"""
+    Inference script for sbi.
 
     This script carries inference on a test dataset in a simulation based inference framework with the SBI package.
     It loads a density estimator trained to approximate the posterior distribution for a dataset of simulated data
@@ -26,7 +24,6 @@
 
 import argparse
 import collections
-import pathlib
 import pickle
 
 import numpy as np
