@@ -283,6 +283,14 @@ if __name__ == "__main__":
             ["--save_dir"], type=str, nargs="?", target=("trainer;save_dir")
         ),
         CustomArgs(
+            ["--normalization_type"],
+            type=str,
+            nargs="?",
+            target=(
+                "training_data_loader;args;normalization_type,validation_data_loader;args;normalization_type"
+            ),
+        ),
+        CustomArgs(
             ["--normalize"],
             type=bool,
             nargs="?",

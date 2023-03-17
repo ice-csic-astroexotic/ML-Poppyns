@@ -248,6 +248,12 @@ if __name__ == "__main__":
             target=("arch;args;num_parameters"),
         ),
         CustomArgs(
+            ["--normalization_type"],
+            type=str,
+            nargs="?",
+            target=("test_data_loader;args;normalization_type"),
+        ),
+        CustomArgs(
             ["--normalize"],
             type=bool,
             nargs="?",

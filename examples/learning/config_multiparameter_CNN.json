@@ -31,6 +31,7 @@
       "filter_inputs": [1, 2, 6, 7],
       "filter_labels": [],
       "shuffle": true,
+      "normalization_type": "per_channel",
       "normalize": false,
       "standardize": false
     }
@@ -46,6 +47,7 @@
       "filter_inputs": [1, 2, 6, 7],
       "filter_labels": [],
       "shuffle": false,
+      "normalization_type": "per_channel",
       "normalize": false,
       "standardize": false
     }
@@ -61,6 +63,7 @@
       "filter_inputs": [1, 2, 6, 7],
       "filter_labels": [],
       "shuffle": false,
+      "normalization_type": "per_channel",
       "normalize": false,
       "standardize": false
     }
