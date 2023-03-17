@@ -65,12 +65,10 @@ def main(args, config):
     filter_labels = config._configuration["training_data_loader"][
         "filter_labels"
     ]
-    normalize_per_channel = config._configuration["training_data_loader"][
-        "normalize_per_channel"
+    normalization_type = config._configuration["training_data_loader"][
+        "normalization_type"
     ]
-    normalize_per_sample = config._configuration["training_data_loader"][
-        "normalize_per_sample"
-    ]
+    normalize = config._configuration["training_data_loader"]["normalize"]
     standardize = config._configuration["training_data_loader"]["standardize"]
     input_shape = config._configuration["arch"]["args"]["input_shape"]
     hidden_features = config._configuration["arch"]["args"]["len_output_layer"]
@@ -114,8 +112,8 @@ def main(args, config):
         statistic_path=dataset_stat_path,
         filter_channels=filter_inputs,
         filter_labels=filter_labels,
-        normalize_per_channel=normalize_per_channel,
-        normalize_per_sample=normalize_per_sample,
+        normalization_type=normalization_type,
+        normalize=normalize,
         standardize=standardize,
     )
 
@@ -135,7 +133,7 @@ def main(args, config):
 
     # Set prior distribution for the parameters ------------------------------------------
     logger.info("Set prior distribution...")
-    if normalize_per_channel or normalize_per_sample:
+    if normalize:
         # All the parameters are rescaled in the range [0, 1].
         prior = utils.BoxUniform(
             low=torch.tensor(np.zeros(n_parameters)),
@@ -272,16 +270,16 @@ if __name__ == "__main__":
             target=("trainer;save_dir"),
         ),
         CustomArgs(
-            ["--normalize_per_channel"],
-            type=bool,
+            ["--normalization_type"],
+            type=str,
             nargs="?",
-            target=("training_data_loader;normalize_per_channel"),
+            target=("training_data_loader;normalization_type"),
         ),
         CustomArgs(
-            ["--normalize_per_sample"],
+            ["--normalize"],
             type=bool,
             nargs="?",
-            target=("training_data_loader;normalize_per_sample"),
+            target=("training_data_loader;normalize"),
         ),
         CustomArgs(
             ["--standardize"],
