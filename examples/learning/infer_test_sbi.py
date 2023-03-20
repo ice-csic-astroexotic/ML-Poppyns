@@ -1,9 +1,9 @@
 """
     Inference script for sbi.
 
-    This script carries inference on a test dataset in a simulation based inference framework with the SBI package.
+    This script performs inference on a test dataset in a simulation-based inference framework with the SBI package.
     It loads a density estimator trained to approximate the posterior distribution for a dataset of simulated data
-    and check its performance on a test dataset.
+    and checks its performance on a test dataset.
     Simulation-based calibration is also performed to check if the posterior is well behaving.
     See https://www.mackelab.org/sbi/ for more details.
 
@@ -47,21 +47,19 @@ def infer(args, config):
     # Show experiment information ------------------------------------------
     logger.info("=========================================================")
 
-    dataset_path = config._configuration["test_data_loader"]["dataset_path"]
-    dataset_stat_path = config._configuration["test_data_loader"][
-        "statistic_path"
-    ]
-    filter_inputs = configuration["test_data_loader"]["filter_inputs"]
-    filter_labels = configuration["test_data_loader"]["filter_labels"]
-    normalize = configuration["test_data_loader"]["normalize"]
-    standardize = configuration["test_data_loader"]["standardize"]
-    input_shape = configuration["arch"]["args"]["input_shape"]
-    hidden_features = configuration["arch"]["args"]["len_output_layer"]
+    dataset_path = config["test_data_loader"]["dataset_path"]
+    dataset_stat_path = config["test_data_loader"]["statistic_path"]
+    filter_inputs = config["test_data_loader"]["filter_inputs"]
+    filter_labels = config["test_data_loader"]["filter_labels"]
+    normalize = config["test_data_loader"]["normalize"]
+    standardize = config["test_data_loader"]["standardize"]
+    input_shape = config["arch"]["args"]["input_shape"]
+    hidden_features = config["arch"]["args"]["len_output_layer"]
     n_parameters = len(filter_labels)
 
-    # Setup GPU device if available.
+    # Set up GPU device if available.
     logger.info("Requesting {} GPUs...".format(config["n_gpu"]))
-    device, device_ids = request_device(logger, configuration["n_gpu"])
+    device, device_ids = request_device(logger, config["n_gpu"])
     logger.info("Devices obtained: {}".format(device_ids))
 
     # Load the test dataset ----------------------------------------------------------
@@ -86,7 +84,7 @@ def infer(args, config):
         matrix[i] = x[None, :]
         parameter[i] = theta
 
-    # Transform the maps and labels into torch.tensors
+    # Transform the maps and labels into torch.tensors.
     parameter = torch.from_numpy(parameter).type(torch.float32)
     matrix = torch.from_numpy(matrix).type(torch.float32)
 
@@ -98,12 +96,10 @@ def infer(args, config):
     # Build density estimator ----------------------------------------------
     # The default mixture density estimator has 3 hidden layer with a number of neurons = hidden_features.
     neural_posterior = utils.posterior_nn(
-        model=config._configuration["density_estimator"]["type"],
+        model=config["density_estimator"]["type"],
         embedding_net=embedding_net,
         hidden_features=hidden_features,
-        num_components=config._configuration["density_estimator"]["args"][
-            "num_components"
-        ],
+        num_components=config["density_estimator"]["args"]["num_components"],
         device=device,
     )
 
@@ -117,7 +113,8 @@ def infer(args, config):
             device=f"{device}",
         )
     elif standardize:
-        # All the parameters are rescaled so that they have mean 0 and std 1, we consider a range of 5 std [-5, 5].
+        # All the parameters are rescaled so that they have mean 0 and std 1.
+        # We consider a range of 5 std [-5, 5].
         prior = utils.BoxUniform(
             low=torch.tensor(-5.0 * np.ones(n_parameters)),
             high=torch.tensor(5.0 * np.ones(n_parameters)),
@@ -130,7 +127,8 @@ def infer(args, config):
             device=f"{device}",
         )
 
-    # Set up the inference procedure with the SNPE-C procedure -----------------------------
+    # Set up the inference procedure -----------------------------
+    # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
     inference = SNPE(
         prior=prior, density_estimator=neural_posterior, device=f"{device}"
     )
@@ -143,19 +141,19 @@ def infer(args, config):
     # Build the posterior.
     posterior = inference.build_posterior(trained_model.to(device))
 
-    # Compute the average loss over the test dataset (with batch size = 1)
-    logger.info("Computing the average loss on the test dataset...")
+    # Compute the average loss over the test dataset (with batch size = 1).
+    logger.info("Computing the average loss over the test dataset...")
     test_loss_mean = torch.tensor([0.0]).to(device)
     for i in range(len(dataset)):
-        x = matrix[i]
         test_loss_mean += posterior.log_prob(
-            parameter[i].to(device), x.to(device)
+            parameter[i].to(device), matrix[i].to(device)
         )
 
     test_loss_mean = test_loss_mean / len(dataset)
     logger.info("Average loss of the test dataset: {}".format(test_loss_mean))
 
-    # run SBC: for each inference we draw 1000 posterior samples.
+    logger.info("Perform Simulation Based Calibration...")
+    # Run SBC: for each test sample we draw 1000 posterior samples.
     num_posterior_samples = 1000
     ranks, dap_samples = run_sbc(
         parameter.to(device),
@@ -164,6 +162,7 @@ def infer(args, config):
         num_posterior_samples=num_posterior_samples,
     )
 
+    logger.info("Check the rank statistics...")
     # Check if the rank distributions follow a uniform distribution with three different tests
     # (see [here](https://www.mackelab.org/sbi/tutorial/13_diagnostics_simulation_based_calibration/)
     # for more details on these tests).
@@ -174,7 +173,7 @@ def infer(args, config):
         num_posterior_samples=num_posterior_samples,
     )
     logger.info(
-        f"kolmogorov-smirnov p-values \ncheck_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
+        f"kolmogorov-smirnov p-values \n - check_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
     )
     logger.info(
         f"c2st accuracies \n - check_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()} "
@@ -218,7 +217,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default=True,
-        help="Flag to setup the inference saving path, if False you are in training mode.",
+        help="Flag to set up the inference saving path. If False you are in training mode.",
     )
 
     CustomArgs = collections.namedtuple(
@@ -230,49 +229,49 @@ if __name__ == "__main__":
             ["--dataset"],
             type=str,
             nargs="?",
-            target=("test_data_loader;dataset_path"),
+            target="test_data_loader;dataset_path",
         ),
         CustomArgs(
             ["--dataset_statistics"],
             type=str,
             nargs="?",
-            target=("test_data_loader;statistic_path"),
+            target="test_data_loader;statistic_path",
         ),
         CustomArgs(
             ["--filter_inputs"],
             type=int,
             nargs="*",
-            target=("test_data_loader;filter_inputs"),
+            target="test_data_loader;filter_inputs",
         ),
         CustomArgs(
             ["--filter_labels"],
             type=int,
             nargs="*",
-            target=("test_data_loader;filter_labels"),
+            target="test_data_loader;filter_labels",
         ),
         CustomArgs(
             ["--input_shape"],
             type=int,
             nargs=3,
-            target=("arch;args;input_shape"),
+            target="arch;args;input_shape",
         ),
         CustomArgs(
             ["--len_output_layer"],
             type=int,
             nargs="?",
-            target=("arch;args;len_output_layer"),
+            target="arch;args;len_output_layer",
         ),
         CustomArgs(
             ["--normalize"],
             type=bool,
             nargs="?",
-            target=("test_data_loader;normalize"),
+            target="test_data_loader;normalize",
         ),
         CustomArgs(
             ["--standardize"],
             type=bool,
             nargs="?",
-            target=("test_data_loader;standardize"),
+            target="test_data_loader;standardize",
         ),
     ]
 

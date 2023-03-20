@@ -62,7 +62,7 @@ def infer(args, config):
     logger = config.get_logger("Inference")
     logger.info("Logger initialized...")
 
-    # Setup data loaders -------------------------------------------------------
+    # Set up data loaders -------------------------------------------------------
     logger.info("Creating data loaders...")
     loader = config.init_object("test_data_loader", learning_loaders)
     logger.info(f"Loader: {loader}")
@@ -209,49 +209,49 @@ if __name__ == "__main__":
             ["--dataset"],
             type=str,
             nargs="?",
-            target=("test_data_loader;args;dataset_path"),
+            target="test_data_loader;args;dataset_path",
         ),
         CustomArgs(
             ["--dataset_statistics"],
             type=str,
             nargs="?",
-            target=("test_data_loader;args;statistic_path"),
+            target="test_data_loader;args;statistic_path",
         ),
         CustomArgs(
             ["--filter_inputs"],
             type=int,
             nargs="*",
-            target=("test_data_loader;args;filter_inputs"),
+            target="test_data_loader;args;filter_inputs",
         ),
         CustomArgs(
             ["--filter_labels"],
             type=int,
             nargs="*",
-            target=("test_data_loader;args;filter_labels"),
+            target="test_data_loader;args;filter_labels",
         ),
         CustomArgs(
             ["--input_shape"],
             type=int,
             nargs=3,
-            target=("arch;args;input_shape"),
+            target="arch;args;input_shape",
         ),
         CustomArgs(
             ["--num_parameters"],
             type=int,
             nargs="?",
-            target=("arch;args;num_parameters"),
+            target="arch;args;num_parameters",
         ),
         CustomArgs(
             ["--normalize"],
             type=bool,
             nargs="?",
-            target=("test_data_loader;args;normalize"),
+            target="test_data_loader;args;normalize",
         ),
         CustomArgs(
             ["--standardize"],
             type=bool,
             nargs="?",
-            target=("test_data_loader;args;standardize"),
+            target="test_data_loader;args;standardize",
         ),
     ]
 
