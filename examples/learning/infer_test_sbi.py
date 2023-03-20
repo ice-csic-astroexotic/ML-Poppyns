@@ -94,7 +94,7 @@ def infer(args, config):
     logger.info("Model architecture: {}".format(embedding_net))
 
     # Build density estimator ----------------------------------------------
-    # The default mixture density estimator has 3 hidden layer with a number of neurons = hidden_features.
+    # The default mixture density estimator has 3 hidden layers with a number of neurons = hidden_features.
     neural_posterior = utils.posterior_nn(
         model=config["density_estimator"]["type"],
         embedding_net=embedding_net,
@@ -181,12 +181,12 @@ def infer(args, config):
     )
 
     # Visually check if the ranks follow a uniform distribution.
-    # The gray band represents the 99% of the variation expected from a uniform distribution.
+    # The gray band represents the 99% credibility interval around the mean for a uniform distribution.
     f, ax = sbc_rank_plot(
         ranks=ranks,
         num_posterior_samples=num_posterior_samples,
         plot_type="hist",
-        num_bins=30,  # by passing None we use a heuristic for the number of bins.
+        num_bins=30,  # By passing None the default is len(dataset_test) / 20.
     )
 
     f.savefig(f"{config.log_dir}/ranks_histograms.pdf", bbox_inches="tight")
@@ -202,7 +202,7 @@ if __name__ == "__main__":
         "--configuration",
         type=str,
         default="examples/learning/config_sbi.json",
-        help="Configuration file path",
+        help="Configuration file path.",
     )
 
     args.add_argument(

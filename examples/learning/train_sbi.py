@@ -1,8 +1,8 @@
 """
     Training script for sbi.
 
-    This script carries out the training in a simulation based inference framework with the SBI package.
-    It trains density estimator to approximate the posterior distribution for a dataset of simulated data.
+    This script carries out the training in a simulation-based inference framework with the SBI package.
+    It trains a density estimator to approximate the posterior distribution for a dataset of simulated data.
     Note that with this method we can evaluate the posterior for different simulated populations without
     having to re-train the model. This is called amortization. An amortized posterior is one that is not
     focused on any particular observation. See https://www.mackelab.org/sbi/ for more details.
@@ -49,7 +49,7 @@ def main(config):
     # Show experiment information ------------------------------------------
     logger.info("=========================================================")
 
-    logger.info("Train configuraion: {}".format(config._configuration))
+    logger.info("Train configuration: {}".format(config._configuration))
 
     dataset_path = config["training_data_loader"]["dataset_path"]
     dataset_stat_path = config["training_data_loader"]["statistic_path"]
@@ -81,7 +81,7 @@ def main(config):
     embedding_net.apply(weight_initializer)
 
     # Build density estimator ----------------------------------------------
-    # The default density estimator has 3 hidden layer with a number of neurons = hidden_features.
+    # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
     neural_posterior = utils.posterior_nn(
         model=config["density_estimator"]["type"],
         embedding_net=embedding_net,
@@ -111,7 +111,7 @@ def main(config):
         matrix[i] = x[None, :]
         parameter[i] = theta
 
-    # Transform the maps and labels into torch.tensors
+    # Transform the maps and labels into torch.tensors.
     parameter = torch.from_numpy(parameter).type(torch.float32)
     matrix = torch.from_numpy(matrix).type(torch.float32)
 
@@ -182,14 +182,14 @@ if __name__ == "__main__":
         "--configuration",
         type=str,
         default="examples/learning/config_sbi.json",
-        help="Configuration file path",
+        help="Configuration file path.",
     )
 
     args.add_argument(
         "--weights",
         type=str,
         default=None,
-        help="Path to checkpoint to resume training. This argument is not used at the moment",
+        help="Path to checkpoint to resume training. This argument is not used at the moment.",
     )
 
     args.add_argument(

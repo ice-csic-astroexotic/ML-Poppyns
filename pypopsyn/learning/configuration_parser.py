@@ -126,8 +126,8 @@ class ConfigurationParser:
 
         Args:
 
-            name: TODO: document
-            verbosity: TODO: document
+            name: Name for the logger.
+            verbosity: Logging level. By default it is set to INFO.
 
         Returns:
 

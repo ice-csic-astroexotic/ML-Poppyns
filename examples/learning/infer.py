@@ -170,7 +170,7 @@ if __name__ == "__main__":
         "--configuration",
         type=str,
         default="examples/learning/config_multiparameter_MLP.json",
-        help="Configuration file path",
+        help="Configuration file path.",
     )
 
     args.add_argument(
