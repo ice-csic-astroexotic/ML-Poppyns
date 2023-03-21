@@ -89,12 +89,14 @@ def infer(args, config):
     matrix = torch.from_numpy(matrix).type(torch.float32)
 
     # Build embedding model ------------------------------------------------
+    # The weights are initialized with this procedure only for the embedding net.
     logger.info("Building embedding model...")
     embedding_net = config.init_object("arch", learning_models)
     logger.info("Model architecture: {}".format(embedding_net))
 
     # Build density estimator ----------------------------------------------
     # The default mixture density estimator has 3 hidden layers with a number of neurons = hidden_features.
+    # The weights are initialized with the default initialization provided by pytorch.
     neural_posterior = utils.posterior_nn(
         model=config["density_estimator"]["type"],
         embedding_net=embedding_net,

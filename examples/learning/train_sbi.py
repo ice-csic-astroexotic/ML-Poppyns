@@ -72,6 +72,7 @@ def main(config):
     logger.info("Model architecture: {}".format(embedding_net))
 
     # Initialize weights ---------------------------------------------------
+    # The weights are initialized with this procedure only for the embedding net.
     logger.info("Initializing weights...")
     weight_initializer = config.init_object(
         "weights_initializer", learning_initializers
@@ -82,6 +83,7 @@ def main(config):
 
     # Build density estimator ----------------------------------------------
     # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
+    # The weights are initialized with the default initialization provided by pytorch.
     neural_posterior = utils.posterior_nn(
         model=config["density_estimator"]["type"],
         embedding_net=embedding_net,
