@@ -28,6 +28,9 @@ SOFTWARE.
 
 import numpy as np
 
+import pypopsyn.simulator.basics.random_sampler as rs
+from pypopsyn.simulator.configuration import cfg
+
 
 def pdf_period_normal(mean: float, sigma: float, NS_number: int) -> np.ndarray:
     """
@@ -56,6 +59,30 @@ def pdf_period_normal(mean: float, sigma: float, NS_number: int) -> np.ndarray:
     return P_initial
 
 
+def pdf_period_powerlaw(
+    P: np.ndarray,
+) -> np.ndarray:
+    """
+    Log-normal distribution for the initial spin periods as suggested in Igoshev et al. (2022).
+    The mean and standard deviation are defined in the configuration file.
+
+    Args:
+        mean (float): mean of the Gaussian initial period distribution, in [s].
+        sigma (float): standard deviation of the initial period distribution, in [s].
+        NS_number (int): total number of neutron stars created in the simulation.
+
+    Returns:
+        (np.ndarray): initial pulsar period in [s] drawn from a Log-normal distribution.
+    """
+
+    a = 0.0
+    pdf = P**a
+
+    # pdf = 1/P * np.exp(-0.5*(np.log(P) - 2.)**2)
+
+    return pdf
+
+
 def pdf_period_lognormal(
     mean: float, sigma: float, NS_number: int
 ) -> np.ndarray:
@@ -72,6 +99,18 @@ def pdf_period_lognormal(
         (np.ndarray): initial pulsar period in [s] drawn from a Log-normal distribution.
     """
 
-    P_initial = 10 ** np.random.normal(mean, sigma, NS_number)
+    P_lognorm = 10 ** np.random.normal(mean, sigma, int(0.5 * NS_number))
+
+    P_grid = np.logspace(mean, 3, cfg["resolution"])
+    P_powerlaw = rs.random_from_pdf(
+        P_grid, pdf_period_powerlaw, int(0.5 * NS_number)
+    )
+
+    P_initial = np.concatenate([P_lognorm, P_powerlaw])
+
+    while len(P_initial) < NS_number:
+        P_initial = np.append(
+            P_initial, 10 ** np.random.normal(mean, sigma, 1)
+        )
 
     return P_initial

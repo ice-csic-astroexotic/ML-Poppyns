@@ -191,7 +191,8 @@ def combined_derivatives(
     # Specifying the two derivatives.
     dy = np.zeros(len(y), dtype=np.float64)
 
-    B = magnetic_field_evolution_fit(B_initial, t, B_asymptotic)
+    B = B_initial
+    # B = magnetic_field_evolution_fit(B_initial, t, B_asymptotic)
 
     dy[0] = madv.misalignment_angle_derivative(B, chi, P)
     dy[1] = pdv.period_derivative(B, chi, P)
@@ -294,9 +295,10 @@ def magneto_rotational_evolution(
             evolution_dictionary = {**evolution_dictionary, **evolution}
 
         # Save the final values of the magnetic field, inclination angle and spin period.
-        B_final[i] = magnetic_field_evolution_fit(
-            B_initial[i], t_age[i], B_asymptotic[i]
-        )
+        # B_final[i] = magnetic_field_evolution_fit(
+        #    B_initial[i], t_age[i], B_asymptotic[i]
+        # )
+        B_final[i] = B_initial[i]
         chi_final[i] = evol_output[-1, 0]
         P_final[i] = evol_output[-1, 1]
 
