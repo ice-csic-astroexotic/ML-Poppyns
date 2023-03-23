@@ -4,7 +4,7 @@
     This script performs inference on a test dataset in a simulation-based inference framework with the SBI package.
     It loads a density estimator trained to approximate the posterior distribution for a dataset of simulated data
     and checks its performance on a test dataset.
-    Simulation-based calibration is also performed to check if the posterior is well behaving.
+    Simulation-Based Calibration is also performed to check if the posterior is well behaving.
     See https://www.mackelab.org/sbi/ for more details.
 
      Running the code:
@@ -152,9 +152,11 @@ def infer(args, config):
         )
 
     test_loss_mean = test_loss_mean / len(dataset)
-    logger.info("Average loss of the test dataset: {}".format(test_loss_mean))
+    logger.info(
+        "Average loss over the test dataset: {}".format(test_loss_mean)
+    )
 
-    logger.info("Perform Simulation Based Calibration...")
+    logger.info("Perform Simulation-Based Calibration...")
     # Run SBC: for each test sample we draw 1000 posterior samples.
     num_posterior_samples = 1000
     ranks, dap_samples = run_sbc(
@@ -188,7 +190,7 @@ def infer(args, config):
         ranks=ranks,
         num_posterior_samples=num_posterior_samples,
         plot_type="hist",
-        num_bins=30,  # By passing None the default is len(dataset_test) / 20.
+        num_bins=30,  # When passing None the default is len(dataset_test) / 20.
     )
 
     f.savefig(f"{config.log_dir}/ranks_histograms.pdf", bbox_inches="tight")
@@ -196,7 +198,7 @@ def infer(args, config):
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser(
-        description="PyPopSyn simulation based inference"
+        description="PyPopSyn Simulation-Based Inference"
     )
 
     args.add_argument(

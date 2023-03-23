@@ -135,6 +135,7 @@ def main(config):
             device=f"{device}",
         )
     else:
+        # Set the prior range to the range of the parameters.
         prior = utils.BoxUniform(
             low=torch.tensor(dataset.target_min),
             high=torch.tensor(dataset.target_max),
@@ -160,6 +161,7 @@ def main(config):
 
     # Save the trained model and statistics -------------------------------------------------
     logger.info("Save the trained model and training statistics...")
+    # Extract tensorboard information about the training and validation losses and other training info.
     all_event_data = tbo._get_event_data_from_log_dir(
         inference._summary_writer.log_dir
     )
