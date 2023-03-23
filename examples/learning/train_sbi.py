@@ -49,6 +49,13 @@ def main(config):
     # Show experiment information ------------------------------------------
     logger.info("=========================================================")
 
+    # Initialize the torch seed.
+    if config["set_manual_seed"] is True:
+        torch.manual_seed(0)
+        logger.info("Seed: {}".format(0))
+    else:
+        logger.info("Seed: {}".format(torch.seed()))
+
     logger.info("Train configuration: {}".format(config._configuration))
 
     dataset_path = config["training_data_loader"]["dataset_path"]

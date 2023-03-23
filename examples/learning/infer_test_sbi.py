@@ -47,6 +47,13 @@ def infer(args, config):
     # Show experiment information ------------------------------------------
     logger.info("=========================================================")
 
+    # Initialize the torch seed.
+    if config["set_manual_seed"] is True:
+        torch.manual_seed(0)
+        logger.info("Seed: {}".format(0))
+    else:
+        logger.info("Seed: {}".format(torch.seed()))
+
     dataset_path = config["test_data_loader"]["dataset_path"]
     dataset_stat_path = config["test_data_loader"]["statistic_path"]
     filter_inputs = config["test_data_loader"]["filter_inputs"]
