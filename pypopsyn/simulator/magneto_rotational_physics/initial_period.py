@@ -75,8 +75,8 @@ def pdf_period_powerlaw(
         (np.ndarray): initial pulsar period in [s] drawn from a Log-normal distribution.
     """
 
-    a = 0.0
-    pdf = P**a
+    power_law_index = -2
+    pdf = P**power_law_index
 
     # pdf = 1/P * np.exp(-0.5*(np.log(P) - 2.)**2)
 
@@ -101,7 +101,7 @@ def pdf_period_lognormal(
 
     P_lognorm = 10 ** np.random.normal(mean, sigma, int(0.5 * NS_number))
 
-    P_grid = np.logspace(mean, 3, cfg["resolution"])
+    P_grid = np.logspace(mean, 4, cfg["resolution"])
     P_powerlaw = rs.random_from_pdf(
         P_grid, pdf_period_powerlaw, int(0.5 * NS_number)
     )
@@ -110,7 +110,7 @@ def pdf_period_lognormal(
 
     while len(P_initial) < NS_number:
         P_initial = np.append(
-            P_initial, 10 ** np.random.normal(mean, sigma, 1)
+            P_initial, rs.random_from_pdf(P_grid, pdf_period_powerlaw, 1)
         )
 
     return P_initial

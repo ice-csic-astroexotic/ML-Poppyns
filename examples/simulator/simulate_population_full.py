@@ -255,7 +255,8 @@ def simulate_population(args) -> None:
             timer.checkpoint(
                 "[Initial field strengths, misalignment angles and periods]"
             )
-
+            flag_log_normal = np.zeros(len(P_initial))
+            flag_log_normal[: int(0.5 * cfg["NS_number"])] = 1
             # Determining the initial period derivatives.
             log.info("Computing initial period derivatives...")
             period_derivative_vect = np.vectorize(pdv.period_derivative)
@@ -283,6 +284,7 @@ def simulate_population(args) -> None:
                 "chi",
                 "P",
                 "P_dot",
+                "lognormal_flag",
             ]
             units_initial = [
                 "[yr]",
@@ -297,6 +299,7 @@ def simulate_population(args) -> None:
                 "[rad]",
                 "[s]",
                 "[s s^-1]",
+                " ",
             ]
 
             header_initial = pd.MultiIndex.from_arrays(
@@ -318,6 +321,7 @@ def simulate_population(args) -> None:
                         chi_initial,
                         P_initial,
                         P_dot_initial,
+                        flag_log_normal,
                     ]
                 ).T,
                 columns=header_initial,
@@ -804,6 +808,7 @@ def simulate_population(args) -> None:
             "S_radio_bol",
             "w_int",
             "intercepted_radio",
+            "lognormal_flag",
         ]
         units_final = [
             "[yr]",
@@ -828,6 +833,7 @@ def simulate_population(args) -> None:
             "[erg s^-1]",
             "[erg s^-1 cm^(-2)]",
             "[s]",
+            " ",
             " ",
         ]
         header_final = pd.MultiIndex.from_arrays(
@@ -860,6 +866,7 @@ def simulate_population(args) -> None:
                     S_radio_bol,
                     w_int_s,
                     intercepted_radio,
+                    flag_log_normal,
                 ]
             ).T,
             columns=header_final,

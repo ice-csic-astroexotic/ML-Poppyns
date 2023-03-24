@@ -64,7 +64,7 @@ def combined_derivatives(
     # Specifying the three derivatives.
     dy = np.zeros(len(y), dtype=np.float64)
 
-    dy[0] = mfdv.field_derivative(B, B_initial)
+    dy[0] = 0
     dy[1] = madv.misalignment_angle_derivative(B, chi, P)
     dy[2] = pdv.period_derivative(B, chi, P)
 
