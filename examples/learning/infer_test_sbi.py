@@ -27,6 +27,7 @@ import collections
 import os
 import pathlib
 import pickle
+import sys
 
 import numpy as np
 import torch
@@ -233,46 +234,56 @@ def infer(args, config):
             config["show_profiling"],
         ):
 
-            logger.info("Perform Simulation-Based Calibration...")
-            # Run SBC: for each test sample we draw 1000 posterior samples.
-            num_posterior_samples = 1000
-            ranks, dap_samples = run_sbc(
-                parameter.to(device),
-                matrix.to(device),
-                posterior,
-                num_posterior_samples=num_posterior_samples,
-            )
+            if len(dataset) < 300:
+                logger.warning(
+                    "WARNING: SBC cannot be performed due to the limited number of test samples."
+                    "To perform SBC the number of test samples should be on the order of "
+                    "100s to give reliable results. We recommend using 300."
+                )
+                sys.exit()
 
-            logger.info("Check the rank statistics...")
-            # Check if the rank distributions follow a uniform distribution with three different tests
-            # (see [here](https://www.mackelab.org/sbi/tutorial/13_diagnostics_simulation_based_calibration/)
-            # for more details on these tests).
-            check_stats = check_sbc(
-                ranks,
-                parameter.to(device),
-                dap_samples.to(device),
-                num_posterior_samples=num_posterior_samples,
-            )
-            logger.info(
-                f"kolmogorov-smirnov p-values \n - check_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
-            )
-            logger.info(
-                f"c2st accuracies \n - check_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()} "
-                f"\n - check_stats['c2st_dap'] = {check_stats['c2st_dap'].numpy()}"
-            )
+            else:
+                logger.info("Perform Simulation-Based Calibration...")
+                # Run SBC: for each test sample we draw 1000 posterior samples.
+                num_posterior_samples = 1000
+                ranks, dap_samples = run_sbc(
+                    parameter.to(device),
+                    matrix.to(device),
+                    posterior,
+                    num_posterior_samples=num_posterior_samples,
+                )
 
-            # Visually check if the ranks follow a uniform distribution.
-            # The gray band represents the 99% credibility interval around the mean for a uniform distribution.
-            f, ax = sbc_rank_plot(
-                ranks=ranks,
-                num_posterior_samples=num_posterior_samples,
-                plot_type="hist",
-                num_bins=30,  # When passing None the default is len(dataset_test) / 20.
-            )
+                logger.info("Check the rank statistics...")
+                # Check if the rank distributions follow a uniform distribution with three different tests
+                # (see [here](https://www.mackelab.org/sbi/tutorial/13_diagnostics_simulation_based_calibration/)
+                # for more details on these tests).
+                check_stats = check_sbc(
+                    ranks,
+                    parameter.to(device),
+                    dap_samples.to(device),
+                    num_posterior_samples=num_posterior_samples,
+                )
+                logger.info(
+                    f"kolmogorov-smirnov p-values \n - check_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
+                )
+                logger.info(
+                    f"c2st accuracies \n - check_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()} "
+                    f"\n - check_stats['c2st_dap'] = {check_stats['c2st_dap'].numpy()}"
+                )
 
-            f.savefig(
-                f"{config.log_dir}/ranks_histograms.pdf", bbox_inches="tight"
-            )
+                # Visually check if the ranks follow a uniform distribution.
+                # The gray band represents the 99% credibility interval around the mean for a uniform distribution.
+                f, ax = sbc_rank_plot(
+                    ranks=ranks,
+                    num_posterior_samples=num_posterior_samples,
+                    plot_type="hist",
+                    num_bins=30,  # When passing None the default is len(dataset_test) / 20.
+                )
+
+                f.savefig(
+                    f"{config.log_dir}/ranks_histograms.pdf",
+                    bbox_inches="tight",
+                )
 
 
 if __name__ == "__main__":
