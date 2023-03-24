@@ -28,6 +28,7 @@ import os
 import pathlib
 import pickle
 import sys
+import time
 
 import numpy as np
 import torch
@@ -84,7 +85,8 @@ def infer(args, config):
                 torch.manual_seed(config["manual_seed"])
                 logger.info("Seed: {}".format(config["manual_seed"]))
             else:
-                logger.info("Seed: {}".format(torch.seed()))
+                torch.manual_seed(int(time.time()))
+                logger.info("Seed: {}".format(int(time.time())))
 
             dataset_path = config["test_data_loader"]["dataset_path"]
             dataset_stat_path = config["test_data_loader"]["statistic_path"]

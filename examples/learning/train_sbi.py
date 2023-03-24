@@ -28,6 +28,7 @@ import json
 import os
 import pathlib
 import pickle
+import time
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -86,7 +87,8 @@ def train(config):
                 torch.manual_seed(config["manual_seed"])
                 logger.info("Seed: {}".format(config["manual_seed"]))
             else:
-                logger.info("Seed: {}".format(torch.seed()))
+                torch.manual_seed(int(time.time()))
+                logger.info("Seed: {}".format(int(time.time())))
 
             logger.info(
                 "Train configuration: {}".format(config._configuration)
