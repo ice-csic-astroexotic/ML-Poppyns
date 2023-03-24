@@ -96,6 +96,9 @@ def infer(args, config):
             standardize = config["test_data_loader"]["standardize"]
             input_shape = config["arch"]["args"]["input_shape"]
             hidden_features = config["arch"]["args"]["len_output_layer"]
+            n_components = config["density_estimator"]["args"][
+                "num_components"
+            ]
             n_parameters = len(filter_labels)
 
             # Set up GPU device if available.
@@ -162,9 +165,7 @@ def infer(args, config):
                 model=config["density_estimator"]["type"],
                 embedding_net=embedding_net,
                 hidden_features=hidden_features,
-                num_components=config["density_estimator"]["args"][
-                    "num_components"
-                ],
+                num_components=n_components,
                 device=device,
             )
 
@@ -219,10 +220,51 @@ def infer(args, config):
             # Compute the average loss over the test dataset (with batch size = 1).
             logger.info("Computing the average loss over the test dataset...")
             test_loss_mean = torch.tensor([0.0]).to(device)
+            # Compute the coefficient for each of the gaussian components.
+
+            coef_mog = np.zeros((len(dataset), n_components))
+            mean_mog = np.zeros((len(dataset), n_components, n_parameters))
+            precission_mog = np.zeros(
+                (len(dataset), n_components, n_parameters, n_parameters)
+            )
+
             for i in range(len(dataset)):
                 test_loss_mean += posterior.log_prob(
                     parameter[i].to(device), matrix[i].to(device)
                 )
+
+                posterior_estimator = posterior.posterior_estimator
+
+                # Extracting the latent vector, i.e. the output from the convolutional network, for each of the test samples.
+                encoded_matrix = posterior_estimator._embedding_net(
+                    matrix[i].to(device)
+                )
+                # Compute the parameters of each gaussian component for each of the test samples.
+                (
+                    logits,
+                    means,
+                    precission,
+                    sumlogdiag,
+                    precfs,
+                ) = posterior_estimator._distribution.get_mixture_components(
+                    encoded_matrix
+                )
+
+                # Normalize the coefficient of each gaussian, i.e. the sum over the coefficients is equal to 1.
+                logits_norm = logits - torch.logsumexp(
+                    logits, dim=-1, keepdim=True
+                )
+                coef_mog[i, :] = np.exp(logits_norm.detach().numpy())
+
+                # Save the means and the precision matrices (inverse of the covariance matrix) of each gaussian.
+                mean_mog[i, :, :] = means.detach().numpy()
+                precission_mog[i, :, :, :] = precission.detach().numpy()
+
+            np.save(f"{config.log_dir}/coefficient_mog.npy", coef_mog)
+
+            # To save the precision and means for the whole test dataset in a numpy array uncommented the code below.
+            # np.save(f"{config.log_dir}/means_mog.npy",mean_mog)
+            # np.save(f"{config.log_dir}/precision_mog.npy",precission_mog)
 
             test_loss_mean = test_loss_mean / len(dataset)
             logger.info(
