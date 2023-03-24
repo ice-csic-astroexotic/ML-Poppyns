@@ -27,6 +27,7 @@ import collections
 import json
 import pickle
 
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from sbi import utils
@@ -180,6 +181,31 @@ def train(config):
     training_statistics_path = f"{config.log_dir}/training_statistics.json"
     with open(training_statistics_path, "w") as f:
         json.dump(scalars, f, indent=4, sort_keys=True)
+
+    f, ax = plt.subplots(figsize=(8, 6))
+    ax.set_xlabel(r"Epoch")
+    ax.set_ylabel(r"Accuracy")
+    ax.plot(
+        scalars["training_log_probs"]["step"],
+        scalars["training_log_probs"]["value"],
+        linestyle="-",
+        linewidth=4,
+        color="tab:blue",
+        rasterized=True,
+        label="training",
+    )
+    ax.plot(
+        scalars["validation_log_probs"]["step"],
+        scalars["validation_log_probs"]["value"],
+        linestyle="-",
+        linewidth=4,
+        color="tab:orange",
+        rasterized=True,
+        label="validation",
+    )
+    plt.legend(bbox_to_anchor=(1.05, 1), frameon=False, loc=0, fontsize=10)
+
+    f.savefig(f"{config.log_dir}/training_stats.pdf", bbox_inches="tight")
 
 
 if __name__ == "__main__":
