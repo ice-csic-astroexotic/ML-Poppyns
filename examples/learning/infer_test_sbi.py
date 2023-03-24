@@ -49,8 +49,8 @@ def infer(args, config):
 
     # Initialize the torch seed.
     if config["set_manual_seed"] is True:
-        torch.manual_seed(0)
-        logger.info("Seed: {}".format(0))
+        torch.manual_seed(config["manual_seed"])
+        logger.info("Seed: {}".format(config["manual_seed"]))
     else:
         logger.info("Seed: {}".format(torch.seed()))
 
@@ -130,6 +130,7 @@ def infer(args, config):
             device=f"{device}",
         )
     else:
+        # Set the prior range to the range of the parameters.
         prior = utils.BoxUniform(
             low=torch.tensor(dataset.target_min),
             high=torch.tensor(dataset.target_max),
@@ -144,7 +145,7 @@ def infer(args, config):
 
     # Load the trained model.
     logger.info("Loading the trained model...")
-    with open(args.weights, "rb") as f:
+    with open(args.trained_model, "rb") as f:
         trained_model = pickle.load(f)
 
     # Build the posterior.
@@ -217,7 +218,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--weights",
+        "--trained_model",
         type=str,
         default=None,
         help="Path to pretrained model.",

@@ -40,7 +40,7 @@ import pypopsyn.learning.models.models as learning_models
 from pypopsyn.learning.utils.request_device import request_device
 
 
-def main(config):
+def train(config):
 
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("train")
@@ -51,8 +51,8 @@ def main(config):
 
     # Initialize the torch seed.
     if config["set_manual_seed"] is True:
-        torch.manual_seed(0)
-        logger.info("Seed: {}".format(0))
+        torch.manual_seed(config["manual_seed"])
+        logger.info("Seed: {}".format(config["manual_seed"]))
     else:
         logger.info("Seed: {}".format(torch.seed()))
 
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--weights",
+        "--trained_model",
         type=str,
         default=None,
         help="Path to checkpoint to resume training. This argument is not used at the moment.",
@@ -283,4 +283,4 @@ if __name__ == "__main__":
         args, options
     )
 
-    main(configuration)
+    train(configuration)

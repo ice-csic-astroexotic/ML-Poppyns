@@ -174,7 +174,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--weights",
+        "--trained_model",
         type=str,
         default=None,
         help="Path to pretrained model.",
