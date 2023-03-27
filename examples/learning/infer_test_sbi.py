@@ -31,6 +31,7 @@ import sys
 import time
 
 import numpy as np
+import pandas as pd
 import torch
 from sbi import utils
 from sbi.analysis import check_sbc, run_sbc, sbc_rank_plot
@@ -96,6 +97,9 @@ def infer(args, config):
             standardize = config["test_data_loader"]["standardize"]
             input_shape = config["arch"]["args"]["input_shape"]
             hidden_features = config["arch"]["args"]["len_output_layer"]
+            n_components = config["density_estimator"]["args"][
+                "num_components"
+            ]
             n_parameters = len(filter_labels)
 
             # Set up GPU device if available.
@@ -162,9 +166,7 @@ def infer(args, config):
                 model=config["density_estimator"]["type"],
                 embedding_net=embedding_net,
                 hidden_features=hidden_features,
-                num_components=config["density_estimator"]["args"][
-                    "num_components"
-                ],
+                num_components=n_components,
                 device=device,
             )
 
@@ -217,12 +219,59 @@ def infer(args, config):
         ):
 
             # Compute the average loss over the test dataset (with batch size = 1).
-            logger.info("Computing the average loss over the test dataset...")
+            logger.info(
+                "Computing the average loss over the test dataset and extracting Gaussian mixture coefficients...."
+            )
             test_loss_mean = torch.tensor([0.0]).to(device)
+
+            # Compute the coefficient for each of the Gaussian components.
+            coeff_Gaussians = np.zeros((len(dataset), n_components))
+            mean_Gaussians = np.zeros(
+                (len(dataset), n_components, n_parameters)
+            )
+            precision_Gaussians = np.zeros(
+                (len(dataset), n_components, n_parameters, n_parameters)
+            )
+
             for i in range(len(dataset)):
                 test_loss_mean += posterior.log_prob(
                     parameter[i].to(device), matrix[i].to(device)
                 )
+
+                posterior_estimator = posterior.posterior_estimator
+
+                # Extracting the latent vector, i.e. the output from the convolutional network, for each of the test samples.
+                encoded_matrix = posterior_estimator._embedding_net(
+                    matrix[i].to(device)
+                )
+                # Compute the parameters of each Gaussian component for each of the test samples.
+                (
+                    logits,
+                    means,
+                    precision,
+                    sumlogdiag,
+                    precfs,
+                ) = posterior_estimator._distribution.get_mixture_components(
+                    encoded_matrix
+                )
+
+                # Normalize the coefficient of each Gaussian, i.e. the sum over the coefficients is equal to 1.
+                logits_norm = logits - torch.logsumexp(
+                    logits, dim=-1, keepdim=True
+                )
+                coeff_Gaussians[i, :] = np.exp(logits_norm.detach().numpy())
+
+                # Save the means and the precision matrices (inverse of the covariance matrix) of each Gaussian.
+                mean_Gaussians[i, :, :] = means.detach().numpy()
+                precision_Gaussians[i, :, :, :] = precision.detach().numpy()
+
+            # Saving in a csv file the coefficients of each of the Gaussian components.
+            df_coeff = pd.DataFrame(data=coeff_Gaussians)
+            df_coeff.to_csv(f"{config.log_dir}/coeff_Gaussians.csv")
+
+            # To save the precision and means for the whole test dataset in a numpy array uncommented the code below.
+            # np.save(f"{config.log_dir}/mean_Gaussians.npy",mean_Gaussians)
+            # np.save(f"{config.log_dir}/precision_Gaussians.npy",precision_Gaussians)
 
             test_loss_mean = test_loss_mean / len(dataset)
             logger.info(
@@ -230,7 +279,7 @@ def infer(args, config):
             )
 
         with timewith.TimeWith(
-            "[SimulationBasedcCalibration]",
+            "[SimulationBasedCalibration]",
             prof_log_path,
             prof_json_path,
             config["show_profiling"],
