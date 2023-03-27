@@ -31,6 +31,7 @@ import sys
 import time
 
 import numpy as np
+import pandas as pd
 import torch
 from sbi import utils
 from sbi.analysis import check_sbc, run_sbc, sbc_rank_plot
@@ -218,13 +219,17 @@ def infer(args, config):
         ):
 
             # Compute the average loss over the test dataset (with batch size = 1).
-            logger.info("Computing the average loss over the test dataset...")
+            logger.info(
+                "Computing the average loss over the test dataset and extracting Gaussian mixture coefficients...."
+            )
             test_loss_mean = torch.tensor([0.0]).to(device)
-            # Compute the coefficient for each of the gaussian components.
 
-            coef_mog = np.zeros((len(dataset), n_components))
-            mean_mog = np.zeros((len(dataset), n_components, n_parameters))
-            precission_mog = np.zeros(
+            # Compute the coefficient for each of the Gaussian components.
+            coef_Gaussians = np.zeros((len(dataset), n_components))
+            mean_Gaussians = np.zeros(
+                (len(dataset), n_components, n_parameters)
+            )
+            precision_Gaussians = np.zeros(
                 (len(dataset), n_components, n_parameters, n_parameters)
             )
 
@@ -239,32 +244,34 @@ def infer(args, config):
                 encoded_matrix = posterior_estimator._embedding_net(
                     matrix[i].to(device)
                 )
-                # Compute the parameters of each gaussian component for each of the test samples.
+                # Compute the parameters of each Gaussian component for each of the test samples.
                 (
                     logits,
                     means,
-                    precission,
+                    precision,
                     sumlogdiag,
                     precfs,
                 ) = posterior_estimator._distribution.get_mixture_components(
                     encoded_matrix
                 )
 
-                # Normalize the coefficient of each gaussian, i.e. the sum over the coefficients is equal to 1.
+                # Normalize the coefficient of each Gaussian, i.e. the sum over the coefficients is equal to 1.
                 logits_norm = logits - torch.logsumexp(
                     logits, dim=-1, keepdim=True
                 )
-                coef_mog[i, :] = np.exp(logits_norm.detach().numpy())
+                coef_Gaussians[i, :] = np.exp(logits_norm.detach().numpy())
 
-                # Save the means and the precision matrices (inverse of the covariance matrix) of each gaussian.
-                mean_mog[i, :, :] = means.detach().numpy()
-                precission_mog[i, :, :, :] = precission.detach().numpy()
+                # Save the means and the precision matrices (inverse of the covariance matrix) of each Gaussian.
+                mean_Gaussians[i, :, :] = means.detach().numpy()
+                precision_Gaussians[i, :, :, :] = precision.detach().numpy()
 
-            np.save(f"{config.log_dir}/coefficient_mog.npy", coef_mog)
+            # Saving in a csv file the coefficients of each of the Gaussian components.
+            df_coef = pd.DataFrame(data=coef_Gaussians)
+            df_coef.to_csv(f"{config.log_dir}/coeff_Gaussians.csv")
 
             # To save the precision and means for the whole test dataset in a numpy array uncommented the code below.
-            # np.save(f"{config.log_dir}/means_mog.npy",mean_mog)
-            # np.save(f"{config.log_dir}/precision_mog.npy",precission_mog)
+            # np.save(f"{config.log_dir}/mean_Gaussians.npy",mean_Gaussians)
+            # np.save(f"{config.log_dir}/precision_Gaussians.npy",precision_Gaussians)
 
             test_loss_mean = test_loss_mean / len(dataset)
             logger.info(
