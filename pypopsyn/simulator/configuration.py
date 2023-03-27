@@ -76,7 +76,7 @@ cfg["seed_sampling"] = None
 cfg["resolution"]: int = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"]: int = 300000
+cfg["NS_number"]: int = 100000
 
 # ODE solver tolerance for Julia.
 cfg["ODE_solver_tol"] = 1e-8
@@ -103,7 +103,7 @@ cfg["arm_number"]: int = 5
 cfg["t_age_min"]: float = 1.0
 
 # Maximum age for the neutron stars in [yr].
-cfg["t_age_max"]: float = 3e7
+cfg["t_age_max"]: float = 1e7
 
 # Time step for the dynamical evolution [yr].
 cfg["dyn_time_step"]: float = 1e4
