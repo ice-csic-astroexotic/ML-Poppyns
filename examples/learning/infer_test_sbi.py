@@ -225,7 +225,7 @@ def infer(args, config):
             test_loss_mean = torch.tensor([0.0]).to(device)
 
             # Compute the coefficient for each of the Gaussian components.
-            coef_Gaussians = np.zeros((len(dataset), n_components))
+            coeff_Gaussians = np.zeros((len(dataset), n_components))
             mean_Gaussians = np.zeros(
                 (len(dataset), n_components, n_parameters)
             )
@@ -259,15 +259,15 @@ def infer(args, config):
                 logits_norm = logits - torch.logsumexp(
                     logits, dim=-1, keepdim=True
                 )
-                coef_Gaussians[i, :] = np.exp(logits_norm.detach().numpy())
+                coeff_Gaussians[i, :] = np.exp(logits_norm.detach().numpy())
 
                 # Save the means and the precision matrices (inverse of the covariance matrix) of each Gaussian.
                 mean_Gaussians[i, :, :] = means.detach().numpy()
                 precision_Gaussians[i, :, :, :] = precision.detach().numpy()
 
             # Saving in a csv file the coefficients of each of the Gaussian components.
-            df_coef = pd.DataFrame(data=coef_Gaussians)
-            df_coef.to_csv(f"{config.log_dir}/coeff_Gaussians.csv")
+            df_coeff = pd.DataFrame(data=coeff_Gaussians)
+            df_coeff.to_csv(f"{config.log_dir}/coeff_Gaussians.csv")
 
             # To save the precision and means for the whole test dataset in a numpy array uncommented the code below.
             # np.save(f"{config.log_dir}/mean_Gaussians.npy",mean_Gaussians)
@@ -279,7 +279,7 @@ def infer(args, config):
             )
 
         with timewith.TimeWith(
-            "[SimulationBasedcCalibration]",
+            "[SimulationBasedCalibration]",
             prof_log_path,
             prof_json_path,
             config["show_profiling"],
