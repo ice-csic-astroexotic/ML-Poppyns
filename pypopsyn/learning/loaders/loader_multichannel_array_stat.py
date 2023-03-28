@@ -31,9 +31,10 @@ import json
 
 import numpy as np
 import pandas as pd
-import torchvision.transforms
 
 from .loader_base import LoaderBase
+
+# import torchvision.transforms
 
 
 class DatasetMultichannelArray:
@@ -280,7 +281,7 @@ class LoaderMultichannelArray(LoaderBase):
 
         """
 
-        transformation = torchvision.transforms.ToTensor()
+        #        transformation = torchvision.transforms.ToTensor()
 
         self.dataset_path = dataset_path
         self.statistic_path = statistic_path
@@ -296,7 +297,7 @@ class LoaderMultichannelArray(LoaderBase):
             self.filter_labels,
             self.normalize,
             self.standardize,
-            transform=transformation,
+            #            transform=transformation,
         )
 
         self.target_mean = self.dataset.target_mean
