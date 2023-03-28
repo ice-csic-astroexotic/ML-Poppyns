@@ -259,11 +259,15 @@ def infer(args, config):
                 logits_norm = logits - torch.logsumexp(
                     logits, dim=-1, keepdim=True
                 )
-                coeff_Gaussians[i, :] = np.exp(logits_norm.detach().numpy())
+                coeff_Gaussians[i, :] = np.exp(
+                    logits_norm.cpu().detach().numpy()
+                )
 
                 # Save the means and the precision matrices (inverse of the covariance matrix) of each Gaussian.
-                mean_Gaussians[i, :, :] = means.detach().numpy()
-                precision_Gaussians[i, :, :, :] = precision.detach().numpy()
+                mean_Gaussians[i, :, :] = means.cpu().detach().numpy()
+                precision_Gaussians[i, :, :, :] = (
+                    precision.cpu().detach().numpy()
+                )
 
             # Saving in a csv file the coefficients of each of the Gaussian components.
             df_coeff = pd.DataFrame(data=coeff_Gaussians)
