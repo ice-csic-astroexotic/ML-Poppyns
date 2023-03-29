@@ -220,14 +220,20 @@ def train(config):
 
             # Train the network --------------------------------------------------------------------
             logger.info("Train the density estimator...")
-            density_estimator = inference.append_simulations(
-                parameter.to(device), matrix.to(device), proposal=prior
-            ).train(
-                learning_rate=config["trainer"]["lr"],
-                training_batch_size=config["trainer"]["batch_size"],
-                validation_fraction=config["trainer"]["validation_fraction"],
-                show_train_summary=True,
-            )
+
+            try:
+                density_estimator = inference.append_simulations(
+                    parameter.to(device), matrix.to(device), proposal=prior
+                ).train(
+                    learning_rate=config["trainer"]["lr"],
+                    training_batch_size=config["trainer"]["batch_size"],
+                    validation_fraction=config["trainer"][
+                        "validation_fraction"
+                    ],
+                    show_train_summary=True,
+                )
+            except Exception:
+                logger.exception("Error: an error occurred:")
 
         with timewith.TimeWith(
             "[SaveOutput]",
