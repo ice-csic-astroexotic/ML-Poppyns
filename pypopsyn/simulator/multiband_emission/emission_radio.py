@@ -53,7 +53,7 @@ def beam_aperture(P: np.ndarray, r_em: float) -> np.ndarray:
     """
 
     rho_b = np.sqrt(9.0 * np.pi * r_em / (2.0 * const.C * P))
-
+    # rho_b = 0.1*np.pi*np.ones(len(P))
     return rho_b
 
 
@@ -171,10 +171,11 @@ def pdf_luminosity_radio(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
 
     NS_number = len(P)
 
-    L_0 = 10 ** np.random.normal(
-        cfg["L_radio_log10_mean"], cfg["L_radio_log10_sigma"], NS_number
-    )
-    L_radio = L_0 * (P ** (-3) * P_dot) ** cfg["epsilon_L"]
+    # L_0 = 10 ** np.random.normal(
+    #     cfg["L_radio_log10_mean"], cfg["L_radio_log10_sigma"], NS_number
+    # )
+    # L_radio = L_0 * (P ** (-3) * P_dot) ** cfg["epsilon_L"]
+    L_radio = 10 ** np.random.normal(28, cfg["L_radio_log10_sigma"], NS_number)
 
     return L_radio
 
