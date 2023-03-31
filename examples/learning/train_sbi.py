@@ -120,14 +120,17 @@ def train(config):
 
             # Load the training dataset ----------------------------------------------------------
             logger.info("Loading the training dataset...")
-            dataset = dl.DatasetMultichannelArray(
-                dataset_path=dataset_path,
-                statistic_path=dataset_stat_path,
-                filter_channels=filter_inputs,
-                filter_labels=filter_labels,
-                normalize=normalize,
-                standardize=standardize,
-            )
+            try:
+                dataset = dl.DatasetMultichannelArray(
+                    dataset_path=dataset_path,
+                    statistic_path=dataset_stat_path,
+                    filter_channels=filter_inputs,
+                    filter_labels=filter_labels,
+                    normalize=normalize,
+                    standardize=standardize,
+                )
+            except Exception:
+                logger.exception("Error: an error occurred:")
 
             parameter = np.zeros((len(dataset), n_parameters))
             matrix = np.zeros(
