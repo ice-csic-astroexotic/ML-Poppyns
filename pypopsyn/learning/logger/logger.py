@@ -17,6 +17,7 @@ import logging.config
 import pathlib
 
 import pypopsyn.learning.utils as learning_utils
+from pypopsyn.simulator.configuration import cfg
 
 LOG_LEVELS = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
 
@@ -42,7 +43,10 @@ def setup_logging(
 
     """
 
-    log_config_file = pathlib.Path(log_config_file)
+    path_server_software = cfg["path_server_software"]
+    log_config_file = pathlib.Path().joinpath(
+        path_server_software, log_config_file
+    )
 
     if log_config_file.is_file():
 

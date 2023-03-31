@@ -28,6 +28,7 @@ import json
 import os
 import pathlib
 import pickle
+import sys
 import time
 
 import matplotlib.pyplot as plt
@@ -120,14 +121,18 @@ def train(config):
 
             # Load the training dataset ----------------------------------------------------------
             logger.info("Loading the training dataset...")
-            dataset = dl.DatasetMultichannelArray(
-                dataset_path=dataset_path,
-                statistic_path=dataset_stat_path,
-                filter_channels=filter_inputs,
-                filter_labels=filter_labels,
-                normalize=normalize,
-                standardize=standardize,
-            )
+            try:
+                dataset = dl.DatasetMultichannelArray(
+                    dataset_path=dataset_path,
+                    statistic_path=dataset_stat_path,
+                    filter_channels=filter_inputs,
+                    filter_labels=filter_labels,
+                    normalize=normalize,
+                    standardize=standardize,
+                )
+            except Exception:
+                logger.exception("Error: an error occurred:")
+                sys.exit(1)
 
             parameter = np.zeros((len(dataset), n_parameters))
             matrix = np.zeros(
@@ -220,14 +225,21 @@ def train(config):
 
             # Train the network --------------------------------------------------------------------
             logger.info("Train the density estimator...")
-            density_estimator = inference.append_simulations(
-                parameter.to(device), matrix.to(device), proposal=prior
-            ).train(
-                learning_rate=config["trainer"]["lr"],
-                training_batch_size=config["trainer"]["batch_size"],
-                validation_fraction=config["trainer"]["validation_fraction"],
-                show_train_summary=True,
-            )
+
+            try:
+                density_estimator = inference.append_simulations(
+                    parameter.to(device), matrix.to(device), proposal=prior
+                ).train(
+                    learning_rate=config["trainer"]["lr"],
+                    training_batch_size=config["trainer"]["batch_size"],
+                    validation_fraction=config["trainer"][
+                        "validation_fraction"
+                    ],
+                    show_train_summary=True,
+                )
+            except Exception:
+                logger.exception("Error: an error occurred:")
+                sys.exit(1)
 
         with timewith.TimeWith(
             "[SaveOutput]",
