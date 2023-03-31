@@ -28,6 +28,7 @@ import json
 import os
 import pathlib
 import pickle
+import sys
 import time
 
 import matplotlib.pyplot as plt
@@ -131,6 +132,7 @@ def train(config):
                 )
             except Exception:
                 logger.exception("Error: an error occurred:")
+                sys.exit(1)
 
             parameter = np.zeros((len(dataset), n_parameters))
             matrix = np.zeros(
@@ -237,6 +239,7 @@ def train(config):
                 )
             except Exception:
                 logger.exception("Error: an error occurred:")
+                sys.exit(1)
 
         with timewith.TimeWith(
             "[SaveOutput]",

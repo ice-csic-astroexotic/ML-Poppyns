@@ -127,6 +127,7 @@ def infer(args, config):
                 )
             except Exception:
                 logger.exception("Error: an error occurred:")
+                sys.exit(1)
 
             parameter = np.zeros((len(dataset), n_parameters))
             matrix = np.zeros(
