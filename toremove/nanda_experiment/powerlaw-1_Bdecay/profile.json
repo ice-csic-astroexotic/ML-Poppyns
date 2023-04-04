@@ -1,0 +1,84 @@
+{
+  "[TotalSimulation]": {
+    "time": 144.0555329322815
+  },
+  "[InitialPopulation]": {
+    "time": 6.204502105712891,
+    "[Initial position and velocity]": {
+      "elapsed_time": 1.7432096004486084,
+      "cumulative_time": 1.7432096004486084
+    },
+    "[Initial energy]": {
+      "elapsed_time": 3.263643741607666,
+      "cumulative_time": 5.006853342056274
+    },
+    "[Initial angular momentum]": {
+      "elapsed_time": 0.5709948539733887,
+      "cumulative_time": 5.577848196029663
+    },
+    "[Initial field strengths, misalignment angles and periods]": {
+      "elapsed_time": 0.03470253944396973,
+      "cumulative_time": 5.612550735473633
+    },
+    "[Initial period derivatives]": {
+      "elapsed_time": 0.04132843017578125,
+      "cumulative_time": 5.653879165649414
+    },
+    "[Export]": {
+      "elapsed_time": 0.5498442649841309,
+      "cumulative_time": 6.203723430633545
+    }
+  },
+  "[DynamicalEvolution]": {
+    "time": 42.69093656539917,
+    "[Dynamical evolution]": {
+      "elapsed_time": 42.68272566795349,
+      "cumulative_time": 42.68272566795349
+    },
+    "[Final energy]": {
+      "elapsed_time": 0.006917476654052734,
+      "cumulative_time": 42.689643144607544
+    },
+    "[Final angular momentum]": {
+      "elapsed_time": 0.001001596450805664,
+      "cumulative_time": 42.69064474105835
+    }
+  },
+  "[MagnetoRotationalEvolution]": {
+    "time": 80.70773959159851,
+    "[Final field strengths, misalignment angles and periods]": {
+      "elapsed_time": 80.67012548446655,
+      "cumulative_time": 80.67012548446655
+    },
+    "[Final period derivatives]": {
+      "elapsed_time": 0.03703022003173828,
+      "cumulative_time": 80.70715570449829
+    }
+  },
+  "[RadioEmission]": {
+    "time": 0.04117751121520996,
+    "[Radio emission]": {
+      "elapsed_time": 0.04057931900024414,
+      "cumulative_time": 0.04057931900024414
+    }
+  },
+  "[RadioDetection]": {
+    "time": 13.349480390548706,
+    "[Total sky coverage]": {
+      "elapsed_time": 0.0050907135009765625,
+      "cumulative_time": 0.0050907135009765625
+    },
+    "[DM computation]": {
+      "elapsed_time": 13.02555251121521,
+      "cumulative_time": 13.030643224716187
+    },
+    "[Radio surveys detection]": {
+      "elapsed_time": 0.31809544563293457,
+      "cumulative_time": 13.348738670349121
+    },
+    "[Export]": {
+      "elapsed_time": 1.0587265491485596,
+      "cumulative_time": 14.408206939697266
+    }
+  }
+}
