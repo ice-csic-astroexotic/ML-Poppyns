@@ -159,14 +159,14 @@ def generate_htcondor_failed(args):
     # if it is equal to 'dyn', we generate a wrapper file that will execute the dynamical simulations.
     if args.type_simulation == "dyn":
 
-        exec_command = "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn.py --output_dir ${a[0]} --parameter_override ${a[1]}  \n"
+        exec_command = "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn.py --output_dir $1 --parameter_override $2  \n"
 
     elif args.type_simulation == "magrot":
 
         exec_command = (
             "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_magrot_det.py --dyn_data "
             + str(args.dyn_data)
-            + " --output_dir ${a[0]} --parameter_override ${a[1]} \n"
+            + " --output_dir $1 --parameter_override $2 \n"
         )
     else:
         raise ValueError(
