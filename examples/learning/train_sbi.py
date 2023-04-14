@@ -101,6 +101,9 @@ def train(config):
             ]
             filter_inputs = config["training_data_loader"]["filter_inputs"]
             filter_labels = config["training_data_loader"]["filter_labels"]
+            normalization_type = config["training_data_loader"][
+                "normalization_type"
+            ]
             normalize = config["training_data_loader"]["normalize"]
             standardize = config["training_data_loader"]["standardize"]
             input_shape = config["arch"]["args"]["input_shape"]
@@ -127,6 +130,7 @@ def train(config):
                     statistic_path=dataset_stat_path,
                     filter_channels=filter_inputs,
                     filter_labels=filter_labels,
+                    normalization_type=normalization_type,
                     normalize=normalize,
                     standardize=standardize,
                 )
