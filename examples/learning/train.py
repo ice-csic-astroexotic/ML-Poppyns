@@ -1,7 +1,5 @@
-#!/usr/bin/evn python3
-# -*- coding: utf-8 -*-
-
-""" Training script.
+"""
+    Training script.
 
     This script carries out the training for a machine learning architecture
     using the specified run configuration file.
@@ -22,10 +20,7 @@
 
 import argparse
 import collections
-import time
-import typing
 
-import numpy as np
 import torch
 
 import pypopsyn.learning.configuration_parser as configuration_parser
@@ -58,7 +53,7 @@ def main(config):
         for k, v in config["convergence"].items():
             logger.info("{}:{}".format(k, v))
 
-        # Setup data loaders ---------------------------------------------------
+        # Set up data loaders ---------------------------------------------------
         logger.info("Creating data loaders...")
         train_loader = config.init_object(
             "training_data_loader", learning_loaders
@@ -188,11 +183,11 @@ if __name__ == "__main__":
         "--configuration",
         type=str,
         default="examples/learning/config_multiparameter_MLP.json",
-        help="Configuration file path",
+        help="Configuration file path.",
     )
 
     args.add_argument(
-        "--weights",
+        "--trained_model",
         type=str,
         default=None,
         help="Path to checkpoint to resume training.",
@@ -215,19 +210,19 @@ if __name__ == "__main__":
             ["--convergence"],
             type=float,
             nargs="?",
-            target=("convergence_threshold"),
+            target="convergence_threshold",
         ),
         CustomArgs(
             ["--dataset_training"],
             type=str,
             nargs="?",
-            target=("training_data_loader;args;dataset_path"),
+            target="training_data_loader;args;dataset_path",
         ),
         CustomArgs(
             ["--dataset_validation"],
             type=str,
             nargs="?",
-            target=("validation_data_loader;args;dataset_path"),
+            target="validation_data_loader;args;dataset_path",
         ),
         CustomArgs(
             ["--dataset_statistics"],
@@ -241,7 +236,7 @@ if __name__ == "__main__":
             ["--initializer"],
             type=str,
             nargs="?",
-            target=("weights_initializer;type"),
+            target="weights_initializer;type",
         ),
         CustomArgs(
             ["--filter_inputs"],
@@ -271,16 +266,16 @@ if __name__ == "__main__":
             ["--input_shape"],
             type=int,
             nargs=3,
-            target=("arch;args;input_shape"),
+            target="arch;args;input_shape",
         ),
         CustomArgs(
             ["--num_parameters"],
             type=int,
             nargs="?",
-            target=("arch;args;num_parameters"),
+            target="arch;args;num_parameters",
         ),
         CustomArgs(
-            ["--save_dir"], type=str, nargs="?", target=("trainer;save_dir")
+            ["--save_dir"], type=str, nargs="?", target="trainer;save_dir"
         ),
         CustomArgs(
             ["--normalization_type"],
@@ -307,7 +302,7 @@ if __name__ == "__main__":
             ),
         ),
         CustomArgs(
-            ["--lr"], type=float, nargs="?", target=("optimizer;args;lr")
+            ["--lr"], type=float, nargs="?", target="optimizer;args;lr"
         ),
     ]
 

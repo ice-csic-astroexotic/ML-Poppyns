@@ -1,6 +1,11 @@
 {
   "name": "SBI_ConvolutionMDN",
   "n_gpu": 1,
+  "set_manual_seed": false,
+  "manual_seed": 42,
+  "profile_log": "profile.log",
+  "profile_json": "profile.json",
+  "show_profiling": true,
 
   "arch": {
     "type": "ModelConvSBI",
@@ -23,20 +28,20 @@
   },
 
   "training_data_loader": {
-    "dataset_path": "toremove/output_generator32/dataset_full.csv",
-    "statistic_path": "toremove/output_generator32/statistics_full.json",
+    "dataset_path": "/data/magnesia/common/radio_survey_sim_database/output_generator_res32/dataset_train_25.csv",
+    "statistic_path": "/data/magnesia/common/radio_survey_sim_database/output_generator_res32/statistics_full.json",
     "filter_inputs": [9, 10, 11],
-    "filter_labels": [12,13,14,15,16],
+    "filter_labels": [12, 13, 14, 15, 16],
     "normalization_type": "per_channel",
     "normalize": false,
     "standardize": false
   },
 
   "test_data_loader": {
-    "dataset_path": "toremove/output_generator32/dataset_full.csv",
-    "statistic_path": "toremove/output_generator32/statistics_full.json",
+    "dataset_path": "/data/magnesia/common/radio_survey_sim_database/output_generator_res32/dataset_test_25.csv",
+    "statistic_path": "/data/magnesia/common/radio_survey_sim_database/output_generator_res32/statistics_full.json",
     "filter_inputs": [9, 10, 11],
-    "filter_labels": [12,13,14,15,16],
+    "filter_labels": [12, 13, 14, 15, 16],
     "normalization_type": "per_channel",
     "normalize": false,
     "standardize": false
@@ -44,7 +49,7 @@
 
   "trainer": {
     "validation_fraction": 0.1,
-    "batch_size": 1,
+    "batch_size": 8,
     "lr": 5e-4,
     "save_dir": "toremove/learning"
   },

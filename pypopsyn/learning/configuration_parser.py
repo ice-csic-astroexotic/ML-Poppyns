@@ -89,7 +89,7 @@ class ConfigurationParser:
             o.target: getattr(args, _get_opt_name(o.flags)) for o in options
         }
 
-        return cls(configuration, args.infer, modification, args.weights)
+        return cls(configuration, args.infer, modification, args.trained_model)
 
     def init_object(self, name: str, module, *args, **kwargs):
         """Object handler finder.
@@ -126,8 +126,8 @@ class ConfigurationParser:
 
         Args:
 
-            name: TODO: document
-            verbosity: TODO: document
+            name: Name for the logger.
+            verbosity: Logging level. By default it is set to INFO.
 
         Returns:
 
