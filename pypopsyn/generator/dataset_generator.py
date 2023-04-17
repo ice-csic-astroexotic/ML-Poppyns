@@ -243,7 +243,7 @@ def generate_density_matrix(
 
     # Generating a 2D histogram that counts the number of objects contained
     # in each respective bin; x (y) values are histogrammed along first
-    # (second) dimension; # to avoid potential sharp edges, we apply a Gaussian filter.
+    # (second) dimension; to avoid potential sharp edges, we apply a Gaussian filter.
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     density = scipy.ndimage.gaussian_filter(density, sigma=1)
 
