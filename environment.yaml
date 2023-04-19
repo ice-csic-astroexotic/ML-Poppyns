@@ -5,13 +5,13 @@ dependencies:
   - astropy=5.2
   - black=22.10.0
   - corner=2.2.1
-  - cudatoolkit=11.6 # If you are a OSX user comment out this package.
+#  - cudatoolkit=11.6 # If you are a OSX user comment out this package.
   - f2c=20210323183018
   - ffmpeg=5.1.2
   - graphviz=6.0.2
   - healpy=1.16.1
   - ipykernel=6.19.3
-  - julia=1.8.3 # If you are a OSX-arm64 user this package is not available.
+#  - julia=1.8.3 # If you are a OSX-arm64 user this package is not available.
   - jupyter=1.0.0
   - libtiff=4.5.0
   - matplotlib=3.6.2
@@ -35,10 +35,10 @@ dependencies:
   - recommonmark=0.7.1
   - scipy=1.9.3
   - sphinx=5.3.0
-  - tensorboard=2.11.0
-  - tensorboardx=2.5
+#  - tensorboard=2.11.0
+#  - tensorboardx=2.5
   - termcolor=2.1.1
-  - torchvision=0.13.0
+#  - torchvision=0.13.0
   - zstd=1.5.2
   - pip:
       - julia
