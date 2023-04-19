@@ -1,5 +1,5 @@
 """
-Model for a convolutional neural network
+Model for a deeper convolutional neural network
 
 Authors:
 
@@ -81,6 +81,8 @@ class ModelConvSBIdeep(ModelBase):
 
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
+        x = self.pool(F.relu(self.conv3(x)))
+        x = self.pool(F.relu(self.conv4(x)))
 
         # If the dimension of the flattened input features to the linear layers has not been saved yet, save it.
         if self._to_linear is None:

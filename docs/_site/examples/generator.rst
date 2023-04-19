@@ -40,22 +40,22 @@ This statistical information will be used during the training process if one wan
 
 You can also choose to split the dataset into training/validation or into training/validation/test sets.
 To do this you can run the :code:`dataset_splitter.py` script in the :code:`scripts` folder.
-To generate a dataset split into two subsets, one specifically for training and the other for validation, you can specify a fraction of the total dataset that will form the validation subset by passing the argument :code:`valid_train_split` in the :code:`dataset_splitter` script. For example:
+To generate a dataset split into two subsets, one specifically for training and the other for validation, you can specify a fraction of the total dataset that will form the validation subset by passing the argument :code:`valid_split` in the :code:`dataset_splitter` script. For example:
 
 .. code-block:: bash
 
- python scripts/dataset_splitter.py --dataset_path generated_dataset --valid_train_split 0.2
+ python scripts/dataset_splitter.py --dataset_path generated_dataset --valid_split 0.2
 
 This will create two files :code:`dataset_train.csv` and :code:`dataset_valid.csv` that will specify the samples belonging to the train dataset (80 % of the total dataset in this case) and the ones belonging to the validation dataset  (20 % of the total dataset).
 The split is performed by randomly sampling the validation subset from the total dataset according to the specified split fraction.
 In this case, the :code:`statistics_train.json` file will contain the statistics computed on the labels of the training set only.
 
 If you also want to create a test set in addition to the training and validation sets, you can specify the argument :code:`test_split`, which sets the fraction of the total dataset to be dedicated for testing purposes.
-In this case, the :code:`valid_train_split` argument will specify the fraction of the dataset not used for testing but instead dedicated for validation.
+In this case, the :code:`valid_split` argument will specify the fraction of the dataset not used for testing but instead dedicated for validation.
 
 .. code-block:: bash
 
- python scripts/dataset_splitter.py --dataset_path generated_dataset --test_split 0.1 --valid_train_split 0.2
+ python scripts/dataset_splitter.py --dataset_path generated_dataset --test_split 0.1 --valid_split 0.2
 
 This will create three files :code:`dataset_train.csv`, :code:`dataset_valid.csv` and :code:`dataset_test.csv` that will specify the samples belonging to the train dataset (80 % of the dataset not used for testing in this case), the ones belonging to the validation dataset  (20 % of the dataset not used for testing) and the ones belonging to the test set (10 % of the total dataset), respectively.
 Again the split is performed by randomly sampling the test and validation subsets from the dataset according to the specified split fractions.
