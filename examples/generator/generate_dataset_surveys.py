@@ -14,11 +14,8 @@
 
     The information on the simulated dataset is also saved in a .csv file where the
     corresponding input files are specified with their paths and labels.
-
-    The total dataset can be also split into a training, validation and test subsets
-    and in this case three additional .csv files will be created specifying the samples
-    in each subset. One can also choose to split only into training and validation subsets
-    (without test subset), in which case only two related .csv files will be created.
+    The statistical information about the labels (average value, standard deviation,
+    maximum and minimum) are saved in a .json file.
 
     Running the code:
 

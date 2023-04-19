@@ -84,7 +84,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default="output/test",
-        help="Path to the directory with the original output from the simulations.",
+        help="Path to the directory containing the output from rerunning the failed simulations.",
     )
 
     args.add_argument(
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default=None,
-        help="Path to the directory containing the output from rerunning the failed simulations.",
+        help="Path to the directory with the original output from the simulations.",
     )
 
     args = args.parse_args()

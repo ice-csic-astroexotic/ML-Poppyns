@@ -29,7 +29,7 @@ import typing
 
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.ndimage.filters
+import scipy.ndimage
 
 import pypopsyn.generator.axes_scaling as axs
 
@@ -84,7 +84,7 @@ def generate_density_map(
     # improve the stability of the machine learning framework;
     # x (y) values are histogrammed along first (second) dimension.
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
-    density = scipy.ndimage.filters.gaussian_filter(density, sigma=1)
+    density = scipy.ndimage.gaussian_filter(density, sigma=1)
 
     DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
@@ -172,7 +172,7 @@ def generate_avg_weight_map(
     # to avoid potential sharp edges, we apply a Gaussian filter.
     total_per_bin[total_per_bin == 0] = 0.0001
     avg_weight = total_weight / total_per_bin
-    avg_weight = scipy.ndimage.filters.gaussian_filter(avg_weight, sigma=1)
+    avg_weight = scipy.ndimage.gaussian_filter(avg_weight, sigma=1)
 
     DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
@@ -243,8 +243,9 @@ def generate_density_matrix(
 
     # Generating a 2D histogram that counts the number of objects contained
     # in each respective bin; x (y) values are histogrammed along first
-    # (second) dimension; normalize to overall maximum if normalize = True.
+    # (second) dimension; to avoid potential sharp edges, we apply a Gaussian filter.
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
+    density = scipy.ndimage.gaussian_filter(density, sigma=1)
 
     np.save(filename, density)
 
@@ -309,6 +310,6 @@ def generate_avg_weight_matrix(
     # to avoid potential sharp edges, we apply a Gaussian filter.
     total_per_bin[total_per_bin == 0] = 0.0001
     avg_weight = total_weight / total_per_bin
-    avg_weight = scipy.ndimage.filters.gaussian_filter(avg_weight, sigma=1)
+    avg_weight = scipy.ndimage.gaussian_filter(avg_weight, sigma=1)
 
     np.save(filename, avg_weight)
