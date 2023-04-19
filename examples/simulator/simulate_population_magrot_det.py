@@ -108,6 +108,10 @@ def simulate_population(args) -> None:
             cfg_override = json.load(f)
             configuration.update_configuration(cfg_override)
 
+    # Set the values for some parameters from the updated configuration file.
+    # This is required because global variable are not updated.
+    a_late = cfg["a_late"]
+
     # Initialize seed randomly if no seed was specified.
     if cfg["seed_magrot"] is None:
         cfg["seed_magrot"] = int(time.time())
@@ -523,10 +527,7 @@ def simulate_population(args) -> None:
                     P_det,
                     magrot_evol_dict,
                 ) = mre.magneto_rotational_evolution(
-                    B_initial,
-                    chi_initial,
-                    P_initial,
-                    age_det,
+                    B_initial, chi_initial, P_initial, age_det, a_late
                 )
 
                 if cfg["save_magrot_evolution"]:
