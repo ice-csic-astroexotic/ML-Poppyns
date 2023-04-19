@@ -51,8 +51,8 @@ class ModelConvSBI(ModelBase):
         """
 
         super().__init__()
-        self.conv1 = nn.Conv2d(input_shape[0], 32, 3)
-        self.conv2 = nn.Conv2d(32, 64, 3)
+        self.conv1 = nn.Conv2d(input_shape[0], 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
         self.pool = nn.MaxPool2d(2, 2)
 
         # Create a mock input with the same shape of the real input drawing values from a normal distribution and pass
