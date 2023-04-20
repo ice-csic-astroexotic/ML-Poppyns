@@ -110,7 +110,7 @@ def create_survey_maps(
 def generate_dataset(args) -> None:
     """
     This method generates a dataset of density maps in the specified format (images or arrays) and with a specified
-    resolution from the observed population.
+    resolution from the ATNF Pulsar Catalogue.
     All the information about the dataset is stored in a dataset.csv file containing the density-map file names
     and the set of parameter values for each simulated population.
 
@@ -195,45 +195,51 @@ def generate_dataset(args) -> None:
     ]
 
     # Parkes multibeam pulsar survey database.
-    df_atnf_pk = df_atnf[
+    df_atnf_pmps = df_atnf[
         df_atnf["SURVEY"]["Unnamed: 25_level_1"].str.contains("pksmb")
     ]
 
-    l_pk_obs = df_atnf_pk["Gl"]["[deg]"].to_numpy().astype(np.float64)
-    b_pk_obs = df_atnf_pk["Gb"]["[deg]"].to_numpy().astype(np.float64)
-    P_pk_obs = df_atnf_pk["P0"]["[s]"].to_numpy().astype(np.float64)
-    Pdot_pk_obs = df_atnf_pk["P1"]["[s/s]"].to_numpy().astype(np.float64)
+    # Extracting Galactic longitude, latitude, period and period derivative.
+    l_pmps_obs = df_atnf_pmps["Gl"]["[deg]"].to_numpy().astype(np.float64)
+    b_pmps_obs = df_atnf_pmps["Gb"]["[deg]"].to_numpy().astype(np.float64)
+    P_pmps_obs = df_atnf_pmps["P0"]["[s]"].to_numpy().astype(np.float64)
+    Pdot_pmps_obs = df_atnf_pmps["P1"]["[s/s]"].to_numpy().astype(np.float64)
 
     # Convert galactic latitude into the range [-180., 180].
-    l_pk_obs[(l_pk_obs > 180.0) & (l_pk_obs < 360.0)] = (
-        l_pk_obs[(l_pk_obs > 180.0) & (l_pk_obs < 360.0)] - 360.0
+    l_pmps_obs[(l_pmps_obs > 180.0) & (l_pmps_obs < 360.0)] = (
+        l_pmps_obs[(l_pmps_obs > 180.0) & (l_pmps_obs < 360.0)] - 360.0
     )
 
-    # Select only pulsars falling in the Parkes multibeam sky coverage where completeness is above 90%.
-    cond = (l_pk_obs > -100.0) & (l_pk_obs < 50.0) & (np.abs(b_pk_obs) < 5.0)
+    # Select only pulsars falling in the Parkes multibeam sky coverage where completeness is above 90%. See Lorimer et al. 2006
+    cond = (
+        (l_pmps_obs > -100.0)
+        & (l_pmps_obs < 50.0)
+        & (np.abs(b_pmps_obs) < 5.0)
+    )
 
-    P_pk_obs = P_pk_obs[cond]
-    Pdot_pk_obs = Pdot_pk_obs[cond]
+    P_pmps_obs = P_pmps_obs[cond]
+    Pdot_pmps_obs = Pdot_pmps_obs[cond]
 
     # Swinburne multibeam pulsar survey database.
-    df_atnf_sw = df_atnf[
+    df_atnf_smps = df_atnf[
         df_atnf["SURVEY"]["Unnamed: 25_level_1"].str.contains("pkssw")
     ]
 
-    l_sw_obs = df_atnf_sw["Gl"]["[deg]"].to_numpy().astype(np.float64)
-    P_sw_obs = df_atnf_sw["P0"]["[s]"].to_numpy().astype(np.float64)
-    Pdot_sw_obs = df_atnf_sw["P1"]["[s/s]"].to_numpy().astype(np.float64)
+    # Extracting Galactic longitude, latitude, period and period derivative.
+    l_smps_obs = df_atnf_smps["Gl"]["[deg]"].to_numpy().astype(np.float64)
+    P_smps_obs = df_atnf_smps["P0"]["[s]"].to_numpy().astype(np.float64)
+    Pdot_smps_obs = df_atnf_smps["P1"]["[s/s]"].to_numpy().astype(np.float64)
 
     # Convert galactic latitude into the range [-180., 180].
-    l_sw_obs[(l_sw_obs > 180.0) & (l_sw_obs < 360.0)] = (
-        l_sw_obs[(l_sw_obs > 180.0) & (l_sw_obs < 360.0)] - 360.0
+    l_smps_obs[(l_smps_obs > 180.0) & (l_smps_obs < 360.0)] = (
+        l_smps_obs[(l_smps_obs > 180.0) & (l_smps_obs < 360.0)] - 360.0
     )
 
     # Select only pulsars falling in the Swinburne sky coverage where completeness is above 90%.
-    cond = (l_sw_obs > -100.0) & (l_sw_obs < 50.0)
+    cond = (l_smps_obs > -100.0) & (l_smps_obs < 50.0)
 
-    P_sw_obs = P_sw_obs[cond]
-    Pdot_sw_obs = Pdot_sw_obs[cond]
+    P_smps_obs = P_smps_obs[cond]
+    Pdot_smps_obs = Pdot_smps_obs[cond]
 
     # HTRU pulsar survey database.
     df_atnf_htru = df_atnf[
@@ -244,6 +250,7 @@ def generate_dataset(args) -> None:
     Pdot_htru_obs = df_atnf_htru["P1"]["[s/s]"].to_numpy().astype(np.float64)
 
     log.info("Generating sample...")
+
     # Create a set of maps for each survey.
     create_survey_maps(
         dataset_path,
@@ -254,8 +261,8 @@ def generate_dataset(args) -> None:
         survey_PMPS_velocity_map_vra_dictionary,
         survey_PMPS_velocity_map_vdec_dictionary,
         survey_PMPS_ppdot_map_dictionary,
-        P_pk_obs,
-        Pdot_pk_obs,
+        P_pmps_obs,
+        Pdot_pmps_obs,
     )
 
     create_survey_maps(
@@ -267,8 +274,8 @@ def generate_dataset(args) -> None:
         survey_SMPS_velocity_map_vra_dictionary,
         survey_SMPS_velocity_map_vdec_dictionary,
         survey_SMPS_ppdot_map_dictionary,
-        P_sw_obs,
-        Pdot_sw_obs,
+        P_smps_obs,
+        Pdot_smps_obs,
     )
 
     create_survey_maps(
@@ -284,20 +291,20 @@ def generate_dataset(args) -> None:
         Pdot_htru_obs,
     )
 
-    # Save the parameter value in a dictionary. Since we do not have the parameters for the observed values we set them to 0.
+    # Save the parameter values as a dictionary. Since we do not have the parameters for the observed values we set them to NaN.
     param_dictionary.update(
         {
-            "B_initial_log10_mean": [0],
-            "B_initial_log10_sigma": [0],
-            "P_initial_log10_mean": [0],
-            "P_initial_log10_sigma": [0],
-            "a_late": [0],
-            "h_c": [0],
-            "sigma_k": [0],
+            "B_initial_log10_mean": [],
+            "B_initial_log10_sigma": [],
+            "P_initial_log10_mean": [],
+            "P_initial_log10_sigma": [],
+            "a_late": [],
+            "h_c": [],
+            "sigma_k": [],
         }
     )
 
-    # Merge the filename and parameter dictionaries in a single dictionary.
+    # Merge the filename and parameter dictionaries into a single dictionary.
     dataset_dictionary = {
         **survey_PMPS_position_map_radec_dictionary,
         **survey_SMPS_position_map_radec_dictionary,
