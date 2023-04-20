@@ -278,15 +278,14 @@ def infer(args, config):
 
                 if args.corner_plot:
 
+                    dataset_test = pd.read_csv(dataset_path)
+                    labels = dataset_test.columns[filter_labels]
+
                     samples = (
                         posterior.set_default_x(matrix[i])
                         .sample((50000,))
                         .cpu()
                     )
-
-                    dataset_stat_path = config["training_data_loader"][
-                        "statistic_path"
-                    ]
 
                     par_max = torch.tensor(dataset.target_max)
                     par_min = torch.tensor(dataset.target_min)
@@ -298,8 +297,8 @@ def infer(args, config):
                         samples = samples * (par_max - par_min) + par_min
 
                     elif standardize:
-                        parameter = parameter * par_std[:5] + par_mean[:5]
-                        samples = samples * par_std[:5] + par_mean[:5]
+                        parameter = parameter * par_std + par_mean
+                        samples = samples * par_std + par_mean
 
                     # Estimate the mode of the posterior.
                     parameters_best = (
@@ -308,24 +307,27 @@ def infer(args, config):
                         )
                     )
 
+                    quantile = np.quantile(samples, [0.025, 0.975], axis=0)
+                    logger.info(
+                        "Estimated parameters values (95 % credibility interval):"
+                    )
+
+                    for i in range(len(parameters_best)):
+
+                        param_mean_quantile = quantile[:, i]
+                        logger.info(
+                            f"{labels[i]} = {parameters_best[i]} + {param_mean_quantile[1] - parameters_best[i]} - {parameters_best[i] - param_mean_quantile[0]}"
+                        )
+
+                    range_param = [
+                        [par_min[i], par_max[i]] for i in range(len(par_max))
+                    ]
                     # Corner plot of the posterior distributions for each parameter.
                     figure = corner.corner(
                         samples.detach().cpu().numpy(),
                         bins=32,
-                        labels=[
-                            r"$\mu_{B_i}$",
-                            r"$\sigma_{B_i}$",
-                            r"$\mu_{P_i}$",
-                            r"$\sigma_{P_i}$",
-                            r"$a_{late}$",
-                        ],
-                        range=[
-                            [par_min[0], par_max[0]],
-                            [par_min[1], par_max[1]],
-                            [par_min[2], par_max[2]],
-                            [par_min[3], par_max[3]],
-                            [par_min[4], par_max[4]],
-                        ],
+                        labels=labels,
+                        range=range_param,
                         quantiles=[0.16, 0.5, 0.84],
                         levels=(
                             1 - np.exp(-0.5),

@@ -1,6 +1,6 @@
 """ Generator for the observed population.
 
-    This module creates a compressed representations for the observed population in the ant catalog.
+    This module creates compressed representations for the observed population in the ATNF Pulsar Catalogue.
 
     The user can choose to generate either a dataset of images or of 2D arrays.
 
@@ -13,18 +13,15 @@
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
-        Alberto Garcia-Garcia (garciagarcia@ice.csic.es)
         Celsa Pardo Araujo  (pardo@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC)
 
 """
 import argparse
-import json
 import logging
 import pathlib
 import sys
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -37,7 +34,6 @@ log = logging.getLogger(__name__)
 def create_survey_maps(
     dataset_path: str,
     survey_name: str,
-    survey_filename: str,
     data_type: str,
     resolution_ppdot: int,
     dictionary_position_map_radec: dict,
@@ -48,16 +44,14 @@ def create_survey_maps(
     Pdot: np.ndarray,
 ) -> None:
     """
-    This method reads the observed population from the atnf catalog
+    This method reads the observed population from the ATNF Pulsar Catalogue
     and generates a set of density maps in the specified format (images or arrays) and with a specified resolution.
 
     Args:
 
-        simulation_output_path (str): Path to where the simulated populations are located.
-
         dataset_path (str): Path to where the generated dataset will be saved.
 
-        survey_filename (str): Survey filename.
+        survey_name (str): Survey acronym.
 
         data_type (str): Type of dataset to generate: array or image.
 
@@ -76,9 +70,9 @@ def create_survey_maps(
         dictionary_ppdot_map (dict): Dictionary containing the path to the P-Pdot maps for
             all the simulated surveys.
 
-        P (np.ndarray): array of spin periods of the pulsars in [s].
+        P (np.ndarray): Array of spin periods of the pulsars in [s].
 
-        Pdot (np.ndarray): array of spin period derivatives of the pulsars in [s/s].
+        Pdot (np.ndarray): Array of spin period derivatives of the pulsars in [s/s].
 
     Returns:
         Nothing.
@@ -195,7 +189,7 @@ def generate_dataset(args) -> None:
         ~df_atnf["ASSOC"]["Unnamed: 24_level_1"].str.match("|".join(discard))
     ]
 
-    # select only isolated non recycled neutron stars i.e. with Pdot > 1e-19
+    # Select only isolated non recycled neutron stars i.e. with Pdot > 1e-19.
     df_atnf = df_atnf[
         df_atnf["P1"]["[s/s]"].to_numpy().astype(np.float64) > 1.0e-19
     ]
@@ -210,12 +204,12 @@ def generate_dataset(args) -> None:
     P_pk_obs = df_atnf_pk["P0"]["[s]"].to_numpy().astype(np.float64)
     Pdot_pk_obs = df_atnf_pk["P1"]["[s/s]"].to_numpy().astype(np.float64)
 
-    # Convert galactic latitude in the range [-180., 180].
+    # Convert galactic latitude into the range [-180., 180].
     l_pk_obs[(l_pk_obs > 180.0) & (l_pk_obs < 360.0)] = (
         l_pk_obs[(l_pk_obs > 180.0) & (l_pk_obs < 360.0)] - 360.0
     )
 
-    # Select only pulsars falling in the Parkes multibeam sky coverage where completness is above 90%.
+    # Select only pulsars falling in the Parkes multibeam sky coverage where completeness is above 90%.
     cond = (l_pk_obs > -100.0) & (l_pk_obs < 50.0) & (np.abs(b_pk_obs) < 5.0)
 
     P_pk_obs = P_pk_obs[cond]
@@ -230,12 +224,12 @@ def generate_dataset(args) -> None:
     P_sw_obs = df_atnf_sw["P0"]["[s]"].to_numpy().astype(np.float64)
     Pdot_sw_obs = df_atnf_sw["P1"]["[s/s]"].to_numpy().astype(np.float64)
 
-    # Convert galactic latitude in the range [-180., 180].
+    # Convert galactic latitude into the range [-180., 180].
     l_sw_obs[(l_sw_obs > 180.0) & (l_sw_obs < 360.0)] = (
         l_sw_obs[(l_sw_obs > 180.0) & (l_sw_obs < 360.0)] - 360.0
     )
 
-    # Selection only pulsars falling in the Swinburne sky coverage where completness is above 90%.
+    # Select only pulsars falling in the Swinburne sky coverage where completeness is above 90%.
     cond = (l_sw_obs > -100.0) & (l_sw_obs < 50.0)
 
     P_sw_obs = P_sw_obs[cond]
@@ -254,7 +248,6 @@ def generate_dataset(args) -> None:
     create_survey_maps(
         dataset_path,
         "PMPS",
-        "survey_PMPS_results",
         args.data_type,
         args.resolution_ppdot,
         survey_PMPS_position_map_radec_dictionary,
@@ -268,7 +261,6 @@ def generate_dataset(args) -> None:
     create_survey_maps(
         dataset_path,
         "SMPS",
-        "survey_SMPS_results",
         args.data_type,
         args.resolution_ppdot,
         survey_SMPS_position_map_radec_dictionary,
@@ -282,7 +274,6 @@ def generate_dataset(args) -> None:
     create_survey_maps(
         dataset_path,
         "HTRU",
-        "survey_HTRU_results_low_mid",
         args.data_type,
         args.resolution_ppdot,
         survey_SMPS_position_map_radec_dictionary,
@@ -324,14 +315,14 @@ def generate_dataset(args) -> None:
     }
 
     # Write the whole dataset dictionary into a .csv file.
-    dataset_filename = f"{dataset_path}/dataset_full.csv"
+    dataset_filename = f"{dataset_path}/dataset_atnf.csv"
 
     df = pd.DataFrame(
         {key: pd.Series(value) for key, value in dataset_dictionary.items()}
     )
     df.to_csv(dataset_filename, encoding="utf-8", index=False)
 
-    log.info("File dataset_full.csv generated")
+    log.info("File dataset_atnf.csv generated")
 
 
 if __name__ == "__main__":
@@ -342,7 +333,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default="examples/data/atnf_full_nobinary_13-09-2022.csv",
-        help="Path, with the name of the csv included, to where the ATNF catalog is.",
+        help="Path, with the name of the csv included, to where the ATNF Pulsar Catalog is.",
     )
     parser.add_argument(
         "--save_dir",
