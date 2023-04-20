@@ -30,15 +30,15 @@ dependencies:
   - pytest-cov=4.0.0
   - pytest-runner=6.0.0
   - python=3.10.8
-#  - pytorch=1.12.1
+  - pytorch=1.12.1
   - pyyaml=6.0
   - recommonmark=0.7.1
   - scipy=1.9.3
   - sphinx=5.3.0
-#  - tensorboard=2.11.0
-#  - tensorboardx=2.5
+  - tensorboard=2.11.0
+  - tensorboardx=2.5
   - termcolor=2.1.1
-#  - torchvision=0.13.0
+  - torchvision=0.13.0
   - zstd=1.5.2
   - pip:
       - julia
