@@ -26,6 +26,7 @@ import sys
 import numpy as np
 import pandas as pd
 
+import pypopsyn.generator.position_maps as pmaps
 import pypopsyn.generator.ppdot_maps as ppdmaps
 
 log = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ def create_survey_maps(
     dataset_path: str,
     survey_name: str,
     data_type: str,
+    resolution_dyn: int,
     resolution_ppdot: int,
     dictionary_position_map_radec: dict,
     dictionary_velocity_map_vra: dict,
@@ -42,6 +44,8 @@ def create_survey_maps(
     dictionary_ppdot_map: dict,
     P: np.ndarray,
     Pdot: np.ndarray,
+    ra: np.ndarray,
+    dec: np.ndarray,
 ) -> None:
     """
     This method reads the observed population from the ATNF Pulsar Catalogue
@@ -54,6 +58,8 @@ def create_survey_maps(
         survey_name (str): Survey acronym.
 
         data_type (str): Type of dataset to generate: array or image.
+
+        resolution_dyn (int): Resolution (number of bins per axis for the 2d histograms) for the position and velocity maps to generate. In case of RA DEC maps the DEC axis has half the number of bins with respect to the RA axis.
 
         resolution_ppdot (int): Resolution (number of bins per axis for the 2d
             histograms) for the P-Pdot density maps to generate.
@@ -74,13 +80,27 @@ def create_survey_maps(
 
         Pdot (np.ndarray): Array of spin period derivatives of the pulsars in [s/s].
 
+        ra (np.ndarray): right ascension in [deg] defined between [0, 360] deg in ICRS frame.
+
+        dec (np.ndarray): declination in [deg] defined between [-90, 90] deg in ICRS frame.
+
     Returns:
         Nothing.
     """
 
     # Create position density maps projected onto the RA DEC plane.
-    dictionary_position_map_radec.update(
-        {f"input:survey_{survey_name}_position_map_radec": [""]}
+    pmaps.generate_position_map(
+        dataset_path,
+        f"survey_{survey_name}_position_map_radec",
+        0,
+        data_type,
+        ra,
+        dec,
+        resolution_dyn,
+        int(args.resolution_dyn / 2),
+        dictionary_position_map_radec,
+        x_limits=(0.0, 360.0),
+        y_limits=(-90.0, 90.0),
     )
 
     # Create velocity maps of component v_RA in the RA DEC plane.
@@ -200,6 +220,8 @@ def generate_dataset(args) -> None:
     ]
 
     # Extracting Galactic longitude, latitude, period and period derivative.
+    RA_pmps_obs = df_atnf_pmps["RAJD"]["[deg]"].to_numpy().astype(np.float64)
+    DEC_pmps_obs = df_atnf_pmps["DECJD"]["[deg]"].to_numpy().astype(np.float64)
     l_pmps_obs = df_atnf_pmps["Gl"]["[deg]"].to_numpy().astype(np.float64)
     b_pmps_obs = df_atnf_pmps["Gb"]["[deg]"].to_numpy().astype(np.float64)
     P_pmps_obs = df_atnf_pmps["P0"]["[s]"].to_numpy().astype(np.float64)
@@ -217,6 +239,8 @@ def generate_dataset(args) -> None:
         & (np.abs(b_pmps_obs) < 5.0)
     )
 
+    RA_pmps_obs = RA_pmps_obs[cond]
+    DEC_pmps_obs = DEC_pmps_obs[cond]
     P_pmps_obs = P_pmps_obs[cond]
     Pdot_pmps_obs = Pdot_pmps_obs[cond]
 
@@ -225,7 +249,9 @@ def generate_dataset(args) -> None:
         df_atnf["SURVEY"]["Unnamed: 25_level_1"].str.contains("pkssw")
     ]
 
-    # Extracting Galactic longitude, latitude, period and period derivative.
+    # Extracting Galactic longitude, latitude, right ascension and declination, period and period derivative.
+    RA_smps_obs = df_atnf_smps["RAJD"]["[deg]"].to_numpy().astype(np.float64)
+    DEC_smps_obs = df_atnf_smps["DECJD"]["[deg]"].to_numpy().astype(np.float64)
     l_smps_obs = df_atnf_smps["Gl"]["[deg]"].to_numpy().astype(np.float64)
     P_smps_obs = df_atnf_smps["P0"]["[s]"].to_numpy().astype(np.float64)
     Pdot_smps_obs = df_atnf_smps["P1"]["[s/s]"].to_numpy().astype(np.float64)
@@ -238,6 +264,8 @@ def generate_dataset(args) -> None:
     # Select only pulsars falling in the Swinburne sky coverage where completeness is above 90%.
     cond = (l_smps_obs > -100.0) & (l_smps_obs < 50.0)
 
+    RA_smps_obs = RA_smps_obs[cond]
+    DEC_smps_obs = DEC_smps_obs[cond]
     P_smps_obs = P_smps_obs[cond]
     Pdot_smps_obs = Pdot_smps_obs[cond]
 
@@ -246,6 +274,8 @@ def generate_dataset(args) -> None:
         df_atnf["SURVEY"]["Unnamed: 25_level_1"].str.contains("htru_pks")
     ]
 
+    RA_htru_obs = df_atnf_htru["RAJD"]["[deg]"].to_numpy().astype(np.float64)
+    DEC_htru_obs = df_atnf_htru["DECJD"]["[deg]"].to_numpy().astype(np.float64)
     P_htru_obs = df_atnf_htru["P0"]["[s]"].to_numpy().astype(np.float64)
     Pdot_htru_obs = df_atnf_htru["P1"]["[s/s]"].to_numpy().astype(np.float64)
 
@@ -256,6 +286,7 @@ def generate_dataset(args) -> None:
         dataset_path,
         "PMPS",
         args.data_type,
+        args.resolution_dyn,
         args.resolution_ppdot,
         survey_PMPS_position_map_radec_dictionary,
         survey_PMPS_velocity_map_vra_dictionary,
@@ -263,12 +294,15 @@ def generate_dataset(args) -> None:
         survey_PMPS_ppdot_map_dictionary,
         P_pmps_obs,
         Pdot_pmps_obs,
+        RA_pmps_obs,
+        DEC_pmps_obs,
     )
 
     create_survey_maps(
         dataset_path,
         "SMPS",
         args.data_type,
+        args.resolution_dyn,
         args.resolution_ppdot,
         survey_SMPS_position_map_radec_dictionary,
         survey_SMPS_velocity_map_vra_dictionary,
@@ -276,12 +310,15 @@ def generate_dataset(args) -> None:
         survey_SMPS_ppdot_map_dictionary,
         P_smps_obs,
         Pdot_smps_obs,
+        RA_smps_obs,
+        DEC_smps_obs,
     )
 
     create_survey_maps(
         dataset_path,
         "HTRU",
         args.data_type,
+        args.resolution_dyn,
         args.resolution_ppdot,
         survey_SMPS_position_map_radec_dictionary,
         survey_SMPS_velocity_map_vra_dictionary,
@@ -289,6 +326,8 @@ def generate_dataset(args) -> None:
         survey_SMPS_ppdot_map_dictionary,
         P_htru_obs,
         Pdot_htru_obs,
+        RA_htru_obs,
+        DEC_htru_obs,
     )
 
     # Save the parameter values as a dictionary. Since we do not have the parameters for the observed values we set them to NaN.
@@ -357,7 +396,13 @@ if __name__ == "__main__":
         default="array",
         help="Type of dataset to generate: array or image.",
     )
-
+    parser.add_argument(
+        "--resolution_dyn",
+        nargs="?",
+        type=int,
+        default=64,
+        help="Resolution of the position and velocity maps that will be generated (in number of cells).",
+    )
     parser.add_argument(
         "--resolution_ppdot",
         nargs="?",
