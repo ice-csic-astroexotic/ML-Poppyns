@@ -21,7 +21,6 @@
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
-        Alberto Garcia-Garcia (garciagarcia@ice.csic.es)
         Celsa Pardo Araujo  (pardo@ice.csic.es)
 
 
@@ -38,7 +37,6 @@ from pathlib import Path
 
 import pandas as pd
 
-import pypopsyn.generator.compute_statistics as cs
 import pypopsyn.generator.position_maps as pmaps
 import pypopsyn.generator.ppdot_maps as ppdmaps
 import pypopsyn.generator.velocity_maps as vmaps
@@ -107,7 +105,7 @@ def create_survey_maps(
         log.error(f"Survey output file not found in {survey_path}")
         sys.exit()
 
-    # Create a dataframe object of the .pkl population file.
+    # Create a dataframe object from the .pkl population file.
     df_survey = pd.read_pickle(str(survey_path), compression="gzip")
 
     # Remove the units header row from the dataframe.
@@ -115,6 +113,7 @@ def create_survey_maps(
 
     # We set the sample_number equal to 0 since there is just one simulation.
     sample_number = 0
+
     # Create position density maps projected onto the RA DEC plane.
     pmaps.generate_position_map(
         dataset_path,
@@ -232,6 +231,7 @@ def generate_dataset(args) -> None:
         sys.exit()
 
     log.info("Generating sample...")
+
     # Create a set of maps for each survey.
     create_survey_maps(
         root_path,
@@ -282,13 +282,13 @@ def generate_dataset(args) -> None:
         log.error(f"File containing labels not found in {label_path}")
         sys.exit()
 
-    # Save the parameter value in a dictionary.
+    # Save the parameter values as a dictionary.
     with open(label_path) as file:
         dictionary = json.load(file)
         for key, val in dictionary.items():
             param_dictionary.setdefault(key, []).append(val)
 
-    # Merge the filename and parameter dictionaries in a single dictionary.
+    # Merge the filename and parameter dictionaries into a single dictionary.
     dataset_dictionary = {
         **survey_PMPS_position_map_radec_dictionary,
         **survey_SMPS_position_map_radec_dictionary,
@@ -324,14 +324,14 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         required=True,
-        help="Path to where the simulated populations are.",
+        help="Path to where the simulated population is located.",
     )
     parser.add_argument(
         "--save_dir",
         nargs="?",
         type=str,
         default="examples/data/array_train_set",
-        help="Path to the folder where the dataset will be saved.",
+        help="Path to the folder, where the dataset will be saved.",
     )
     parser.add_argument(
         "--data_type",

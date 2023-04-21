@@ -276,6 +276,7 @@ def infer(args, config):
                     precision.cpu().detach().numpy()
                 )
 
+                # If the "corner plot" parameter is enabled, we will draw samples from the inferred posterior distribution and generate the corresponding corner plot.
                 if args.corner_plot:
 
                     dataset_test = pd.read_csv(dataset_path)
@@ -287,11 +288,16 @@ def infer(args, config):
                         .cpu()
                     )
 
+                    # Saving the samples from the inferred posterior distribution.
+                    torch.save(samples, f"{config.log_dir}/samples.pt")
+
+                    # Save the statistics for the filtered labels.
                     par_max = torch.tensor(dataset.target_max)
                     par_min = torch.tensor(dataset.target_min)
                     par_std = torch.tensor(dataset.target_std)
                     par_mean = torch.tensor(dataset.target_mean)
 
+                    # If the parameters were normalized or standardized rescale them to their physical ranges.
                     if normalize:
                         parameter = parameter * (par_max - par_min) + par_min
                         samples = samples * (par_max - par_min) + par_min
@@ -307,6 +313,7 @@ def infer(args, config):
                         )
                     )
 
+                    # Saving in the log.txt file the best estimated parameters and the 95% CI.
                     quantile = np.quantile(samples, [0.025, 0.975], axis=0)
                     logger.info(
                         "Estimated parameters values (95 % credibility interval):"
@@ -322,7 +329,8 @@ def infer(args, config):
                     range_param = [
                         [par_min[i], par_max[i]] for i in range(len(par_max))
                     ]
-                    # Corner plot of the posterior distributions for each parameter.
+
+                    # Corner plot of the inferred posterior distributions for each parameter.
                     figure = corner.corner(
                         samples.detach().cpu().numpy(),
                         bins=32,
