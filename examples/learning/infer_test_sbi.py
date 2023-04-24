@@ -212,6 +212,11 @@ def infer(args, config):
 
             # Load the trained model.
             logger.info("Loading the trained model...")
+            logger.info(
+                "Inference is performed with the trained model: {}".format(
+                    args.trained_model
+                )
+            )
             with open(args.trained_model, "rb") as f:
                 trained_model = pickle.load(f)
 
@@ -387,7 +392,7 @@ def infer(args, config):
             else:
                 logger.info("Perform Simulation-Based Calibration...")
                 # Run SBC: for each test sample we draw 1000 posterior samples.
-                num_posterior_samples = 1000
+                num_posterior_samples = 10000
                 ranks, dap_samples = run_sbc(
                     parameter.to(device),
                     matrix.to(device),
