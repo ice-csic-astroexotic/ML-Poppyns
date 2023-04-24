@@ -209,7 +209,7 @@ def generate_dataset(args) -> None:
         ~df_atnf["ASSOC"]["Unnamed: 24_level_1"].str.match("|".join(discard))
     ]
 
-    # Select only isolated non recycled neutron stars i.e. with Pdot > 1e-19.
+    # Select only isolated non-recycled neutron stars, i.e., with Pdot > 1e-19.
     df_atnf = df_atnf[
         df_atnf["P1"]["[s/s]"].to_numpy().astype(np.float64) > 1.0e-19
     ]
@@ -232,7 +232,8 @@ def generate_dataset(args) -> None:
         l_pmps_obs[(l_pmps_obs > 180.0) & (l_pmps_obs < 360.0)] - 360.0
     )
 
-    # Select only pulsars falling in the Parkes multibeam sky coverage where completeness is above 90%. See Lorimer et al. 2006
+    # Select only pulsars falling into the Parkes multibeam sky coverage where completeness is above 90%.
+    # See Lorimer et al. (2006) for details.
     cond = (
         (l_pmps_obs > -100.0)
         & (l_pmps_obs < 50.0)
@@ -261,7 +262,7 @@ def generate_dataset(args) -> None:
         l_smps_obs[(l_smps_obs > 180.0) & (l_smps_obs < 360.0)] - 360.0
     )
 
-    # Select only pulsars falling in the Swinburne sky coverage where completeness is above 90%.
+    # Select only pulsars falling into the Swinburne sky coverage where completeness is above 90%.
     cond = (l_smps_obs > -100.0) & (l_smps_obs < 50.0)
 
     RA_smps_obs = RA_smps_obs[cond]
@@ -330,7 +331,8 @@ def generate_dataset(args) -> None:
         DEC_htru_obs,
     )
 
-    # Save the parameter values as a dictionary. Since we do not have the parameters for the observed values we set them to NaN.
+    # Save the initial simulation parameter values as a dictionary.
+    # Because we do not know these for the observed values, we set them to NaN.
     param_dictionary.update(
         {
             "B_initial_log10_mean": [],
