@@ -432,6 +432,18 @@ def infer(args, config):
                     bbox_inches="tight",
                 )
 
+                f, ax = sbc_rank_plot(
+                    ranks=ranks,
+                    num_posterior_samples=num_posterior_samples,
+                    plot_type="cdf",
+                    num_bins=30,
+                )
+
+                f.savefig(
+                    f"{config.log_dir}/ranks_cumulative.pdf",
+                    bbox_inches="tight",
+                )
+
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser(
