@@ -172,7 +172,7 @@ def generate_dataset(args) -> None:
 
     param_dictionary = {}
 
-    # Read the full ATNF catalog.csv file. Binary pulsars are excluded.
+    # Read the full ATNF catalogue.csv file. Binary pulsars are excluded.
     df_atnf = pd.read_csv(
         args.data,
         delimiter=";",
@@ -209,7 +209,7 @@ def generate_dataset(args) -> None:
         ~df_atnf["ASSOC"]["Unnamed: 24_level_1"].str.match("|".join(discard))
     ]
 
-    # Select only isolated non-recycled neutron stars, i.e., with Pdot > 1e-19.
+    # Select only isolated, non-recycled neutron stars, i.e., those with Pdot > 1e-19.
     df_atnf = df_atnf[
         df_atnf["P1"]["[s/s]"].to_numpy().astype(np.float64) > 1.0e-19
     ]
@@ -227,7 +227,7 @@ def generate_dataset(args) -> None:
     P_pmps_obs = df_atnf_pmps["P0"]["[s]"].to_numpy().astype(np.float64)
     Pdot_pmps_obs = df_atnf_pmps["P1"]["[s/s]"].to_numpy().astype(np.float64)
 
-    # Convert galactic latitude into the range [-180., 180].
+    # Converting galactic latitude into the range [-180., 180].
     l_pmps_obs[(l_pmps_obs > 180.0) & (l_pmps_obs < 360.0)] = (
         l_pmps_obs[(l_pmps_obs > 180.0) & (l_pmps_obs < 360.0)] - 360.0
     )
@@ -257,7 +257,7 @@ def generate_dataset(args) -> None:
     P_smps_obs = df_atnf_smps["P0"]["[s]"].to_numpy().astype(np.float64)
     Pdot_smps_obs = df_atnf_smps["P1"]["[s/s]"].to_numpy().astype(np.float64)
 
-    # Convert galactic latitude into the range [-180., 180].
+    # Converting galactic latitude into the range [-180., 180].
     l_smps_obs[(l_smps_obs > 180.0) & (l_smps_obs < 360.0)] = (
         l_smps_obs[(l_smps_obs > 180.0) & (l_smps_obs < 360.0)] - 360.0
     )
@@ -381,7 +381,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default="examples/data/atnf_full_nobinary_13-09-2022.csv",
-        help="Path, with the name of the csv included, to where the ATNF Pulsar Catalog is located.",
+        help="Path, with the name of the csv included, to where the ATNF Pulsar Catalogue is located.",
     )
     parser.add_argument(
         "--save_dir",
