@@ -80,9 +80,9 @@ def create_survey_maps(
 
         Pdot (np.ndarray): Array of spin period derivatives of the pulsars in [s/s].
 
-        ra (np.ndarray): right ascension in [deg] defined between [0, 360] deg in ICRS frame.
+        ra (np.ndarray): Right ascension in [deg] defined between [0, 360] deg in ICRS frame.
 
-        dec (np.ndarray): declination in [deg] defined between [-90, 90] deg in ICRS frame.
+        dec (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
 
     Returns:
         Nothing.
