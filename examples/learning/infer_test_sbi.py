@@ -281,7 +281,8 @@ def infer(args, config):
                     precision.cpu().detach().numpy()
                 )
 
-                # If the "corner plot" parameter is enabled, we will draw samples from the inferred posterior distribution and generate the corresponding corner plot.
+                # If the "corner plot" parameter is enabled, we will draw samples from the inferred posterior distribution.
+                # Moreover, we save the samples and generate the corresponding corner plot.
                 if args.corner_plot:
 
                     dataset_test = pd.read_csv(dataset_path)
@@ -318,7 +319,7 @@ def infer(args, config):
                         )
                     )
 
-                    # Saving in the log.txt file the best estimated parameters and the 95% CI.
+                    # Saving the best estimated parameters and the 95% CI into the log.txt file.
                     quantile = np.quantile(samples, [0.025, 0.975], axis=0)
                     logger.info(
                         "Estimated parameters values (95 % credibility interval):"

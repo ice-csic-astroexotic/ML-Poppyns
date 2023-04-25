@@ -59,7 +59,8 @@ def create_survey_maps(
 
         data_type (str): Type of dataset to generate: array or image.
 
-        resolution_dyn (int): Resolution (number of bins per axis for the 2d histograms) for the position and velocity maps to generate. In case of RA DEC maps the DEC axis has half the number of bins with respect to the RA axis.
+        resolution_dyn (int): Resolution (number of bins per axis for the 2d histograms) for the position and velocity maps to generate.
+            In case of RA DEC maps the DEC axis has half the number of bins with respect to the RA axis.
 
         resolution_ppdot (int): Resolution (number of bins per axis for the 2d
             histograms) for the P-Pdot density maps to generate.
@@ -103,6 +104,8 @@ def create_survey_maps(
         y_limits=(-90.0, 90.0),
     )
 
+    # Since the ATNF Catalog objects with measured proper motions are insufficient, we do not produce the velocity maps.
+    # However, for compatibility purposes with our machine-learning scripts, we have to update the corresponding dictionary fields with empty strings.
     # Create velocity maps of component v_RA in the RA DEC plane.
     dictionary_velocity_map_vra.update(
         {f"input:survey_{survey_name}_velocity_map_vra": [""]}
@@ -263,6 +266,7 @@ def generate_dataset(args) -> None:
     )
 
     # Select only pulsars falling into the Swinburne sky coverage where completeness is above 90%.
+    # See Edwards et al (2001) and Jacoby et al (2009).
     cond = (l_smps_obs > -100.0) & (l_smps_obs < 50.0)
 
     RA_smps_obs = RA_smps_obs[cond]
@@ -335,13 +339,13 @@ def generate_dataset(args) -> None:
     # Because we do not know these for the observed values, we set them to NaN.
     param_dictionary.update(
         {
-            "B_initial_log10_mean": [],
-            "B_initial_log10_sigma": [],
-            "P_initial_log10_mean": [],
-            "P_initial_log10_sigma": [],
-            "a_late": [],
-            "h_c": [],
-            "sigma_k": [],
+            "B_initial_log10_mean": [np.nan],
+            "B_initial_log10_sigma": [np.nan],
+            "P_initial_log10_mean": [np.nan],
+            "P_initial_log10_sigma": [np.nan],
+            "a_late": [np.nan],
+            "h_c": [np.nan],
+            "sigma_k": [np.nan],
         }
     )
 
