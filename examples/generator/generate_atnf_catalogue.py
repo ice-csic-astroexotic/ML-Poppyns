@@ -266,7 +266,7 @@ def generate_dataset(args) -> None:
     )
 
     # Select only pulsars falling into the Swinburne sky coverage where completeness is above 90%.
-    # See Edwards et al (2001) and Jacoby et al (2009).
+    # See Edwards et al. (2001) and Jacoby et al. (2009) for details.
     cond = (l_smps_obs > -100.0) & (l_smps_obs < 50.0)
 
     RA_smps_obs = RA_smps_obs[cond]
