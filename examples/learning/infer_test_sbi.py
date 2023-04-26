@@ -30,6 +30,8 @@ import pickle
 import sys
 import time
 
+import corner
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
@@ -209,6 +211,11 @@ def infer(args, config):
 
             # Load the trained model.
             logger.info("Loading the trained model...")
+            logger.info(
+                "Inference is performed with the trained model: {}".format(
+                    args.trained_model
+                )
+            )
             with open(args.trained_model, "rb") as f:
                 trained_model = pickle.load(f)
 
@@ -273,6 +280,87 @@ def infer(args, config):
                     precision.cpu().detach().numpy()
                 )
 
+                # If the "corner plot" parameter is enabled, we will draw samples from the inferred posterior
+                # distribution. Moreover, we save the samples and generate the corresponding corner plot.
+                if args.corner_plot:
+
+                    dataset_test = pd.read_csv(dataset_path)
+                    labels = dataset_test.columns[filter_labels]
+
+                    samples = (
+                        posterior.set_default_x(matrix[i])
+                        .sample((50000,))
+                        .cpu()
+                    )
+
+                    # Saving the samples from the inferred posterior distribution.
+                    torch.save(samples, f"{config.log_dir}/samples.pt")
+
+                    # Save the statistics for the filtered labels.
+                    par_max = torch.tensor(dataset.target_max)
+                    par_min = torch.tensor(dataset.target_min)
+                    par_std = torch.tensor(dataset.target_std)
+                    par_mean = torch.tensor(dataset.target_mean)
+
+                    # If the parameters were normalized or standardized rescale them to their physical ranges.
+                    if normalize:
+                        parameter = parameter * (par_max - par_min) + par_min
+                        samples = samples * (par_max - par_min) + par_min
+
+                    elif standardize:
+                        parameter = parameter * par_std + par_mean
+                        samples = samples * par_std + par_mean
+
+                    # Estimate the mode of the posterior.
+                    parameters_best = (
+                        utils.analysis_utils.get_1d_marginal_peaks_from_kde(
+                            samples
+                        )
+                    )
+
+                    # Saving the best estimated parameters and the 95% CI into the log.txt file.
+                    quantile = np.quantile(samples, [0.025, 0.975], axis=0)
+                    logger.info(
+                        "Estimated parameters values (95 % credibility interval):"
+                    )
+
+                    for s in range(len(parameters_best)):
+
+                        param_mean_quantile = quantile[:, s]
+                        logger.info(
+                            f"{labels[s]} = {parameters_best[s]} + {param_mean_quantile[1] - parameters_best[s]} - {parameters_best[s] - param_mean_quantile[0]}"
+                        )
+
+                    range_param = [
+                        [par_min[v], par_max[v]] for v in range(len(par_max))
+                    ]
+
+                    # Corner plot of the inferred posterior distributions for each parameter.
+                    figure = corner.corner(
+                        samples.detach().cpu().numpy(),
+                        bins=32,
+                        labels=labels,
+                        range=range_param,
+                        quantiles=[0.16, 0.5, 0.84],
+                        levels=(
+                            1 - np.exp(-0.5),
+                            1 - np.exp(-2),
+                            1 - np.exp(-9.0 / 2.0),
+                        ),  # 1, 2 and 3 sigma levels
+                        show_titles=True,
+                        title_kwargs={"fontsize": 12},
+                    )
+                    corner.overplot_lines(
+                        figure, parameters_best, color="tab:red"
+                    )
+                    corner.overplot_points(
+                        figure,
+                        parameters_best[None],
+                        marker="s",
+                        color="tab:red",
+                    )
+                    plt.savefig(f"{config.log_dir}/corner_plot.png")
+
             # Saving in a csv file the coefficients of each of the Gaussian components.
             df_coeff = pd.DataFrame(data=coeff_Gaussians)
             df_coeff.to_csv(f"{config.log_dir}/coeff_Gaussians.csv")
@@ -304,7 +392,7 @@ def infer(args, config):
             else:
                 logger.info("Perform Simulation-Based Calibration...")
                 # Run SBC: for each test sample we draw 1000 posterior samples.
-                num_posterior_samples = 1000
+                num_posterior_samples = 10000
                 ranks, dap_samples = run_sbc(
                     parameter.to(device),
                     matrix.to(device),
@@ -344,6 +432,18 @@ def infer(args, config):
                     bbox_inches="tight",
                 )
 
+                f, ax = sbc_rank_plot(
+                    ranks=ranks,
+                    num_posterior_samples=num_posterior_samples,
+                    plot_type="cdf",
+                    num_bins=30,
+                )
+
+                f.savefig(
+                    f"{config.log_dir}/ranks_cumulative.pdf",
+                    bbox_inches="tight",
+                )
+
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser(
@@ -356,6 +456,12 @@ if __name__ == "__main__":
         type=str,
         default="examples/learning/config_sbi.json",
         help="Configuration file path.",
+    )
+    args.add_argument(
+        "--corner_plot",
+        type=bool,
+        default=False,
+        help="If you want to produce a posterior corner plot for each of the test sample set this equal to True.",
     )
 
     args.add_argument(
