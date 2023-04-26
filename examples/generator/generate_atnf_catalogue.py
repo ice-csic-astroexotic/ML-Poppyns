@@ -274,7 +274,8 @@ def generate_dataset(args) -> None:
     P_smps_obs = P_smps_obs[cond]
     Pdot_smps_obs = Pdot_smps_obs[cond]
 
-    # HTRU pulsar survey database.
+    # HTRU pulsar survey database. Note that those HTRU pulsars in the ATNF Catalogue with P and Pdot
+    # measurements are from the low- and mid- latitude surveys only.
     df_atnf_htru = df_atnf[
         df_atnf["SURVEY"]["Unnamed: 25_level_1"].str.contains("htru_pks")
     ]

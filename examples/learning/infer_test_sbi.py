@@ -325,15 +325,15 @@ def infer(args, config):
                         "Estimated parameters values (95 % credibility interval):"
                     )
 
-                    for i in range(len(parameters_best)):
+                    for s in range(len(parameters_best)):
 
-                        param_mean_quantile = quantile[:, i]
+                        param_mean_quantile = quantile[:, s]
                         logger.info(
-                            f"{labels[i]} = {parameters_best[i]} + {param_mean_quantile[1] - parameters_best[i]} - {parameters_best[i] - param_mean_quantile[0]}"
+                            f"{labels[s]} = {parameters_best[s]} + {param_mean_quantile[1] - parameters_best[s]} - {parameters_best[s] - param_mean_quantile[0]}"
                         )
 
                     range_param = [
-                        [par_min[i], par_max[i]] for i in range(len(par_max))
+                        [par_min[v], par_max[v]] for v in range(len(par_max))
                     ]
 
                     # Corner plot of the inferred posterior distributions for each parameter.
