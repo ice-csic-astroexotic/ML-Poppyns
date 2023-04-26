@@ -24,7 +24,6 @@
 
 import argparse
 import collections
-import json
 import os
 import pathlib
 import pickle
@@ -281,8 +280,8 @@ def infer(args, config):
                     precision.cpu().detach().numpy()
                 )
 
-                # If the "corner plot" parameter is enabled, we will draw samples from the inferred posterior distribution.
-                # Moreover, we save the samples and generate the corresponding corner plot.
+                # If the "corner plot" parameter is enabled, we will draw samples from the inferred posterior
+                # distribution. Moreover, we save the samples and generate the corresponding corner plot.
                 if args.corner_plot:
 
                     dataset_test = pd.read_csv(dataset_path)
