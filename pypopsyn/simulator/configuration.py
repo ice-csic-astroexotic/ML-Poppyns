@@ -133,10 +133,10 @@ cfg["h_c"]: float = 0.18
 # ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
 
 # Characteristic neutron star radius in [cm].
-cfg["NS_radius"]: float = 1.1e6
+cfg["NS_radius"]: float = 1.0e8  # 1.1e6
 
 # Characteristic neutron star mass in [g].
-cfg["NS_mass"]: float = 1.4 * const.M_SUN
+cfg["NS_mass"]: float = 0.8 * const.M_SUN  # 1.4 * const.M_SUN
 
 
 # ===================== MAGNETO-ROTATIONAL PARAMETERS FOR A CRUST-BASED MODEL ========================
@@ -149,12 +149,12 @@ cfg["P_initial_mean"]: float = 0.3
 cfg["P_initial_sigma"]: float = 0.2
 
 # Mean and standard deviation for the log-normal distributed initial periods in [s].
-cfg["P_initial_log10_mean"]: float = -0.6
-cfg["P_initial_log10_sigma"]: float = 0.3
+cfg["P_initial_log10_mean"]: float = 4.5  # -0.6
+cfg["P_initial_log10_sigma"]: float = 1.0  # 0.3
 
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
-cfg["B_initial_log10_mean"]: float = 13.25
-cfg["B_initial_log10_sigma"]: float = 0.75
+cfg["B_initial_log10_mean"]: float = 7.0  # 13.25
+cfg["B_initial_log10_sigma"]: float = 1.0  # 0.75
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
