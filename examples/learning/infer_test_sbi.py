@@ -409,10 +409,13 @@ def infer(args, config):
                     parameter.to(device),
                     dap_samples.to(device),
                     num_posterior_samples=num_posterior_samples,
+                    num_c2st_repetitions=5,
                 )
+
                 logger.info(
                     f"kolmogorov-smirnov p-values \n - check_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
                 )
+
                 logger.info(
                     f"c2st accuracies \n - check_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()} "
                     f"\n - check_stats['c2st_dap'] = {check_stats['c2st_dap'].numpy()}"
