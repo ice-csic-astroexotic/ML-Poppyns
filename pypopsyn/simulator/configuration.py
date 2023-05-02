@@ -76,7 +76,7 @@ cfg["seed_sampling"] = None
 cfg["resolution"]: int = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"]: int = 100000
+cfg["NS_number"]: int = 10000000
 
 # ODE solver tolerance for Julia.
 cfg["ODE_solver_tol"] = 1e-8
@@ -103,7 +103,7 @@ cfg["arm_number"]: int = 5
 cfg["t_age_min"]: float = 1.0
 
 # Maximum age for the neutron stars in [yr].
-cfg["t_age_max"]: float = 1e7
+cfg["t_age_max"]: float = 1e8
 
 # Time step for the dynamical evolution [yr].
 cfg["dyn_time_step"]: float = 1e4
@@ -136,7 +136,7 @@ cfg["h_c"]: float = 0.18
 cfg["NS_radius"]: float = 1.0e8  # 1.1e6
 
 # Characteristic neutron star mass in [g].
-cfg["NS_mass"]: float = 0.8 * const.M_SUN  # 1.4 * const.M_SUN
+cfg["NS_mass"]: float = 1.0 * const.M_SUN  # 1.4 * const.M_SUN
 
 
 # ===================== MAGNETO-ROTATIONAL PARAMETERS FOR A CRUST-BASED MODEL ========================
@@ -149,12 +149,12 @@ cfg["P_initial_mean"]: float = 0.3
 cfg["P_initial_sigma"]: float = 0.2
 
 # Mean and standard deviation for the log-normal distributed initial periods in [s].
-cfg["P_initial_log10_mean"]: float = 4.5  # -0.6
-cfg["P_initial_log10_sigma"]: float = 1.0  # 0.3
+cfg["P_initial_log10_mean"]: float = 4.07  # -0.6
+cfg["P_initial_log10_sigma"]: float = 1.28  # 0.3
 
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
-cfg["B_initial_log10_mean"]: float = 7.0  # 13.25
-cfg["B_initial_log10_sigma"]: float = 1.0  # 0.75
+cfg["B_initial_log10_mean"]: float = 6.91  # 13.25
+cfg["B_initial_log10_sigma"]: float = 1.09  # 0.75
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
