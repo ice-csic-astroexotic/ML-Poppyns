@@ -152,6 +152,9 @@ def infer(args, config):
             parameter = torch.from_numpy(parameter).type(torch.float32)
             matrix = torch.from_numpy(matrix).type(torch.float32)
 
+            dataset_df = pd.read_csv(dataset_path)
+            parameter_labels = dataset_df.columns[filter_labels]
+
         with timewith.TimeWith(
             "[InferenceSetup]",
             prof_log_path,
@@ -284,9 +287,6 @@ def infer(args, config):
                 # distribution. Moreover, we save the samples and generate the corresponding corner plot.
                 if args.corner_plot:
 
-                    dataset_test = pd.read_csv(dataset_path)
-                    labels = dataset_test.columns[filter_labels]
-
                     samples = (
                         posterior.set_default_x(matrix[i])
                         .sample((50000,))
@@ -331,7 +331,7 @@ def infer(args, config):
 
                         param_mean_quantile = quantile[:, s]
                         logger.info(
-                            f"{labels[s]} = {parameters_best[s]} + {param_mean_quantile[1] - parameters_best[s]} - {parameters_best[s] - param_mean_quantile[0]}"
+                            f"{parameter_labels[s]} = {parameters_best[s]} + {param_mean_quantile[1] - parameters_best[s]} - {parameters_best[s] - param_mean_quantile[0]}"
                         )
 
                     range_param = [
@@ -342,7 +342,7 @@ def infer(args, config):
                     figure = corner.corner(
                         samples.detach().cpu().numpy(),
                         bins=32,
-                        labels=labels,
+                        labels=parameter_labels,
                         range=range_param,
                         quantiles=[0.16, 0.5, 0.84],
                         levels=(
@@ -371,7 +371,7 @@ def infer(args, config):
                         marker="s",
                         color="tab:blue",
                     )
-                    plt.savefig(f"{config.log_dir}/corner_plot_{i}.png")
+                    plt.savefig(f"{config.log_dir}/corner_plot_{i}.pdf")
 
             # Saving in a csv file the coefficients of each of the Gaussian components.
             df_coeff = pd.DataFrame(data=coeff_Gaussians)
@@ -437,6 +437,7 @@ def infer(args, config):
                     num_posterior_samples=num_posterior_samples,
                     plot_type="hist",
                     num_bins=30,  # When passing None the default is len(dataset_test) / 20.
+                    parameter_labels=parameter_labels,
                 )
 
                 f.savefig(
@@ -448,7 +449,7 @@ def infer(args, config):
                     ranks=ranks,
                     num_posterior_samples=num_posterior_samples,
                     plot_type="cdf",
-                    num_bins=30,
+                    parameter_labels=parameter_labels,
                 )
 
                 f.savefig(
