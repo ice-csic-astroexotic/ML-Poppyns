@@ -294,7 +294,7 @@ def infer(args, config):
                     )
 
                     # Saving the samples from the inferred posterior distribution.
-                    torch.save(samples, f"{config.log_dir}/samples.pt")
+                    torch.save(samples, f"{config.log_dir}/samples_{i}.pt")
 
                     # Save the statistics for the filtered labels.
                     par_max = torch.tensor(dataset.target_max)
@@ -304,11 +304,13 @@ def infer(args, config):
 
                     # If the parameters were normalized or standardized rescale them to their physical ranges.
                     if normalize:
-                        parameter = parameter * (par_max - par_min) + par_min
+                        parameter[i] = (
+                            parameter[i] * (par_max - par_min) + par_min
+                        )
                         samples = samples * (par_max - par_min) + par_min
 
                     elif standardize:
-                        parameter = parameter * par_std + par_mean
+                        parameter[i] = parameter[i] * par_std + par_mean
                         samples = samples * par_std + par_mean
 
                     # Estimate the mode of the posterior.
@@ -317,6 +319,7 @@ def infer(args, config):
                             samples
                         )
                     )
+                    parameters_target = parameter[i]
 
                     # Saving the best estimated parameters and the 95% CI into the log.txt file.
                     quantile = np.quantile(samples, [0.025, 0.975], axis=0)
@@ -353,13 +356,22 @@ def infer(args, config):
                     corner.overplot_lines(
                         figure, parameters_best, color="tab:red"
                     )
+                    corner.overplot_lines(
+                        figure, parameters_target, color="tab:blue"
+                    )
                     corner.overplot_points(
                         figure,
                         parameters_best[None],
                         marker="s",
                         color="tab:red",
                     )
-                    plt.savefig(f"{config.log_dir}/corner_plot.png")
+                    corner.overplot_points(
+                        figure,
+                        parameters_target[None],
+                        marker="s",
+                        color="tab:blue",
+                    )
+                    plt.savefig(f"{config.log_dir}/corner_plot_{i}.png")
 
             # Saving in a csv file the coefficients of each of the Gaussian components.
             df_coeff = pd.DataFrame(data=coeff_Gaussians)
