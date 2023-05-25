@@ -152,6 +152,7 @@ def infer(args, config):
             parameter = torch.from_numpy(parameter).type(torch.float32)
             matrix = torch.from_numpy(matrix).type(torch.float32)
 
+            # Extract the parameter name labels.
             dataset_df = pd.read_csv(dataset_path)
             parameter_labels = dataset_df.columns[filter_labels]
 
@@ -294,9 +295,6 @@ def infer(args, config):
                         .cpu()
                     )
 
-                    # Save the samples from the inferred posterior distribution.
-                    torch.save(samples, f"{config.log_dir}/samples_{i}.pt")
-
                     # Save the statistics for the filtered labels.
                     par_max = torch.tensor(dataset.target_max)
                     par_min = torch.tensor(dataset.target_min)
@@ -314,13 +312,15 @@ def infer(args, config):
                         parameter[i] = parameter[i] * par_std + par_mean
                         samples = samples * par_std + par_mean
 
+                    # Save the samples from the inferred posterior distribution.
+                    torch.save(samples, f"{config.log_dir}/samples_{i}.pt")
+
                     # Estimate the mode of the posterior.
                     parameters_best = (
                         utils.analysis_utils.get_1d_marginal_peaks_from_kde(
                             samples
                         )
                     )
-                    parameters_target = parameter[i]
 
                     # Saving the best estimated parameters and the 95% CI into the log.txt file.
                     quantile = np.quantile(samples, [0.025, 0.975], axis=0)
@@ -358,7 +358,7 @@ def infer(args, config):
                         figure, parameters_best, color="tab:red"
                     )
                     corner.overplot_lines(
-                        figure, parameters_target, color="tab:blue"
+                        figure, parameter[i], color="tab:blue"
                     )
                     corner.overplot_points(
                         figure,
@@ -368,7 +368,7 @@ def infer(args, config):
                     )
                     corner.overplot_points(
                         figure,
-                        parameters_target[None],
+                        parameter[None, i],
                         marker="s",
                         color="tab:blue",
                     )
