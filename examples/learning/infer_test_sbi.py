@@ -152,7 +152,7 @@ def infer(args, config):
             parameter = torch.from_numpy(parameter).type(torch.float32)
             matrix = torch.from_numpy(matrix).type(torch.float32)
 
-            # Extract the parameter name labels.
+            # Loading the test data as a data frame and extracting the ground truth labels.
             dataset_df = pd.read_csv(dataset_path)
             parameter_labels = dataset_df.columns[filter_labels]
 
