@@ -277,11 +277,35 @@ class InitialNeutronStarPopulation:
 
         """
 
+        B_lognorm = 10 ** np.random.normal(
+            cfg["B_initial_log10_mean"],
+            cfg["B_initial_log10_sigma"],
+            int(0.5 * self.NS_number),
+        )
+
+        B_uniform = 10 ** np.random.uniform(
+            13.5, 14.5, int(0.5 * self.NS_number)
+        )
+
+        B_rand = np.concatenate([B_lognorm, B_uniform])
+
+        np.random.shuffle(B_rand)
+
+        while len(B_rand) < self.NS_number:
+            B_rand = np.append(B_rand, np.random.uniform(13.5, 14.5, 1))
+
+        """
         B_rand = 10 ** np.random.normal(
             cfg["B_initial_log10_mean"],
             cfg["B_initial_log10_sigma"],
             self.NS_number,
         )
+        B_rand = 10 ** np.random.normal(
+            13.25,
+            0.8,
+            self.NS_number,
+        )
+        """
 
         return B_rand
 

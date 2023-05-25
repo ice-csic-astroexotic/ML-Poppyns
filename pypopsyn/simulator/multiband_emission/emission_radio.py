@@ -52,8 +52,8 @@ def beam_aperture(P: np.ndarray, r_em: float) -> np.ndarray:
         (np.ndarray): half angular aperture of the radio beam in [rad].
     """
 
-    rho_b = np.sqrt(9.0 * np.pi * r_em / (2.0 * const.C * P))
-    # rho_b = 0.1*np.pi*np.ones(len(P))
+    # rho_b = np.sqrt(9.0 * np.pi * r_em / (2.0 * const.C * P))
+    rho_b = 0.2 * np.pi * np.ones(len(P))
     return rho_b
 
 
