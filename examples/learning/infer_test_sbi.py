@@ -142,8 +142,8 @@ def infer(args, config):
                 )
             )
             for i, (x, theta) in enumerate(dataset):
-                # Re-shape the matrix to have the channel number at the beginning and add an extra
-                # dimension that is needed for sbi.
+                # Reshape the matrix to have the channel number at the beginning
+                # and add an extra dimension that is needed for sbi.
                 x = np.moveaxis(x, -1, 0)
                 matrix[i] = x[None, :]
                 parameter[i] = theta
@@ -151,6 +151,10 @@ def infer(args, config):
             # Transform the maps and labels into torch.tensors.
             parameter = torch.from_numpy(parameter).type(torch.float32)
             matrix = torch.from_numpy(matrix).type(torch.float32)
+
+            # Loading the test data as a data frame and extracting the ground truth labels.
+            dataset_df = pd.read_csv(dataset_path)
+            parameter_labels = dataset_df.columns[filter_labels]
 
         with timewith.TimeWith(
             "[InferenceSetup]",
@@ -167,7 +171,7 @@ def infer(args, config):
 
             # Build density estimator ----------------------------------------------
             # The default mixture density estimator has 3 hidden layers with a number of neurons = hidden_features.
-            # The weights are initialized with the default initialization provided by pytorch.
+            # The weights are initialized with the default initialization provided by PyTorch.
             neural_posterior = utils.posterior_nn(
                 model=config["density_estimator"]["type"],
                 embedding_net=embedding_net,
@@ -229,9 +233,10 @@ def infer(args, config):
             config["show_profiling"],
         ):
 
-            # Compute the average loss over the test dataset (with batch size = 1).
+            # Compute the loss over the test dataset (with batch size = 1), extract the Gaussian mixture
+            # coefficients and generate the corner plots.
             logger.info(
-                "Computing the average loss over the test dataset and extracting Gaussian mixture coefficients...."
+                "Computing the average loss over the test dataset, extracting Gaussian mixture coefficients and generating corner plots...."
             )
             test_loss_mean = torch.tensor([0.0]).to(device)
 
@@ -251,7 +256,7 @@ def infer(args, config):
 
                 posterior_estimator = posterior.posterior_estimator
 
-                # Extracting the latent vector, i.e. the output from the convolutional network, for each of the test samples.
+                # Extracting the latent vector, i.e., the output from the CNN, for each of the test samples.
                 encoded_matrix = posterior_estimator._embedding_net(
                     matrix[i].to(device)
                 )
@@ -266,7 +271,7 @@ def infer(args, config):
                     encoded_matrix
                 )
 
-                # Normalize the coefficient of each Gaussian, i.e. the sum over the coefficients is equal to 1.
+                # Normalize the coefficient of each Gaussian, i.e., the sum over the coefficients is equal to 1.
                 logits_norm = logits - torch.logsumexp(
                     logits, dim=-1, keepdim=True
                 )
@@ -280,12 +285,9 @@ def infer(args, config):
                     precision.cpu().detach().numpy()
                 )
 
-                # If the "corner plot" parameter is enabled, we will draw samples from the inferred posterior
-                # distribution. Moreover, we save the samples and generate the corresponding corner plot.
+                # If the "corner plot" argument is set to True, we draw samples from the inferred posterior
+                # distribution. Moreover, we save these samples and the corresponding corner plot.
                 if args.corner_plot:
-
-                    dataset_test = pd.read_csv(dataset_path)
-                    labels = dataset_test.columns[filter_labels]
 
                     samples = (
                         posterior.set_default_x(matrix[i])
@@ -293,23 +295,25 @@ def infer(args, config):
                         .cpu()
                     )
 
-                    # Saving the samples from the inferred posterior distribution.
-                    torch.save(samples, f"{config.log_dir}/samples.pt")
-
                     # Save the statistics for the filtered labels.
                     par_max = torch.tensor(dataset.target_max)
                     par_min = torch.tensor(dataset.target_min)
                     par_std = torch.tensor(dataset.target_std)
                     par_mean = torch.tensor(dataset.target_mean)
 
-                    # If the parameters were normalized or standardized rescale them to their physical ranges.
+                    # If the parameters were normalized or standardized rescale quantities to their physical ranges.
                     if normalize:
-                        parameter = parameter * (par_max - par_min) + par_min
+                        parameter[i] = (
+                            parameter[i] * (par_max - par_min) + par_min
+                        )
                         samples = samples * (par_max - par_min) + par_min
 
                     elif standardize:
-                        parameter = parameter * par_std + par_mean
+                        parameter[i] = parameter[i] * par_std + par_mean
                         samples = samples * par_std + par_mean
+
+                    # Save the samples from the inferred posterior distribution.
+                    torch.save(samples, f"{config.log_dir}/samples_{i}.pt")
 
                     # Estimate the mode of the posterior.
                     parameters_best = (
@@ -321,14 +325,14 @@ def infer(args, config):
                     # Saving the best estimated parameters and the 95% CI into the log.txt file.
                     quantile = np.quantile(samples, [0.025, 0.975], axis=0)
                     logger.info(
-                        "Estimated parameters values (95 % credibility interval):"
+                        "Estimated parameter values (95 % credibility interval):"
                     )
 
                     for s in range(len(parameters_best)):
 
                         param_mean_quantile = quantile[:, s]
                         logger.info(
-                            f"{labels[s]} = {parameters_best[s]} + {param_mean_quantile[1] - parameters_best[s]} - {parameters_best[s] - param_mean_quantile[0]}"
+                            f"{parameter_labels[s]} = {parameters_best[s]} + {param_mean_quantile[1] - parameters_best[s]} - {parameters_best[s] - param_mean_quantile[0]}"
                         )
 
                     range_param = [
@@ -339,7 +343,7 @@ def infer(args, config):
                     figure = corner.corner(
                         samples.detach().cpu().numpy(),
                         bins=32,
-                        labels=labels,
+                        labels=parameter_labels,
                         range=range_param,
                         quantiles=[0.16, 0.5, 0.84],
                         levels=(
@@ -353,22 +357,32 @@ def infer(args, config):
                     corner.overplot_lines(
                         figure, parameters_best, color="tab:red"
                     )
+                    corner.overplot_lines(
+                        figure, parameter[i], color="tab:blue"
+                    )
                     corner.overplot_points(
                         figure,
                         parameters_best[None],
                         marker="s",
                         color="tab:red",
                     )
-                    plt.savefig(f"{config.log_dir}/corner_plot.png")
+                    corner.overplot_points(
+                        figure,
+                        parameter[None, i],
+                        marker="s",
+                        color="tab:blue",
+                    )
+                    plt.savefig(f"{config.log_dir}/corner_plot_{i}.pdf")
 
-            # Saving in a csv file the coefficients of each of the Gaussian components.
+            # Saving the coefficients of each of the Gaussian components into a .csv file.
             df_coeff = pd.DataFrame(data=coeff_Gaussians)
             df_coeff.to_csv(f"{config.log_dir}/coeff_Gaussians.csv")
 
-            # To save the precision and means for the whole test dataset in a numpy array uncommented the code below.
+            # To save the precision and means for the whole test dataset in a numpy array uncomment the lines below.
             # np.save(f"{config.log_dir}/mean_Gaussians.npy",mean_Gaussians)
             # np.save(f"{config.log_dir}/precision_Gaussians.npy",precision_Gaussians)
 
+            # Divide the cumulative test loss by the number of samples to obtain the average loss over the test set.
             test_loss_mean = test_loss_mean / len(dataset)
             logger.info(
                 "Average loss over the test dataset: {}".format(test_loss_mean)
@@ -383,15 +397,16 @@ def infer(args, config):
 
             if len(dataset) < 300:
                 logger.warning(
-                    "WARNING: SBC cannot be performed due to the limited number of test samples."
-                    "To perform SBC the number of test samples should be on the order of "
-                    "100s to give reliable results. We recommend using 300."
+                    "WARNING: Simulation-based Calibration cannot be performed due to the limited number of test samples."
+                    "For SBC, the number of test samples should be on the order of 1000s to give reliable results. "
+                    "We recommend using 10000."
                 )
                 sys.exit()
 
             else:
-                logger.info("Perform Simulation-Based Calibration...")
-                # Run SBC: for each test sample we draw 1000 posterior samples.
+                logger.info("Perform Simulation-based Calibration...")
+
+                # Run SBC: for each test sample, we draw 10000 posterior samples.
                 num_posterior_samples = 10000
                 ranks, dap_samples = run_sbc(
                     parameter.to(device),
@@ -428,6 +443,7 @@ def infer(args, config):
                     num_posterior_samples=num_posterior_samples,
                     plot_type="hist",
                     num_bins=30,  # When passing None the default is len(dataset_test) / 20.
+                    parameter_labels=parameter_labels,
                 )
 
                 f.savefig(
@@ -439,7 +455,7 @@ def infer(args, config):
                     ranks=ranks,
                     num_posterior_samples=num_posterior_samples,
                     plot_type="cdf",
-                    num_bins=30,
+                    parameter_labels=parameter_labels,
                 )
 
                 f.savefig(
@@ -464,7 +480,7 @@ if __name__ == "__main__":
         "--corner_plot",
         type=bool,
         default=False,
-        help="If you want to produce a posterior corner plot for each of the test sample set this equal to True.",
+        help="If a posterior corner plot for each test sample is required, this argument should be set to True.",
     )
 
     args.add_argument(
