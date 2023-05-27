@@ -46,6 +46,38 @@ import pypopsyn.learning.models.models as learning_models
 from pypopsyn.learning.utils.request_device import request_device
 
 
+def calculate_coverage_probability(true_value, posterior_samples, percentage):
+
+    num_parameters = len(true_value)
+    lower_quantile = (100 - percentage) / 2
+    upper_quantile = 100 - lower_quantile
+
+    num_covered = 0
+    value = []
+    # print('----------percentage:',percentage)
+    for t in range(num_parameters):
+
+        lower_bound = np.percentile(posterior_samples[:, t], lower_quantile)
+        upper_bound = np.percentile(posterior_samples[:, t], upper_quantile)
+        # print('lower_bound,upper_bound',lower_bound,upper_bound)
+
+        if lower_bound <= true_value[t] <= upper_bound:
+            num_covered += 1
+            value.append(True)
+        else:
+            value.append(False)
+
+    # If the true value falls into the range between the lower_bound and upper_bound then we set the coverage equal to True.
+    if num_covered == num_parameters:
+        coverage = True
+    else:
+        coverage = False
+
+    # print('true value and coverage', true_value, value,coverage)
+
+    return coverage
+
+
 def infer(args, config):
 
     # Get handle for the logger --------------------------------------------
@@ -249,7 +281,12 @@ def infer(args, config):
                 (len(dataset), n_components, n_parameters, n_parameters)
             )
 
+            alphas = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+
+            coverage_probability = np.zeros(len(alphas))
+
             for i in range(len(dataset)):
+
                 test_loss_mean += posterior.log_prob(
                     parameter[i].to(device), matrix[i].to(device)
                 )
@@ -285,45 +322,58 @@ def infer(args, config):
                     precision.cpu().detach().numpy()
                 )
 
+                posterior_samples = (
+                    posterior.set_default_x(matrix[i]).sample((50000,)).cpu()
+                )
+
+                # Save the statistics for the filtered labels.
+                par_max = torch.tensor(dataset.target_max)
+                par_min = torch.tensor(dataset.target_min)
+                par_std = torch.tensor(dataset.target_std)
+                par_mean = torch.tensor(dataset.target_mean)
+
+                # If the parameters were normalized or standardized rescale quantities to their physical ranges.
+                if normalize:
+                    parameter[i] = parameter[i] * (par_max - par_min) + par_min
+                    posterior_samples = (
+                        posterior_samples * (par_max - par_min) + par_min
+                    )
+
+                elif standardize:
+                    parameter[i] = parameter[i] * par_std + par_mean
+                    posterior_samples = posterior_samples * par_std + par_mean
+
+                for index in range(len(alphas)):
+
+                    coverage_alpha = calculate_coverage_probability(
+                        parameter[i], posterior_samples, alphas[index] * 100
+                    )
+
+                    if coverage_alpha:
+
+                        coverage_probability[index] += 1
+
                 # If the "corner plot" argument is set to True, we draw samples from the inferred posterior
                 # distribution. Moreover, we save these samples and the corresponding corner plot.
                 if args.corner_plot:
 
-                    samples = (
-                        posterior.set_default_x(matrix[i])
-                        .sample((50000,))
-                        .cpu()
-                    )
-
-                    # Save the statistics for the filtered labels.
-                    par_max = torch.tensor(dataset.target_max)
-                    par_min = torch.tensor(dataset.target_min)
-                    par_std = torch.tensor(dataset.target_std)
-                    par_mean = torch.tensor(dataset.target_mean)
-
-                    # If the parameters were normalized or standardized rescale quantities to their physical ranges.
-                    if normalize:
-                        parameter[i] = (
-                            parameter[i] * (par_max - par_min) + par_min
-                        )
-                        samples = samples * (par_max - par_min) + par_min
-
-                    elif standardize:
-                        parameter[i] = parameter[i] * par_std + par_mean
-                        samples = samples * par_std + par_mean
-
                     # Save the samples from the inferred posterior distribution.
-                    torch.save(samples, f"{config.log_dir}/samples_{i}.pt")
+                    torch.save(
+                        posterior_samples,
+                        f"{config.log_dir}/posterior_samples_{i}.pt",
+                    )
 
                     # Estimate the mode of the posterior.
                     parameters_best = (
                         utils.analysis_utils.get_1d_marginal_peaks_from_kde(
-                            samples
+                            posterior_samples
                         )
                     )
 
                     # Saving the best estimated parameters and the 95% CI into the log.txt file.
-                    quantile = np.quantile(samples, [0.025, 0.975], axis=0)
+                    quantile = np.quantile(
+                        posterior_samples, [0.025, 0.975], axis=0
+                    )
                     logger.info(
                         "Estimated parameter values (95 % credibility interval):"
                     )
@@ -341,7 +391,7 @@ def infer(args, config):
 
                     # Corner plot of the inferred posterior distributions for each parameter.
                     figure = corner.corner(
-                        samples.detach().cpu().numpy(),
+                        posterior_samples.detach().cpu().numpy(),
                         bins=32,
                         labels=parameter_labels,
                         range=range_param,
@@ -373,6 +423,12 @@ def infer(args, config):
                         color="tab:blue",
                     )
                     plt.savefig(f"{config.log_dir}/corner_plot_{i}.pdf")
+
+            # Calculate the percentage for the coverage and make the pot.
+            coverage_probability = coverage_probability / len(dataset)
+            plt.plot(alphas, coverage_probability)
+            plt.plot([0, 1], [0, 1], linestyle="--", color="darkgrey")
+            plt.show()
 
             # Saving the coefficients of each of the Gaussian components into a .csv file.
             df_coeff = pd.DataFrame(data=coeff_Gaussians)
