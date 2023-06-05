@@ -323,7 +323,9 @@ def infer(args, config):
                 )
 
                 posterior_samples = (
-                    posterior.set_default_x(matrix[i]).sample((50000,)).cpu()
+                    posterior.set_default_x(matrix[i])
+                    .sample((50000,), show_progress_bars=False)
+                    .cpu()
                 )
 
                 # Save the statistics for the filtered labels.
@@ -428,7 +430,10 @@ def infer(args, config):
             coverage_probability = coverage_probability / len(dataset)
             plt.plot(alphas, coverage_probability)
             plt.plot([0, 1], [0, 1], linestyle="--", color="darkgrey")
+            plt.xlabel(r"Credibility level 1 - $\alpha$")
+            plt.ylabel("Coverage probability")
             plt.show()
+            plt.savefig(f"{config.log_dir}/coverage_plot.pdf")
 
             # Saving the coefficients of each of the Gaussian components into a .csv file.
             df_coeff = pd.DataFrame(data=coeff_Gaussians)
