@@ -623,9 +623,9 @@ class SurveyRadio:
             dist_cutoff: (np.ndarray) array of boolean variables where true values represent stars within 35 kpc.
 
         Returns:
-            (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray): Tuple consisting of five arrays defining
+            (np.ndarray, np.ndarray, np.ndarray, np.ndarray): Tuple consisting of four arrays defining
             the indexes of the pulsars detected by the survey, the observed period-averaged radio flux density,the
-            effective pulse width, the observed radio flux density and period-averaged flux.
+            effective pulse width and the observed radio flux density.
         """
 
         detectable_radio_survey = (
