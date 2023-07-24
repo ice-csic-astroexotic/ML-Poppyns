@@ -315,29 +315,27 @@ def infer(args, config):
                     # Save the samples from the inferred posterior distribution.
                     torch.save(samples, f"{config.log_dir}/samples_{i}.pt")
 
-                    # Estimate the mode of the posterior.
-                    parameters_best = (
-                        utils.analysis_utils.get_1d_marginal_peaks_from_kde(
-                            samples
-                        )
-                    )
-
                     # Saving the best estimated parameters and the 95% CI into the log.txt file.
-                    quantile = np.quantile(samples, [0.025, 0.975], axis=0)
-                    logger.info(
-                        "Estimated parameter values (95 % credibility interval):"
+                    quantile = np.quantile(
+                        samples, [0.025, 0.5, 0.975], axis=0
                     )
 
-                    for s in range(len(parameters_best)):
+                    logger.info(
+                        "Estimated parameter values (we consider the median as the best value and the 95 % credibility interval):"
+                    )
 
-                        param_mean_quantile = quantile[:, s]
+                    for s in range(n_parameters):
+
+                        param_quantile = quantile[:, s]
                         logger.info(
-                            f"{parameter_labels[s]} = {parameters_best[s]} + {param_mean_quantile[1] - parameters_best[s]} - {parameters_best[s] - param_mean_quantile[0]}"
+                            f"{parameter_labels[s]} = {param_quantile[1]} + {param_quantile[2] - param_quantile[1]} - {param_quantile[1] - param_quantile[0]}"
                         )
 
                     range_param = [
                         [par_min[v], par_max[v]] for v in range(len(par_max))
                     ]
+
+                    param_median = quantile[1, :]
 
                     # Corner plot of the inferred posterior distributions for each parameter.
                     figure = corner.corner(
@@ -345,7 +343,7 @@ def infer(args, config):
                         bins=32,
                         labels=parameter_labels,
                         range=range_param,
-                        quantiles=[0.16, 0.5, 0.84],
+                        quantiles=[0.025, 0.5, 0.975],
                         levels=(
                             1 - np.exp(-0.5),
                             1 - np.exp(-2),
@@ -355,14 +353,14 @@ def infer(args, config):
                         title_kwargs={"fontsize": 12},
                     )
                     corner.overplot_lines(
-                        figure, parameters_best, color="tab:red"
+                        figure, param_median, color="tab:red"
                     )
                     corner.overplot_lines(
                         figure, parameter[i], color="tab:blue"
                     )
                     corner.overplot_points(
                         figure,
-                        parameters_best[None],
+                        param_median[None],
                         marker="s",
                         color="tab:red",
                     )
