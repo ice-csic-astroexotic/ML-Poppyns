@@ -9,7 +9,7 @@ jobs:
     # Name of job
     name: Run tests
     # Operating system that is being used.
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     # Specify defaults: we run commands on a bash shell.
     # This ensures that conda can be activated.
     defaults:
