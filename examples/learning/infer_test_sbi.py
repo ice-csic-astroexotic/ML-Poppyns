@@ -143,9 +143,18 @@ def infer(args, config):
             )
             for i, (x, theta) in enumerate(dataset):
                 # Reshape the matrix to have the channel number at the beginning
-                # and add an extra dimension that is needed for sbi.
                 x = np.moveaxis(x, -1, 0)
-                matrix[i] = x[None, :]
+
+                if list(x.shape) != input_shape:
+                    logger.error(
+                        "Mismatch between the shape of the input x {} and the input shape specified "
+                        "in the configuration file {}".format(
+                            x.shape, input_shape
+                        )
+                    )
+                    sys.exit()
+
+                matrix[i] = x
                 parameter[i] = theta
 
             # Transform the maps and labels into torch.tensors.
