@@ -6,9 +6,9 @@ dependencies:
   - black=23.7.0
   - corner=2.2.2
 #  - cudatoolkit=11.6.0  # If you are a OSX user comment out this package.
-  - f2c=20210323183018
+  - f2c=20210323183018  # Do we use this?
   - graphviz=8.1.0
-  - graphviz=6.0.2
+  - graphviz=6.0.2  # Do we use this?
   - healpy=1.16.3
 #  - ipykernel=6.19.3  # Automatically installed with jupyter lab
 #  - julia=1.9.2  # If you are a OSX-arm64 user this package is not available.
@@ -21,7 +21,7 @@ dependencies:
   - notebook=7.0.1  # use this to execute old school jupyter notebooks
   - numba=0.57.1
   - numpy=1.24.4
-  - olefile=0.46
+  - olefile=0.46  # Do we use this?
   - orjson=3.9.2
   - pandas=2.0.3
 #  - pillow=9.2.0  # installed with other package
@@ -34,7 +34,7 @@ dependencies:
   - python=3.11.4
   - pytorch=2.0.0  # THIS IS THE ISSUE: not clear if we can update this from pytorch=1.12.1
 #  - pyyaml=6.0  # installed with other package
-  - recommonmark=0.7.1
+  - recommonmark=0.7.1  # Do we use this?
   - scipy=1.11.1
   - sphinx=7.1.1
   - tensorboard=2.13.0
