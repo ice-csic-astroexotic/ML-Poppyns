@@ -1,4 +1,4 @@
-name: pop_syn
+name: pop_syn_new
 channels:
   - conda-forge
 dependencies:
@@ -7,8 +7,7 @@ dependencies:
   - corner=2.2.2
 #  - cudatoolkit=11.6.0  # If you are a OSX user comment out this package.
   - f2c=20210323183018  # Do we use this?
-  - graphviz=8.1.0
-  - graphviz=6.0.2  # Do we use this?
+  - graphviz=8.1.0  # Do we use this?
   - healpy=1.16.3
 #  - ipykernel=6.19.3  # Automatically installed with jupyter lab
 #  - julia=1.9.2  # If you are a OSX-arm64 user this package is not available.
@@ -17,7 +16,7 @@ dependencies:
 #  - libtiff=4.5.0  # installed with other package
   - matplotlib=3.7.1
 #  - nb_conda=2.2.1  # this is causing issues and not longer the advised way to run different kernels
-  - ninja=1.11.1
+  - ninja=1.11.1  # Do we use this?
   - notebook=7.0.1  # use this to execute old school jupyter notebooks
   - numba=0.57.1
   - numpy=1.24.4
