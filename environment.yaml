@@ -8,7 +8,7 @@ dependencies:
 #  - cudatoolkit=11.6.0  # If you are a OSX user comment out this package.
   - f2c=20210323183018  # Do we use this?
   - graphviz=8.1.0  # Do we use this?
-  - healpy=1.16.3
+  - healpy=1.16.2
 #  - ipykernel=6.19.3  # Automatically installed with jupyter lab
 #  - julia=1.9.2  # If you are a OSX-arm64 user this package is not available.
 #  - jupyter=1.0.0  # no longer advised to use this
