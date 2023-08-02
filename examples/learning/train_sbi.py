@@ -144,7 +144,7 @@ def train(config):
 
                 if list(x.shape) != input_shape:
                     logger.error(
-                        "Mismatch between the shape of the input x {} and the input shape specified "
+                        "Mismatch between the shape of the input data x {} and the input shape specified "
                         "in the configuration file {}".format(
                             x.shape, input_shape
                         )
