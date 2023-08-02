@@ -141,7 +141,17 @@ def train(config):
             for i, (x, theta) in enumerate(dataset):
                 # Re-shape the matrix to have the channel number at the beginning.
                 x = np.moveaxis(x, -1, 0)
-                matrix[i] = x[None, :]
+
+                if list(x.shape) != input_shape:
+                    logger.error(
+                        "Mismatch between the shape of the input data x {} and the input shape specified "
+                        "in the configuration file {}".format(
+                            x.shape, input_shape
+                        )
+                    )
+                    sys.exit()
+
+                matrix[i] = x
                 parameter[i] = theta
 
             # Transform the maps and labels into torch.tensors.

@@ -4,7 +4,7 @@ channels:
 dependencies:
   - astropy=5.2
   - black=22.10.0
-  - corner=2.2.1
+  - corner=2.2.2
 #  - cudatoolkit=11.6 # If you are a OSX user comment out this package.
   - f2c=20210323183018
   - ffmpeg=5.1.2
@@ -15,7 +15,7 @@ dependencies:
   - jupyter=1.0.0
   - libtiff=4.5.0
   - matplotlib=3.6.2
-  - nb_conda=2.2.1
+#  - nb_conda=2.2.1
   - ninja=1.11.0
   - numba=0.56.4
   - numpy=1.23.5
@@ -44,4 +44,3 @@ dependencies:
       - julia
       - pydeps
       - pygedm --global-option=build_ext --global-option="-I${CONDA_PREFIX}/include:/usr/local/include"
-
