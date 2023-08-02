@@ -333,7 +333,7 @@ def infer(args, config):
 
                 # To calculate the coverage, we calculate the narrowest highest density region containing the parameter
                 # used to generate each test sample.
-                n_samples_coverage = 5000
+                n_samples_coverage = 1000
 
                 posterior_samples_coverage = posterior.set_default_x(
                     matrix[i]
