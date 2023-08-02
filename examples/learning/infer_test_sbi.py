@@ -46,36 +46,47 @@ import pypopsyn.learning.models.models as learning_models
 from pypopsyn.learning.utils.request_device import request_device
 
 
-def calculate_coverage_probability(true_value, posterior_samples, percentage):
+def calculate_smallest_hdr(
+    posterior: torch.tensor,
+    true_value: torch.tensor,
+    posterior_samples: torch.tensor,
+    x_observed: torch.tensor,
+    device: str,
+):
 
-    num_parameters = len(true_value)
-    lower_quantile = (100 - percentage) / 2
-    upper_quantile = 100 - lower_quantile
+    """
 
-    num_covered = 0
-    value = []
-    # print('----------percentage:',percentage)
-    for t in range(num_parameters):
+    Calculating the smallest highest density region of the posterior, that contains the true value.
 
-        lower_bound = np.percentile(posterior_samples[:, t], lower_quantile)
-        upper_bound = np.percentile(posterior_samples[:, t], upper_quantile)
-        # print('lower_bound,upper_bound',lower_bound,upper_bound)
+    Args:
+        posterior (Callable): Posterior distribution function.
+        true_value (torch.tensor): Tensor containing the value of the parameter use to generate the simulated population
+         in x_observed.
+        posterior_samples (torch.tensor): Tensor containing the samples from the inferred posterior distribution for
+        x_observed.
+        x_observed (torch.tensor): Tensor containing the maps of the simulated population.
+        device (str): String specifying the type of the device use to run the script.
 
-        if lower_bound <= true_value[t] <= upper_bound:
-            num_covered += 1
-            value.append(True)
-        else:
-            value.append(False)
+    Returns:
+        hdr (float): Smallest highest density region of the posterior that contains the true value
 
-    # If the true value falls into the range between the lower_bound and upper_bound then we set the coverage equal to True.
-    if num_covered == num_parameters:
-        coverage = True
-    else:
-        coverage = False
+    """
 
-    # print('true value and coverage', true_value, value,coverage)
-
-    return coverage
+    log_p_true = (
+        posterior.log_prob(true_value.to(device), x_observed.to(device))
+        .cpu()
+        .numpy()[0]
+    )
+    log_p_samples = [
+        posterior.log_prob(
+            posterior_samples[index].to(device), x_observed.to(device)
+        )
+        .cpu()
+        .numpy()[0]
+        for index in range(len(posterior_samples))
+    ]
+    hdr = (log_p_samples > log_p_true).mean()
+    return hdr
 
 
 def infer(args, config):
@@ -281,9 +292,7 @@ def infer(args, config):
                 (len(dataset), n_components, n_parameters, n_parameters)
             )
 
-            alphas = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-
-            coverage_probability = np.zeros(len(alphas))
+            hdr_test = np.zeros(len(dataset))
 
             for i in range(len(dataset)):
 
@@ -322,42 +331,52 @@ def infer(args, config):
                     precision.cpu().detach().numpy()
                 )
 
-                posterior_samples = (
-                    posterior.set_default_x(matrix[i])
-                    .sample((50000,), show_progress_bars=False)
-                    .cpu()
+                # To calculate the coverage, we calculate the narrowest highest density region containing the parameter
+                # used to generate each test sample.
+                n_samples_coverage = 5000
+
+                posterior_samples_coverage = posterior.set_default_x(
+                    matrix[i]
+                ).sample((n_samples_coverage,), show_progress_bars=False)
+                smallest_hdr = calculate_smallest_hdr(
+                    posterior,
+                    parameter[i],
+                    posterior_samples_coverage,
+                    matrix[i],
+                    device,
                 )
-
-                # Save the statistics for the filtered labels.
-                par_max = torch.tensor(dataset.target_max)
-                par_min = torch.tensor(dataset.target_min)
-                par_std = torch.tensor(dataset.target_std)
-                par_mean = torch.tensor(dataset.target_mean)
-
-                # If the parameters were normalized or standardized rescale quantities to their physical ranges.
-                if normalize:
-                    parameter[i] = parameter[i] * (par_max - par_min) + par_min
-                    posterior_samples = (
-                        posterior_samples * (par_max - par_min) + par_min
-                    )
-
-                elif standardize:
-                    parameter[i] = parameter[i] * par_std + par_mean
-                    posterior_samples = posterior_samples * par_std + par_mean
-
-                for index in range(len(alphas)):
-
-                    coverage_alpha = calculate_coverage_probability(
-                        parameter[i], posterior_samples, alphas[index] * 100
-                    )
-
-                    if coverage_alpha:
-
-                        coverage_probability[index] += 1
+                hdr_test[i] = smallest_hdr
 
                 # If the "corner plot" argument is set to True, we draw samples from the inferred posterior
                 # distribution. Moreover, we save these samples and the corresponding corner plot.
                 if args.corner_plot:
+
+                    posterior_samples = (
+                        posterior.set_default_x(matrix[i])
+                        .sample((50000,), show_progress_bars=False)
+                        .cpu()
+                    )
+
+                    # Save the statistics for the filtered labels.
+                    par_max = torch.tensor(dataset.target_max)
+                    par_min = torch.tensor(dataset.target_min)
+                    par_std = torch.tensor(dataset.target_std)
+                    par_mean = torch.tensor(dataset.target_mean)
+
+                    # If the parameters were normalized or standardized rescale quantities to their physical ranges.
+                    if normalize:
+                        parameter[i] = (
+                            parameter[i] * (par_max - par_min) + par_min
+                        )
+                        posterior_samples = (
+                            posterior_samples * (par_max - par_min) + par_min
+                        )
+
+                    elif standardize:
+                        parameter[i] = parameter[i] * par_std + par_mean
+                        posterior_samples = (
+                            posterior_samples * par_std + par_mean
+                        )
 
                     # Save the samples from the inferred posterior distribution.
                     torch.save(
@@ -426,13 +445,38 @@ def infer(args, config):
                     )
                     plt.savefig(f"{config.log_dir}/corner_plot_{i}.pdf")
 
-            # Calculate the percentage for the coverage and make the pot.
-            coverage_probability = coverage_probability / len(dataset)
-            plt.plot(alphas, coverage_probability)
-            plt.plot([0, 1], [0, 1], linestyle="--", color="darkgrey")
-            plt.xlabel(r"Credibility level 1 - $\alpha$")
-            plt.ylabel("Coverage probability")
-            plt.show()
+            # Calculate the coverage from the smallest hdr.
+            betas = np.linspace(0, 1, 12)
+            coverage_probability = []
+            hdr_test_sorted = np.sort(np.asarray(hdr_test))
+
+            # For each value of beta, we calculate the percentage of test samples for which the
+            # highest density region (HDR), in hdr_test, is lower than beta. Then, among these test samples, each of the
+            # true values will fall inside this beta's HDR.
+
+            for beta in betas:
+                coverage_probability.append((hdr_test_sorted < beta).mean())
+
+            # Saving the coverage probability array to reproduce the coverage plot.
+            np.save(
+                f"{config.log_dir}/coverage_probability.npy",
+                coverage_probability,
+            )
+
+            # Plot the coverage.
+            plt.plot(
+                betas,
+                coverage_probability,
+                color="steelblue",
+                label="upper right",
+            )
+            plt.plot([0, 1], [0, 1], color="k", linestyle="--")
+            plt.xlim(0, 1)
+            plt.ylim(0, 1)
+
+            plt.xlabel(r"Credibility level $1-\alpha$", fontsize=10)
+            plt.ylabel(r"Coverage probability", fontsize=10)
+
             plt.savefig(f"{config.log_dir}/coverage_plot.pdf")
 
             # Saving the coefficients of each of the Gaussian components into a .csv file.
@@ -474,6 +518,12 @@ def infer(args, config):
                     matrix.to(device),
                     posterior,
                     num_posterior_samples=num_posterior_samples,
+                )
+
+                # Saving the ranks and the number os posterior samples to reproduce the plot.
+                torch.save(ranks, f"{config.log_dir}/ranks.pt")
+                logger.info(
+                    f"Number of posterior samples to generate the plot of the ranks is {num_posterior_samples}"
                 )
 
                 logger.info("Check the rank statistics...")
