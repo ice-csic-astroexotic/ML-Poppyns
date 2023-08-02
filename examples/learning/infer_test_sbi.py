@@ -351,7 +351,7 @@ def infer(args, config):
                 # distribution. Moreover, we save these samples and the corresponding corner plot.
                 if args.corner_plot:
 
-                    posterior_samples = (
+                    samples = (
                         posterior.set_default_x(matrix[i])
                         .sample((50000,), show_progress_bars=False)
                         .cpu()
@@ -368,33 +368,27 @@ def infer(args, config):
                         parameter[i] = (
                             parameter[i] * (par_max - par_min) + par_min
                         )
-                        posterior_samples = (
-                            posterior_samples * (par_max - par_min) + par_min
-                        )
+                        samples = samples * (par_max - par_min) + par_min
 
                     elif standardize:
                         parameter[i] = parameter[i] * par_std + par_mean
-                        posterior_samples = (
-                            posterior_samples * par_std + par_mean
-                        )
+                        samples = samples * par_std + par_mean
 
                     # Save the samples from the inferred posterior distribution.
                     torch.save(
-                        posterior_samples,
-                        f"{config.log_dir}/posterior_samples_{i}.pt",
+                        samples,
+                        f"{config.log_dir}/samples_{i}.pt",
                     )
 
                     # Estimate the mode of the posterior.
                     parameters_best = (
                         utils.analysis_utils.get_1d_marginal_peaks_from_kde(
-                            posterior_samples
+                            samples
                         )
                     )
 
                     # Saving the best estimated parameters and the 95% CI into the log.txt file.
-                    quantile = np.quantile(
-                        posterior_samples, [0.025, 0.975], axis=0
-                    )
+                    quantile = np.quantile(samples, [0.025, 0.975], axis=0)
                     logger.info(
                         "Estimated parameter values (95 % credibility interval):"
                     )
@@ -412,7 +406,7 @@ def infer(args, config):
 
                     # Corner plot of the inferred posterior distributions for each parameter.
                     figure = corner.corner(
-                        posterior_samples.detach().cpu().numpy(),
+                        samples.detach().cpu().numpy(),
                         bins=32,
                         labels=parameter_labels,
                         range=range_param,
