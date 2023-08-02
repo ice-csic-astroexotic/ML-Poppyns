@@ -44,4 +44,3 @@ dependencies:
       - julia
       - pydeps
       - pygedm --global-option=build_ext --global-option="-I${CONDA_PREFIX}/include:/usr/local/include"
-
