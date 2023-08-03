@@ -47,44 +47,47 @@ from pypopsyn.learning.utils.request_device import request_device
 
 
 def calculate_smallest_hdr(
-    posterior: torch.tensor,
+    posterior: callable,
     true_value: torch.tensor,
     posterior_samples: torch.tensor,
-    x_observed: torch.tensor,
+    simulation_output: torch.tensor,
     device: str,
-):
+) -> float:
 
     """
-
     Calculating the smallest highest density region of the posterior, that contains the true value.
 
     Args:
         posterior (Callable): Posterior distribution function.
-        true_value (torch.tensor): Tensor containing the value of the parameter use to generate the simulated population
-         in x_observed.
+        true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated population
+         in simulation_output.
         posterior_samples (torch.tensor): Tensor containing the samples from the inferred posterior distribution for
-        x_observed.
-        x_observed (torch.tensor): Tensor containing the maps of the simulated population.
-        device (str): String specifying the type of the device use to run the script.
+        simulation_output.
+        simulation_output (torch.tensor): Tensor containing the maps of the simulated population.
+        device (str): String specifying the type of the device used to run the script.
 
     Returns:
-        hdr (float): Smallest highest density region of the posterior that contains the true value
-
+        hdr (float): Smallest highest density region of the posterior that contains the true value.
     """
 
+    # Evaluating the PDF value of the ground truth.
     log_p_true = (
-        posterior.log_prob(true_value.to(device), x_observed.to(device))
+        posterior.log_prob(true_value.to(device), simulation_output.to(device))
         .cpu()
         .numpy()[0]
     )
+
+    # Evaluating the PDF values of the posterior samples.
     log_p_samples = [
         posterior.log_prob(
-            posterior_samples[index].to(device), x_observed.to(device)
+            posterior_samples[index].to(device), simulation_output.to(device)
         )
         .cpu()
         .numpy()[0]
         for index in range(len(posterior_samples))
     ]
+
+    # Determining the fraction of PDF values that are larger than that of the ground truth.
     hdr = (log_p_samples > log_p_true).mean()
     return hdr
 
@@ -292,7 +295,7 @@ def infer(args, config):
                 (len(dataset), n_components, n_parameters, n_parameters)
             )
 
-            hdr_test = np.zeros(len(dataset))
+            hdr_testset = np.zeros(len(dataset))
 
             for i in range(len(dataset)):
 
@@ -333,6 +336,10 @@ def infer(args, config):
 
                 # To calculate the coverage, we calculate the narrowest highest density region containing the parameter
                 # used to generate each test sample.
+
+                # Defining the number of samples drawn for the coverage calculation. Note that for a value of 1000 the
+                # calculation takes around 1.5 seconds for each test sample.
+
                 n_samples_coverage = 1000
 
                 posterior_samples_coverage = posterior.set_default_x(
@@ -345,8 +352,7 @@ def infer(args, config):
                     matrix[i],
                     device,
                 )
-                hdr_test[i] = smallest_hdr
-
+                hdr_testset[i] = smallest_hdr
                 # If the "corner plot" argument is set to True, we draw samples from the inferred posterior
                 # distribution. Moreover, we save these samples and the corresponding corner plot.
                 if args.corner_plot:
@@ -442,14 +448,14 @@ def infer(args, config):
             # Calculate the coverage from the smallest hdr.
             betas = np.linspace(0, 1, 12)
             coverage_probability = []
-            hdr_test_sorted = np.sort(np.asarray(hdr_test))
+            hdr_testset_sorted = np.sort(np.asarray(hdr_testset))
 
             # For each value of beta, we calculate the percentage of test samples for which the
-            # highest density region (HDR), in hdr_test, is lower than beta. Then, among these test samples, each of the
+            # highest density region (HDR), in hdr_testset, is lower than beta. Then, among these test samples, each of the
             # true values will fall inside this beta's HDR.
 
             for beta in betas:
-                coverage_probability.append((hdr_test_sorted < beta).mean())
+                coverage_probability.append((hdr_testset_sorted < beta).mean())
 
             # Saving the coverage probability array to reproduce the coverage plot.
             np.save(
@@ -470,7 +476,6 @@ def infer(args, config):
 
             plt.xlabel(r"Credibility level $1-\alpha$", fontsize=10)
             plt.ylabel(r"Coverage probability", fontsize=10)
-
             plt.savefig(f"{config.log_dir}/coverage_plot.pdf")
 
             # Saving the coefficients of each of the Gaussian components into a .csv file.
@@ -514,7 +519,7 @@ def infer(args, config):
                     num_posterior_samples=num_posterior_samples,
                 )
 
-                # Saving the ranks and the number os posterior samples to reproduce the plot.
+                # Saving the ranks and the number of posterior samples to reproduce the plot.
                 torch.save(ranks, f"{config.log_dir}/ranks.pt")
                 logger.info(
                     f"Number of posterior samples to generate the plot of the ranks is {num_posterior_samples}"
