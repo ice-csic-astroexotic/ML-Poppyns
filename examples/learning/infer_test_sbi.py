@@ -282,7 +282,7 @@ def infer(args, config):
             # Compute the loss over the test dataset (with batch size = 1), extract the Gaussian mixture
             # coefficients and generate the corner plots.
             logger.info(
-                "Computing the average loss over the test dataset, extracting Gaussian mixture coefficients and generating corner plots...."
+                "Computing the average loss over the test dataset, extracting Gaussian mixture coefficients, estimating the hdr for the coverage probability and generating corner plots...."
             )
             test_loss_mean = torch.tensor([0.0]).to(device)
 
@@ -444,7 +444,9 @@ def infer(args, config):
                         color="tab:blue",
                     )
                     plt.savefig(f"{config.log_dir}/corner_plot_{i}.pdf")
+                    plt.close()
 
+            logger.info("Computing the coverage probability...")
             # Calculate the coverage from the smallest hdr.
             betas = np.linspace(0, 1, 12)
             coverage_probability = []
