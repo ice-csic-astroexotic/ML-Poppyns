@@ -44,6 +44,7 @@ import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.configuration as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
+import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
@@ -296,8 +297,25 @@ def simulate_population(args) -> None:
             # Adding the evolution output to a data frame for export.
             log.info("Creating data frame for exporting...")
 
+            x, y = coco.polar_to_cartesian(r_final, phi_final)
+            v_x, v_y, v_z = coco.speed_cylindrical_to_cartesian(
+                v_r_final, v_phi_final, v_z_final, phi_final
+            )
+
+            (
+                ra,
+                dec,
+                sun_dist,
+                pm_ra,
+                pm_dec,
+                v_ls,
+            ) = coco.galactocentric_to_icrs(x, y, z_final, v_x, v_y, v_z)
+
             # Generating two header lines and merging them using MultiIndex.
             parameters_final = [
+                "sun_dist",
+                "ra",
+                "dec",
                 "age",
                 "r",
                 "phi",
@@ -307,6 +325,9 @@ def simulate_population(args) -> None:
                 "v_z",
             ]
             units_final = [
+                "[kpcs]",
+                "[deg]",
+                "[deg]",
                 "[yr]",
                 "[kpc]",
                 "[rad]",
@@ -322,6 +343,9 @@ def simulate_population(args) -> None:
             df_final = pd.DataFrame(
                 data=np.array(
                     [
+                        sun_dist,
+                        ra,
+                        dec,
                         age,
                         r_final,
                         phi_final,
