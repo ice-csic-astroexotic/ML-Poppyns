@@ -354,43 +354,73 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return dpot_d_dr, dpot_d_dz
 
-    def r_derivative_b_potential(self, r: float) -> float:
+    def r_z_derivative_b_potential(
+        self, r: float, z: float
+    ) -> Tuple[float, float]:
         """
         Derivative with respect to r of the bulge component gravitational potential
         defined in eq. (7) in Marchetti et al. (2019).
 
         Args:
             r (float): distance in the galactic disk from the galactic centre in [kpc].
-
+            z (float): height from the galactic disk in [kpc].
         Returns:
-            float: derivative with respect to r of the bulge potential.
+            (float, float): derivative with respect to r and z of the bulge potential.
         """
 
         M_b = self.M_b
         r_b = self.r_b
 
-        dpot_b_dr = const.G_KPC_YR * M_b * (r + r_b) ** (-2.0)
+        dpot_b_dr = (
+            const.G_KPC_YR
+            * M_b
+            * r
+            * ((r_b + np.sqrt(r**2 + z**2)) ** (-2))
+            * ((r**2 + z**2) ** (-1 / 2))
+        )
+        dpot_b_dz = (
+            const.G_KPC_YR
+            * M_b
+            * z
+            * ((r_b + np.sqrt(r**2 + z**2)) ** (-2))
+            * ((r**2 + z**2) ** (-1 / 2))
+        )
 
-        return dpot_b_dr
+        return dpot_b_dr, dpot_b_dz
 
-    def r_derivative_n_potential(self, r: float) -> float:
+    def r_z_derivative_n_potential(
+        self, r: float, z: float
+    ) -> Tuple[float, float]:
         """
         Derivative with respect to r of the nucleus component gravitational potential
         defined in eq. (7) in Marchetti et al. (2019).
 
         Args:
             r (float): distance in the galactic disk from the galactic centre in [kpc].
-
+            z (float): height from the galactic disk in [kpc].
         Returns:
-            float: derivative with respect to r of the nucleus potential.
+            (float, float): derivative with respect to r and z of the nucleus potential.
         """
 
         M_n = self.M_n
         r_n = self.r_n
 
-        dpot_n_dr = const.G_KPC_YR * M_n * (r + r_n) ** (-2.0)
+        dpot_n_dr = (
+            const.G_KPC_YR
+            * M_n
+            * r
+            * ((r_n + np.sqrt(r**2 + z**2)) ** (-2))
+            * ((r**2 + z**2) ** (-1 / 2))
+        )
+        dpot_n_dz = (
+            const.G_KPC_YR
+            * M_n
+            * z
+            * ((r_n + np.sqrt(r**2 + z**2)) ** (-2))
+            * ((r**2 + z**2) ** (-1 / 2))
+        )
 
-        return dpot_n_dr
+        return dpot_n_dr, dpot_n_dz
 
     def r_z_derivative_h_potential(
         self, r: float, z: float
