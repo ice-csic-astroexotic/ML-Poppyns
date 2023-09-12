@@ -232,13 +232,14 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return pot_d
 
-    def b_potential(self, r: np.ndarray) -> np.ndarray:
+    def b_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         The Hernquist bulge component gravitational potential defined in eq. (7) in
         Marchetti et al. (2019).
 
         Args:
             r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
             (np.ndarray): value of the bulge potential in [erg/g].
@@ -246,17 +247,22 @@ class GalaxyModelM19(GalaxyModelBase):
         M_b = self.M_b
         r_b = self.r_b
 
-        pot_b = -const.G * M_b / ((r_b + r) * const.KPC_TO_CM)
+        pot_b = (
+            -const.G
+            * M_b
+            / ((r_b + np.sqrt(r**2 + z**2)) * const.KPC_TO_CM)
+        )
 
         return pot_b
 
-    def n_potential(self, r: np.ndarray) -> np.ndarray:
+    def n_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         The Hernquist nucleus component gravitational potential defined in eq. (7) in
         Marchetti et al. (2019).
 
         Args:
             r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
             (np.ndarray): value of the bulge potential in [erg/g].
@@ -264,17 +270,22 @@ class GalaxyModelM19(GalaxyModelBase):
         M_n = self.M_n
         r_n = self.r_n
 
-        pot_n = -const.G * M_n / ((r_n + r) * const.KPC_TO_CM)
+        pot_n = (
+            -const.G
+            * M_n
+            / ((r_n + np.sqrt(r**2 + z**2)) * const.KPC_TO_CM)
+        )
 
         return pot_n
 
-    def h_potential(self, r: np.ndarray) -> np.ndarray:
+    def h_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
         The Navarro-Frenk-White halo component gravitational potential defined in
         eq. (9) in Marchetti et al. (2019).
 
         Args:
             r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
             (np.ndarray): value of the bulge potential in [erg/g].
@@ -282,7 +293,12 @@ class GalaxyModelM19(GalaxyModelBase):
         M_h = self.M_h
         r_h = self.r_h
 
-        pot_h = -const.G * M_h / (r * const.KPC_TO_CM) * np.log(1.0 + r / r_h)
+        pot_h = (
+            -const.G
+            * M_h
+            / (np.sqrt(r**2 + z**2) * const.KPC_TO_CM)
+            * np.log(1.0 + np.sqrt(r**2 + z**2) / r_h)
+        )
 
         return pot_h
 
@@ -376,16 +392,19 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return dpot_n_dr
 
-    def r_derivative_h_potential(self, r: float) -> float:
+    def r_z_derivative_h_potential(
+        self, r: float, z: float
+    ) -> Tuple[float, float]:
         """
         Derivative with respect to r of the halo component gravitational potential
         defined in eq. (9) in Marchetti et al. (2019).
 
         Args:
             r (float): distance in the galactic disk from the galactic centre in [kpc].
+            z (float): height from the galactic disk in [kpc].
 
         Returns:
-            float: derivative with respect to r of the halo potential.
+            (float, float): derivative with respect to r and z of the halo potential.
         """
 
         M_h = self.M_h
@@ -394,11 +413,34 @@ class GalaxyModelM19(GalaxyModelBase):
         dpot_h_dr = (
             const.G_KPC_YR
             * M_h
-            / r
-            * (1.0 / r * np.log(1 + r / r_h) - 1.0 / (r_h + r))
+            * r
+            / (r**2 + z**2)
+            * (
+                1.0
+                / (
+                    np.sqrt(r**2 + z**2)
+                    * np.log(1 + np.sqrt(r**2 + z**2) / r_h)
+                )
+                - 1.0 / (r_h + np.sqrt(r**2 + z**2))
+            )
         )
 
-        return dpot_h_dr
+        dpot_h_dz = (
+            const.G_KPC_YR
+            * M_h
+            * z
+            / (r**2 + z**2)
+            * (
+                1.0
+                / (
+                    np.sqrt(r**2 + z**2)
+                    * np.log(1 + np.sqrt(r**2 + z**2) / r_h)
+                )
+                - 1.0 / (r_h + np.sqrt(r**2 + z**2))
+            )
+        )
+
+        return dpot_h_dr, dpot_h_dz
 
     def cylind_coord_gradient_mw_potential(
         self, r: float, z: float
