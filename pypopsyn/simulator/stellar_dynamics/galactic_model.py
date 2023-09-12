@@ -316,9 +316,9 @@ class GalaxyModelM19(GalaxyModelBase):
 
         MW_pot = (
             self.d_potential(r, z)
-            + self.b_potential(r)
-            + self.n_potential(r)
-            + self.h_potential(r)
+            + self.b_potential(r, z)
+            + self.n_potential(r, z)
+            + self.h_potential(r, z)
         )
 
         return MW_pot
@@ -358,7 +358,7 @@ class GalaxyModelM19(GalaxyModelBase):
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
-        Derivative with respect to r of the bulge component gravitational potential
+        Derivative with respect to r and z of the bulge component gravitational potential
         defined in eq. (7) in Marchetti et al. (2019).
 
         Args:
@@ -392,7 +392,7 @@ class GalaxyModelM19(GalaxyModelBase):
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
-        Derivative with respect to r of the nucleus component gravitational potential
+        Derivative with respect to r and z of the nucleus component gravitational potential
         defined in eq. (7) in Marchetti et al. (2019).
 
         Args:
@@ -426,7 +426,7 @@ class GalaxyModelM19(GalaxyModelBase):
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
-        Derivative with respect to r of the halo component gravitational potential
+        Derivative with respect to r and z of the halo component gravitational potential
         defined in eq. (9) in Marchetti et al. (2019).
 
         Args:
@@ -471,13 +471,13 @@ class GalaxyModelM19(GalaxyModelBase):
         """
 
         dpot_d_dr, dpot_d_dz = self.r_z_derivatives_d_potential(r, z)
-        dpot_b_dr = self.r_derivative_b_potential(r)
-        dpot_n_dr = self.r_derivative_n_potential(r)
-        dpot_h_dr = self.r_derivative_h_potential(r)
+        dpot_b_dr, dpot_b_dz = self.r_z_derivative_b_potential(r, z)
+        dpot_n_dr, dpot_n_dz = self.r_z_derivative_n_potential(r, z)
+        dpot_h_dr, dpot_h_dz = self.r_z_derivative_h_potential(r, z)
 
         dpot_mw_dr = dpot_d_dr + dpot_b_dr + dpot_n_dr + dpot_h_dr
         dpot_mw_dphi = 0.0
-        dpot_mw_dz = dpot_d_dz
+        dpot_mw_dz = dpot_d_dz + dpot_b_dz + dpot_n_dz + dpot_h_dz
 
         pot_mw_gradient = np.array([dpot_mw_dr, dpot_mw_dphi, dpot_mw_dz])
 
