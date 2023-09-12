@@ -440,34 +440,16 @@ class GalaxyModelM19(GalaxyModelBase):
         M_h = self.M_h
         r_h = self.r_h
 
-        dpot_h_dr = (
-            const.G_KPC_YR
-            * M_h
-            * r
-            / (r**2 + z**2)
-            * (
-                1.0
-                / (
-                    np.sqrt(r**2 + z**2)
-                    * np.log(1 + np.sqrt(r**2 + z**2) / r_h)
-                )
-                - 1.0 / (r_h + np.sqrt(r**2 + z**2))
-            )
+        dpot_h_dr = (const.G_KPC_YR * M_h * r / (r**2 + z**2)) * (
+            np.log(1 + np.sqrt(r**2 + z**2) / r_h)
+            / (np.sqrt(r**2 + z**2))
+            - 1.0 / (r_h + np.sqrt(r**2 + z**2))
         )
 
-        dpot_h_dz = (
-            const.G_KPC_YR
-            * M_h
-            * z
-            / (r**2 + z**2)
-            * (
-                1.0
-                / (
-                    np.sqrt(r**2 + z**2)
-                    * np.log(1 + np.sqrt(r**2 + z**2) / r_h)
-                )
-                - 1.0 / (r_h + np.sqrt(r**2 + z**2))
-            )
+        dpot_h_dz = (const.G_KPC_YR * M_h * z / (r**2 + z**2)) * (
+            np.log(1 + np.sqrt(r**2 + z**2) / r_h)
+            / (np.sqrt(r**2 + z**2))
+            - 1.0 / (r_h + np.sqrt(r**2 + z**2))
         )
 
         return dpot_h_dr, dpot_h_dz
