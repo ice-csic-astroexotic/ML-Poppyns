@@ -354,7 +354,7 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return dpot_d_dr, dpot_d_dz
 
-    def r_z_derivative_b_potential(
+    def r_z_derivatives_b_potential(
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
@@ -388,7 +388,7 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return dpot_b_dr, dpot_b_dz
 
-    def r_z_derivative_n_potential(
+    def r_z_derivatives_n_potential(
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
@@ -422,7 +422,7 @@ class GalaxyModelM19(GalaxyModelBase):
 
         return dpot_n_dr, dpot_n_dz
 
-    def r_z_derivative_h_potential(
+    def r_z_derivatives_h_potential(
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
@@ -471,9 +471,9 @@ class GalaxyModelM19(GalaxyModelBase):
         """
 
         dpot_d_dr, dpot_d_dz = self.r_z_derivatives_d_potential(r, z)
-        dpot_b_dr, dpot_b_dz = self.r_z_derivative_b_potential(r, z)
-        dpot_n_dr, dpot_n_dz = self.r_z_derivative_n_potential(r, z)
-        dpot_h_dr, dpot_h_dz = self.r_z_derivative_h_potential(r, z)
+        dpot_b_dr, dpot_b_dz = self.r_z_derivatives_b_potential(r, z)
+        dpot_n_dr, dpot_n_dz = self.r_z_derivatives_n_potential(r, z)
+        dpot_h_dr, dpot_h_dz = self.r_z_derivatives_h_potential(r, z)
 
         dpot_mw_dr = dpot_d_dr + dpot_b_dr + dpot_n_dr + dpot_h_dr
         dpot_mw_dphi = 0.0
@@ -695,7 +695,7 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         return dpot_dh_dr, dpot_dh_dz
 
-    def r_z_derivative_b_potential(
+    def r_z_derivatives_b_potential(
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
@@ -729,7 +729,7 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         return dpot_b_dr, dpot_b_dz
 
-    def r_z_derivative_n_potential(
+    def r_z_derivatives_n_potential(
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
@@ -780,8 +780,8 @@ class GalaxyModelFK06(GalaxyModelBase):
         """
 
         dpot_dh_dr, dpot_dh_dz = self.r_z_derivatives_dh_potential(r, z)
-        dpot_b_dr, dpot_b_dz = self.r_z_derivative_b_potential(r, z)
-        dpot_n_dr, dpot_n_dz = self.r_z_derivative_n_potential(r, z)
+        dpot_b_dr, dpot_b_dz = self.r_z_derivatives_b_potential(r, z)
+        dpot_n_dr, dpot_n_dz = self.r_z_derivatives_n_potential(r, z)
 
         dpot_mw_dr = dpot_dh_dr + dpot_b_dr + dpot_n_dr
         dpot_mw_dphi = 0.0
