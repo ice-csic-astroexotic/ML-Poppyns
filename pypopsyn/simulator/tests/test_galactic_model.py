@@ -48,16 +48,18 @@ def test_case_1():
         "K_expected": 3.42339,
         "dK_dz_expected": 0.97763,
         "pot_dh_expected": -9.56297e14,
-        "pot_b_expected": -2.39808e14,
-        "pot_n_expected": -3.90053e14,
-        "pot_MW_expected": -1.58616e15,
-        "tot_energy_expected": 2.86857e15,
+        "pot_b_expected": -2.09706e14,
+        "pot_n_expected": -2.799570e14,
+        "pot_MW_expected": -1.44596e15,
+        "tot_energy_expected": 3.01037e15,
         "tot_angular_momentum_expected": 3.11653e30,
         "dpot_dh_dr_expected": 2.32457e-15,
         "dpot_dh_dz_expected": 7.77990e-15,
-        "dpot_b_dr_expected": 7.70712e-15,
-        "dpot_n_dr_expected": 3.83448e-14,
-        "gradient_mw_expected": np.array([4.83765e-14, 0.0, 7.77990e-15]),
+        "dpot_b_dr_expected": 5.153876e-15,
+        "dpot_b_dz_expected": 5.153876e-15,
+        "dpot_n_dr_expected": 1.417782e-14,
+        "dpot_n_dz_expected": 1.417782e-14,
+        "gradient_mw_expected": np.array([2.165627e-14, 0.0, 2.711159e-14]),
     }
     return data
 
@@ -73,17 +75,20 @@ def test_case_2():
         "K_expected": 4.03846,
         "dK_dz_expected": 0.96296,
         "pot_d_expected": -7.06604e14,
-        "pot_b_expected": -1.08080e14,
-        "pot_n_expected": -6.90904e13,
-        "pot_h_expected": -1.44868e15,
-        "pot_MW_expected": -2.33245e15,
-        "tot_energy_expected": 1.27265e15,
+        "pot_b_expected": -8.95364e13,
+        "pot_n_expected": -4.98087e13,
+        "pot_h_expected": -1.43074e15,
+        "pot_MW_expected": -2.27669e15,
+        "tot_energy_expected": 1.33370e15,
         "dpot_d_dr_expected": 4.26395e-15,
         "dpot_d_dz_expected": 1.65820e-14,
-        "dpot_b_dr_expected": 5.64453e-15,
-        "dpot_n_dr_expected": 6.74444e-15,
-        "dpot_h_dr_expected": 4.59931e-15,
-        "gradient_mw_expected": np.array([2.12522e-14, 0.0, 1.65820e-14]),
+        "dpot_b_dr_expected": 2.73918e-15,
+        "dpot_b_dz_expected": 2.73918e-15,
+        "dpot_n_dr_expected": 2.47859e-15,
+        "dpot_n_dz_expected": 2.47859e-15,
+        "dpot_h_dr_expected": 3.14655e-15,
+        "dpot_h_dz_expected": 3.14655e-15,
+        "gradient_mw_expected": np.array([1.26283e-14, 0.0, 2.49464e-14]),
     }
     return data
 
@@ -105,7 +110,10 @@ def test_dh_potential_FK06(test_case_1):
     pot_dh_out = gmFK06.dh_potential(test_case_1["r"], test_case_1["z"])
 
     assert np.isclose(
-        pot_dh_out, test_case_1["pot_dh_expected"], rtol=TOL, atol=1.0e-30,
+        pot_dh_out,
+        test_case_1["pot_dh_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
 
 
@@ -113,10 +121,12 @@ def test_b_potential_FK06(test_case_1):
     """
     Verifying that the bulge potential is evaluated correctly.
     """
-    pot_b_out = gmFK06.b_potential(test_case_1["r"])
-
+    pot_b_out = gmFK06.b_potential(test_case_1["r"], test_case_1["z"])
     assert np.isclose(
-        pot_b_out, test_case_1["pot_b_expected"], rtol=TOL, atol=1.0e-30,
+        pot_b_out,
+        test_case_1["pot_b_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
 
 
@@ -124,10 +134,13 @@ def test_n_potential_FK06(test_case_1):
     """
     Verifying that the nucleus potential is evaluated correctly.
     """
-    pot_n_out = gmFK06.n_potential(test_case_1["r"])
+    pot_n_out = gmFK06.n_potential(test_case_1["r"], test_case_1["z"])
 
     assert np.isclose(
-        pot_n_out, test_case_1["pot_n_expected"], rtol=TOL, atol=1.0e-30,
+        pot_n_out,
+        test_case_1["pot_n_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
 
 
@@ -138,7 +151,10 @@ def test_MW_potential_FK06(test_case_1):
     pot_MW_out = gmFK06.MW_potential(test_case_1["r"], test_case_1["z"])
 
     assert np.isclose(
-        pot_MW_out, test_case_1["pot_MW_expected"], rtol=TOL, atol=1.0e-30,
+        pot_MW_out,
+        test_case_1["pot_MW_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
 
 
@@ -176,7 +192,7 @@ def test_tot_angular_momentum(test_case_1):
 
 def test_r_z_derivative_dh_potential_FK06(test_case_1):
     """
-    Verifying that the r and z derivative of the disk-halo potential are evaluated
+    Verifying that the r and z derivatives of the disk-halo potential are evaluated
     correctly.
     """
     dpot_dh_dr_out, dpot_dh_dz_out = gmFK06.r_z_derivatives_dh_potential(
@@ -197,12 +213,14 @@ def test_r_z_derivative_dh_potential_FK06(test_case_1):
     )
 
 
-def test_r_derivative_b_potential_FK06(test_case_1):
+def test_r_z_derivative_b_potential_FK06(test_case_1):
     """
-    Verifying that the radial derivative of the bulge potential is evaluated
+    Verifying that the radial and z derivatives of the bulge potential is evaluated
     correctly.
     """
-    dpot_b_dr_out = gmFK06.r_derivative_b_potential(test_case_1["r"])
+    dpot_b_dr_out, dpot_b_dz_out = gmFK06.r_z_derivatives_b_potential(
+        test_case_1["r"], test_case_1["z"]
+    )
 
     assert np.isclose(
         dpot_b_dr_out,
@@ -211,14 +229,29 @@ def test_r_derivative_b_potential_FK06(test_case_1):
         atol=1.0e-30,
     )
 
+    assert np.isclose(
+        dpot_b_dz_out,
+        test_case_1["dpot_b_dz_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
+    )
 
-def test_r_derivative_n_potential_FK06(test_case_1):
+
+def test_r_z_derivative_n_potential_FK06(test_case_1):
     """
-    Verifying that the radial derivative of the nucleus potential is evaluated
+    Verifying that the radial and z derivatives of the nucleus potential is evaluated
     correctly.
     """
-    dpot_n_dr_out = gmFK06.r_derivative_n_potential(test_case_1["r"])
+    dpot_n_dr_out, dpot_n_dz_out = gmFK06.r_z_derivatives_n_potential(
+        test_case_1["r"], test_case_1["z"]
+    )
 
+    assert np.isclose(
+        dpot_n_dr_out,
+        test_case_1["dpot_n_dr_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
+    )
     assert np.isclose(
         dpot_n_dr_out,
         test_case_1["dpot_n_dr_expected"],
@@ -261,7 +294,10 @@ def test_d_potential_M19(test_case_2):
     pot_d_out = gmM19.d_potential(test_case_2["r"], test_case_2["z"])
 
     assert np.isclose(
-        pot_d_out, test_case_2["pot_d_expected"], rtol=TOL, atol=1.0e-30,
+        pot_d_out,
+        test_case_2["pot_d_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
 
 
@@ -269,10 +305,13 @@ def test_b_potential_M19(test_case_2):
     """
     Verifying that the bulge potential is evaluated correctly.
     """
-    pot_b_out = gmM19.b_potential(test_case_2["r"])
+    pot_b_out = gmM19.b_potential(test_case_2["r"], test_case_2["z"])
 
     assert np.isclose(
-        pot_b_out, test_case_2["pot_b_expected"], rtol=TOL, atol=1.0e-30,
+        pot_b_out,
+        test_case_2["pot_b_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
 
 
@@ -280,10 +319,13 @@ def test_n_potential_M19(test_case_2):
     """
     Verifying that the nucleus potential is evaluated correctly.
     """
-    pot_n_out = gmM19.n_potential(test_case_2["r"])
+    pot_n_out = gmM19.n_potential(test_case_2["r"], test_case_2["z"])
 
     assert np.isclose(
-        pot_n_out, test_case_2["pot_n_expected"], rtol=TOL, atol=1.0e-30,
+        pot_n_out,
+        test_case_2["pot_n_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
 
 
@@ -291,10 +333,13 @@ def test_h_potential_M19(test_case_2):
     """
     Verifying that the halo potential is evaluated correctly.
     """
-    pot_h_out = gmM19.h_potential(test_case_2["r"])
+    pot_h_out = gmM19.h_potential(test_case_2["r"], test_case_2["z"])
 
     assert np.isclose(
-        pot_h_out, test_case_2["pot_h_expected"], rtol=TOL, atol=1.0e-30,
+        pot_h_out,
+        test_case_2["pot_h_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
 
 
@@ -305,7 +350,10 @@ def test_MW_potential_M19(test_case_2):
     pot_MW_out = gmM19.MW_potential(test_case_2["r"], test_case_2["z"])
 
     assert np.isclose(
-        pot_MW_out, test_case_2["pot_MW_expected"], rtol=TOL, atol=1.0e-30,
+        pot_MW_out,
+        test_case_2["pot_MW_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
     )
 
 
@@ -327,7 +375,7 @@ def test_tot_energy_M19(test_case_2):
 
 def test_r_z_derivative_d_potential_M19(test_case_2):
     """
-    Verifying that the r and z derivative of the disk-halo potential are evaluated
+    Verifying that the r and z derivatives of the disk-halo potential are evaluated
     correctly.
     """
     dpot_d_dr_out, dpot_d_dz_out = gmM19.r_z_derivatives_d_potential(
@@ -348,12 +396,14 @@ def test_r_z_derivative_d_potential_M19(test_case_2):
     )
 
 
-def test_r_derivative_b_potential_M19(test_case_2):
+def test_r_z_derivatives_b_potential_M19(test_case_2):
     """
-    Verifying that the radial derivative of the bulge potential is evaluated
+    Verifying that the radial and z derivatives of the bulge potential is evaluated
     correctly.
     """
-    dpot_b_dr_out = gmM19.r_derivative_b_potential(test_case_2["r"])
+    dpot_b_dr_out, dpot_b_dz_out = gmM19.r_z_derivatives_b_potential(
+        test_case_2["r"], test_case_2["z"]
+    )
 
     assert np.isclose(
         dpot_b_dr_out,
@@ -361,14 +411,22 @@ def test_r_derivative_b_potential_M19(test_case_2):
         rtol=TOL,
         atol=1.0e-30,
     )
+    assert np.isclose(
+        dpot_b_dz_out,
+        test_case_2["dpot_b_dz_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
+    )
 
 
-def test_r_derivative_n_potential_M19(test_case_2):
+def test_r_z_derivatives_n_potential_M19(test_case_2):
     """
-    Verifying that the radial derivative of the nucleus potential is evaluated
+    Verifying that the radial and z derivatives of the nucleus potential is evaluated
     correctly.
     """
-    dpot_n_dr_out = gmM19.r_derivative_n_potential(test_case_2["r"])
+    dpot_n_dr_out, dpot_n_dz_out = gmM19.r_z_derivatives_n_potential(
+        test_case_2["r"], test_case_2["z"]
+    )
 
     assert np.isclose(
         dpot_n_dr_out,
@@ -376,18 +434,32 @@ def test_r_derivative_n_potential_M19(test_case_2):
         rtol=TOL,
         atol=1.0e-30,
     )
+    assert np.isclose(
+        dpot_n_dz_out,
+        test_case_2["dpot_n_dz_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
+    )
 
 
-def test_r_derivative_h_potential_M19(test_case_2):
+def test_r_z_derivatives_h_potential_M19(test_case_2):
     """
-    Verifying that the radial derivative of the halo potential is evaluated
+    Verifying that the radial and z derivatives of the halo potential is evaluated
     correctly.
     """
-    dpot_h_dr_out = gmM19.r_derivative_h_potential(test_case_2["r"])
+    dpot_h_dr_out, dpot_h_dz_out = gmM19.r_z_derivatives_h_potential(
+        test_case_2["r"], test_case_2["z"]
+    )
 
     assert np.isclose(
         dpot_h_dr_out,
         test_case_2["dpot_h_dr_expected"],
+        rtol=TOL,
+        atol=1.0e-30,
+    )
+    assert np.isclose(
+        dpot_h_dz_out,
+        test_case_2["dpot_h_dz_expected"],
         rtol=TOL,
         atol=1.0e-30,
     )
