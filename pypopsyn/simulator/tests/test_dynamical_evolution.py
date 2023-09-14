@@ -55,7 +55,7 @@ def test_case_1():
         "t": 0.0,
         "initial_cond": np.array([1.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
         "derivatives_expected": np.array(
-            [0.0, 0.0, 0.0, -2.12522e-14, 0.0, -1.65820e-14]
+            [0.0, 0.0, 0.0, -1.26283e-14, 0.0, -2.49464e-14]
         ),
         "galactic_model": gm.galactic_model,
     }
@@ -73,8 +73,8 @@ def test_case_2():
         "t_age": np.array([1.0e4, 1.0e4]),
         "final_population_expected": np.array(
             [
-                [1.0, 0.0, 1.0, -2.12522e-10, 0.0, -1.65820e-10],
-                [1.0, 0.0, -1.0, -2.12522e-10, 0.0, 1.65820e-10],
+                [1.0, 0.0, 1.0, -1.26283e-10, 0.0, -2.49464e-10],
+                [1.0, 0.0, -1.0, -1.26283e-10, 0.0, 2.49464e-10],
             ]
         ),
         "dyn_evol_dict_expected": {
@@ -129,8 +129,10 @@ def test_dynamical_evolution(test_case_2):
     has a length of 10^4 years.
     """
     final_population_out, dyn_evol_dict_out = dyn.dynamical_evolution(
-        test_case_2["initial_cond"], test_case_2["t_age"],
+        test_case_2["initial_cond"],
+        test_case_2["t_age"],
     )
+
     assert np.isclose(
         final_population_out,
         test_case_2["final_population_expected"],

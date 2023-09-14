@@ -67,7 +67,7 @@ def test_case_2():
 
     gm.initialize_galactic_model()
 
-    data = {"r": 1.0, "z": 1.0, "v_circular_expected": 1.45781e-7}
+    data = {"r": 1.0, "z": 1.0, "v_circular_expected": 1.12376e-7}
 
     return data
 
