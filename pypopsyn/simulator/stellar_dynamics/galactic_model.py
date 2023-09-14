@@ -111,7 +111,7 @@ class GalaxyModelBase:
         # Convert speeds into [cm/s].
         v = v * const.KM_TO_CM
 
-        tot_kin_energy = 0.5 * np.sum(v**2)
+        tot_kin_energy = 0.5 * np.sum(v**2.0)
         tot_pot_energy = np.sum(self.MW_potential(r, z))
 
         tot_energy = tot_kin_energy + tot_pot_energy
@@ -205,19 +205,19 @@ class GalaxyModelM19(GalaxyModelBase):
         a_d = self.a_d
         b_d = self.b_d
 
-        K = a_d + np.sqrt(z**2 + b_d**2)
+        K = a_d + np.sqrt(z**2.0 + b_d**2.0)
 
-        dK_dz = z / np.sqrt(z**2 + b_d**2)
+        dK_dz = z / np.sqrt(z**2.0 + b_d**2.0)
 
         return K, dK_dz
 
     def d_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
-        The Miyamoto-Nagai disk component gravitational potential defined in eq. (8) in
+        A cylindrical Miyamoto-Nagai disk component gravitational potential as defined in eq. (8) in
         Marchetti et al. (2019).
 
         Args:
-            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
@@ -228,17 +228,19 @@ class GalaxyModelM19(GalaxyModelBase):
 
         M_d = self.M_d
 
-        pot_d = -const.G * M_d / (np.sqrt(K**2 + r**2) * const.KPC_TO_CM)
+        pot_d = (
+            -const.G * M_d / (np.sqrt(K**2.0 + r**2.0) * const.KPC_TO_CM)
+        )
 
         return pot_d
 
     def b_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
-        The Hernquist bulge component gravitational potential defined in eq. (7) in
+        A spherical Hernquist bulge component gravitational potential as defined in eq. (7) in
         Marchetti et al. (2019).
 
         Args:
-            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
@@ -250,18 +252,18 @@ class GalaxyModelM19(GalaxyModelBase):
         pot_b = (
             -const.G
             * M_b
-            / ((r_b + np.sqrt(r**2 + z**2)) * const.KPC_TO_CM)
+            / ((r_b + np.sqrt(r**2.0 + z**2.0)) * const.KPC_TO_CM)
         )
 
         return pot_b
 
     def n_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
-        The Hernquist nucleus component gravitational potential defined in eq. (7) in
+        A spherical Hernquist nucleus component gravitational potential as defined in eq. (7) in
         Marchetti et al. (2019).
 
         Args:
-            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
@@ -273,18 +275,18 @@ class GalaxyModelM19(GalaxyModelBase):
         pot_n = (
             -const.G
             * M_n
-            / ((r_n + np.sqrt(r**2 + z**2)) * const.KPC_TO_CM)
+            / ((r_n + np.sqrt(r**2.0 + z**2.0)) * const.KPC_TO_CM)
         )
 
         return pot_n
 
     def h_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
-        The Navarro-Frenk-White halo component gravitational potential defined in
+        A spherical Navarro-Frenk-White halo component gravitational potential as defined in
         eq. (9) in Marchetti et al. (2019).
 
         Args:
-            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
@@ -296,8 +298,8 @@ class GalaxyModelM19(GalaxyModelBase):
         pot_h = (
             -const.G
             * M_h
-            / (np.sqrt(r**2 + z**2) * const.KPC_TO_CM)
-            * np.log(1.0 + np.sqrt(r**2 + z**2) / r_h)
+            / (np.sqrt(r**2.0 + z**2.0) * const.KPC_TO_CM)
+            * np.log(1.0 + np.sqrt(r**2.0 + z**2.0) / r_h)
         )
 
         return pot_h
@@ -307,7 +309,7 @@ class GalaxyModelM19(GalaxyModelBase):
         Total Milky Way gravitational potential in Marchetti et al. (2019).
 
         Args:
-            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
@@ -327,27 +329,27 @@ class GalaxyModelM19(GalaxyModelBase):
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
-        Derivative with respect to r and z of the disk component gravitational
+        Derivatives with respect to r and z of the disk component gravitational
         potential defined in eq. (8) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (float): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): derivative with respect to r and z of the disk potential.
+            (float, float): derivatives with respect to r and z of the disk potential.
         """
 
         M_d = self.M_d
 
         K, dK_dz = self.shape_parameter(z)
         dpot_d_dr = (
-            const.G_KPC_YR * M_d * r * (r**2 + K**2) ** (-3.0 / 2.0)
+            const.G_KPC_YR * M_d * r * (r**2.0 + K**2.0) ** (-3.0 / 2.0)
         )
         dpot_d_dz = (
             const.G_KPC_YR
             * M_d
-            * (r**2 + K**2) ** (-3.0 / 2.0)
+            * (r**2.0 + K**2.0) ** (-3.0 / 2.0)
             * K
             * dK_dz
         )
@@ -358,14 +360,14 @@ class GalaxyModelM19(GalaxyModelBase):
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
-        Derivative with respect to r and z of the bulge component gravitational potential
+        Derivatives with respect to r and z of the bulge component gravitational potential
         defined in eq. (7) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (float): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (float): height from the galactic disk in [kpc].
         Returns:
-            (float, float): derivative with respect to r and z of the bulge potential.
+            (float, float): derivatives with respect to r and z of the bulge potential.
         """
 
         M_b = self.M_b
@@ -375,15 +377,15 @@ class GalaxyModelM19(GalaxyModelBase):
             const.G_KPC_YR
             * M_b
             * r
-            * ((r_b + np.sqrt(r**2 + z**2)) ** (-2))
-            * ((r**2 + z**2) ** (-1 / 2))
+            * ((r_b + np.sqrt(r**2.0 + z**2.0)) ** (-2.0))
+            * ((r**2.0 + z**2.0) ** (-1.0 / 2.0))
         )
         dpot_b_dz = (
             const.G_KPC_YR
             * M_b
             * z
-            * ((r_b + np.sqrt(r**2 + z**2)) ** (-2))
-            * ((r**2 + z**2) ** (-1 / 2))
+            * ((r_b + np.sqrt(r**2.0 + z**2.0)) ** (-2.0))
+            * ((r**2.0 + z**2.0) ** (-1.0 / 2.0))
         )
 
         return dpot_b_dr, dpot_b_dz
@@ -392,14 +394,14 @@ class GalaxyModelM19(GalaxyModelBase):
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
-        Derivative with respect to r and z of the nucleus component gravitational potential
+        Derivatives with respect to r and z of the nucleus component gravitational potential
         defined in eq. (7) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (float): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (float): height from the galactic disk in [kpc].
         Returns:
-            (float, float): derivative with respect to r and z of the nucleus potential.
+            (float, float): derivatives with respect to r and z of the nucleus potential.
         """
 
         M_n = self.M_n
@@ -409,15 +411,15 @@ class GalaxyModelM19(GalaxyModelBase):
             const.G_KPC_YR
             * M_n
             * r
-            * ((r_n + np.sqrt(r**2 + z**2)) ** (-2))
-            * ((r**2 + z**2) ** (-1 / 2))
+            * ((r_n + np.sqrt(r**2.0 + z**2.0)) ** (-2.0))
+            * ((r**2.0 + z**2.0) ** (-1.0 / 2.0))
         )
         dpot_n_dz = (
             const.G_KPC_YR
             * M_n
             * z
-            * ((r_n + np.sqrt(r**2 + z**2)) ** (-2))
-            * ((r**2 + z**2) ** (-1 / 2))
+            * ((r_n + np.sqrt(r**2.0 + z**2.0)) ** (-2.0))
+            * ((r**2.0 + z**2.0) ** (-1.0 / 2.0))
         )
 
         return dpot_n_dr, dpot_n_dz
@@ -426,30 +428,30 @@ class GalaxyModelM19(GalaxyModelBase):
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
-        Derivative with respect to r and z of the halo component gravitational potential
+        Derivatives with respect to r and z of the halo component gravitational potential
         defined in eq. (9) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (float): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): derivative with respect to r and z of the halo potential.
+            (float, float): derivatives with respect to r and z of the halo potential.
         """
 
         M_h = self.M_h
         r_h = self.r_h
 
-        dpot_h_dr = (const.G_KPC_YR * M_h * r / (r**2 + z**2)) * (
-            np.log(1 + np.sqrt(r**2 + z**2) / r_h)
-            / (np.sqrt(r**2 + z**2))
-            - 1.0 / (r_h + np.sqrt(r**2 + z**2))
+        dpot_h_dr = (const.G_KPC_YR * M_h * r / (r**2.0 + z**2.0)) * (
+            np.log(1.0 + np.sqrt(r**2.0 + z**2.0) / r_h)
+            / (np.sqrt(r**2.0 + z**2.0))
+            - 1.0 / (r_h + np.sqrt(r**2.0 + z**2.0))
         )
 
-        dpot_h_dz = (const.G_KPC_YR * M_h * z / (r**2 + z**2)) * (
-            np.log(1 + np.sqrt(r**2 + z**2) / r_h)
-            / (np.sqrt(r**2 + z**2))
-            - 1.0 / (r_h + np.sqrt(r**2 + z**2))
+        dpot_h_dz = (const.G_KPC_YR * M_h * z / (r**2.0 + z**2.0)) * (
+            np.log(1.0 + np.sqrt(r**2.0 + z**2.0) / r_h)
+            / (np.sqrt(r**2.0 + z**2.0))
+            - 1.0 / (r_h + np.sqrt(r**2.0 + z**2.0))
         )
 
         return dpot_h_dr, dpot_h_dz
@@ -462,7 +464,7 @@ class GalaxyModelM19(GalaxyModelBase):
         the components defined in eq. (7,8,9) in Marchetti et al. (2019).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (float): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (float): height from the galactic disk in [kpc].
 
         Returns:
@@ -551,26 +553,26 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         K = (
             a_d
-            + beta[0] * np.sqrt(z**2 + h[0] ** 2)
-            + beta[1] * np.sqrt(z**2 + h[1] ** 2)
-            + beta[2] * np.sqrt(z**2 + h[2] ** 2)
+            + beta[0] * np.sqrt(z**2.0 + h[0] ** 2.0)
+            + beta[1] * np.sqrt(z**2.0 + h[1] ** 2.0)
+            + beta[2] * np.sqrt(z**2.0 + h[2] ** 2.0)
         )
 
         dK_dz = (
-            beta[0] * z / np.sqrt(z**2 + h[0] ** 2)
-            + beta[1] * z / np.sqrt(z**2 + h[1] ** 2)
-            + beta[2] * z / np.sqrt(z**2 + h[2] ** 2)
+            beta[0] * z / np.sqrt(z**2.0 + h[0] ** 2.0)
+            + beta[1] * z / np.sqrt(z**2.0 + h[1] ** 2.0)
+            + beta[2] * z / np.sqrt(z**2.0 + h[2] ** 2.0)
         )
 
         return K, dK_dz
 
     def dh_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
-        The disk-halo component gravitational potential defined in eq. (14) in
+        A cylindrical disk-halo component gravitational potential as defined in eq. (14) in
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
@@ -585,16 +587,17 @@ class GalaxyModelFK06(GalaxyModelBase):
         pot_dh = (
             -const.G
             * M_dh
-            / (np.sqrt(K**2 + b_dh**2 + r**2) * const.KPC_TO_CM)
+            / (np.sqrt(K**2.0 + b_dh**2.0 + r**2.0) * const.KPC_TO_CM)
         )
 
         return pot_dh
 
     def b_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
-        The bulge component gravitational potential defined in eq. (15) in
-        Faucher-Giguère & Kaspi (2006). We consider a spherical potential,
-        the r coordinate in eq. (15) in Faucher-Giguère & Kaspi (2006) should be the cylindrical r.
+        A spherical bulge component gravitational potential as defined in eq. (15) in
+        Faucher-Giguère & Kaspi (2006). Note that we assume this potential to be
+        spherical following Carlberg & Innanen (1987), while Faucher-Giguère & Kaspi take r
+        to be the cylindrical coordinate, not the spherical one.
 
         Args:
             r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
@@ -616,12 +619,13 @@ class GalaxyModelFK06(GalaxyModelBase):
 
     def n_potential(self, r: np.ndarray, z: np.ndarray) -> np.ndarray:
         """
-        The nucleus component gravitational potential defined in eq. (15) in
-        Faucher-Giguère & Kaspi (2006). We consider a spherical potential,
-        the r coordinate in eq. (15) in Faucher-Giguère & Kaspi (2006) should be the cylindrical r.
+        A spherical nucleus component gravitational potential as defined in eq. (15) in
+        Faucher-Giguère & Kaspi (2006). Note that we assume this potential to be
+        spherical following Carlberg & Innanen (1987), while Faucher-Giguère & Kaspi take r
+        to be the cylindrical coordinate, not the spherical one.
 
         Args:
-            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
@@ -633,7 +637,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         pot_n = (
             -const.G
             * M_n
-            / (np.sqrt(b_n**2 + r**2 + z**2) * const.KPC_TO_CM)
+            / (np.sqrt(b_n**2.0 + r**2.0 + z**2.0) * const.KPC_TO_CM)
         )
 
         return pot_n
@@ -644,7 +648,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (np.ndarray): distance in the galactic disk from the galactic centre in [kpc].
+            r (np.ndarray): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
@@ -663,15 +667,15 @@ class GalaxyModelFK06(GalaxyModelBase):
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
-        Derivative with respect to r and z of the disk-halo component gravitational
+        Derivatives with respect to r and z of the disk-halo component gravitational
         potential defined in eq. (14) in Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (float): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): derivative with respect to r and z of the disk-halo
+            (float, float): derivatives with respect to r and z of the disk-halo
             potential.
         """
 
@@ -683,12 +687,12 @@ class GalaxyModelFK06(GalaxyModelBase):
             const.G_KPC_YR
             * M_dh
             * r
-            * (K**2 + b_dh**2 + r**2) ** (-3.0 / 2.0)
+            * (K**2.0 + b_dh**2.0 + r**2.0) ** (-3.0 / 2.0)
         )
         dpot_dh_dz = (
             const.G_KPC_YR
             * M_dh
-            * (K**2 + b_dh**2 + r**2) ** (-3.0 / 2.0)
+            * (K**2.0 + b_dh**2.0 + r**2.0) ** (-3.0 / 2.0)
             * K
             * dK_dz
         )
@@ -699,15 +703,15 @@ class GalaxyModelFK06(GalaxyModelBase):
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
-        Derivative with respect to r and z of the bulge component gravitational potential
+        Derivatives with respect to r and z of the bulge component gravitational potential
         defined in eq. (15) in Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (float): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (float): height from the galactic disk in [kpc].
 
         Returns:
-            float: derivative with respect to r of the bulge potential.
+            (float, float): derivatives with respect to r and z of the bulge potential.
         """
 
         M_b = self.M_b
@@ -717,14 +721,14 @@ class GalaxyModelFK06(GalaxyModelBase):
             const.G_KPC_YR
             * M_b
             * r
-            * (b_b**2 + r**2 + z**2) ** (-3.0 / 2.0)
+            * (b_b**2.0 + r**2.0 + z**2.0) ** (-3.0 / 2.0)
         )
 
         dpot_b_dz = (
             const.G_KPC_YR
             * M_b
             * z
-            * (b_b**2 + r**2 + z**2) ** (-3.0 / 2.0)
+            * (b_b**2.0 + r**2.0 + z**2.0) ** (-3.0 / 2.0)
         )
 
         return dpot_b_dr, dpot_b_dz
@@ -733,15 +737,15 @@ class GalaxyModelFK06(GalaxyModelBase):
         self, r: float, z: float
     ) -> Tuple[float, float]:
         """
-        Derivative with respect to r and z of the nucleus component gravitational potential
+        Derivatives with respect to r and z of the nucleus component gravitational potential
         defined in eq. (15) in Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (float): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (float): height from the galactic disk in [kpc].
 
         Returns:
-            float: derivative with respect to r of the nucleus potential.
+            (float, float): derivatives with respect to r and z of the nucleus potential.
         """
 
         M_n = self.M_n
@@ -751,14 +755,14 @@ class GalaxyModelFK06(GalaxyModelBase):
             const.G_KPC_YR
             * M_n
             * r
-            * (b_n**2 + r**2 + z**2) ** (-3.0 / 2.0)
+            * (b_n**2.0 + r**2.0 + z**2.0) ** (-3.0 / 2.0)
         )
 
         dpot_n_dz = (
             const.G_KPC_YR
             * M_n
             * z
-            * (b_n**2 + r**2 + z**2) ** (-3.0 / 2.0)
+            * (b_n**2.0 + r**2.0 + z**2.0) ** (-3.0 / 2.0)
         )
 
         return dpot_n_dr, dpot_n_dz
@@ -771,7 +775,7 @@ class GalaxyModelFK06(GalaxyModelBase):
         defined in eq. (13) in Faucher-Giguère & Kaspi (2006).
 
         Args:
-            r (float): distance in the galactic disk from the galactic centre in [kpc].
+            r (float): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (float): height from the galactic disk in [kpc].
 
         Returns:
