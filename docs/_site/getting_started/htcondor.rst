@@ -74,6 +74,10 @@ The HTCondor submit file looks like the following:
     output          = OUTPUT/hello.out.$(Cluster).$(Process).txt
     error           = OUTPUT/hello.error.$(Cluster).$(Process).txt
     log             = OUTPUT/hello.log.$(Cluster).$(Process).txt
+
+    +WN_property="alma9"
+    +SingularityImage = "/opt/apptainer-images/pic-centos7.sif"
+
     queue
 
 In our case, the executable is a wrapper (explained below) where we call the .py file. When submitting an HTCondor job, simulations are run on a remote host. To see the terminal output (stdout) or errors (stderr) arising during the execution, we save the details in the path specified in the output, log and error variables. The path :code:`OUTPUT/hello.out.$(Cluster).$(Process).txt` is an example. You can choose the path that is most convenient for your purpose. In our example, we want the output to be saved in a folder called :code:`OUTPUT`, in the same location as the submit file and with the name :code:`hello.out.$(Cluster).$(Process).txt`. For example, we could change the path of the output to
@@ -106,16 +110,19 @@ An example wrapper looks like this:
     #!/bin/bash
 
     # Set where the anaconda installation is located in order to be able to use conda commands.
-    export PATH=/data/magnesia/software/anaconda3/bin:$PATH
+    export PATH=/data/astro/software/centos7/conda/mambaforge_4.14.0/bin:$PATH
 
     # Initialize anaconda in the bash shell.
     conda init bash
 
     # It's recommended by anaconda to close and restart the terminal after conda init.
-    source /data/magnesia/software/anaconda3/etc/profile.d/conda.sh
+    source /data/astro/software/centos7/conda/mambaforge_4.14.0/etc/profile.d/conda.sh
 
     # Activate conda environment.
-    conda activate /data/magnesia/software/anaconda3/envs/pop_syn
+    conda activate /data/magnesia/scratch/conda/env/pop_syn
+
+    # We copy the pypopsyn module in the working node to avoid problems with the path while running the simulations in the server.
+    cp -R /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn .
 
     # Run the simulation specifying the path for the output.
     python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn_test.py --output /data/magnesia/common/test_HTCondor
