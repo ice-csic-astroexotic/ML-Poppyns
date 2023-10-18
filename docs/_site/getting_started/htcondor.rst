@@ -76,7 +76,17 @@ The HTCondor submit file looks like the following:
     log             = OUTPUT/hello.log.$(Cluster).$(Process).txt
     queue
 
+To access a node with a GPU, these lines must be added to the submit file prior the queue.
+
+.. code-block:: bash
+
+    Requirements = (Machine == "gpu05.pic.es")
+    +WN_property="jupyter"
+    request_gpus=1
+
 In our case, the executable is a wrapper (explained below) where we call the .py file. When submitting an HTCondor job, simulations are run on a remote host. To see the terminal output (stdout) or errors (stderr) arising during the execution, we save the details in the path specified in the output, log and error variables. The path :code:`OUTPUT/hello.out.$(Cluster).$(Process).txt` is an example. You can choose the path that is most convenient for your purpose. In our example, we want the output to be saved in a folder called :code:`OUTPUT`, in the same location as the submit file and with the name :code:`hello.out.$(Cluster).$(Process).txt`. For example, we could change the path of the output to
+
+
 
 .. code-block:: bash
 
