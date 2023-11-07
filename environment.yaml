@@ -5,7 +5,7 @@ dependencies:
   - astropy=5.3.1
   - black=23.7.0
   - corner=2.2.2
-#  - cudatoolkit=11.6.0  # If you are a OSX user comment out this package.
+  - cudatoolkit=11.8.0  # If you are a OSX user comment out this package.
   - f2c=20210323183018  # Do we use this?
   - graphviz=8.1.0  # Do we use this?
   - healpy=1.16.2
