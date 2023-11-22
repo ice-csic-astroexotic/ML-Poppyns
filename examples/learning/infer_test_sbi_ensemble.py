@@ -273,12 +273,12 @@ def infer(args, config):
             logger.info("Loading the trained models...")
             logger.info(
                 "Inference is performed with the trained models in: {}".format(
-                    args.trained_models_txt
+                    args.trained_model
                 )
             )
 
             posterior_ensemble = []
-            with open(args.trained_models_txt, "rb") as f:
+            with open(args.trained_model, "rb") as f:
                 trained_models_path = f.readlines()
             for index, model in enumerate(trained_models_path):
                 with open(model.strip(), "rb") as f:
@@ -562,7 +562,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--trained_models_txt",
+        "--trained_model",
         type=str,
         default=None,
         help="Path to txt with the path of the trained models.",
