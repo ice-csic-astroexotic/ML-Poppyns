@@ -34,7 +34,7 @@ dependencies:
   - tensorboard=2.11.0
   - tensorboardx=2.6.2
   - termcolor=2.1.1
-  - torchvision = 0.16.0
+  - torchvision=0.16.0
   - pip:
       - pydeps
       - pygedm --global-option=build_ext --global-option="-I${CONDA_PREFIX}/include:/usr/local/include"
