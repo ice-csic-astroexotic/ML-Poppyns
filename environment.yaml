@@ -8,16 +8,16 @@ dependencies:
   - astropy=5.3.1
   - black=23.7.0
   - corner=2.2.2
-  - f2c=20210323183018  # Do we use this?
-  - graphviz=8.1.0  # Do we use this?
+  - f2c=20210323183018
+  - graphviz=8.1.0
   - healpy=1.16.2
   - jupyterlab=4.0.3
   - matplotlib=3.7.1
-  - ninja=1.11.1  # Do we use this?
+  - ninja=1.11.1
   - notebook=7.0.1
   - numba=0.57.1
   - numpy=1.24.4
-  - olefile=0.46  # Do we use this?
+  - olefile=0.46
   - orjson=3.9.2
   - pandas=2.0.3
   - pip=23.2.1
@@ -29,7 +29,7 @@ dependencies:
   - python=3.11.4
   - pytorch=2.1.0
   - pytorch-cuda=12.1
-  - recommonmark=0.7.1  # Do we use this?
+  - recommonmark=0.7.1
   - scipy=1.11.1
   - sphinx=7.1.1
   - tensorboard=2.11.0
@@ -37,6 +37,5 @@ dependencies:
   - termcolor=2.1.1
   - torchvision = 0.16.0
   - pip:
-      - julia
       - pydeps
       - pygedm --global-option=build_ext --global-option="-I${CONDA_PREFIX}/include:/usr/local/include"
