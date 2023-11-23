@@ -1,5 +1,4 @@
-name:
-  - pop_syn
+name: pop_syn
 channels:
   - pytorch
   - nvidia
@@ -28,7 +27,7 @@ dependencies:
   - pytest-runner=6.0.0
   - python=3.11.4
   - pytorch=2.1.0
-  - pytorch-cuda=12.1
+  - pytorch-cuda=12.1  # Comment this out if you are a macOS user
   - recommonmark=0.7.1
   - scipy=1.11.1
   - sphinx=7.1.1
