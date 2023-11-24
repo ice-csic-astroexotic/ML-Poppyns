@@ -28,10 +28,10 @@ from matplotlib import rc, rcParams
 # Set `usetex=False' if you do not have LaTeX installed.
 # rc("text", usetex=False)
 rc("font", family="serif")
-rcParams["text.latex.preamble"] = [r"\usepackage{amsmath}"]
+rcParams["text.latex.preamble"] = r"\usepackage{amsmath}"
 
 rcParams["mathtext.fontset"] = "stix"
-rcParams["font.family"] = "Liberation serif"
+rcParams["font.family"] = "sans-serif"
 # rcParams['font.weight']='bold'
 
 rcParams["figure.figsize"] = "8.0, 7.0"
