@@ -24,6 +24,7 @@
 
 import argparse
 import collections
+import json
 import os
 import pathlib
 import pickle
@@ -48,9 +49,11 @@ from pypopsyn.learning.utils.request_device import request_device
 
 
 def calculate_smallest_hdr(
-    posterior: callable,
+    norm_exp: list,
+    posterior_ensemble: callable,
     true_value: torch.tensor,
-    posterior_samples: torch.tensor,
+    posterior_samples_std: torch.tensor,
+    posterior_samples_norm: torch.tensor,
     simulation_output: torch.tensor,
     device: str,
 ) -> float:
@@ -59,37 +62,58 @@ def calculate_smallest_hdr(
     Calculating the smallest highest density region of the posterior, that contains the true value.
 
     Args:
-        posterior (Callable): Posterior distribution function.
+        norm_exp (List): List of booleans indicating whether we apply normalization or standardization.
+        posterior_ensemble (Callable): Ensemble posterior distribution function.
         true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated population
          in simulation_output.
-        posterior_samples (torch.tensor): Tensor containing the samples from the inferred posterior distribution for
-        simulation_output.
+        posterior_samples_std (torch.tensor): Tensor containing the samples standrized from the inferred ensemble
+        posterior distribution for simulation_output.
+        posterior_samples_norm (torch.tensor): Tensor containing the samples normalized from the inferred ensemble
+        posterior distribution for simulation_output.
         simulation_output (torch.tensor): Tensor containing the maps of the simulated population.
         device (str): String specifying the type of the device used to run the script.
 
     Returns:
         hdr (float): Smallest highest density region of the posterior that contains the true value.
     """
+    log_p_samples = np.zeros(len(posterior_samples_norm))
+    log_prob_true_value = 0
 
-    # Evaluating the PDF value of the ground truth.
-    log_p_true = (
-        posterior.log_prob(true_value.to(device), simulation_output.to(device))
-        .cpu()
-        .numpy()[0]
-    )
+    for index, posterior in enumerate(posterior_ensemble):
 
-    # Evaluating the PDF values of the posterior samples.
-    log_p_samples = [
-        posterior.log_prob(
-            posterior_samples[index].to(device), simulation_output.to(device)
+        # Evaluating the PDF value of the ground truth.
+        log_prob_true_value_exp = (
+            posterior.log_prob(
+                true_value[index].to(device),
+                simulation_output[index].to(device),
+            )
+            .cpu()
+            .numpy()[0]
         )
-        .cpu()
-        .numpy()[0]
-        for index in range(len(posterior_samples))
-    ]
+        log_prob_true_value += log_prob_true_value_exp
+
+        # Evaluating the PDF values of the posterior samples. To do so, we need to choose 'std' or 'norm' depending on each experiment.
+        if norm_exp:
+            posterior_samples = posterior_samples_norm
+        else:
+            posterior_samples = posterior_samples_std
+
+        log_p_samples_exp = [
+            posterior.log_prob(
+                posterior_samples[i].to(device),
+                simulation_output[index].to(device),
+            )
+            .cpu()
+            .numpy()[0]
+            for i in range(len(posterior_samples))
+        ]
+        log_p_samples += log_p_samples_exp
+
+    log_p_samples /= len(log_p_samples_exp)
+    log_prob_true_value_exp /= len(posterior_ensemble)
 
     # Determining the fraction of PDF values that are larger than that of the ground truth.
-    hdr = (log_p_samples > log_p_true).mean()
+    hdr = (log_p_samples > log_prob_true_value_exp).mean()
     return hdr
 
 
@@ -129,164 +153,179 @@ def infer(args, config):
             prof_json_path,
             config["show_profiling"],
         ):
-
-            # Initialize the torch seed.
-            if config["set_manual_seed"] is True:
-                torch.manual_seed(config["manual_seed"])
-                logger.info("Seed: {}".format(config["manual_seed"]))
-            else:
-                torch.manual_seed(int(time.time()))
-                logger.info("Seed: {}".format(int(time.time())))
-
-            dataset_path = config["test_data_loader"]["dataset_path"]
-            dataset_stat_path = config["test_data_loader"]["statistic_path"]
-            filter_inputs = config["test_data_loader"]["filter_inputs"]
-            filter_labels = config["test_data_loader"]["filter_labels"]
-            normalize = config["test_data_loader"]["normalize"]
-            standardize = config["test_data_loader"]["standardize"]
-            input_shape = config["arch"]["args"]["input_shape"]
-            hidden_features = config["arch"]["args"]["len_output_layer"]
-            n_components = config["density_estimator"]["args"][
-                "num_components"
-            ]
-            n_parameters = len(filter_labels)
-
             # Set up GPU device if available.
             logger.info("Requesting {} GPUs...".format(config["n_gpu"]))
             device, device_ids = request_device(logger, config["n_gpu"])
             logger.info("Devices obtained: {}".format(device_ids))
 
-        with timewith.TimeWith(
-            "[TestDatasetLoader]",
-            prof_log_path,
-            prof_json_path,
-            config["show_profiling"],
-        ):
-
-            # Load the test dataset ----------------------------------------------------------
-            logger.info("Loading the test dataset...")
-            try:
-                dataset = dl.DatasetMultichannelArray(
-                    dataset_path=dataset_path,
-                    statistic_path=dataset_stat_path,
-                    filter_channels=filter_inputs,
-                    filter_labels=filter_labels,
-                    normalize=normalize,
-                    standardize=standardize,
-                )
-            except Exception:
-                logger.exception("Error: an error occurred:")
-                sys.exit(1)
-
-            parameter = np.zeros((len(dataset), n_parameters))
-            matrix = np.zeros(
-                (
-                    len(dataset),
-                    1,
-                    input_shape[0],
-                    input_shape[1],
-                    input_shape[2],
-                )
-            )
-            for i, (x, theta) in enumerate(dataset):
-                # Reshape the matrix to have the channel number at the beginning
-                x = np.moveaxis(x, -1, 0)
-
-                if list(x.shape) != input_shape:
-                    logger.error(
-                        "Mismatch between the shape of the input data x {} and the input shape specified "
-                        "in the configuration file {}".format(
-                            x.shape, input_shape
-                        )
-                    )
-                    sys.exit()
-
-                matrix[i] = x
-                parameter[i] = theta
-
-            # Transform the maps and labels into torch.tensors.
-            parameter = torch.from_numpy(parameter).type(torch.float32)
-            matrix = torch.from_numpy(matrix).type(torch.float32)
-
-            # Loading the test data as a data frame and extracting the ground truth labels.
-            dataset_df = pd.read_csv(dataset_path)
-            parameter_labels = dataset_df.columns[filter_labels]
-
-        with timewith.TimeWith(
-            "[InferenceSetup]",
-            prof_log_path,
-            prof_json_path,
-            config["show_profiling"],
-        ):
-
-            # Build embedding model ------------------------------------------------
-            # The weights are initialized with this procedure only for the embedding net.
-            logger.info("Building embedding model...")
-            embedding_net = config.init_object("arch", learning_models)
-            logger.info("Model architecture: {}".format(embedding_net))
-
-            # Build density estimator ----------------------------------------------
-            # The default mixture density estimator has 3 hidden layers with a number of neurons = hidden_features.
-            # The weights are initialized with the default initialization provided by PyTorch.
-            neural_posterior = utils.posterior_nn(
-                model=config["density_estimator"]["type"],
-                embedding_net=embedding_net,
-                hidden_features=hidden_features,
-                num_components=n_components,
-                device=device,
-            )
-
-            # Set prior distribution for the parameters ------------------------------------------
-            logger.info("Set prior distribution...")
-            if normalize:
-                # All the parameters are rescaled in the range [0, 1].
-                prior = utils.BoxUniform(
-                    low=torch.tensor(np.zeros(n_parameters)),
-                    high=torch.tensor(np.ones(n_parameters)),
-                    device=f"{device}",
-                )
-            elif standardize:
-                # All the parameters are rescaled so that they have mean 0 and std 1.
-                # We consider a range of 5 std [-5, 5].
-                prior = utils.BoxUniform(
-                    low=torch.tensor(-5.0 * np.ones(n_parameters)),
-                    high=torch.tensor(5.0 * np.ones(n_parameters)),
-                    device=f"{device}",
-                )
-            else:
-                # Set the prior range to the range of the parameters.
-                prior = utils.BoxUniform(
-                    low=torch.tensor(dataset.target_min),
-                    high=torch.tensor(dataset.target_max),
-                    device=f"{device}",
-                )
-
-            # Set up the inference procedure -----------------------------
-            # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
-            inference = SNPE(
-                prior=prior,
-                density_estimator=neural_posterior,
-                device=f"{device}",
-            )
-
-            # Load the trained models from the txt file.
-            logger.info("Loading the trained models...")
-            logger.info(
-                "Inference is performed with the trained models in: {}".format(
-                    args.trained_model
-                )
-            )
-
             posterior_ensemble = []
+
+            # Opening the txt file with all the path to the trained models.
             with open(args.trained_model, "rb") as f:
                 trained_models_path = f.readlines()
-            for index, model in enumerate(trained_models_path):
-                with open(model.strip(), "rb") as f:
-                    posterior_ensemble.append(
-                        inference.build_posterior(pickle.load(f).to(device))
+
+            dataset_exps = []
+            parameter_exps = []
+            matrix_exps = []
+            norm_exp = []
+            # We loop through all the different experiments.
+            for index, exp in enumerate(trained_models_path):
+                # Extracting the path of the trained model and the config associated to each experiment.
+                model_path = exp.strip().split()[0]
+                config_path = exp.strip().split()[1]
+                with open(model_path, "rb") as f:
+                    trained_model = pickle.load(f)
+                with open(config_path, "rb") as f_config:
+                    config_json = json.load(f_config)
+
+                # Initialize the torch seed.
+                if config["set_manual_seed"] is True:
+                    torch.manual_seed(config["manual_seed"])
+                    logger.info("Seed: {}".format(config["manual_seed"]))
+                else:
+                    torch.manual_seed(int(time.time()))
+                    logger.info("Seed: {}".format(int(time.time())))
+
+                dataset_path = config_json["test_data_loader"]["dataset_path"]
+                dataset_stat_path = config_json["test_data_loader"][
+                    "statistic_path"
+                ]
+                filter_inputs = config_json["test_data_loader"][
+                    "filter_inputs"
+                ]
+                filter_labels = config_json["test_data_loader"][
+                    "filter_labels"
+                ]
+                normalize = config_json["test_data_loader"]["normalize"]
+                standardize = config_json["test_data_loader"]["standardize"]
+                input_shape = config_json["arch"]["args"]["input_shape"]
+                hidden_features = config_json["arch"]["args"][
+                    "len_output_layer"
+                ]
+                n_components = config_json["density_estimator"]["args"][
+                    "num_components"
+                ]
+                n_parameters = len(filter_labels)
+                norm_exp.append(normalize)
+
+                with timewith.TimeWith(
+                    "[TestDatasetLoader]",
+                    prof_log_path,
+                    prof_json_path,
+                    config["show_profiling"],
+                ):
+
+                    # Load the test dataset ----------------------------------------------------------
+                    logger.info("Loading the test dataset...")
+                    try:
+                        dataset = dl.DatasetMultichannelArray(
+                            dataset_path=dataset_path,
+                            statistic_path=dataset_stat_path,
+                            filter_channels=filter_inputs,
+                            filter_labels=filter_labels,
+                            normalize=normalize,
+                            standardize=standardize,
+                        )
+                    except Exception:
+                        logger.exception("Error: an error occurred:")
+                        sys.exit(1)
+
+                    parameter = np.zeros((len(dataset), n_parameters))
+                    matrix = np.zeros(
+                        (
+                            len(dataset),
+                            1,
+                            input_shape[0],
+                            input_shape[1],
+                            input_shape[2],
+                        )
                     )
-            # Build the posterior.
-            ensemble_posteriors = NeuralPosteriorEnsemble(posterior_ensemble)
+                    for i, (x, theta) in enumerate(dataset):
+                        # Reshape the matrix to have the channel number at the beginning
+                        x = np.moveaxis(x, -1, 0)
+
+                        if list(x.shape) != input_shape:
+                            logger.error(
+                                "Mismatch between the shape of the input data x {} and the input shape specified "
+                                "in the configuration file {}".format(
+                                    x.shape, input_shape
+                                )
+                            )
+                            sys.exit()
+
+                        matrix[i] = x
+                        parameter[i] = theta
+
+                    # Transform the maps and labels into torch.tensors.
+                    parameter = torch.from_numpy(parameter).type(torch.float32)
+                    matrix = torch.from_numpy(matrix).type(torch.float32)
+
+                    # Build embedding model ------------------------------------------------
+                    # The weights are initialized with this procedure only for the embedding net.
+                    logger.info("Building embedding model...")
+                    embedding_net = config.init_object("arch", learning_models)
+                    logger.info("Model architecture: {}".format(embedding_net))
+
+                    # Build density estimator ----------------------------------------------
+                    # The default mixture density estimator has 3 hidden layers with a number of neurons = hidden_features.
+                    # The weights are initialized with the default initialization provided by PyTorch.
+                    neural_posterior = utils.posterior_nn(
+                        model=config["density_estimator"]["type"],
+                        embedding_net=embedding_net,
+                        hidden_features=hidden_features,
+                        num_components=n_components,
+                        device=device,
+                    )
+
+                    # Set prior distribution for the parameters ------------------------------------------
+                    logger.info("Set prior distribution...")
+                    if normalize:
+                        # All the parameters are rescaled in the range [0, 1].
+                        prior = utils.BoxUniform(
+                            low=torch.tensor(np.zeros(n_parameters)),
+                            high=torch.tensor(np.ones(n_parameters)),
+                            device=f"{device}",
+                        )
+                    elif standardize:
+                        # All the parameters are rescaled so that they have mean 0 and std 1.
+                        # We consider a range of 5 std [-5, 5].
+                        prior = utils.BoxUniform(
+                            low=torch.tensor(-5.0 * np.ones(n_parameters)),
+                            high=torch.tensor(5.0 * np.ones(n_parameters)),
+                            device=f"{device}",
+                        )
+                    else:
+                        # Set the prior range to the range of the parameters.
+                        prior = utils.BoxUniform(
+                            low=torch.tensor(dataset.target_min),
+                            high=torch.tensor(dataset.target_max),
+                            device=f"{device}",
+                        )
+
+                    # Set up the inference procedure -----------------------------
+                    # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+                    inference = SNPE(
+                        prior=prior,
+                        density_estimator=neural_posterior,
+                        device=f"{device}",
+                    )
+
+                    # Load the trained models from the txt file.
+                    logger.info("Loading the trained models...")
+                    logger.info(
+                        "Inference is performed with the trained models in: {}".format(
+                            args.trained_model
+                        )
+                    )
+
+                    inference_model = inference.build_posterior(
+                        trained_model.to(device)
+                    )
+
+                    dataset_exps.append(dataset)
+                    parameter_exps.append(parameter)
+                    matrix_exps.append(matrix)
+                    posterior_ensemble.append(inference_model)
 
         with timewith.TimeWith(
             "[Inference]",
@@ -300,33 +339,97 @@ def infer(args, config):
             logger.info(
                 "Computing the average loss over the test dataset, extracting Gaussian mixture coefficients, estimating the hdr for the coverage probability and generating corner plots...."
             )
-            test_loss_mean = torch.tensor([0.0]).to(device)
+            test_loss_mean_ensemble = torch.tensor([0.0]).to(device)
 
             hdr_testset = np.zeros(len(dataset))
 
             for i in range(len(dataset)):
 
-                test_loss_mean += ensemble_posteriors.log_prob(
-                    parameter[i].to(device), matrix[i].to(device)
+                test_loss_mean = torch.tensor([0.0]).to(device)
+                n_samples_coverage_exp = 1000
+                posterior_samples_coverage_norm = []
+                posterior_samples_coverage_std = []
+                parameter_sample = []
+                matrix_sample = []
+
+                for index, posterior in enumerate(posterior_ensemble):
+
+                    parameter = parameter_exps[index]
+                    matrix = matrix_exps[index]
+                    test_loss_mean += posterior.log_prob(
+                        parameter[i].to(device), matrix[i].to(device)
+                    )
+                    posterior_sample_exp = posterior.set_default_x(
+                        matrix[i]
+                    ).sample(
+                        (n_samples_coverage_exp,), show_progress_bars=False
+                    )
+
+                    # Save the statistics for the filtered labels. Here we assume that the test datasets is the same for
+                    # all the experiments.
+                    par_max = torch.tensor(dataset.target_max)
+                    par_min = torch.tensor(dataset.target_min)
+                    par_std = torch.tensor(dataset.target_std)
+                    par_mean = torch.tensor(dataset.target_mean)
+
+                    # If the parameters were normalized or standardized rescale quantities to their physical ranges on
+                    # order to concatenate all together for calculating the coverage.
+                    if norm_exp[index]:
+                        posterior_sample_exp_phys = (
+                            posterior_sample_exp * (par_max - par_min)
+                            + par_min
+                        )
+                        posterior_sample_exp_std = (
+                            posterior_sample_exp_phys - par_mean
+                        ) / par_std
+                        posterior_samples_coverage_std.append(
+                            posterior_sample_exp_std
+                        )
+                        posterior_samples_coverage_norm.append(
+                            posterior_sample_exp
+                        )
+                    else:
+                        posterior_sample_exp_phys = (
+                            posterior_sample_exp * par_std + par_mean
+                        )
+                        posterior_sample_exp_norm = (
+                            posterior_sample_exp_phys - par_min
+                        ) / (par_max - par_min)
+                        posterior_samples_coverage_std.append(
+                            posterior_sample_exp
+                        )
+                        posterior_samples_coverage_norm.append(
+                            posterior_sample_exp_norm
+                        )
+
+                    parameter_sample.append(parameter[i])
+                    matrix_sample.append(matrix[i])
+
+                posterior_samples_coverage_std = torch.cat(
+                    posterior_samples_coverage_std
+                )
+                posterior_samples_coverage_norm = torch.cat(
+                    posterior_samples_coverage_norm
                 )
 
-                n_samples_coverage = 1000
-
-                posterior_samples_coverage = ensemble_posteriors.set_default_x(
-                    matrix[i]
-                ).sample((n_samples_coverage,), show_progress_bars=False)
+                test_loss_mean_ensemble += test_loss_mean / len(
+                    posterior_ensemble
+                )
 
                 smallest_hdr = calculate_smallest_hdr(
-                    ensemble_posteriors,
-                    parameter[i],
-                    posterior_samples_coverage,
-                    matrix[i],
+                    norm_exp,
+                    posterior_ensemble,
+                    parameter_sample,
+                    posterior_samples_coverage_std,
+                    posterior_samples_coverage_norm,
+                    matrix_sample,
                     device,
                 )
 
                 hdr_testset[i] = smallest_hdr
                 # If the "corner plot" argument is set to True, we draw samples from the inferred posterior
                 # distribution. Moreover, we save these samples and the corresponding corner plot.
+                """
                 if args.corner_plot:
 
                     samples = (
@@ -415,6 +518,7 @@ def infer(args, config):
                     )
                     plt.savefig(f"{config.log_dir}/corner_plot_{i}.pdf")
                     plt.close()
+                    """
 
             logger.info("Computing the coverage probability...")
             # Calculate the coverage from the smallest hdr.
@@ -459,87 +563,6 @@ def infer(args, config):
             logger.info(
                 "Average loss over the test dataset: {}".format(test_loss_mean)
             )
-
-        with timewith.TimeWith(
-            "[SimulationBasedCalibration]",
-            prof_log_path,
-            prof_json_path,
-            config["show_profiling"],
-        ):
-
-            if len(dataset) < 300:
-                logger.warning(
-                    "WARNING: Simulation-based Calibration cannot be performed due to the limited number of test samples."
-                    "For SBC, the number of test samples should be on the order of 1000s to give reliable results. "
-                    "We recommend using 10000."
-                )
-                sys.exit()
-
-            else:
-                logger.info("Perform Simulation-based Calibration...")
-
-                # Run SBC: for each test sample, we draw 10000 posterior samples.
-                num_posterior_samples = 10000
-                ranks, dap_samples = run_sbc(
-                    parameter.to(device),
-                    matrix.to(device),
-                    ensemble_posteriors,
-                    num_posterior_samples=num_posterior_samples,
-                )
-
-                # Saving the ranks and the number of posterior samples to reproduce the plot.
-                torch.save(ranks, f"{config.log_dir}/ranks.pt")
-                logger.info(
-                    f"Number of posterior samples to generate the plot of the ranks is {num_posterior_samples}"
-                )
-
-                logger.info("Check the rank statistics...")
-                # Check if the rank distributions follow a uniform distribution with three different tests
-                # (see [here](https://www.mackelab.org/sbi/tutorial/13_diagnostics_simulation_based_calibration/)
-                # for more details on these tests).
-                check_stats = check_sbc(
-                    ranks,
-                    parameter.to(device),
-                    dap_samples.to(device),
-                    num_posterior_samples=num_posterior_samples,
-                    num_c2st_repetitions=5,
-                )
-
-                logger.info(
-                    f"kolmogorov-smirnov p-values \n - check_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
-                )
-
-                logger.info(
-                    f"c2st accuracies \n - check_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()} "
-                    f"\n - check_stats['c2st_dap'] = {check_stats['c2st_dap'].numpy()}"
-                )
-
-                # Visually check if the ranks follow a uniform distribution.
-                # The gray band represents the 99% credibility interval around the mean for a uniform distribution.
-                f, ax = sbc_rank_plot(
-                    ranks=ranks,
-                    num_posterior_samples=num_posterior_samples,
-                    plot_type="hist",
-                    num_bins=30,  # When passing None the default is len(dataset_test) / 20.
-                    parameter_labels=parameter_labels,
-                )
-
-                f.savefig(
-                    f"{config.log_dir}/ranks_histograms.pdf",
-                    bbox_inches="tight",
-                )
-
-                f, ax = sbc_rank_plot(
-                    ranks=ranks,
-                    num_posterior_samples=num_posterior_samples,
-                    plot_type="cdf",
-                    parameter_labels=parameter_labels,
-                )
-
-                f.savefig(
-                    f"{config.log_dir}/ranks_cumulative.pdf",
-                    bbox_inches="tight",
-                )
 
 
 if __name__ == "__main__":
