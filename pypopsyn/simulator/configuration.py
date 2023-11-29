@@ -225,6 +225,11 @@ cfg["epsilon_L"]: float = 0.5
 cfg["ed_model"]: str = "ymw16"
 
 # Number of Galactic isolated neutron stars detected by the considered surveys.
+# To obtain these estimates, we removed extragalactic sources and those in globular clusters.
+# To exclude recycled objects that we cannot model with our current framework,
+# we also use a cut-off in period of P > 0.01s and period derivative of Pdot > 10^-19s/s.
+# The latter however only applies to those objects with measured Pdot values,
+# i.e., the counts below also include those pulsars with P > 0.01s that have no Pdot measurement.
 cfg["detected_real_PMPS"]: int = 1009
 cfg["detected_real_SMPS"]: int = 218
 cfg["detected_real_htru_low_mid"]: int = 1023
