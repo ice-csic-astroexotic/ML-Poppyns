@@ -83,7 +83,7 @@ def calculate_smallest_hdr(
     # Since we want that our posterior have the same importance we set the weight to 1/N being N the number of ensemble components.
     weights = torch.tensor(
         [1.0 / num_components for _ in range(num_components)]
-    )
+    ).to(device)
     for index, posterior in enumerate(posterior_ensemble):
 
         # Evaluating the PDF value of the ground truth.
