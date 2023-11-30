@@ -76,7 +76,7 @@ def calculate_smallest_hdr(
     Returns:
         hdr (float): Smallest highest density region of the posterior that contains the true value.
     """
-    log_p_samples = np.zeros(len(posterior_samples_norm))
+    log_p_samples = torch.zeros(len(posterior_samples_norm))
     log_prob_true_value = 0
 
     for index, posterior in enumerate(posterior_ensemble):
@@ -98,22 +98,18 @@ def calculate_smallest_hdr(
         else:
             posterior_samples = posterior_samples_std
 
-        log_p_samples_exp = [
-            posterior.log_prob(
-                posterior_samples[i].to(device),
-                simulation_output[index].to(device),
-            )
-            .cpu()
-            .numpy()[0]
-            for i in range(len(posterior_samples))
-        ]
+        log_p_samples_exp = posterior.log_prob(
+            posterior_samples.to(device), simulation_output[index].to(device)
+        ).cpu()
+
         log_p_samples += log_p_samples_exp
 
-    log_p_samples /= len(log_p_samples_exp)
+    log_p_samples /= len(posterior_ensemble)
     log_prob_true_value_exp /= len(posterior_ensemble)
 
     # Determining the fraction of PDF values that are larger than that of the ground truth.
-    hdr = (log_p_samples > log_prob_true_value_exp).mean()
+    hdr = (log_p_samples > log_prob_true_value_exp).sum()
+    hdr = hdr / len(log_p_samples)
     return hdr
 
 
@@ -359,10 +355,12 @@ def infer(args, config):
                     test_loss_mean += posterior.log_prob(
                         parameter[i].to(device), matrix[i].to(device)
                     )
-                    posterior_sample_exp = posterior.set_default_x(
-                        matrix[i]
-                    ).sample(
-                        (n_samples_coverage_exp,), show_progress_bars=False
+                    posterior_sample_exp = (
+                        posterior.set_default_x(matrix[i])
+                        .sample(
+                            (n_samples_coverage_exp,), show_progress_bars=False
+                        )
+                        .to(device)
                     )
 
                     # Save the statistics for the filtered labels. Here we assume that the test datasets is the same for
@@ -407,15 +405,14 @@ def infer(args, config):
 
                 posterior_samples_coverage_std = torch.cat(
                     posterior_samples_coverage_std
-                )
+                ).to(device)
                 posterior_samples_coverage_norm = torch.cat(
                     posterior_samples_coverage_norm
-                )
+                ).to(device)
 
                 test_loss_mean_ensemble += test_loss_mean / len(
                     posterior_ensemble
                 )
-
                 smallest_hdr = calculate_smallest_hdr(
                     norm_exp,
                     posterior_ensemble,
@@ -427,98 +424,6 @@ def infer(args, config):
                 )
 
                 hdr_testset[i] = smallest_hdr
-                # If the "corner plot" argument is set to True, we draw samples from the inferred posterior
-                # distribution. Moreover, we save these samples and the corresponding corner plot.
-                """
-                if args.corner_plot:
-
-                    samples = (
-                        ensemble_posteriors.set_default_x(matrix[i])
-                        .sample((50000,), show_progress_bars=False)
-                        .cpu()
-                    )
-
-                    # Save the statistics for the filtered labels.
-                    par_max = torch.tensor(dataset.target_max)
-                    par_min = torch.tensor(dataset.target_min)
-                    par_std = torch.tensor(dataset.target_std)
-                    par_mean = torch.tensor(dataset.target_mean)
-
-                    # If the parameters were normalized or standardized rescale quantities to their physical ranges.
-                    if normalize:
-                        parameter[i] = (
-                            parameter[i] * (par_max - par_min) + par_min
-                        )
-                        samples = samples * (par_max - par_min) + par_min
-
-                    elif standardize:
-                        parameter[i] = parameter[i] * par_std + par_mean
-                        samples = samples * par_std + par_mean
-
-                    # Save the samples from the inferred posterior distribution.
-                    torch.save(
-                        samples,
-                        f"{config.log_dir}/samples_{i}.pt",
-                    )
-
-                    # Saving the best estimated parameters and the 95% CI into the log.txt file.
-                    quantile = np.quantile(
-                        samples, [0.025, 0.5, 0.975], axis=0
-                    )
-
-                    logger.info(
-                        "Estimated parameter values (we consider the median as the best value and the 95 % credibility interval):"
-                    )
-
-                    for s in range(n_parameters):
-
-                        param_quantile = quantile[:, s]
-                        logger.info(
-                            f"{parameter_labels[s]} = {param_quantile[1]} + {param_quantile[2] - param_quantile[1]} - {param_quantile[1] - param_quantile[0]}"
-                        )
-
-                    range_param = [
-                        [par_min[v], par_max[v]] for v in range(len(par_max))
-                    ]
-
-                    param_median = quantile[1, :]
-
-                    # Corner plot of the inferred posterior distributions for each parameter.
-                    figure = corner.corner(
-                        samples.detach().cpu().numpy(),
-                        bins=32,
-                        labels=parameter_labels,
-                        range=range_param,
-                        quantiles=[0.025, 0.5, 0.975],
-                        levels=(
-                            1 - np.exp(-0.5),
-                            1 - np.exp(-2),
-                            1 - np.exp(-9.0 / 2.0),
-                        ),  # 1, 2 and 3 sigma levels
-                        show_titles=True,
-                        title_kwargs={"fontsize": 12},
-                    )
-                    corner.overplot_lines(
-                        figure, param_median, color="tab:red"
-                    )
-                    corner.overplot_lines(
-                        figure, parameter[i], color="tab:blue"
-                    )
-                    corner.overplot_points(
-                        figure,
-                        param_median[None],
-                        marker="s",
-                        color="tab:red",
-                    )
-                    corner.overplot_points(
-                        figure,
-                        parameter[None, i],
-                        marker="s",
-                        color="tab:blue",
-                    )
-                    plt.savefig(f"{config.log_dir}/corner_plot_{i}.pdf")
-                    plt.close()
-                    """
 
             logger.info("Computing the coverage probability...")
             # Calculate the coverage from the smallest hdr.
