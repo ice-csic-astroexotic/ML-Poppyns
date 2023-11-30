@@ -365,10 +365,10 @@ def infer(args, config):
 
                     # Save the statistics for the filtered labels. Here we assume that the test datasets is the same for
                     # all the experiments.
-                    par_max = torch.tensor(dataset.target_max)
-                    par_min = torch.tensor(dataset.target_min)
-                    par_std = torch.tensor(dataset.target_std)
-                    par_mean = torch.tensor(dataset.target_mean)
+                    par_max = torch.tensor(dataset.target_max).to(device)
+                    par_min = torch.tensor(dataset.target_min).to(device)
+                    par_std = torch.tensor(dataset.target_std).to(device)
+                    par_mean = torch.tensor(dataset.target_mean).to(device)
 
                     # If the parameters were normalized or standardized rescale quantities to their physical ranges on
                     # order to concatenate all together for calculating the coverage.
