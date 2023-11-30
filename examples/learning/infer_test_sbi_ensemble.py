@@ -66,7 +66,7 @@ def calculate_smallest_hdr(
         posterior_ensemble (Callable): Ensemble posterior distribution function.
         true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated population
          in simulation_output.
-        posterior_samples_std (torch.tensor): Tensor containing the samples standrized from the inferred ensemble
+        posterior_samples_std (torch.tensor): Tensor containing the samples standarized from the inferred ensemble
         posterior distribution for simulation_output.
         posterior_samples_norm (torch.tensor): Tensor containing the samples normalized from the inferred ensemble
         posterior distribution for simulation_output.
@@ -76,40 +76,53 @@ def calculate_smallest_hdr(
     Returns:
         hdr (float): Smallest highest density region of the posterior that contains the true value.
     """
-    log_p_samples = torch.zeros(len(posterior_samples_norm))
-    log_prob_true_value = 0
 
+    log_prob_true_value = []
+    log_prob_samples = []
+    num_components = len(posterior_ensemble)
+    # Since we want that our posterior have the same importance we set the weight to 1/N being N the number of ensemble components.
+    weights = torch.tensor(
+        [1.0 / num_components for _ in range(num_components)]
+    )
     for index, posterior in enumerate(posterior_ensemble):
 
         # Evaluating the PDF value of the ground truth.
-        log_prob_true_value_exp = (
+        log_prob_true_value.append(
             posterior.log_prob(
                 true_value[index].to(device),
                 simulation_output[index].to(device),
             )
-            .cpu()
-            .numpy()[0]
         )
-        log_prob_true_value += log_prob_true_value_exp
 
         # Evaluating the PDF values of the posterior samples. To do so, we need to choose 'std' or 'norm' depending on each experiment.
-        if norm_exp:
+        if norm_exp[index]:
             posterior_samples = posterior_samples_norm
         else:
             posterior_samples = posterior_samples_std
 
-        log_p_samples_exp = posterior.log_prob(
-            posterior_samples.to(device), simulation_output[index].to(device)
-        ).cpu()
+        log_prob_samples.append(
+            posterior.log_prob(
+                posterior_samples.to(device),
+                simulation_output[index].to(device),
+            )
+        )
 
-        log_p_samples += log_p_samples_exp
+    log_prob_true_value = torch.stack(log_prob_true_value)
+    log_prob_samples = torch.stack(log_prob_samples)
 
-    log_p_samples /= len(posterior_ensemble)
-    log_prob_true_value_exp /= len(posterior_ensemble)
+    log_weights = torch.log(weights).reshape(-1, 1)
+
+    log_prob_true_value = torch.logsumexp(
+        log_weights.expand_as(log_prob_true_value) + log_prob_true_value, dim=0
+    )
+    log_prob_samples = torch.logsumexp(
+        log_weights.expand_as(log_prob_samples) + log_prob_samples, dim=0
+    )
 
     # Determining the fraction of PDF values that are larger than that of the ground truth.
-    hdr = (log_p_samples > log_prob_true_value_exp).sum()
-    hdr = hdr / len(log_p_samples)
+    hdr = (log_prob_samples > log_prob_true_value).sum()
+    hdr = hdr / len(log_prob_samples)
+
     return hdr
 
 
@@ -164,6 +177,7 @@ def infer(args, config):
             parameter_exps = []
             matrix_exps = []
             norm_exp = []
+
             # We loop through all the different experiments.
             for index, exp in enumerate(trained_models_path):
                 # Extracting the path of the trained model and the config associated to each experiment.
@@ -335,14 +349,17 @@ def infer(args, config):
             logger.info(
                 "Computing the average loss over the test dataset, extracting Gaussian mixture coefficients, estimating the hdr for the coverage probability and generating corner plots...."
             )
-            test_loss_mean_ensemble = torch.tensor([0.0]).to(device)
+            """
+                        test_loss_mean_ensemble = torch.tensor([0.0]).to(device)
+
+            """
 
             hdr_testset = np.zeros(len(dataset))
 
             for i in range(len(dataset)):
 
                 test_loss_mean = torch.tensor([0.0]).to(device)
-                n_samples_coverage_exp = 1000
+                n_samples_coverage_exp = 100
                 posterior_samples_coverage_norm = []
                 posterior_samples_coverage_std = []
                 parameter_sample = []
@@ -352,9 +369,13 @@ def infer(args, config):
 
                     parameter = parameter_exps[index]
                     matrix = matrix_exps[index]
+
+                    """
                     test_loss_mean += posterior.log_prob(
                         parameter[i].to(device), matrix[i].to(device)
                     )
+                    """
+
                     posterior_sample_exp = (
                         posterior.set_default_x(matrix[i])
                         .sample(
@@ -410,9 +431,12 @@ def infer(args, config):
                     posterior_samples_coverage_norm
                 ).to(device)
 
+                """
                 test_loss_mean_ensemble += test_loss_mean / len(
                     posterior_ensemble
                 )
+                """
+
                 smallest_hdr = calculate_smallest_hdr(
                     norm_exp,
                     posterior_ensemble,
