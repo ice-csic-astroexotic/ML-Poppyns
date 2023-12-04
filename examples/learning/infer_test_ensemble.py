@@ -1,9 +1,9 @@
 """
-    Inference script for sbi.
+    Inference ensemble script.
 
-    This script performs inference on a test dataset in a simulation-based inference framework with the SBI package.
-    It loads a density estimator trained to approximate the posterior distribution for a dataset of simulated data
-    and checks its performance on a test dataset.
+    This script performs inference on a test dataset using an ensemble of trained methods in the args.trained_model txt
+    file. The ensemble is performed using our own implementation for the ensemble, then we not have a limitation in
+    which type experiments we could use in the ensemble.
     Simulation-Based Calibration is also performed to check if the posterior is well behaving.
     See https://www.mackelab.org/sbi/ for more details.
 
