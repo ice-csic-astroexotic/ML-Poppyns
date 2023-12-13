@@ -490,10 +490,7 @@ def simulate_population(args) -> None:
                 P_final,
                 magrot_evol_dict,
             ) = mre.magneto_rotational_evolution(
-                B_initial,
-                chi_initial,
-                P_initial,
-                age,
+                B_initial, chi_initial, P_initial, age, cfg["a_late"]
             )
 
             if cfg["save_magrot_evolution"]:
