@@ -31,15 +31,11 @@ import pickle
 import sys
 import time
 
-import corner
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import torch
 from sbi import utils
-from sbi.analysis import check_sbc, run_sbc, sbc_rank_plot
 from sbi.inference import SNPE
-from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.learning.configuration_parser as configuration_parser
@@ -59,7 +55,7 @@ def calculate_smallest_hdr(
 ) -> float:
 
     """
-    Calculating the smallest highest density region of the posterior, that contains the true value.
+    Calculating the smallest highest density region of the posterior ensemble, that contains the true value.
 
     Args:
         norm_exp (List): List of booleans indicating whether we apply normalization or standardization.
@@ -74,16 +70,19 @@ def calculate_smallest_hdr(
         device (str): String specifying the type of the device used to run the script.
 
     Returns:
-        hdr (float): Smallest highest density region of the posterior that contains the true value.
+        hdr (float): Smallest highest density region of the posterior ensemble that contains the true value.
     """
 
     log_prob_true_value = []
     log_prob_samples = []
     num_components = len(posterior_ensemble)
-    # Since we want that our posterior have the same importance we set the weight to 1/N being N the number of ensemble components.
+
+    # Setting the weights of each component to 1/N being N the number of ensemble components, since each of the
+    # components has the same importance.
     weights = torch.tensor(
         [1.0 / num_components for _ in range(num_components)]
     ).to(device)
+
     for index, posterior in enumerate(posterior_ensemble):
 
         # Evaluating the PDF value of the ground truth.
@@ -94,7 +93,10 @@ def calculate_smallest_hdr(
             )
         )
 
-        # Evaluating the PDF values of the posterior samples. To do so, we need to choose 'std' or 'norm' depending on each experiment.
+        # Evaluating the average log-probability of the posterior ensemble in each of the posterior samples and in the
+        # true value.
+
+        # Use the standarize or normalized samples depending on which experiment we are using.
         if norm_exp[index]:
             posterior_samples = posterior_samples_norm
         else:
@@ -119,7 +121,7 @@ def calculate_smallest_hdr(
         log_weights.expand_as(log_prob_samples) + log_prob_samples, dim=0
     )
 
-    # Determining the fraction of PDF values that are larger than that of the ground truth.
+    # Determining the fraction of average log-probabilities values that are larger than that of the ground truth.
     hdr = (log_prob_samples > log_prob_true_value).sum()
     hdr = hdr / len(log_prob_samples)
 
@@ -173,13 +175,16 @@ def infer(args, config):
             with open(args.trained_model, "rb") as f:
                 trained_models_path = f.readlines()
 
+            # Saving for each of the experiments the training dataset, the true values, observations and if this
+            # experiments is standardize or normalize.
             dataset_exps = []
             parameter_exps = []
             matrix_exps = []
             norm_exp = []
 
-            # We loop through all the different experiments.
+            # Loop through all the different experiments.
             for index, exp in enumerate(trained_models_path):
+
                 # Extracting the path of the trained model and the config associated to each experiment.
                 model_path = exp.strip().split()[0]
                 config_path = exp.strip().split()[1]
@@ -333,9 +338,10 @@ def infer(args, config):
                     )
 
                     dataset_exps.append(dataset)
+                    posterior_ensemble.append(inference_model)
+
                     parameter_exps.append(parameter)
                     matrix_exps.append(matrix)
-                    posterior_ensemble.append(inference_model)
 
         with timewith.TimeWith(
             "[Inference]",
@@ -359,7 +365,11 @@ def infer(args, config):
             for i in range(len(dataset)):
 
                 test_loss_mean = torch.tensor([0.0]).to(device)
+                # The number of posterior samples for each experiment should be small, as we need to calculate the log-
+                # probability for each sample in the ensemble, which is a concatenation of samples from all experiments.
                 n_samples_coverage_exp = 100
+
+                # To calculate the coverage probability we normalized and standardized the ensemble samples.
                 posterior_samples_coverage_norm = []
                 posterior_samples_coverage_std = []
                 parameter_sample = []
@@ -369,12 +379,6 @@ def infer(args, config):
 
                     parameter = parameter_exps[index]
                     matrix = matrix_exps[index]
-
-                    """
-                    test_loss_mean += posterior.log_prob(
-                        parameter[i].to(device), matrix[i].to(device)
-                    )
-                    """
 
                     posterior_sample_exp = (
                         posterior.set_default_x(matrix[i])
@@ -391,8 +395,8 @@ def infer(args, config):
                     par_std = torch.tensor(dataset.target_std).to(device)
                     par_mean = torch.tensor(dataset.target_mean).to(device)
 
-                    # If the parameters were normalized or standardized rescale quantities to their physical ranges on
-                    # order to concatenate all together for calculating the coverage.
+                    # To standardize and normalize all the ensemble samples, we first need to convert them to their
+                    # original physical ranges.
                     if norm_exp[index]:
                         posterior_sample_exp_phys = (
                             posterior_sample_exp * (par_max - par_min)
@@ -430,12 +434,6 @@ def infer(args, config):
                 posterior_samples_coverage_norm = torch.cat(
                     posterior_samples_coverage_norm
                 ).to(device)
-
-                """
-                test_loss_mean_ensemble += test_loss_mean / len(
-                    posterior_ensemble
-                )
-                """
 
                 smallest_hdr = calculate_smallest_hdr(
                     norm_exp,
@@ -482,10 +480,6 @@ def infer(args, config):
             plt.xlabel(r"Credibility level $1-\alpha$", fontsize=10)
             plt.ylabel(r"Coverage probability", fontsize=10)
             plt.savefig(f"{config.log_dir}/coverage_plot.pdf")
-
-            # To save the precision and means for the whole test dataset in a numpy array uncomment the lines below.
-            # np.save(f"{config.log_dir}/mean_Gaussians.npy",mean_Gaussians)
-            # np.save(f"{config.log_dir}/precision_Gaussians.npy",precision_Gaussians)
 
             # Divide the cumulative test loss by the number of samples to obtain the average loss over the test set.
             test_loss_mean = test_loss_mean / len(dataset)
