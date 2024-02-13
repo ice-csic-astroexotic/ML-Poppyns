@@ -175,9 +175,16 @@ def infer(args, config):
             with open(args.trained_model, "rb") as f:
                 trained_models_path = f.readlines()
 
-            # Saving for each of the experiments the training dataset, the true values, observations and if this
+            # Initialize the torch seed.
+            if config["set_manual_seed"] is True:
+                torch.manual_seed(config["manual_seed"])
+                logger.info("Seed: {}".format(config["manual_seed"]))
+            else:
+                torch.manual_seed(int(time.time()))
+                logger.info("Seed: {}".format(int(time.time())))
+
+            # Saving for each of the experiments the true values, observations and if this
             # experiments is standardize or normalize.
-            dataset_exps = []
             parameter_exps = []
             matrix_exps = []
             norm_exp = []
@@ -192,14 +199,6 @@ def infer(args, config):
                     trained_model = pickle.load(f)
                 with open(config_path, "rb") as f_config:
                     config_json = json.load(f_config)
-
-                # Initialize the torch seed.
-                if config["set_manual_seed"] is True:
-                    torch.manual_seed(config["manual_seed"])
-                    logger.info("Seed: {}".format(config["manual_seed"]))
-                else:
-                    torch.manual_seed(int(time.time()))
-                    logger.info("Seed: {}".format(int(time.time())))
 
                 dataset_path = config_json["test_data_loader"]["dataset_path"]
                 dataset_stat_path = config_json["test_data_loader"][
@@ -337,7 +336,6 @@ def infer(args, config):
                         trained_model.to(device)
                     )
 
-                    dataset_exps.append(dataset)
                     posterior_ensemble.append(inference_model)
 
                     parameter_exps.append(parameter)
@@ -355,16 +353,11 @@ def infer(args, config):
             logger.info(
                 "Computing the average loss over the test dataset, extracting Gaussian mixture coefficients, estimating the hdr for the coverage probability and generating corner plots...."
             )
-            """
-                        test_loss_mean_ensemble = torch.tensor([0.0]).to(device)
-
-            """
 
             hdr_testset = np.zeros(len(dataset))
 
             for i in range(len(dataset)):
 
-                test_loss_mean = torch.tensor([0.0]).to(device)
                 # The number of posterior samples for each experiment should be small, as we need to calculate the log-
                 # probability for each sample in the ensemble, which is a concatenation of samples from all experiments.
                 n_samples_coverage_exp = 100
@@ -480,12 +473,6 @@ def infer(args, config):
             plt.xlabel(r"Credibility level $1-\alpha$", fontsize=10)
             plt.ylabel(r"Coverage probability", fontsize=10)
             plt.savefig(f"{config.log_dir}/coverage_plot.pdf")
-
-            # Divide the cumulative test loss by the number of samples to obtain the average loss over the test set.
-            test_loss_mean = test_loss_mean / len(dataset)
-            logger.info(
-                "Average loss over the test dataset: {}".format(test_loss_mean)
-            )
 
 
 if __name__ == "__main__":
