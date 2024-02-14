@@ -169,8 +169,13 @@ def infer(args, config):
             device, device_ids = request_device(logger, config["n_gpu"])
             logger.info("Devices obtained: {}".format(device_ids))
 
-            posterior_ensemble = []
-
+            # Load the trained models from the txt file.
+            logger.info("Loading the trained models...")
+            logger.info(
+                "Inference is performed with the trained models in: {}".format(
+                    args.trained_model
+                )
+            )
             # Opening the txt file with all the path to the trained models.
             with open(args.trained_model, "rb") as f:
                 trained_models_path = f.readlines()
@@ -188,6 +193,7 @@ def infer(args, config):
             parameter_exps = []
             matrix_exps = []
             norm_exp = []
+            posterior_ensemble = []
 
             # Loop through all the different experiments.
             for index, exp in enumerate(trained_models_path):
@@ -322,14 +328,6 @@ def infer(args, config):
                         prior=prior,
                         density_estimator=neural_posterior,
                         device=f"{device}",
-                    )
-
-                    # Load the trained models from the txt file.
-                    logger.info("Loading the trained models...")
-                    logger.info(
-                        "Inference is performed with the trained models in: {}".format(
-                            args.trained_model
-                        )
                     )
 
                     inference_model = inference.build_posterior(
