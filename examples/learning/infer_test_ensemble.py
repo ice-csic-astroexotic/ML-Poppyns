@@ -230,7 +230,11 @@ def infer(args, config):
                 ):
 
                     # Load the test dataset ----------------------------------------------------------
-                    logger.info("Loading the test dataset...")
+                    logger.info(
+                        "Loading the test dataset for experiment {}".format(
+                            index
+                        )
+                    )
                     try:
                         dataset = dl.DatasetMultichannelArray(
                             dataset_path=dataset_path,
