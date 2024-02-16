@@ -225,7 +225,11 @@ def infer(args, config):
                 n_components = config_json["density_estimator"]["args"][
                     "num_components"
                 ]
+                type_network = config_json["arch"]["type"]
+
                 n_parameters = len(filter_labels)
+
+                # Saving if the experiments are normalize or standardize.
                 norm_exp.append(normalize)
 
                 with timewith.TimeWith(
@@ -285,9 +289,30 @@ def infer(args, config):
                     matrix = torch.from_numpy(matrix).type(torch.float32)
 
                     # Build embedding model ------------------------------------------------
+                    # Note that we have to check which type of network we want to build and the input shape.
                     # The weights are initialized with this procedure only for the embedding net.
                     logger.info("Building embedding model...")
-                    embedding_net = config.init_object("arch", learning_models)
+
+                    architectures = {
+                        ("ModelConvSBI", 32): "arch",
+                        ("ModelConvSBIdeep", 32): "arch_deep",
+                        ("ModelConvSBI", 64): "arch_64",
+                        ("ModelConvSBIdeep", 64): "arch_deep_64",
+                    }
+
+                    architecture_key = (type_network, input_shape[1])
+
+                    if architecture_key in architectures:
+                        architecture_name = architectures[architecture_key]
+                        embedding_net = config.init_object(
+                            architecture_name, learning_models
+                        )
+                    else:
+                        # Handle the case where the combination of type_network and input_shape[1] is not found
+                        raise ValueError(
+                            "Unsupported combination of type_network and input shape"
+                        )
+
                     logger.info("Model architecture: {}".format(embedding_net))
 
                     # Build density estimator ----------------------------------------------
