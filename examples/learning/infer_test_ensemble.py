@@ -289,7 +289,7 @@ def infer(args, config):
                     matrix = torch.from_numpy(matrix).type(torch.float32)
 
                     # Build embedding model ------------------------------------------------
-                    # Note that we have to check which type of network we want to build and the input shape.
+                    # Check network type and input shape for each experiment.
                     # The weights are initialized with this procedure only for the embedding net.
                     logger.info("Building embedding model...")
 
