@@ -319,7 +319,7 @@ def infer(args, config):
                     # The default mixture density estimator has 3 hidden layers with a number of neurons = hidden_features.
                     # The weights are initialized with the default initialization provided by PyTorch.
                     neural_posterior = utils.posterior_nn(
-                        model=config["density_estimator"]["type"],
+                        model=config_json["density_estimator"]["type"],
                         embedding_net=embedding_net,
                         hidden_features=hidden_features,
                         num_components=n_components,
