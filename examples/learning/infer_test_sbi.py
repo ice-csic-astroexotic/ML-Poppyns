@@ -71,24 +71,17 @@ def calculate_smallest_hdr(
     """
 
     # Evaluating the PDF value of the ground truth.
-    log_p_true = (
-        posterior.log_prob(true_value.to(device), simulation_output.to(device))
-        .cpu()
-        .numpy()[0]
+    log_p_true = posterior.log_prob(
+        true_value.to(device), simulation_output.to(device)
     )
 
     # Evaluating the PDF values of the posterior samples.
-    log_p_samples = [
-        posterior.log_prob(
-            posterior_samples[index].to(device), simulation_output.to(device)
-        )
-        .cpu()
-        .numpy()[0]
-        for index in range(len(posterior_samples))
-    ]
+    log_p_samples = posterior.log_prob(
+        posterior_samples.to(device), simulation_output.to(device)
+    )
 
     # Determining the fraction of PDF values that are larger than that of the ground truth.
-    hdr = (log_p_samples > log_p_true).mean()
+    hdr = (log_p_samples > log_p_true).float().mean()
     return hdr
 
 
