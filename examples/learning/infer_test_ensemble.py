@@ -2,9 +2,9 @@
     Inference ensemble script.
 
     This script performs inference on a test dataset using an ensemble of trained methods in the args.trained_model txt
-    file. The ensemble is performed using our own implementation for the ensemble, then we not have a limitation in
-    which type experiments we could use in the ensemble.
-    Simulation-Based Calibration is also performed to check if the posterior is well behaving.
+    file. We create our own ensemble to ensure it's flexible to different experiments, unlike the ensemble method in the
+    sbi package, which has limitations on the types of experiments it can support.
+    Simulation-Based Calibration is also performed to check if the ensemble posterior is well behaving.
     See https://www.mackelab.org/sbi/ for more details.
 
      Running the code:
@@ -188,8 +188,8 @@ def infer(args, config):
                 torch.manual_seed(int(time.time()))
                 logger.info("Seed: {}".format(int(time.time())))
 
-            # Saving for each of the experiments the true values, observations and if this
-            # experiments is standardize or normalize.
+            # Saving for each of the experiments the true values, observations and if the input is standardize or
+            # normalize.
             parameter_exps = []
             matrix_exps = []
             norm_exp = []
@@ -229,7 +229,7 @@ def infer(args, config):
 
                 n_parameters = len(filter_labels)
 
-                # Saving if the experiments are normalize or standardize.
+                # Saving if the experiments are normalized or standardized.
                 norm_exp.append(normalize)
 
                 with timewith.TimeWith(
@@ -364,7 +364,6 @@ def infer(args, config):
                     )
 
                     posterior_ensemble.append(inference_model)
-
                     parameter_exps.append(parameter)
                     matrix_exps.append(matrix)
 
