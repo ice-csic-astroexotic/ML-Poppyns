@@ -233,8 +233,8 @@ def infer(args, config):
                 torch.manual_seed(int(time.time()))
                 logger.info("Seed: {}".format(int(time.time())))
 
-            # Saving for each of the experiments the true values, observations and if the input is standardize or
-            # normalize.
+            # Saving for each of the experiments the true values, observations and if the input is standardized or
+            # normalized.
             experiments = {}
             posterior_ensemble = []
             # Loop through all the different experiments.
@@ -261,17 +261,8 @@ def infer(args, config):
                 normalize = config_json["test_data_loader"]["normalize"]
                 standardize = config_json["test_data_loader"]["standardize"]
                 input_shape = config_json["arch"]["args"]["input_shape"]
-                hidden_features = config_json["arch"]["args"][
-                    "len_output_layer"
-                ]
-                n_components = config_json["density_estimator"]["args"][
-                    "num_components"
-                ]
-                type_network = config_json["arch"]["type"]
 
                 n_parameters = len(filter_labels)
-
-                # Saving if the experiments are normalized or standardized.
 
                 with timewith.TimeWith(
                     "[TestDatasetLoader]",
@@ -329,44 +320,6 @@ def infer(args, config):
                     parameter = torch.from_numpy(parameter).type(torch.float32)
                     matrix = torch.from_numpy(matrix).type(torch.float32)
 
-                    # Build embedding model ------------------------------------------------
-                    # Check network type and input shape for each experiment.
-                    # The weights are initialized with this procedure only for the embedding net.
-                    logger.info("Building embedding model...")
-
-                    architectures = {
-                        ("ModelConvSBI", 32): "arch",
-                        ("ModelConvSBIdeep", 32): "arch_deep",
-                        ("ModelConvSBI", 64): "arch_64",
-                        ("ModelConvSBIdeep", 64): "arch_deep_64",
-                    }
-
-                    architecture_key = (type_network, input_shape[1])
-
-                    if architecture_key in architectures:
-                        architecture_name = architectures[architecture_key]
-                        embedding_net = config.init_object(
-                            architecture_name, learning_models
-                        )
-                    else:
-                        # Handle the case where the combination of type_network and input_shape[1] is not found
-                        raise ValueError(
-                            "Unsupported combination of type_network and input shape"
-                        )
-
-                    logger.info("Model architecture: {}".format(embedding_net))
-
-                    # Build density estimator ----------------------------------------------
-                    # The default mixture density estimator has 3 hidden layers with a number of neurons = hidden_features.
-                    # The weights are initialized with the default initialization provided by PyTorch.
-                    neural_posterior = utils.posterior_nn(
-                        model=config_json["density_estimator"]["type"],
-                        embedding_net=embedding_net,
-                        hidden_features=hidden_features,
-                        num_components=n_components,
-                        device=device,
-                    )
-
                     # Set prior distribution for the parameters ------------------------------------------
                     logger.info("Set prior distribution...")
                     if normalize:
@@ -394,14 +347,10 @@ def infer(args, config):
 
                     # Set up the inference procedure -----------------------------
                     # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
-                    inference = SNPE(
-                        prior=prior,
-                        density_estimator=neural_posterior,
-                        device=f"{device}",
-                    )
+                    inference = SNPE()
 
                     inference_model = inference.build_posterior(
-                        trained_model.to(device)
+                        trained_model.to(device), prior=prior
                     )
 
                     # Store experiment information in the dictionary
@@ -441,11 +390,11 @@ def infer(args, config):
                 parameter_sample = []
                 matrix_sample = []
 
-                for experiment_name, parameters in experiments.items():
+                for experiment_name, experiment in experiments.items():
 
-                    parameter = parameters["parameter"]
-                    matrix = parameters["matrix"]
-                    posterior = parameters["posterior"]
+                    parameter = experiment["parameter"]
+                    matrix = experiment["matrix"]
+                    posterior = experiment["posterior"]
 
                     posterior_sample_exp = (
                         posterior.set_default_x(matrix[i])
@@ -464,7 +413,7 @@ def infer(args, config):
 
                     # To standardize and normalize all the ensemble samples, we first need to convert them to their
                     # original physical ranges.
-                    if parameters["normalize"]:
+                    if experiment["normalize"]:
                         posterior_sample_exp_phys = (
                             posterior_sample_exp * (par_max - par_min)
                             + par_min
