@@ -45,7 +45,7 @@ from pypopsyn.learning.utils.request_device import request_device
 
 
 def calculate_smallest_hdr(
-    norm_exp: list,
+    experiments: dict,
     posterior_ensemble: callable,
     true_value: torch.tensor,
     posterior_samples_std: torch.tensor,
@@ -58,7 +58,7 @@ def calculate_smallest_hdr(
     Calculating the smallest highest density region of the posterior ensemble, that contains the true value.
 
     Args:
-        norm_exp (List): List of booleans indicating whether we apply normalization or standardization.
+        experiments (Dictionary): Dictionary containing the parameters, matrix, posterior and type of scaling (std or norm) for each experiment.
         posterior_ensemble (Callable): Ensemble posterior distribution function.
         true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated population
          in simulation_output.
@@ -97,7 +97,7 @@ def calculate_smallest_hdr(
         # true value.
 
         # Use the standarize or normalized samples depending on which experiment we are using.
-        if norm_exp[index]:
+        if experiments[index]["normalize"]:
             posterior_samples = posterior_samples_norm
         else:
             posterior_samples = posterior_samples_std
@@ -190,11 +190,8 @@ def infer(args, config):
 
             # Saving for each of the experiments the true values, observations and if the input is standardize or
             # normalize.
-            parameter_exps = []
-            matrix_exps = []
-            norm_exp = []
+            experiments = {}
             posterior_ensemble = []
-
             # Loop through all the different experiments.
             for index, exp in enumerate(trained_models_path):
 
@@ -230,7 +227,6 @@ def infer(args, config):
                 n_parameters = len(filter_labels)
 
                 # Saving if the experiments are normalized or standardized.
-                norm_exp.append(normalize)
 
                 with timewith.TimeWith(
                     "[TestDatasetLoader]",
@@ -363,9 +359,15 @@ def infer(args, config):
                         trained_model.to(device)
                     )
 
+                    # Store experiment information in the dictionary
+                    experiments[index] = {
+                        "normalize": normalize,
+                        "posterior": inference_model,
+                        "parameter": parameter,
+                        "matrix": matrix,
+                    }
+
                     posterior_ensemble.append(inference_model)
-                    parameter_exps.append(parameter)
-                    matrix_exps.append(matrix)
 
         with timewith.TimeWith(
             "[Inference]",
@@ -394,10 +396,11 @@ def infer(args, config):
                 parameter_sample = []
                 matrix_sample = []
 
-                for index, posterior in enumerate(posterior_ensemble):
+                for experiment_name, parameters in experiments.items():
 
-                    parameter = parameter_exps[index]
-                    matrix = matrix_exps[index]
+                    parameter = parameters["parameter"]
+                    matrix = parameters["matrix"]
+                    posterior = parameters["posterior"]
 
                     posterior_sample_exp = (
                         posterior.set_default_x(matrix[i])
@@ -416,7 +419,7 @@ def infer(args, config):
 
                     # To standardize and normalize all the ensemble samples, we first need to convert them to their
                     # original physical ranges.
-                    if norm_exp[index]:
+                    if parameters["normalize"]:
                         posterior_sample_exp_phys = (
                             posterior_sample_exp * (par_max - par_min)
                             + par_min
@@ -455,7 +458,7 @@ def infer(args, config):
                 ).to(device)
 
                 smallest_hdr = calculate_smallest_hdr(
-                    norm_exp,
+                    experiments,
                     posterior_ensemble,
                     parameter_sample,
                     posterior_samples_coverage_std,
