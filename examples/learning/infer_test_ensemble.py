@@ -239,7 +239,8 @@ def infer(args, config):
             posterior_ensemble = []
             # Loop through all the different experiments.
             for index, exp in enumerate(trained_models_path):
-
+                # Load the test dataset ----------------------------------------------------------
+                logger.info("Experiment {}".format(index))
                 # Extracting the path of the trained model and the config associated to each experiment.
                 model_path = exp.strip().split()[0]
                 config_path = exp.strip().split()[1]
@@ -272,11 +273,7 @@ def infer(args, config):
                 ):
 
                     # Load the test dataset ----------------------------------------------------------
-                    logger.info(
-                        "Loading the test dataset for experiment {}".format(
-                            index
-                        )
-                    )
+                    logger.info("Loading the test dataset")
                     try:
                         dataset = dl.DatasetMultichannelArray(
                             dataset_path=dataset_path,
@@ -369,12 +366,6 @@ def infer(args, config):
             prof_json_path,
             config["show_profiling"],
         ):
-
-            # Compute the loss over the test dataset (with batch size = 1), extract the Gaussian mixture
-            # coefficients and generate the corner plots.
-            logger.info(
-                "Computing the average loss over the test dataset, extracting Gaussian mixture coefficients, estimating the hdr for the coverage probability and generating corner plots...."
-            )
 
             hdr_testset = np.zeros(len(dataset))
 

@@ -137,7 +137,6 @@ def infer(args, config):
             normalize = config["test_data_loader"]["normalize"]
             standardize = config["test_data_loader"]["standardize"]
             input_shape = config["arch"]["args"]["input_shape"]
-            hidden_features = config["arch"]["args"]["len_output_layer"]
             n_components = config["density_estimator"]["args"][
                 "num_components"
             ]
@@ -211,23 +210,6 @@ def infer(args, config):
             config["show_profiling"],
         ):
 
-            # Build embedding model ------------------------------------------------
-            # The weights are initialized with this procedure only for the embedding net.
-            logger.info("Building embedding model...")
-            embedding_net = config.init_object("arch", learning_models)
-            logger.info("Model architecture: {}".format(embedding_net))
-
-            # Build density estimator ----------------------------------------------
-            # The default mixture density estimator has 3 hidden layers with a number of neurons = hidden_features.
-            # The weights are initialized with the default initialization provided by PyTorch.
-            neural_posterior = utils.posterior_nn(
-                model=config["density_estimator"]["type"],
-                embedding_net=embedding_net,
-                hidden_features=hidden_features,
-                num_components=n_components,
-                device=device,
-            )
-
             # Set prior distribution for the parameters ------------------------------------------
             logger.info("Set prior distribution...")
             if normalize:
@@ -255,11 +237,7 @@ def infer(args, config):
 
             # Set up the inference procedure -----------------------------
             # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
-            inference = SNPE(
-                prior=prior,
-                density_estimator=neural_posterior,
-                device=f"{device}",
-            )
+            inference = SNPE()
 
             # Load the trained model.
             logger.info("Loading the trained model...")
@@ -272,7 +250,9 @@ def infer(args, config):
                 trained_model = pickle.load(f)
 
             # Build the posterior.
-            posterior = inference.build_posterior(trained_model.to(device))
+            posterior = inference.build_posterior(
+                trained_model.to(device), prior=prior
+            )
 
         with timewith.TimeWith(
             "[Inference]",
