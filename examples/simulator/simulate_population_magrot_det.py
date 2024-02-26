@@ -78,11 +78,11 @@ def simulate_population(args) -> None:
     output_path.mkdir(parents=True, exist_ok=True)
 
     # Update path-dependent configurations prepending the specified output path.
-
     prof_log_path = pathlib.Path().joinpath(output_path, cfg["profile_log"])
     prof_json_path = pathlib.Path().joinpath(output_path, cfg["profile_json"])
 
-    # Remove the profile.json and profile.log files to prevent interrupted server connections issues.
+    # If already present, remove the profile.json and profile.log files to prevent
+    # interrupted server connections issues.
     if os.path.exists(prof_json_path):
         os.remove(prof_json_path)
 
@@ -163,9 +163,9 @@ def simulate_population(args) -> None:
     # Import the maximum age value from the dynamical configuration file.
     # This is needed for the computation of the birth rate.
     with open(dyn_path_config, "r") as f:
-        conf_json = json.load(f)
+        config_dyn = json.load(f)
 
-    t_max = conf_json["t_age_max"] / 100  # Maximum time in centuries.
+    t_max = config_dyn["t_age_max"] / 100  # Maximum time in centuries.
 
     # Initialize the indicator for an excess in birth rate to False.
     # This variable will be changed to True if the birth rate exceeds a value of 5 NS / century.
@@ -395,7 +395,7 @@ def simulate_population(args) -> None:
                 df_dyn = select(
                     dyn_path_pop,
                     n_batchsize,
-                    conf_json["NS_number"],
+                    config_dyn["NS_number"],
                     idx_remove,
                 )
 
@@ -1000,18 +1000,29 @@ def simulate_population(args) -> None:
         cfg["birth_rate_HTRU_low_mid"] = birth_rate_HTRU_low_mid
         cfg["birth_rate_HTRU_high"] = birth_rate_HTRU_high
 
-        # Add the information of the number of detected neutron star by each survey when this survey reach the number
-        # of observed neutron stars.
-        cfg["n_detected_sim_PMPS"] = n_detected_sim_PMPS_at_match
-        cfg["n_detected_sim_SMPS"] = n_detected_sim_SMPS_at_match
+        # Add the information of the number of detected neutron star by each simulated survey when it reaches
+        # the number of observed neutron stars and the total number of mock detected neutron stars at the end of
+        # the simulation.
+        cfg["n_detected_sim_PMPS_at_match"] = n_detected_sim_PMPS_at_match
+        cfg["n_detected_sim_SMPS_at_match"] = n_detected_sim_SMPS_at_match
         cfg[
-            "n_detected_sim_HTRU_low_mid"
+            "n_detected_sim_HTRU_low_mid_at_match"
         ] = n_detected_sim_HTRU_low_mid_at_match
-        cfg["n_detected_sim_HTRU_high"] = n_detected_sim_HTRU_high_at_match
+        cfg[
+            "n_detected_sim_HTRU_high_at_match"
+        ] = n_detected_sim_HTRU_high_at_match
+        cfg["n_detected_sim_PMPS_tot"] = n_detected_sim_PMPS
+        cfg["n_detected_sim_SMPS_tot"] = n_detected_sim_SMPS
+        cfg["n_detected_sim_HTRU_low_mid_tot"] = n_detected_sim_HTRU_low_mid
+        cfg["n_detected_sim_HTRU_high_tot"] = n_detected_sim_HTRU_high
 
         # Add the parameters from the dynamical database to the configuration file.
-        cfg["t_max"] = conf_json["t_age_max"]
-        cfg["NS_number"] = conf_json["NS_number"]
+        cfg["t_max"] = config_dyn["t_age_max"]
+        cfg["NS_number"] = config_dyn["NS_number"]
+        cfg["kick_model"] = config_dyn["kick_model"]
+        cfg["sigma_k"] = config_dyn["sigma_k"]
+        cfg["vk_c"] = config_dyn["vk_c"]
+        cfg["h_c"] = config_dyn["h_c"]
 
         # Add the path of the dynamical database in the configuration file.
         cfg["dyn_database_path"] = args.dyn_data
