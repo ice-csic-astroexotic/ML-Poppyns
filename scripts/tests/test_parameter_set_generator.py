@@ -38,11 +38,9 @@ def test_case_1():
             "output_dir": None,
             "sampling_type": "random",
             "sampling_size": 5,
-            "kick_model": "km_maxwell",
             "sigma_k": None,
             "vk_c": None,
             "h_c": [0.1, 1.0],
-            "spin_period_model": "log-normal",
             "P_initial_mean": None,
             "P_initial_sigma": None,
             "P_initial_log10_mean": None,
@@ -51,15 +49,7 @@ def test_case_1():
             "B_initial_log10_sigma": None,
             "a_late": None,
         },
-        "var_names_expected": [
-            "sigma_k",
-            "h_c",
-            "P_initial_log10_mean",
-            "P_initial_log10_sigma",
-            "B_initial_log10_mean",
-            "B_initial_log10_sigma",
-            "a_late",
-        ],
+        "var_names_expected": ["h_c"],
     }
 
     return data
@@ -72,11 +62,9 @@ def test_case_2():
         "args_dict": {
             "output_dir": None,
             "sampling_type": "grid",
-            "kick_model": "km_maxwell",
             "sigma_k": None,
             "vk_c": None,
             "h_c": [0.1, 1.0, 5],
-            "spin_period_model": "log-normal",
             "P_initial_mean": None,
             "P_initial_sigma": None,
             "P_initial_log10_mean": None,
@@ -87,32 +75,14 @@ def test_case_2():
         },
         "h_c_expected": np.array([0.1, 0.325, 0.55, 0.775, 1.0]),
         "var_names_expected": [
-            "sigma_k",
             "h_c",
-            "P_initial_log10_mean",
-            "P_initial_log10_sigma",
-            "B_initial_log10_mean",
-            "B_initial_log10_sigma",
-            "a_late",
+        ],
+        "var_expanded_ranges_expected": [
+            [0.1, 0.325, 0.55, 0.775, 1.0],
         ],
     }
 
     return data
-
-
-def test_set_default_parameter_random(test_case_1):
-    """
-    Testing that if a parameter is None it is correctly set to the default value in random mode.
-    """
-    psg.set_default_parameter(
-        test_case_1["args_dict"],
-        test_case_1["parameter_name"],
-    )
-
-    assert test_case_1["args_dict"][test_case_1["parameter_name"]] == [
-        cfg[test_case_1["parameter_name"]],
-        cfg[test_case_1["parameter_name"]],
-    ]
 
 
 def test_expand_parameter_random(test_case_1):
@@ -142,22 +112,6 @@ def test_check_expand_args_random(test_case_1):
     )
 
 
-def test_set_default_parameter_grid(test_case_2):
-    """
-    Testing that if a parameter is None it is correctly set to the default value in grid mode.
-    """
-    psg.set_default_parameter(
-        test_case_2["args_dict"],
-        test_case_2["parameter_name"],
-    )
-
-    assert test_case_2["args_dict"][test_case_2["parameter_name"]] == [
-        cfg[test_case_2["parameter_name"]],
-        cfg[test_case_2["parameter_name"]],
-        1,
-    ]
-
-
 def test_expand_parameter_grid(test_case_2):
     """
     Testing if a parameter is correctly expanded in grid mode.
@@ -179,12 +133,6 @@ def test_check_expand_args_grid(test_case_2):
 
     assert var_names_out == test_case_2["var_names_expected"]
 
-    assert var_expanded_ranges_out == [
-        [265.0],
-        [0.1, 0.325, 0.55, 0.775, 1.0],
-        [-0.6],
-        [0.3],
-        [13.25],
-        [0.75],
-        [-2.0],
-    ]
+    assert (
+        var_expanded_ranges_out == test_case_2["var_expanded_ranges_expected"]
+    )
