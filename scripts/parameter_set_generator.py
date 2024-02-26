@@ -52,74 +52,49 @@ from pypopsyn.simulator.configuration import cfg
 log = logging.getLogger(__name__)
 
 
-def set_default_parameter(args_dict: dict, parameter_name: str) -> None:
+def check_parameter_compatibility(args_dict: dict):
     """
-    If a parameter related to the simulation is None, set it to the
-    default value provided in the configuration file.
+    Check if the parsed input arguments are coherent with the one provided in the configuration file of the simulator.
 
     Args:
         args_dict (dict): dictionary of the parsed argument via CLI.
-        parameter_name (str): name of the parameter to set.
 
     Returns:
         Nothing.
     """
 
-    # For unspecified parameters, assign corresponding default value according to the chosen sampling approach.
-    # We specify a list for compatibility reasons according to [default value, default value (, 1)], respectively.
-    if args_dict[parameter_name] is None:
-        if args_dict["sampling_type"] == "grid":
-            args_dict[parameter_name] = [
-                cfg[parameter_name],
-                cfg[parameter_name],
-                1,
-            ]
-        elif args_dict["sampling_type"] == "random":
-            args_dict[parameter_name] = [
-                cfg[parameter_name],
-                cfg[parameter_name],
-            ]
-
-        log.info(
-            "{} set to the default value {}".format(
-                parameter_name, cfg[parameter_name]
+    if (
+        (cfg["kick_model"] == "km_maxwell") and (args_dict["vk_c"] is not None)
+    ) or (
+        (cfg["kick_model"] == "km_exp") and (args_dict["sigma_k"] is not None)
+    ):
+        raise ValueError(
+            "The provided kick-velocity distribution parameter is not compatible with the model {} in the configuration file.".format(
+                cfg["kick_model"]
             )
         )
-
-
-def set_default_if_none(args_dict: dict) -> None:
-    """
-    If any of the parameters related to the simulation are None, set them to the
-    default value provided in the configuration file.
-
-    Args:
-        args_dict (dict): dictionary of the parsed argument via CLI.
-
-    Returns:
-        Nothing.
-    """
-
-    # Setting the default parameters for the dynamical evolution.
-    if args_dict["kick_model"] == "km_maxwell":
-        set_default_parameter(args_dict, "sigma_k")
-
-    if args_dict["kick_model"] == "km_exp":
-        set_default_parameter(args_dict, "vk_c")
-
-    set_default_parameter(args_dict, "h_c")
-
-    # Setting the default parameters for the magneto-rotational evolution.
-    if args_dict["spin_period_model"] == "normal":
-        set_default_parameter(args_dict, "P_initial_mean")
-        set_default_parameter(args_dict, "P_initial_sigma")
-
-    if args_dict["spin_period_model"] == "log-normal":
-        set_default_parameter(args_dict, "P_initial_log10_mean")
-        set_default_parameter(args_dict, "P_initial_log10_sigma")
-
-    set_default_parameter(args_dict, "B_initial_log10_mean")
-    set_default_parameter(args_dict, "B_initial_log10_sigma")
-    set_default_parameter(args_dict, "a_late")
+    elif (
+        (cfg["spin_period_model"] == "normal")
+        and (
+            (args_dict["P_initial_log10_mean"] is not None)
+            or (args_dict["P_initial_log10_sigma"] is not None)
+        )
+    ) or (
+        (cfg["spin_period_model"] == "log-normal")
+        and (
+            (args_dict["P_initial_mean"] is not None)
+            or (args_dict["P_initial_sigma"] is not None)
+        )
+    ):
+        raise ValueError(
+            "The provided spin-period distribution parameters are not compatible with the model {} in the configuration file.".format(
+                cfg["spin_period_model"]
+            )
+        )
+    else:
+        log.info(
+            "The provided parameters are compatible with the configuration file."
+        )
 
 
 def expand_parameter(
@@ -180,9 +155,8 @@ def check_expand_args(args_dict: dict) -> (list, list):
         expanded parameters.
     """
 
-    # If any of the parameters related to the simulation are None,
-    # set them to the default value provided in the configuration file.
-    set_default_if_none(args_dict)
+    # Check if the provided parameters are compatible with the simulation configuration file.
+    check_parameter_compatibility(args_dict)
 
     cli_args: list = []
     cli_str: list = []
