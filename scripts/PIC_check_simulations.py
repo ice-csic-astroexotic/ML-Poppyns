@@ -90,7 +90,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default="output/test",
-        help="Path to the directory where the csv with the list of failed folder is saved.",
+        help="Path to the directory where the csv file containing the list of failed folders is saved.",
     )
 
     args = args.parse_args()

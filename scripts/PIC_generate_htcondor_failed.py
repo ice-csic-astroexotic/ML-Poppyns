@@ -10,7 +10,8 @@
     to generate the failed_folders.csv file.
 
     Authors:
-        Celsa Pardo (pardo @ csic.es)
+
+        Celsa Pardo Araujo (pardo @ csic.es)
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -32,6 +33,7 @@ SOFTWARE.
 """
 
 import argparse
+import os
 import pathlib
 import shutil
 
@@ -61,7 +63,10 @@ def generate_htcondor_failed(args):
     # in order to assess the reason for failure, the following variable should be set to True.
     check_simulations_failed = False
 
-    data_failed_folder = pd.read_csv("scripts/failed_folders.csv")
+    failed_folder_csv_path = args.dir_failed_folder_csv
+    data_failed_folder = pd.read_csv(
+        pathlib.Path().joinpath(failed_folder_csv_path, "failed_folders.csv")
+    )
     list_failed_folder = data_failed_folder["folder"]
 
     directory_path = output_simulations_path.parents[0]
@@ -90,6 +95,7 @@ def generate_htcondor_failed(args):
         simulation_folder = pathlib.Path().joinpath(
             output_simulations_path, simulation
         )
+
         shutil.copytree(
             simulation_folder,
             pathlib.Path().joinpath(output_failed_simulations, simulation),
@@ -235,6 +241,14 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Type of simulation that we want to run in the PIC with HTCondor. Choose between dyn or magrot.",
+    )
+
+    args.add_argument(
+        "--dir_failed_folder_csv",
+        nargs="?",
+        type=str,
+        default="output/test",
+        help="Path to the directory where the csv file containing the list of failed folders is saved.",
     )
 
     args = args.parse_args()
