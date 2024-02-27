@@ -62,7 +62,9 @@ def create_folders_in_output_dir(mock_failed_folders_csv, tmp_path):
 def test_generate_htcondor_failed(
     mock_failed_folders_csv, create_folders_in_output_dir, tmp_path
 ):
-
+    """
+    Testing the creation of the necessary folders and files for relaunching the failed simulations created by the generate_htcondor_failed file.
+    """
     args = argparse.Namespace(
         output_dir_simulation=str(create_folders_in_output_dir),
         dir_failed_folder_csv=str(tmp_path),

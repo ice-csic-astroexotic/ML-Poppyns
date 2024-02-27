@@ -52,7 +52,7 @@ def args(tmp_path):
 
 def create_simulation_arguments_file(output_dir_simulation):
     """
-    Create the simulation_arguments.txt file with mock data.
+    Create the `simulation_arguments.txt` file with mock data.
     """
     with open(output_dir_simulation / "simulation_arguments.txt", "w") as file:
         for i in range(1, 5):  # Change the range as needed
@@ -64,7 +64,7 @@ def create_simulation_arguments_file(output_dir_simulation):
 
 def test_generate_job_submit(args, tmp_path):
     """
-    Testing the generation of the job.submit file by the generate_job_submit function.
+    Testing the generation of the `job.submit` file by the generate_job_submit function.
     """
     output_dir = pathlib.Path(tmp_path) / args.output_dir_htcondor
     output_dir.mkdir()
@@ -77,7 +77,7 @@ def test_generate_job_submit(args, tmp_path):
 
 def test_generate_wrapper(args, tmp_path):
     """
-    Testing the generation of the wrapper.sh file by the generate_wrapper function.
+    Testing the generation of the `wrapper.sh` file by the generate_wrapper function.
     """
     wrapper_path = pathlib.Path(tmp_path) / "wrapper.sh"
     generate_wrapper(
