@@ -25,7 +25,6 @@ SOFTWARE.
 
 
 import argparse
-import os
 
 import pytest
 
@@ -47,18 +46,18 @@ def failed_simulation_dir(tmp_path):
     output_failed_dir.mkdir()
 
     # Create sample folders and files inside failed_simulation directory
-    for i in range(1, 4):  # Create 3 sample folders
-        folder_name = f"{i:06}"  # Format folder name with leading zeros
+    for i in range(1, 4):
+        folder_name = f"{i:06}"
         sample_folder = output_failed_dir / folder_name
         sample_folder.mkdir()
 
-    return failed_dir  # Provide the temporary directory as the fixture value
+    return failed_dir
 
 
 @pytest.fixture
 def simulation_dir(tmp_path):
     """
-    Creating the structure inside the `output_simulations` directory needed to test the manage_failed_simulations
+    Creating the structure inside the `output_simulations` directory needed to test the `manage_failed_simulations`
     function.
     """
     # Create a temporary simulation directory
@@ -66,18 +65,17 @@ def simulation_dir(tmp_path):
     sim_dir.mkdir()
 
     # Create sample folders and files inside simulation directory
-    for i in range(1, 4):  # Create 3 sample folders
-        folder_name = f"{i:06}"  # Format folder name with leading zeros
+    for i in range(1, 4):
+        folder_name = f"{i:06}"
         sample_folder = sim_dir / folder_name
         sample_folder.mkdir()
         # Create sample files inside each folder
         sample_file = sample_folder / "mock_file.txt"
         sample_file.write_text(f"Sample content {i}")
 
-    return sim_dir  # Provide the temporary directory as the fixture value
+    return sim_dir
 
 
-# Write a test function to check if the function works as expected
 def test_manage_failed_simulations(failed_simulation_dir, simulation_dir):
     """
     Testing that the files within the `failed_simulation_dir` directory are copied back to the original folders in the

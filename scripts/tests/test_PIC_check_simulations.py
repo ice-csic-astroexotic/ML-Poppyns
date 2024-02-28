@@ -62,12 +62,10 @@ def mock_simulation_folders(tmp_path):
     return simulation_folders, failed_simulation_folders
 
 
-def test_check_simulations(
-    mock_simulation_folders, tmp_path
-):  # Pass tmp_path as an argument
+def test_check_simulations(mock_simulation_folders, tmp_path):
+
     simulation_folders, failed_simulation_folders = mock_simulation_folders
 
-    # Call the function
     args = argparse.Namespace(
         output_dir_simulation=str(tmp_path),
         dir_failed_folder_csv=str(tmp_path),
@@ -77,10 +75,9 @@ def test_check_simulations(
     failed_folder_csv_path = pathlib.Path().joinpath(
         tmp_path, "failed_folders.csv"
     )
-    # Check if failed_folders.csv is created
+    # Check if `failed_folders.csv` is created
     assert os.path.exists(failed_folder_csv_path)
 
-    # Read the CSV and check its content
     df = pd.read_csv(failed_folder_csv_path)
 
     list_failed_folder = [f"{folder:06}" for folder in df["folder"]]
