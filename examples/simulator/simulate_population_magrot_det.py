@@ -1000,9 +1000,8 @@ def simulate_population(args) -> None:
         cfg["birth_rate_HTRU_low_mid"] = birth_rate_HTRU_low_mid
         cfg["birth_rate_HTRU_high"] = birth_rate_HTRU_high
 
-        # Add the information of the number of detected neutron star by each simulated survey when it reaches
-        # the number of observed neutron stars and the total number of mock detected neutron stars at the end of
-        # the simulation.
+        # Add the information of the number of detected neutron stars by each simulated survey when it reaches
+        # the number of observed neutron stars by the real surveys.
         cfg["n_detected_sim_PMPS_at_match"] = n_detected_sim_PMPS_at_match
         cfg["n_detected_sim_SMPS_at_match"] = n_detected_sim_SMPS_at_match
         cfg[
@@ -1011,6 +1010,7 @@ def simulate_population(args) -> None:
         cfg[
             "n_detected_sim_HTRU_high_at_match"
         ] = n_detected_sim_HTRU_high_at_match
+        # Add the information of the number of detected star by each survey at the end of the simulation.
         cfg["n_detected_sim_PMPS_tot"] = n_detected_sim_PMPS
         cfg["n_detected_sim_SMPS_tot"] = n_detected_sim_SMPS
         cfg["n_detected_sim_HTRU_low_mid_tot"] = n_detected_sim_HTRU_low_mid
