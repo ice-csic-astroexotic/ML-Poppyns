@@ -116,7 +116,7 @@ def simulation_dir(test_case_2, tmp_path):
 
 def test_data_sampler_with_weights(test_case_2, simulation_dir, tmp_path):
     """
-    Testing that the simulated population are correctly resampled.
+    Testing that the simulated population are correctly resampled with the weighted resampling.
     """
     args = argparse.Namespace(
         data=str(simulation_dir),
@@ -150,7 +150,7 @@ def test_data_sampler_with_weights(test_case_2, simulation_dir, tmp_path):
 
 def test_data_sampler_uniform(test_case_3, simulation_dir, tmp_path):
     """
-    Testing that the simulated population are correctly resampled.
+    Testing that the simulated population are correctly resampled with uniform resampling.
     """
     args = argparse.Namespace(
         data=str(simulation_dir),
