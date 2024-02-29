@@ -63,7 +63,9 @@ def mock_simulation_folders(tmp_path):
 
 
 def test_check_simulations(mock_simulation_folders, tmp_path):
-
+    """
+    Testing the `check_simulations` function to ensure it creates the proper folder structure for failed simulations.
+    """
     simulation_folders, failed_simulation_folders = mock_simulation_folders
 
     args = argparse.Namespace(
@@ -82,6 +84,7 @@ def test_check_simulations(mock_simulation_folders, tmp_path):
 
     list_failed_folder = [f"{folder:06}" for folder in df["folder"]]
 
+    # Check if the folders are correctly created for the failed simulations.
     assert len(df) == len(failed_simulation_folders)
     assert set(list_failed_folder) == set(failed_simulation_folders)
 
