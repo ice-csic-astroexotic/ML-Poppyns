@@ -133,6 +133,9 @@ dmypy.json
 outputs/
 multirun/
 examples/learning/saved
+sbi-logs/
+.DS_Store/
+notebooks/.DS_Store/
 
 # Sphinx documentation
 docs/_build
