@@ -198,42 +198,45 @@ def infer(args, config):
             experiments = {}
             posterior_ensemble = []
 
-            # Loop through all the different experiments.
-            for index, exp in enumerate(trained_models_path):
+            with timewith.TimeWith(
+                "[LoadingExperiments]",
+                prof_log_path,
+                prof_json_path,
+                config["show_profiling"],
+            ):
+                # Loop through all the different experiments.
+                for index, exp in enumerate(trained_models_path):
 
-                # Load the test dataset ----------------------------------------------------------
-                logger.info("Experiment {}".format(index))
+                    # Load the test dataset ----------------------------------------------------------
+                    logger.info("Experiment {}".format(index))
 
-                # Extracting the path of the trained model and the config associated to each experiment.
-                model_path = exp.strip().split()[0]
-                config_path = exp.strip().split()[1]
-                with open(model_path, "rb") as f:
-                    trained_model = pickle.load(f)
-                with open(config_path, "rb") as f_config:
-                    config_json = json.load(f_config)
+                    # Extracting the path of the trained model and the config associated to each experiment.
+                    model_path = exp.strip().split()[0]
+                    config_path = exp.strip().split()[1]
+                    with open(model_path, "rb") as f:
+                        trained_model = pickle.load(f)
+                    with open(config_path, "rb") as f_config:
+                        config_json = json.load(f_config)
 
-                dataset_path = config_json["test_data_loader"]["dataset_path"]
-                dataset_stat_path = config_json["test_data_loader"][
-                    "statistic_path"
-                ]
-                filter_inputs = config_json["test_data_loader"][
-                    "filter_inputs"
-                ]
-                filter_labels = config_json["test_data_loader"][
-                    "filter_labels"
-                ]
-                normalize = config_json["test_data_loader"]["normalize"]
-                standardize = config_json["test_data_loader"]["standardize"]
-                input_shape = config_json["arch"]["args"]["input_shape"]
+                    dataset_path = config_json["test_data_loader"][
+                        "dataset_path"
+                    ]
+                    dataset_stat_path = config_json["test_data_loader"][
+                        "statistic_path"
+                    ]
+                    filter_inputs = config_json["test_data_loader"][
+                        "filter_inputs"
+                    ]
+                    filter_labels = config_json["test_data_loader"][
+                        "filter_labels"
+                    ]
+                    normalize = config_json["test_data_loader"]["normalize"]
+                    standardize = config_json["test_data_loader"][
+                        "standardize"
+                    ]
+                    input_shape = config_json["arch"]["args"]["input_shape"]
 
-                n_parameters = len(filter_labels)
-
-                with timewith.TimeWith(
-                    "[TestDatasetLoader]",
-                    prof_log_path,
-                    prof_json_path,
-                    config["show_profiling"],
-                ):
+                    n_parameters = len(filter_labels)
 
                     # Load the test dataset ----------------------------------------------------------
                     logger.info("Loading the test dataset")
@@ -306,6 +309,8 @@ def infer(args, config):
                         )
 
                     # Set up the inference procedure -----------------------------
+                    logger.info("Loading the amortized trained posterior...")
+
                     # By default the procedure uses SNPE-C
                     # (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
                     inference = SNPE()

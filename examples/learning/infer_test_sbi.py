@@ -237,6 +237,7 @@ def infer(args, config):
                 )
 
             # Set up the inference procedure -----------------------------
+            logger.info("Loading the amortized trained posterior...")
             # By default the procedure uses SNPE-C
             # (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
             inference = SNPE()
