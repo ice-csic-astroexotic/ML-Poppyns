@@ -1,10 +1,11 @@
 """
     Inference ensemble script.
 
-    This script performs inference on a test dataset using an ensemble of trained methods in the args.trained_model txt
-    file. We create our own ensemble to ensure it's flexible to different experiments, unlike the ensemble method in the
-    sbi package, which has limitations on the types of experiments it can support.
-    Simulation-Based Calibration is also performed to check if the ensemble posterior is well behaving.
+    This script performs inference on a test dataset using an ensemble of trained methods specified in the
+    args.trained_model txt file. We create our own ensemble approach to ensure it is sufficiently flexible to
+    deal with different training experiments. Note that the ensemble method in the sbi package has limitations
+    on the types of experiments it can support (e.g., different input shapes).
+    Simulation-based Calibration is also performed to check if the ensemble posterior is well behaved.
     See https://www.mackelab.org/sbi/ for more details.
 
      Running the code:
@@ -57,14 +58,15 @@ def calculate_smallest_hdr(
     Calculating the smallest highest density region of the posterior ensemble, that contains the true value.
 
     Args:
-        experiments (Dictionary): Dictionary containing the parameters, matrix, posterior and type of scaling (std or norm) for each experiment.
+        experiments (Dictionary): Dictionary containing the parameters, matrix, posterior and type of scaling
+         (std or norm) for each experiment.
         posterior_ensemble (Callable): Ensemble posterior distribution function.
-        true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated population
-         in simulation_output.
-        posterior_samples_std (torch.tensor): Tensor containing the samples standarized from the inferred ensemble
-        posterior distribution for simulation_output.
+        true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
+         population in simulation_output.
+        posterior_samples_std (torch.tensor): Tensor containing the samples standardized from the inferred ensemble
+         posterior distribution for simulation_output.
         posterior_samples_norm (torch.tensor): Tensor containing the samples normalized from the inferred ensemble
-        posterior distribution for simulation_output.
+         posterior distribution for simulation_output.
         simulation_output (torch.tensor): Tensor containing the maps of the simulated population.
         device (str): String specifying the type of the device used to run the script.
 
@@ -76,8 +78,8 @@ def calculate_smallest_hdr(
     log_prob_samples = []
     num_components = len(posterior_ensemble)
 
-    # Setting the weights of each component to 1/N being N the number of ensemble components, since each of the
-    # components has the same importance.
+    # Setting the weights of each component to 1/N, with N denoting the number of ensemble components,
+    # because each of the components has the same importance.
     weights = torch.tensor(
         [1.0 / num_components for _ in range(num_components)]
     ).to(device)
@@ -92,10 +94,10 @@ def calculate_smallest_hdr(
             )
         )
 
-        # Evaluating the average log-probability of the posterior ensemble in each of the posterior samples and in the
-        # true value.
+        # Evaluating the average log-probability of the posterior ensemble for each of the posterior samples
+        # and for the true value.
 
-        # Use the standarize or normalized samples depending on which experiment we are using.
+        # Use the standardized or normalized samples depending on which experiment we are using.
         if experiments[index]["normalize"]:
             posterior_samples = posterior_samples_norm
         else:
@@ -144,7 +146,7 @@ def infer(args, config):
         pathlib.Path().joinpath(config.log_dir, config["profile_json"])
     )
 
-    # Remove the profile.json and profile.log files to prevent interrupted server connections issues.
+    # Remove the profile.json and profile.log files to prevent interrupted server connection issues.
     if os.path.exists(prof_json_path):
         os.remove(prof_json_path)
 
@@ -195,10 +197,13 @@ def infer(args, config):
 
             experiments = {}
             posterior_ensemble = []
+
             # Loop through all the different experiments.
             for index, exp in enumerate(trained_models_path):
+
                 # Load the test dataset ----------------------------------------------------------
                 logger.info("Experiment {}".format(index))
+
                 # Extracting the path of the trained model and the config associated to each experiment.
                 model_path = exp.strip().split()[0]
                 config_path = exp.strip().split()[1]
@@ -256,7 +261,7 @@ def infer(args, config):
                         )
                     )
                     for i, (x, theta) in enumerate(dataset):
-                        # Reshape the matrix to have the channel number at the beginning
+                        # Reshape the matrix to have the channel number at the beginning.
                         x = np.moveaxis(x, -1, 0)
 
                         if list(x.shape) != input_shape:
@@ -301,7 +306,8 @@ def infer(args, config):
                         )
 
                     # Set up the inference procedure -----------------------------
-                    # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+                    # By default the procedure uses SNPE-C
+                    # (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
                     inference = SNPE()
 
                     # Building the inferred posterior distribution for each experiment.
@@ -309,7 +315,7 @@ def infer(args, config):
                         trained_model.to(device), prior=prior
                     )
 
-                    # Store experiment information in the dictionary
+                    # Store experiment information in the dictionary.
                     experiments[index] = {
                         "normalize": normalize,
                         "posterior": inference_model,
@@ -334,7 +340,7 @@ def infer(args, config):
                 # probability for each sample in the ensemble, which is a concatenation of samples from all experiments.
                 n_samples_coverage_exp = 100
 
-                # To calculate the coverage probability we normalized and standardized the ensemble samples.
+                # To calculate the coverage probability, we normalize and standardize the ensemble samples.
                 posterior_samples_coverage_norm = []
                 posterior_samples_coverage_std = []
                 parameter_sample = []
@@ -354,15 +360,15 @@ def infer(args, config):
                         .to(device)
                     )
 
-                    # Save the statistics for the filtered labels. Here we assume that the test datasets is the same for
-                    # all the experiments.
+                    # Save the statistics for the filtered labels. Here, we assume that the test dataset
+                    # is the same for all the experiments.
                     par_max = torch.tensor(dataset.target_max).to(device)
                     par_min = torch.tensor(dataset.target_min).to(device)
                     par_std = torch.tensor(dataset.target_std).to(device)
                     par_mean = torch.tensor(dataset.target_mean).to(device)
 
-                    # To standardize and normalize all the ensemble samples, we first need to convert them to their
-                    # original physical ranges.
+                    # To standardize and normalize all the ensemble samples, we first convert
+                    # them to their original physical ranges.
                     if experiment["normalize"]:
                         posterior_sample_exp_phys = (
                             posterior_sample_exp * (par_max - par_min)
