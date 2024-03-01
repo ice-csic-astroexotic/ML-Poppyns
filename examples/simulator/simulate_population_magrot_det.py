@@ -82,7 +82,7 @@ def simulate_population(args) -> None:
     prof_json_path = pathlib.Path().joinpath(output_path, cfg["profile_json"])
 
     # If already present, remove the profile.json and profile.log files to prevent
-    # interrupted server connections issues.
+    # interrupted server connection issues.
     if os.path.exists(prof_json_path):
         os.remove(prof_json_path)
 
@@ -1000,8 +1000,9 @@ def simulate_population(args) -> None:
         cfg["birth_rate_HTRU_low_mid"] = birth_rate_HTRU_low_mid
         cfg["birth_rate_HTRU_high"] = birth_rate_HTRU_high
 
-        # Add the information of the number of detected neutron stars by each simulated survey when it reaches
-        # the number of observed neutron stars by the real surveys.
+        # Add information on the number of detected neutron stars for each simulated survey at the point where
+        # our simulation reaches the number of observed neutron stars specified for the real surveys.
+        # Note: these numbers are not necessarily identical, because we batch our neutron star generation.
         cfg["n_detected_sim_PMPS_at_match"] = n_detected_sim_PMPS_at_match
         cfg["n_detected_sim_SMPS_at_match"] = n_detected_sim_SMPS_at_match
         cfg[
@@ -1010,7 +1011,8 @@ def simulate_population(args) -> None:
         cfg[
             "n_detected_sim_HTRU_high_at_match"
         ] = n_detected_sim_HTRU_high_at_match
-        # Add the information of the number of detected star by each survey at the end of the simulation.
+
+        # Add information on the number of detected star for each survey at the end of the simulation.
         cfg["n_detected_sim_PMPS_tot"] = n_detected_sim_PMPS
         cfg["n_detected_sim_SMPS_tot"] = n_detected_sim_SMPS
         cfg["n_detected_sim_HTRU_low_mid_tot"] = n_detected_sim_HTRU_low_mid
