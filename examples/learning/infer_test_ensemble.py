@@ -108,6 +108,9 @@ def calculate_smallest_hdr(
             )
         )
 
+    # Computing the log probability for the ensemble, i.e., the average log probabilities for all samples from all
+    # experiments.
+
     log_prob_true_value = torch.stack(log_prob_true_value)
     log_prob_samples = torch.stack(log_prob_samples)
 
@@ -187,8 +190,9 @@ def infer(args, config):
                 torch.manual_seed(int(time.time()))
                 logger.info("Seed: {}".format(int(time.time())))
 
-            # Saving for each of the experiments the true values, observations and if the input is standardized or
-            # normalized.
+            # Initializing a dictionary and list to store information about each experiment's configuration and its
+            # corresponding inference model.
+
             experiments = {}
             posterior_ensemble = []
             # Loop through all the different experiments.
@@ -300,6 +304,7 @@ def infer(args, config):
                     # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
                     inference = SNPE()
 
+                    # Building the inferred posterior distribution for each experiment.
                     inference_model = inference.build_posterior(
                         trained_model.to(device), prior=prior
                     )
