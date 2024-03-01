@@ -1,10 +1,10 @@
 """
-    Inference script for sbi.
+    Inference script for SBI.
 
-    This script performs inference on a test dataset in a simulation-based inference framework with the SBI package.
+    This script performs inference on a test dataset in a simulation-based inference framework with the sbi package.
     It loads a density estimator trained to approximate the posterior distribution for a dataset of simulated data
     and checks its performance on a test dataset.
-    Simulation-Based Calibration is also performed to check if the posterior is well behaving.
+    Simulation-based Calibration is also performed to check if the posterior is well behaved.
     See https://www.mackelab.org/sbi/ for more details.
 
      Running the code:
@@ -59,10 +59,10 @@ def calculate_smallest_hdr(
 
     Args:
         posterior (Callable): Posterior distribution function.
-        true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated population
-         in simulation_output.
-        posterior_samples (torch.tensor): Tensor containing the samples from the inferred posterior distribution for
-        simulation_output.
+        true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
+         population in simulation_output.
+        posterior_samples (torch.tensor): Tensor containing the samples from the inferred posterior distribution
+         for simulation_output.
         simulation_output (torch.tensor): Tensor containing the maps of the simulated population.
         device (str): String specifying the type of the device used to run the script.
 
@@ -180,7 +180,7 @@ def infer(args, config):
                 )
             )
             for i, (x, theta) in enumerate(dataset):
-                # Reshape the matrix to have the channel number at the beginning
+                # Reshape the matrix to have the channel number at the beginning.
                 x = np.moveaxis(x, -1, 0)
 
                 if list(x.shape) != input_shape:
@@ -212,6 +212,7 @@ def infer(args, config):
 
             # Set prior distribution for the parameters ------------------------------------------
             logger.info("Set prior distribution...")
+
             if normalize:
                 # All the parameters are rescaled in the range [0, 1].
                 prior = utils.BoxUniform(
@@ -236,7 +237,8 @@ def infer(args, config):
                 )
 
             # Set up the inference procedure -----------------------------
-            # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+            # By default the procedure uses SNPE-C
+            # (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
             inference = SNPE()
 
             # Load the trained model.
@@ -264,7 +266,8 @@ def infer(args, config):
             # Compute the loss over the test dataset (with batch size = 1), extract the Gaussian mixture
             # coefficients and generate the corner plots.
             logger.info(
-                "Computing the average loss over the test dataset, extracting Gaussian mixture coefficients, estimating the hdr for the coverage probability and generating corner plots...."
+                "Computing the average loss over the test dataset, extracting Gaussian mixture coefficients,"
+                "estimating the hdr for the coverage probability and generating corner plots...."
             )
             test_loss_mean = torch.tensor([0.0]).to(device)
 
@@ -316,11 +319,11 @@ def infer(args, config):
                     precision.cpu().detach().numpy()
                 )
 
-                # To calculate the coverage, we calculate the narrowest highest density region containing the parameter
-                # used to generate each test sample.
+                # To calculate the coverage, we calculate the narrowest highest density region
+                # containing the parameter used to generate each test sample.
 
-                # Defining the number of samples drawn for the coverage calculation. Note that for a value of 1000 the
-                # calculation takes around 1.5 seconds for each test sample.
+                # Defining the number of samples drawn for the coverage calculation. Note that for a value of 1000,
+                # the calculation takes around 1.5 seconds for each test sample.
 
                 n_samples_coverage = 1000
 
@@ -335,6 +338,7 @@ def infer(args, config):
                     device,
                 )
                 hdr_testset[i] = smallest_hdr
+
                 # If the "corner plot" argument is set to True, we draw samples from the inferred posterior
                 # distribution. Moreover, we save these samples and the corresponding corner plot.
                 if args.corner_plot:
@@ -374,7 +378,8 @@ def infer(args, config):
                     )
 
                     logger.info(
-                        "Estimated parameter values (we consider the median as the best value and the 95 % credibility interval):"
+                        "Estimated parameter values (we consider the median as the best value"
+                        "and the 95 % credibility interval):"
                     )
 
                     for s in range(n_parameters):
