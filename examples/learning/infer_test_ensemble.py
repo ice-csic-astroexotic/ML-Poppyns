@@ -336,6 +336,7 @@ def infer(args, config):
             prof_json_path,
             config["show_profiling"],
         ):
+            logger.info("Computing the coverage probability...")
 
             hdr_testset = np.zeros(len(dataset))
 
@@ -423,8 +424,6 @@ def infer(args, config):
                 )
 
                 hdr_testset[i] = smallest_hdr
-
-            logger.info("Computing the coverage probability...")
 
             coverage_prob(hdr_testset, 12, config.log_dir)
 
