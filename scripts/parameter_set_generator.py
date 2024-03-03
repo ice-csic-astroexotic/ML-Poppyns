@@ -54,7 +54,7 @@ log = logging.getLogger(__name__)
 
 def check_parameter_compatibility(args_dict: dict):
     """
-    Check if the parsed input arguments are coherent with the one provided in the configuration file of the simulator.
+    Check if the parsed input arguments are coherent with the ones provided in the configuration file of the simulator.
 
     Args:
         args_dict (dict): dictionary of the parsed argument via CLI.
@@ -69,7 +69,8 @@ def check_parameter_compatibility(args_dict: dict):
         (cfg["kick_model"] == "km_exp") and (args_dict["sigma_k"] is not None)
     ):
         raise ValueError(
-            "The provided kick-velocity distribution parameter is not compatible with the model {} in the configuration file.".format(
+            "The provided kick-velocity distribution parameter is not compatible "
+            "with the model {} in the configuration file.".format(
                 cfg["kick_model"]
             )
         )
