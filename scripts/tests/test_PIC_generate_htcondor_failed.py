@@ -5,7 +5,7 @@ Tests for the PIC_generate_hctondor_failed.py module.
 
         Celsa Pardo Araujo (pardo @ ice.csic.es)
 
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
+Copyright (c) MAGNESIA (ICE-CSIC) 2024
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ from scripts.PIC_generate_htcondor_failed import generate_htcondor_failed
 
 @pytest.fixture()
 def mock_failed_folders_csv(tmp_path):
-    # Create a mock failed_folders.csv file
+    # Create a mock failed_folders.csv file.
     csv_path = tmp_path / "failed_folders.csv"
     with open(csv_path, "w") as f:
         f.write("folder\n")
