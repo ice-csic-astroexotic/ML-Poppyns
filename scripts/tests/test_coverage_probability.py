@@ -5,7 +5,7 @@ Test for the coverage_probability.py module
 
         Celsa Pardo Araujo (pardo@ice.csic.es)
 
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
+Copyright (c) MAGNESIA (ICE-CSIC) 2024
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,10 +43,9 @@ def sample_data():
 
 
 def test_coverage_prob(sample_data):
-
     """
-    Test of the `coverage_prob` function to verify whether the coverage probability numpy array and plot are created
-    and saved.
+    Test of the `coverage_prob` function to verify whether the coverage probability numpy array
+    and plot are correctly created and saved.
     """
 
     hdr_testset, n_betas, save_dir = sample_data
