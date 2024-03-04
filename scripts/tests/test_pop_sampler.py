@@ -5,7 +5,7 @@ Test for the pop_sampler.py module.
 
         Michele Ronchi (ronchi @ ice.csic.es)
 
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
+Copyright (c) MAGNESIA (ICE-CSIC) 2024
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,6 @@ SOFTWARE.
 
 import argparse
 import json
-import os
-import pathlib
-import sys
-from typing import List
 
 import numpy as np
 import pandas as pd
@@ -76,7 +72,9 @@ def test_case_3():
 
 
 def test_calculate_selection_weights(test_case_1):
-
+    """
+    Testing if the selection weights are correctly calculated.
+    """
     output = ps.calculate_selection_weights(test_case_1["d"])
 
     assert np.allclose(output, test_case_1["expected_output"], rtol=TOL)
@@ -87,6 +85,8 @@ def simulation_dir(test_case_2, tmp_path):
     """
     Creating the structure inside the `simulated_populations` directory needed to test the `data_sampler`
     function.
+        Args:
+            tmp_path (pathlib.Path): temporary directory created by Pytest that will be deleted at the end of the test.
     """
     n_sim = test_case_2["simulation_number"]
 
@@ -116,7 +116,9 @@ def simulation_dir(test_case_2, tmp_path):
 
 def test_data_sampler_with_weights(test_case_2, simulation_dir, tmp_path):
     """
-    Testing that the simulated population are correctly resampled with the weighted resampling.
+    Testing that the simulated populations are correctly resampled with the weighted resampling.
+        Args:
+            tmp_path (pathlib.Path): temporary directory created by Pytest that will be deleted at the end of the test.
     """
     args = argparse.Namespace(
         data=str(simulation_dir),
@@ -150,7 +152,10 @@ def test_data_sampler_with_weights(test_case_2, simulation_dir, tmp_path):
 
 def test_data_sampler_uniform(test_case_3, simulation_dir, tmp_path):
     """
-    Testing that the simulated population are correctly resampled with uniform resampling.
+    Testing that the simulated populations are correctly resampled with uniform resampling.
+        Args:
+            simulation_dir (pathlib.Path): temporary path to the mock simulated populations.
+            tmp_path (pathlib.Path): temporary directory created by Pytest that will be deleted at the end of the test.
     """
     args = argparse.Namespace(
         data=str(simulation_dir),
