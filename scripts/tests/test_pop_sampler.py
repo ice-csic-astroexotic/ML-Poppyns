@@ -140,7 +140,7 @@ def test_data_sampler_with_weights(test_case_2, simulation_dir, tmp_path):
         # Check if override.json file is copied
         assert (resampled_dir / "override.json").exists()
 
-        # Check if the resampled final_population.pkl.gz file is created and has correct number of stars
+        # Check if the resampled final_population.pkl.gz file is created and has the correct number of stars
         df_resampled = pd.read_pickle(
             resampled_dir / "final_population.pkl.gz", compression="gzip"
         )
@@ -177,7 +177,7 @@ def test_data_sampler_uniform(test_case_3, simulation_dir, tmp_path):
         # Check if override.json file is copied
         assert (resampled_dir / "override.json").exists()
 
-        # Check if the resampled final_population.pkl.gz file is created and has correct number of stars
+        # Check if the resampled final_population.pkl.gz file is created and has the correct number of stars
         df_resampled = pd.read_pickle(
             resampled_dir / "final_population.pkl.gz", compression="gzip"
         )
