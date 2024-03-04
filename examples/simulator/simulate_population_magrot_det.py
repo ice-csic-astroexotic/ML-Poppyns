@@ -995,10 +995,10 @@ def simulate_population(args) -> None:
         )
 
         # Add the information of the birth rates to the configuration file.
-        cfg["birth_rate_PMPS"] = birth_rate_PMPS
-        cfg["birth_rate_SMPS"] = birth_rate_SMPS
-        cfg["birth_rate_HTRU_low_mid"] = birth_rate_HTRU_low_mid
-        cfg["birth_rate_HTRU_high"] = birth_rate_HTRU_high
+        cfg["birth_rate_PMPS_at_match"] = birth_rate_PMPS
+        cfg["birth_rate_SMPS_at_match"] = birth_rate_SMPS
+        cfg["birth_rate_HTRU_low_mid_at_match"] = birth_rate_HTRU_low_mid
+        cfg["birth_rate_HTRU_high_at_match"] = birth_rate_HTRU_high
 
         # Add information on the number of detected neutron stars for each simulated survey at the point where
         # our simulation reaches the number of observed neutron stars specified for the real surveys.
