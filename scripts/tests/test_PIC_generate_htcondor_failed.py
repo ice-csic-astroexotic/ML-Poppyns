@@ -1,5 +1,5 @@
 """
-Tests for the PIC_generate_hctondor_failed.py module.
+Tests for the PIC_generate_htcondor_failed.py module.
 
     Authors:
 
@@ -33,7 +33,9 @@ from scripts.PIC_generate_htcondor_failed import generate_htcondor_failed
 
 @pytest.fixture()
 def mock_failed_folders_csv(tmp_path):
-    # Create a mock failed_folders.csv file.
+    """
+    Create a mock `failed_folders.csv` file.
+    """
     csv_path = tmp_path / "failed_folders.csv"
     with open(csv_path, "w") as f:
         f.write("folder\n")
@@ -46,11 +48,14 @@ def mock_failed_folders_csv(tmp_path):
 
 @pytest.fixture()
 def create_folders_in_output_dir(mock_failed_folders_csv, tmp_path):
-    # Read folder names from the CSV
+    """
+    Creating the folders needed to test `generate_htcondor_failed` function.
+    """
+    # Read folder names from the CSV.
     df = pd.read_csv(mock_failed_folders_csv)
     folder_names = df["folder"].tolist()
 
-    # Create the folders within output_dir_simulation
+    # Create the folders within output_dir_simulation.
     output_dir_simulation = tmp_path / "output_simulations"
     output_dir_simulation.mkdir()
     for folder_name in folder_names:
@@ -63,7 +68,8 @@ def test_generate_htcondor_failed(
     mock_failed_folders_csv, create_folders_in_output_dir, tmp_path
 ):
     """
-    Testing the creation of the necessary folders and files for relaunching the failed simulations created by the generate_htcondor_failed file.
+    Testing the creation of the necessary folders and files for relaunching the failed simulations created by the
+    generate_htcondor_failed file.
     """
     args = argparse.Namespace(
         output_dir_simulation=str(create_folders_in_output_dir),
@@ -75,7 +81,7 @@ def test_generate_htcondor_failed(
 
     generate_htcondor_failed(args)
 
-    # Check if the required directories and files are created
+    # Check if the required directories and files are created.
     output_failed_simulations = (
         tmp_path / "failed_simulations" / "output_simulations"
     )
@@ -90,7 +96,7 @@ def test_generate_htcondor_failed(
     assert htcondor_failed_submit_path.exists()
     assert htcondor_failed_output_path.exists()
 
-    # Check if the submit file and wrapper file are created
+    # Check if the submit file and wrapper file are created.
     failed_submit_path = htcondor_failed_submit_path / "job.submit"
     failed_wrapper_path = htcondor_failed_submit_path / "wrapper.sh"
     failed_arguments_path = htcondor_failed_submit_path / "arguments_.txt"

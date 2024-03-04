@@ -90,23 +90,23 @@ def simulation_dir(test_case_2, tmp_path):
     """
     n_sim = test_case_2["simulation_number"]
 
-    # Create a temporary directory for testing
+    # Create a temporary directory for testing.
     root_path = tmp_path / "simulated_populations"
     root_path.mkdir()
 
-    # Create mock simulated population files
+    # Create mock simulated population files.
     mock_sim_dirs = [root_path / f"{i:06}" for i in range(n_sim)]
 
     for sim_dir in mock_sim_dirs:
         sim_dir.mkdir(parents=True)
-        # Create a fake final_population.pkl.gz file
+        # Create a fake final_population.pkl.gz file.
         header_final = pd.MultiIndex.from_arrays([["d"], ["[kpc]"]])
         df_pop = pd.DataFrame({"d": np.random.uniform(0, 10, 100)})
         df_pop.columns = header_final
         df_pop.to_pickle(
             sim_dir / "final_population.pkl.gz", compression="gzip"
         )
-        # Create a fake override.json file
+        # Create a fake override.json file.
         override = {"sim_info": "info"}
         with open(sim_dir / "override.json", "w") as f:
             json.dump(override, f)
@@ -132,21 +132,21 @@ def test_data_sampler_with_weights(test_case_2, simulation_dir, tmp_path):
 
     n_sim = test_case_2["simulation_number"]
 
-    # Check if resampled population files are created
+    # Check if resampled population files are created.
     resampled_dirs = list((tmp_path / "resampled_populations").glob("*"))
     assert len(resampled_dirs) == n_sim
 
     for resampled_dir in resampled_dirs:
-        # Check if override.json file is copied
+        # Check if override.json file is copied.
         assert (resampled_dir / "override.json").exists()
 
-        # Check if the resampled final_population.pkl.gz file is created and has the correct number of stars
+        # Check if the resampled final_population.pkl.gz file is created and has the correct number of stars.
         df_resampled = pd.read_pickle(
             resampled_dir / "final_population.pkl.gz", compression="gzip"
         )
         assert len(df_resampled) == test_case_2["size"]
 
-        # Check if distance_cut is applied correctly
+        # Check if distance_cut is applied correctly.
         assert all(df_resampled["d"]["[kpc]"] <= test_case_2["distance_cut"])
 
 
@@ -169,19 +169,19 @@ def test_data_sampler_uniform(test_case_3, simulation_dir, tmp_path):
 
     n_sim = test_case_3["simulation_number"]
 
-    # Check if resampled population files are created
+    # Check if resampled population files are created.
     resampled_dirs = list((tmp_path / "resampled_populations").glob("*"))
     assert len(resampled_dirs) == n_sim
 
     for resampled_dir in resampled_dirs:
-        # Check if override.json file is copied
+        # Check if override.json file is copied.
         assert (resampled_dir / "override.json").exists()
 
-        # Check if the resampled final_population.pkl.gz file is created and has the correct number of stars
+        # Check if the resampled final_population.pkl.gz file is created and has the correct number of stars.
         df_resampled = pd.read_pickle(
             resampled_dir / "final_population.pkl.gz", compression="gzip"
         )
         assert len(df_resampled) == test_case_3["size"]
 
-        # Check if distance_cut is applied correctly
+        # Check if distance_cut is applied correctly.
         assert all(df_resampled["d"]["[kpc]"] <= test_case_3["distance_cut"])

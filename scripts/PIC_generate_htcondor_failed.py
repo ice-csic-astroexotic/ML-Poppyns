@@ -33,7 +33,6 @@ SOFTWARE.
 """
 
 import argparse
-import os
 import pathlib
 import shutil
 
@@ -63,9 +62,13 @@ def generate_htcondor_failed(args):
     # in order to assess the reason for failure, the following variable should be set to True.
     check_simulations_failed = False
 
-    failed_folder_csv_path = args.dir_failed_folder_csv
+    # Reading the `failed_folders.csv` file, where the simulations that have failed are saved using the
+    # `PIC_check_simulations.py` script.
+
     data_failed_folder = pd.read_csv(
-        pathlib.Path().joinpath(failed_folder_csv_path, "failed_folders.csv")
+        pathlib.Path().joinpath(
+            args.dir_failed_folder_csv, "failed_folders.csv"
+        )
     )
     list_failed_folder = data_failed_folder["folder"]
 

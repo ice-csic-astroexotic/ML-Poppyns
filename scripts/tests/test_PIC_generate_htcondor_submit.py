@@ -1,11 +1,11 @@
 """
-Tests for the PIC_generate_hctondor_submit.py module.
+Tests for the PIC_generate_htcondor_submit.py module.
 
     Authors:
 
         Celsa Pardo Araujo (pardo @ ice.csic.es)
 
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
+Copyright (c) MAGNESIA (ICE-CSIC) 2024
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,7 @@ from scripts.PIC_generate_htcondor_submit import (
 @pytest.fixture
 def args(tmp_path):
     """
-    Defining the arguments needed to test the PIC_generate_hctondor_submit functions.
+    Defining the arguments needed to test the PIC_generate_htcondor_submit functions.
     """
     return argparse.Namespace(
         output_dir_htcondor=tmp_path / "output_htcondor",
@@ -55,8 +55,8 @@ def create_simulation_arguments_file(output_dir_simulation):
     Create the `simulation_arguments.txt` file with mock data.
     """
     with open(output_dir_simulation / "simulation_arguments.txt", "w") as file:
-        for i in range(1, 5):  # Change the range as needed
-            folder_name = f"{i:06}"  # Format the number with leading zeros
+        for i in range(1, 5):
+            folder_name = f"{i:06}"
             file.write(
                 f"{output_dir_simulation}/{folder_name} {output_dir_simulation}/{folder_name}/override.json\n"
             )
@@ -72,6 +72,7 @@ def test_generate_job_submit(args, tmp_path):
     arguments_path = output_dir / "arguments_week.txt"
     generate_job_submit(output_dir, arguments_path)
     submit_path = output_dir / "job.submit"
+
     assert submit_path.exists()
 
 
@@ -97,7 +98,7 @@ def test_submit_generator(args, tmp_path):
 
     output_dir_simulation.mkdir(parents=True)
 
-    # Create the simulation arguments file
+    # Create the simulation arguments file.
     create_simulation_arguments_file(output_dir_simulation)
 
     submit_generator(args)

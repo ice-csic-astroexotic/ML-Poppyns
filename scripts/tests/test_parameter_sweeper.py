@@ -5,7 +5,7 @@ Tests for the parameter_sweeper.py module.
 
         Celsa Pardo Araujo (pardo @ ice.csic.es)
 
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
+Copyright (c) MAGNESIA (ICE-CSIC) 2024
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,9 +30,10 @@ import pytest
 import scripts.parameter_sweeper as param_sweeper
 
 
-def generate_test_args(output_dir):
+@pytest.fixture
+def args(tmp_path):
     return argparse.Namespace(
-        output_dir=output_dir,
+        output_dir=tmp_path,
         sampling_type="random",
         sampling_size=10,
         kick_model="km_maxwell",
@@ -50,21 +51,19 @@ def generate_test_args(output_dir):
     )
 
 
-def test_main(tmp_path):
-
+def test_main(args, tmp_path):
     """
     Testing the main function of the parameter_sweeper.py script. For this, we check if the folders and
     `simulation_arguments.txt` file are created within the `args.output_dir` folder. We also check if the
     `override.json` file is created inside each of the folders.
     """
-    args = generate_test_args(tmp_path)
 
     param_sweeper.main(args)
 
     # Check if the folders are created.
     assert len(os.listdir(args.output_dir)) == 11
 
-    # Check if simulation_arguments.txt file exists
+    # Check if simulation_arguments.txt file exists.
     simulation_arguments_path = os.path.join(
         args.output_dir, "simulation_arguments.txt"
     )

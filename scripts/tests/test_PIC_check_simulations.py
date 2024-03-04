@@ -5,7 +5,7 @@ Tests for the PIC_check_simulations.py module.
 
         Celsa Pardo Araujo (pardo @ ice.csic.es)
 
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
+Copyright (c) MAGNESIA (ICE-CSIC) 2024
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,9 @@ from scripts.PIC_check_simulations import check_simulations
 
 @pytest.fixture()
 def mock_simulation_folders(tmp_path):
-    # Create mock simulation folders
+    """
+    Create mock simulation folders needed for testing.
+    """
     simulation_folders = [
         "000001",
         "000002",
@@ -48,14 +50,14 @@ def mock_simulation_folders(tmp_path):
     for folder in simulation_folders:
         folder_path = tmp_path / folder
         os.makedirs(folder_path)
-        # Create files in each folder
+        # Create files in each folder.
         for i in range(8):
             open(os.path.join(folder_path, f"file_{i}.txt"), "w").close()
 
-    # Mark failed simulation folders
+    # Mark failed simulation folders.
     for folder in failed_simulation_folders:
         folder_path = tmp_path / folder
-        # Remove files to simulate failure
+        # Remove files to simulate failure.
         for i in range(3):
             os.remove(os.path.join(folder_path, f"file_{i}.txt"))
 
@@ -77,7 +79,7 @@ def test_check_simulations(mock_simulation_folders, tmp_path):
     failed_folder_csv_path = pathlib.Path().joinpath(
         tmp_path, "failed_folders.csv"
     )
-    # Check if `failed_folders.csv` is created
+    # Check if `failed_folders.csv` is created.
     assert os.path.exists(failed_folder_csv_path)
 
     df = pd.read_csv(failed_folder_csv_path)
@@ -87,6 +89,3 @@ def test_check_simulations(mock_simulation_folders, tmp_path):
     # Check if the folders are correctly created for the failed simulations.
     assert len(df) == len(failed_simulation_folders)
     assert set(list_failed_folder) == set(failed_simulation_folders)
-
-    # Remove the failed_folders.csv file after the test has passed
-    os.remove(failed_folder_csv_path)
