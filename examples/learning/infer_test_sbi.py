@@ -154,8 +154,10 @@ def infer(args, config):
             config["show_profiling"],
         ):
 
-            # Load the test dataset ----------------------------------------------------------
-            logger.info("Loading the test dataset...")
+            logger.info(
+                "Loading the test dataset and applying either norm or std based on the experiment..."
+            )
+
             try:
                 dataset = dl.DatasetMultichannelArray(
                     dataset_path=dataset_path,

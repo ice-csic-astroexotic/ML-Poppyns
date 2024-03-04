@@ -44,7 +44,7 @@ from pypopsyn.learning.utils.request_device import request_device
 from scripts.coverage_probability import coverage_prob
 
 
-def calculate_smallest_hdr(
+def calculate_smallest_hdr_ensemble(
     experiments: dict,
     posterior_ensemble: callable,
     true_value: torch.tensor,
@@ -238,8 +238,9 @@ def infer(args, config):
 
                     n_parameters = len(filter_labels)
 
-                    # Load the test dataset ----------------------------------------------------------
-                    logger.info("Loading the test dataset")
+                    logger.info(
+                        "Loading the test dataset, applying either norm or std based on the experiment, and saving the rescaled dataset for each experiment..."
+                    )
                     try:
                         dataset = dl.DatasetMultichannelArray(
                             dataset_path=dataset_path,
@@ -282,53 +283,60 @@ def infer(args, config):
                     # Transform the maps and labels into torch.tensors.
                     parameter = torch.from_numpy(parameter).type(torch.float32)
                     matrix = torch.from_numpy(matrix).type(torch.float32)
+                    with timewith.TimeWith(
+                        "[InferenceSetup]",
+                        prof_log_path,
+                        prof_json_path,
+                        config["show_profiling"],
+                    ):
+                        # Set prior distribution for the parameters ------------------------------------------
+                        logger.info("Set prior distribution...")
+                        if normalize:
+                            # All the parameters are rescaled in the range [0, 1].
+                            prior = utils.BoxUniform(
+                                low=torch.tensor(np.zeros(n_parameters)),
+                                high=torch.tensor(np.ones(n_parameters)),
+                                device=f"{device}",
+                            )
+                        elif standardize:
+                            # All the parameters are rescaled so that they have mean 0 and std 1.
+                            # We consider a range of 5 std [-5, 5].
+                            prior = utils.BoxUniform(
+                                low=torch.tensor(-5.0 * np.ones(n_parameters)),
+                                high=torch.tensor(5.0 * np.ones(n_parameters)),
+                                device=f"{device}",
+                            )
+                        else:
+                            # Set the prior range to the range of the parameters.
+                            prior = utils.BoxUniform(
+                                low=torch.tensor(dataset.target_min),
+                                high=torch.tensor(dataset.target_max),
+                                device=f"{device}",
+                            )
 
-                    # Set prior distribution for the parameters ------------------------------------------
-                    logger.info("Set prior distribution...")
-                    if normalize:
-                        # All the parameters are rescaled in the range [0, 1].
-                        prior = utils.BoxUniform(
-                            low=torch.tensor(np.zeros(n_parameters)),
-                            high=torch.tensor(np.ones(n_parameters)),
-                            device=f"{device}",
+                        # Set up the inference procedure -----------------------------
+                        logger.info(
+                            "Loading the amortized trained posterior..."
                         )
-                    elif standardize:
-                        # All the parameters are rescaled so that they have mean 0 and std 1.
-                        # We consider a range of 5 std [-5, 5].
-                        prior = utils.BoxUniform(
-                            low=torch.tensor(-5.0 * np.ones(n_parameters)),
-                            high=torch.tensor(5.0 * np.ones(n_parameters)),
-                            device=f"{device}",
-                        )
-                    else:
-                        # Set the prior range to the range of the parameters.
-                        prior = utils.BoxUniform(
-                            low=torch.tensor(dataset.target_min),
-                            high=torch.tensor(dataset.target_max),
-                            device=f"{device}",
+
+                        # By default the procedure uses SNPE-C
+                        # (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+                        inference = SNPE()
+
+                        # Building the inferred posterior distribution for each experiment.
+                        inference_model = inference.build_posterior(
+                            trained_model.to(device), prior=prior
                         )
 
-                    # Set up the inference procedure -----------------------------
-                    logger.info("Loading the amortized trained posterior...")
+                        # Store experiment information in the dictionary.
+                        experiments[index] = {
+                            "normalize": normalize,
+                            "posterior": inference_model,
+                            "parameter": parameter,
+                            "matrix": matrix,
+                        }
 
-                    # By default the procedure uses SNPE-C
-                    # (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
-                    inference = SNPE()
-
-                    # Building the inferred posterior distribution for each experiment.
-                    inference_model = inference.build_posterior(
-                        trained_model.to(device), prior=prior
-                    )
-
-                    # Store experiment information in the dictionary.
-                    experiments[index] = {
-                        "normalize": normalize,
-                        "posterior": inference_model,
-                        "parameter": parameter,
-                        "matrix": matrix,
-                    }
-
-                    posterior_ensemble.append(inference_model)
+                        posterior_ensemble.append(inference_model)
 
         with timewith.TimeWith(
             "[Inference]",
@@ -413,7 +421,7 @@ def infer(args, config):
                     posterior_samples_coverage_norm
                 ).to(device)
 
-                smallest_hdr = calculate_smallest_hdr(
+                smallest_hdr = calculate_smallest_hdr_ensemble(
                     experiments,
                     posterior_ensemble,
                     parameter_sample,
