@@ -25,6 +25,7 @@ SOFTWARE.
 
 
 import argparse
+import json
 
 import pytest
 
@@ -49,6 +50,11 @@ def failed_simulation_dir(tmp_path):
     for i in range(1, 4):
         sample_folder = output_failed_dir / f"{i:06}"
         sample_folder.mkdir()
+        # Create mock override.json file inside each folder.
+        sample_file = sample_folder / "override.json"
+        sample_content = {"key": f"value {i}"}
+        with open(sample_file, "w") as json_file:
+            json.dump(sample_content, json_file)
 
     return failed_dir
 
@@ -67,9 +73,6 @@ def simulation_dir(tmp_path):
     for i in range(1, 4):
         sample_folder = sim_dir / f"{i:06}"
         sample_folder.mkdir()
-        # Create sample files inside each folder.
-        sample_file = sample_folder / "mock_file.txt"
-        sample_file.write_text(f"Sample content {i}")
 
     return sim_dir
 
@@ -88,4 +91,4 @@ def test_manage_failed_simulations(failed_simulation_dir, simulation_dir):
     # Assert that the files from failed_simulation_dir are copied back to simulation_dir.
     for i in range(1, 4):
 
-        assert (simulation_dir / f"{i:06}" / "mock_file.txt").exists()
+        assert not (simulation_dir / f"{i:06}" / "override.json").exists()

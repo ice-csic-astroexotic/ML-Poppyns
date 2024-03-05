@@ -50,6 +50,36 @@ def args(tmp_path):
     )
 
 
+@pytest.fixture
+def args_magrot(tmp_path):
+    """
+    Defining the arguments needed to test the PIC_generate_htcondor_submit functions.
+    """
+    return argparse.Namespace(
+        output_dir_htcondor=tmp_path / "output_htcondor",
+        output_dir_simulation=tmp_path / "output_simulation",
+        n_sim_job=150,
+        n_sim_week=100,
+        dyn_data="/path/to/dyn_data",
+        type_simulation="magrot",
+    )
+
+
+@pytest.fixture
+def args_invalid(tmp_path):
+    """
+    Defining the arguments needed to test the PIC_generate_htcondor_submit functions.
+    """
+    return argparse.Namespace(
+        output_dir_htcondor=tmp_path / "output_htcondor",
+        output_dir_simulation=tmp_path / "output_simulation",
+        n_sim_job=150,
+        n_sim_week=100,
+        dyn_data="/path/to/dyn_data",
+        type_simulation="invalid",
+    )
+
+
 def create_simulation_arguments_file(output_dir_simulation):
     """
     Create the `simulation_arguments.txt` file with mock data.
@@ -78,7 +108,7 @@ def test_generate_job_submit(args, tmp_path):
 
 def test_generate_wrapper(args, tmp_path):
     """
-    Testing the generation of the `wrapper.sh` file by the generate_wrapper function.
+    Testing the generation of the `wrapper.sh` file by the generate_wrapper function when the type_simulation argument is set to "dyn".
     """
     wrapper_path = pathlib.Path(tmp_path) / "wrapper.sh"
     generate_wrapper(
@@ -86,6 +116,39 @@ def test_generate_wrapper(args, tmp_path):
     )
 
     assert wrapper_path.exists()
+
+
+def test_generate_wrapper_magrot(args_magrot, tmp_path):
+    """
+    Testing the generation of the `wrapper.sh` file by the generate_wrapper function when the type_simulation argument is set to "magrot".
+    """
+    wrapper_path = pathlib.Path(tmp_path) / "wrapper.sh"
+    generate_wrapper(
+        args_magrot.type_simulation,
+        pathlib.Path(args_magrot.dyn_data),
+        wrapper_path,
+    )
+
+    assert wrapper_path.exists()
+
+
+def test_generate_wrapper_invalid(args_invalid, tmp_path):
+    """
+    Testing the generation of the `wrapper.sh` file by the generate_wrapper function when the type_simulation argument is invalid.
+    """
+    wrapper_path = pathlib.Path(tmp_path) / "wrapper.sh"
+
+    with pytest.raises(ValueError) as excinfo:
+        generate_wrapper(
+            args_invalid.type_simulation,
+            pathlib.Path(args_invalid.dyn_data),
+            wrapper_path,
+        )
+
+    assert (
+        str(excinfo.value)
+        == "The specified simulation type is not feasible, choose between dyn or magrot."
+    )
 
 
 def test_submit_generator(args, tmp_path):
