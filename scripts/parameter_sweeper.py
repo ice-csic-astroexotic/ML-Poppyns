@@ -171,14 +171,6 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--kick_model",
-        nargs="?",
-        type=str,
-        default="km_exp",
-        help="PDF model for the kick velocity. Choose between km_exp or km_maxwell.",
-    )
-
-    args.add_argument(
         "--sigma_k",
         nargs="*",
         type=float,
@@ -206,14 +198,6 @@ if __name__ == "__main__":
         help="In grid mode: range of scale height h_c of the thin disk model with number of values "
         "[low, high, n_values]."
         "In random mode: range of scale height h_c of the thin disk model [low, high].",
-    )
-
-    args.add_argument(
-        "--spin_period_model",
-        nargs="?",
-        type=str,
-        default="log-normal",
-        help="PDF model for the spin period. Choose between normal or log-normal.",
     )
 
     args.add_argument(
