@@ -1,10 +1,10 @@
 """
-    Inference script for sbi.
+    Inference script for SBI.
 
-    This script performs inference on a test dataset in a simulation-based inference framework with the SBI package.
+    This script performs inference on a test dataset in a simulation-based inference framework with the sbi package.
     It loads a density estimator trained to approximate the posterior distribution for a dataset of simulated data
     and checks its performance on a test dataset.
-    Simulation-Based Calibration is also performed to check if the posterior is well behaving.
+    Simulation-based Calibration is also performed to check if the posterior is well behaved.
     See https://www.mackelab.org/sbi/ for more details.
 
      Running the code:
@@ -42,8 +42,8 @@ from sbi.inference import SNPE
 import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
-import pypopsyn.learning.models.models as learning_models
 from pypopsyn.learning.utils.request_device import request_device
+from scripts.coverage_probability import coverage_prob
 
 
 def calculate_smallest_hdr(
@@ -59,10 +59,10 @@ def calculate_smallest_hdr(
 
     Args:
         posterior (Callable): Posterior distribution function.
-        true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated population
-         in simulation_output.
-        posterior_samples (torch.tensor): Tensor containing the samples from the inferred posterior distribution for
-        simulation_output.
+        true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
+         population in simulation_output.
+        posterior_samples (torch.tensor): Tensor containing the samples from the inferred posterior distribution
+         for simulation_output.
         simulation_output (torch.tensor): Tensor containing the maps of the simulated population.
         device (str): String specifying the type of the device used to run the script.
 
@@ -71,24 +71,18 @@ def calculate_smallest_hdr(
     """
 
     # Evaluating the PDF value of the ground truth.
-    log_p_true = (
-        posterior.log_prob(true_value.to(device), simulation_output.to(device))
-        .cpu()
-        .numpy()[0]
+    log_p_true = posterior.log_prob(
+        true_value.to(device), simulation_output.to(device)
     )
 
     # Evaluating the PDF values of the posterior samples.
-    log_p_samples = [
-        posterior.log_prob(
-            posterior_samples[index].to(device), simulation_output.to(device)
-        )
-        .cpu()
-        .numpy()[0]
-        for index in range(len(posterior_samples))
-    ]
+    log_p_samples = posterior.log_prob(
+        posterior_samples.to(device), simulation_output.to(device)
+    )
 
     # Determining the fraction of PDF values that are larger than that of the ground truth.
-    hdr = (log_p_samples > log_p_true).mean()
+    hdr = (log_p_samples > log_p_true).sum()
+    hdr = hdr / len(log_p_samples)
     return hdr
 
 
@@ -144,7 +138,6 @@ def infer(args, config):
             normalize = config["test_data_loader"]["normalize"]
             standardize = config["test_data_loader"]["standardize"]
             input_shape = config["arch"]["args"]["input_shape"]
-            hidden_features = config["arch"]["args"]["len_output_layer"]
             n_components = config["density_estimator"]["args"][
                 "num_components"
             ]
@@ -162,8 +155,10 @@ def infer(args, config):
             config["show_profiling"],
         ):
 
-            # Load the test dataset ----------------------------------------------------------
-            logger.info("Loading the test dataset...")
+            logger.info(
+                "Loading the test dataset and applying either norm or std based on the experiment..."
+            )
+
             try:
                 dataset = dl.DatasetMultichannelArray(
                     dataset_path=dataset_path,
@@ -188,7 +183,7 @@ def infer(args, config):
                 )
             )
             for i, (x, theta) in enumerate(dataset):
-                # Reshape the matrix to have the channel number at the beginning
+                # Reshape the matrix to have the channel number at the beginning.
                 x = np.moveaxis(x, -1, 0)
 
                 if list(x.shape) != input_shape:
@@ -218,25 +213,9 @@ def infer(args, config):
             config["show_profiling"],
         ):
 
-            # Build embedding model ------------------------------------------------
-            # The weights are initialized with this procedure only for the embedding net.
-            logger.info("Building embedding model...")
-            embedding_net = config.init_object("arch", learning_models)
-            logger.info("Model architecture: {}".format(embedding_net))
-
-            # Build density estimator ----------------------------------------------
-            # The default mixture density estimator has 3 hidden layers with a number of neurons = hidden_features.
-            # The weights are initialized with the default initialization provided by PyTorch.
-            neural_posterior = utils.posterior_nn(
-                model=config["density_estimator"]["type"],
-                embedding_net=embedding_net,
-                hidden_features=hidden_features,
-                num_components=n_components,
-                device=device,
-            )
-
             # Set prior distribution for the parameters ------------------------------------------
             logger.info("Set prior distribution...")
+
             if normalize:
                 # All the parameters are rescaled in the range [0, 1].
                 prior = utils.BoxUniform(
@@ -261,12 +240,10 @@ def infer(args, config):
                 )
 
             # Set up the inference procedure -----------------------------
-            # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
-            inference = SNPE(
-                prior=prior,
-                density_estimator=neural_posterior,
-                device=f"{device}",
-            )
+            logger.info("Loading the amortized trained posterior...")
+            # By default the procedure uses SNPE-C
+            # (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+            inference = SNPE()
 
             # Load the trained model.
             logger.info("Loading the trained model...")
@@ -279,7 +256,9 @@ def infer(args, config):
                 trained_model = pickle.load(f)
 
             # Build the posterior.
-            posterior = inference.build_posterior(trained_model.to(device))
+            posterior = inference.build_posterior(
+                trained_model.to(device), prior=prior
+            )
 
         with timewith.TimeWith(
             "[Inference]",
@@ -291,7 +270,8 @@ def infer(args, config):
             # Compute the loss over the test dataset (with batch size = 1), extract the Gaussian mixture
             # coefficients and generate the corner plots.
             logger.info(
-                "Computing the average loss over the test dataset, extracting Gaussian mixture coefficients, estimating the hdr for the coverage probability and generating corner plots...."
+                "Computing the average loss over the test dataset, extracting Gaussian mixture coefficients,"
+                "estimating the hdr for the coverage probability and generating corner plots...."
             )
             test_loss_mean = torch.tensor([0.0]).to(device)
 
@@ -343,11 +323,11 @@ def infer(args, config):
                     precision.cpu().detach().numpy()
                 )
 
-                # To calculate the coverage, we calculate the narrowest highest density region containing the parameter
-                # used to generate each test sample.
+                # To calculate the coverage, we calculate the narrowest highest density region
+                # containing the parameter used to generate each test sample.
 
-                # Defining the number of samples drawn for the coverage calculation. Note that for a value of 1000 the
-                # calculation takes around 1.5 seconds for each test sample.
+                # Defining the number of samples drawn for the coverage calculation. Note that for a value of 1000,
+                # the calculation takes around 1.5 seconds for each test sample.
 
                 n_samples_coverage = 1000
 
@@ -362,6 +342,7 @@ def infer(args, config):
                     device,
                 )
                 hdr_testset[i] = smallest_hdr
+
                 # If the "corner plot" argument is set to True, we draw samples from the inferred posterior
                 # distribution. Moreover, we save these samples and the corresponding corner plot.
                 if args.corner_plot:
@@ -401,7 +382,8 @@ def infer(args, config):
                     )
 
                     logger.info(
-                        "Estimated parameter values (we consider the median as the best value and the 95 % credibility interval):"
+                        "Estimated parameter values (we consider the median as the best value"
+                        "and the 95 % credibility interval):"
                     )
 
                     for s in range(n_parameters):
@@ -454,38 +436,8 @@ def infer(args, config):
                     plt.close()
 
             logger.info("Computing the coverage probability...")
-            # Calculate the coverage from the smallest hdr.
-            betas = np.linspace(0, 1, 12)
-            coverage_probability = []
-            hdr_testset_sorted = np.sort(np.asarray(hdr_testset))
 
-            # For each value of beta, we calculate the percentage of test samples for which the
-            # highest density region (HDR), in hdr_testset, is lower than beta. Then, among these test samples, each of the
-            # true values will fall inside this beta's HDR.
-
-            for beta in betas:
-                coverage_probability.append((hdr_testset_sorted < beta).mean())
-
-            # Saving the coverage probability array to reproduce the coverage plot.
-            np.save(
-                f"{config.log_dir}/coverage_probability.npy",
-                coverage_probability,
-            )
-
-            # Plot the coverage.
-            plt.plot(
-                betas,
-                coverage_probability,
-                color="steelblue",
-                label="upper right",
-            )
-            plt.plot([0, 1], [0, 1], color="k", linestyle="--")
-            plt.xlim(0, 1)
-            plt.ylim(0, 1)
-
-            plt.xlabel(r"Credibility level $1-\alpha$", fontsize=10)
-            plt.ylabel(r"Coverage probability", fontsize=10)
-            plt.savefig(f"{config.log_dir}/coverage_plot.pdf")
+            coverage_prob(hdr_testset, 12, config.log_dir)
 
             # Saving the coefficients of each of the Gaussian components into a .csv file.
             df_coeff = pd.DataFrame(data=coeff_Gaussians)
