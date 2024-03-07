@@ -47,11 +47,11 @@ def test_run_simulation(mock_subprocess_check_output):
         Args:
             mock_subprocess_check_output: mock the output of the launched process.
     """
-    # Create dummy event and lock
+    # Create dummy event and lock.
     event = mp.Event()
     lock = mp.Lock()
 
-    # Set up the process pool
+    # Set up the process pool.
     sh.setup_process_pool(event, lock)
 
     command = "some_command"
@@ -69,15 +69,15 @@ def test_log_simulation(caplog):
     process_result = (pathlib.Path("some_path"), "some_output")
     caplog.set_level(logging.INFO)
 
-    # Call the function
+    # Call the function.
     sh.log_simulation(process_result)
 
-    # Print the captured log records
+    # Print the captured log records.
     print("Captured log records:")
     for record in caplog.records:
         print(record.levelname, record.message)
 
-    # Verify that logs are captured
+    # Verify that logs are captured.
     assert "Ran simulation" in caplog.text
     assert "some_output" in caplog.text
 
