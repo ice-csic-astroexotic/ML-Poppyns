@@ -44,8 +44,6 @@ def mock_subprocess_check_output(monkeypatch):
 def test_run_simulation(mock_subprocess_check_output):
     """
     Test the run_simulation method.
-        Args:
-            mock_subprocess_check_output: mock the output of the launched process.
     """
     # Create dummy event and lock.
     event = mp.Event()
@@ -63,8 +61,6 @@ def test_run_simulation(mock_subprocess_check_output):
 def test_log_simulation(caplog):
     """
     Test if the log information output is produced correct.
-        Args:
-            caplog: pytest fixture that captures log output during the execution of the test.
     """
     process_result = (pathlib.Path("some_path"), "some_output")
     caplog.set_level(logging.INFO)

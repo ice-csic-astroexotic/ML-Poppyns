@@ -118,10 +118,6 @@ def simulation_dir(test_case_2, tmp_path):
 def test_data_sampler_with_weights(test_case_2, simulation_dir, tmp_path):
     """
     Testing that the simulated populations are correctly resampled with the weighted resampling.
-        Args:
-            test_case_2 (dict): dictionary containing some input arguments for testing.
-            simulation_dir (pathlib.Path): temporary path to the mock simulated populations.
-            tmp_path (pathlib.Path): temporary directory created by Pytest that will be deleted at the end of the test.
     """
     args = argparse.Namespace(
         data=str(simulation_dir),
@@ -156,10 +152,6 @@ def test_data_sampler_with_weights(test_case_2, simulation_dir, tmp_path):
 def test_data_sampler_uniform(test_case_3, simulation_dir, tmp_path):
     """
     Testing that the simulated populations are correctly resampled with uniform resampling.
-        Args:
-            test_case_3 (dict): dictionary containing some input arguments for testing.
-            simulation_dir (pathlib.Path): temporary path to the mock simulated populations.
-            tmp_path (pathlib.Path): temporary directory created by Pytest that will be deleted at the end of the test.
     """
     args = argparse.Namespace(
         data=str(simulation_dir),

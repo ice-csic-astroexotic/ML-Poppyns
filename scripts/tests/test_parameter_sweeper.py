@@ -35,10 +35,10 @@ def args_random(tmp_path):
     """
     Defining the arguments needed to test the parameter_sweeper functions when the `sampling_type` argument is set to
     "random".
-    Args:
-        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
-    Returns:
-        Args
+        Args:
+            tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+        Returns:
+            Args
     """
     return argparse.Namespace(
         output_dir=tmp_path,
@@ -64,10 +64,10 @@ def args_grid(tmp_path):
     """
     Defining the arguments needed to test the parameter_sweeper functions when the `sampling_type` argument is set to
     "grid".
-    Args:
-        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
-    Returns:
-        Args
+        Args:
+            tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+        Returns:
+            Args
     """
     return argparse.Namespace(
         output_dir=tmp_path,
@@ -92,10 +92,10 @@ def args_invalid(tmp_path):
     """
     Defining the arguments needed to test the parameter_sweeper functions when the `sampling_type` argument is
     invalid.
-    Args:
-        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
-    Returns:
-        Args
+        Args:
+            tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+        Returns:
+            Args
     """
     return argparse.Namespace(
         output_dir=tmp_path,

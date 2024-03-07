@@ -35,11 +35,10 @@ from scripts.PIC_generate_htcondor_failed import generate_htcondor_failed
 def args(tmp_path):
     """
     Defining the arguments needed to test the PIC_generate_htcondor_submit functions.
-
-    Args:
-        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
-    Returns:
-        Args
+        Args:
+            tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+        Returns:
+            Args
     """
 
     return argparse.Namespace(
@@ -56,10 +55,10 @@ def args(tmp_path):
 def mock_failed_folders_csv(tmp_path):
     """
     Create a mock `failed_folders.csv` file.
-    Args:
-        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
-    Returns:
-        (pathlib.Path): temporary directory where the `failed_folders.csv` file is saved.
+        Args:
+            tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+        Returns:
+            (pathlib.Path): temporary directory where the `failed_folders.csv` file is saved.
     """
     csv_path = tmp_path / "failed_folders.csv"
     with open(csv_path, "w") as f:
@@ -75,11 +74,12 @@ def mock_failed_folders_csv(tmp_path):
 def create_folders_in_output_dir(mock_failed_folders_csv, tmp_path):
     """
     Creating the folders needed to test `generate_htcondor_failed` function.
-    Args:
-        mock_failed_folders_csv (Callable): Module that generates the temporary directory where the `failed_folders.csv` file is saved.
-        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
-    Returns:
-        (pathlib.Path): temporary directory where the mock simulations are saved.
+        Args:
+            mock_failed_folders_csv (Callable): Module that generates the temporary directory
+                where the `failed_folders.csv` file is saved.
+            tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+        Returns:
+            (pathlib.Path): temporary directory where the mock simulations are saved.
     """
     # Read folder names from the CSV.
     df = pd.read_csv(mock_failed_folders_csv)
@@ -98,8 +98,8 @@ def test_generate_htcondor_failed_dyn(
     mock_failed_folders_csv, create_folders_in_output_dir, tmp_path
 ):
     """
-    Testing the creation of the necessary folders and files for relaunching the failed dynamical simulations created by the
-    generate_htcondor_failed file.
+    Testing the creation of the necessary folders and files for relaunching the failed dynamical simulations created
+    by the generate_htcondor_failed file.
     """
     args = argparse.Namespace(
         output_dir_simulation=str(create_folders_in_output_dir),
@@ -140,8 +140,8 @@ def test_generate_htcondor_failed_magrot(
     mock_failed_folders_csv, create_folders_in_output_dir, tmp_path
 ):
     """
-    Testing the creation of the necessary folders and files for relaunching the failed magneto-rotational simulations created by the
-    generate_htcondor_failed file.
+    Testing the creation of the necessary folders and files for relaunching the failed magneto-rotational simulations
+    created by the generate_htcondor_failed file.
     """
     args = argparse.Namespace(
         output_dir_simulation=str(create_folders_in_output_dir),

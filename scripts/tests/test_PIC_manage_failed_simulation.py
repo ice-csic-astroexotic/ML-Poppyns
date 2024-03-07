@@ -38,10 +38,10 @@ def failed_simulation_dir(tmp_path):
     """
     Creating the structure and files inside the `failed_simulation` directory needed to test the
     manage_failed_simulations function.
-    Args:
-        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
-    Returns:
-        (pathlib.Path): temporary directory where the failed simulations are saved.
+        Args:
+            tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+        Returns:
+            (pathlib.Path): temporary directory where the failed simulations are saved.
     """
     # Create a temporary failed simulation directory.
     failed_dir = tmp_path / "failed_simulation"
@@ -68,10 +68,10 @@ def simulation_dir(tmp_path):
     """
     Creating the structure inside the `output_simulations` directory needed to test the `manage_failed_simulations`
     function.
-    Args:
-        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
-    Returns:
-        (pathlib.Path): temporary directory where the simulations are saved.
+        Args:
+            tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+        Returns:
+            (pathlib.Path): temporary directory where the simulations are saved.
     """
     # Create a temporary simulation directory.
     sim_dir = tmp_path / "output_simulations"

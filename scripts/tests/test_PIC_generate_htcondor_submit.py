@@ -40,10 +40,10 @@ def args(tmp_path):
     """
     Defining the arguments needed to test the PIC_generate_htcondor_submit functions when type_simulation argument is
     set to "dyn".
-    Args:
-        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
-    Returns:
-        (Args): Arguments needed to test the PIC_generate_htcondor_submit functions.
+        Args:
+            tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+        Returns:
+            (Args): Arguments needed to test the PIC_generate_htcondor_submit functions.
     """
     return argparse.Namespace(
         output_dir_htcondor=tmp_path / "output_htcondor",
@@ -60,10 +60,10 @@ def args_magrot(tmp_path):
     """
     Defining the arguments needed to test the PIC_generate_htcondor_submit functions when type_simulation argument is
     set to "magrot".
-    Args:
-        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
-    Returns:
-        (Args): Arguments needed to test the PIC_generate_htcondor_submit functions.
+        Args:
+            tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+        Returns:
+            (Args): Arguments needed to test the PIC_generate_htcondor_submit functions.
     """
     return argparse.Namespace(
         output_dir_htcondor=tmp_path / "output_htcondor",
@@ -80,10 +80,10 @@ def args_invalid(tmp_path):
     """
     Defining the arguments needed to test the PIC_generate_htcondor_submit functions when type_simulation argument is
     invalid.
-    Args:
-        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
-    Returns:
-        (Args): Arguments needed to test the PIC_generate_htcondor_submit functions.
+        Args:
+            tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+        Returns:
+            (Args): Arguments needed to test the PIC_generate_htcondor_submit functions.
     """
     return argparse.Namespace(
         output_dir_htcondor=tmp_path / "output_htcondor",
@@ -123,7 +123,8 @@ def test_generate_job_submit(args, tmp_path):
 
 def test_generate_wrapper(args, tmp_path):
     """
-    Testing the generation of the `wrapper.sh` file by the generate_wrapper function when the type_simulation argument is set to "dyn".
+    Testing the generation of the `wrapper.sh` file by the generate_wrapper function when the type_simulation
+    argument is set to "dyn".
     """
     wrapper_path = pathlib.Path(tmp_path) / "wrapper.sh"
     generate_wrapper(
@@ -135,7 +136,8 @@ def test_generate_wrapper(args, tmp_path):
 
 def test_generate_wrapper_magrot(args_magrot, tmp_path):
     """
-    Testing the generation of the `wrapper.sh` file by the generate_wrapper function when the type_simulation argument is set to "magrot".
+    Testing the generation of the `wrapper.sh` file by the generate_wrapper function when the type_simulation
+    argument is set to "magrot".
     """
     wrapper_path = pathlib.Path(tmp_path) / "wrapper.sh"
     generate_wrapper(
@@ -149,7 +151,8 @@ def test_generate_wrapper_magrot(args_magrot, tmp_path):
 
 def test_generate_wrapper_invalid(args_invalid, tmp_path):
     """
-    Testing the generation of the `wrapper.sh` file by the generate_wrapper function when the type_simulation argument is invalid.
+    Testing the generation of the `wrapper.sh` file by the generate_wrapper function when the type_simulation
+    argument is invalid.
     """
     wrapper_path = pathlib.Path(tmp_path) / "wrapper.sh"
 
