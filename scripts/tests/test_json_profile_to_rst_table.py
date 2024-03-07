@@ -40,7 +40,7 @@ from scripts.json_profile_to_rst_table import (
 
 @pytest.fixture
 def test_case_1():
-    # Sample JSON data for testing
+    # Sample JSON data for testing.
     data = {
         "context1": {
             "checkpoint1": {"elapsed_time": 0.1, "cumulative_time": 0.1},
@@ -55,78 +55,92 @@ def test_case_1():
     return data
 
 
-def test_generate_header():
+@pytest.fixture
+def test_case_2():
+    expected = {
+        "expected_header": (
+            "| Context            | Time [s]           | Cumulative [s]     |\n"
+            "+====================+====================+====================+\n"
+        ),
+        "expected_multicolumn": "| Context name                                                                      |\n",
+        "expected_separator": (
+            "+--------------------+--------------------+--------------------+\n"
+        ),
+        "expected_row": (
+            "| Context            |   0.1000           |   0.1000           |\n"
+        ),
+        "expected_table": (
+            "+--------------------+--------------------+--------------------+\n"
+            "| Context            | Time [s]           | Cumulative [s]     |\n"
+            "+====================+====================+====================+\n"
+            "| context1                                                     |\n"
+            "+--------------------+--------------------+--------------------+\n"
+            "| checkpoint1        |   0.1000           |   0.1000           |\n"
+            "+--------------------+--------------------+--------------------+\n"
+            "| checkpoint2        |   0.2000           |   0.3000           |\n"
+            "+--------------------+--------------------+--------------------+\n"
+            "| context2                                                     |\n"
+            "+--------------------+--------------------+--------------------+\n"
+            "| checkpoint3        |   0.3000           |   0.3000           |\n"
+            "+--------------------+--------------------+--------------------+\n"
+            "| checkpoint4        |   0.4000           |   0.7000           |\n"
+            "+--------------------+--------------------+--------------------+\n"
+            "|                                                              |\n"
+            "+--------------------+--------------------+--------------------+\n"
+            "| Total Time [s]:   1.0000                                     |\n"
+            "+--------------------+--------------------+--------------------+\n"
+            "\n"
+        ),
+    }
+
+    return expected
+
+
+def test_generate_header(test_case_2):
     """
     Test generate_header function.
     """
-    expected_result = (
-        "| Context            | Time [s]           | Cumulative [s]     |\n"
-        "+====================+====================+====================+\n"
-    )
+    expected_result = test_case_2["expected_header"]
     assert generate_header(["Time [s]", "Cumulative [s]"]) == expected_result
 
 
-def test_generate_multicolumn():
+def test_generate_multicolumn(test_case_2):
     """
     Test generate_multicolumn function.
     """
-    expected_result = "| Context name                                                                      |\n"
+    expected_result = test_case_2["expected_multicolumn"]
     assert generate_multicolumn("Context name", 3) == expected_result
 
 
-def test_generate_separator():
+def test_generate_separator(test_case_2):
     """
     Test generate_separator function.
     """
-    expected_result = (
-        "+--------------------+--------------------+--------------------+\n"
-    )
+    expected_result = test_case_2["expected_separator"]
     assert generate_separator(2) == expected_result
 
 
-def test_generate_row():
+def test_generate_row(test_case_2):
     """
     Test generate_row function.
     """
-    expected_result = (
-        "| Context            |   0.1000           |   0.1000           |\n"
-    )
+    expected_result = test_case_2["expected_row"]
     assert generate_row("Context", [0.1, 0.1]) == expected_result
 
 
 @patch("builtins.open")
-def test_print_table(mock_open, test_case_1):
+def test_print_table(mock_open, test_case_1, test_case_2):
     """
     Test print_table function.
     """
-    # The @patch("builtins.open") decorator is used to replaces the open function used in the print_table
-    # function with a MagicMock object.
+    # To mock the opening of a json file we use the @patch("builtins.open") decorator. This mock the built-in "io" module
+    # open function inside the print_table module and replace the output with the data in test_case_1.
     mock_open.return_value = StringIO(json.dumps(test_case_1))
-    expected_output = (
-        "+--------------------+--------------------+--------------------+\n"
-        "| Context            | Time [s]           | Cumulative [s]     |\n"
-        "+====================+====================+====================+\n"
-        "| context1                                                     |\n"
-        "+--------------------+--------------------+--------------------+\n"
-        "| checkpoint1        |   0.1000           |   0.1000           |\n"
-        "+--------------------+--------------------+--------------------+\n"
-        "| checkpoint2        |   0.2000           |   0.3000           |\n"
-        "+--------------------+--------------------+--------------------+\n"
-        "| context2                                                     |\n"
-        "+--------------------+--------------------+--------------------+\n"
-        "| checkpoint3        |   0.3000           |   0.3000           |\n"
-        "+--------------------+--------------------+--------------------+\n"
-        "| checkpoint4        |   0.4000           |   0.7000           |\n"
-        "+--------------------+--------------------+--------------------+\n"
-        "|                                                              |\n"
-        "+--------------------+--------------------+--------------------+\n"
-        "| Total Time [s]:   1.0000                                     |\n"
-        "+--------------------+--------------------+--------------------+\n"
-        "\n"
-    )
+    expected_output = test_case_2["expected_table"]
     # We patch the sys.stdout object, redirecting standard output to a StringIO object.
     # This allows capturing the output that would normally be printed to terminal during
     # the execution of the print_table function.
+    # This output is than compared with the expected one.
     with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
         print_table("dummy_filename.json")
         assert mock_stdout.getvalue() == expected_output
