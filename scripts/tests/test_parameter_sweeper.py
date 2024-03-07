@@ -32,6 +32,14 @@ import scripts.parameter_sweeper as param_sweeper
 
 @pytest.fixture
 def args_random(tmp_path):
+    """
+    Defining the arguments needed to test the parameter_sweeper functions when the `sampling_type` argument is set to
+    "random".
+    Args:
+        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+    Returns:
+        Args
+    """
     return argparse.Namespace(
         output_dir=tmp_path,
         sampling_type="random",
@@ -53,6 +61,14 @@ def args_random(tmp_path):
 
 @pytest.fixture
 def args_grid(tmp_path):
+    """
+    Defining the arguments needed to test the parameter_sweeper functions when the `sampling_type` argument is set to
+    "grid".
+    Args:
+        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+    Returns:
+        Args
+    """
     return argparse.Namespace(
         output_dir=tmp_path,
         sampling_type="grid",
@@ -73,6 +89,14 @@ def args_grid(tmp_path):
 
 @pytest.fixture
 def args_invalid(tmp_path):
+    """
+    Defining the arguments needed to test the parameter_sweeper functions when the `sampling_type` argument is
+    invalid.
+    Args:
+        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+    Returns:
+        Args
+    """
     return argparse.Namespace(
         output_dir=tmp_path,
         sampling_type="invalid",
@@ -150,7 +174,7 @@ def test_main_invalid(args_invalid, tmp_path):
 
     with pytest.raises(ValueError) as excinfo:
         param_sweeper.main(args_invalid)
-    print("errror", excinfo.value)
+
     assert (
         str(excinfo.value)
         == "The value invalid is not feasible for parameter sampling_type"

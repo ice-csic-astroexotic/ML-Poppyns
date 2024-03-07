@@ -37,7 +37,12 @@ from scripts.PIC_check_simulations import check_simulations
 def mock_simulation_folders(tmp_path):
     """
     Create mock simulation folders needed for testing.
+    Args:
+        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+    Returns:
+        (pathlib.Path, pathlib.Path): The temporary directories for saving the simulations and failed simulations.
     """
+
     simulation_folders = [
         "000001",
         "000002",

@@ -38,7 +38,12 @@ from scripts.PIC_generate_htcondor_submit import (
 @pytest.fixture
 def args(tmp_path):
     """
-    Defining the arguments needed to test the PIC_generate_htcondor_submit functions.
+    Defining the arguments needed to test the PIC_generate_htcondor_submit functions when type_simulation argument is
+    set to "dyn".
+    Args:
+        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+    Returns:
+        (Args): Arguments needed to test the PIC_generate_htcondor_submit functions.
     """
     return argparse.Namespace(
         output_dir_htcondor=tmp_path / "output_htcondor",
@@ -53,7 +58,12 @@ def args(tmp_path):
 @pytest.fixture
 def args_magrot(tmp_path):
     """
-    Defining the arguments needed to test the PIC_generate_htcondor_submit functions.
+    Defining the arguments needed to test the PIC_generate_htcondor_submit functions when type_simulation argument is
+    set to "magrot".
+    Args:
+        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+    Returns:
+        (Args): Arguments needed to test the PIC_generate_htcondor_submit functions.
     """
     return argparse.Namespace(
         output_dir_htcondor=tmp_path / "output_htcondor",
@@ -68,7 +78,12 @@ def args_magrot(tmp_path):
 @pytest.fixture
 def args_invalid(tmp_path):
     """
-    Defining the arguments needed to test the PIC_generate_htcondor_submit functions.
+    Defining the arguments needed to test the PIC_generate_htcondor_submit functions when type_simulation argument is
+    invalid.
+    Args:
+        tmp_path (pathlib.Path): Temporary directory created automatically by pytest.
+    Returns:
+        (Args): Arguments needed to test the PIC_generate_htcondor_submit functions.
     """
     return argparse.Namespace(
         output_dir_htcondor=tmp_path / "output_htcondor",
