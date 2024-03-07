@@ -5,7 +5,7 @@ Test for the memory_efficient_sampling.py module.
 
         Celsa Pardo (pardo @ ice.csic.es)
 
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
+Copyright (c) MAGNESIA (ICE-CSIC) 2022
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -48,7 +48,6 @@ def test_choose_rows():
 
 
 def test_select():
-
     """
     Verifying that this function returns a Dataframe.
     """

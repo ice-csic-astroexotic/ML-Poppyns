@@ -68,6 +68,9 @@ import scripts.parameter_set_generator as psg
 
 log = logging.getLogger(__name__)
 
+unpaused = None
+starting = None
+
 
 def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     """

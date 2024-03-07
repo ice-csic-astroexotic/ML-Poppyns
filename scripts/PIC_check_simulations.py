@@ -49,6 +49,8 @@ def check_simulations(args):
     output_simulations_path = args.output_dir_simulation
     list_directories = os.listdir(output_simulations_path)
 
+    failed_folder_csv_path = args.dir_failed_folder_csv
+
     count_error = 0
     fail_simulation = []
 
@@ -65,9 +67,10 @@ def check_simulations(args):
             if len(files_in_directory) < 8:
                 count_error += 1
                 fail_simulation.append(os.path.basename(simulations_directory))
-
     df = pd.DataFrame(data={"folder": fail_simulation})
-    df.to_csv("failed_folders.csv")
+    df.to_csv(
+        pathlib.Path().joinpath(failed_folder_csv_path, "failed_folders.csv")
+    )
 
 
 if __name__ == "__main__":
@@ -80,6 +83,14 @@ if __name__ == "__main__":
         type=str,
         default="output/test",
         help="Path to the directory with the output from the simulations.",
+    )
+
+    args.add_argument(
+        "--dir_failed_folder_csv",
+        nargs="?",
+        type=str,
+        default="output/test",
+        help="Path to the directory where the csv file containing the list of failed folders is saved.",
     )
 
     args = args.parse_args()

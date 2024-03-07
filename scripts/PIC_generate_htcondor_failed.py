@@ -10,7 +10,8 @@
     to generate the failed_folders.csv file.
 
     Authors:
-        Celsa Pardo (pardo @ csic.es)
+
+        Celsa Pardo Araujo (pardo @ csic.es)
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -61,7 +62,14 @@ def generate_htcondor_failed(args):
     # in order to assess the reason for failure, the following variable should be set to True.
     check_simulations_failed = False
 
-    data_failed_folder = pd.read_csv("scripts/failed_folders.csv")
+    # Reading the `failed_folders.csv` file, where the simulations that have failed are saved using the
+    # `PIC_check_simulations.py` script.
+
+    data_failed_folder = pd.read_csv(
+        pathlib.Path().joinpath(
+            args.dir_failed_folder_csv, "failed_folders.csv"
+        )
+    )
     list_failed_folder = data_failed_folder["folder"]
 
     directory_path = output_simulations_path.parents[0]
@@ -90,6 +98,7 @@ def generate_htcondor_failed(args):
         simulation_folder = pathlib.Path().joinpath(
             output_simulations_path, simulation
         )
+
         shutil.copytree(
             simulation_folder,
             pathlib.Path().joinpath(output_failed_simulations, simulation),
@@ -188,7 +197,7 @@ def generate_htcondor_failed(args):
         f.write(
             "source /data/astro/software/centos7/conda/mambaforge_4.14.0/etc/profile.d/conda.sh\n"
         )
-        f.write("conda activate /data/magnesia/scratch/conda/env/pop_syn\n")
+        f.write("conda activate /data/magnesia/scratch2/conda/envs/pop_syn\n")
         f.write(
             "# We copy the pypopsyn module in the working node to avoid problems with the path while running the simulations in the server.\n"
         )
@@ -235,6 +244,14 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Type of simulation that we want to run in the PIC with HTCondor. Choose between dyn or magrot.",
+    )
+
+    args.add_argument(
+        "--dir_failed_folder_csv",
+        nargs="?",
+        type=str,
+        default="output/test",
+        help="Path to the directory where the csv file containing the list of failed folders is saved.",
     )
 
     args = args.parse_args()

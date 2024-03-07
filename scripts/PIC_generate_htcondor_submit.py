@@ -116,7 +116,7 @@ def generate_wrapper(
         f.write(
             "source /data/astro/software/centos7/conda/mambaforge_4.14.0/etc/profile.d/conda.sh\n"
         )
-        f.write("conda activate /data/magnesia/scratch/conda/env/pop_syn\n")
+        f.write("conda activate /data/magnesia/scratch2/conda/envs/pop_syn\n")
         f.write(
             "# We copy the pypopsyn module in the working node to avoid problems with the path while running the simulations in the server.\n"
         )
