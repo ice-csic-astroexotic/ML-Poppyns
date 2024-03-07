@@ -133,14 +133,16 @@ def test_print_table(mock_open, test_case_1, test_case_2):
     """
     Test print_table function.
     """
-    # To mock the opening of a json file we use the @patch("builtins.open") decorator. This mock the built-in "io" module
-    # open function inside the print_table module and replace the output with the data in test_case_1.
+    # To mock the opening of a json file, we use the @patch("builtins.open") decorator.
+    # This mocks the built-in "io" module open function inside the print_table module
+    # and replace the output with the data in test_case_1.
     mock_open.return_value = StringIO(json.dumps(test_case_1))
     expected_output = test_case_2["expected_table"]
-    # We patch the sys.stdout object, redirecting standard output to a StringIO object.
+
+    # We patch the sys.stdout object, redirecting the standard output to a StringIO object.
     # This allows capturing the output that would normally be printed to terminal during
     # the execution of the print_table function.
-    # This output is than compared with the expected one.
+    # This output is then compared with the expected one.
     with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
         print_table("dummy_filename.json")
         assert mock_stdout.getvalue() == expected_output
