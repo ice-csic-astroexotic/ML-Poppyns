@@ -81,7 +81,8 @@ def calculate_smallest_hdr(
     )
 
     # Determining the fraction of PDF values that are larger than that of the ground truth.
-    hdr = (log_p_samples > log_p_true).float().mean()
+    hdr = (log_p_samples > log_p_true).sum()
+    hdr = hdr / len(log_p_samples)
     return hdr
 
 
