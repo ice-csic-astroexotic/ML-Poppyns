@@ -137,7 +137,7 @@ def test_check_parameter_compatibility_compatible(test_case_1, caplog):
     assert test_case_1["expected_output"] in caplog.text
 
 
-def test_check_parameter_compatibility_no_compatible(test_case_2):
+def test_check_parameter_compatibility_not_compatible(test_case_2):
     """
     Testing if the parsed parameters are not compatible with the models in the configuration file.
     """
@@ -145,7 +145,7 @@ def test_check_parameter_compatibility_no_compatible(test_case_2):
     with pytest.raises(ValueError) as excinfo:
         psg.check_parameter_compatibility(test_case_2["args_dict"])
 
-    # Assert that the raised exception has the expected error message
+    # Assert that the raised exception has the expected error message.
     assert str(excinfo.value) == test_case_2["expected_output"]
 
 
