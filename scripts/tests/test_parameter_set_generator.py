@@ -33,6 +33,49 @@ from scripts import parameter_set_generator as psg
 @pytest.fixture()
 def test_case_1():
     data = {
+        "args_dict": {
+            "sigma_k": [10, 500],
+            "vk_c": None,
+            "h_c": None,
+            "P_initial_mean": None,
+            "P_initial_sigma": None,
+            "P_initial_log10_mean": [-2, -1],
+            "P_initial_log10_sigma": None,
+            "B_initial_log10_mean": None,
+            "B_initial_log10_sigma": None,
+            "a_late": None,
+        },
+        "expected_output": "The provided parameters are compatible with the configuration file.",
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_2():
+    data = {
+        "args_dict": {
+            "sigma_k": None,
+            "vk_c": [10, 500],
+            "h_c": None,
+            "P_initial_mean": None,
+            "P_initial_sigma": None,
+            "P_initial_log10_mean": None,
+            "P_initial_log10_sigma": None,
+            "B_initial_log10_mean": None,
+            "B_initial_log10_sigma": None,
+            "a_late": None,
+        },
+        "expected_output": "The provided kick-velocity distribution parameter is not compatible with "
+        "the model {} in the configuration file.".format(cfg["kick_model"]),
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_3():
+    data = {
         "parameter_name": "sigma_k",
         "args_dict": {
             "output_dir": None,
@@ -56,7 +99,7 @@ def test_case_1():
 
 
 @pytest.fixture()
-def test_case_2():
+def test_case_4():
     data = {
         "parameter_name": "sigma_k",
         "args_dict": {
@@ -85,54 +128,75 @@ def test_case_2():
     return data
 
 
-def test_expand_parameter_random(test_case_1):
+def test_check_parameter_compatibility_compatible(test_case_1, caplog):
+    """
+    Testing if the parsed parameters are compatible with the models in the configuration file.
+    """
+    psg.check_parameter_compatibility(test_case_1["args_dict"])
+
+    assert test_case_1["expected_output"] in caplog.text
+
+
+def test_check_parameter_compatibility_no_compatible(test_case_2):
+    """
+    Testing if the parsed parameters are not compatible with the models in the configuration file.
+    """
+
+    with pytest.raises(ValueError) as excinfo:
+        psg.check_parameter_compatibility(test_case_2["args_dict"])
+
+    # Assert that the raised exception has the expected error message
+    assert str(excinfo.value) == test_case_2["expected_output"]
+
+
+def test_expand_parameter_random(test_case_3):
     """
     Testing if a parameter is correctly expanded in random mode.
     """
     expanded_hc = psg.expand_parameter(
-        test_case_1["args_dict"], "h_c", test_case_1["args_dict"]["h_c"]
+        test_case_3["args_dict"], "h_c", test_case_3["args_dict"]["h_c"]
     )
 
-    assert len(expanded_hc) == test_case_1["args_dict"]["sampling_size"]
+    assert len(expanded_hc) == test_case_3["args_dict"]["sampling_size"]
 
 
-def test_check_expand_args_random(test_case_1):
+def test_check_expand_args_random(test_case_3):
     """
     Testing if the arguments are correctly checked and expanded in random mode.
     """
     var_names_out, var_expanded_ranges_out = psg.check_expand_args(
-        test_case_1["args_dict"]
+        test_case_3["args_dict"]
     )
 
-    assert var_names_out == test_case_1["var_names_expected"]
+    assert var_names_out == test_case_3["var_names_expected"]
 
     assert np.shape(var_expanded_ranges_out) == (
-        len(test_case_1["var_names_expected"]),
-        test_case_1["args_dict"]["sampling_size"],
+        len(test_case_3["var_names_expected"]),
+        test_case_3["args_dict"]["sampling_size"],
     )
 
 
-def test_expand_parameter_grid(test_case_2):
+def test_expand_parameter_grid(test_case_4):
     """
     Testing if a parameter is correctly expanded in grid mode.
     """
     expanded_hc = psg.expand_parameter(
-        test_case_2["args_dict"], "h_c", test_case_2["args_dict"]["h_c"]
+        test_case_4["args_dict"], "h_c", test_case_4["args_dict"]["h_c"]
     )
 
-    assert (expanded_hc == test_case_2["h_c_expected"]).all()
+    assert (expanded_hc == test_case_4["h_c_expected"]).all()
 
 
-def test_check_expand_args_grid(test_case_2):
+def test_check_expand_args_grid(test_case_4):
     """
     Testing if the arguments are correctly checked and expanded in grid mode.
     """
     var_names_out, var_expanded_ranges_out = psg.check_expand_args(
-        test_case_2["args_dict"]
+        test_case_4["args_dict"]
     )
 
-    assert var_names_out == test_case_2["var_names_expected"]
+    assert var_names_out == test_case_4["var_names_expected"]
 
     assert (
-        var_expanded_ranges_out == test_case_2["var_expanded_ranges_expected"]
+        var_expanded_ranges_out == test_case_4["var_expanded_ranges_expected"]
     )
