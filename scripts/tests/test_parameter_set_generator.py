@@ -23,6 +23,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import logging
+
 import numpy as np
 import pytest
 
@@ -132,6 +134,7 @@ def test_check_parameter_compatibility_compatible(test_case_1, caplog):
     """
     Testing if the parsed parameters are compatible with the models in the configuration file.
     """
+    caplog.set_level(logging.INFO)
     psg.check_parameter_compatibility(test_case_1["args_dict"])
 
     assert test_case_1["expected_output"] in caplog.text
