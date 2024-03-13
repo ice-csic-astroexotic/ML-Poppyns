@@ -1,13 +1,68 @@
+"""
+Models for cross section of the X-ray interstellar absorption.
+
+We translate into python the modules in Fortran 77 written by Monika Balucinska-Church and Dan McCammon
+"Photoelectric Absorption Cross Sections with Variable Abundances" Ap.J. 400, 699 (1992) available for download at
+https://cdsarc.cds.unistra.fr/viz-bin/cat/VI/62#/browse.
+
+The atomic absorption cross sections were taken from Henke et al. (1982). Polynomial fits have been made to the
+atomic absorption cross sections in the energy range of 0.03 -- 10 keV for seventeen elements: hydrogen, helium,
+carbon, nitrogen, oxygen, neon, sodium, magnesium, aluminium, silicon, sulphur, chlorine, argon, calcium, chromium,
+iron and nickel.
+The functions fit Henke's data points with a typical error of 2% and a maximum error of 7%, except for points below
+40~eV for argon, calcium and sodium, where the errors are larger. The effective cross section per hydrogen atom for
+a particular set of elemental abundances may be calculated from the individual cross sections.
+For more detail see Monika Balucinska-Church and Dan McCammon "Photoelectric Absorption Cross Sections with Variable
+Abundances" Ap.J. 400, 699 (1992).
+
+All data (except for helium) are from:
+B. L. Henke, P. Lee, T. J. Tanaka, R. L. Shimabukuro and B. K. Fujikawa, 1982, Atomic Data and Nuclear Data Tables,
+vol 27, p 1.
+
+Authors:
+
+        Michele Ronchi (ronchi@ice.csic.es)
+
+MIT License
+
+Copyright (c) MAGNESIA (ICE-CSIC) 2024
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 import numpy as np
 
 
 def aluminium(E: np.ndarray) -> np.ndarray:
+    """
+    Calculates mass absorption coefficient (mu/rho) for aluminum where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
 
     Elog = np.log(E)
     x = np.zeros_like(Elog)
     mask_1 = E < 72.78
     mask_2 = (E >= 72.78) & (E < 1559.9)
     mask_3 = E >= 1559.9
+
     x[mask_1] = (
         26.90487
         + (3.0 - 9.135221) * Elog[mask_1]
@@ -26,12 +81,21 @@ def aluminium(E: np.ndarray) -> np.ndarray:
         + 8.18542e-3 * Elog[mask_3] ** 3
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def argon(E: np.ndarray) -> np.ndarray:
+    """
+    Calculates mass absorption coefficient (mu/rho) for argon where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
 
     Elog = np.log(E)
     x = np.zeros_like(Elog)
@@ -60,11 +124,20 @@ def argon(E: np.ndarray) -> np.ndarray:
         + 0.00165895 * (Elog[mask_3] ** 3)
     )
 
-    sigma = np.exp(x) / (E**3)
-    return sigma
+    mass_abs_coeff = np.exp(x) / (E**3)
+    return mass_abs_coeff
 
 
 def calcium(E: np.ndarray) -> np.ndarray:
+    """
+    Calculates mass absorption coefficient (mu/rho) for calcium where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
 
     Elog = np.log(E)
     x = np.zeros_like(Elog)
@@ -93,12 +166,21 @@ def calcium(E: np.ndarray) -> np.ndarray:
         - 0.1377201 * Elog[mask_3] ** 2
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def carbon(E: np.ndarray) -> np.ndarray:
+    """
+    Calculates mass absorption coefficient (mu/rho) for carbon where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
 
     Elog = np.log(E)
     x = np.zeros_like(Elog)
@@ -117,12 +199,21 @@ def carbon(E: np.ndarray) -> np.ndarray:
         + (0.0422195 * Elog[mask_2] ** 3)
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def chlorine(E: np.ndarray) -> np.ndarray:
+    """
+    Calculates mass absorption coefficient (mu/rho) for chlorine where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
 
     Elog = np.log(E)
     x = np.zeros_like(Elog)
@@ -152,13 +243,21 @@ def chlorine(E: np.ndarray) -> np.ndarray:
         + 6.6208832e-2 * (Elog[mask_3] ** 3)
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def chromium(E: np.ndarray) -> np.ndarray:
-
+    """
+    Calculates mass absorption coefficient (mu/rho) for chromium where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
     Elog = np.log(E)
     x = np.zeros_like(Elog)
     mask_1 = E < 598.0
@@ -186,9 +285,9 @@ def chromium(E: np.ndarray) -> np.ndarray:
         - 0.2580816 * (Elog[mask_4] ** 2)
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def fano_resonance_line(
@@ -203,6 +302,16 @@ def fano_resonance_line(
 
 
 def helium(E: np.ndarray) -> np.ndarray:
+    """
+    Calculates mass absorption coefficient (mu/rho) for helium where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
+
     # Constants
     AV = 6.022045e23  # Avogadro's number
     AW = 4.0026  # Atomic weight hydrogen
@@ -251,13 +360,21 @@ def helium(E: np.ndarray) -> np.ndarray:
         ]
     )
 
-    sigma = 10**y
+    mass_abs_coeff = 10**y * AV / AW
 
-    return sigma * AV / AW
+    return mass_abs_coeff
 
 
 def hydrogen(E: np.ndarray) -> np.ndarray:
-
+    """
+    Calculates mass absorption coefficient (mu/rho) for hydrogen where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
     Elog = np.log(E)
 
     x = (
@@ -267,13 +384,21 @@ def hydrogen(E: np.ndarray) -> np.ndarray:
         + 5.4634294e-3 * (Elog**3)
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def iron(E: np.ndarray) -> np.ndarray:
-
+    """
+    Calculates mass absorption coefficient (mu/rho) for iron where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
     Elog = np.log(E)
     x = np.zeros_like(Elog)
     mask_1 = E < 707.4
@@ -301,13 +426,21 @@ def iron(E: np.ndarray) -> np.ndarray:
         - 0.3638919 * Elog[mask_3] ** 2
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def magnesium(E: np.ndarray) -> np.ndarray:
-
+    """
+    Calculates mass absorption coefficient (mu/rho) for magnesium where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
     Elog = np.log(E)
     x = np.zeros_like(Elog)
     mask_1 = E < 49.45
@@ -329,12 +462,21 @@ def magnesium(E: np.ndarray) -> np.ndarray:
         + 5.2728362e-2 * (Elog[mask_3] ** 3)
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def neon(E: np.ndarray) -> np.ndarray:
+    """
+    Calculates mass absorption coefficient (mu/rho) for neon where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
 
     Elog = np.log(E)
     x = np.zeros_like(Elog)
@@ -354,13 +496,21 @@ def neon(E: np.ndarray) -> np.ndarray:
         + (5.68290e-3 * Elog[mask_2] ** 3)
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def nickel(E: np.ndarray) -> np.ndarray:
-
+    """
+    Calculates mass absorption coefficient (mu/rho) for nickel where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
     Elog = np.log(E)
     x = np.zeros_like(Elog)
     mask_1 = E < 853.6
@@ -381,12 +531,21 @@ def nickel(E: np.ndarray) -> np.ndarray:
     )
     x[mask_3] = 28.4989 + (0.485797 * Elog[mask_3])
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def nitrogen(E: np.ndarray) -> np.ndarray:
+    """
+    Calculates mass absorption coefficient (mu/rho) for nitrogen where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
 
     Elog = np.log(E)
     x = np.zeros_like(Elog)
@@ -406,13 +565,21 @@ def nitrogen(E: np.ndarray) -> np.ndarray:
         + (0.0769412 * Elog[mask_2] ** 3)
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def oxygen(E: np.ndarray) -> np.ndarray:
-
+    """
+    Calculates mass absorption coefficient (mu/rho) for oxygen where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
     Elog = np.log(E)
     x = np.zeros_like(Elog)
     mask_1 = E < 531.7
@@ -431,12 +598,21 @@ def oxygen(E: np.ndarray) -> np.ndarray:
         + 7.9471897e-3 * (Elog[mask_2] ** 3)
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def silicon(E: np.ndarray) -> np.ndarray:
+    """
+    Calculates mass absorption coefficient (mu/rho) for silicon where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
 
     Elog = np.log(E)
     x = np.zeros_like(Elog)
@@ -452,23 +628,32 @@ def silicon(E: np.ndarray) -> np.ndarray:
     x[mask_2] = (
         -182.7217
         + (125.061 + 3.0) * Elog[mask_2]
-        - 29.47269 * Elog[mask_2] ** 2
+        - 29.47269 * (Elog[mask_2] ** 2)
         + 3.03284 * (Elog[mask_2] ** 3)
         - 0.1173096 * (Elog[mask_2] ** 4)
     )
     x[mask_3] = (
         -33.39074
         + (18.42992 + 3.0) * Elog[mask_3]
-        - 2.385117 * Elog[mask_3] ** 2
+        - 2.385117 * (Elog[mask_3] ** 2)
         + 8.887583e-2 * (Elog[mask_3] ** 3)
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def sodium(E: np.ndarray) -> np.ndarray:
+    """
+    Calculates mass absorption coefficient (mu/rho) for sodium where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
 
     Elog = np.log(E)
     x = np.zeros_like(Elog)
@@ -478,7 +663,7 @@ def sodium(E: np.ndarray) -> np.ndarray:
     x[mask_1] = (
         -2737.598
         + (2798.704 + 3.0) * Elog[mask_1]
-        - 1009.892 * Elog[mask_1] ** 2
+        - 1009.892 * (Elog[mask_1] ** 2)
         + 87.16455 * (Elog[mask_1] ** 3)
         + 43.20644 * (Elog[mask_1] ** 4)
         - 15.27259 * (Elog[mask_1] ** 5)
@@ -489,16 +674,25 @@ def sodium(E: np.ndarray) -> np.ndarray:
     x[mask_2] = (
         1.534019
         + (6.261744 + 3.0) * Elog[mask_2]
-        - 0.9914126 * Elog[mask_2] ** 2
+        - 0.9914126 * (Elog[mask_2] ** 2)
         + 3.5278253e-2 * (Elog[mask_2] ** 3)
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
 def sulfur(E: np.ndarray) -> np.ndarray:
+    """
+    Calculates mass absorption coefficient (mu/rho) for sulfur where mu is the
+    linear attenuation coefficient and rho is the density of the material.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+    Return:
+        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+    """
 
     Elog = np.log(E)
     x = np.zeros_like(Elog)
@@ -509,7 +703,7 @@ def sulfur(E: np.ndarray) -> np.ndarray:
     x[mask_1] = (
         598.2911
         + (3.0 - 678.2265) * Elog[mask_1]
-        + 308.1133 * Elog[mask_1] ** 2
+        + 308.1133 * (Elog[mask_1] ** 2)
         - 68.99324 * (Elog[mask_1] ** 3)
         + 7.62458 * (Elog[mask_1] ** 4)
         - 0.3335031 * (Elog[mask_1] ** 5)
@@ -517,7 +711,7 @@ def sulfur(E: np.ndarray) -> np.ndarray:
     x[mask_2] = (
         3994.831
         + (3.0 - 3693.886) * Elog[mask_2]
-        + 1417.287 * Elog[mask_2] ** 2
+        + 1417.287 * (Elog[mask_2] ** 2)
         - 287.9909 * (Elog[mask_2] ** 3)
         + 32.70061 * (Elog[mask_2] ** 4)
         - 1.968987 * (Elog[mask_2] ** 5)
@@ -526,16 +720,29 @@ def sulfur(E: np.ndarray) -> np.ndarray:
     x[mask_3] = (
         -22.49628
         + (14.24599 + 3.0) * Elog[mask_3]
-        - 1.848444 * Elog[mask_3] ** 2
+        - 1.848444 * (Elog[mask_3] ** 2)
         + 6.6506132e-2 * (Elog[mask_3] ** 3)
     )
 
-    sigma = np.exp(x) / (E**3)
+    mass_abs_coeff = np.exp(x) / (E**3)
 
-    return sigma
+    return mass_abs_coeff
 
 
-def absorption_cross_section_tot(E: np.ndarray, abundances: np.ndarray):
+def absorption_cross_section_tot(
+    E: np.ndarray, abundances: np.ndarray
+) -> np.ndarray:
+    """
+    Calculates the effective absorption cross section in units of cm^2/(hydrogen atom)
+    at energy E in eV for the specified abundances of the elements.
+    This function is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+        abundances (np.ndarray): array of abundances in log10 relative to hydrogen (= 12.00).
+    Return:
+        effective cross section (np.ndarray): effective cross section as a function of the energy
+        in cm^2/(hydrogen atom).
+    """
     # atomic weights of the elements
     atomic_weights = np.array(
         [
@@ -561,24 +768,24 @@ def absorption_cross_section_tot(E: np.ndarray, abundances: np.ndarray):
     av = 6.022045e23
 
     # Mass absorption cross sections for each element
-    a = np.zeros((len(atomic_weights), len(E)))
-    a[0] = hydrogen(E)
-    a[1] = helium(E)
-    a[2] = carbon(E)
-    a[3] = nitrogen(E)
-    a[4] = oxygen(E)
-    a[5] = neon(E)
-    a[6] = sodium(E)
-    a[7] = magnesium(E)
-    a[8] = aluminium(E)
-    a[9] = silicon(E)
-    a[10] = sulfur(E)
-    a[11] = chlorine(E)
-    a[12] = argon(E)
-    a[13] = calcium(E)
-    a[14] = chromium(E)
-    a[15] = iron(E)
-    a[16] = nickel(E)
+    mass_abs_coeff = np.zeros((len(atomic_weights), len(E)))
+    mass_abs_coeff[0] = hydrogen(E)
+    mass_abs_coeff[1] = helium(E)
+    mass_abs_coeff[2] = carbon(E)
+    mass_abs_coeff[3] = nitrogen(E)
+    mass_abs_coeff[4] = oxygen(E)
+    mass_abs_coeff[5] = neon(E)
+    mass_abs_coeff[6] = sodium(E)
+    mass_abs_coeff[7] = magnesium(E)
+    mass_abs_coeff[8] = aluminium(E)
+    mass_abs_coeff[9] = silicon(E)
+    mass_abs_coeff[10] = sulfur(E)
+    mass_abs_coeff[11] = chlorine(E)
+    mass_abs_coeff[12] = argon(E)
+    mass_abs_coeff[13] = calcium(E)
+    mass_abs_coeff[14] = chromium(E)
+    mass_abs_coeff[15] = iron(E)
+    mass_abs_coeff[16] = nickel(E)
 
     cross_section_tot = np.zeros_like(E)
 
@@ -586,7 +793,7 @@ def absorption_cross_section_tot(E: np.ndarray, abundances: np.ndarray):
     for i in range(len(atomic_weights)):
         cross_section_tot += (
             atomic_weights[i]
-            * a[i]
+            * mass_abs_coeff[i]
             / av
             * (10 ** (abundances[i] - abundances[0]))
         )
@@ -594,19 +801,24 @@ def absorption_cross_section_tot(E: np.ndarray, abundances: np.ndarray):
     return cross_section_tot
 
 
-def absorption_cross_section_approx(energy):
-    # Reference:
-    # Robert Morrison and Dan McCammon, Ap.J., vol. 270, p. 119 (1983).
+def absorption_cross_section_approx(E: np.ndarray) -> np.ndarray:
+    """
+    This function implements the approximation of Morrison and McCammon (1983)
+    to the interstellar photoelectric absorption cross-section. Energy is in eV
+    and the resultant cross-section is in cm**2/hydrogen atom. Abundances of other
+    elements relative to hydrogen are appropriate for the interstellar medium in
+    the solar neighborhood (see Table 1 in Morrison and McCammon 1983). This function
+    is valid only over the energy range 30 - 10,000 eV.
+    Args:
+        E (np.ndarray): array of energies of the incoming photons in eV.
+        abundances (np.ndarray): array of abundances in log10 relative to hydrogen (= 12.00).
+    Return:
+        effective cross section (np.ndarray): effective cross section as a function of the energy
+        in cm^2/(hydrogen atom).
+    """
 
-    # Description:
-    # This function implements the approximation of Morrison and McCammon (1983)
-    # to the interstellar photoelectric absorption cross-section. ENERGY is in eV
-    # and the resultant cross-section is in cm**2/hydrogen atom. Abundances of other
-    # elements relative to hydrogen are appropriate for the interstellar medium in
-    # the solar neighborhood (see reference for discussion).
-
-    # Energy intervals.
-    emax = np.array(
+    # Energy intervals in keV.
+    Emax = np.array(
         [
             0.100,
             0.284,
@@ -681,16 +893,17 @@ def absorption_cross_section_approx(energy):
         ]
     )
 
-    e = energy / 1e3  # Convert to keV
+    # Convert energy to keV.
+    E_keV = E / 1e3
 
-    # Find the energy interval
-    # Find the energy interval
-    i = np.searchsorted(emax, e)
-    i = np.minimum(
-        i, len(emax) - 1
-    )  # To handle case where e exceeds the maximum energy
+    # Find the energy interval.
+    i = np.searchsorted(Emax, E_keV)
+    # Handle the case where E_keV exceeds the maximum energy.
+    i = np.minimum(i, len(Emax) - 1)
 
     # Calculate cross-section
-    sigma_ism = (c0[i] + c1[i] * e + c2[i] * e * e) / (e**3) * 1e-24
+    cross_section_ism = (
+        (c0[i] + c1[i] * E_keV + c2[i] * E_keV**2) / (E_keV**3) * 1e-24
+    )
 
-    return sigma_ism
+    return cross_section_ism
