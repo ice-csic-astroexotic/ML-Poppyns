@@ -291,14 +291,28 @@ def chromium(E: np.ndarray) -> np.ndarray:
 
 
 def fano_resonance_line(
-    a: float, b: float, c: float, lambd: np.ndarray
+    q: float, nu: float, gamma: float, lambd: np.ndarray
 ) -> np.ndarray:
-    # Constants
-    EPS = 911.2671 / lambd  # Energy in Rydbergs
-    EPSI = 3.0 - 1.0 / (b * b) + 1.807317
-    x = 2.0 * (EPS - EPSI) / c
+    """
+    Model for a Fano line profile that arise in case of resonant absorption.
+    This line shape is taken from Fernley, Taylor and Seaton (1987).
+    Args:
+        q (float): Q coefficient for resonance (Fernley et al. 1987).
+        nu (float): nu coefficient for resonance (Oza 1986).
+        gamma (float): gamma coefficient for resonance (Oza 1986).
+        lambd (np.ndarray): array of wavelengths in angstroms.
+    Return:
+        fano line profile (np.ndarray): fano line profile.
+    """
+    # Convert wavelength in angstroms into energy in Rydbergs.
+    EPS = 911.2671 / lambd
 
-    return (x - a) ** 2 / (1.0 + x**2)
+    EPSI = 3.0 - 1.0 / (nu**2) + 1.807317
+
+    x = 2.0 * (EPS - EPSI) / gamma
+
+    fano = (x - q) ** 2 / (1.0 + x**2)
+    return fano
 
 
 def helium(E: np.ndarray) -> np.ndarray:
@@ -316,8 +330,8 @@ def helium(E: np.ndarray) -> np.ndarray:
     AV = 6.022045e23  # Avogadro's number
     AW = 4.0026  # Atomic weight hydrogen
 
-    # Coefficients for polynomial
-    C1 = [
+    # Coefficients for polynomial.
+    c1 = [
         -2.953607e1,
         7.083061e0,
         8.678646e-1,
@@ -327,7 +341,7 @@ def helium(E: np.ndarray) -> np.ndarray:
         -3.265795e-2,
         2.500933e-3,
     ]
-    C2 = [
+    c2 = [
         -2.465188e1,
         4.354679e0,
         -3.553024e0,
@@ -339,9 +353,9 @@ def helium(E: np.ndarray) -> np.ndarray:
     ]
 
     # Parameters for resonances
-    Q = [2.81, 2.51, 2.45, 2.44]
-    NU = [1.610, 2.795, 3.817, 4.824]
-    GAMMA = [2.64061e-3, 6.20116e-4, 2.56061e-4, 1.320159e-4]
+    q = [2.81, 2.51, 2.45, 2.44]
+    nu = [1.610, 2.795, 3.817, 4.824]
+    gamma = [2.64061e-3, 6.20116e-4, 2.56061e-4, 1.320159e-4]
 
     # Start
     lambd = 12398.54 / E
@@ -351,12 +365,12 @@ def helium(E: np.ndarray) -> np.ndarray:
     mask_1 = lambd < 46.0
     mask_2 = (lambd >= 46.0) & (lambd < 503.97)
 
-    y[mask_1] = sum([C2[i] * (x[mask_1] ** i) for i in range(len(C2))])
-    y[mask_2] = sum([C1[i] * (x[mask_2] ** i) for i in range(len(C1))])
+    y[mask_1] = sum([c2[i] * (x[mask_1] ** i) for i in range(len(c2))])
+    y[mask_2] = sum([c1[i] * (x[mask_2] ** i) for i in range(len(c1))])
     y[mask_2] += sum(
         [
-            np.log10(fano_resonance_line(Q[i], NU[i], GAMMA[i], lambd[mask_2]))
-            for i in range(len(Q))
+            np.log10(fano_resonance_line(q[i], nu[i], gamma[i], lambd[mask_2]))
+            for i in range(len(q))
         ]
     )
 
