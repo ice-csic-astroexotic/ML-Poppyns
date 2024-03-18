@@ -774,7 +774,7 @@ def absorption_cross_section_tot(
     energy: np.ndarray, abundances: np.ndarray
 ) -> np.ndarray:
     """
-    Calculates the effective absorption cross section in units of cm^2/(hydrogen atom)
+    Calculates the effective absorption cross section in units of cm^2/(eV hydrogen atom)
     at energy E in eV for the specified abundances of the elements.
     This function is valid only over the energy range 30 - 10,000 eV.
     Args:
@@ -782,7 +782,7 @@ def absorption_cross_section_tot(
         abundances (np.ndarray): array of abundances in log10 relative to hydrogen (= 12.00).
     Return:
         effective cross section (np.ndarray): effective cross section as a function of the energy
-        in cm^2/(hydrogen atom).
+        in cm^2/(eV hydrogen atom).
     """
 
     # Mass absorption cross sections for each element
@@ -823,7 +823,7 @@ def absorption_cross_section_approx(energy: np.ndarray) -> np.ndarray:
     """
     This function implements the approximation of Morrison and McCammon (1983)
     to the interstellar photoelectric absorption cross-section. Energy is in eV
-    and the resultant cross-section is in cm**2/hydrogen atom. Abundances of other
+    and the resultant cross-section is in cm^2/(eV hydrogen atom). Abundances of other
     elements relative to hydrogen are appropriate for the interstellar medium in
     the solar neighborhood (see Table 1 in Morrison and McCammon 1983). This function
     is valid only over the energy range 30 - 10,000 eV.
@@ -832,7 +832,7 @@ def absorption_cross_section_approx(energy: np.ndarray) -> np.ndarray:
         abundances (np.ndarray): array of abundances in log10 relative to hydrogen (= 12.00).
     Return:
         effective cross section (np.ndarray): effective cross section as a function of the energy
-        in cm^2/(hydrogen atom).
+        in cm^2/(eV hydrogen atom).
     """
 
     # Energy intervals in keV.
