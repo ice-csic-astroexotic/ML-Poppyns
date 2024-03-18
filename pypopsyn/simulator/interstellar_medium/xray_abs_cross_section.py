@@ -21,6 +21,11 @@ vol 27, p 1.
 The mass absorption coefficients for helium are in better agreement with the best experiments as well as theoretical
 models (see Chen, W. F., Cooper, G., and Brion, C. E., 1991), Phys. Rev. A, 44, 186).
 
+The cross sections here only take into account the neutral atomic form of the elements and do not take into account
+the possibility of ionization and the presence of molecules and grains.
+Including these effects should give only a minor correction to the cross sections (see Wilms, Allen, McCray 2000).
+
+
 Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
