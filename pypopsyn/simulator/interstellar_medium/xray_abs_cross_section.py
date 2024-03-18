@@ -18,6 +18,8 @@ Abundances" Ap.J. 400, 699 (1992).
 All data (except for helium) are from:
 B. L. Henke, P. Lee, T. J. Tanaka, R. L. Shimabukuro and B. K. Fujikawa, 1982, Atomic Data and Nuclear Data Tables,
 vol 27, p 1.
+The mass absorption coefficients for helium are in better agreement with the best experiments as well as theoretical
+models (see Chen, W. F., Cooper, G., and Brion, C. E., 1991), Phys. Rev. A, 44, 186).
 
 Authors:
 
@@ -345,6 +347,8 @@ def helium(energy: np.ndarray) -> np.ndarray:
     Calculates mass absorption coefficient (mu/rho) for helium where mu is the
     linear attenuation coefficient and rho is the density of the material.
     This function is valid only over the energy range 30 - 10,000 eV.
+    This function is in better agreement with the best experiments as well as
+    theoretical models (see Chen, W. F., Cooper, G., and Brion, C. E., (1991), Phys. Rev. A, 44, 186).
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
     Return:
