@@ -832,7 +832,7 @@ def absorption_cross_section_tot(
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        E (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): array of energies of the incoming photons in eV.
         abundances (np.ndarray): array of abundances in log10 relative to hydrogen (= 12.00).
 
     Return:
@@ -840,7 +840,7 @@ def absorption_cross_section_tot(
         in cm^2/(eV hydrogen atom).
     """
 
-    # Mass absorption cross sections for each element
+    # Mass absorption cross sections for each element.
     mass_abs_coeff = np.zeros((len(atomic_weights), len(energy)))
     mass_abs_coeff[0] = hydrogen(energy)
     mass_abs_coeff[1] = helium(energy)
