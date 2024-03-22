@@ -53,7 +53,7 @@ import numpy as np
 
 import pypopsyn.simulator.basics.constants as const
 
-# atomic weights of the elements.
+# Atomic weights for the seventeen elements.
 atomic_weights = np.array(
     [
         1.00797,
