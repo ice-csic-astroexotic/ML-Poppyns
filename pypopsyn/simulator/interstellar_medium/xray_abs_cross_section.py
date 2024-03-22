@@ -137,6 +137,7 @@ def argon(energy: np.ndarray) -> np.ndarray:
     mask_1 = energy < 245.0
     mask_2 = (energy >= 245.0) & (energy < 3202.9)
     mask_3 = energy >= 3202.9
+
     x[mask_1] = (
         -330.3509
         + (267.7433 + 3.0) * elog[mask_1]
@@ -160,6 +161,7 @@ def argon(energy: np.ndarray) -> np.ndarray:
     )
 
     mass_abs_coeff = np.exp(x) / (energy**3)
+
     return mass_abs_coeff
 
 
@@ -181,6 +183,7 @@ def calcium(energy: np.ndarray) -> np.ndarray:
     mask_1 = energy < 349.31
     mask_2 = (energy >= 349.31) & (energy < 4038.1)
     mask_3 = energy >= 4038.1
+
     x[mask_1] = (
         -873.972
         + (865.5231 + 3.0) * elog[mask_1]
@@ -225,6 +228,7 @@ def carbon(energy: np.ndarray) -> np.ndarray:
     x = np.zeros_like(elog)
     mask_1 = energy < 284.0
     mask_2 = energy >= 284.0
+
     x[mask_1] = (
         8.74161
         + (7.13348 * elog[mask_1])
@@ -261,6 +265,7 @@ def chlorine(energy: np.ndarray) -> np.ndarray:
     mask_1 = energy < 202.0
     mask_2 = (energy >= 202.0) & (energy < 2819.6)
     mask_3 = energy >= 2819.6
+
     x[mask_1] = (
         6253.247
         + (3.0 - 8225.248) * elog[mask_1]
@@ -308,6 +313,7 @@ def chromium(energy: np.ndarray) -> np.ndarray:
     mask_2 = (energy >= 598.0) & (energy < 691.0)
     mask_3 = (energy >= 691.0) & (energy < 5988.8)
     mask_4 = energy >= 5988.8
+
     x[mask_1] = (
         -0.4919405
         + (12.66939 + 3.0) * elog[mask_1]
