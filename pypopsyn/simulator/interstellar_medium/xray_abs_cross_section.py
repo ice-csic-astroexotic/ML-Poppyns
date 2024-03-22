@@ -976,7 +976,7 @@ def absorption_cross_section_approx(energy: np.ndarray) -> np.ndarray:
     # Handle the case where e_keV exceeds the maximum energy.
     i = np.minimum(i, len(emax) - 1)
 
-    # Calculate cross-section.
+    # Calculate cross section.
     cross_section_ism = (
         (c0[i] + c1[i] * e_keV + c2[i] * e_keV**2) / (e_keV**3) * 1e-24
     )
