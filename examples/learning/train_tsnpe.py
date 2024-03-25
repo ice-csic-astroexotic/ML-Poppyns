@@ -521,7 +521,6 @@ def train(config):
                 dataset=dataset,
             )
 
-            # Building the test dataset for sbi.
         _, parameter_test, matrix_test = prepare_dataset_sbi(
             test_dataset_path, config
         )
