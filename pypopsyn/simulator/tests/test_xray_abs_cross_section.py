@@ -37,7 +37,7 @@ TOL = 1e-5
 def test_case_1():
     data = {
         "energy": np.array([50.0, 1000.0, 5000.0, 9000.0]),
-        "lambd": np.array([0.5, 1.5, 2.5]),
+        "wavelength": np.array([0.5, 1.5, 2.5]),
         "q": 2.5,
         "nu": 3,
         "gamma": 1.0e-3,
@@ -222,6 +222,25 @@ def test_chromium(test_case_1):
     assert np.isclose(
         test_case_1["chr_mass_abs_coeff_expected"],
         mass_abs_coeff,
+        rtol=TOL,
+        atol=1.0e-5,
+    ).all()
+
+
+def test_fano_resonance_line(test_case_1):
+    """
+    Verifying that the fano resonance line is computed correctly.
+    """
+    fano_output = xabs.fano_resonance_line(
+        test_case_1["q"],
+        test_case_1["nu"],
+        test_case_1["gamma"],
+        test_case_1["wavelength"],
+    )
+
+    assert np.isclose(
+        test_case_1["fano_line_expected"],
+        fano_output,
         rtol=TOL,
         atol=1.0e-5,
     ).all()

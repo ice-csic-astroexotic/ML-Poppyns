@@ -341,7 +341,7 @@ def chromium(energy: np.ndarray) -> np.ndarray:
 
 
 def fano_resonance_line(
-    q: float, nu: float, gamma: float, lambd: np.ndarray
+    q: float, nu: float, gamma: float, wavelength: np.ndarray
 ) -> np.ndarray:
     """
     Model for a Fano line profile that arise in case of resonant absorption.
@@ -351,14 +351,16 @@ def fano_resonance_line(
         q (float): Q coefficient for resonance (Fernley et al. 1987).
         nu (float): nu coefficient for resonance (Oza 1986).
         gamma (float): gamma coefficient for resonance (Oza 1986).
-        lambd (np.ndarray): array of wavelengths in angstroms.
+        wavelength (np.ndarray): array of wavelengths in angstroms.
 
     Return:
         fano line profile (np.ndarray): fano line profile.
     """
 
     # Convert wavelength in angstrom into energy in Rydberg.
-    e_ryd = (const.H * const.C) / (lambd / const.CM_TO_A) / const.RYD_TO_ERG
+    e_ryd = (
+        (const.H * const.C) / (wavelength / const.CM_TO_A) / const.RYD_TO_ERG
+    )
 
     epsilon = 3.0 - 1.0 / (nu**2) + 1.807317
 
@@ -414,18 +416,22 @@ def helium(energy: np.ndarray) -> np.ndarray:
     gamma = [2.64061e-3, 6.20116e-4, 2.56061e-4, 1.320159e-4]
 
     # Convert energy in eV into wavelength in angstrom.
-    lambd = (const.H * const.C) / (energy * const.EV_TO_ERG) * const.CM_TO_A
-    x = np.log10(lambd)
-    y = np.zeros(len(lambd))
+    wavelength = (
+        (const.H * const.C) / (energy * const.EV_TO_ERG) * const.CM_TO_A
+    )
+    x = np.log10(wavelength)
+    y = np.zeros(len(wavelength))
 
-    mask_1 = lambd < 46.0
-    mask_2 = (lambd >= 46.0) & (lambd < 503.97)
+    mask_1 = wavelength < 46.0
+    mask_2 = (wavelength >= 46.0) & (wavelength < 503.97)
 
     y[mask_1] = sum([c2[i] * (x[mask_1] ** i) for i in range(len(c2))])
     y[mask_2] = sum([c1[i] * (x[mask_2] ** i) for i in range(len(c1))])
     y[mask_2] += sum(
         [
-            np.log10(fano_resonance_line(q[i], nu[i], gamma[i], lambd[mask_2]))
+            np.log10(
+                fano_resonance_line(q[i], nu[i], gamma[i], wavelength[mask_2])
+            )
             for i in range(len(q))
         ]
     )
