@@ -271,10 +271,7 @@ def corner_plot(
         observed_samples = observed_samples * par_std + par_mean
 
     # Save the samples from the inferred posterior distribution.
-    torch.save(
-        observed_samples,
-        f"{save_dir}/samples.pt",
-    )
+    # torch.save( observed_samples,f"{save_dir}/samples.pt",)
 
     # Saving the best estimated parameters and the 95% CI into the log.txt file.
     quantile = np.quantile(observed_samples, [0.025, 0.5, 0.975], axis=0)
