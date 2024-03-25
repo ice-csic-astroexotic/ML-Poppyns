@@ -536,10 +536,8 @@ def train(config):
             num_posterior_samples,
             device=device,
         )
-        coverage_save_dir = pathlib.Path().joinpath(
-            config.save_dir, f"/coverage_round{i}.pdf"
-        )
-        coverage_prob(hdr, n_betas=12, save_dir=coverage_save_dir)
+
+        coverage_prob(hdr, n_betas=12, save_dir=config.save_dir)
 
         logger.info(f"Computing the proposal prior for round {i+1}...")
         # Create the matrix for the observed sample of neutron stars.
