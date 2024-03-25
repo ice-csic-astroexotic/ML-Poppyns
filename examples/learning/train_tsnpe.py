@@ -239,7 +239,6 @@ def wrapper_pypopsyn(
 def corner_plot(
     posterior: NeuralPosterior,
     dataset: dl.DatasetMultichannelArray,
-    config: configuration_parser.ConfigurationParser,
     save_dir: str,
 ) -> None:
     """
@@ -248,7 +247,6 @@ def corner_plot(
     Args:
         posterior (NeuralPosterior): Posterior distribution for performing inference.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
-        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
         save_dir (str): Directory to save the corner plot.
 
     Returns:
@@ -275,7 +273,7 @@ def corner_plot(
     # Save the samples from the inferred posterior distribution.
     torch.save(
         observed_samples,
-        f"{config.save_dir}/samples.pt",
+        f"{save_dir}/samples.pt",
     )
 
     # Saving the best estimated parameters and the 95% CI into the log.txt file.
@@ -496,7 +494,9 @@ def train(config):
             force_first_round_loss=True,
         )
 
-        posterior = inference.build_posterior(density_estimator, prior=prior)
+        posterior = inference.build_posterior(
+            density_estimator, prior=proposal
+        )
 
         num_sim_test = config["test_data_loader"]["n_sim_round"]
 
@@ -562,7 +562,6 @@ def train(config):
         corner_plot(
             proposal,
             dataset,
-            config,
             f"{config.save_dir}/corner_plot_prior_round_{i}.pdf",
         )
 
@@ -579,7 +578,6 @@ def train(config):
         corner_plot(
             posterior_obs,
             dataset,
-            config,
             f"{config.save_dir}/corner_plot_observed_sample_{i}.pdf",
         )
 
