@@ -360,9 +360,9 @@ def fano_resonance_line(
     # Convert wavelength in angstrom into energy in Rydberg.
     e_ryd = (const.H * const.C) / (lambd / const.CM_TO_A) / const.RYD_TO_ERG
 
-    epsi = 3.0 - 1.0 / (nu**2) + 1.807317
+    epsilon = 3.0 - 1.0 / (nu**2) + 1.807317
 
-    x = 2.0 * (e_ryd - epsi) / gamma
+    x = 2.0 * (e_ryd - epsilon) / gamma
 
     fano = (x - q) ** 2 / (1.0 + x**2)
 
@@ -885,7 +885,6 @@ def absorption_cross_section_approx(energy: np.ndarray) -> np.ndarray:
 
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
-        abundances (np.ndarray): array of abundances in log10 relative to hydrogen (= 12.00).
 
     Return:
         effective cross section (np.ndarray): effective cross section as a function of the energy
