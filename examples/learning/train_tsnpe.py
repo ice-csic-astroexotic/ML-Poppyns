@@ -496,12 +496,7 @@ def train(config):
             force_first_round_loss=True,
         )
 
-        # Create the matrix for the observed sample of neutron stars.
-        _, _, x_o = prepare_dataset_sbi(
-            config["observed_sample"]["dataset_path"], config, atnf=True
-        )
-
-        posterior = inference.build_posterior(density_estimator)
+        posterior = inference.build_posterior(density_estimator, prior=prior)
 
         num_sim_test = config["test_data_loader"]["n_sim_round"]
 
@@ -542,12 +537,16 @@ def train(config):
             num_posterior_samples,
             device=device,
         )
-        coverage_savedir = pathlib.Path().joinpath(
+        coverage_save_dir = pathlib.Path().joinpath(
             config.save_dir, f"/coverage_round{i}.pdf"
         )
-        coverage_prob(hdr, n_betas=12, save_dir=coverage_savedir)
+        coverage_prob(hdr, n_betas=12, save_dir=coverage_save_dir)
 
         logger.info(f"Computing the proposal prior for round {i+1}...")
+        # Create the matrix for the observed sample of neutron stars.
+        _, _, x_o = prepare_dataset_sbi(
+            config["observed_sample"]["dataset_path"], config, atnf=True
+        )
         # Here we set the density of the posterior that we want to take to then restricted our prior.
         posterior_obs = posterior.set_default_x(x_o)
         accept_reject_fn = utils.get_density_thresholder(
