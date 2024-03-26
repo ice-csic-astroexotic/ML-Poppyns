@@ -179,7 +179,7 @@ def simulator(
 
         # Generate list for the command which consists of the python interpreter,
         # the script path and the path for the JSON override.
-        server_path = cfg["path_server_output"]
+        server_path = cfg["path_server_software"]
         cmd: str = (
             f"python {server_path}examples/simulator/{simulator_type}.py"
         )
