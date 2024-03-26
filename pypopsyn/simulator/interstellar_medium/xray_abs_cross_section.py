@@ -99,19 +99,19 @@ def aluminium(energy: np.ndarray) -> np.ndarray:
     x[mask_1] = (
         26.90487
         + (3.0 - 9.135221) * elog[mask_1]
-        + 1.175546 * elog[mask_1] ** 2
+        + 1.175546 * (elog[mask_1] ** 2)
     )
     x[mask_2] = (
         -38.1232
         + 29.5161 * elog[mask_2]
-        - 4.45416 * elog[mask_2] ** 2
-        + 0.226204 * elog[mask_2] ** 3
+        - 4.45416 * (elog[mask_2] ** 2)
+        + 0.226204 * (elog[mask_2] ** 3)
     )
     x[mask_3] = (
         14.6897
         + 4.22743 * elog[mask_3]
-        - 0.344185 * elog[mask_3] ** 2
-        + 8.18542e-3 * elog[mask_3] ** 3
+        - 0.344185 * (elog[mask_3] ** 2)
+        + 8.18542e-3 * (elog[mask_3] ** 3)
     )
 
     mass_abs_coeff = np.exp(x) / (energy**3)
@@ -203,7 +203,7 @@ def calcium(energy: np.ndarray) -> np.ndarray:
     x[mask_3] = (
         18.89376
         + (3.0 - 0.2903538) * elog[mask_3]
-        - 0.1377201 * elog[mask_3] ** 2
+        - 0.1377201 * (elog[mask_3] ** 2)
     )
 
     mass_abs_coeff = np.exp(x) / (energy**3)
@@ -231,15 +231,15 @@ def carbon(energy: np.ndarray) -> np.ndarray:
 
     x[mask_1] = (
         8.74161
-        + (7.13348 * elog[mask_1])
-        + (-1.14604 * elog[mask_1] ** 2)
-        + (0.0677044 * elog[mask_1] ** 3)
+        + 7.13348 * elog[mask_1]
+        - 1.14604 * (elog[mask_1] ** 2)
+        + 0.0677044 * (elog[mask_1] ** 3)
     )
     x[mask_2] = (
         3.81334
-        + (8.93626 * elog[mask_2])
-        + (-1.06905 * elog[mask_2] ** 2)
-        + (0.0422195 * elog[mask_2] ** 3)
+        + 8.93626 * elog[mask_2]
+        - 1.06905 * (elog[mask_2] ** 2)
+        + 0.0422195 * (elog[mask_2] ** 3)
     )
 
     mass_abs_coeff = np.exp(x) / (energy**3)
@@ -285,7 +285,7 @@ def chlorine(energy: np.ndarray) -> np.ndarray:
     x[mask_3] = (
         -23.74675
         + (14.50997 + 3.0) * elog[mask_3]
-        - 1.857953 * elog[mask_3] ** 2
+        - 1.857953 * (elog[mask_3] ** 2)
         + 6.6208832e-2 * (elog[mask_3] ** 3)
     )
 
@@ -317,7 +317,7 @@ def chromium(energy: np.ndarray) -> np.ndarray:
     x[mask_1] = (
         -0.4919405
         + (12.66939 + 3.0) * elog[mask_1]
-        - 5.199775 * elog[mask_1] ** 2
+        - 5.199775 * (elog[mask_1] ** 2)
         + 1.086566 * (elog[mask_1] ** 3)
         - 0.1196001 * (elog[mask_1] ** 4)
         + 5.2152011e-3 * (elog[mask_1] ** 5)
@@ -498,14 +498,14 @@ def iron(energy: np.ndarray) -> np.ndarray:
     x[mask_2] = (
         -253.0979
         + (135.4238 + 3.0) * elog[mask_2]
-        - 25.47119 * elog[mask_2] ** 2
+        - 25.47119 * (elog[mask_2] ** 2)
         + 2.08867 * (elog[mask_2] ** 3)
         - 6.4264648e-2 * (elog[mask_2] ** 4)
     )
     x[mask_3] = (
         -1.037655
         + (4.022304 + 3.0) * elog[mask_3]
-        - 0.3638919 * elog[mask_3] ** 2
+        - 0.3638919 * (elog[mask_3] ** 2)
     )
 
     mass_abs_coeff = np.exp(x) / (energy**3)
@@ -536,14 +536,14 @@ def magnesium(energy: np.ndarray) -> np.ndarray:
     x[mask_2] = (
         -81.32915
         + (62.2775 + 3.0) * elog[mask_2]
-        - 15.00826 * elog[mask_2] ** 2
+        - 15.00826 * (elog[mask_2] ** 2)
         + 1.558686 * (elog[mask_2] ** 3)
         - 6.1339621e-2 * (elog[mask_2] ** 4)
     )
     x[mask_3] = (
         -9.161526
         + (10.07448 + 3.0) * elog[mask_3]
-        - 1.435878 * elog[mask_3] ** 2
+        - 1.435878 * (elog[mask_3] ** 2)
         + 5.2728362e-2 * (elog[mask_3] ** 3)
     )
 
@@ -572,15 +572,15 @@ def neon(energy: np.ndarray) -> np.ndarray:
 
     x[mask_1] = (
         -3.04041
-        + (13.0071 * elog[mask_1])
-        + (-1.93205 * (elog[mask_1] ** 2))
-        + (0.0977639 * (elog[mask_1] ** 3))
+        + 13.0071 * elog[mask_1]
+        - 1.93205 * (elog[mask_1] ** 2)
+        + 0.0977639 * (elog[mask_1] ** 3)
     )
     x[mask_2] = (
         17.6007
-        + (3.29278 * elog[mask_2])
-        + (-0.263065 * elog[mask_2] ** 2)
-        + (5.68290e-3 * elog[mask_2] ** 3)
+        + 3.29278 * elog[mask_2]
+        - 0.263065 * (elog[mask_2] ** 2)
+        + 5.68290e-3 * (elog[mask_2] ** 3)
     )
 
     mass_abs_coeff = np.exp(x) / (energy**3)
@@ -615,9 +615,9 @@ def nickel(energy: np.ndarray) -> np.ndarray:
     )
     x[mask_2] = (
         3.71129
-        + (8.45098 * elog[mask_2])
-        + (-0.896656 * elog[mask_2] ** 2)
-        + (0.0324889 * elog[mask_2] ** 3)
+        + 8.45098 * elog[mask_2]
+        - 0.896656 * (elog[mask_2] ** 2)
+        + 0.0324889 * (elog[mask_2] ** 3)
     )
     x[mask_3] = 28.4989 + (0.485797 * elog[mask_3])
 
@@ -646,15 +646,15 @@ def nitrogen(energy: np.ndarray) -> np.ndarray:
 
     x[mask_1] = (
         9.24058
-        + (7.02985 * elog[mask_1])
-        + (-1.08849 * elog[mask_1] ** 2)
-        + (0.0611007 * elog[mask_1] ** 3)
+        + 7.02985 * elog[mask_1]
+        - 1.08849 * (elog[mask_1] ** 2)
+        + 0.0611007 * (elog[mask_1] ** 3)
     )
     x[mask_2] = (
         -13.0353
-        + (15.4851 * elog[mask_2])
-        + (-1.89502 * elog[mask_2] ** 2)
-        + (0.0769412 * elog[mask_2] ** 3)
+        + 15.4851 * elog[mask_2]
+        - 1.89502 * (elog[mask_2] ** 2)
+        + 0.0769412 * (elog[mask_2] ** 3)
     )
 
     mass_abs_coeff = np.exp(x) / (energy**3)
