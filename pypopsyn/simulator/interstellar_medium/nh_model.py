@@ -112,7 +112,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     # If distance exceed 25 kpc set it to the maximum distance in the map, i.e. 25 kpc.
     dist[dist > 25000] = np.array([dbins[-1]])
 
-    # Extract the extintion in the visual band.
+    # Extract the extinction in the visual band.
     ebv = maps[gpix, :]
     # Use Wilms et al. 2000 abundances by default to calculate N_H from extinction.
     nh_conv_fac = calib_nhw00_mean[0]
