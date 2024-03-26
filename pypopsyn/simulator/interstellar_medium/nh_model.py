@@ -62,7 +62,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-    # Import the extinction maps from Doroshenko 2024.
+    # Download and load the extinction map from Doroshenko 2024.
     extinction_map_path = pathlib.Path().joinpath(
         cfg["path_server_software"],
         "pypopsyn/simulator/interstellar_medium/ebv_map.npz",
@@ -73,7 +73,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
         )
         destination_path = extinction_map_path
         log.info(f"Downloading the extinction map from: {download_url}")
-        df.download_file(download_url, destination_path)
+        df.download_file(download_url, str(destination_path))
 
     maps = np.load(extinction_map_path)["maps"].T
     # Import the distance bins.
@@ -130,7 +130,8 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
 def compute_NH_from_DM(DM: np.ndarray) -> np.ndarray:
     """
     Given an array of dispersion measures DM, estimate the corresponding line of sight N_H
-    using the relation found by He, Ng and Kaspi 2013.
+    using the relation found by He, Ng and Kaspi 2013. This relation might underestimate the N_H
+    estimate for large values of N_H (see He, Ng and Kaspi 2013 for more details).
 
     Args:
         DM (np.ndarray): array of dispersion measures in pc cm^-3.
