@@ -532,6 +532,7 @@ def train(config):
             device=device,
         )
         save_dir_coverage = config.save_dir / f"round_{i}"
+        save_dir_coverage.mkdir(parents=True, exist_ok=True)
         coverage_prob(hdr, n_betas=12, save_dir=save_dir_coverage)
 
         logger.info(f"Computing the proposal prior for round {i+1}...")
