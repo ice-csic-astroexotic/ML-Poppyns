@@ -1,5 +1,5 @@
 """
-Tests for nh model module.
+Tests for N_H model module.
 
     Authors:
 
@@ -49,7 +49,7 @@ def test_case_1():
 
 def test_compute_NH(test_case_1):
     """
-    Test if the NH value is correctly computed from the map of Doroshenko 2024.
+    Test if the N_H value is correctly computed from the map of Doroshenko (2024).
     """
     computed_NH = nhm.compute_NH(
         test_case_1["RA"], test_case_1["DEC"], test_case_1["d"]
@@ -61,7 +61,7 @@ def test_compute_NH(test_case_1):
 
 def test_compute_NH_from_DM(test_case_1):
     """
-    Test if the NH value is correctly computed from the DM-NH relation of He, Ng and Kaspi 2013.
+    Test if the N_H value is correctly computed from the DM-N_H relation of He, Ng and Kaspi (2013).
     """
     computed_NH = nhm.compute_NH_from_DM(test_case_1["DM"])
     assert np.isclose(
