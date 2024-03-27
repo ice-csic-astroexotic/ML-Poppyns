@@ -1,10 +1,10 @@
 """
-Model for computing the hydrogen column density for x-ray absorption.
+Model for computing the hydrogen column density for X-ray absorption.
 
 For computing the N_H we provide two options:
-1) Using the map and routines from the 3D NH-tool by Doroshenko 2024, available for download at
-https://zenodo.org/records/10779060.
-2) Using the relation between NH and DM found by He, Ng and Kaspi 2013.
+1) Using the map and routines from the 3D N_H-tool by Doroshenko (2024),
+available for download at https://zenodo.org/records/10779060.
+2) Using the relation between N_H and DM found by He, Ng and Kaspi (2013).
 
 Authors:
 
@@ -49,20 +49,22 @@ log = logging.getLogger(__name__)
 def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     """
     Given an array of positions in equatorial coordinates and distances, return the corresponding line of sight N_H
-    using Wilms et al. 2000 abundances in given direction.
-    For computing the N_H we used the map and routines from Doroshenko 2024, available for download at
-    https://zenodo.org/records/10779060.
+    using Wilms et al. (2000) abundances in the given directions.
+    For computing the N_H, we use the map and routines from Doroshenko (2024),
+    available for download at https://zenodo.org/records/10779060.
+
     Args:
         RA (np.ndarray): array of right ascension coordinates in deg.
         DEC (np.ndarray): array of declination coordinates in deg.
         d (np.ndarray): array of distances in kpc.
+
     Return:
         N_H (np.ndarray): array of hydrogen column densities in cm^(-2).
     """
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-    # Download and load the extinction map from Doroshenko 2024.
+    # Download and load the extinction map from Doroshenko (2024).
     extinction_map_path = pathlib.Path().joinpath(
         cfg["path_server_software"],
         "pypopsyn/simulator/interstellar_medium/ebv_map.npz",
@@ -76,8 +78,10 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
         df.download_file(download_url, str(destination_path))
 
     maps = np.load(extinction_map_path)["maps"].T
+
     # Import the distance bins.
     dbins = np.load(extinction_map_path)["radius"]
+
     # Import the calibration parameters.
     (
         Rv,
@@ -102,6 +106,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
 
     # Create an astropy.coordinates.SkyCoord object.
     pos = c.SkyCoord(RA * u.deg, DEC * u.deg, distance=d * u.kpc, frame="fk5")
+
     # Transform to Galactic coordinates and the distance in pc.
     gpos = pos.transform_to(c.Galactic)
     dist = np.array(gpos.distance.pc)
@@ -109,12 +114,13 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     # Find the pixel of the map corresponding to the given coordinates.
     gpix = np.array(hp.ang2pix(256, gpos.l.deg, gpos.b.deg, lonlat=True))
 
-    # If distance exceed 25 kpc set it to the maximum distance in the map, i.e. 25 kpc.
+    # If distance exceed 25 kpc, set it to the maximum distance in the map, i.e., 25 kpc.
     dist[dist > 25000] = np.array([dbins[-1]])
 
     # Extract the extinction in the visual band.
     ebv = maps[gpix, :]
-    # Use Wilms et al. 2000 abundances by default to calculate N_H from extinction.
+
+    # Use Wilms et al. (2000) abundances by default to calculate N_H from extinction.
     nh_conv_fac = calib_nhw00_mean[0]
     nh = ebv * nh_conv_fac
 
@@ -122,16 +128,16 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     idx = np.minimum(dbins.searchsorted(dist), len(dbins) - 1)
 
     # Extract the N_H for every star.
-    N_H = np.array(nh[np.arange(nh.shape[0]), idx] * 10 ** (21), dtype=float)
+    N_H = np.array(nh[np.arange(nh.shape[0]), idx] * 10**21, dtype=float)
 
     return N_H
 
 
 def compute_NH_from_DM(DM: np.ndarray) -> np.ndarray:
     """
-    Given an array of dispersion measures DM, estimate the corresponding line of sight N_H
-    using the relation found by He, Ng and Kaspi 2013. This relation might underestimate the N_H
-    estimate for large values of N_H (see He, Ng and Kaspi 2013 for more details).
+    Given an array of dispersion measures, DM, estimate the corresponding line of sight N_H
+    using the relation found by He, Ng and Kaspi (2013). This relation might underestimate the N_H
+    estimate for large values of N_H (see He, Ng and Kaspi (2013) for more details).
 
     Args:
         DM (np.ndarray): array of dispersion measures in pc cm^-3.
@@ -139,6 +145,7 @@ def compute_NH_from_DM(DM: np.ndarray) -> np.ndarray:
     Return:
         N_H (np.ndarray): array of hydrogen column densities in cm^(-2).
     """
-    N_H = np.array([0.3 * DM * 10 ** (20)], dtype=float)
+
+    N_H = np.array([0.3 * DM * 10**20], dtype=float)
 
     return N_H
