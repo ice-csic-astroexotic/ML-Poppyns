@@ -237,7 +237,7 @@ def wrapper_pypopsyn(
 
 
 def corner_plot(
-    posterior: NeuralPosterior,
+    posterior_dist: NeuralPosterior,
     dataset: dl.DatasetMultichannelArray,
     save_dir: str,
 ) -> None:
@@ -245,7 +245,7 @@ def corner_plot(
     Plotting the corner plot for the posterior distribution.
 
     Args:
-        posterior (NeuralPosterior): Posterior distribution for performing inference.
+        posterior_dist (NeuralPosterior): Posterior distribution for performing inference.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
         save_dir (str): Directory to save the corner plot.
 
@@ -253,7 +253,7 @@ def corner_plot(
         None
     """
     # Save the corner plot for the observed sample
-    observed_samples = posterior.sample(
+    observed_samples = posterior_dist.sample(
         (50000,), show_progress_bars=False
     ).cpu()
 
@@ -491,9 +491,7 @@ def train(config):
             force_first_round_loss=True,
         )
 
-        posterior = inference.build_posterior(
-            density_estimator, prior=proposal
-        )
+        posterior = inference.build_posterior(density_estimator, prior=prior)
 
         num_sim_test = config["test_data_loader"]["n_sim_round"]
 
