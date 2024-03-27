@@ -545,12 +545,18 @@ def train(config):
             posterior_obs, quantile=1e-4, num_samples_to_estimate_support=10000
         )
         # -------Computing the proposal by using the restricted prior to the posterior at the observation.----------
-        # If I use rejection method to compute the restricted proposal from the prior.
-        # proposal = utils.RestrictedPrior(prior, accept_reject_fn, sample_with="rejection")
-        # If I use SIR method to compute the restricted proposal from the prior.
-        proposal = utils.RestrictedPrior(
-            prior, accept_reject_fn, posterior=posterior_obs, sample_with="sir"
-        )
+        if config["sir"]:
+            proposal = utils.RestrictedPrior(
+                prior,
+                accept_reject_fn,
+                posterior=posterior_obs,
+                sample_with="sir",
+            )
+        else:
+            proposal = utils.RestrictedPrior(
+                prior, accept_reject_fn, sample_with="rejection"
+            )
+
         corner_plot(
             proposal,
             dataset,
