@@ -209,7 +209,7 @@ def sky_temperature_H81(
 
     # Read the sky temperature map.
     file = pathlib.Path().joinpath(
-        cfg["path_server"],
+        cfg["path_to_software"],
         "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81.fits",
     )
     hdulist = fits.open(file)
@@ -254,7 +254,7 @@ def sky_temperature_H81refined(
 
     # Read the sky temperature map.
     file = pathlib.Path().joinpath(
-        cfg["path_server_software"],
+        cfg["path_to_software"],
         "pypopsyn/simulator/multiband_surveys/Tsky_map_haslam81_refined.fits",
     )
 

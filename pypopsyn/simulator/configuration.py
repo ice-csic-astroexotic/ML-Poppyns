@@ -49,17 +49,22 @@ cfg["show_profiling"]: bool = True
 cfg["save_dyn_evolution"]: bool = False
 cfg["save_magrot_evolution"]: bool = False
 
-# To run the simulations in the server with HTCondor set cfg["server_run"] = True.
+# Specify here the absolute path to the directory where the repository is saved.
+# If launching experiments in the PIC server set cfg["server_run"] = True.
 cfg["server_run"] = False
-
 if cfg["server_run"]:
     cfg[
-        "path_server_software"
+        "path_to_software"
     ] = "/data/magnesia/software/MAGNESIA_population_synthesis/"
-    cfg["path_server_output"] = "/data/magnesia/common/"
+    cfg["path_to_output"] = "/data/magnesia/common/"
 else:
-    cfg["path_server_software"] = ""
-    cfg["path_server_output"] = ""
+    # Remember to change this accordingly to your local path!
+    cfg[
+        "path_to_software"
+    ] = "/home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis"
+    cfg[
+        "path_to_output"
+    ] = "/home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis"
 
 # ===================== INITIAL POPULATION CLASS PARAMETERS ========================
 

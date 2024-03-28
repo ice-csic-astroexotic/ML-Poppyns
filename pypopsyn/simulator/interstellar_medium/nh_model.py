@@ -71,7 +71,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     # Each row of the map corresponds to a given sky coordinate, while each column corresponds to a given distance
     # from the Sun.
     map_path = pathlib.Path().joinpath(
-        cfg["path_server_software"],
+        cfg["path_to_software"],
         "pypopsyn/simulator/interstellar_medium/ebv_map.npz",
     )
     if not os.path.exists(map_path):
