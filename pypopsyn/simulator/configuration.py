@@ -50,7 +50,7 @@ cfg["save_dyn_evolution"]: bool = False
 cfg["save_magrot_evolution"]: bool = False
 
 # Specify here the absolute path to the directory where the repository is saved.
-# If launching experiments in the PIC server set cfg["server_run"] = True.
+# If launching experiments on one of the PIC servers set cfg["server_run"] = True.
 cfg["server_run"] = False
 if cfg["server_run"]:
     cfg[
@@ -58,8 +58,8 @@ if cfg["server_run"]:
     ] = "/data/magnesia/software/MAGNESIA_population_synthesis/"
     cfg["path_to_output"] = "/data/magnesia/common/"
 else:
-    # Remember to change this accordingly to your local path (like /home/michele/Documents/MAGNESIA_population_synthesis)
-    # otherwise some notebooks might not work!
+    # Change the following parameters to your local path, e.g., something like
+    # /home/michele/Documents/MAGNESIA_population_synthesis. Otherwise, some notebooks might not work!
     cfg["path_to_software"] = ""
     cfg["path_to_output"] = ""
 
