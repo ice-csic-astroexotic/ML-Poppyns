@@ -68,7 +68,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     # The .npz file contains some calibration parameters (see below), an array of 1075 distance bins from 0 to 25 kpc
     # from the Sun and a reddening map with shape (1075, 786432), where 1075 is the number of distance bins and 786432
     # is the number of pixels covering a spherical shell around the Sun at a given distance.
-    # Each raw of the map corresponds to a given sky coordinates, while each column corresponds to a given distance
+    # Each row of the map corresponds to a given sky coordinate, while each column corresponds to a given distance
     # from the Sun.
     map_path = pathlib.Path().joinpath(
         cfg["path_server_software"],
@@ -79,7 +79,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
             "https://zenodo.org/records/10779060/files/ebv_fin.npz?download=1"
         )
         destination_path = map_path
-        log.info(f"Downloading the extinction map from: {download_url}")
+        log.info(f"Downloading the reddening map from: {download_url}")
         do.download_file(download_url, str(destination_path))
 
     # Load the reddening map.
@@ -94,9 +94,9 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     # in the visual (V) band compared to the extinction in the blue (B) band.
     # - calib_avks is a conversion factor from visual extinction (Av) to infrared extinction (Aks).
     # - calib_nhag89 is a conversion factor from reddening (E(B − V)) to N_H and assumes solar abundances from
-    # Anders & Grevesse 1989.
+    # Anders & Grevesse (1989).
     # - calib_nhw00 is a conversion factor from reddening (E(B − V)) to N_H and assumes sub-solar abundances from
-    # Wilms et al. 2000.
+    # (Wilms et al. 2000).
     (
         Rv,
         calib_avks_mean,

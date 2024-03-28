@@ -25,8 +25,7 @@ SOFTWARE.
 
 import logging
 import sys
-
-import requests
+import urllib.request
 
 log = logging.getLogger(__name__)
 
@@ -38,25 +37,16 @@ def download_file(download_url: str, destination_path: str) -> None:
     Args:
         download_url (str): download URL for the file.
         destination_path (str): path where to save the downloaded file; the file name has to be included.
+
     Return:
         None
     """
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    log = logging.getLogger(__name__)
 
     try:
-        # Send an HTTP GET request to the URL to download the file.
-        with requests.get(download_url, stream=True) as response:
-            # Check if the request was successful (status code 200).
-            if response.status_code == 200:
-                # Open a file handle to write the response content to.
-                with open(destination_path, "wb") as f:
-                    # Iterate over the response content in chunks and write each chunk to the file.
-                    for chunk in response.iter_content(chunk_size=8192):
-                        f.write(chunk)
-                log.info("Download completed successfully.")
-            else:
-                log.info(
-                    f"Failed to download the file. Status code: {response.status_code}"
-                )
+        # Download the file using urllib.request.urlretrieve.
+        urllib.request.urlretrieve(download_url, destination_path)
+        log.info("Download completed successfully.")
     except Exception as e:
         log.error(f"An error occurred: {str(e)}")
