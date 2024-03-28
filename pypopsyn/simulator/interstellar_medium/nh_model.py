@@ -40,7 +40,7 @@ import astropy.units as u
 import healpy as hp
 import numpy as np
 
-import scripts.download_file as df
+import scripts.download_online_content as do
 from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     """
     Given an array of positions in equatorial coordinates and distances, return the corresponding line of sight N_H
     using Wilms et al. (2000) abundances in the given directions.
-    For computing the N_H, we use the map and routines from Doroshenko (2024),
+    For computing the N_H, we use the reddening map and routines from Doroshenko (2024),
     available for download at https://zenodo.org/records/10779060.
 
     Args:
@@ -64,25 +64,39 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-    # Download and load the extinction map from Doroshenko (2024).
-    extinction_map_path = pathlib.Path().joinpath(
+    # Download and load the reddening (E(B-V)) map from Doroshenko (2024).
+    # The .npz file contains some calibration parameters (see below), an array of 1075 distance bins from 0 to 25 kpc
+    # from the Sun and a reddening map with shape (1075, 786432), where 1075 is the number of distance bins and 786432
+    # is the number of pixels covering a spherical shell around the Sun at a given distance.
+    # Each raw of the map corresponds to a given sky coordinates, while each column corresponds to a given distance
+    # from the Sun.
+    map_path = pathlib.Path().joinpath(
         cfg["path_server_software"],
-        "pypopsyn/simulator/interstellar_medium/ebv_map.npz",
+        "../pypopsyn/simulator/interstellar_medium/ebv_map.npz",
     )
-    if not os.path.exists(extinction_map_path):
+    if not os.path.exists(map_path):
         download_url = (
             "https://zenodo.org/records/10779060/files/ebv_fin.npz?download=1"
         )
-        destination_path = extinction_map_path
+        destination_path = map_path
         log.info(f"Downloading the extinction map from: {download_url}")
-        df.download_file(download_url, str(destination_path))
+        do.download_file(download_url, str(destination_path))
 
-    maps = np.load(extinction_map_path)["maps"].T
+    # Load the reddening map.
+    maps = np.load(map_path)["maps"].T
 
-    # Import the distance bins.
-    dbins = np.load(extinction_map_path)["radius"]
+    # Load the distance bins.
+    dbins = np.load(map_path)["radius"]
 
-    # Import the calibration parameters.
+    # Load the calibration parameters.
+    # - Rv is the extinction law parameter or the total-to-selective extinction ratio, and represents the ratio
+    # of total extinction (Av) to selective extinction (E(B − V)). It tells us how much more extinction occurs
+    # in the visual (V) band compared to the extinction in the blue (B) band.
+    # - calib_avks is a conversion factor from visual extinction (Av) to infrared extinction (Aks).
+    # - calib_nhag89 is a conversion factor from reddening (E(B − V)) to N_H and assumes solar abundances from
+    # Anders & Grevesse 1989.
+    # - calib_nhw00 is a conversion factor from reddening (E(B − V)) to N_H and assumes sub-solar abundances from
+    # Wilms et al. 2000.
     (
         Rv,
         calib_avks_mean,
@@ -92,7 +106,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
         calib_nhw00_mean,
         calib_nhw00_std,
     ) = [
-        np.load(extinction_map_path)["%s" % x]
+        np.load(map_path)["%s" % x]
         for x in [
             "Rv",
             "calib_avks_mean",
@@ -107,28 +121,26 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     # Create an astropy.coordinates.SkyCoord object.
     pos = c.SkyCoord(RA * u.deg, DEC * u.deg, distance=d * u.kpc, frame="fk5")
 
-    # Transform to Galactic coordinates and the distance in pc.
+    # Transform to Galactic coordinates and the distances in pc.
     gpos = pos.transform_to(c.Galactic)
     dist = np.array(gpos.distance.pc)
 
-    # Find the pixel of the map corresponding to the given coordinates.
-    gpix = np.array(hp.ang2pix(256, gpos.l.deg, gpos.b.deg, lonlat=True))
-
-    # If distance exceed 25 kpc, set it to the maximum distance in the map, i.e., 25 kpc.
+    # If distance exceeds 25 kpc, set it to the maximum distance in the map, i.e., 25 kpc.
     dist[dist > 25000] = np.array([dbins[-1]])
 
-    # Extract the extinction in the visual band.
-    ebv = maps[gpix, :]
-
-    # Use Wilms et al. (2000) abundances by default to calculate N_H from extinction.
-    nh_conv_fac = calib_nhw00_mean[0]
-    nh = ebv * nh_conv_fac
+    # Find the pixels of the map corresponding to the given coordinates with healpy. This will select a raw in the map.
+    gpix = np.array(hp.ang2pix(256, gpos.l.deg, gpos.b.deg, lonlat=True))
 
     # Extract the indices corresponding to the given distances from the map.
     idx = np.minimum(dbins.searchsorted(dist), len(dbins) - 1)
 
-    # Extract the N_H for every star.
-    N_H = np.array(nh[np.arange(nh.shape[0]), idx] * 10**21, dtype=float)
+    # Extract the reddening E(B-V) corresponding to the given pixel and distance for every star.
+    ebv = maps[gpix, idx]
+
+    # Use Wilms et al. (2000) abundances by default to estimate N_H from reddening for every star.
+    nh_conv_fac = calib_nhw00_mean[0]
+    nh = ebv * nh_conv_fac
+    N_H = np.array(nh * 10**21, dtype=float)
 
     return N_H
 
