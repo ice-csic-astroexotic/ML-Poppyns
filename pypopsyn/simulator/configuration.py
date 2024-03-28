@@ -58,13 +58,10 @@ if cfg["server_run"]:
     ] = "/data/magnesia/software/MAGNESIA_population_synthesis/"
     cfg["path_to_output"] = "/data/magnesia/common/"
 else:
-    # Remember to change this accordingly to your local path!
-    cfg[
-        "path_to_software"
-    ] = "/home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis"
-    cfg[
-        "path_to_output"
-    ] = "/home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis"
+    # Remember to change this accordingly to your local path (like /home/michele/Documents/MAGNESIA_population_synthesis)
+    # otherwise some notebooks might not work!
+    cfg["path_to_software"] = ""
+    cfg["path_to_output"] = ""
 
 # ===================== INITIAL POPULATION CLASS PARAMETERS ========================
 
