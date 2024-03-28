@@ -96,7 +96,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     # - calib_nhag89 is a conversion factor from reddening (E(B − V)) to N_H and assumes solar abundances from
     # Anders & Grevesse (1989).
     # - calib_nhw00 is a conversion factor from reddening (E(B − V)) to N_H and assumes sub-solar abundances from
-    # (Wilms et al. 2000).
+    # Wilms et al. (2000).
     (
         Rv,
         calib_avks_mean,
