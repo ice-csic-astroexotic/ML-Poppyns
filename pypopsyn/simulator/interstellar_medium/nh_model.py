@@ -72,7 +72,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     # from the Sun.
     map_path = pathlib.Path().joinpath(
         cfg["path_server_software"],
-        "../pypopsyn/simulator/interstellar_medium/ebv_map.npz",
+        "pypopsyn/simulator/interstellar_medium/ebv_map.npz",
     )
     if not os.path.exists(map_path):
         download_url = (
