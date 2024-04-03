@@ -74,23 +74,29 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
         cfg["path_to_software"],
         "pypopsyn/simulator/interstellar_medium/ebv_map.npz",
     )
-    if not os.path.exists(map_path):
-        download_url = (
-            "https://zenodo.org/records/10779060/files/ebv_fin.npz?download=1"
-        )
-        destination_path = map_path
-        log.info(
-            f"Downloading the reddening map from: {download_url}. "
-            f"Note that this might take a few minutes as the map is 1.3 GB."
-            f"Once download is completed, the map will be saved in pypopsyn/simulator/interstellar_medium/."
-        )
-        do.download_file(download_url, str(destination_path))
 
-    # Load the reddening map.
-    maps = np.load(map_path)["maps"].T
+    try:
+        if not os.path.exists(map_path):
+            download_url = "https://zenodo.org/records/10779060/files/ebv_fin.npz?download=1"
+            destination_path = map_path
+            log.info(
+                f"Downloading the reddening map from: {download_url}. "
+                f"Note that this might take a few minutes as the map is 1.3 GB."
+                f"Once download is completed, the map will be saved in pypopsyn/simulator/interstellar_medium/."
+            )
+            do.download_file(download_url, str(destination_path))
 
-    # Load the distance bins.
-    dbins = np.load(map_path)["radius"]
+        # Load the reddening map.
+        maps = np.load(map_path)["maps"].T
+
+        # Load the distance bins.
+        dbins = np.load(map_path)["radius"]
+
+    except Exception as e:
+        log.error(
+            f"An error occurred: {str(e)}. "
+            f"Remember to set the right absolute path_to_software in the configuration file."
+        )
 
     # Load the calibration parameters.
     # - Rv is the extinction law parameter or the total-to-selective extinction ratio, and represents the ratio
