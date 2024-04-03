@@ -237,7 +237,7 @@ def wrapper_pypopsyn(
 
 
 def corner_plot(
-    posterior_dist: NeuralPosterior,
+    observed_samples: torch.tensor,
     dataset: dl.DatasetMultichannelArray,
     save_dir: str,
 ) -> None:
@@ -245,17 +245,13 @@ def corner_plot(
     Plotting the corner plot for the posterior distribution.
 
     Args:
-        posterior_dist (NeuralPosterior): Posterior distribution for performing inference.
+        observed_samples (torch.tensor): Samples of the distribution to plot.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
         save_dir (str): Directory to save the corner plot.
 
     Returns:
         None
     """
-    # Save the corner plot for the observed sample
-    observed_samples = posterior_dist.sample(
-        (50000,), show_progress_bars=False
-    ).cpu()
 
     # Save the statistics for the filtered labels.
     par_max = torch.tensor(dataset.target_max)
@@ -269,9 +265,6 @@ def corner_plot(
 
     elif dataset.standardize:
         observed_samples = observed_samples * par_std + par_mean
-
-    # Save the samples from the inferred posterior distribution.
-    # torch.save( observed_samples,f"{save_dir}/samples.pt",)
 
     # Saving the best estimated parameters and the 95% CI into the log.txt file.
     quantile = np.quantile(observed_samples, [0.025, 0.5, 0.975], axis=0)
@@ -558,11 +551,16 @@ def train(config):
                 prior, accept_reject_fn, sample_with="rejection"
             )
 
-        corner_plot(
-            proposal,
+        """
+        observed_samples_proposal = proposal.sample((50000,), show_progress_bars=False).cpu()
+         corner_plot(
+            observed_samples_proposal,
             dataset,
-            f"{config.save_dir}/corner_plot_prior_round_{i}.pdf",
+            f"{config.save_dir}/corner_plot_prior_round_{i+1}.pdf",
         )
+        # Save the samples from the inferred posterior distribution.
+        # torch.save( observed_samples,f"{save_dir}/samples_prior_{i+1}.pt",)
+        """
 
         logger.info(f"Saving the trained model for round {i}...")
 
@@ -574,10 +572,18 @@ def train(config):
         logger.info(
             f"Inferring the parameters for the observed sample for round {i}..."
         )
+
+        observed_samples_posterior = posterior_obs.sample(
+            (50000,), show_progress_bars=False
+        ).cpu()
         corner_plot(
-            posterior_obs,
+            observed_samples_posterior,
             dataset,
             f"{config.save_dir}/corner_plot_observed_sample_{i}.pdf",
+        )
+        torch.save(
+            observed_samples_posterior,
+            f"{config.save_dir}/samples_posterior_{i}.pt",
         )
 
 
