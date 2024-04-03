@@ -79,7 +79,11 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
             "https://zenodo.org/records/10779060/files/ebv_fin.npz?download=1"
         )
         destination_path = map_path
-        log.info(f"Downloading the reddening map from: {download_url}")
+        log.info(
+            f"Downloading the reddening map from: {download_url}. "
+            f"Note that this might take a few minutes as the map is 1.3 GB."
+            f"Once download is completed, the map will be saved in pypopsyn/simulator/interstellar_medium/."
+        )
         do.download_file(download_url, str(destination_path))
 
     # Load the reddening map.

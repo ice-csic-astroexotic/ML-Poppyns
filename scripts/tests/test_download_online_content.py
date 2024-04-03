@@ -59,21 +59,21 @@ def test_download_file_successful(
     """
     Test if the download is successful.
     """
-    # Define a mock function for urllib.request.urlretrieve
+    # Define a mock function for urllib.request.urlretrieve.
     def mock_urlretrieve(url, filename):
-        # Simulate successful download by creating a dummy file
+        # Simulate successful download by creating a dummy file.
         with open(filename, "w") as f:
             f.write("Mock file content")
 
-    # Apply the mock function using monkeypatch
+    # Apply the mock function using monkeypatch.
     monkeypatch.setattr("urllib.request.urlretrieve", mock_urlretrieve)
 
-    # Call the function
+    # Call the function.
     do.download_file(
         test_case_1["download_url_successful"], temp_download_file
     )
 
-    # Assert that the file was downloaded correctly
+    # Assert that the file was downloaded correctly.
     with open(temp_download_file, "r") as f:
         assert f.read() == test_case_1["file_expected"]
 
@@ -84,14 +84,14 @@ def test_download_file_failure(
     """
     Test when then download fails.
     """
-    # Define a mock function for urllib.request.urlretrieve that raises an exception
+    # Define a mock function for urllib.request.urlretrieve that raises an exception.
     def mock_urlretrieve(url, filename):
         raise Exception("Download failed")
 
-    # Apply the mock function using monkeypatch
+    # Apply the mock function using monkeypatch.
     monkeypatch.setattr("urllib.request.urlretrieve", mock_urlretrieve)
 
-    # Call the function
+    # Call the function.
     do.download_file(test_case_1["download_url_failure"], temp_download_file)
 
     # Assert that the error message is logged.
