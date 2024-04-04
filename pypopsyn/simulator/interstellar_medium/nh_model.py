@@ -138,7 +138,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     # If distance exceeds 25 kpc, set it to the maximum distance in the map, i.e., 25 kpc.
     dist[dist > 25000] = np.array([dbins[-1]])
 
-    # Find the pixels of the map corresponding to the given coordinates with healpy. This will select a raw in the map.
+    # Find the pixels of the map corresponding to the given coordinates with healpy. This will select a row in the map.
     gpix = np.array(hp.ang2pix(256, gpos.l.deg, gpos.b.deg, lonlat=True))
 
     # Extract the indices corresponding to the given distances from the map.
@@ -147,7 +147,8 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     # Extract the reddening E(B-V) corresponding to the given pixel and distance for every star.
     ebv = maps[gpix, idx]
 
-    # Use Wilms et al. (2000) abundances by default to estimate N_H from reddening for every star.
+    # Convert the reddening to an N_H estimate for each neutron star by multiplying the value of the map by the
+    # calibration factor (use Wilms et al. (2000) abundances by default).
     nh_conv_fac = calib_nhw00_mean[0]
     nh = ebv * nh_conv_fac
     N_H = np.array(nh * 10**21, dtype=float)
