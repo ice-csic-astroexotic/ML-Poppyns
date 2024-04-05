@@ -81,8 +81,8 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
             destination_path = map_path
             log.info(
                 f"Downloading the reddening map from: {download_url}. "
-                f"Note that this might take a few minutes as the map is 1.3 GB."
-                f"Once download is completed, the map will be saved in pypopsyn/simulator/interstellar_medium/."
+                f"Note that this might take a few minutes as the map is 1.3 GB. "
+                f"Once the download is completed, the map will be saved in pypopsyn/simulator/interstellar_medium/."
             )
             do.download_file(download_url, str(destination_path))
 
