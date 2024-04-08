@@ -379,7 +379,7 @@ def train(args, config):
     mean, std = import_statistics(stats_path)
 
     n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
-    num_rounds = config["training_data_loader"]["n_rounds"]
+    num_rounds = config["trainer"]["n_rounds"]
 
     if config["set_manual_seed"] is True:
         torch.manual_seed(config["manual_seed"])
