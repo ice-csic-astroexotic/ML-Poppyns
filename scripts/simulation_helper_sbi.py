@@ -1,23 +1,11 @@
 """
     Simulator helper script.
 
-    This script allows us to run the various simulator scripts in a multithreaded way.
+    This script allows us to run various simulator scripts in a multithreaded manner, sampling the initial parameters
+    from the prior distribution provided as input.
 
-    If the --sampling_type argument is set to "grid", we require the following for each tunable parameter:
-
-        --argument low high count
-
-    This expands the parameter to a linspace between [low, high] with a "count" number of steps.
-
-    If the --sampling_type argument is set to "random", we require the following for each tunable parameter:
-
-        --argument low high
-
-    This expands the parameter to a list of values between [low, high] drawn from a uniform distribution.
     In this case, the number of values to be drawn for each parameter is specified by the argument --sampling_size.
 
-    Both expansion types are evaluated for each specified argument. Subsequently, a generator produces all possible
-    parameter combinations if in "grid" mode or sets of random parameter values if in "random" mode.
     Each parameter combination will spawn a new process that enters a multithreaded pool for later execution,
     allowing the asynchronous simulation of many populations in parallel with a defined maximum number of threads.
 
@@ -32,6 +20,8 @@
     Authors:
 
         Celsa Pardo Araujo (pardo@ice.csic.es)
+        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -208,171 +198,3 @@ def simulator(
     # Wait for all processes to finish.
     pool.close()
     pool.join()
-
-
-if __name__ == "__main__":
-    args = argparse.ArgumentParser(description="PyPopSyn parameters")
-
-    args.add_argument(
-        "--simulator_type",
-        nargs="?",
-        type=str,
-        required=True,
-        help="Name of the simulator script you want to run. Choose between simulate_population_full, "
-        "simulate_population_dyn or simulate_population_magrot_det.",
-    )
-
-    args.add_argument(
-        "--dyn_data",
-        nargs="?",
-        type=str,
-        default=None,
-        help="If using the simulator simulate_population_magrot_det, path to the file where "
-        "the dynamically evolved population database is stored.",
-    )
-
-    args.add_argument(
-        "--output_dir",
-        nargs="?",
-        type=str,
-        required=True,
-        help="Path to the directory where the multi-run output is saved.",
-    )
-
-    args.add_argument(
-        "--sampling_type",
-        nargs="?",
-        type=str,
-        required=True,
-        default="grid",
-        help="Type of sampling for the parameter space of the simulation. Choose between grid or random.",
-    )
-
-    args.add_argument(
-        "--sampling_size",
-        nargs="?",
-        type=int,
-        default=None,
-        help="Number of random values to draw for each simulation parameter. This parameter is required "
-        "only if the sampling_type is set to random.",
-    )
-
-    args.add_argument(
-        "--processes",
-        nargs="?",
-        type=int,
-        default=1,
-        help="Number of simultaneous processes for the pool.",
-    )
-
-    args.add_argument(
-        "--kick_model",
-        nargs="?",
-        type=str,
-        default="km_exp",
-        help="PDF model for the kick velocity. Choose between km_exp or km_maxwell.",
-    )
-
-    args.add_argument(
-        "--sigma_k",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range of kick-velocity sigma for the Maxwell model with number of values "
-        "[low, high, n_values]."
-        "In random mode: range of kick-velocity sigma for the Maxwell model [low, high].",
-    )
-
-    args.add_argument(
-        "--vk_c",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range of kick-velocity vk_c for the exponential model with number of values "
-        "[low, high, n_values]."
-        "In random mode: range of kick-velocity vk_c for the exponential model [low, high].",
-    )
-
-    args.add_argument(
-        "--h_c",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range of scale height h_c of the thin-disk model with number of values "
-        "[low, high, n_values]."
-        "In random mode: range of scale height h_c of the thin-disk model [low, high].",
-    )
-
-    args.add_argument(
-        "--spin_period_model",
-        nargs="?",
-        type=str,
-        default="log-normal",
-        help="PDF model for the spin period. Choose between normal or log-normal.",
-    )
-
-    args.add_argument(
-        "--P_initial_mean",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range of the mean initial spin period with number of values "
-        "[low, high, n_values]."
-        "In random mode: range of the mean initial spin period [low, high].",
-    )
-
-    args.add_argument(
-        "--P_initial_sigma",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range of the dispersion of the initial spin period with number of values "
-        "[low, high, n_values]."
-        "In random mode: range of the dispersion of the initial spin period [low, high].",
-    )
-
-    args.add_argument(
-        "--P_initial_log10_mean",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range of the log10 mean initial spin period with number of values "
-        "[low, high, n_values]."
-        "In random mode: range of the log10 mean initial spin period [low, high].",
-    )
-
-    args.add_argument(
-        "--P_initial_log10_sigma",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range of the log10 dispersion of the initial spin period with number of values "
-        "[low, high, n_values]."
-        "In random mode: range of the log10 dispersion of the initial spin period [low, high].",
-    )
-
-    args.add_argument(
-        "--B_initial_log10_mean",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range for the mean of the log10 initial magnetic field strength with number of values "
-        "[low, high, n_values]."
-        "In random mode: range of the mean of the log10 initial magnetic field strength [low, high].",
-    )
-
-    args.add_argument(
-        "--B_initial_log10_sigma",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range for the dispersion of the log10 of the initial magnetic field strength "
-        "with number of values [low, high, n_values]."
-        "In random mode: range of the dispersion of the log10 initial magnetic field strength [low, high].",
-    )
-
-    args = args.parse_args()
-
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-
-    simulator(args)

@@ -278,7 +278,7 @@ def corner_plot(
     figure = corner.corner(
         observed_samples.detach().cpu().numpy(),
         bins=32,
-        labels=["B_mu", "B_sigma", "P_mu", "P_sigma", "a_late"],
+        labels=dataset.target_names,
         range=range_param,
         quantiles=[0.025, 0.5, 0.975],
         levels=(
@@ -364,7 +364,7 @@ def prepare_dataset_sbi(
     return dataset, parameter, matrix
 
 
-def train(config):
+def train(args, config):
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("train")
     logger.info("Logger initialized...")
@@ -435,6 +435,10 @@ def train(config):
             f"Training, ------------------------------- round {i}-------------------------------------"
         )
         num_sim_train = config["training_data_loader"]["n_sim_round"]
+
+        # Creating a folder to save the model, coverage and posterior distribution for each round.
+        save_dir_round = config.save_dir / f"round_{i}"
+        save_dir_round.mkdir(parents=True, exist_ok=True)
 
         # If it's the first round, instead of simulating the training dataset, we use the simulation previously run.
         if i == 0:
@@ -524,9 +528,8 @@ def train(config):
             num_posterior_samples,
             device=device,
         )
-        save_dir_coverage = config.save_dir / f"round_{i}"
-        save_dir_coverage.mkdir(parents=True, exist_ok=True)
-        coverage_prob(hdr, n_betas=12, save_dir=save_dir_coverage)
+
+        coverage_prob(hdr, n_betas=12, save_dir=save_dir_round)
 
         logger.info(f"Computing the proposal prior for round {i+1}...")
         # Create the matrix for the observed sample of neutron stars.
@@ -551,21 +554,27 @@ def train(config):
                 prior, accept_reject_fn, sample_with="rejection"
             )
 
-        """
-        observed_samples_proposal = proposal.sample((50000,), show_progress_bars=False).cpu()
-         corner_plot(
-            observed_samples_proposal,
-            dataset,
-            f"{config.save_dir}/corner_plot_prior_round_{i+1}.pdf",
-        )
-        # Save the samples from the inferred posterior distribution.
-        # torch.save( observed_samples,f"{save_dir}/samples_prior_{i+1}.pt",)
-        """
+        if args.plot_proposal:
+            # If `args.plot_proposal` is set to True, the proposal distribution will be plotted. Note that this might
+            # take a while since we are using SIR or rejection methods to sample from the proposal distribution.
+            observed_samples_proposal = proposal.sample(
+                (50000,), show_progress_bars=False
+            ).cpu()
+            corner_plot(
+                observed_samples_proposal,
+                dataset,
+                f"{save_dir_round}/corner_plot_prior_round_{i+1}.pdf",
+            )
+            # Save the samples from the inferred posterior distribution.
+            torch.save(
+                observed_samples_proposal,
+                f"{save_dir_round}/samples_prior_{i+1}.pt",
+            )
 
         logger.info(f"Saving the trained model for round {i}...")
 
         with open(
-            f"{config.save_dir}/trained_model_{i}.pickle", "wb"
+            f"{save_dir_round}/trained_model_{i}.pickle", "wb"
         ) as output_file:
             pickle.dump(density_estimator.cpu(), output_file)
 
@@ -579,18 +588,16 @@ def train(config):
         corner_plot(
             observed_samples_posterior,
             dataset,
-            f"{config.save_dir}/corner_plot_observed_sample_{i}.pdf",
+            f"{save_dir_round}/corner_plot_observed_sample_{i}.pdf",
         )
         torch.save(
             observed_samples_posterior,
-            f"{config.save_dir}/samples_posterior_{i}.pt",
+            f"{save_dir_round}/samples_posterior_{i}.pt",
         )
 
 
 if __name__ == "__main__":
-    args = argparse.ArgumentParser(
-        description="Simulation Based Inference Learning"
-    )
+    args = argparse.ArgumentParser(description="Truncated SNPE trainer")
 
     args.add_argument(
         "-c",
@@ -599,12 +606,21 @@ if __name__ == "__main__":
         default="examples/learning/config_sbi.json",
         help="Configuration file path.",
     )
+
+    args.add_argument(
+        "--plot_proposal",
+        type=bool,
+        default=False,
+        help="If the proposal corner plot for each round is required, this argument should be set to True.",
+    )
+
     args.add_argument(
         "--trained_model",
         type=str,
         default=None,
         help="Path to checkpoint to resume training. This argument is not used at the moment.",
     )
+
     args.add_argument(
         "--infer",
         nargs="?",
@@ -683,4 +699,4 @@ if __name__ == "__main__":
 
     configuration = configuration_parser.ConfigurationParser.from_args(args)
 
-    train(configuration)
+    train(args.parse_args(), configuration)
