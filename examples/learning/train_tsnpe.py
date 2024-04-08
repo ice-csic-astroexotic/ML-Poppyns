@@ -1,7 +1,6 @@
 import argparse
 import collections
 import json
-import pathlib
 import pickle
 import subprocess
 import sys
@@ -99,13 +98,14 @@ def import_statistics(stats_path: str) -> Tuple[torch.tensor, torch.tensor]:
 
 
 def build_network(
-    config: configuration_parser.ConfigurationParser, device: torch.device
+    config: configuration_parser.ConfigurationParser,
+    device: Optional[torch.device] = "cpu",
 ) -> SNPE_C:
     """
     Building the neural network using the configuration file specify in the arguments.
     Args:
         config: Configuration object specifying the neural network architecture and other settings.
-        device (torch.device): device in which the model will be executed.
+        device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
     Returns:
         inference (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi snpe inference object.
     """
@@ -151,7 +151,8 @@ def wrapper_pypopsyn(
     dataset: dl.DatasetMultichannelArray,
 ) -> str:
     """
-    Simulating `num_sim` of mock neutron star population given the `proposal` distribution.
+    Simulating `num_sim` of mock neutron star population given the `proposal` distribution. After simulating the
+    populations we generated the compressed representations for the output.
 
     Args:
         proposal (Distribution): Proposal distribution used for sampling the parameters.
@@ -464,7 +465,6 @@ def train(config):
             train_dataset_path, config
         )
 
-        # TODO: take care of the rescaling of the parameters for different rounds.
         # Saving the training data to reuse it in the next rounds.
         parameter_list.append(parameter)
         matrix_list.append(matrix)
