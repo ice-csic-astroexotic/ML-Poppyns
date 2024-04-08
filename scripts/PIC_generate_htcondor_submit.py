@@ -137,7 +137,7 @@ def generate_wrapper(
 
 def submit_generator(args):
 
-    common_path = cfg["path_server_output"]
+    common_path = cfg["path_to_output"]
 
     simulation_output_path = pathlib.Path(args.output_dir_simulation)
 

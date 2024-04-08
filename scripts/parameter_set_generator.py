@@ -162,10 +162,10 @@ def check_expand_args(args_dict: dict) -> (list, list):
     cli_args: list = []
     cli_str: list = []
 
-    path_server_software = cfg["path_server_software"]
+    path_to_software = cfg["path_to_software"]
     # Open the parameter dictionary to load requirements.
     config_sweeper_path = pathlib.Path().joinpath(
-        path_server_software,
+        path_to_software,
         "scripts/config_sweeper.json",
     )
     f = open(config_sweeper_path)
