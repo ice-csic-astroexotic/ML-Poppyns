@@ -47,8 +47,10 @@ M_E = 9.10938356e-28  # Electron's mass in [g].
 C = 29979245800.0  # Speed of light [cm/s].
 E = 4.80320425e-10  # Electric charge in [statC] = [cm^(3/2)g^(1/2)/s].
 G = 6.67e-8  # Gravitational constant in [cm^3 g^-1 s^-2].
-H = 6.6261e-27  # Planck constant in [cm^2 g s^-1].
+H = 6.6261e-27  # Planck constant in [erg s].
 AV = 6.022045e23  # Avogadro's number [mol^-1].
+K_B = 1.380658e-16  # Boltzmann constant [erg K^-1]
+SIGMA_SB = 5.67051e-5  # Stefan-Boltzmann constant [erg cm^-2 K^-4 s^-1]
 
 G_KPC_YR = (
     G / (KPC_TO_CM**3) * YR_TO_S**2

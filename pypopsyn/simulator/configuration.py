@@ -60,7 +60,9 @@ if cfg["server_run"]:
 else:
     # Change the following parameters to your local path, e.g., something like
     # /home/michele/Documents/MAGNESIA_population_synthesis. Otherwise, some notebooks might not work!
-    cfg["path_to_software"] = ""
+    cfg[
+        "path_to_software"
+    ] = "/home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis"
     cfg["path_to_output"] = ""
 
 # ===================== INITIAL POPULATION CLASS PARAMETERS ========================
@@ -236,6 +238,30 @@ cfg["detected_real_PMPS"]: int = 1009
 cfg["detected_real_SMPS"]: int = 218
 cfg["detected_real_htru_low_mid"]: int = 1023
 cfg["detected_real_htru_high"]: int = 20
+
+
+# ===================== X-RAY EMISSION-MODEL PARAMETERS ========================
+
+# Array of abundances relative to hydrogen for 17 elements taken from table 2 in Wilms et al. (2000).
+cfg["ISM_abundances"]: List[float] = [
+    12.0,
+    10.99,
+    8.38,
+    7.88,
+    8.69,
+    7.94,
+    6.16,
+    7.40,
+    6.33,
+    7.27,
+    7.09,
+    5.12,
+    6.41,
+    6.20,
+    5.51,
+    7.43,
+    6.05,
+]
 
 
 def update_configuration(new_configuration) -> None:
