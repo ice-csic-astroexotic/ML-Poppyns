@@ -1,6 +1,7 @@
 import argparse
 import collections
 import json
+import pathlib
 import pickle
 import subprocess
 import sys
@@ -18,6 +19,7 @@ from sbi.inference.snpe.snpe_c import SNPE_C
 from torch.distributions import Distribution
 from tqdm import tqdm
 
+import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.initializers.initializers as learning_initializers
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
@@ -365,235 +367,296 @@ def prepare_dataset_sbi(
 
 
 def train(args, config):
+
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("train")
     logger.info("Logger initialized...")
 
+    # Initialize the path where the time profiling will be saved.
+    prof_log_path = str(
+        pathlib.Path().joinpath(config.log_dir, config["profile_log"])
+    )
+    prof_json_path = str(
+        pathlib.Path().joinpath(config.log_dir, config["profile_json"])
+    )
+
     # Set up GPU device if available.
     device, device_ids = request_device(config["n_gpu"])
 
-    logger.info("Defining the prior distribution...")
+    # Show experiment information ------------------------------------------
+    logger.info("=========================================================")
 
-    # Loading the statistics to apply the rescaling to the prior distribution.
-    stats_path = config["training_data_loader"]["statistic_path"]
-    mean, std = import_statistics(stats_path)
+    with timewith.TimeWith(
+        "[TotalTraining]",
+        prof_log_path,
+        prof_json_path,
+        config["show_profiling"],
+    ):
+        with timewith.TimeWith(
+            "[Initialization]",
+            prof_log_path,
+            prof_json_path,
+            config["show_profiling"],
+        ):
+            logger.info("Defining the prior distribution...")
+            # Loading the statistics to apply the rescaling to the prior distribution.
+            stats_path = config["training_data_loader"]["statistic_path"]
+            mean, std = import_statistics(stats_path)
 
-    n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
-    num_rounds = config["trainer"]["n_rounds"]
+            n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
+            num_rounds = config["trainer"]["n_rounds"]
 
-    if config["set_manual_seed"] is True:
-        torch.manual_seed(config["manual_seed"])
-        logger.info("Seed: {}".format(config["manual_seed"]))
-    else:
-        torch.manual_seed(int(time.time()))
-        logger.info("Seed: {}".format(int(time.time())))
+            if config["set_manual_seed"] is True:
+                torch.manual_seed(config["manual_seed"])
+                logger.info("Seed: {}".format(config["manual_seed"]))
+            else:
+                torch.manual_seed(int(time.time()))
+                logger.info("Seed: {}".format(int(time.time())))
 
-    # Set prior distribution for the parameters ------------------------------------------
-    if config["training_data_loader"]["normalize"]:
-        # All the parameters are rescaled in the range [0, 1].
-        prior = utils.BoxUniform(
-            low=torch.tensor(np.zeros(n_parameters)),
-            high=torch.tensor(np.ones(n_parameters)),
-            device=f"{device}",
-        )
-    elif config["training_data_loader"]["standardize"]:
-        low = (
-            torch.tensor(config["prior_ranges"]["low"]) - mean[0:n_parameters]
-        ) / std[0:n_parameters]
-        high = (
-            torch.tensor(config["prior_ranges"]["high"]) - mean[0:n_parameters]
-        ) / std[0:n_parameters]
-        prior = utils.BoxUniform(
-            low=low,
-            high=high,
-            device=f"{device}",
-        )
-    else:
-        # Set the prior range to the range of the parameters.
-        prior = utils.BoxUniform(
-            low=torch.tensor(config["prior_ranges"]["low"]),
-            high=torch.tensor(config["prior_ranges"]["high"]),
-            device=f"{device}",
-        )
-
-    # At the first round we set the proposal equal to the prior.
-    proposal = prior
-
-    # Lists to store parameters and matrices from each round.
-    parameter_list = []
-    matrix_list = []
-
-    logger.info("Building the neural network...")
-    inference = build_network(config, device)
-
-    # Initialize dataset with a default value to avoid warning in the first round.
-    dataset = None
-
-    for i in range(num_rounds):
-
-        logger.info(
-            f"Training, ------------------------------- round {i}-------------------------------------"
-        )
-        num_sim_train = config["training_data_loader"]["n_sim_round"]
-
-        # Creating a folder to save the model, coverage and posterior distribution for each round.
-        save_dir_round = config.save_dir / f"round_{i}"
-        save_dir_round.mkdir(parents=True, exist_ok=True)
-
-        # If it's the first round, instead of simulating the training dataset, we use the simulation previously run.
-        if i == 0:
-            logger.info(
-                "Loading the training dataset for for the first round..."
-            )
-            train_dataset_path = config["training_data_loader"][
-                "dataset_path_first_round"
-            ]
-        else:
-            logger.info(
-                "Simulating the training dataset for {} simulations...".format(
-                    num_sim_train
+            # Set prior distribution for the parameters ------------------------------------------
+            if config["training_data_loader"]["normalize"]:
+                # All the parameters are rescaled in the range [0, 1].
+                prior = utils.BoxUniform(
+                    low=torch.tensor(np.zeros(n_parameters)),
+                    high=torch.tensor(np.ones(n_parameters)),
+                    device=f"{device}",
                 )
-            )
-            train_dataset_path = wrapper_pypopsyn(
-                proposal,
-                config=config,
-                num_sim=num_sim_train,
-                nround=i,
-                test=False,
-                dataset=dataset,
-            )
-
-        # Building the training dataset for sbi.
-        logger.info("Preparing the training data set for sbi...")
-        dataset, parameter, matrix = prepare_dataset_sbi(
-            train_dataset_path, config
-        )
-
-        # Saving the training data to reuse it in the next rounds.
-        parameter_list.append(parameter)
-        matrix_list.append(matrix)
-        parameter_round = torch.cat(parameter_list, dim=0)
-        matrix_round = torch.cat(matrix_list, dim=0)
-
-        logger.info(
-            f"Training the density estimator with {parameter_round.shape[0]} samples in round {i} ..."
-        )
-        density_estimator = inference.append_simulations(
-            parameter_round.to(device), matrix_round.to(device)
-        ).train(
-            learning_rate=config["trainer"]["lr"],
-            training_batch_size=config["trainer"]["batch_size"],
-            validation_fraction=config["trainer"]["validation_fraction"],
-            show_train_summary=True,
-            force_first_round_loss=True,
-        )
-
-        posterior = inference.build_posterior(density_estimator, prior=prior)
-
-        num_sim_test = config["test_data_loader"]["n_sim_round"]
-
-        if i == 0:
-            logger.info("Loading the test dataset for the first round...")
-            test_dataset_path = config["test_data_loader"][
-                "dataset_path_first_round"
-            ]
-
-        else:
-            logger.info(
-                "Simulating the test dataset for {} simulations...".format(
-                    num_sim_test
+            elif config["training_data_loader"]["standardize"]:
+                low = (
+                    torch.tensor(config["prior_ranges"]["low"])
+                    - mean[0:n_parameters]
+                ) / std[0:n_parameters]
+                high = (
+                    torch.tensor(config["prior_ranges"]["high"])
+                    - mean[0:n_parameters]
+                ) / std[0:n_parameters]
+                prior = utils.BoxUniform(
+                    low=low,
+                    high=high,
+                    device=f"{device}",
                 )
-            )
-            test_dataset_path = wrapper_pypopsyn(
-                proposal,
-                config=config,
-                num_sim=num_sim_test,
-                nround=i,
-                test=True,
-                dataset=dataset,
-            )
+            else:
+                # Set the prior range to the range of the parameters.
+                prior = utils.BoxUniform(
+                    low=torch.tensor(config["prior_ranges"]["low"]),
+                    high=torch.tensor(config["prior_ranges"]["high"]),
+                    device=f"{device}",
+                )
 
-        _, parameter_test, matrix_test = prepare_dataset_sbi(
-            test_dataset_path, config
-        )
+            # At the first round we set the proposal equal to the prior.
+            proposal = prior
 
-        logger.info(
-            f"Computing coverage probability for the test dataset for round {i}..."
-        )
-        num_posterior_samples = 1000
-        hdr = calculate_smallest_hdr(
-            posterior,
-            parameter_test,
-            matrix_test,
-            num_posterior_samples,
-            device=device,
-        )
+            # Lists to store parameters and matrices from each round.
+            parameter_list = []
+            matrix_list = []
 
-        coverage_prob(hdr, n_betas=12, save_dir=save_dir_round)
+            logger.info("Building the neural network...")
+            inference = build_network(config, device)
 
-        logger.info(f"Computing the proposal prior for round {i+1}...")
-        # Create the matrix for the observed sample of neutron stars.
-        _, _, x_o = prepare_dataset_sbi(
-            config["observed_sample"]["dataset_path"], config, atnf=True
-        )
-        # Here we set the density of the posterior that we want to take to then restricted our prior.
-        posterior_obs = posterior.set_default_x(x_o)
-        accept_reject_fn = utils.get_density_thresholder(
-            posterior_obs, quantile=1e-4, num_samples_to_estimate_support=10000
-        )
-        # -------Computing the proposal by using the restricted prior to the posterior at the observation.----------
-        if config["sir"]:
-            proposal = utils.RestrictedPrior(
-                prior,
-                accept_reject_fn,
-                posterior=posterior_obs,
-                sample_with="sir",
-            )
-        else:
-            proposal = utils.RestrictedPrior(
-                prior, accept_reject_fn, sample_with="rejection"
-            )
+            # Initialize dataset with a default value to avoid warning in the first round.
+            dataset = None
 
-        if args.plot_proposal:
-            # If `args.plot_proposal` is set to True, the proposal distribution will be plotted. Note that this might
-            # take a while since we are using SIR or rejection methods to sample from the proposal distribution.
-            observed_samples_proposal = proposal.sample(
-                (50000,), show_progress_bars=False
-            ).cpu()
-            corner_plot(
-                observed_samples_proposal,
-                dataset,
-                f"{save_dir_round}/corner_plot_prior_round_{i+1}.pdf",
-            )
-            # Save the samples from the inferred posterior distribution.
-            torch.save(
-                observed_samples_proposal,
-                f"{save_dir_round}/samples_prior_{i+1}.pt",
-            )
+        for i in range(num_rounds):
+            with timewith.TimeWith(
+                f"[TotalRound{i}]",
+                prof_log_path,
+                prof_json_path,
+                config["show_profiling"],
+            ):
+                with timewith.TimeWith(
+                    f"[TrainingRound{i}]",
+                    prof_log_path,
+                    prof_json_path,
+                    config["show_profiling"],
+                ):
+                    logger.info(
+                        f"Training, ------------------------------- round {i}-------------------------------------"
+                    )
+                    num_sim_train = config["training_data_loader"][
+                        "n_sim_round"
+                    ]
 
-        logger.info(f"Saving the trained model for round {i}...")
+                    # Creating a folder to save the model, coverage and posterior distribution for each round.
+                    save_dir_round = config.save_dir / f"round_{i}"
+                    save_dir_round.mkdir(parents=True, exist_ok=True)
 
-        with open(
-            f"{save_dir_round}/trained_model_{i}.pickle", "wb"
-        ) as output_file:
-            pickle.dump(density_estimator.cpu(), output_file)
+                    # If it's the first round, instead of simulating the training dataset, we use the simulation previously run.
+                    if i == 0:
+                        logger.info(
+                            "Loading the training dataset for for the first round..."
+                        )
+                        train_dataset_path = config["training_data_loader"][
+                            "dataset_path_first_round"
+                        ]
+                    else:
+                        logger.info(
+                            "Simulating the training dataset for {} simulations...".format(
+                                num_sim_train
+                            )
+                        )
+                        train_dataset_path = wrapper_pypopsyn(
+                            proposal,
+                            config=config,
+                            num_sim=num_sim_train,
+                            nround=i,
+                            test=False,
+                            dataset=dataset,
+                        )
 
-        logger.info(
-            f"Inferring the parameters for the observed sample for round {i}..."
-        )
+                    # Building the training dataset for sbi.
+                    logger.info("Preparing the training data set for sbi...")
+                    dataset, parameter, matrix = prepare_dataset_sbi(
+                        train_dataset_path, config
+                    )
 
-        observed_samples_posterior = posterior_obs.sample(
-            (50000,), show_progress_bars=False
-        ).cpu()
-        corner_plot(
-            observed_samples_posterior,
-            dataset,
-            f"{save_dir_round}/corner_plot_observed_sample_{i}.pdf",
-        )
-        torch.save(
-            observed_samples_posterior,
-            f"{save_dir_round}/samples_posterior_{i}.pt",
-        )
+                    # Saving the training data to reuse it in the next rounds.
+                    parameter_list.append(parameter)
+                    matrix_list.append(matrix)
+                    parameter_round = torch.cat(parameter_list, dim=0)
+                    matrix_round = torch.cat(matrix_list, dim=0)
+
+                    logger.info(
+                        f"Training the density estimator with {parameter_round.shape[0]} samples in round {i} ..."
+                    )
+                    density_estimator = inference.append_simulations(
+                        parameter_round.to(device), matrix_round.to(device)
+                    ).train(
+                        learning_rate=config["trainer"]["lr"],
+                        training_batch_size=config["trainer"]["batch_size"],
+                        validation_fraction=config["trainer"][
+                            "validation_fraction"
+                        ],
+                        show_train_summary=True,
+                        force_first_round_loss=True,
+                    )
+                with timewith.TimeWith(
+                    f"[TestingRound{i}]",
+                    prof_log_path,
+                    prof_json_path,
+                    config["show_profiling"],
+                ):
+                    posterior = inference.build_posterior(
+                        density_estimator, prior=prior
+                    )
+
+                    num_sim_test = config["test_data_loader"]["n_sim_round"]
+
+                    if i == 0:
+                        logger.info(
+                            "Loading the test dataset for the first round..."
+                        )
+                        test_dataset_path = config["test_data_loader"][
+                            "dataset_path_first_round"
+                        ]
+
+                    else:
+                        logger.info(
+                            "Simulating the test dataset for {} simulations...".format(
+                                num_sim_test
+                            )
+                        )
+                        test_dataset_path = wrapper_pypopsyn(
+                            proposal,
+                            config=config,
+                            num_sim=num_sim_test,
+                            nround=i,
+                            test=True,
+                            dataset=dataset,
+                        )
+
+                    _, parameter_test, matrix_test = prepare_dataset_sbi(
+                        test_dataset_path, config
+                    )
+
+                    logger.info(
+                        f"Computing coverage probability for the test dataset for round {i}..."
+                    )
+                    num_posterior_samples = 1000
+                    hdr = calculate_smallest_hdr(
+                        posterior,
+                        parameter_test,
+                        matrix_test,
+                        num_posterior_samples,
+                        device=device,
+                    )
+
+                    coverage_prob(hdr, n_betas=12, save_dir=save_dir_round)
+
+                    logger.info(
+                        f"Computing the proposal prior for round {i+1}..."
+                    )
+                    # Create the matrix for the observed sample of neutron stars.
+                with timewith.TimeWith(
+                    f"[ComputeRestrictedPriorRound{i}]",
+                    prof_log_path,
+                    prof_json_path,
+                    config["show_profiling"],
+                ):
+                    _, _, x_o = prepare_dataset_sbi(
+                        config["observed_sample"]["dataset_path"],
+                        config,
+                        atnf=True,
+                    )
+                    # Here we set the density of the posterior that we want to take to then restricted our prior.
+                    posterior_obs = posterior.set_default_x(x_o)
+                    accept_reject_fn = utils.get_density_thresholder(
+                        posterior_obs,
+                        quantile=1e-4,
+                        num_samples_to_estimate_support=10000,
+                    )
+                    # -------Computing the proposal by using the restricted prior to the posterior at the observation.----------
+                    if config["sir"]:
+                        proposal = utils.RestrictedPrior(
+                            prior,
+                            accept_reject_fn,
+                            posterior=posterior_obs,
+                            sample_with="sir",
+                        )
+                    else:
+                        proposal = utils.RestrictedPrior(
+                            prior, accept_reject_fn, sample_with="rejection"
+                        )
+
+                    if args.plot_proposal:
+                        # If `args.plot_proposal` is set to True, the proposal distribution will be plotted. Note that this might
+                        # take a while since we are using SIR or rejection methods to sample from the proposal distribution.
+                        observed_samples_proposal = proposal.sample(
+                            (50000,), show_progress_bars=False
+                        ).cpu()
+                        corner_plot(
+                            observed_samples_proposal,
+                            dataset,
+                            f"{save_dir_round}/corner_plot_prior_round_{i+1}.pdf",
+                        )
+                        # Save the samples from the inferred posterior distribution.
+                        torch.save(
+                            observed_samples_proposal,
+                            f"{save_dir_round}/samples_prior_{i+1}.pt",
+                        )
+
+                logger.info(f"Saving the trained model for round {i}...")
+
+                with open(
+                    f"{save_dir_round}/trained_model_{i}.pickle", "wb"
+                ) as output_file:
+                    pickle.dump(density_estimator.cpu(), output_file)
+
+                logger.info(
+                    f"Inferring the parameters for the observed sample for round {i}..."
+                )
+
+                observed_samples_posterior = posterior_obs.sample(
+                    (50000,), show_progress_bars=False
+                ).cpu()
+                corner_plot(
+                    observed_samples_posterior,
+                    dataset,
+                    f"{save_dir_round}/corner_plot_observed_sample_{i}.pdf",
+                )
+                torch.save(
+                    observed_samples_posterior,
+                    f"{save_dir_round}/samples_posterior_{i}.pt",
+                )
 
 
 if __name__ == "__main__":
