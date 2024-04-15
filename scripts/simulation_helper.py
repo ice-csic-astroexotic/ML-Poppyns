@@ -213,7 +213,7 @@ def main(args):
         )
         simulation_output_path.mkdir(parents=True, exist_ok=True)
 
-        # Pack combination into a JSON override file and write it to the folder for a given simulation.
+        # Save the set of parameter values into a JSON override file and write it to the folder for a given simulation.
         simulation_override_json = {}
         for i in range(len(s)):
             simulation_override_json[var_names[i]] = s[i]
