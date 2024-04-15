@@ -14,7 +14,7 @@
 
     Running the code:
 
-        python3 simulator_helper.py --h
+        python simulator_helper_sbi.py --h
         To obtain help about all the arguments that can be used.
 
     Authors:
@@ -75,7 +75,7 @@ def simulator(
     Args:
         args (argparse.Namespace): Arguments passed by command-line.
         prior (Distribution): Prior distribution.
-        dataset (DatasetMultichannelArray): Dataset for simulations.
+        dataset (DatasetMultichannelArray):  Stores statistics and scaling information used in the prior distribution.
     """
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.
@@ -110,28 +110,22 @@ def simulator(
     par_std = torch.tensor(dataset.target_std)
     par_mean = torch.tensor(dataset.target_mean)
 
-    if args_dict["sampling_type"] == "prior":
-        # Create a generator of the random sets of parameters using the prior distribution.
-        parameter_sets_gen_tensor = prior.sample((args.sampling_size,))
-        # If the parameters were normalized or standardized rescale quantities to their physical ranges.
-        if dataset.normalize:
-            parameter_sets_gen_tensor = (
-                parameter_sets_gen_tensor * (par_max - par_min) + par_min
-            )
-
-        elif dataset.standardize:
-            parameter_sets_gen_tensor = (
-                parameter_sets_gen_tensor * par_std + par_mean
-            )
-
-        parameter_sets_gen = [
-            tuple(subtensor.tolist())
-            for subtensor in parameter_sets_gen_tensor
-        ]
-    else:
-        raise ValueError(
-            "The specified sampling type is not feasible, choose between grid or random."
+    # Create a generator of the random sets of parameters using the prior distribution.
+    parameter_sets_gen_tensor = prior.sample((args.sampling_size,))
+    # If the parameters were normalized or standardized rescale quantities to their physical ranges.
+    if dataset.normalize:
+        parameter_sets_gen_tensor = (
+            parameter_sets_gen_tensor * (par_max - par_min) + par_min
         )
+
+    elif dataset.standardize:
+        parameter_sets_gen_tensor = (
+            parameter_sets_gen_tensor * par_std + par_mean
+        )
+
+    parameter_sets_gen = [
+        tuple(subtensor.tolist()) for subtensor in parameter_sets_gen_tensor
+    ]
 
     # Set the simulation type and the path to the dynamical database if required.
     simulator_type = args_dict["simulator_type"]
@@ -169,7 +163,7 @@ def simulator(
 
         # Generate list for the command which consists of the python interpreter,
         # the script path and the path for the JSON override.
-        server_path = cfg["path_server_software"]
+        server_path = cfg["path_to_software"]
         cmd: str = (
             f"python {server_path}examples/simulator/{simulator_type}.py"
         )

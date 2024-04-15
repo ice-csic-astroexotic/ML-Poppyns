@@ -29,8 +29,6 @@ from pypopsyn.simulator.configuration import cfg
 from scripts.coverage_probability import coverage_prob
 from scripts.simulation_helper_sbi import simulator
 
-_ = torch.manual_seed(0)
-
 
 def calculate_smallest_hdr(
     posterior: NeuralPosterior,
@@ -104,9 +102,9 @@ def build_network(
     device: Optional[torch.device] = "cpu",
 ) -> SNPE_C:
     """
-    Building the neural network using the configuration file specify in the arguments.
+    Building the neural network using the configuration file specified in the arguments.
     Args:
-        config: Configuration object specifying the neural network architecture and other settings.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network architecture and other settings.
         device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
     Returns:
         inference (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi snpe inference object.
@@ -190,7 +188,6 @@ def wrapper_pypopsyn(
         dyn_data=dyn_data_path,
         output_dir=sim_dir_path,
         simulator_type="simulate_population_magrot_det",
-        sampling_type="prior",
         sampling_size=num_sim,
         P_initial_log10_mean=[
             config["prior_ranges"]["low"][2],
@@ -219,10 +216,10 @@ def wrapper_pypopsyn(
         spin_period_model="log-normal",
     )
 
-    server_path = cfg["path_server_software"]
+    software_path = cfg["path_to_software"]
     command = [
         "python",
-        f"{server_path}examples/generator/generate_dataset_surveys.py",
+        f"{software_path}examples/generator/generate_dataset_surveys.py",
         "--data",
         str(sim_dir_path),
         "--save_dir",
@@ -483,7 +480,7 @@ def train(args, config):
                     # If it's the first round, instead of simulating the training dataset, we use the simulation previously run.
                     if i == 0:
                         logger.info(
-                            "Loading the training dataset for for the first round..."
+                            "Loading the training dataset for the first round..."
                         )
                         train_dataset_path = config["training_data_loader"][
                             "dataset_path_first_round"
@@ -582,22 +579,22 @@ def train(args, config):
 
                     coverage_prob(hdr, n_betas=12, save_dir=save_dir_round)
 
-                    logger.info(
-                        f"Computing the proposal prior for round {i+1}..."
-                    )
-                    # Create the matrix for the observed sample of neutron stars.
                 with timewith.TimeWith(
                     f"[ComputeRestrictedPriorRound{i}]",
                     prof_log_path,
                     prof_json_path,
                     config["show_profiling"],
                 ):
+                    logger.info(
+                        f"Computing the proposal prior for round {i + 1}..."
+                    )
+                    # Create the matrix for the observed sample of neutron stars.
                     _, _, x_o = prepare_dataset_sbi(
                         config["observed_sample"]["dataset_path"],
                         config,
                         atnf=True,
                     )
-                    # Here we set the density of the posterior that we want to take to then restricted our prior.
+                    # Computing the region of the posterior distribution used to constrain the prior.
                     posterior_obs = posterior.set_default_x(x_o)
                     accept_reject_fn = utils.get_density_thresholder(
                         posterior_obs,

@@ -121,7 +121,7 @@ def simulate_population(args) -> None:
     np.random.seed(cfg["seed_magrot"])
 
     # Loading the sever path, in case simulations are run at the PIC.
-    path_server_software = cfg["path_server_software"]
+    path_server_software = cfg["path_to_software"]
 
     # Initialize the surveys.
     PMPS_par_path = pathlib.Path().joinpath(

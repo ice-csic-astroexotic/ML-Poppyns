@@ -26,7 +26,7 @@
 
     Running the code:
 
-        python3 simulator_helper.py --h
+        python simulator_helper.py --h
         To obtain help about all the arguments that can be used.
 
     Authors:

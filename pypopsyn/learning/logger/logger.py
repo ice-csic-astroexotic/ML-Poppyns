@@ -43,7 +43,7 @@ def setup_logging(
 
     """
 
-    path_server_software = cfg["path_server_software"]
+    path_server_software = cfg["path_to_software"]
     log_config_file = pathlib.Path().joinpath(
         path_server_software, log_config_file
     )
