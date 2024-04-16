@@ -1,6 +1,5 @@
 import argparse
 import collections
-import json
 import pathlib
 import pickle
 import subprocess
@@ -75,26 +74,6 @@ def calculate_smallest_hdr(
         hdr[index] = (log_p_samples > log_p_true).float().mean()
 
     return hdr
-
-
-def import_statistics(stats_path: str) -> Tuple[torch.tensor, torch.tensor]:
-    """
-    Extracting the mean and standard deviation for all the parameters in the `stats_path` file.
-    Args:
-        stats_path (str): Path to the file where the statistics are saved.
-    Returns:
-        (torch.tensor, torch.tensor): Mean and standard deviation for the parameters in the `stats_path` file.
-    """
-    std_list = []
-    mean_list = []
-    with open(stats_path, "r") as json_file:
-        data = json.load(json_file)
-    for key, value in data.items():
-        std_list.append(value["std"])
-        mean_list.append(value["mean"])
-    mean = torch.tensor(mean_list)
-    std = torch.tensor(std_list)
-    return mean, std
 
 
 def build_network(
@@ -395,10 +374,19 @@ def train(args, config):
             prof_json_path,
             config["show_profiling"],
         ):
+            logger.info("Loading the training dataset for the first round...")
+            train_dataset_path = config["training_data_loader"][
+                "dataset_path_first_round"
+            ]
+            # Building the training dataset for sbi.
+            logger.info(
+                "Preparing the training data set for sbi for the first round..."
+            )
+            dataset, parameter, matrix = prepare_dataset_sbi(
+                train_dataset_path, config
+            )
+
             logger.info("Defining the prior distribution...")
-            # Loading the statistics to apply the rescaling to the prior distribution.
-            stats_path = config["training_data_loader"]["statistic_path"]
-            mean, std = import_statistics(stats_path)
 
             n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
             num_rounds = config["trainer"]["n_rounds"]
@@ -421,12 +409,12 @@ def train(args, config):
             elif config["training_data_loader"]["standardize"]:
                 low = (
                     torch.tensor(config["prior_ranges"]["low"])
-                    - mean[0:n_parameters]
-                ) / std[0:n_parameters]
+                    - dataset.target_mean
+                ) / dataset.target_std
                 high = (
                     torch.tensor(config["prior_ranges"]["high"])
-                    - mean[0:n_parameters]
-                ) / std[0:n_parameters]
+                    - dataset.target_mean
+                ) / dataset.target_std
                 prior = utils.BoxUniform(
                     low=low,
                     high=high,
@@ -450,9 +438,6 @@ def train(args, config):
             logger.info("Building the neural network...")
             inference = build_network(config, device)
 
-            # Initialize dataset with a default value to avoid warning in the first round.
-            dataset = None
-
         for i in range(num_rounds):
             with timewith.TimeWith(
                 f"[TotalRound{i}]",
@@ -466,9 +451,7 @@ def train(args, config):
                     prof_json_path,
                     config["show_profiling"],
                 ):
-                    logger.info(
-                        f"Training, ------------------------------- round {i}-------------------------------------"
-                    )
+
                     num_sim_train = config["training_data_loader"][
                         "n_sim_round"
                     ]
@@ -478,14 +461,11 @@ def train(args, config):
                     save_dir_round.mkdir(parents=True, exist_ok=True)
 
                     # If it's the first round, instead of simulating the training dataset, we use the simulation previously run.
-                    if i == 0:
+                    if i > 0:
                         logger.info(
-                            "Loading the training dataset for the first round..."
+                            f"Training, ------------------------------- round {i}-------------------------------------"
                         )
-                        train_dataset_path = config["training_data_loader"][
-                            "dataset_path_first_round"
-                        ]
-                    else:
+
                         logger.info(
                             "Simulating the training dataset for {} simulations...".format(
                                 num_sim_train
@@ -500,11 +480,13 @@ def train(args, config):
                             dataset=dataset,
                         )
 
-                    # Building the training dataset for sbi.
-                    logger.info("Preparing the training data set for sbi...")
-                    dataset, parameter, matrix = prepare_dataset_sbi(
-                        train_dataset_path, config
-                    )
+                        # Building the training dataset for sbi.
+                        logger.info(
+                            "Preparing the training data set for sbi..."
+                        )
+                        dataset, parameter, matrix = prepare_dataset_sbi(
+                            train_dataset_path, config
+                        )
 
                     # Saving the training data to reuse it in the next rounds.
                     parameter_list.append(parameter)
