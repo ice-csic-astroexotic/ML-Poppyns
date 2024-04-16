@@ -11,6 +11,7 @@ from typing import Optional, Tuple
 import corner
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import torch
 from sbi import utils
 from sbi.inference import SNPE
@@ -77,23 +78,30 @@ def calculate_smallest_hdr(
     return hdr
 
 
-def import_statistics(stats_path: str) -> Tuple[torch.tensor, torch.tensor]:
+def import_statistics(
+    stats_path: str, filtered_headers: list
+) -> Tuple[torch.tensor, torch.tensor]:
     """
-    Extracting the mean and standard deviation for all the parameters in the `stats_path` file.
+    Extracting the mean and standard deviation for the parameters in the `stats_path` file.
     Args:
         stats_path (str): Path to the file where the statistics are saved.
+        filtered_headers (list): List of keys to extract statistics for.
     Returns:
         (torch.tensor, torch.tensor): Mean and standard deviation for the parameters in the `stats_path` file.
     """
     std_list = []
     mean_list = []
+
     with open(stats_path, "r") as json_file:
         data = json.load(json_file)
-    for key, value in data.items():
-        std_list.append(value["std"])
-        mean_list.append(value["mean"])
+
+    for key in filtered_headers:
+        std_list.append(data[key]["std"])
+        mean_list.append(data[key]["mean"])
+
     mean = torch.tensor(mean_list)
     std = torch.tensor(std_list)
+
     return mean, std
 
 
@@ -396,11 +404,24 @@ def train(args, config):
             config["show_profiling"],
         ):
             logger.info("Defining the prior distribution...")
-            # Loading the statistics to apply the rescaling to the prior distribution.
-            stats_path = config["training_data_loader"]["statistic_path"]
-            mean, std = import_statistics(stats_path)
 
-            n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
+            # Loading the statistics to apply the rescaling to the prior distribution. To do so, we need to first
+            # extract the parameter labels to obtain their mean and standard deviation.
+
+            stats_path = config["training_data_loader"]["statistic_path"]
+            filter_labels = config["training_data_loader"]["filter_labels"]
+            dataset_round0_path = (
+                config["training_data_loader"]["dataset_path_first_round"]
+                + "/dataset_full.csv"
+            )
+            dataset_round0 = pd.read_csv(dataset_round0_path)
+            param_labels = [
+                dataset_round0.columns[col_num] for col_num in filter_labels
+            ]
+            mean, std = import_statistics(stats_path, param_labels)
+            del dataset_round0
+
+            n_parameters = len(filter_labels)
             num_rounds = config["trainer"]["n_rounds"]
 
             if config["set_manual_seed"] is True:
@@ -420,13 +441,11 @@ def train(args, config):
                 )
             elif config["training_data_loader"]["standardize"]:
                 low = (
-                    torch.tensor(config["prior_ranges"]["low"])
-                    - mean[0:n_parameters]
-                ) / std[0:n_parameters]
+                    torch.tensor(config["prior_ranges"]["low"]) - mean
+                ) / std
                 high = (
-                    torch.tensor(config["prior_ranges"]["high"])
-                    - mean[0:n_parameters]
-                ) / std[0:n_parameters]
+                    torch.tensor(config["prior_ranges"]["high"]) - mean
+                ) / std
                 prior = utils.BoxUniform(
                     low=low,
                     high=high,
