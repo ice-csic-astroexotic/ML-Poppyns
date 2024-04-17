@@ -22,7 +22,7 @@
 
     Running the code:
 
-        python3 dataset_generator.py --h
+        python3 generate_dataset.py --h
 
         To obtain help about all the arguments that can be used.
 

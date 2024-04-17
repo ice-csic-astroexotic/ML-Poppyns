@@ -30,7 +30,7 @@ import typing
 
 import numpy as np
 
-import pypopsyn.generator.dataset_generator as dg
+import pypopsyn.generator.maps2d_generator as dg
 
 # Initialize the multiple options we have to generate the different data
 # inputs which will be later selected at runtime depending on the arguments.
