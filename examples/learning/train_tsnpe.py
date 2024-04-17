@@ -378,15 +378,13 @@ def train(args, config):
             train_dataset_path = config["training_data_loader"][
                 "dataset_path_first_round"
             ]
-            # Building the training dataset for sbi.
+
             logger.info(
                 "Preparing the training data set for sbi for the first round..."
             )
             dataset, parameter, matrix = prepare_dataset_sbi(
                 train_dataset_path, config
             )
-
-            logger.info("Defining the prior distribution...")
 
             n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
             num_rounds = config["trainer"]["n_rounds"]
@@ -397,6 +395,8 @@ def train(args, config):
             else:
                 torch.manual_seed(int(time.time()))
                 logger.info("Seed: {}".format(int(time.time())))
+
+            logger.info("Defining the prior distribution...")
 
             # Set prior distribution for the parameters ------------------------------------------
             if config["training_data_loader"]["normalize"]:
