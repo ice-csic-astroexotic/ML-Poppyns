@@ -1,16 +1,17 @@
 """
     Simulator helper script.
 
-    This script allows us to run various simulator scripts in a multithreaded manner, sampling the initial parameters
-    from the prior distribution provided as input.
+    This script allows us to run various simulator scripts in a multithreaded manner. Unlike `simulation_helper.py`
+    script, which sample parameters randomly or on a grid, this script follows a prior distribution for parameter
+    sampling.
 
-    In this case, the number of values to be drawn for each parameter is specified by the argument --sampling_size.
+    The number of values to be drawn for each parameter is specified by the argument --sampling_size.
 
     Each parameter combination will spawn a new process that enters a multithreaded pool for later execution,
     allowing the asynchronous simulation of many populations in parallel with a defined maximum number of threads.
 
-    NOTE: if an error occurs in one of the simulations, the script will not stop until all the processes will be
-    terminated. The error will be only shown on the terminal in this case.
+    NOTE: if an error occurs in one of the simulations, the script will not stop until all the processes have been
+    terminated. The error will be only shown in the terminal in this case.
 
     Running the code:
 
@@ -20,7 +21,6 @@
     Authors:
 
         Celsa Pardo Araujo (pardo@ice.csic.es)
-        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC) 2020
@@ -45,7 +45,6 @@ import json
 import logging
 import multiprocessing as mp
 import pathlib
-import sys
 
 import torch
 from torch.distributions import Distribution
@@ -103,7 +102,9 @@ def simulator(
 
     args_dict = vars(args)
 
+    # Extracting the names of the parameters.
     var_names = dataset.target_names
+
     # Save the statistics for the filtered labels.
     par_max = torch.tensor(dataset.target_max)
     par_min = torch.tensor(dataset.target_min)
@@ -112,7 +113,7 @@ def simulator(
 
     # Create a generator of the random sets of parameters using the prior distribution.
     parameter_sets_gen_tensor = prior.sample((args.sampling_size,))
-    # If the parameters were normalized or standardized rescale quantities to their physical ranges.
+    # If the parameters were normalized or standardized, rescale quantities to their physical ranges.
     if dataset.normalize:
         parameter_sets_gen_tensor = (
             parameter_sets_gen_tensor * (par_max - par_min) + par_min
