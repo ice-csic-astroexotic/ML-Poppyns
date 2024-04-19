@@ -72,9 +72,14 @@ def simulator(
     Execute simulations based on the provided prior distribution.
 
     Args:
+
         args_dict (Dictionary): Dictionary with the arguments.
         prior (DirectPosterior): Prior distribution.
         dataset (DatasetMultichannelArray):  Stores statistics and scaling information used in the prior distribution.
+
+    Returns:
+
+        None
     """
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.
