@@ -219,7 +219,7 @@ def train(config):
                 )
 
             # Set up the inference procedure -----------------------------
-            # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+            # We use the default option SNPE-C  (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
             inference = SNPE(
                 prior=prior,
                 density_estimator=neural_posterior,

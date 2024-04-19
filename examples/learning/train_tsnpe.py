@@ -1,3 +1,28 @@
+"""
+Simulating a detected population of neutron stars from a dynamically evolved population database.
+
+    Authors:
+
+        Celsa Pardo Araujo (pardo @ ice.csic.es)
+
+Copyright (c) MAGNESIA (ICE-CSIC) 2020
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 import argparse
 import collections
 import pathlib
@@ -13,9 +38,8 @@ import numpy as np
 import torch
 from sbi import utils
 from sbi.inference import SNPE
-from sbi.inference.posteriors.base_posterior import NeuralPosterior
+from sbi.inference.posteriors.direct_posterior import DirectPosterior
 from sbi.inference.snpe.snpe_c import SNPE_C
-from torch.distributions import Distribution
 from tqdm import tqdm
 
 import pypopsyn.benchmark.timewith as timewith
@@ -30,18 +54,20 @@ from scripts.simulation_helper_sbi import simulator
 
 
 def calculate_smallest_hdr(
-    posterior: NeuralPosterior,
+    posterior: DirectPosterior,
     theta: torch.tensor,
     matrix: torch.tensor,
     n_samples_coverage: int,
     device: Optional[torch.device] = "cpu",
 ) -> np.ndarray:
+
     """
-    Calculating the smallest highest density region of the posterior, that contains the true value for the test
-    dataset in `theta` and `matrix`.
+    Calculating the smallest highest density region of the posterior distribution, that contains the true value for the
+    test dataset produced with the values theta and simulation output in matrix
 
     Args:
-        posterior (NeuralPosterior): Posterior distribution.
+
+        posterior (DirectPosterior): Posterior distribution.
         theta (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
          population in matrix.
         matrix (torch.tensor): Tensor containing the maps of the simulated population.
@@ -49,6 +75,7 @@ def calculate_smallest_hdr(
         device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
 
     Returns:
+
         np.ndarray: Smallest highest density region of the posterior that contains the true value.
     """
     hdr = np.zeros(len(theta))
@@ -83,26 +110,28 @@ def build_network(
     """
     Building the neural network using the configuration file specified in the arguments.
     Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network architecture and other settings.
+
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
+         architecture and other settings.
         device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
     Returns:
-        inference (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi snpe inference object.
+
+        inference (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi's SNPE inference objects.
     """
 
     embedding_net = config.init_object("arch", learning_models)
-
-    # Initialize weights ---------------------------------------------------
 
     weight_initializer = config.init_object(
         "weights_initializer", learning_initializers
     )
     # Apply the weight initialization scheme to every layer in the model.
     embedding_net.apply(weight_initializer)
-    hidden_features = config["arch"]["args"]["len_output_layer"]
 
     # Build density estimator ----------------------------------------------
     # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
     # The weights are initialized with the default initialization provided by pytorch.
+    hidden_features = config["arch"]["args"]["len_output_layer"]
+
     neural_posterior = utils.posterior_nn(
         model=config["density_estimator"]["type"],
         embedding_net=embedding_net,
@@ -112,7 +141,7 @@ def build_network(
     )
 
     # Set up the inference procedure -----------------------------
-    # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+    # We use the default option SNPE-C  (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
     inference = SNPE(
         density_estimator=neural_posterior,
         device=f"{device}",
@@ -122,7 +151,7 @@ def build_network(
 
 
 def wrapper_pypopsyn(
-    proposal: Distribution,
+    proposal: DirectPosterior,
     num_sim: int,
     config: configuration_parser.ConfigurationParser,
     nround: int,
@@ -130,17 +159,19 @@ def wrapper_pypopsyn(
     dataset: dl.DatasetMultichannelArray,
 ) -> str:
     """
-    Simulating `num_sim` of mock neutron star population given the `proposal` distribution. After simulating the
-    populations we generated the compressed representations for the output.
+    Simulating `num_sim` of mock neutron star population given the `proposal` distribution. After simulation the
+    populations, we generate the compressed representations for the output.
 
     Args:
-        proposal (Distribution): Proposal distribution used for sampling the parameters.
+
+        proposal (DirectPosterior): Proposal distribution used for sampling the parameters.
         num_sim (int): Number of simulations to perform.
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
         nround (int): Round number.
         test (bool): Flag indicating whether the simulations are for testing or training.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
     Returns:
+
         str: Path to the generated dataset.
     """
     if test:
@@ -163,37 +194,35 @@ def wrapper_pypopsyn(
         )
 
     dyn_data_path = config["dyn_data_loader"]["dataset_path"]
-    args_simulator = argparse.Namespace(
-        dyn_data=dyn_data_path,
-        output_dir=sim_dir_path,
-        simulator_type="simulate_population_magrot_det",
-        sampling_size=num_sim,
-        P_initial_log10_mean=[
+    args_dict = {
+        "dyn_data": dyn_data_path,
+        "output_dir": sim_dir_path,
+        "simulator_type": "simulate_population_magrot_det",
+        "sampling_size": num_sim,
+        "P_initial_log10_mean": [
             config["prior_ranges"]["low"][2],
             config["prior_ranges"]["high"][2],
         ],
-        P_initial_log10_sigma=[
+        "P_initial_log10_sigma": [
             config["prior_ranges"]["low"][3],
             config["prior_ranges"]["high"][3],
         ],
-        B_initial_log10_mean=[
+        "B_initial_log10_mean": [
             config["prior_ranges"]["low"][0],
             config["prior_ranges"]["high"][0],
         ],
-        B_initial_log10_sigma=[
+        "B_initial_log10_sigma": [
             config["prior_ranges"]["low"][1],
             config["prior_ranges"]["high"][1],
         ],
-        a_late=[
+        "a_late": [
             config["prior_ranges"]["low"][4],
             config["prior_ranges"]["high"][4],
         ],
-        processes=config["n_processes"],
-        kick_model="km_maxwell",
-        sigma_k=None,
-        h_c=None,
-        spin_period_model="log-normal",
-    )
+        "processes": config["n_processes"],
+        "kick_model": "km_maxwell",
+        "spin_period_model": "log-normal",
+    }
 
     software_path = cfg["path_to_software"]
     command = [
@@ -209,7 +238,7 @@ def wrapper_pypopsyn(
         "array",
     ]
 
-    simulator(args_simulator, proposal, dataset)
+    simulator(args_dict, proposal, dataset)
     subprocess.run(command)
 
     return dataset_path
@@ -224,11 +253,13 @@ def corner_plot(
     Plotting the corner plot for the posterior distribution.
 
     Args:
+
         observed_samples (torch.tensor): Samples of the distribution to plot.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
         save_dir (str): Directory to save the corner plot.
 
     Returns:
+
         None
     """
 
@@ -288,11 +319,13 @@ def prepare_dataset_sbi(
     Prepare dataset for use in SBI training.
 
     Args:
+
         train_data_set (str): Path to the training dataset.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
         atnf (bool, optional): Whether to use ATNF dataset. Defaults to False.
 
     Returns:
+
         tuple: A tuple containing the dataset, parameter tensor and input matrix tensor.
     """
 
@@ -387,7 +420,7 @@ def train(args, config):
             )
 
             n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
-            num_rounds = config["trainer"]["n_rounds"]
+            num_rounds = config["trainer"]["num_rounds"]
 
             if config["set_manual_seed"] is True:
                 torch.manual_seed(config["manual_seed"])
@@ -460,7 +493,8 @@ def train(args, config):
                     save_dir_round = config.save_dir / f"round_{i}"
                     save_dir_round.mkdir(parents=True, exist_ok=True)
 
-                    # If it's the first round, instead of simulating the training dataset, we use the simulation previously run.
+                    # If it's the first round, instead of simulating the training dataset, we use the simulation
+                    # previously run.
                     if i > 0:
                         logger.info(
                             f"Training, ------------------------------- round {i}-------------------------------------"
@@ -583,7 +617,7 @@ def train(args, config):
                         quantile=1e-4,
                         num_samples_to_estimate_support=10000,
                     )
-                    # -------Computing the proposal by using the restricted prior to the posterior at the observation.----------
+                    # Computing the proposal by using the restricted prior to the posterior at the observation.
                     if config["sir"]:
                         proposal = utils.RestrictedPrior(
                             prior,
@@ -597,8 +631,9 @@ def train(args, config):
                         )
 
                     if args.plot_proposal:
-                        # If `args.plot_proposal` is set to True, the proposal distribution will be plotted. Note that this might
-                        # take a while since we are using SIR or rejection methods to sample from the proposal distribution.
+                        # If `args.plot_proposal` is set to True, the proposal distribution will be plotted. Note that
+                        # this might take a while since we are using SIR or rejection methods to sample from the
+                        # proposal distribution.
                         observed_samples_proposal = proposal.sample(
                             (50000,), show_progress_bars=False
                         ).cpu()

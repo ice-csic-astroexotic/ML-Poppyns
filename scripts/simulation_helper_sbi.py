@@ -3,7 +3,8 @@
 
     This script allows us to run various simulator scripts in a multithreaded manner. Unlike `simulation_helper.py`
     script, which sample parameters randomly or on a grid, this script follows a prior distribution for parameter
-    sampling.
+    sampling. Note that this script can be run using only a prior distribution from the sbi package that has the
+    .sample() method available.
 
     The number of values to be drawn for each parameter is specified by the argument --sampling_size.
 
@@ -40,14 +41,13 @@
     SOFTWARE.
 """
 
-import argparse
 import json
 import logging
 import multiprocessing as mp
 import pathlib
 
 import torch
-from torch.distributions import Distribution
+from sbi.inference.posteriors.direct_posterior import DirectPosterior
 
 from pypopsyn.learning.loaders.loader_multichannel_array_stat import (
     DatasetMultichannelArray,
@@ -63,8 +63,8 @@ log = logging.getLogger(__name__)
 
 
 def simulator(
-    args: argparse.Namespace,
-    prior: Distribution,
+    args_dict: dict,
+    prior: DirectPosterior,
     dataset: DatasetMultichannelArray,
 ) -> None:
 
@@ -72,8 +72,8 @@ def simulator(
     Execute simulations based on the provided prior distribution.
 
     Args:
-        args (argparse.Namespace): Arguments passed by command-line.
-        prior (Distribution): Prior distribution.
+        args_dict (Dictionary): Dictionary with the arguments.
+        prior (DirectPosterior): Prior distribution.
         dataset (DatasetMultichannelArray):  Stores statistics and scaling information used in the prior distribution.
     """
     # Event on the master process that will be used to synchronize the child
@@ -86,10 +86,11 @@ def simulator(
 
     # A pool of processes with a defined capacity, a process spawning setup
     # routine and a general event to signal process execution.
-    log.info(f"Initializing pool with {args.processes} processes...")
+    nprocesses = args_dict["processes"]
+    log.info(f"Initializing pool with {nprocesses} processes...")
 
     pool = mp.Pool(
-        args.processes,
+        nprocesses,
         setup_process_pool,
         (
             event,
@@ -99,8 +100,6 @@ def simulator(
 
     # Parse arguments provided to the simulation helper script.
     log.info("Parsing arguments...")
-
-    args_dict = vars(args)
 
     # Extracting the names of the parameters.
     var_names = dataset.target_names
@@ -112,7 +111,7 @@ def simulator(
     par_mean = torch.tensor(dataset.target_mean)
 
     # Create a generator of the random sets of parameters using the prior distribution.
-    parameter_sets_gen_tensor = prior.sample((args.sampling_size,))
+    parameter_sets_gen_tensor = prior.sample((args_dict["sampling_size"],))
     # If the parameters were normalized or standardized, rescale quantities to their physical ranges.
     if dataset.normalize:
         parameter_sets_gen_tensor = (
@@ -134,7 +133,7 @@ def simulator(
     if simulator_type == "simulate_population_magrot_det":
         dyn_data_path = args_dict["dyn_data"]
 
-    # Queue each set of parameter as a different simulation in the pool.
+    # Queue each set of parameters as a different simulation in the pool.
     log.info("Queuing simulations...")
 
     simulation_number: int = 0
@@ -146,7 +145,7 @@ def simulator(
         # Note that the numbering of the folders is limited to 6 digits here,
         # i.e., we can only generate simulations below 10 million.
         simulation_output_path = pathlib.Path().joinpath(
-            args.output_dir, f"{simulation_number:06}"
+            args_dict["output_dir"], f"{simulation_number:06}"
         )
         simulation_output_path.mkdir(parents=True, exist_ok=True)
 
@@ -162,8 +161,7 @@ def simulator(
         with open(simulation_override_json_path, "w") as f:
             json.dump(simulation_override_json, f, indent=4, sort_keys=True)
 
-        # Generate list for the command which consists of the python interpreter,
-        # the script path and the path for the JSON override.
+        # Generate a list for the command (cmd), including the Python interpreter, the script path specified with 'simulator_type', and the path for the JSON override.
         server_path = cfg["path_to_software"]
         cmd: str = (
             f"python {server_path}examples/simulator/{simulator_type}.py"
