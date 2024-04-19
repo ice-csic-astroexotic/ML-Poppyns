@@ -121,7 +121,7 @@ def simulate_population(args) -> None:
         json.dump(cfg, f, indent=4, sort_keys=True)
 
     # Loading the sever path, in case simulations are run at the PIC.
-    path_server_software = cfg["path_server_software"]
+    path_server_software = cfg["path_to_software"]
 
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()

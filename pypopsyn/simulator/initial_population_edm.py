@@ -119,7 +119,7 @@ class InitialNeutronStarPopulation:
         # to take into account the element of area correction.
 
         file = pathlib.Path().joinpath(
-            cfg["path_server_software"],
+            cfg["path_to_software"],
             "pypopsyn/simulator/stellar_dynamics/YMW16_density_model.npy",
         )
         NS_density_model = np.load(file)

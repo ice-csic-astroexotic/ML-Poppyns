@@ -105,7 +105,7 @@ def main(args):
             # Generate output folders for the simulations.
             # Note that the numbering of the folders is limited to 6 digits here,
             # i.e., we can only generate simulations below 10 million.
-            path_server_output = cfg["path_server_output"]
+            path_server_output = cfg["path_to_output"]
             output_path = pathlib.Path().joinpath(
                 path_server_output, output_path
             )
