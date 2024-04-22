@@ -65,7 +65,6 @@
     "lr": 5e-4,
     "num_rounds":3,
     "sir":true,
-
     "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/learning"
   }
 }
