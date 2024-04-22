@@ -37,6 +37,7 @@ import pickle
 import subprocess
 import sys
 import time
+from logging import Logger
 from typing import Optional, Tuple
 
 import corner
@@ -322,6 +323,7 @@ def corner_plot(
 def prepare_dataset_sbi(
     train_data_set: str,
     config: configuration_parser.ConfigurationParser,
+    logger: Logger,
     atnf: Optional[bool] = False,
 ) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
     """
@@ -333,6 +335,7 @@ def prepare_dataset_sbi(
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
         atnf (bool, optional): Indicates whether the simulations in `train_data_set` folder are from the ATNF
         catalogue. If set to True, the simulations correspond to the ATNF catalogue. Default is False.
+        logger (Logger): Logger object.
 
     Returns:
 
@@ -375,6 +378,10 @@ def prepare_dataset_sbi(
         x = np.moveaxis(x, -1, 0)
 
         if list(x.shape) != input_shape:
+            logger.error(
+                "Mismatch between the shape of the input data x {} and the input shape specified "
+                "in the configuration file {}".format(x.shape, input_shape)
+            )
             sys.exit()
 
         matrix[i] = x
@@ -441,7 +448,7 @@ def train(args, config):
                 "Preparing the training data set for sbi for the first round..."
             )
             dataset, parameter, matrix = prepare_dataset_sbi(
-                train_dataset_path, config
+                train_dataset_path, config, logger
             )
 
             n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
@@ -544,7 +551,7 @@ def train(args, config):
                             "Preparing the training data set for sbi..."
                         )
                         dataset, parameter, matrix = prepare_dataset_sbi(
-                            train_dataset_path, config
+                            train_dataset_path, config, logger
                         )
 
                     # Saving the training data to reuse it in the next rounds.
@@ -603,7 +610,7 @@ def train(args, config):
                         )
 
                     _, parameter_test, matrix_test = prepare_dataset_sbi(
-                        test_dataset_path, config
+                        test_dataset_path, config, logger
                     )
 
                     logger.info(
@@ -633,6 +640,7 @@ def train(args, config):
                     _, _, x_o = prepare_dataset_sbi(
                         config["observed_sample"]["dataset_path"],
                         config,
+                        logger,
                         atnf=True,
                     )
                     # Computing the region of the posterior distribution used to constrain the prior.
