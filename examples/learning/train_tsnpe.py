@@ -334,8 +334,9 @@ def prepare_dataset_sbi(
 
         train_data_set (str): Path to the training dataset.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
-        atnf (bool, optional): Indicates whether the simulations in `train_data_set` folder are from the ATNF
-        catalogue. If set to True, the simulations correspond to the ATNF catalogue. Default is False.
+        atnf (bool, optional): Indicates whether the simulations in the `train_data_set` folder are from the ATNF
+                               catalogue or not. If set to True, the simulations correspond to the ATNF catalogue.
+                               Default is False.
         logger (Logger): Logger object.
 
     Returns:
@@ -357,7 +358,7 @@ def prepare_dataset_sbi(
     input_shape = config["arch"]["args"]["input_shape"]
     n_parameters = len(filter_labels)
 
-    # Load the training dataset ----------------------------------------------------------
+    # Loading the training dataset.
     try:
         dataset = dl.DatasetMultichannelArray(
             dataset_path=dataset_path,
@@ -375,7 +376,7 @@ def prepare_dataset_sbi(
         (len(dataset), input_shape[0], input_shape[1], input_shape[2])
     )
     for i, (x, theta) in enumerate(dataset):
-        # Re-shape the matrix to have the channel number at the beginning.
+        # Reshaping the matrix to have the channel number at the beginning.
         x = np.moveaxis(x, -1, 0)
 
         if list(x.shape) != input_shape:
@@ -388,7 +389,7 @@ def prepare_dataset_sbi(
         matrix[i] = x
         parameter[i] = theta
 
-    # Transform the maps and labels into torch.tensors.
+    # Transforming the maps and labels into torch.tensors.
     parameter = torch.from_numpy(parameter).type(torch.float32)
     matrix = torch.from_numpy(matrix).type(torch.float32)
     return dataset, parameter, matrix
