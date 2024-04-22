@@ -72,13 +72,13 @@ def calculate_smallest_hdr(
 
     """
     Calculating the smallest highest density region of the posterior distribution, that contains the true value for the
-    test dataset produced with the values theta and simulation output in matrix
+    test dataset produced with the values theta and simulation output in matrix.
 
     Args:
 
         posterior (DirectPosterior): Posterior distribution.
         theta (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
-         population in matrix.
+                              population in matrix.
         matrix (torch.tensor): Tensor containing the maps of the simulated population.
         n_samples_coverage (float): Number of approximate posterior samples used for computing the coverage.
         device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
