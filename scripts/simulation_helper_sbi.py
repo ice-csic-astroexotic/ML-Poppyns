@@ -165,7 +165,8 @@ def simulator(
         with open(simulation_override_json_path, "w") as f:
             json.dump(simulation_override_json, f, indent=4, sort_keys=True)
 
-        # Generate a list for the command (cmd), including the Python interpreter, the script path specified with 'simulator_type', and the path for the JSON override.
+        # Generate a list for the command (cmd), including the Python interpreter, the script path specified with
+        # 'simulator_type', and the path for the JSON override.
         server_path = cfg["path_to_software"]
         cmd: str = (
             f"python {server_path}examples/simulator/{simulator_type}.py"
