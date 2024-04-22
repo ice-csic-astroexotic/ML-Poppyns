@@ -464,8 +464,8 @@ def train(args, config):
 
             logger.info("Defining the prior distribution...")
 
-            # Set prior distribution for the parameters ------------------------------------------
-            # Note that we need to rescale the prior distribution accordingly to ensure that it has the correct limits
+            # Setting the prior distribution for the parameters.
+            # Note that we need to rescale the prior distribution to ensure that it has the correct limits
             # when restricted.
             if config["training_data_loader"]["normalize"]:
                 # All the parameters are rescaled in the range [0, 1].
