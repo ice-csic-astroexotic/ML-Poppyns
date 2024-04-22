@@ -115,6 +115,7 @@ def simulator(
 
     # Create a generator of the random sets of parameters using the prior distribution.
     parameter_sets_gen_tensor = prior.sample((args_dict["sampling_size"],))
+
     # If the parameters were normalized or standardized, rescale quantities to their physical ranges.
     if dataset.normalize:
         parameter_sets_gen_tensor = (
