@@ -1,5 +1,12 @@
 """
-Simulating a detected population of neutron stars from a dynamically evolved population database.
+    Training script for truncated sequential neural posterior estimator of Deistler M. et al 2022
+    (https://arxiv.org/abs/2210.04815).
+
+    This script implements the truncated sequential neural posterior estimator using the SBI package. It iteratively
+    trains a density estimator for `num_rounds`, where each iteration involves generating training and testing datasets
+    based on the previously approximated posterior distribution at the observed sample. This approach aims to focus more
+     on the region of the parameter space that matches the observed population to save computational resources.
+     For further details, visit https://www.mackelab.org/sbi/.
 
     Authors:
 
@@ -168,12 +175,16 @@ def wrapper_pypopsyn(
         num_sim (int): Number of simulations to perform.
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
         nround (int): Round number.
-        test (bool): Flag indicating whether the simulations are for testing or training.
+        test (bool): Flag indicating whether the simulations are for testing or training. If set to True, the
+        simulations are for testing purposes.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
     Returns:
 
         str: Path to the generated dataset.
     """
+    # If 'test' is True, simulations are saved in the folder specified for the testing dataset in the config file;
+    # otherwise, simulations are saved in the folder specified for the training dataset in the config file.
+
     if test:
         sim_dir_path = (
             config["test_data_loader"]["dataset_path"]
@@ -220,8 +231,6 @@ def wrapper_pypopsyn(
             config["prior_ranges"]["high"][4],
         ],
         "processes": config["n_processes"],
-        "kick_model": "km_maxwell",
-        "spin_period_model": "log-normal",
     }
 
     software_path = cfg["path_to_software"]
@@ -322,13 +331,15 @@ def prepare_dataset_sbi(
 
         train_data_set (str): Path to the training dataset.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
-        atnf (bool, optional): Whether to use ATNF dataset. Defaults to False.
+        atnf (bool, optional): Indicates whether the simulations in `train_data_set` folder are from the ATNF
+        catalogue. If set to True, the simulations correspond to the ATNF catalogue. Default is False.
 
     Returns:
 
         tuple: A tuple containing the dataset, parameter tensor and input matrix tensor.
     """
 
+    # Adjusting the dataset_path based on whether the simulations come from the ATNF catalogue or not.
     dataset_path = (
         train_data_set + "/dataset_atnf.csv"
         if atnf
@@ -377,6 +388,20 @@ def prepare_dataset_sbi(
 
 def train(args, config):
 
+    """
+    Training a density estimator to infer the posterior distribution at the observed population with the Truncated
+    sequential neural posterior estimator approach in Deistler M. et al. 2022 with the sbi package.
+
+    Args:
+
+        args (argparse.Namespace): Command-line arguments parsed by argparse.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
+
+    Returns:
+
+        None
+
+    """
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("train")
     logger.info("Logger initialized...")
@@ -432,6 +457,8 @@ def train(args, config):
             logger.info("Defining the prior distribution...")
 
             # Set prior distribution for the parameters ------------------------------------------
+            # Note that we need to rescale the prior distribution accordingly to ensure that it has the correct limits
+            # when restricted.
             if config["training_data_loader"]["normalize"]:
                 # All the parameters are rescaled in the range [0, 1].
                 prior = utils.BoxUniform(
@@ -461,7 +488,7 @@ def train(args, config):
                     device=f"{device}",
                 )
 
-            # At the first round we set the proposal equal to the prior.
+            # At the first round, we set the proposal equal to the prior.
             proposal = prior
 
             # Lists to store parameters and matrices from each round.
@@ -485,19 +512,17 @@ def train(args, config):
                     config["show_profiling"],
                 ):
 
-                    num_sim_train = config["training_data_loader"][
-                        "n_sim_round"
-                    ]
+                    num_sim_train = config["training_data_loader"]["num_sim"]
 
                     # Creating a folder to save the model, coverage and posterior distribution for each round.
                     save_dir_round = config.save_dir / f"round_{i}"
                     save_dir_round.mkdir(parents=True, exist_ok=True)
 
-                    # If it's the first round, instead of simulating the training dataset, we use the simulation
+                    # In the first round, instead of simulating the training dataset, we use the simulations
                     # previously run.
                     if i > 0:
                         logger.info(
-                            f"Training, ------------------------------- round {i}-------------------------------------"
+                            f"Training, ------------------------------- round {i} -------------------------------------"
                         )
 
                         logger.info(
@@ -552,7 +577,7 @@ def train(args, config):
                         density_estimator, prior=prior
                     )
 
-                    num_sim_test = config["test_data_loader"]["n_sim_round"]
+                    num_sim_test = config["test_data_loader"]["num_sim"]
 
                     if i == 0:
                         logger.info(
@@ -617,8 +642,11 @@ def train(args, config):
                         quantile=1e-4,
                         num_samples_to_estimate_support=10000,
                     )
-                    # Computing the proposal by using the restricted prior to the posterior at the observation.
-                    if config["sir"]:
+                    # Computing the new proposal by restricting the prior to the posterior of the observation.
+                    # If config["sir"] is set to true, the restricted prior sampling uses sampling importance
+                    # resampling (Rubin et al., 1988); otherwise, it employs rejection sampling. Note that the latter
+                    # method may take longer for a narrowed posterior distribution where the rejection rate is high.
+                    if config["trainer"]["sir"]:
                         proposal = utils.RestrictedPrior(
                             prior,
                             accept_reject_fn,
@@ -631,9 +659,9 @@ def train(args, config):
                         )
 
                     if args.plot_proposal:
-                        # If `args.plot_proposal` is set to True, the proposal distribution will be plotted. Note that
-                        # this might take a while since we are using SIR or rejection methods to sample from the
-                        # proposal distribution.
+                        # If `args.plot_proposal` is set to True, a corner plot of the proposal distribution will be
+                        # produced. Note that this might take a while since we are using SIR or rejection methods to
+                        # sample from the proposal distribution.
                         observed_samples_proposal = proposal.sample(
                             (50000,), show_progress_bars=False
                         ).cpu()
@@ -680,8 +708,8 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="examples/learning/config_sbi.json",
-        help="Configuration file path.",
+        default="examples/learning/config_tsnpe.json",
+        help="Machine learning configuration file path.",
     )
 
     args.add_argument(
