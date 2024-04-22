@@ -1,9 +1,9 @@
 """
     Simulator helper script.
 
-    This script allows us to run various simulator scripts in a multithreaded manner. Unlike `simulation_helper.py`
+    This script allows us to run various simulator scripts in a multithreaded manner. Unlike the `simulation_helper.py`
     script, which sample parameters randomly or on a grid, this script follows a prior distribution for parameter
-    sampling. Note that this script can be run using only a prior distribution from the sbi package that has the
+    sampling. Note that this script can be run only when using a prior distribution from the sbi package that has the
     .sample() method available.
 
     The number of values to be drawn for each parameter is specified by the argument --sampling_size.
