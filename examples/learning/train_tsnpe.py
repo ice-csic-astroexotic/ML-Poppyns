@@ -652,8 +652,8 @@ def train(args, config):
                         num_samples_to_estimate_support=10000,
                     )
                     # Computing the new proposal by restricting the prior to the posterior of the observation.
-                    # If config["sir"] is set to true, the restricted prior sampling uses sampling importance
-                    # resampling (Rubin et al., 1988); otherwise, it employs rejection sampling. Note that the latter
+                    # If config["sir"] is set to True, the restricted prior sampling uses sampling importance
+                    # resampling (Rubin et al., 1988). Otherwise, it employs rejection sampling. Note that the latter
                     # method may take longer for a narrowed posterior distribution where the rejection rate is high.
                     if config["trainer"]["sir"]:
                         proposal = utils.RestrictedPrior(
