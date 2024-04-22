@@ -396,10 +396,9 @@ def prepare_dataset_sbi(
 
 
 def train(args, config):
-
     """
-    Training a density estimator to infer the posterior distribution at the observed population with the Truncated
-    sequential neural posterior estimator approach in Deistler M. et al. 2022 with the sbi package.
+    Training a density estimator to infer the posterior distribution at the observed population with the truncated
+    sequential neural posterior estimator approach in Deistler et al. (2022) using the sbi package.
 
     Args:
 
