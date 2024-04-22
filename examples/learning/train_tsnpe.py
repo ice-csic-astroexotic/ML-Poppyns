@@ -121,7 +121,7 @@ def build_network(
     Args:
 
         config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
-         architecture and other settings.
+                                                           architecture and other settings.
         device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
     Returns:
 
@@ -150,7 +150,7 @@ def build_network(
     )
 
     # Set up the inference procedure -----------------------------
-    # We use the default option SNPE-C  (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+    # We use the default option SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
     inference = SNPE(
         density_estimator=neural_posterior,
         device=f"{device}",
@@ -168,7 +168,7 @@ def wrapper_pypopsyn(
     dataset: dl.DatasetMultichannelArray,
 ) -> str:
     """
-    Simulating `num_sim` of mock neutron star population given the `proposal` distribution. After simulation the
+    Simulating `num_sim` of mock neutron star population given the `proposal` distribution. After simulating the
     populations, we generate the compressed representations for the output.
 
     Args:
@@ -178,14 +178,14 @@ def wrapper_pypopsyn(
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
         nround (int): Round number.
         test (bool): Flag indicating whether the simulations are for testing or training. If set to True, the
-        simulations are for testing purposes.
+                     simulations are for testing purposes.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
     Returns:
 
         str: Path to the generated dataset.
     """
-    # If 'test' is True, simulations are saved in the folder specified for the testing dataset in the config file;
-    # otherwise, simulations are saved in the folder specified for the training dataset in the config file.
+    # If 'test' is True, simulations are saved in the folder specified for the testing dataset in the config file.
+    # Otherwise, simulations are saved in the folder specified for the training dataset in the config file.
 
     if test:
         sim_dir_path = (
