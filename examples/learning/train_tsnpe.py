@@ -127,6 +127,7 @@ def build_network(
 
     embedding_net = config.init_object("arch", learning_models)
 
+    # Initialize weights.
     weight_initializer = config.init_object(
         "weights_initializer", learning_initializers
     )
@@ -160,7 +161,7 @@ def wrapper_pypopsyn(
     proposal: DirectPosterior,
     num_sim: int,
     config: configuration_parser.ConfigurationParser,
-    nround: int,
+    round_current: int,
     test: bool,
     dataset: dl.DatasetMultichannelArray,
 ) -> str:
@@ -172,7 +173,7 @@ def wrapper_pypopsyn(
         proposal (DirectPosterior): Proposal distribution used for sampling the parameters.
         num_sim (int): Number of simulations to perform.
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
-        nround (int): Round number.
+        round_current (int): Number of current round during the sequential inference approach.
         test (bool): Flag indicating whether the simulations are for testing or training. If set to True, the
         simulations are for testing purposes.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
@@ -186,22 +187,23 @@ def wrapper_pypopsyn(
     if test:
         sim_dir_path = (
             config["test_data_loader"]["dataset_path"]
-            + f"/simulations/round_{nround}"
+            + f"/simulations/round_{round_current}"
         )
         dataset_path = (
             config["test_data_loader"]["dataset_path"]
-            + f"/generated_dataset/round_{nround}"
+            + f"/generated_dataset/round_{round_current}"
         )
     else:
         sim_dir_path = (
             config["training_data_loader"]["dataset_path"]
-            + f"/simulations/round_{nround}"
+            + f"/simulations/round_{round_current}"
         )
         dataset_path = (
             config["training_data_loader"]["dataset_path"]
-            + f"/generated_dataset/round_{nround}"
+            + f"/generated_dataset/round_{round_current}"
         )
 
+    # Extracting simulation parameters from configuration file.
     dyn_data_path = config["dyn_data_loader"]["dataset_path"]
     args_dict = {
         "dyn_data": dyn_data_path,
@@ -231,6 +233,7 @@ def wrapper_pypopsyn(
         "processes": config["n_processes"],
     }
 
+    # Constructing the command to generate the density map of the simulations.
     software_path = cfg["path_to_software"]
     command = [
         "python",
@@ -245,6 +248,7 @@ def wrapper_pypopsyn(
         "array",
     ]
 
+    # Running the simulations and generating the corresponding density maps for each simulation.
     simulator(args_dict, proposal, dataset)
     subprocess.run(command)
 
@@ -327,15 +331,17 @@ def prepare_dataset_sbi(
     Args:
         train_data_set (str): Path to the training dataset.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
-        atnf (bool, optional): Indicates whether the simulations in `train_data_set` folder are from the ATNF
-        catalogue. If set to True, the simulations correspond to the ATNF catalogue. Default is False.
+        atnf (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to the
+         observed population or to a simulated population. If set to True, the simulations correspond to the observed
+         population. The default is False.
         logger (Logger): Logger object.
 
     Returns:
         tuple: A tuple containing the dataset, parameter tensor and input matrix tensor.
     """
 
-    # Adjusting the dataset_path based on whether the simulations come from the ATNF catalogue or not.
+    # Adjusting the dataset_path based on whether the dataset is the observed or a simulated
+    # population.
     dataset_path = (
         train_data_set + "/dataset_atnf.csv"
         if atnf
@@ -532,7 +538,7 @@ def train(args, config):
                             proposal,
                             config=config,
                             num_sim=num_sim_train,
-                            nround=i,
+                            round_current=i,
                             test=False,
                             dataset=dataset,
                         )
@@ -595,7 +601,7 @@ def train(args, config):
                             proposal,
                             config=config,
                             num_sim=num_sim_test,
-                            nround=i,
+                            round_current=i,
                             test=True,
                             dataset=dataset,
                         )
@@ -722,7 +728,7 @@ if __name__ == "__main__":
         "--trained_model",
         type=str,
         default=None,
-        help="Path to checkpoint to resume training. This argument is not used at the moment.",
+        help="Path to checkpoint to resume training. This argument is not used at the moment. This argument is not used at the moment.",
     )
 
     args.add_argument(
@@ -730,7 +736,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default=False,
-        help="Flag to setup the inference saving path.",
+        help="Flag to setup the inference saving path. This argument is not used at the moment.",
     )
 
     CustomArgs = collections.namedtuple(

@@ -334,7 +334,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default=False,
-        help="Flag to setup the inference saving path.",
+        help="Flag to setup the inference saving path. This argument is not used at the moment.",
     )
 
     CustomArgs = collections.namedtuple(
