@@ -405,7 +405,6 @@ def train(args, config):
 
     Returns:
         None
-
     """
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("train")
@@ -539,7 +538,7 @@ def train(args, config):
                             proposal,
                             config=config,
                             num_sim=num_sim_train,
-                            nround=i,
+                            round_current=i,
                             test=False,
                             dataset=dataset,
                         )
@@ -602,7 +601,7 @@ def train(args, config):
                             proposal,
                             config=config,
                             num_sim=num_sim_test,
-                            nround=i,
+                            round_current=i,
                             test=True,
                             dataset=dataset,
                         )
@@ -737,7 +736,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default=False,
-        help="Flag to setup the inference saving path.",
+        help="Flag to setup the inference saving path. This argument is not used at the moment.",
     )
 
     CustomArgs = collections.namedtuple(
