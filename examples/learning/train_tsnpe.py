@@ -1,12 +1,13 @@
 """
-    Training script for truncated sequential neural posterior estimator of Deistler M. et al 2022
+    Training script for truncated sequential neural posterior estimation following Deistler et al. (2022).
     (https://arxiv.org/abs/2210.04815).
 
     This script implements the truncated sequential neural posterior estimator using the SBI package. It iteratively
     trains a density estimator for `num_rounds`, where each iteration involves generating training and testing datasets
-    based on the previously approximated posterior distribution at the observed sample. This approach aims to focus more
-     on the region of the parameter space that matches the observed population to save computational resources.
-     For further details, visit https://www.mackelab.org/sbi/.
+    based on the previously approximated posterior distribution at the observed sample. This approach focuses on
+    the region of the parameter space that matches the observed population to save computational resources.
+
+    For further details, visit https://www.mackelab.org/sbi/.
 
     Authors:
 
@@ -71,12 +72,12 @@ def calculate_smallest_hdr(
 
     """
     Calculating the smallest highest density region of the posterior distribution, that contains the true value for the
-    test dataset produced with the values theta and simulation output in matrix
+    test dataset produced with the values theta and simulation output in matrix.
 
     Args:
         posterior (DirectPosterior): Posterior distribution.
         theta (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
-         population in matrix.
+                              population in matrix.
         matrix (torch.tensor): Tensor containing the maps of the simulated population.
         n_samples_coverage (float): Number of approximate posterior samples used for computing the coverage.
         device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
@@ -118,7 +119,7 @@ def build_network(
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
-         architecture and other settings.
+                                                           architecture and other settings.
         device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
 
     Returns:
@@ -148,7 +149,7 @@ def build_network(
     )
 
     # Set up the inference procedure -----------------------------
-    # We use the default option SNPE-C  (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+    # We use the default option SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
     inference = SNPE(
         density_estimator=neural_posterior,
         device=f"{device}",
@@ -166,7 +167,7 @@ def wrapper_pypopsyn(
     dataset: dl.DatasetMultichannelArray,
 ) -> str:
     """
-    Simulating `num_sim` of mock neutron star population given the `proposal` distribution. After simulation the
+    Simulating `num_sim` of mock neutron star population given the `proposal` distribution. After simulating the
     populations, we generate the compressed representations for the output.
 
     Args:
@@ -175,14 +176,14 @@ def wrapper_pypopsyn(
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
         round_current (int): Number of current round during the sequential inference approach.
         test (bool): Flag indicating whether the simulations are for testing or training. If set to True, the
-        simulations are for testing purposes.
+                     simulations are for testing purposes.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
 
     Returns:
         str: Path to the generated dataset.
     """
-    # If 'test' is True, simulations are saved in the folder specified for the testing dataset in the config file;
-    # otherwise, simulations are saved in the folder specified for the training dataset in the config file.
+    # If 'test' is True, simulations are saved in the folder specified for the testing dataset in the config file.
+    # Otherwise, simulations are saved in the folder specified for the training dataset in the config file.
 
     if test:
         sim_dir_path = (
@@ -355,7 +356,7 @@ def prepare_dataset_sbi(
     input_shape = config["arch"]["args"]["input_shape"]
     n_parameters = len(filter_labels)
 
-    # Load the training dataset ----------------------------------------------------------
+    # Loading the training dataset.
     try:
         dataset = dl.DatasetMultichannelArray(
             dataset_path=dataset_path,
@@ -373,7 +374,7 @@ def prepare_dataset_sbi(
         (len(dataset), input_shape[0], input_shape[1], input_shape[2])
     )
     for i, (x, theta) in enumerate(dataset):
-        # Re-shape the matrix to have the channel number at the beginning.
+        # Reshaping the matrix to have the channel number at the beginning.
         x = np.moveaxis(x, -1, 0)
 
         if list(x.shape) != input_shape:
@@ -386,19 +387,19 @@ def prepare_dataset_sbi(
         matrix[i] = x
         parameter[i] = theta
 
-    # Transform the maps and labels into torch.tensors.
+    # Transforming the maps and labels into torch.tensors.
     parameter = torch.from_numpy(parameter).type(torch.float32)
     matrix = torch.from_numpy(matrix).type(torch.float32)
     return dataset, parameter, matrix
 
 
 def train(args, config):
-
     """
-    Training a density estimator to infer the posterior distribution at the observed population with the Truncated
-    sequential neural posterior estimator approach in Deistler M. et al. 2022 with the sbi package.
+    Training a density estimator to infer the posterior distribution at the observed population with the truncated
+    sequential neural posterior estimator approach in Deistler et al. (2022) using the sbi package.
 
     Args:
+
         args (argparse.Namespace): Command-line arguments parsed by argparse.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
 
@@ -460,8 +461,8 @@ def train(args, config):
 
             logger.info("Defining the prior distribution...")
 
-            # Set prior distribution for the parameters ------------------------------------------
-            # Note that we need to rescale the prior distribution accordingly to ensure that it has the correct limits
+            # Setting the prior distribution for the parameters.
+            # Note that we need to rescale the prior distribution to ensure that it has the correct limits
             # when restricted.
             if config["training_data_loader"]["normalize"]:
                 # All the parameters are rescaled in the range [0, 1].
@@ -538,7 +539,7 @@ def train(args, config):
                             proposal,
                             config=config,
                             num_sim=num_sim_train,
-                            round_current=i,
+                            nround=i,
                             test=False,
                             dataset=dataset,
                         )
@@ -601,7 +602,7 @@ def train(args, config):
                             proposal,
                             config=config,
                             num_sim=num_sim_test,
-                            round_current=i,
+                            nround=i,
                             test=True,
                             dataset=dataset,
                         )
@@ -728,7 +729,7 @@ if __name__ == "__main__":
         "--trained_model",
         type=str,
         default=None,
-        help="Path to checkpoint to resume training. This argument is not used at the moment. This argument is not used at the moment.",
+        help="Path to checkpoint to resume training. This argument is not used at the moment.",
     )
 
     args.add_argument(
@@ -736,7 +737,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default=False,
-        help="Flag to setup the inference saving path. This argument is not used at the moment.",
+        help="Flag to setup the inference saving path.",
     )
 
     CustomArgs = collections.namedtuple(

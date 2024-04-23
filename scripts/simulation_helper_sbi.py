@@ -1,9 +1,9 @@
 """
     Simulator helper script.
 
-    This script allows us to run various simulator scripts in a multithreaded manner. Unlike `simulation_helper.py`
+    This script allows us to run various simulator scripts in a multithreaded manner. Unlike the `simulation_helper.py`
     script, which sample parameters randomly or on a grid, this script follows a prior distribution for parameter
-    sampling. Note that this script can be run using only a prior distribution from the sbi package that has the
+    sampling. Note that this script can be run only when using a prior distribution from the sbi package that has the
     .sample() method available.
 
     The number of values to be drawn for each parameter is specified by the argument --sampling_size.
@@ -115,6 +115,7 @@ def simulator(
 
     # Create a generator of the random sets of parameters using the prior distribution.
     parameter_sets_gen_tensor = prior.sample((args_dict["sampling_size"],))
+
     # If the parameters were normalized or standardized, rescale quantities to their physical ranges.
     if dataset.normalize:
         parameter_sets_gen_tensor = (
@@ -164,7 +165,8 @@ def simulator(
         with open(simulation_override_json_path, "w") as f:
             json.dump(simulation_override_json, f, indent=4, sort_keys=True)
 
-        # Generate a list for the command (cmd), including the Python interpreter, the script path specified with 'simulator_type', and the path for the JSON override.
+        # Generate a list for the command (cmd), including the Python interpreter, the script path specified with
+        # 'simulator_type', and the path for the JSON override.
         server_path = cfg["path_to_software"]
         cmd: str = (
             f"python {server_path}examples/simulator/{simulator_type}.py"
