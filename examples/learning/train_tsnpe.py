@@ -74,7 +74,6 @@ def calculate_smallest_hdr(
     test dataset produced with the values theta and simulation output in matrix
 
     Args:
-
         posterior (DirectPosterior): Posterior distribution.
         theta (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
          population in matrix.
@@ -83,7 +82,6 @@ def calculate_smallest_hdr(
         device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
 
     Returns:
-
         np.ndarray: Smallest highest density region of the posterior that contains the true value.
     """
     hdr = np.zeros(len(theta))
@@ -117,13 +115,13 @@ def build_network(
 ) -> SNPE_C:
     """
     Building the neural network using the configuration file specified in the arguments.
-    Args:
 
+    Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
          architecture and other settings.
         device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
-    Returns:
 
+    Returns:
         inference (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi's SNPE inference objects.
     """
 
@@ -171,7 +169,6 @@ def wrapper_pypopsyn(
     populations, we generate the compressed representations for the output.
 
     Args:
-
         proposal (DirectPosterior): Proposal distribution used for sampling the parameters.
         num_sim (int): Number of simulations to perform.
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
@@ -179,8 +176,8 @@ def wrapper_pypopsyn(
         test (bool): Flag indicating whether the simulations are for testing or training. If set to True, the
         simulations are for testing purposes.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
-    Returns:
 
+    Returns:
         str: Path to the generated dataset.
     """
     # If 'test' is True, simulations are saved in the folder specified for the testing dataset in the config file;
@@ -263,13 +260,11 @@ def corner_plot(
     Plotting the corner plot for the posterior distribution.
 
     Args:
-
         observed_samples (torch.tensor): Samples of the distribution to plot.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
         save_dir (str): Directory to save the corner plot.
 
     Returns:
-
         None
     """
 
@@ -330,7 +325,6 @@ def prepare_dataset_sbi(
     Prepare dataset for use in SBI training.
 
     Args:
-
         train_data_set (str): Path to the training dataset.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
         atnf (bool, optional): Indicates whether the simulations in `train_data_set` folder are from the ATNF
@@ -338,7 +332,6 @@ def prepare_dataset_sbi(
         logger (Logger): Logger object.
 
     Returns:
-
         tuple: A tuple containing the dataset, parameter tensor and input matrix tensor.
     """
 
@@ -400,12 +393,10 @@ def train(args, config):
     sequential neural posterior estimator approach in Deistler M. et al. 2022 with the sbi package.
 
     Args:
-
         args (argparse.Namespace): Command-line arguments parsed by argparse.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
 
     Returns:
-
         None
 
     """
