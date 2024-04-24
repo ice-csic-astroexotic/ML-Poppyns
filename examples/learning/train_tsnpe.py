@@ -333,9 +333,9 @@ def prepare_dataset_sbi(
     Args:
         train_data_set (str): Path to the training dataset.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
-        atnf (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to the
-         observed population or to a simulated population. If set to True, the simulations correspond to the observed
-         population. The default is False.
+        atnf (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to
+                               the observed population or to a simulated population. If set to True, the simulations
+                               correspond to the observed ATNF population. The default is False.
         logger (Logger): Logger object.
 
     Returns:
