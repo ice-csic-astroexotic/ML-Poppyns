@@ -120,32 +120,29 @@ def simulate_population(args) -> None:
     log.info("Seed: {}".format(cfg["seed_magrot"]))
     np.random.seed(cfg["seed_magrot"])
 
-    # Loading the sever path, in case simulations are run at the PIC.
-    path_server_software = cfg["path_to_software"]
-
     # Initialize the surveys.
     PMPS_par_path = pathlib.Path().joinpath(
-        path_server_software,
+        cfg["path_to_software"],
         "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json",
     )
 
     SMPS_par_path = pathlib.Path().joinpath(
-        path_server_software,
+        cfg["path_to_software"],
         "pypopsyn/simulator/multiband_surveys/Swinburne_Parkes_parameters.json",
     )
 
     HTRU_low_par_path = pathlib.Path().joinpath(
-        path_server_software,
+        cfg["path_to_software"],
         "pypopsyn/simulator/multiband_surveys/htru_low_parameters.json",
     )
 
     HTRU_mid_par_path = pathlib.Path().joinpath(
-        path_server_software,
+        cfg["path_to_software"],
         "pypopsyn/simulator/multiband_surveys/htru_mid_parameters.json",
     )
 
     HTRU_high_par_path = pathlib.Path().joinpath(
-        path_server_software,
+        cfg["path_to_software"],
         "pypopsyn/simulator/multiband_surveys/htru_high_parameters.json",
     )
 

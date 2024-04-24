@@ -105,10 +105,8 @@ def main(args):
             # Generate output folders for the simulations.
             # Note that the numbering of the folders is limited to 6 digits here,
             # i.e., we can only generate simulations below 10 million.
-            path_server_output = cfg["path_to_output"]
-            output_path = pathlib.Path().joinpath(
-                path_server_output, output_path
-            )
+            path_to_output = cfg["path_to_output"]
+            output_path = pathlib.Path().joinpath(path_to_output, output_path)
             simulation_output_path = pathlib.Path().joinpath(
                 output_path, f"{simulation_number:06}"
             )
@@ -120,7 +118,7 @@ def main(args):
                 simulation_override_json[var_names[i]] = s[i]
 
             simulation_output_path = pathlib.Path().joinpath(
-                path_server_output, simulation_output_path
+                path_to_output, simulation_output_path
             )
             simulation_override_json_path = pathlib.Path().joinpath(
                 simulation_output_path, "override.json"

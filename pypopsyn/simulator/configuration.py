@@ -49,15 +49,17 @@ cfg["show_profiling"]: bool = True
 cfg["save_dyn_evolution"]: bool = False
 cfg["save_magrot_evolution"]: bool = False
 
-# To run the simulations in the server with HTCondor set cfg["server_run"] = True.
+# Specify here the absolute path to the directory where the repository is saved.
+# If launching experiments on one of the PIC servers set cfg["server_run"] = True.
 cfg["server_run"] = False
-
 if cfg["server_run"]:
     cfg[
         "path_to_software"
     ] = "/data/magnesia/software/MAGNESIA_population_synthesis/"
     cfg["path_to_output"] = "/data/magnesia/common/"
 else:
+    # Change the following parameters to your local path, e.g., something like
+    # /home/michele/Documents/MAGNESIA_population_synthesis. Otherwise, some notebooks might not work!
     cfg["path_to_software"] = ""
     cfg["path_to_output"] = ""
 
