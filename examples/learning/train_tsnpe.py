@@ -342,8 +342,7 @@ def prepare_dataset_sbi(
         tuple: A tuple containing the dataset, parameter tensor and input matrix tensor.
     """
 
-    # Adjusting the dataset_path based on whether the dataset is the observed or a simulated
-    # population.
+    # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
     dataset_path = (
         train_data_set + "/dataset_atnf.csv"
         if atnf
