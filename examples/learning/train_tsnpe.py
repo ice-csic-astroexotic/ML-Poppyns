@@ -2,7 +2,7 @@
     Training script for truncated sequential neural posterior estimation following Deistler et al. (2022).
     (https://arxiv.org/abs/2210.04815).
 
-    This script implements the truncated sequential neural posterior estimator using the SBI package. It iteratively
+    This script implements the truncated sequential neural posterior estimator using the sbi package. It iteratively
     trains a density estimator for `num_rounds`, where each iteration involves generating training and testing datasets
     based on the previously approximated posterior distribution at the observed sample. This approach focuses on
     the region of the parameter space that matches the observed population to save computational resources.
@@ -327,7 +327,7 @@ def prepare_dataset_sbi(
     atnf: Optional[bool] = False,
 ) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
     """
-    Prepare dataset for use in SBI training.
+    Prepare dataset for use in sbi training.
 
     Args:
         train_data_set (str): Path to the training dataset.
