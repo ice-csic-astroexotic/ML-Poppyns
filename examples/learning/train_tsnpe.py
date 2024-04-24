@@ -182,9 +182,10 @@ def wrapper_pypopsyn(
     Returns:
         str: Path to the generated dataset.
     """
+
+    # Setting paths.
     # If 'test' is True, simulations are saved in the folder specified for the testing dataset in the config file.
     # Otherwise, simulations are saved in the folder specified for the training dataset in the config file.
-
     if test:
         sim_dir_path = (
             config["test_data_loader"]["dataset_path"]
