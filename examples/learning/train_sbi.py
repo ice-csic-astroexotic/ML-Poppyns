@@ -131,7 +131,9 @@ def train(config):
                     standardize=standardize,
                 )
             except Exception:
-                logger.exception("Error: an error occurred:")
+                logger.exception(
+                    "Error: an error occurred when loading the dataset."
+                )
                 sys.exit(1)
 
             parameter = np.zeros((len(dataset), n_parameters))

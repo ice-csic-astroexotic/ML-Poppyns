@@ -367,6 +367,7 @@ def prepare_dataset_sbi(
             standardize=standardize,
         )
     except Exception:
+        logger.exception("Error: an error occurred when loading the dataset.")
         sys.exit(1)
 
     parameter = np.zeros((len(dataset), n_parameters))
