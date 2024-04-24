@@ -399,7 +399,6 @@ def train(args, config):
     sequential neural posterior estimator approach in Deistler et al. (2022) using the sbi package.
 
     Args:
-
         args (argparse.Namespace): Command-line arguments parsed by argparse.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
 
