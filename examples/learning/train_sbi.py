@@ -131,7 +131,9 @@ def train(config):
                     standardize=standardize,
                 )
             except Exception:
-                logger.exception("Error: an error occurred:")
+                logger.exception(
+                    "Error: an error occurred when loading the dataset."
+                )
                 sys.exit(1)
 
             parameter = np.zeros((len(dataset), n_parameters))
@@ -219,7 +221,7 @@ def train(config):
                 )
 
             # Set up the inference procedure -----------------------------
-            # By default the procedure is the SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+            # We use the default option SNPE-C  (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
             inference = SNPE(
                 prior=prior,
                 density_estimator=neural_posterior,
@@ -334,7 +336,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default=False,
-        help="Flag to setup the inference saving path.",
+        help="Flag to setup the inference saving path. This argument is not used at the moment.",
     )
 
     CustomArgs = collections.namedtuple(

@@ -26,7 +26,7 @@
 
     Running the code:
 
-        python3 simulator_helper.py --h
+        python simulator_helper.py --h
         To obtain help about all the arguments that can be used.
 
     Authors:
@@ -213,7 +213,7 @@ def main(args):
         )
         simulation_output_path.mkdir(parents=True, exist_ok=True)
 
-        # Pack combination into a JSON override file and write it to the folder for a given simulation.
+        # Save the set of parameter values into a JSON override file and write it to the folder for a given simulation.
         simulation_override_json = {}
         for i in range(len(s)):
             simulation_override_json[var_names[i]] = s[i]
