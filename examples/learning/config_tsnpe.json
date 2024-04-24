@@ -37,7 +37,7 @@
   "training_data_loader": {
     "dataset_path": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/training_dataset",
     "statistic_path": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/statistics_train_10K.json",
-    "dataset_path_first_round": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/training_dataset/generated_dataset/round_0",
+    "dataset_path_first_round":"/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/training_dataset/generated_dataset/round_0",
     "filter_inputs": [9, 10, 11],
     "filter_labels": [12, 13, 14, 15, 16],
     "normalize": false,
@@ -47,14 +47,14 @@
   
   "test_data_loader": {
     "dataset_path": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/test_dataset",
-    "dataset_path_first_round": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/test_dataset/generated_dataset/round_0",
-    "num_sim": 3},
+    "dataset_path_first_round":"/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/test_dataset/generated_dataset/round_0",
+    "num_sim":3},
   
-  "dyn_data_loader": {
+  "dyn_data_loader":{
       "dataset_path": "/data/magnesia/common/dyn_database/sim_dyn_ns1e7_t1e8_maxwell_hc180"
       },
       
-  "observed_sample": {
+  "observed_sample":{
       "dataset_path": "/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/observed_ATNF_res32"
       },
   

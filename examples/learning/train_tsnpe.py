@@ -182,9 +182,10 @@ def wrapper_pypopsyn(
     Returns:
         str: Path to the generated dataset.
     """
+
+    # Setting paths.
     # If 'test' is True, simulations are saved in the folder specified for the testing dataset in the config file.
     # Otherwise, simulations are saved in the folder specified for the training dataset in the config file.
-
     if test:
         sim_dir_path = (
             config["test_data_loader"]["dataset_path"]
@@ -327,22 +328,21 @@ def prepare_dataset_sbi(
     atnf: Optional[bool] = False,
 ) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
     """
-    Prepare dataset for use in SBI training.
+    Prepare dataset for use in sbi training.
 
     Args:
         train_data_set (str): Path to the training dataset.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
-        atnf (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to the
-         observed population or to a simulated population. If set to True, the simulations correspond to the observed
-         population. The default is False.
+        atnf (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to
+                               the observed population or to a simulated population. If set to True, the simulations
+                               correspond to the observed ATNF population. The default is False.
         logger (Logger): Logger object.
 
     Returns:
         tuple: A tuple containing the dataset, parameter tensor and input matrix tensor.
     """
 
-    # Adjusting the dataset_path based on whether the dataset is the observed or a simulated
-    # population.
+    # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
     dataset_path = (
         train_data_set + "/dataset_atnf.csv"
         if atnf
@@ -399,7 +399,6 @@ def train(args, config):
     sequential neural posterior estimator approach in Deistler et al. (2022) using the sbi package.
 
     Args:
-
         args (argparse.Namespace): Command-line arguments parsed by argparse.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
 
