@@ -54,32 +54,9 @@ from pypopsyn.learning.loaders.loader_multichannel_array_stat import (
     DatasetMultichannelArray,
 )
 from pypopsyn.simulator.configuration import cfg
+from scripts.simulation_helper import run_simulation
 
 log = logging.getLogger(__name__)
-
-
-def run_simulation(command: str) -> None:
-    """
-    Run simulation command.
-
-    Args:
-        command (str): Full command to execute the simulation.
-
-    Returns:
-        None
-    """
-    log.info(f"Launching simulation: {command}")
-
-    try:
-        # Execute the simulation command
-        subprocess.run(command, shell=True, check=True)
-    except subprocess.CalledProcessError as e:
-        # Log any errors raised by the subprocess
-        log.error(f"Error executing command: {command}")
-        log.error(f"Command output: {e.output.decode('utf-8')}")
-        raise  # Reraise the exception to propagate the error
-
-    log.info("Simulation finished")
 
 
 def simulator(
