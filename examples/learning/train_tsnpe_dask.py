@@ -62,7 +62,7 @@ import pypopsyn.learning.models.models as learning_models
 from pypopsyn.learning.utils.request_device import request_device
 from pypopsyn.simulator.configuration import cfg
 from scripts.coverage_probability import coverage_prob
-from scripts.simulation_helper_sbi import simulator
+from scripts.simulation_helper_dask import simulator
 
 
 def calculate_smallest_hdr(
