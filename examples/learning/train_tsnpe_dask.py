@@ -425,7 +425,15 @@ def train(args, config):
     num_workers_dask = config["workers_dask"]
     # Scaling the cluster to the number of worker specified in the configuration file.
     cluster.scale(num_workers_dask)
+    # Wait for the cluster to be ready
+    cluster.wait_for_workers(1)
 
+    # Create Dask client connected to the cluster
+    client = Client(cluster)
+
+    # Start the Dask dashboard for monitoring
+    client.dashboard_link
+    print("dask dashboard:", client.dashboard_link)
     # Initialize the path where the time profiling will be saved.
     prof_log_path = str(
         pathlib.Path().joinpath(config.log_dir, config["profile_log"])
