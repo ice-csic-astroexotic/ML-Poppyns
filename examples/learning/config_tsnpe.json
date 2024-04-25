@@ -7,7 +7,7 @@
   "profile_log": "profile.log",
   "profile_json": "profile.json",
   "show_profiling": true,
-
+  "workers_dask": 4,
   "arch": {
     "type": "ModelConvSBI",
     "args": {
