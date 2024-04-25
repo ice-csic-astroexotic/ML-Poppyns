@@ -60,6 +60,7 @@ from pypopsyn.simulator.configuration import cfg
 from scripts.simulation_helper import (
     log_simulation,
     run_simulation,
+    run_simulation_dask,
     setup_process_pool,
 )
 
@@ -128,7 +129,7 @@ def simulator_dask(
 
     simulation_number: int = 0
 
-    run_simulation_delayed = dask.delayed(run_simulation)
+    run_simulation_delayed = dask.delayed(run_simulation_dask)
     for s in parameter_sets_gen:
         log.info("Queuing simulation: ")
         log.info(s)

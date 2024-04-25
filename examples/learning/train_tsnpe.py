@@ -440,7 +440,7 @@ def train(args, config):
             prof_json_path,
             config["show_profiling"],
         ):
-            logger.info("Initializing dask client...")
+            logger.info("Initializing dask cluster...")
 
             # Creating the cluster with dask for HTCondor.
             req = '(CPU_MODEL =!= "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz") && (CPU_MODEL =!= "AMD EPYC 7452 32-Core Processor")'
@@ -462,7 +462,7 @@ def train(args, config):
             client = Client(cluster)
 
             # Start the Dask dashboard for monitoring.
-            logger.info(f"Initializing dask client {client.dashboard_link}")
+            logger.info(f"Dask client {client.dashboard_link}")
 
     # Show experiment information ------------------------------------------
     logger.info("=========================================================")
