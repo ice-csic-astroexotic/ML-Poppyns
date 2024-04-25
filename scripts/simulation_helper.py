@@ -72,6 +72,31 @@ unpaused = None
 starting = None
 
 
+def run_simulation_dask(command: str) -> None:
+    """
+    Run the simulation command. Unlike the run_simulation function, this one doesn't capture all the output of the
+    process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
+
+    Args:
+        command (str): Full command to execute the simulation.
+
+    Returns:
+        None
+    """
+    log.info(f"Launching simulation: {command}")
+
+    try:
+        # Execute the simulation command
+        subprocess.run(command, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        # Log any errors raised by the subprocess
+        log.error(f"Error executing command: {command}")
+        log.error(f"Command output: {e.output.decode('utf-8')}")
+        raise  # Reraise the exception to propagate the error
+
+    log.info("Simulation finished")
+
+
 def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     """
     Run simulation command.
@@ -80,7 +105,7 @@ def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     set of CLI arguments) and captures all the output of the process.
 
     Args:
-        command (List): full command to execute the simulation.
+        command (str): full command to execute the simulation.
 
     Returns:
         The simulation command and the output of the process.

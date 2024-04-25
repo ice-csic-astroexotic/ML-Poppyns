@@ -45,6 +45,8 @@ import corner
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from dask.distributed import Client
+from dask_jobqueue import HTCondorCluster
 from sbi import utils
 from sbi.inference import SNPE
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
@@ -59,7 +61,10 @@ import pypopsyn.learning.models.models as learning_models
 from pypopsyn.learning.utils.request_device import request_device
 from pypopsyn.simulator.configuration import cfg
 from scripts.coverage_probability import coverage_prob
-from scripts.simulation_helper_sbi import simulator
+from scripts.simulation_helper_sbi import (
+    simulator_dask,
+    simulator_multiprocess,
+)
 
 
 def calculate_smallest_hdr(
@@ -250,8 +255,15 @@ def wrapper_pypopsyn(
         "array",
     ]
 
-    # Running the simulations and generating the corresponding density maps for each simulation.
-    simulator(args_dict, proposal, dataset)
+    # Running the simulations and generating the corresponding density maps for each simulation. The simulations are run
+    # in a multithreaded manner. If config["enable_dask"] is equal to True, then multithreading will be performed with
+    # dask package; otherwise, it will be performed with the multiprocessing package.
+
+    if config["enable_dask"]:
+        simulator_dask(args_dict, proposal, dataset)
+    else:
+        simulator_multiprocess(args_dict, proposal, dataset)
+
     subprocess.run(command)
 
     return dataset_path
@@ -421,9 +433,39 @@ def train(args, config):
     # Set up GPU device if available.
     device, device_ids = request_device(config["n_gpu"])
 
+    if config["enable_dask"]:
+        with timewith.TimeWith(
+            "[InitializingDask]",
+            prof_log_path,
+            prof_json_path,
+            config["show_profiling"],
+        ):
+            logger.info("Initializing dask client...")
+
+            # Creating the cluster with dask for HTCondor.
+            req = '(CPU_MODEL =!= "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz") && (CPU_MODEL =!= "AMD EPYC 7452 32-Core Processor")'
+            extra = {"requirements": req}
+            extra["getenv"] = "True"
+
+            cluster = HTCondorCluster(
+                cores=1, memory="2 GB", disk="2 GB", job_extra_directives=extra
+            )
+
+            # Scaling the cluster to the number of worker specified in the configuration file.
+            num_workers_dask = config["workers_dask"]
+            cluster.scale(num_workers_dask)
+
+            # Wait for at least one worker to be ready.
+            cluster.wait_for_workers(1)
+
+            # Create Dask client connected to the cluster.
+            client = Client(cluster)
+
+            # Start the Dask dashboard for monitoring.
+            logger.info(f"Initializing dask client {client.dashboard_link}")
+
     # Show experiment information ------------------------------------------
     logger.info("=========================================================")
-
     with timewith.TimeWith(
         "[TotalTraining]",
         prof_log_path,
@@ -704,6 +746,10 @@ def train(args, config):
                     observed_samples_posterior,
                     f"{save_dir_round}/samples_posterior_{i}.pt",
                 )
+
+        if config["enable_dask"]:
+            # Closing the cluster once the training has finished.
+            cluster.close()
 
 
 if __name__ == "__main__":
