@@ -142,6 +142,8 @@ def simulator(
     log.info("Queuing simulations...")
 
     simulation_number: int = 0
+
+    run_simulation_delayed = dask.delayed(run_simulation)
     for s in parameter_sets_gen:
         log.info("Queuing simulation: ")
         log.info(s)
@@ -176,10 +178,8 @@ def simulator(
         cmd += f" --parameter_override {simulation_override_json_path}"
         if simulator_type == "simulate_population_magrot_det":
             cmd += f" --dyn_data {dyn_data_path}"
-
         # Create delayed computation for each simulation
-        delayed_simulation = run_simulation(cmd)
-        delayed_simulations.append(delayed_simulation)
+        delayed_simulations.append(run_simulation_delayed(cmd))
 
         simulation_number += 1
 
