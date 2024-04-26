@@ -7,8 +7,8 @@ dependencies:
   - astropy=5.3.1
   - black=23.7.0
   - corner=2.2.2
-  - dask
-  - dask_jobqueue
+  - dask=2024.4.2
+  - dask_jobqueue=0.8.5
   - f2c=20210323183018
   - graphviz=8.1.0
   - healpy=1.16.2
