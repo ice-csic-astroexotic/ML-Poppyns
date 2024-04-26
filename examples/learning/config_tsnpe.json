@@ -9,6 +9,7 @@
   "profile_log": "profile.log",
   "profile_json": "profile.json",
   "show_profiling": true,
+
   "arch": {
     "type": "ModelConvSBI",
     "args": {

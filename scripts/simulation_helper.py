@@ -74,8 +74,8 @@ starting = None
 
 def run_simulation_dask(command: str) -> None:
     """
-    Run the simulation command. Unlike the run_simulation function, this one doesn't capture all the output of the
-    process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
+    Run the simulation command. Unlike the run_simulation function below, this function does not capture all the
+    terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
 
     Args:
         command (str): Full command to execute the simulation.
@@ -86,13 +86,13 @@ def run_simulation_dask(command: str) -> None:
     log.info(f"Launching simulation: {command}")
 
     try:
-        # Execute the simulation command
+        # Execute the simulation command.
         subprocess.run(command, shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        # Log any errors raised by the subprocess
+        # Log any errors raised by the subprocess.
         log.error(f"Error executing command: {command}")
         log.error(f"Command output: {e.output.decode('utf-8')}")
-        raise  # Reraise the exception to propagate the error
+        raise  # Reraise the exception to propagate the error.
 
     log.info("Simulation finished")
 
@@ -203,7 +203,7 @@ def main(args):
     var_names, var_expanded_ranges = psg.check_expand_args(args_dict)
 
     if args_dict["sampling_type"] == "grid":
-        # Create a generator of all the possible combinations of parameters based on their expanded range lists
+        # Create a generator of all the possible combinations of parameters based on their expanded range lists.
         parameter_sets_gen = itertools.product(*var_expanded_ranges)
 
     elif args_dict["sampling_type"] == "random":

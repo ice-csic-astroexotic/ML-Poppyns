@@ -74,7 +74,7 @@ def simulator_dask(
 ) -> None:
 
     """
-    Execute simulations based on the provided prior distribution in a multithreaded manner using the `dask`
+    Execute simulations based on the provided prior distribution in a multithreaded manner using the `Dask`
     package.
 
     Args:
@@ -85,7 +85,7 @@ def simulator_dask(
     Returns:
         None
     """
-    # Create a list to hold delayed computations for each simulation
+    # Create a list to hold delayed computations for each simulation.
     delayed_simulations = []
 
     # Parse arguments provided to the simulation helper script.
@@ -121,6 +121,7 @@ def simulator_dask(
     # Set the simulation type and the path to the dynamical database if required.
     simulator_type = args_dict["simulator_type"]
     dyn_data_path = ""
+
     if simulator_type == "simulate_population_magrot_det":
         dyn_data_path = args_dict["dyn_data"]
 
@@ -129,7 +130,10 @@ def simulator_dask(
 
     simulation_number: int = 0
 
+    # Create a delayed version of the 'run_simulation_dask' function using Dask that allows for lazy evaluation. This
+    # enables parallel processing capabilities within Dask.
     run_simulation_delayed = dask.delayed(run_simulation_dask)
+
     for s in parameter_sets_gen:
         log.info("Queuing simulation: ")
         log.info(s)
@@ -164,7 +168,8 @@ def simulator_dask(
         cmd += f" --parameter_override {simulation_override_json_path}"
         if simulator_type == "simulate_population_magrot_det":
             cmd += f" --dyn_data {dyn_data_path}"
-        # Create delayed computation for each simulation
+
+        # Create delayed computation for each simulation.
         delayed_simulations.append(run_simulation_delayed(cmd))
 
         simulation_number += 1
@@ -174,7 +179,7 @@ def simulator_dask(
     log.info("Launching simulations")
     log.info("***************************************************************")
 
-    # Compute the delayed computations
+    # Compute the delayed computations, i.e. run the simulations in parallel with HTCondor.
     dask.compute(delayed_simulations)
 
 

@@ -7,6 +7,10 @@
     based on the previously approximated posterior distribution at the observed sample. This approach focuses on
     the region of the parameter space that matches the observed population to save computational resources.
 
+    To create the train and test dataset, we use either the `multiprocessing` or `Dask` (https://www.dask.org/) package
+    to run the simulations simultaneously in a multithreaded manner. To use Dask change the variable `enable_dask` in
+    the configuration file to True. Otherwise, change it to False to use multiprocessing.
+
     For further details, visit https://www.mackelab.org/sbi/.
 
     Authors:
@@ -257,7 +261,7 @@ def wrapper_pypopsyn(
 
     # Running the simulations and generating the corresponding density maps for each simulation. The simulations are run
     # in a multithreaded manner. If config["enable_dask"] is equal to True, then multithreading will be performed with
-    # dask package; otherwise, it will be performed with the multiprocessing package.
+    # the Dask package. Otherwise, it will be performed with the multiprocessing package.
 
     if config["enable_dask"]:
         simulator_dask(args_dict, proposal, dataset)
@@ -443,15 +447,16 @@ def train(args, config):
             logger.info("Initializing dask cluster...")
 
             # Creating the cluster with dask for HTCondor.
+            # The following requirements are specific for the computing resources at the PIC.
             req = '(CPU_MODEL =!= "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz") && (CPU_MODEL =!= "AMD EPYC 7452 32-Core Processor")'
             extra = {"requirements": req}
             extra["getenv"] = "True"
-
+            # Specifying computing requirements as needed for a single magneto-thermal simulation.
             cluster = HTCondorCluster(
                 cores=1, memory="2 GB", disk="2 GB", job_extra_directives=extra
             )
 
-            # Scaling the cluster to the number of worker specified in the configuration file.
+            # Scaling the cluster to the number of workers specified in the configuration file.
             num_workers_dask = config["workers_dask"]
             cluster.scale(num_workers_dask)
 
