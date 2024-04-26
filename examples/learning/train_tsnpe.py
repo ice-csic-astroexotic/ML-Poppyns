@@ -449,8 +449,7 @@ def train(args, config):
             # Creating the cluster with dask for HTCondor.
             # The following requirements are specific for the computing resources at the PIC.
             req = '(CPU_MODEL =!= "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz") && (CPU_MODEL =!= "AMD EPYC 7452 32-Core Processor")'
-            extra = {"requirements": req}
-            extra["getenv"] = "True"
+            extra = {"requirements": req, "getenv": "True"}
             # Specifying computing requirements as needed for a single magneto-thermal simulation.
             cluster = HTCondorCluster(
                 cores=1, memory="2 GB", disk="2 GB", job_extra_directives=extra
