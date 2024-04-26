@@ -7,7 +7,7 @@
     based on the previously approximated posterior distribution at the observed sample. This approach focuses on
     the region of the parameter space that matches the observed population to save computational resources.
 
-    To create the train and test dataset, we use either the `multiprocessing` or `Dask` (https://www.dask.org/) package
+    To create the training and test datasets, we use either the `multiprocessing` or `Dask` (https://www.dask.org/) package
     to run the simulations simultaneously in a multithreaded manner. To use Dask change the variable `enable_dask` in
     the configuration file to True. Otherwise, change it to False to use multiprocessing.
 
@@ -144,7 +144,7 @@ def build_network(
     # Apply the weight initialization scheme to every layer in the model.
     embedding_net.apply(weight_initializer)
 
-    # Build density estimator ----------------------------------------------
+    # Build density estimator.
     # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
     # The weights are initialized with the default initialization provided by pytorch.
     hidden_features = config["arch"]["args"]["len_output_layer"]
@@ -157,7 +157,7 @@ def build_network(
         device=device,
     )
 
-    # Set up the inference procedure -----------------------------
+    # Setting up the inference procedure.
     # We use the default option SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
     inference = SNPE(
         density_estimator=neural_posterior,
@@ -450,6 +450,7 @@ def train(args, config):
             # The following requirements are specific for the computing resources at the PIC.
             req = '(CPU_MODEL =!= "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz") && (CPU_MODEL =!= "AMD EPYC 7452 32-Core Processor")'
             extra = {"requirements": req, "getenv": "True"}
+
             # Specifying computing requirements as needed for a single magneto-thermal simulation.
             cluster = HTCondorCluster(
                 cores=1, memory="2 GB", disk="2 GB", job_extra_directives=extra
