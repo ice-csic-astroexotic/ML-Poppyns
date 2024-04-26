@@ -74,13 +74,12 @@ def simulator_dask(
 ) -> None:
 
     """
-    Execute simulations based on the provided prior distribution in a multithreaded manner using the `Dask`
-    package.
+    Execute simulations based on the provided prior distribution in a multithreaded manner using the `Dask` package.
 
     Args:
         args_dict (Dictionary): Dictionary with the arguments.
         prior (DirectPosterior): Prior distribution.
-        dataset (DatasetMultichannelArray):  Stores statistics and scaling information used in the prior distribution.
+        dataset (DatasetMultichannelArray): Stores statistics and scaling information used in the prior distribution.
 
     Returns:
         None
@@ -130,8 +129,8 @@ def simulator_dask(
 
     simulation_number: int = 0
 
-    # Create a delayed version of the 'run_simulation_dask' function using Dask that allows for lazy evaluation. This
-    # enables parallel processing capabilities within Dask.
+    # Create a delayed version of the 'run_simulation_dask' function using Dask that allows for lazy evaluation.
+    # This enables parallel processing capabilities within Dask.
     run_simulation_delayed = dask.delayed(run_simulation_dask)
 
     for s in parameter_sets_gen:
@@ -179,7 +178,7 @@ def simulator_dask(
     log.info("Launching simulations")
     log.info("***************************************************************")
 
-    # Compute the delayed computations, i.e. run the simulations in parallel with HTCondor.
+    # Compute the delayed computations, i.e., run the simulations in parallel with HTCondor.
     dask.compute(delayed_simulations)
 
 
