@@ -27,6 +27,7 @@ import logging
 import multiprocessing as mp
 import pathlib
 import subprocess
+from unittest.mock import patch
 
 import pytest
 
@@ -39,6 +40,16 @@ def mock_subprocess_check_output(monkeypatch):
         return b"Mocked subprocess output"
 
     monkeypatch.setattr(subprocess, "check_output", mock_check_output)
+
+
+@pytest.fixture
+def mock_subprocess_run():
+    """
+    Mock subprocess.run() function.
+    """
+    # Mock subprocess.run() function to return None, simulating successful execution.
+    with patch("subprocess.run") as mock_run:
+        return mock_run
 
 
 def test_run_simulation(mock_subprocess_check_output):
@@ -56,6 +67,21 @@ def test_run_simulation(mock_subprocess_check_output):
     result = sh.run_simulation(command)
     assert result[0] == command
     assert result[1] == "Mocked subprocess output"
+
+
+def test_run_simulation_dask(mock_subprocess_run):
+    """
+    Test the run_simulation_dask method.
+    """
+    command = "some_command"
+
+    # Call the function being tested.
+    sh.run_simulation_dask(command)
+
+    # Assert that subprocess.run() was called with the correct command.
+    mock_subprocess_run.assert_called_once_with(
+        command, shell=True, check=True
+    )
 
 
 def test_log_simulation(caplog):
