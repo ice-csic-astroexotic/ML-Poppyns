@@ -78,7 +78,7 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
         / (const.H**3 * const.C**2)
         * E_erg**3
         / (np.exp(E_erg / (const.K_B * T)) - 1)
-    )
+    ) * const.EV_TO_ERG
 
     return I_bb
 
