@@ -28,7 +28,7 @@ import random
 import numpy as np
 import pandas as pd
 
-from scripts.memory_efficient_sampling import choose_rows, select
+from utilities.memory_efficient_sampling import choose_rows, select
 
 
 def test_choose_rows():

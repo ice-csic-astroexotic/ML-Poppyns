@@ -107,7 +107,7 @@ def create_survey_maps(
 
     # Since the number of ATNF Catalogue objects with measured proper motions is insufficient,
     # we do not produce the velocity maps. However, for compatibility purposes with our
-    # machine-learning scripts, we have to update the corresponding dictionary fields with empty strings.
+    # machine-learning utilities, we have to update the corresponding dictionary fields with empty strings.
     # Updating the velocity map label of component v_RA in the RA DEC plane.
     dictionary_velocity_map_vra.update(
         {f"input:survey_{survey_name}_velocity_map_vra": [""]}

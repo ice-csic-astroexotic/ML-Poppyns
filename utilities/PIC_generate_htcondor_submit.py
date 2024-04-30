@@ -1,7 +1,7 @@
 """
-    Generation of the HTCondor scripts.
+    Generation of the HTCondor utilities.
 
-    We generate all the scripts needed to run the whole set of simulations in chunks using HTCondor.
+    We generate all the utilities needed to run the whole set of simulations in chunks using HTCondor.
     Each job will run each chunk of simulations for a different set of initial parameters.
 
     Note that this script needs the output from the `parameter_sweeper.py` script.

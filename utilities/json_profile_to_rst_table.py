@@ -8,11 +8,11 @@
 
     Running the code:
 
-        python3 scripts/json_profile_to_rst_table.py --filename profile.json
+        python3 utilities/json_profile_to_rst_table.py --filename profile.json
 
         or
 
-        python3 scripts/json_profile_to_rst_table.py --h
+        python3 utilities/json_profile_to_rst_table.py --h
 
         To obtain help about all the arguments that can be used.
 

@@ -1,7 +1,7 @@
 """
     Simulator helper script.
 
-    This script allows us to run the various simulator scripts in a multithreaded way.
+    This script allows us to run the various simulator utilities in a multithreaded way.
 
     If the --sampling_type argument is set to "grid", we require the following for each tunable parameter:
 
@@ -64,7 +64,7 @@ import typing
 
 import numpy as np
 
-import scripts.parameter_set_generator as psg
+import utilities.parameter_set_generator as psg
 
 log = logging.getLogger(__name__)
 

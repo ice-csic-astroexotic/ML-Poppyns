@@ -29,7 +29,7 @@ import pathlib
 import numpy as np
 import pytest
 
-from scripts.coverage_probability import coverage_prob
+from utilities.coverage_probability import coverage_prob
 
 
 @pytest.fixture

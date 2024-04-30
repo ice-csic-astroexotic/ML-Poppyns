@@ -28,7 +28,7 @@ import argparse
 import pandas as pd
 import pytest
 
-from scripts.PIC_generate_htcondor_failed import generate_htcondor_failed
+from utilities.PIC_generate_htcondor_failed import generate_htcondor_failed
 
 
 @pytest.fixture

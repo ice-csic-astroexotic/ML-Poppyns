@@ -166,7 +166,7 @@ def check_expand_args(args_dict: dict) -> (list, list):
     # Open the parameter dictionary to load requirements.
     config_sweeper_path = pathlib.Path().joinpath(
         path_to_software,
-        "scripts/config_sweeper.json",
+        "utilities/config_sweeper.json",
     )
     f = open(config_sweeper_path)
     check_arg = json.load(f)

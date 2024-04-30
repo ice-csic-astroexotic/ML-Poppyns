@@ -30,7 +30,7 @@ import subprocess
 
 import pytest
 
-import scripts.simulation_helper as sh
+import utilities.simulation_helper as sh
 
 
 @pytest.fixture

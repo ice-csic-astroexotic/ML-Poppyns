@@ -46,7 +46,7 @@ import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 from pypopsyn.simulator.config_simulator import cfg
-from scripts.memory_efficient_sampling import select
+from utilities.memory_efficient_sampling import select
 
 log = logging.getLogger(__name__)
 

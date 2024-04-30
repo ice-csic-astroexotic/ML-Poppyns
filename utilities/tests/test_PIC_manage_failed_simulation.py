@@ -29,7 +29,7 @@ import json
 
 import pytest
 
-from scripts.PIC_manage_failed_simulation import manage_failed_simulations
+from utilities.PIC_manage_failed_simulation import manage_failed_simulations
 
 
 # Define fixtures to set up a sample environment for testing.

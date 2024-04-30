@@ -40,7 +40,7 @@ import astropy.units as u
 import healpy as hp
 import numpy as np
 
-import scripts.download_online_content as do
+import utilities.download_online_content as do
 from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)

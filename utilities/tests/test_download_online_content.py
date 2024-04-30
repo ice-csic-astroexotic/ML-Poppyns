@@ -28,7 +28,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
-import scripts.download_online_content as do
+import utilities.download_online_content as do
 
 
 @pytest.fixture()

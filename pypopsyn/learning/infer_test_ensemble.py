@@ -41,7 +41,7 @@ import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
 from pypopsyn.learning.utils.request_device import request_device
-from scripts.coverage_probability import coverage_prob
+from utilities.coverage_probability import coverage_prob
 
 
 def calculate_smallest_hdr_ensemble(

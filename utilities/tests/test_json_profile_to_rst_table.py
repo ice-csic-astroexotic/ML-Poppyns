@@ -29,7 +29,7 @@ from unittest.mock import patch
 
 import pytest
 
-from scripts.json_profile_to_rst_table import (
+from utilities.json_profile_to_rst_table import (
     generate_header,
     generate_multicolumn,
     generate_row,

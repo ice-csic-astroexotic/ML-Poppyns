@@ -30,7 +30,7 @@ import pathlib
 import pandas as pd
 import pytest
 
-from scripts.PIC_check_simulations import check_simulations
+from utilities.PIC_check_simulations import check_simulations
 
 
 @pytest.fixture()
