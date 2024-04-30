@@ -35,7 +35,7 @@ from typing import List, Optional
 import numpy as np
 import pandas as pd
 
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 # Initialize seed randomly if no seed was specified.
 if cfg["seed_sampling"] is None:

@@ -35,7 +35,7 @@ import pathlib
 
 import numpy as np
 
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 
 def generate_job_submit(

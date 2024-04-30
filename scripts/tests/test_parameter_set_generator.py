@@ -28,7 +28,7 @@ import logging
 import numpy as np
 import pytest
 
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 from scripts import parameter_set_generator as psg
 
 

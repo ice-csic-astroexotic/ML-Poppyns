@@ -57,7 +57,7 @@ import sys
 import numpy as np
 
 import scripts.parameter_set_generator as psg
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
 

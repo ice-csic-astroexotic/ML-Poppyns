@@ -31,7 +31,7 @@ import numpy as np
 import pytest
 
 import pypopsyn.simulator.stellar_dynamics.initial_velocity as iv
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 TOL = 1e-5
 

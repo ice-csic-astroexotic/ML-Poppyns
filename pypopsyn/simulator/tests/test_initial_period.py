@@ -26,7 +26,7 @@ SOFTWARE.
 """
 
 import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 
 def test_pdf_period_normal():

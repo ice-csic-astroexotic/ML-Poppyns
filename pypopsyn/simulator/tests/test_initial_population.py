@@ -30,7 +30,7 @@ import pytest
 
 import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 TOL = 1e-5
 

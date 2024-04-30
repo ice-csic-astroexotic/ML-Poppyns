@@ -35,7 +35,7 @@ from scipy.integrate import odeint
 import pypopsyn.simulator.magneto_rotational_physics.magnetic_field_derivative as mfdv
 import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivative as madv
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 
 @jit(float64[:](float64, float64[:], float64))

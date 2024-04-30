@@ -17,7 +17,7 @@ import logging.config
 import pathlib
 
 import pypopsyn.learning.utils as learning_utils
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 LOG_LEVELS = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
 

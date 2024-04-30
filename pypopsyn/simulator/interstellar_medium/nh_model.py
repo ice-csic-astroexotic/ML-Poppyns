@@ -41,7 +41,7 @@ import healpy as hp
 import numpy as np
 
 import scripts.download_online_content as do
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
 
