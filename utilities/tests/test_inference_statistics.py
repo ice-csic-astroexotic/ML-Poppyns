@@ -28,7 +28,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import utilities.statistics as stat
+import utilities.inference_statistics as stat
 
 TOL = 1e-5
 
