@@ -91,12 +91,12 @@ def generate_wrapper(
 
     if type_simulation == "dyn":
 
-        exec_command = "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn.py --output_dir ${a[0]} --parameter_override ${a[1]}  \n"
+        exec_command = "python /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn/simulator/simulate_population_dyn.py --output_dir ${a[0]} --parameter_override ${a[1]}  \n"
 
     elif type_simulation == "magrot":
 
         exec_command = (
-            "python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_magrot_det.py --dyn_data "
+            "python /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn/simulator/simulate_population_magrot_det.py --dyn_data "
             + str(dyn_path)
             + " --output_dir ${a[0]} --parameter_override ${a[1]} \n"
         )
