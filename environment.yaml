@@ -8,6 +8,7 @@ dependencies:
   - black=23.7.0
   - corner=2.2.2
   - f2c=20210323183018
+  - ffmpeg=6.1.1
   - graphviz=8.1.0
   - healpy=1.16.2
   - jupyterlab=4.0.3
