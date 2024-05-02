@@ -1,0 +1,88 @@
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_12_res32_surv3_ds100_std_mdn10_bs32_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_125330/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_12_test_1.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_12_res32_surv3_ds100_std_mdn10_bs32_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_125330/samples_1.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_12_test_2.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_12_res32_surv3_ds100_std_mdn10_bs32_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_125330/samples_2.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_12_test_3.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_12_res32_surv3_ds100_std_mdn10_bs32_lr5e-4_shallow/inference_atnf/logs/SBI_ConvolutionMDN/20230829_124909/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_12_atnf.pt
+
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_13_res32_surv3_ds100_std_mdn10_bs8_lr1e-3_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_130148/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_13_test_1.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_13_res32_surv3_ds100_std_mdn10_bs8_lr1e-3_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_130148/samples_1.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_13_test_2.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_13_res32_surv3_ds100_std_mdn10_bs8_lr1e-3_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_130148/samples_2.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_13_test_3.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_13_res32_surv3_ds100_std_mdn10_bs8_lr1e-3_shallow/inference_atnf/logs/SBI_ConvolutionMDN/20230829_125959/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_13_atnf.pt
+
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_14_res32_surv3_ds100_std_mdn10_bs8_lr1e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_130852/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_14_test_1.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_14_res32_surv3_ds100_std_mdn10_bs8_lr1e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_130852/samples_1.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_14_test_2.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_14_res32_surv3_ds100_std_mdn10_bs8_lr1e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_130852/samples_2.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_14_test_3.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_14_res32_surv3_ds100_std_mdn10_bs8_lr1e-4_shallow/inference_atnf/logs/SBI_ConvolutionMDN/20230829_130753/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_14_atnf.pt
+
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_15_res32_surv1_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_131902/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_15_test_1.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_15_res32_surv1_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_131902/samples_1.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_15_test_2.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_15_res32_surv1_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_131902/samples_2.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_15_test_3.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_15_res32_surv1_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_atnf/logs/SBI_ConvolutionMDN/20230829_131822/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_15_atnf.pt
+
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_16_res32_surv2A_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_132858/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_16_test_1.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_16_res32_surv2A_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_132858/samples_1.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_16_test_2.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_16_res32_surv2A_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_132858/samples_2.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_16_test_3.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_16_res32_surv2A_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_atnf/logs/SBI_ConvolutionMDN/20230829_132823/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_16_atnf.pt
+
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_17_res32_surv2B_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_133659/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_17_test_1.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_17_res32_surv2B_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_133659/samples_1.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_17_test_2.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_17_res32_surv2B_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_133659/samples_2.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_17_test_3.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_17_res32_surv2B_ds100_std_mdn10_bs8_lr5e-4_shallow/inference_atnf/logs/SBI_ConvolutionMDN/20230829_134008/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_17_atnf.pt
+
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_18_res64_surv3_ds50_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230906_162322/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_18_test_1.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_18_res64_surv3_ds50_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230906_162322/samples_1.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_18_test_2.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_18_res64_surv3_ds50_std_mdn10_bs8_lr5e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230906_162322/samples_2.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_18_test_3.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_18_res64_surv3_ds50_std_mdn10_bs8_lr5e-4_shallow/inference_atnf/logs/SBI_ConvolutionMDN/20231005_124707/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_18_atnf.pt
+
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_19_res32_surv3_ds100_norm_mdn10_bs32_lr1e-3_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_144303/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_19_test_1.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_19_res32_surv3_ds100_norm_mdn10_bs32_lr1e-3_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_144303/samples_1.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_19_test_2.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_19_res32_surv3_ds100_norm_mdn10_bs32_lr1e-3_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_144303/samples_2.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_19_test_3.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_19_res32_surv3_ds100_norm_mdn10_bs32_lr1e-3_shallow/inference_atnf/logs/SBI_ConvolutionMDN/20230829_144428/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_19_atnf.pt
+
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_20_res32_surv3_ds100_norm_mdn10_bs32_lr1e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_150229/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_20_test_1.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_20_res32_surv3_ds100_norm_mdn10_bs32_lr1e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_150229/samples_1.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_20_test_2.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_20_res32_surv3_ds100_norm_mdn10_bs32_lr1e-4_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_150229/samples_2.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_20_test_3.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_20_res32_surv3_ds100_norm_mdn10_bs32_lr1e-4_shallow/inference_atnf/logs/SBI_ConvolutionMDN/20230829_150123/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_20_atnf.pt
+
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_21_res32_surv3_ds100_norm_mdn10_bs16_lr1e-3_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_153238/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_21_test_1.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_21_res32_surv3_ds100_norm_mdn10_bs16_lr1e-3_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_153238/samples_1.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_21_test_2.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_21_res32_surv3_ds100_norm_mdn10_bs16_lr1e-3_shallow/inference_plots/logs/SBI_ConvolutionMDN/20230829_153238/samples_2.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_21_test_3.pt
+
+scp vgraber@ui.pic.es:/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/exp_21_res32_surv3_ds100_norm_mdn10_bs16_lr1e-3_shallow/inference_atnf/logs/SBI_ConvolutionMDN/20230829_153432/samples_0.pt ~/github/MAGNESIA/MAGNESIA_population_synthesis/paper_plots/samples/samples_exp_21_atnf.pt
