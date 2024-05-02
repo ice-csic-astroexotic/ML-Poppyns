@@ -56,7 +56,7 @@ def test_run_simulation_dask(mock_subprocess_run, caplog):
     Test the run_simulation_dask method.
     """
     command = "some_command"
-
+    caplog.set_level(logging.INFO)
     # Call the function being tested.
     sh.run_simulation_dask(command)
 
