@@ -92,8 +92,11 @@ def run_simulation_dask(command: str) -> None:
     except subprocess.CalledProcessError as e:
         # Log any errors raised by the subprocess.
         log.error(f"Error executing command: {command}")
-        log.error(f"Command output: {e.output.decode('utf-8')}")
-        raise  # Reraise the exception to propagate the error.
+        if e.output is not None:
+            log.error(f"Command output: {e.output.decode('utf-8')}")
+        else:
+            log.error("No command output available")
+        raise
 
     log.info("Simulation finished")
 

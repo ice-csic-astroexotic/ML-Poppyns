@@ -47,9 +47,27 @@ def mock_subprocess_run():
     """
     Mock subprocess.run() function.
     """
-    # Mock subprocess.run() function to return None, simulating successful execution.
     with patch("subprocess.run") as mock_run:
-        return mock_run
+        yield mock_run
+
+
+def test_run_simulation_dask(mock_subprocess_run, caplog):
+    """
+    Test the run_simulation_dask method.
+    """
+    command = "some_command"
+
+    # Call the function being tested.
+    sh.run_simulation_dask(command)
+
+    # Assert that subprocess.run() was called with the correct command.
+    mock_subprocess_run.assert_called_once_with(
+        command, shell=True, check=True
+    )
+
+    # Check log messages
+    assert "Launching simulation" in caplog.text
+    assert "Simulation finished" in caplog.text
 
 
 def test_run_simulation(mock_subprocess_check_output):
@@ -67,21 +85,6 @@ def test_run_simulation(mock_subprocess_check_output):
     result = sh.run_simulation(command)
     assert result[0] == command
     assert result[1] == "Mocked subprocess output"
-
-
-def test_run_simulation_dask(mock_subprocess_run):
-    """
-    Test the run_simulation_dask method.
-    """
-    command = "some_command"
-
-    # Call the function being tested.
-    sh.run_simulation_dask(command)
-
-    # Assert that subprocess.run() was called with the correct command.
-    mock_subprocess_run.assert_called_once_with(
-        command, shell=True, check=True
-    )
 
 
 def test_log_simulation(caplog):
