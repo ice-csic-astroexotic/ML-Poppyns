@@ -42,7 +42,6 @@ import pickle
 import subprocess
 import sys
 import time
-import uuid
 from logging import Logger
 from typing import Optional, Tuple
 
@@ -449,47 +448,12 @@ def train(args, config):
 
             # Creating the cluster with dask for HTCondor.
             # The following requirements are specific for the computing resources at the PIC.
-
-            hctondor_output_folder = f"{config.save_dir}/htcondor_output"
-            pathlib.Path(hctondor_output_folder).mkdir(
-                parents=True, exist_ok=True
-            )
-
-            def job_extra(dask_worker) -> dict:
-                """
-                Function to generate extra HTCondor job attributes for each worker's job.
-
-                Args:
-
-                dask_worker : dask.distributed.Worker
-                    The dask worker instance associated with the job.
-
-                Returns:
-
-                dict
-                    A dictionary of HTCondor job attributes to be applied to the job.
-                """
-
-                req = '(CPU_MODEL =!= "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz") && (CPU_MODEL =!= "AMD EPYC 7452 32-Core Processor")'
-                unique_id = str(
-                    uuid.uuid4()
-                )  # Generate a unique ID for each job
-                out_path = (
-                    f"{config.save_dir}/htcondor_output/out_{unique_id}.txt"
-                )
-                err_path = (
-                    f"{config.save_dir}/htcondor_output/err_{unique_id}.txt"
-                )
-                return {
-                    "requirements": req,
-                    "getenv": "True",
-                    "output": out_path,  # Specify the unique output path
-                    "error": err_path,  # Specify the unique error path
-                }
+            req = '(CPU_MODEL =!= "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz") && (CPU_MODEL =!= "AMD EPYC 7452 32-Core Processor")'
+            extra = {"requirements": req, "getenv": "True"}
 
             # Specifying computing requirements as needed for a single magneto-thermal simulation.
             cluster = HTCondorCluster(
-                cores=1, memory="2 GB", disk="2 GB", job_extra=job_extra
+                cores=1, memory="2 GB", disk="2 GB", job_extra_directives=extra
             )
 
             # Scaling the cluster to the number of workers specified in the configuration file.
