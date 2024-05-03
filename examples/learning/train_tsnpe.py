@@ -460,20 +460,16 @@ def train(args, config):
                 Function to generate extra HTCondor job attributes for each worker's job.
 
                 Args:
-
-                dask_worker : dask.distributed.Worker
-                    The dask worker instance associated with the job.
+                    dask_worker (dask.distributed.Worker): The dask worker instance associated with the job.
 
                 Returns:
-
-                dict
-                    A dictionary of HTCondor job attributes to be applied to the job.
+                    dict: A dictionary of HTCondor job attributes to be applied to the job.
                 """
 
                 req = '(CPU_MODEL =!= "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz") && (CPU_MODEL =!= "AMD EPYC 7452 32-Core Processor")'
                 unique_id = str(
                     uuid.uuid4()
-                )  # Generate a unique ID for each job
+                )  # Generate a unique ID for each job.
                 out_path = (
                     f"{config.save_dir}/htcondor_output/out_{unique_id}.txt"
                 )
@@ -483,8 +479,8 @@ def train(args, config):
                 return {
                     "requirements": req,
                     "getenv": "True",
-                    "output": out_path,  # Specify the unique output path
-                    "error": err_path,  # Specify the unique error path
+                    "output": out_path,  # Specify the unique output path.
+                    "error": err_path,  # Specify the unique error path.
                 }
 
             # Specifying computing requirements as needed for a single magneto-thermal simulation.
