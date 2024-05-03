@@ -65,7 +65,7 @@ def test_run_simulation_dask(mock_subprocess_run, caplog):
         command, shell=True, check=True
     )
 
-    # Check log messages
+    # Check log messages.
     assert "Launching simulation" in caplog.text
     assert "Simulation finished" in caplog.text
 
