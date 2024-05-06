@@ -88,13 +88,10 @@ def initialize_dask_cluster(
     hctondor_output_folder = f"{config.save_dir}/htcondor_output"
     pathlib.Path(hctondor_output_folder).mkdir(parents=True, exist_ok=True)
     logger.info(
-        f"Saving the stdout and stderr of the terminal of each worker in {hctondor_output_folder}..."
+        f"Saving the stdout and stderr of the terminal of each worker in {hctondor_output_folder}."
     )
     # Creating the cluster with dask for HTCondor.
-    # The following requirements are specific for the computing resources at the PIC.
-    req = '(CPU_MODEL =!= "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz") && (CPU_MODEL =!= "AMD EPYC 7452 32-Core Processor")'
     extra = {
-        "requirements": req,
         "getenv": "True",
         "output": f"{hctondor_output_folder}/$(ClusterId)_$(ProcId)-out.txt",
         "error": f"{hctondor_output_folder}/$(ClusterId)_$(ProcId)-out.txt",
