@@ -86,16 +86,16 @@ def initialize_dask_cluster(
     """
 
     # Creating a folder to save the stdout and stderr of the terminal for each worker.
-    hctondor_output_folder = f"{config.save_dir}/htcondor_output"
-    pathlib.Path(hctondor_output_folder).mkdir(parents=True, exist_ok=True)
+    htcondor_output_folder = f"{config.save_dir}/htcondor_output"
+    pathlib.Path(htcondor_output_folder).mkdir(parents=True, exist_ok=True)
     logger.info(
-        f"Saving the stdout and stderr of the terminal of each worker in {hctondor_output_folder}."
+        f"Saving the stdout and stderr of the terminal of each worker in {htcondor_output_folder}."
     )
     # Creating the cluster with dask for HTCondor.
     extra = {
         "getenv": "True",
-        "output": f"{hctondor_output_folder}/$(ClusterId)_$(ProcId)-out.txt",
-        "error": f"{hctondor_output_folder}/$(ClusterId)_$(ProcId)-out.txt",
+        "output": f"{htcondor_output_folder}/$(ClusterId)_$(ProcId)-out.txt",
+        "error": f"{htcondor_output_folder}/$(ClusterId)_$(ProcId)-err.txt",
     }
 
     # Specifying computing requirements as needed for a single magneto-thermal simulation.
