@@ -1,7 +1,9 @@
 {
   "name": "SBI_ConvolutionMDN",
   "n_gpu": 1,
+  "enable_dask": true,
   "n_processes": 4,
+  "workers_dask": 4,
   "set_manual_seed": false,
   "manual_seed": 42,
   "profile_log": "profile.log",

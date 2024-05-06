@@ -7,6 +7,10 @@
     based on the previously approximated posterior distribution at the observed sample. This approach focuses on
     the region of the parameter space that matches the observed population to save computational resources.
 
+    To create the training and test datasets, we use either the `multiprocessing` or `Dask` (https://www.dask.org/) package
+    to run the simulations simultaneously in a multithreaded manner. To use Dask change the variable `enable_dask` in
+    the configuration file to True. Otherwise, change it to False to use multiprocessing.
+
     For further details, visit https://www.mackelab.org/sbi/.
 
     Authors:
@@ -59,7 +63,11 @@ import pypopsyn.learning.models.models as learning_models
 from pypopsyn.learning.utils.request_device import request_device
 from pypopsyn.simulator.configuration import cfg
 from scripts.coverage_probability import coverage_prob
-from scripts.simulation_helper_sbi import simulator
+from scripts.simulation_helper_sbi import (
+    initialize_dask_cluster,
+    simulator_dask,
+    simulator_multiprocess,
+)
 
 
 def calculate_smallest_hdr(
@@ -135,7 +143,7 @@ def build_network(
     # Apply the weight initialization scheme to every layer in the model.
     embedding_net.apply(weight_initializer)
 
-    # Build density estimator ----------------------------------------------
+    # Build density estimator.
     # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
     # The weights are initialized with the default initialization provided by pytorch.
     hidden_features = config["arch"]["args"]["len_output_layer"]
@@ -148,7 +156,7 @@ def build_network(
         device=device,
     )
 
-    # Set up the inference procedure -----------------------------
+    # Setting up the inference procedure.
     # We use the default option SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
     inference = SNPE(
         density_estimator=neural_posterior,
@@ -250,8 +258,15 @@ def wrapper_pypopsyn(
         "array",
     ]
 
-    # Running the simulations and generating the corresponding density maps for each simulation.
-    simulator(args_dict, proposal, dataset)
+    # Running the simulations and generating the corresponding density maps for each simulation. The simulations are run
+    # in a multithreaded manner. If config["enable_dask"] is equal to True, then multithreading will be performed with
+    # the Dask package. Otherwise, it will be performed with the multiprocessing package.
+
+    if config["enable_dask"]:
+        simulator_dask(args_dict, proposal, dataset)
+    else:
+        simulator_multiprocess(args_dict, proposal, dataset)
+
     subprocess.run(command)
 
     return dataset_path
@@ -421,9 +436,18 @@ def train(args, config):
     # Set up GPU device if available.
     device, device_ids = request_device(config["n_gpu"])
 
+    if config["enable_dask"]:
+        with timewith.TimeWith(
+            "[InitializingDask]",
+            prof_log_path,
+            prof_json_path,
+            config["show_profiling"],
+        ):
+            logger.info("Initializing dask cluster...")
+            cluster = initialize_dask_cluster(logger, config)
+
     # Show experiment information ------------------------------------------
     logger.info("=========================================================")
-
     with timewith.TimeWith(
         "[TotalTraining]",
         prof_log_path,
@@ -704,6 +728,10 @@ def train(args, config):
                     observed_samples_posterior,
                     f"{save_dir_round}/samples_posterior_{i}.pt",
                 )
+
+        if config["enable_dask"]:
+            # Closing the cluster once the training has finished.
+            cluster.close()
 
 
 if __name__ == "__main__":
