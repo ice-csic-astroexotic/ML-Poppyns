@@ -52,6 +52,7 @@ from logging import Logger
 
 import dask
 import torch
+from dask.distributed import Client
 from dask_jobqueue import HTCondorCluster
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
 
@@ -110,7 +111,7 @@ def initialize_dask_cluster(
     cluster.wait_for_workers(1)
 
     # Create Dask client connected to the cluster.
-    client = dask.distributed.Client(cluster)
+    client = Client(cluster)
 
     # Start the Dask dashboard for monitoring.
     logger.info(f"Dask client {client.dashboard_link}")
