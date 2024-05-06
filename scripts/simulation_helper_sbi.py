@@ -48,11 +48,14 @@ import json
 import logging
 import multiprocessing as mp
 import pathlib
+from logging import Logger
 
 import dask
 import torch
+from dask_jobqueue import HTCondorCluster
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
 
+import pypopsyn.learning.configuration_parser as configuration_parser
 from pypopsyn.learning.loaders.loader_multichannel_array_stat import (
     DatasetMultichannelArray,
 )
@@ -65,6 +68,57 @@ from scripts.simulation_helper import (
 )
 
 log = logging.getLogger(__name__)
+
+
+def initialize_dask_cluster(
+    logger: Logger, config: configuration_parser.ConfigurationParser
+) -> HTCondorCluster:
+    """
+    Initialize a Dask cluster for distributed computing.
+
+    Args:
+        logger (Logger): Logger object.
+        config (ConfigurationParser): Configuration object specifying dataset loading parameters.
+
+    Returns:
+        HTCondorCluster: Initialized Dask cluster object.
+    """
+
+    # Creating a folder to save the stdout and stderr of the terminal for each worker.
+    hctondor_output_folder = f"{config.save_dir}/htcondor_output"
+    pathlib.Path(hctondor_output_folder).mkdir(parents=True, exist_ok=True)
+    logger.info(
+        f"Saving the stdout and stderr of the terminal of each worker in {hctondor_output_folder}..."
+    )
+    # Creating the cluster with dask for HTCondor.
+    # The following requirements are specific for the computing resources at the PIC.
+    req = '(CPU_MODEL =!= "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz") && (CPU_MODEL =!= "AMD EPYC 7452 32-Core Processor")'
+    extra = {
+        "requirements": req,
+        "getenv": "True",
+        "output": f"{hctondor_output_folder}/$(ClusterId)_$(ProcId)-out.txt",
+        "error": f"{hctondor_output_folder}/$(ClusterId)_$(ProcId)-out.txt",
+    }
+
+    # Specifying computing requirements as needed for a single magneto-thermal simulation.
+    cluster = HTCondorCluster(
+        cores=1, memory="2 GB", disk="2 GB", job_extra_directives=extra
+    )
+
+    # Scaling the cluster to the number of workers specified in the configuration file.
+    num_workers_dask = config["workers_dask"]
+    cluster.scale(num_workers_dask)
+
+    # Wait for at least one worker to be ready.
+    cluster.wait_for_workers(1)
+
+    # Create Dask client connected to the cluster.
+    client = dask.distributed.Client(cluster)
+
+    # Start the Dask dashboard for monitoring.
+    logger.info(f"Dask client {client.dashboard_link}")
+
+    return cluster
 
 
 def simulator_dask(
