@@ -26,6 +26,7 @@ SOFTWARE.
 """
 
 import numpy as np
+import scipy.special as scsp
 from scipy.integrate import trapz
 
 import pypopsyn.simulator.basics.constants as const
@@ -70,7 +71,7 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
                       This will have shape (len(T), len(E)).
     """
     # Reshape T to make it compatible for broadcasting.
-    T = T.reshape(-1, 1)
+    T = T[:, np.newaxis]
 
     E_erg = E * const.EV_TO_ERG
     I_bb = (
@@ -81,6 +82,147 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
     ) * const.EV_TO_ERG
 
     return I_bb
+
+
+def dirac_delta(x, epsilon=1e-10) -> np.ndarray:
+    """
+    Approximation of the Dirac delta function.
+    """
+
+    return np.where(np.abs(x) < epsilon, 2.0e-17, 0.0)
+
+
+def n_plus(
+    omega: np.ndarray,
+    omega_0: np.ndarray,
+    tau_0: np.ndarray,
+    beta_T: np.ndarray,
+) -> np.ndarray:
+    """
+    n+ function in eq. (36) in Lyutikov and Gavrill 2006.
+    """
+
+    # Reshape the input arrays to make it compatible for broadcasting.
+    omega_0 = omega_0[np.newaxis, np.newaxis, :]
+    omega = omega[np.newaxis, :, np.newaxis]
+    tau_0 = tau_0[:, np.newaxis, np.newaxis]
+    beta_T = beta_T[:, np.newaxis, np.newaxis]
+
+    term_1 = (
+        tau_0
+        / (8.0 * beta_T * omega_0)
+        * ((omega_0 * (1.0 + 4.0 * beta_T) - omega) / (omega - omega_0)) ** 0.5
+    )
+    I1 = scsp.i1(
+        tau_0
+        / (4.0 * beta_T * omega_0)
+        * ((omega - omega_0) * (omega_0 * (1.0 + 4.0 * beta_T) - omega)) ** 0.5
+    )
+
+    term_2 = term_1 * I1
+    term_2 = np.nan_to_num(term_2, nan=0)
+
+    n_p = np.exp(-tau_0 / 2.0) * (dirac_delta(omega - omega_0) + term_2)
+
+    return n_p
+
+
+def n_minus(
+    omega: np.ndarray,
+    omega_0: np.ndarray,
+    tau_0: np.ndarray,
+    beta_T: np.ndarray,
+) -> np.ndarray:
+    """
+    n- function in eq. (36) in Lyutikov and Gavrill 2006.
+    """
+
+    # Reshape omega to make it compatible for broadcasting.
+    omega_0 = omega_0[np.newaxis, np.newaxis, :]
+    omega = omega[np.newaxis, :, np.newaxis]
+    tau_0 = tau_0[:, np.newaxis, np.newaxis]
+    beta_T = beta_T[:, np.newaxis, np.newaxis]
+
+    I0 = scsp.i0(
+        tau_0
+        / (2.0 * beta_T * omega_0)
+        * (
+            (omega_0 * (1.0 + 2.0 * beta_T) - omega)
+            * (omega - omega_0 * (1.0 - 2.0 * beta_T))
+        )
+        ** 0.5
+    )
+
+    n_m = tau_0 / (8.0 * beta_T * omega_0) * np.exp(-tau_0 / 2.0) * I0
+    n_m = np.nan_to_num(n_m, nan=0)
+
+    return n_m
+
+
+def trans_reflect_prob(
+    omega: np.ndarray,
+    omega_0: np.ndarray,
+    tau_0: np.ndarray,
+    beta_T: np.ndarray,
+) -> (np.ndarray, np.ndarray):
+    """
+    Compute the transmitted and reflected flux probabilities (see Lyutikov and Gavrill 2006).
+    """
+
+    n_p = n_plus(omega, omega_0, tau_0, beta_T)
+    n_m = n_minus(omega, omega_0, tau_0, beta_T)
+
+    nm_norm_theory = (1 - np.exp(-tau_0)) / 2.0
+
+    nm_norm_theory = nm_norm_theory[:, np.newaxis]
+
+    nm_norm = trapz(n_m, omega, axis=1) / (nm_norm_theory)
+    np_norm = trapz(n_p, omega, axis=1) / (1 - nm_norm_theory)
+
+    np_norm = np_norm[:, np.newaxis, :]
+    nm_norm = nm_norm[:, np.newaxis, :]
+
+    p_trans = n_p / np_norm
+    p_refl = n_m / nm_norm
+
+    return p_trans, p_refl
+
+
+def resonant_cyclothron_scat_spectrum(
+    E: np.ndarray,
+    E_0: np.ndarray,
+    tau_0: np.ndarray,
+    beta_T: np.ndarray,
+    n_source: np.ndarray,
+) -> np.ndarray:
+    """
+    Compute the spectrum resulting from resonant cyclothron scattering given a source intensity spectrum (see Lyutikov and Gavrill 2006).
+    """
+    rcs_spectrum = np.zeros((len(tau_0), len(E)))
+
+    # Convert photon energy in eV into omega frequencies in s^-1.
+    freq_0 = E_0 * const.EV_TO_ERG / const.H
+    omega_0 = 2.0 * np.pi * freq_0
+
+    freq = E * const.EV_TO_ERG / const.H
+    omega = 2.0 * np.pi * freq
+
+    p_trans, p_refl = trans_reflect_prob(omega, omega_0, tau_0, beta_T)
+
+    n = n_source[:, np.newaxis, :]
+    n_trans = trapz((n * p_trans), omega_0, axis=2)
+    print(n_trans.shape)
+    rcs_spectrum = rcs_spectrum + n_trans
+
+    for i in range(6):
+        n_reflect = trapz((n * p_refl), omega_0, axis=2)
+        n_reflect = n_reflect[:, np.newaxis, :]
+        n_trans_refl = trapz((n_reflect * p_trans), omega_0, axis=2)
+        rcs_spectrum = rcs_spectrum + n_trans_refl
+
+        n = n_trans_refl[:, np.newaxis, :]
+
+    return rcs_spectrum
 
 
 def flux_xray_absorbed(
@@ -101,9 +243,20 @@ def flux_xray_absorbed(
 
     R_obs = cfg["NS_radius"] / gr_correction
 
-    # Define the energy range between 0.03 keV and 10 keV (where the absorption cross-section is defined).
-    E = np.logspace(np.log10(30), 4.0, 1000)
+    # Define the energy range between 0.01 keV and 20 keV (a larger energy range than the one where the absorption
+    # cross-section is defined, is required in order to compute the resonant cyclothron scattered spectrum).
+    E = np.logspace(1.0, np.log10(20000), 1000)
     I_bb = blackbody_intensity_spectrum(E, T_obs)
+
+    # Calculate the black-body spectrum in [ph cm^-2 s^-1 eV^-1 sterad^-1].
+    n_bb = I_bb / (E * const.EV_TO_ERG)
+
+    tau_res = np.array([10.0])
+    tau_0 = tau_res / 2
+    beta_T = np.array([0.3])
+    rcs_spectrum_trans = resonant_cyclothron_scat_spectrum(
+        E, E, tau_0, beta_T, n_bb
+    )
 
     N_H = nhm.compute_NH(RA, DEC, d)
     # Reshape N_H to make it compatible for broadcasting.
@@ -112,9 +265,9 @@ def flux_xray_absorbed(
     sigma_ISM = xabs.absorption_cross_section_tot(E, cfg["ISM_abundances"])
 
     absorb_factor = np.exp(-sigma_ISM * N_H)
-    I_bb_absorbed = absorb_factor * I_bb
+    I_absorbed = absorb_factor * rcs_spectrum_trans
 
-    I_bb_absorbed_bolom = trapz(I_bb_absorbed, E * const.EV_TO_ERG, axis=-1)
-    flux = (R_obs / d) ** 2 * np.pi * I_bb_absorbed_bolom
+    I_absorbed_bolom = trapz(I_absorbed, E, axis=-1)
+    flux = (R_obs / d) ** 2 * np.pi * I_absorbed_bolom
 
     return flux
