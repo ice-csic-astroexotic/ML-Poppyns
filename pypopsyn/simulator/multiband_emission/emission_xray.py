@@ -50,7 +50,7 @@ def T_from_Lx(Lx: np.ndarray) -> np.ndarray:
         Lx (np.ndarray): X-ray luminosity in [erg/s].
 
     Returns:
-        (np.ndarray): temperature seen by a distant observer in [K].
+        (np.ndarray): array of temperature seen by a distant observer in [K].
     """
     R_obs = cfg["NS_radius"] / gr_correction
     T_obs = (Lx / (4 * np.pi * R_obs**2 * const.SIGMA_SB)) ** (1.0 / 4.0)
@@ -64,7 +64,7 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
 
     Args:
         E (np.ndarray): array of energies in [eV] where to compute the intensity.
-        T (np.ndarray): array of surface temperatures in [K] for each neutron star.
+        T (np.ndarray): array of temperatures in [K].
 
     Returns:
         (np.ndarray): Intensity of the black-body spectrum in [erg cm^-2 s^-1 eV^-1 sterad^-1] for every temperature.
@@ -84,12 +84,23 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
     return I_bb
 
 
-def dirac_delta(x, epsilon=1e-10) -> np.ndarray:
+def dirac_delta(x: np.ndarray) -> np.ndarray:
     """
     Approximation of the Dirac delta function.
-    """
 
-    return np.where(np.abs(x) < epsilon, 2.0e-17, 0.0)
+    Args:
+        x (np.ndarray): array of values.
+
+    Returns:
+        (np.ndarray): Value of the Dirac delta function.
+    """
+    epsilon = 1e-10
+
+    # The value of the Dirac delta inside the interval [-epsilon, epsilon] is chosen to be 2.0e-17 to have
+    # meaningful results when computing the RCS spectrum.
+    dirac_delta = np.where(np.abs(x) < epsilon, 2.0e-17, 0.0)
+
+    return dirac_delta
 
 
 def n_plus(
@@ -99,7 +110,17 @@ def n_plus(
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    n+ function in eq. (36) in Lyutikov and Gavrill 2006.
+    Transimission function n+ in eq. (36) in Lyutikov and Gavrill 2006.
+
+    Args:
+        omega (np.ndarray): array of frequences (in the form 2*pi*f) for the transimitted photons in Hz.
+        omega_0 (np.ndarray): array of frequences (in the form 2*pi*f) for the source photons in Hz.
+        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
+        beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
+
+    Returns:
+        (np.ndarray): Value of the transmission function n+.
+                      This will have shape (NS_number, len(omega), len(omega_0)).
     """
 
     # Reshape the input arrays to make it compatible for broadcasting.
@@ -134,7 +155,17 @@ def n_minus(
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    n- function in eq. (36) in Lyutikov and Gavrill 2006.
+    Reflection function n- in eq. (36) in Lyutikov and Gavrill 2006.
+
+    Args:
+        omega (np.ndarray): array of frequences (in the form 2*pi*f) for the reflected photons in Hz.
+        omega_0 (np.ndarray): array of frequences (in the form 2*pi*f) for the source photons in Hz.
+        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
+        beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
+
+    Returns:
+        (np.ndarray): Value of the transmission function n-.
+                      This will have shape (NS_number, len(omega), len(omega_0)).
     """
 
     # Reshape omega to make it compatible for broadcasting.
@@ -166,19 +197,31 @@ def trans_reflect_prob(
     beta_T: np.ndarray,
 ) -> (np.ndarray, np.ndarray):
     """
-    Compute the transmitted and reflected flux probabilities (see Lyutikov and Gavrill 2006).
+    Compute the transmitted and reflected flux probabilities by normalizing the transsmission and reflection functions
+    (see Lyutikov and Gavrill 2006).
+
+    Args:
+        omega (np.ndarray): array of frequences (in the form 2*pi*f) for the reflected photons in Hz.
+        omega_0 (np.ndarray): array of frequences (in the form 2*pi*f) for the source photons in Hz.
+        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
+        beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
+
+    Returns:
+        (np.ndarray): Value of the transmission and reflection probabilities.
+                      This will have shape (NS_number, len(omega), len(omega_0)).
     """
 
     n_p = n_plus(omega, omega_0, tau_0, beta_T)
     n_m = n_minus(omega, omega_0, tau_0, beta_T)
 
-    nm_norm_theory = (1 - np.exp(-tau_0)) / 2.0
+    # Normalization of the n- function (total reflection probability, see eq. 37 in Lyutikov and Gavrill 2006).
+    p_reflect_tot = (1 - np.exp(-tau_0)) / 2.0
+    # Reshape p_reflect_tot to make it compatible for broadcasting.
+    p_reflect_tot = p_reflect_tot[:, np.newaxis]
 
-    nm_norm_theory = nm_norm_theory[:, np.newaxis]
-
-    nm_norm = trapz(n_m, omega, axis=1) / (nm_norm_theory)
-    np_norm = trapz(n_p, omega, axis=1) / (1 - nm_norm_theory)
-
+    # Compute the normalizations for n+ and n- to transform them into probabilities.
+    np_norm = trapz(n_p, omega, axis=1) / (1 - p_reflect_tot)
+    nm_norm = trapz(n_m, omega, axis=1) / p_reflect_tot
     np_norm = np_norm[:, np.newaxis, :]
     nm_norm = nm_norm[:, np.newaxis, :]
 
@@ -193,48 +236,102 @@ def resonant_cyclothron_scat_spectrum(
     E_0: np.ndarray,
     tau_0: np.ndarray,
     beta_T: np.ndarray,
-    n_source: np.ndarray,
+    I_source: np.ndarray,
 ) -> np.ndarray:
     """
-    Compute the spectrum resulting from resonant cyclothron scattering given a source intensity spectrum (see Lyutikov and Gavrill 2006).
+    Compute the spectrum resulting from resonant cyclothron scattering (RCS) given a source intensity spectrum
+    (see Lyutikov and Gavrill 2006).
+
+    Args:
+        E (np.ndarray): array of energies in [eV] of the transmitted intensity.
+        E_0 (np.ndarray): array of energies in [eV] of the source intensity.
+        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
+        beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
+        I_source (np.ndarray): intensity of the source in [erg cm^-2 s^-1 eV^-1 sterad^-1].
+
+    Returns:
+        (np.ndarray): resonant cyclothron scattering spectrum intensity in [erg cm^-2 s^-1 eV^-1 sterad^-1].
     """
     rcs_spectrum = np.zeros((len(tau_0), len(E)))
 
-    # Convert photon energy in eV into omega frequencies in s^-1.
+    # Convert photon energy in eV into omega frequencies in Hz.
     freq_0 = E_0 * const.EV_TO_ERG / const.H
     omega_0 = 2.0 * np.pi * freq_0
 
     freq = E * const.EV_TO_ERG / const.H
     omega = 2.0 * np.pi * freq
 
+    # Compute the transmission and reflection probabilities.
     p_trans, p_refl = trans_reflect_prob(omega, omega_0, tau_0, beta_T)
 
-    n = n_source[:, np.newaxis, :]
-    n_trans = trapz((n * p_trans), omega_0, axis=2)
-    print(n_trans.shape)
-    rcs_spectrum = rcs_spectrum + n_trans
+    # Compute the RCS spectrum by considering multiple reflections and transmissions (we consider 6 reflections).
+    # (see eq. 42 in Lyutikov and Gavrill 2006).
+    Intensity = I_source[:, np.newaxis, :]
+    I_trans = trapz((Intensity * p_trans), omega_0, axis=2)
+    rcs_spectrum = rcs_spectrum + I_trans
 
-    for i in range(6):
-        n_reflect = trapz((n * p_refl), omega_0, axis=2)
-        n_reflect = n_reflect[:, np.newaxis, :]
-        n_trans_refl = trapz((n_reflect * p_trans), omega_0, axis=2)
-        rcs_spectrum = rcs_spectrum + n_trans_refl
+    n_reflections = 6
+    for i in range(n_reflections):
+        I_reflect = trapz((Intensity * p_refl), omega_0, axis=2)
+        I_reflect = I_reflect[:, np.newaxis, :]
+        I_trans_refl = trapz((I_reflect * p_trans), omega_0, axis=2)
+        rcs_spectrum = rcs_spectrum + I_trans_refl
 
-        n = n_trans_refl[:, np.newaxis, :]
+        Intensity = I_trans_refl[:, np.newaxis, :]
 
     return rcs_spectrum
 
 
+def beta_electrons(B: np.ndarray) -> np.ndarray:
+    """
+    Approximated relation between the average plasma thermal velocity and magnetic field strength
+    (see Gullon et al. 2015 and fig. 11 in Rea et al. 2008).
+
+    Args:
+        B (np.ndarray): array of magnetic field strength in [G].
+
+    Returns:
+        (np.ndarray): average plasma thermal velocity in units of the speed of light.
+    """
+    beta = 0.001 * np.ones(len(B))
+    beta[B > 1.0e13] = 0.3
+
+    return beta
+
+
+def resonant_optical_depth(B: np.ndarray) -> np.ndarray:
+    """
+    Approximated relation between the resonant optical depth and the magnetic field strength
+    (see Gullon et al. 2015 and fig. 11 in Rea et al. 2008).
+
+    Args:
+        B (np.ndarray): array of magnetic field strength in [G].
+
+    Returns:
+        (np.ndarray): resonant optical depth values.
+    """
+    tau_res = 0.001 * np.ones(len(B))
+    tau_res[B > 1.0e13] = B / 1.0e14
+
+    return tau_res
+
+
 def flux_xray_absorbed(
-    Lx: np.ndarray, RA: np.ndarray, DEC: np.ndarray, d: np.ndarray
+    Lx: np.ndarray,
+    B: np.ndarray,
+    RA: np.ndarray,
+    DEC: np.ndarray,
+    d: np.ndarray,
 ) -> np.ndarray:
     """
     Compute the x-ray flux density assuming a black-body spectral shape for the thermal x-ray emission.
 
     Args:
         Lx (np.ndarray): X-ray luminosity in [erg/s].
+        B (np.ndarray): array of magnetic field strength in [G].
         RA (np.ndarray): array of right ascension in [deg] defined between [-90, 90] deg.
         DEC (np.ndarray): array of right ascension in [deg] defined between [0, 360] deg.
+        d (np.ndarray): array of distances in kpc.
 
     Returns:
         (np.ndarray): absorbed x-ray fluxes in [erg s^-1 cm^-2].
@@ -243,31 +340,35 @@ def flux_xray_absorbed(
 
     R_obs = cfg["NS_radius"] / gr_correction
 
+    d = d * const.KPC_TO_CM
+
     # Define the energy range between 0.01 keV and 20 keV (a larger energy range than the one where the absorption
-    # cross-section is defined, is required in order to compute the resonant cyclothron scattered spectrum).
+    # cross-section is defined, is required in order to have a good approximation of the RCS spectrum).
     E = np.logspace(1.0, np.log10(20000), 1000)
     I_bb = blackbody_intensity_spectrum(E, T_obs)
 
-    # Calculate the black-body spectrum in [ph cm^-2 s^-1 eV^-1 sterad^-1].
-    n_bb = I_bb / (E * const.EV_TO_ERG)
+    # Estimate the parameters to compute the RCS spectrum.
+    tau_res = resonant_optical_depth(B)
+    tau_0 = tau_res / 2.0
+    beta_T = beta_electrons(B)
 
-    tau_res = np.array([10.0])
-    tau_0 = tau_res / 2
-    beta_T = np.array([0.3])
-    rcs_spectrum_trans = resonant_cyclothron_scat_spectrum(
-        E, E, tau_0, beta_T, n_bb
-    )
+    I_rcs = resonant_cyclothron_scat_spectrum(E, E, tau_0, beta_T, I_bb)
 
+    # Estimate the N_H column density.
     N_H = nhm.compute_NH(RA, DEC, d)
     # Reshape N_H to make it compatible for broadcasting.
     N_H = N_H.reshape(-1, 1)
 
+    # Estimate the X-ray absorption cross section.
     sigma_ISM = xabs.absorption_cross_section_tot(E, cfg["ISM_abundances"])
 
+    # Compute the absorbed intensity.
     absorb_factor = np.exp(-sigma_ISM * N_H)
-    I_absorbed = absorb_factor * rcs_spectrum_trans
+    I_absorbed = absorb_factor * I_rcs
 
-    I_absorbed_bolom = trapz(I_absorbed, E, axis=-1)
+    # Compute the total observed flux in the energy range [0.01, 10] keV.
+    E_mask = E <= 10000
+    I_absorbed_bolom = trapz(I_absorbed[:, E_mask], E[E_mask], axis=1)
     flux = (R_obs / d) ** 2 * np.pi * I_absorbed_bolom
 
     return flux
