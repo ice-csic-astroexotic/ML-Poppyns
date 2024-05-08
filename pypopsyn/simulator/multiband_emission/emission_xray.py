@@ -113,8 +113,8 @@ def n_plus(
     Transimission function n+ in eq. (36) in Lyutikov and Gavrill 2006.
 
     Args:
-        omega (np.ndarray): array of frequences (in the form 2*pi*f) for the transimitted photons in Hz.
-        omega_0 (np.ndarray): array of frequences (in the form 2*pi*f) for the source photons in Hz.
+        omega (np.ndarray): array of frequencies (in the form 2*pi*f) for the transimitted photons in Hz.
+        omega_0 (np.ndarray): array of frequencies (in the form 2*pi*f) for the source photons in Hz.
         tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
         beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
 
@@ -158,8 +158,8 @@ def n_minus(
     Reflection function n- in eq. (36) in Lyutikov and Gavrill 2006.
 
     Args:
-        omega (np.ndarray): array of frequences (in the form 2*pi*f) for the reflected photons in Hz.
-        omega_0 (np.ndarray): array of frequences (in the form 2*pi*f) for the source photons in Hz.
+        omega (np.ndarray): array of frequencies (in the form 2*pi*f) for the reflected photons in Hz.
+        omega_0 (np.ndarray): array of frequencies (in the form 2*pi*f) for the source photons in Hz.
         tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
         beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
 
@@ -197,12 +197,12 @@ def trans_reflect_prob(
     beta_T: np.ndarray,
 ) -> (np.ndarray, np.ndarray):
     """
-    Compute the transmitted and reflected flux probabilities by normalizing the transsmission and reflection functions
+    Compute the transmitted and reflected flux probabilities by normalizing the transmission and reflection functions
     (see Lyutikov and Gavrill 2006).
 
     Args:
-        omega (np.ndarray): array of frequences (in the form 2*pi*f) for the reflected photons in Hz.
-        omega_0 (np.ndarray): array of frequences (in the form 2*pi*f) for the source photons in Hz.
+        omega (np.ndarray): array of frequencies (in the form 2*pi*f) for the reflected photons in Hz.
+        omega_0 (np.ndarray): array of frequencies (in the form 2*pi*f) for the source photons in Hz.
         tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
         beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
 
@@ -236,10 +236,11 @@ def resonant_cyclothron_scat_spectrum(
     E_0: np.ndarray,
     tau_0: np.ndarray,
     beta_T: np.ndarray,
-    I_source: np.ndarray,
+    I_ph_source: np.ndarray,
+    n_reflections: int,
 ) -> np.ndarray:
     """
-    Compute the spectrum resulting from resonant cyclothron scattering (RCS) given a source intensity spectrum
+    Compute the spectrum resulting from resonant cyclothron scattering (RCS) given a source photon intensity spectrum
     (see Lyutikov and Gavrill 2006).
 
     Args:
@@ -247,10 +248,12 @@ def resonant_cyclothron_scat_spectrum(
         E_0 (np.ndarray): array of energies in [eV] of the source intensity.
         tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
         beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
-        I_source (np.ndarray): intensity of the source in [erg cm^-2 s^-1 eV^-1 sterad^-1].
+        I_ph_source (np.ndarray): intensity of the source in [ph cm^-2 s^-1 eV^-1 sterad^-1].
+        n_reflections (int): number of reflections (6 reflections guarantees convergence of the final spectrum,
+                             see Lyutikov and Gavrill 2006).
 
     Returns:
-        (np.ndarray): resonant cyclothron scattering spectrum intensity in [erg cm^-2 s^-1 eV^-1 sterad^-1].
+        (np.ndarray): resonant cyclothron scattering spectrum intensity in [ph cm^-2 s^-1 eV^-1 sterad^-1].
     """
     rcs_spectrum = np.zeros((len(tau_0), len(E)))
 
@@ -264,20 +267,19 @@ def resonant_cyclothron_scat_spectrum(
     # Compute the transmission and reflection probabilities.
     p_trans, p_refl = trans_reflect_prob(omega, omega_0, tau_0, beta_T)
 
-    # Compute the RCS spectrum by considering multiple reflections and transmissions (we consider 6 reflections).
+    # Compute the RCS spectrum by considering multiple reflections and transmissions.
     # (see eq. 42 in Lyutikov and Gavrill 2006).
-    Intensity = I_source[:, np.newaxis, :]
-    I_trans = trapz((Intensity * p_trans), omega_0, axis=2)
-    rcs_spectrum = rcs_spectrum + I_trans
+    I_ph = I_ph_source[:, np.newaxis, :]
+    I_ph_trans = trapz((I_ph * p_trans), omega_0, axis=2)
+    rcs_spectrum = rcs_spectrum + I_ph_trans
 
-    n_reflections = 6
     for i in range(n_reflections):
-        I_reflect = trapz((Intensity * p_refl), omega_0, axis=2)
-        I_reflect = I_reflect[:, np.newaxis, :]
-        I_trans_refl = trapz((I_reflect * p_trans), omega_0, axis=2)
-        rcs_spectrum = rcs_spectrum + I_trans_refl
+        I_ph_reflect = trapz((I_ph * p_refl), omega_0, axis=2)
+        I_ph_reflect = I_ph_reflect[:, np.newaxis, :]
+        I_ph_trans_refl = trapz((I_ph_reflect * p_trans), omega_0, axis=2)
+        rcs_spectrum = rcs_spectrum + I_ph_trans_refl
 
-        Intensity = I_trans_refl[:, np.newaxis, :]
+        I_ph = I_ph_trans_refl[:, np.newaxis, :]
 
     return rcs_spectrum
 
@@ -346,18 +348,23 @@ def flux_xray_absorbed(
     # cross-section is defined, is required in order to have a good approximation of the RCS spectrum).
     E = np.logspace(1.0, np.log10(20000), 1000)
     I_bb = blackbody_intensity_spectrum(E, T_obs)
+    # Compute the intensity in [ph cm^-2 s^-1 eV^-1 sterad^-1].
+    I_ph_bb = I_bb / (E * const.EV_TO_ERG)
 
     # Estimate the parameters to compute the RCS spectrum.
     tau_res = resonant_optical_depth(B)
     tau_0 = tau_res / 2.0
     beta_T = beta_electrons(B)
 
-    I_rcs = resonant_cyclothron_scat_spectrum(E, E, tau_0, beta_T, I_bb)
+    # Compute the RCS spectrum and convert it in [erg cm^-2 s^-1 eV^-1 sterad^-1].
+    I_rcs = resonant_cyclothron_scat_spectrum(
+        E, E, tau_0, beta_T, I_ph_bb, n_reflections=6
+    ) * (E * const.EV_TO_ERG)
 
     # Estimate the N_H column density.
     N_H = nhm.compute_NH(RA, DEC, d)
     # Reshape N_H to make it compatible for broadcasting.
-    N_H = N_H.reshape(-1, 1)
+    N_H = N_H[:, np.newaxis]
 
     # Estimate the X-ray absorption cross section.
     sigma_ISM = xabs.absorption_cross_section_tot(E, cfg["ISM_abundances"])
