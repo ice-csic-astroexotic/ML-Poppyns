@@ -77,3 +77,4 @@ def coverage_prob(
     plt.xlabel(r"Credibility level $1-\alpha$", fontsize=10)
     plt.ylabel(r"Coverage probability", fontsize=10)
     plt.savefig(f"{save_dir}/coverage_plot.pdf")
+    plt.close()
