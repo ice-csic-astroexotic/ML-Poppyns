@@ -284,7 +284,7 @@ def resonant_cyclothron_scat_spectrum(
     return rcs_spectrum
 
 
-def beta_electrons(B: np.ndarray) -> np.ndarray:
+def beta_plasma(B: np.ndarray) -> np.ndarray:
     """
     Approximated relation between the average plasma thermal velocity and magnetic field strength
     (see Gullon et al. 2015 and fig. 11 in Rea et al. 2008).
@@ -313,7 +313,7 @@ def resonant_optical_depth(B: np.ndarray) -> np.ndarray:
         (np.ndarray): resonant optical depth values.
     """
     tau_res = 0.001 * np.ones(len(B))
-    tau_res[B > 1.0e13] = B / 1.0e14
+    tau_res[B > 1.0e13] = B[B > 1.0e13] / 1.0e14
 
     return tau_res
 
@@ -354,7 +354,7 @@ def flux_xray_absorbed(
     # Estimate the parameters to compute the RCS spectrum.
     tau_res = resonant_optical_depth(B)
     tau_0 = tau_res / 2.0
-    beta_T = beta_electrons(B)
+    beta_T = beta_plasma(B)
 
     # Compute the RCS spectrum and convert it in [erg cm^-2 s^-1 eV^-1 sterad^-1].
     I_rcs = resonant_cyclothron_scat_spectrum(
