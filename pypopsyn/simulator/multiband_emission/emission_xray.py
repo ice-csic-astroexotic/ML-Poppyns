@@ -214,7 +214,7 @@ def trans_reflect_prob(
     n_p = n_plus(omega, omega_0, tau_0, beta_T)
     n_m = n_minus(omega, omega_0, tau_0, beta_T)
 
-    # Normalization of the n- function (total reflection probability, see eq. 37 in Lyutikov and Gavrill 2006).
+    # Normalization of the n- function (total reflection probability, see eq. (37) in Lyutikov and Gavrill 2006).
     p_reflect_tot = (1 - np.exp(-tau_0)) / 2.0
     # Reshape p_reflect_tot to make it compatible for broadcasting.
     p_reflect_tot = p_reflect_tot[:, np.newaxis]
@@ -241,7 +241,7 @@ def resonant_cyclothron_scat_spectrum(
 ) -> np.ndarray:
     """
     Compute the spectrum resulting from resonant cyclothron scattering (RCS) given a source photon intensity spectrum
-    (see Lyutikov and Gavrill 2006).
+    considering multiple reflections and transmissions (see eq. (42) in Lyutikov and Gavrill 2006).
 
     Args:
         E (np.ndarray): array of energies in [eV] of the transmitted intensity.
@@ -287,7 +287,7 @@ def resonant_cyclothron_scat_spectrum(
 def beta_plasma(B: np.ndarray) -> np.ndarray:
     """
     Approximated relation between the average plasma thermal velocity and magnetic field strength
-    (see Gullon et al. 2015 and fig. 11 in Rea et al. 2008).
+    (see eq. (4) in Gullon et al. 2015 and fig. 11 in Rea et al. 2008).
 
     Args:
         B (np.ndarray): array of magnetic field strength in [G].
@@ -304,7 +304,7 @@ def beta_plasma(B: np.ndarray) -> np.ndarray:
 def resonant_optical_depth(B: np.ndarray) -> np.ndarray:
     """
     Approximated relation between the resonant optical depth and the magnetic field strength
-    (see Gullon et al. 2015 and fig. 11 in Rea et al. 2008).
+    (see eq. (3) in Gullon et al. 2015 and fig. 11 in Rea et al. 2008).
 
     Args:
         B (np.ndarray): array of magnetic field strength in [G].
@@ -369,7 +369,7 @@ def flux_xray_absorbed(
     # Estimate the X-ray absorption cross section.
     sigma_ISM = xabs.absorption_cross_section_tot(E, cfg["ISM_abundances"])
 
-    # Compute the absorbed intensity.
+    # Compute the absorbed intensity (see eq. (2) in Wilms et al. 2000).
     absorb_factor = np.exp(-sigma_ISM * N_H)
     I_absorbed = absorb_factor * I_rcs
 
