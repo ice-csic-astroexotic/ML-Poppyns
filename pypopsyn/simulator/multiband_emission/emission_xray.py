@@ -231,7 +231,7 @@ def trans_reflect_prob(
     return p_trans, p_refl
 
 
-def resonant_cyclothron_scat_spectrum(
+def resonant_cyclotron_scat_spectrum(
     E: np.ndarray,
     E_0: np.ndarray,
     tau_0: np.ndarray,
@@ -240,7 +240,7 @@ def resonant_cyclothron_scat_spectrum(
     n_reflections: int,
 ) -> np.ndarray:
     """
-    Compute the spectrum resulting from resonant cyclothron scattering (RCS) given a source photon intensity spectrum
+    Compute the spectrum resulting from resonant cyclotron scattering (RCS) given a source photon intensity spectrum
     considering multiple reflections and transmissions (see eq. (42) in Lyutikov and Gavrill 2006).
 
     Args:
@@ -253,7 +253,7 @@ def resonant_cyclothron_scat_spectrum(
                              see Lyutikov and Gavrill 2006).
 
     Returns:
-        (np.ndarray): resonant cyclothron scattering spectrum intensity in [ph cm^-2 s^-1 eV^-1 sterad^-1].
+        (np.ndarray): resonant cyclotron scattering spectrum intensity in [ph cm^-2 s^-1 eV^-1 sterad^-1].
     """
     rcs_spectrum = np.zeros((len(tau_0), len(E)))
 
@@ -357,7 +357,7 @@ def flux_xray_absorbed(
     beta_T = beta_plasma(B)
 
     # Compute the RCS spectrum and convert it in [erg cm^-2 s^-1 eV^-1 sterad^-1].
-    I_rcs = resonant_cyclothron_scat_spectrum(
+    I_rcs = resonant_cyclotron_scat_spectrum(
         E, E, tau_0, beta_T, I_ph_bb, n_reflections=6
     ) * (E * const.EV_TO_ERG)
 

@@ -296,12 +296,12 @@ def test_trans_reflect_prob(test_case_1):
     ).all()
 
 
-def test_resonant_cyclothron_scat_spectrum(test_case_1):
+def test_resonant_cyclotron_scat_spectrum(test_case_1):
     """
     Verifying that the RCS spectrum is correctly calculated.
     """
 
-    rcs_spectrum_out = xem.resonant_cyclothron_scat_spectrum(
+    rcs_spectrum_out = xem.resonant_cyclotron_scat_spectrum(
         test_case_1["E"],
         test_case_1["E"],
         test_case_1["tau_0"],
