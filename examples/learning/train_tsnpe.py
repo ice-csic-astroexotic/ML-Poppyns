@@ -435,7 +435,8 @@ def train(args, config):
     )
 
     # Set up GPU device if available.
-    device, device_ids = request_device(config["n_gpu"])
+    logger.info("Requesting {} GPUs...".format(config["n_gpu"]))
+    device, device_ids = request_device(logger, config["n_gpu"])
     logger.info("Devices obtained: {}".format(device_ids))
 
     if config["enable_dask"]:
