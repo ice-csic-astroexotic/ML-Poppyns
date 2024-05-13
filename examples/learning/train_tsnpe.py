@@ -53,6 +53,7 @@ from sbi import utils
 from sbi.inference import SNPE
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
 from sbi.inference.snpe.snpe_c import SNPE_C
+from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 from tqdm import tqdm
 
 import pypopsyn.benchmark.timewith as timewith
@@ -584,26 +585,85 @@ def train(args, config):
                     logger.info(
                         f"Training the density estimator with {parameter_round.shape[0]} samples in round {i} ..."
                     )
-                    density_estimator = inference.append_simulations(
-                        parameter_round.to(device), matrix_round.to(device)
-                    ).train(
-                        learning_rate=config["trainer"]["lr"],
-                        training_batch_size=config["trainer"]["batch_size"],
-                        validation_fraction=config["trainer"][
-                            "validation_fraction"
-                        ],
-                        show_train_summary=True,
-                        force_first_round_loss=True,
-                    )
+
+                    # If config["ensemble"] is set to 'True', instead of training a single neural network,
+                    # 'config["size_ensemble"]' neural networks are trained to construct an ensemble of posteriors.
+                    # This will prevent narrow posteriors.
+                    if config["trainer"]["ensemble"]:
+                        size_ensemble = config["trainer"]["size_ensemble"]
+
+                        logger.info(
+                            f"Training an ensemble of {size_ensemble} mixture density networks..."
+                        )
+                        posteriors_list = []
+
+                        for index in range(size_ensemble):
+
+                            density_estimator = inference.append_simulations(
+                                parameter_round.to(device),
+                                matrix_round.to(device),
+                            ).train(
+                                learning_rate=config["trainer"]["lr"],
+                                training_batch_size=config["trainer"][
+                                    "batch_size"
+                                ],
+                                validation_fraction=config["trainer"][
+                                    "validation_fraction"
+                                ],
+                                show_train_summary=True,
+                                force_first_round_loss=True,
+                            )
+                            posterior_ensemble = inference.build_posterior(
+                                density_estimator, prior=prior
+                            )
+                            logger.info(
+                                f"Saving the trained model for round {i}..."
+                            )
+
+                            with open(
+                                f"{save_dir_round}/trained_model_ensemble{index}.pickle",
+                                "wb",
+                            ) as output_file:
+                                pickle.dump(
+                                    density_estimator.cpu(), output_file
+                                )
+
+                            posteriors_list.append(posterior_ensemble)
+
+                        posterior = NeuralPosteriorEnsemble(posteriors_list)
+
+                    else:
+
+                        density_estimator = inference.append_simulations(
+                            parameter_round.to(device), matrix_round.to(device)
+                        ).train(
+                            learning_rate=config["trainer"]["lr"],
+                            training_batch_size=config["trainer"][
+                                "batch_size"
+                            ],
+                            validation_fraction=config["trainer"][
+                                "validation_fraction"
+                            ],
+                            show_train_summary=True,
+                            force_first_round_loss=True,
+                        )
+
+                        with open(
+                            f"{save_dir_round}/trained_model_ensemble{index}.pickle",
+                            "wb",
+                        ) as output_file:
+                            pickle.dump(density_estimator.cpu(), output_file)
+
+                        posterior = inference.build_posterior(
+                            density_estimator, prior=prior
+                        )
+
                 with timewith.TimeWith(
                     f"[TestingRound{i}]",
                     prof_log_path,
                     prof_json_path,
                     config["show_profiling"],
                 ):
-                    posterior = inference.build_posterior(
-                        density_estimator, prior=prior
-                    )
 
                     num_sim_test = config["test_data_loader"]["num_sim"]
 
