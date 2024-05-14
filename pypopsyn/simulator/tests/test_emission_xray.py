@@ -37,11 +37,9 @@ TOL = 1e-5
 def test_case_1():
     data = {
         "Lx": np.array([3.0e35, 2.0e34, 2.0e33]),
-        "E": np.logspace(np.log10(10), np.log10(20000), 4),
         "T": np.array([1.0e6, 2.0e6]),
-        "x": np.linspace(-1.0, 1.0, 3),
-        "omega": np.logspace(16, 19, 4),
-        "omega_0": np.logspace(16, 19, 4),
+        "E": np.logspace(1.0, np.log10(20000), 4),
+        "E_0": np.logspace(1.0, np.log10(20000), 4),
         "tau_0": np.array([1.0, 5.0, 10.0]),
         "beta_T": np.array([0.1, 0.3, 0.5]),
         "I_ph_source": np.array(
@@ -65,116 +63,66 @@ def test_case_1():
                 [8.43731671e14, 9.35795900e16, 2.01607344e16, 1.61432375e-27],
             ]
         ),
-        "dirac_delta_expected": np.array([0.0, 2.0e-17, 0.0]),
-        "n_plus_expected": np.array(
+        "n_plus_no_delta_expected": np.array(
             [
                 [
-                    [1.21306132e-17, 0.0, 0.0, 0.0],
-                    [0.0, 1.21306132e-17, 0.0, 0.0],
-                    [0.0, 0.0, 1.21306132e-17, 0.0],
-                    [0.0, 0.0, 0.0, 1.21306132e-17],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
                 ],
                 [
-                    [1.64169997e-18, 0.0, 0.0, 0.0],
-                    [0.0, 1.64169997e-18, 0.0, 0.0],
-                    [0.0, 0.0, 1.64169997e-18, 0.0],
-                    [0.0, 0.0, 0.0, 1.64169997e-18],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
                 ],
                 [
-                    [1.34758940e-19, 0.0, 0.0, 0.0],
-                    [0.0, 1.34758940e-19, 0.0, 0.0],
-                    [0.0, 0.0, 1.34758940e-19, 0.0],
-                    [0.0, 0.0, 0.0, 1.34758940e-19],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
                 ],
             ]
         ),
         "n_minus_expected": np.array(
             [
                 [
-                    [9.59884715e-17, 0.0, 0.0, 0.0],
-                    [0.0, 9.59884715e-18, 0.0, 0.0],
-                    [0.0, 0.0, 9.59884715e-19, 0.0],
-                    [0.0, 0.0, 0.0, 9.59884715e-20],
+                    [8.06294088e-02, 0.0, 0.0, 0.0],
+                    [0.0, 6.39956042e-03, 0.0, 0.0],
+                    [0.0, 0.0, 5.07933447e-04, 0.0],
+                    [0.0, 0.0, 0.0, 4.03147044e-05],
                 ],
                 [
-                    [4.65830175e-16, 0.0, 0.0, 0.0],
-                    [0.0, 4.65830175e-17, 0.0, 0.0],
-                    [0.0, 0.0, 4.65830175e-18, 0.0],
-                    [0.0, 0.0, 0.0, 4.65830175e-19],
-                ],
-                [
-                    [
-                        4.74303735e-15,
-                        2.60148965e-18,
-                        2.63269354e-20,
-                        1.76972659e-21,
-                    ],
-                    [0.0, 4.74303735e-16, 2.60148965e-19, 2.63269354e-21],
-                    [0.0, 0.0, 4.74303735e-17, 2.60148965e-20],
-                    [0.0, 0.0, 0.0, 4.74303735e-18],
-                ],
-            ]
-        ),
-        "p_trans_expected": np.array(
-            [
-                [
-                    [1.51986605e-17, 0.0, 0.0, 0.0],
-                    [0.0, 1.38169641e-18, 0.0, 0.0],
-                    [0.0, 0.0, 1.38169641e-19, 0.0],
-                    [0.0, 0.0, 0.0, 1.51986605e-19],
-                ],
-                [
-                    [1.11859772e-17, 0.0, 0.0, 0.0],
-                    [0.0, 1.01690702e-18, 0.0, 0.0],
-                    [0.0, 0.0, 1.01690702e-19, 0.0],
-                    [0.0, 0.0, 0.0, 1.11859772e-19],
-                ],
-                [
-                    [1.11116156e-17, 0.0, 0.0, 0.0],
-                    [0.0, 1.01014687e-18, 0.0, 0.0],
-                    [0.0, 0.0, 1.01014687e-19, 0.0],
-                    [0.0, 0.0, 0.0, 1.11116156e-19],
-                ],
-            ]
-        ),
-        "p_refl_expected": np.array(
-            [
-                [
-                    [7.02356176e-18, 0.0, 0.0, 0.0],
-                    [0.0, 6.38505615e-19, 0.0, 0.0],
-                    [0.0, 0.0, 6.38505615e-20, 0.0],
-                    [0.0, 0.0, 0.0, 7.02356176e-20],
-                ],
-                [
-                    [1.10362450e-17, 0.0, 0.0, 0.0],
-                    [0.0, 1.00329500e-18, 0.0, 0.0],
-                    [0.0, 0.0, 1.00329500e-19, 0.0],
-                    [0.0, 0.0, 0.0, 1.10362450e-19],
+                    [5.62596753e-02, 0.0, 0.0, 0.0],
+                    [0.0, 4.46533339e-03, 0.0, 0.0],
+                    [0.0, 0.0, 3.54413746e-04, 0.0],
+                    [0.0, 0.0, 0.0, 2.81298377e-05],
                 ],
                 [
                     [
-                        1.11106067e-17,
-                        5.53725023e-21,
-                        5.60335995e-23,
-                        4.12047288e-23,
+                        4.58852032e-02,
+                        2.94830113e-04,
+                        1.14610707e-05,
+                        8.47514307e-07,
                     ],
-                    [0.0, 1.00955177e-18, 5.53694635e-22, 6.12972784e-23],
-                    [0.0, 0.0, 1.00949636e-19, 6.05707549e-22],
-                    [0.0, 0.0, 0.0, 1.10432634e-19],
+                    [0.0, 3.64191099e-03, 2.34006816e-05, 9.09665784e-07],
+                    [0.0, 0.0, 2.89058667e-04, 1.85731333e-06],
+                    [0.0, 0.0, 0.0, 2.29426016e-05],
                 ],
             ]
         ),
         "rcs_spectrum_expected": np.array(
             [
-                [2.87907662e26, 3.83876882e27, 1.91938441e28, 1.91938441e22],
-                [8.36600776e25, 1.67320155e27, 8.36600776e27, 8.36600776e21],
-                [4.32869431e26, 5.04811927e27, 2.49942977e28, 2.49448275e22],
+                [2.40932233e29, 4.88650350e30, 2.44325175e31, 1.79400851e22],
+                [4.47753265e25, 9.76982358e26, 4.88491179e27, 1.03804395e21],
+                [4.62415903e25, 2.07720449e26, 7.94215165e26, 2.44894218e20],
             ]
         ),
         "beta_T_expected": np.array([0.001, 0.3, 0.3]),
         "tau_res_expected": np.array([0.001, 1.0, 10.0]),
         "flux_expected": np.array(
-            [6.35594512e-11, 1.19205549e-12, 6.42424218e-14]
+            [6.35737874e-11, 1.06565796e-12, 5.86406010e-14]
         ),
     }
 
@@ -215,38 +163,23 @@ def test_blackbody_intensity_spectrum(test_case_1):
     ).all()
 
 
-def test_dirac_delta(test_case_1):
+def test_n_plus_no_delta(test_case_1):
     """
-    Verifying that for a given temperature the black-body intensity spectrum is correctly calculated.
-    """
-
-    dirac_delta_out = xem.dirac_delta(test_case_1["x"])
-
-    assert np.isclose(
-        test_case_1["dirac_delta_expected"],
-        dirac_delta_out,
-        rtol=TOL,
-        atol=1.0e-23,
-    ).all()
-
-
-def test_n_plus(test_case_1):
-    """
-    Verifying that the transmission function n+ is correctly calculated.
+    Verifying that the transmission function n+ without the Dirac delta term is correctly calculated.
     """
 
-    n_plus_out = xem.n_plus(
-        test_case_1["omega"],
-        test_case_1["omega_0"],
+    n_plus_no_delta_out = xem.n_plus_no_delta(
+        test_case_1["E"],
+        test_case_1["E_0"],
         test_case_1["tau_0"],
         test_case_1["beta_T"],
     )
 
     assert np.isclose(
-        test_case_1["n_plus_expected"],
-        n_plus_out,
+        test_case_1["n_plus_no_delta_expected"],
+        n_plus_no_delta_out,
         rtol=TOL,
-        atol=1.0e-23,
+        atol=1.0e-5,
     ).all()
 
 
@@ -256,8 +189,8 @@ def test_n_minus(test_case_1):
     """
 
     n_minus_out = xem.n_minus(
-        test_case_1["omega"],
-        test_case_1["omega_0"],
+        test_case_1["E"],
+        test_case_1["E_0"],
         test_case_1["tau_0"],
         test_case_1["beta_T"],
     )
@@ -266,33 +199,7 @@ def test_n_minus(test_case_1):
         test_case_1["n_minus_expected"],
         n_minus_out,
         rtol=TOL,
-        atol=1.0e-23,
-    ).all()
-
-
-def test_trans_reflect_prob(test_case_1):
-    """
-    Verifying that the transmission and reflection probabilities are correctly calculated.
-    """
-
-    p_trans_out, p_refl_out = xem.trans_reflect_prob(
-        test_case_1["omega"],
-        test_case_1["omega_0"],
-        test_case_1["tau_0"],
-        test_case_1["beta_T"],
-    )
-
-    assert np.isclose(
-        test_case_1["p_trans_expected"],
-        p_trans_out,
-        rtol=TOL,
-        atol=1.0e-23,
-    ).all()
-    assert np.isclose(
-        test_case_1["p_refl_expected"],
-        p_refl_out,
-        rtol=TOL,
-        atol=1.0e-23,
+        atol=1.0e-5,
     ).all()
 
 
@@ -364,7 +271,6 @@ def test_flux_xray_absorbed(test_case_1):
         test_case_1["DEC"],
         test_case_1["d"],
     )
-    print(flux_out)
 
     assert np.isclose(
         test_case_1["flux_expected"],

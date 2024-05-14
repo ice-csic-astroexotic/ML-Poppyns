@@ -84,83 +84,61 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
     return I_bb
 
 
-def dirac_delta(x: np.ndarray) -> np.ndarray:
-    """
-    Approximation of the Dirac delta function.
-
-    Args:
-        x (np.ndarray): array of values.
-
-    Returns:
-        (np.ndarray): Value of the Dirac delta function.
-    """
-    epsilon = 1e-10
-
-    # The value of the Dirac delta inside the interval [-epsilon, epsilon] is chosen to be 2.0e-17 to have
-    # meaningful results when computing the RCS spectrum.
-    dirac_delta = np.where(np.abs(x) < epsilon, 2.0e-17, 0.0)
-
-    return dirac_delta
-
-
-def n_plus(
-    omega: np.ndarray,
-    omega_0: np.ndarray,
+def n_plus_no_delta(
+    E: np.ndarray,
+    E_0: np.ndarray,
     tau_0: np.ndarray,
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    Transimission function n+ in eq. (36) in Lyutikov and Gavrill 2006.
+    Transmission function n+ without the Dirac delta term in eq. (36) in Lyutikov and Gavrill (2006).
+    When computing the transmitted flux the Dirac delta term will be added analytically in order to avoid computing
+    it numerically.
 
     Args:
-        omega (np.ndarray): array of frequencies (in the form 2*pi*f) for the transimitted photons in Hz.
-        omega_0 (np.ndarray): array of frequencies (in the form 2*pi*f) for the source photons in Hz.
-        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
+        E (np.ndarray): array of energies of the transimitted photons in [eV].
+        E_0 (np.ndarray): array of energies of the source photons in [eV].
+        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavrill 2006).
         beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
 
     Returns:
-        (np.ndarray): Value of the transmission function n+.
+        (np.ndarray): Value of the transmission function n+ without the Dirac delta term.
                       This will have shape (NS_number, len(omega), len(omega_0)).
     """
 
     # Reshape the input arrays to make it compatible for broadcasting.
-    omega_0 = omega_0[np.newaxis, np.newaxis, :]
-    omega = omega[np.newaxis, :, np.newaxis]
+    E_0 = E_0[np.newaxis, np.newaxis, :]
+    E = E[np.newaxis, :, np.newaxis]
     tau_0 = tau_0[:, np.newaxis, np.newaxis]
     beta_T = beta_T[:, np.newaxis, np.newaxis]
 
-    term_1 = (
-        tau_0
-        / (8.0 * beta_T * omega_0)
-        * ((omega_0 * (1.0 + 4.0 * beta_T) - omega) / (omega - omega_0)) ** 0.5
-    )
-    I1 = scsp.i1(
-        tau_0
-        / (4.0 * beta_T * omega_0)
-        * ((omega - omega_0) * (omega_0 * (1.0 + 4.0 * beta_T) - omega)) ** 0.5
-    )
+    x = (E - E_0) / E_0
+
+    term_1 = tau_0 / (8.0 * beta_T) * ((4.0 * beta_T - x) / x) ** 0.5
+    I1 = scsp.i1(tau_0 / (4.0 * beta_T) * (x * (4.0 * beta_T - x)) ** 0.5)
 
     term_2 = term_1 * I1
     term_2 = np.nan_to_num(term_2, nan=0)
 
-    n_p = np.exp(-tau_0 / 2.0) * (dirac_delta(omega - omega_0) + term_2)
+    n_p = np.exp(-tau_0 / 2.0) / E_0 * term_2
 
     return n_p
 
 
 def n_minus(
-    omega: np.ndarray,
-    omega_0: np.ndarray,
+    E: np.ndarray,
+    E_0: np.ndarray,
     tau_0: np.ndarray,
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    Reflection function n- in eq. (36) in Lyutikov and Gavrill 2006.
+    Reflection function n- in eq. (36) in Lyutikov and Gavrill (2006).
+    Note that in the original paper this equation misses a factor 1/2 inside the modified Bessel function.
 
     Args:
-        omega (np.ndarray): array of frequencies (in the form 2*pi*f) for the reflected photons in Hz.
-        omega_0 (np.ndarray): array of frequencies (in the form 2*pi*f) for the source photons in Hz.
-        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
+        E (np.ndarray): array of energies of the transimitted photons in [eV].
+        E_0 (np.ndarray): array of energies of the source photons in [eV].
+        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavrill 2006).
         beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
 
     Returns:
@@ -169,66 +147,23 @@ def n_minus(
     """
 
     # Reshape omega to make it compatible for broadcasting.
-    omega_0 = omega_0[np.newaxis, np.newaxis, :]
-    omega = omega[np.newaxis, :, np.newaxis]
+    E_0 = E_0[np.newaxis, np.newaxis, :]
+    E = E[np.newaxis, :, np.newaxis]
     tau_0 = tau_0[:, np.newaxis, np.newaxis]
     beta_T = beta_T[:, np.newaxis, np.newaxis]
 
+    x = (E - E_0) / E_0
+
     I0 = scsp.i0(
         tau_0
-        / (2.0 * beta_T * omega_0)
-        * (
-            (omega_0 * (1.0 + 2.0 * beta_T) - omega)
-            * (omega - omega_0 * (1.0 - 2.0 * beta_T))
-        )
-        ** 0.5
+        / (4.0 * beta_T)
+        * ((2.0 * beta_T - x) * (x + 2.0 * beta_T)) ** 0.5
     )
 
-    n_m = tau_0 / (8.0 * beta_T * omega_0) * np.exp(-tau_0 / 2.0) * I0
+    n_m = tau_0 / (8.0 * beta_T * E_0) * np.exp(-tau_0 / 2.0) * I0
     n_m = np.nan_to_num(n_m, nan=0)
 
     return n_m
-
-
-def trans_reflect_prob(
-    omega: np.ndarray,
-    omega_0: np.ndarray,
-    tau_0: np.ndarray,
-    beta_T: np.ndarray,
-) -> (np.ndarray, np.ndarray):
-    """
-    Compute the transmitted and reflected flux probabilities by normalizing the transmission and reflection functions
-    (see Lyutikov and Gavrill 2006).
-
-    Args:
-        omega (np.ndarray): array of frequencies (in the form 2*pi*f) for the reflected photons in Hz.
-        omega_0 (np.ndarray): array of frequencies (in the form 2*pi*f) for the source photons in Hz.
-        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
-        beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
-
-    Returns:
-        (np.ndarray): Value of the transmission and reflection probabilities.
-                      This will have shape (NS_number, len(omega), len(omega_0)).
-    """
-
-    n_p = n_plus(omega, omega_0, tau_0, beta_T)
-    n_m = n_minus(omega, omega_0, tau_0, beta_T)
-
-    # Normalization of the n- function (total reflection probability, see eq. (37) in Lyutikov and Gavrill 2006).
-    p_reflect_tot = (1 - np.exp(-tau_0)) / 2.0
-    # Reshape p_reflect_tot to make it compatible for broadcasting.
-    p_reflect_tot = p_reflect_tot[:, np.newaxis]
-
-    # Compute the normalizations for n+ and n- to transform them into probabilities.
-    np_norm = trapz(n_p, omega, axis=1) / (1 - p_reflect_tot)
-    nm_norm = trapz(n_m, omega, axis=1) / p_reflect_tot
-    np_norm = np_norm[:, np.newaxis, :]
-    nm_norm = nm_norm[:, np.newaxis, :]
-
-    p_trans = n_p / np_norm
-    p_refl = n_m / nm_norm
-
-    return p_trans, p_refl
 
 
 def resonant_cyclotron_scat_spectrum(
@@ -257,26 +192,29 @@ def resonant_cyclotron_scat_spectrum(
     """
     rcs_spectrum = np.zeros((len(tau_0), len(E)))
 
-    # Convert photon energy in eV into omega frequencies in Hz.
-    freq_0 = E_0 * const.EV_TO_ERG / const.H
-    omega_0 = 2.0 * np.pi * freq_0
-
-    freq = E * const.EV_TO_ERG / const.H
-    omega = 2.0 * np.pi * freq
-
     # Compute the transmission and reflection probabilities.
-    p_trans, p_refl = trans_reflect_prob(omega, omega_0, tau_0, beta_T)
+    # For the transmission probability we will consider the analytical integral of the delta function applied
+    # to the source spectrum later on.
+    n_trans_no_delta = n_plus_no_delta(E, E_0, tau_0, beta_T)
+    exp_fact = np.exp(-tau_0 / 2.0)
+    exp_fact = exp_fact[:, np.newaxis]
+    p_refl = n_minus(E, E_0, tau_0, beta_T)
 
     # Compute the RCS spectrum by considering multiple reflections and transmissions.
     # (see eq. 42 in Lyutikov and Gavrill 2006).
     I_ph = I_ph_source[:, np.newaxis, :]
-    I_ph_trans = trapz((I_ph * p_trans), omega_0, axis=2)
+    # We consider the analytical integral of the delta function in the first term.
+    I_ph_trans = I_ph_source * exp_fact + trapz(
+        (I_ph * n_trans_no_delta), E_0, axis=2
+    )
     rcs_spectrum = rcs_spectrum + I_ph_trans
 
     for i in range(n_reflections):
-        I_ph_reflect = trapz((I_ph * p_refl), omega_0, axis=2)
-        I_ph_reflect = I_ph_reflect[:, np.newaxis, :]
-        I_ph_trans_refl = trapz((I_ph_reflect * p_trans), omega_0, axis=2)
+        I_ph_reflect = trapz((I_ph * p_refl), E_0, axis=2)
+        I_ph_reflect_reshape = I_ph_reflect[:, np.newaxis, :]
+        I_ph_trans_refl = I_ph_reflect * exp_fact + trapz(
+            (I_ph_reflect_reshape * n_trans_no_delta), E_0, axis=2
+        )
         rcs_spectrum = rcs_spectrum + I_ph_trans_refl
 
         I_ph = I_ph_trans_refl[:, np.newaxis, :]
