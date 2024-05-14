@@ -626,7 +626,7 @@ def train(args, config):
                             )
 
                             with open(
-                                f"{save_dir_round}/trained_model_ensemble{index}.pickle",
+                                f"{save_dir_round}/trained_model_ensemble_{index}.pickle",
                                 "wb",
                             ) as output_file:
                                 pickle.dump(
