@@ -76,7 +76,7 @@ def calculate_smallest_hdr(
     theta: torch.tensor,
     matrix: torch.tensor,
     n_samples_coverage: int,
-    device: Optional[torch.device] = "cpu",
+    device: torch.device,
 ) -> np.ndarray:
 
     """
@@ -89,7 +89,7 @@ def calculate_smallest_hdr(
                               population in matrix.
         matrix (torch.tensor): Tensor containing the maps of the simulated population.
         n_samples_coverage (float): Number of approximate posterior samples used for computing the coverage.
-        device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
+        device (torch.device): Device used to run the script.
 
     Returns:
         np.ndarray: Smallest highest density region of the posterior that contains the true value.
@@ -121,7 +121,7 @@ def calculate_smallest_hdr(
 
 def build_network(
     config: configuration_parser.ConfigurationParser,
-    device: Optional[torch.device] = "cpu",
+    device: torch.device,
 ) -> SNPE_C:
     """
     Building the neural network using the configuration file specified in the arguments.
@@ -129,7 +129,7 @@ def build_network(
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
                                                            architecture and other settings.
-        device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
+        device (torch.device): Device used to run the script.
 
     Returns:
         inference (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi's SNPE inference objects.
@@ -174,6 +174,7 @@ def wrapper_pypopsyn(
     round_current: int,
     test: bool,
     dataset: dl.DatasetMultichannelArray,
+    device: torch.device,
 ) -> str:
     """
     Simulating `num_sim` of mock neutron star population given the `proposal` distribution. After simulating the
@@ -187,6 +188,7 @@ def wrapper_pypopsyn(
         test (bool): Flag indicating whether the simulations are for testing or training. If set to True, the
                      simulations are for testing purposes.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
+        device (torch.device): Device used to run the script.
 
     Returns:
         str: Path to the generated dataset.
@@ -264,9 +266,9 @@ def wrapper_pypopsyn(
     # the Dask package. Otherwise, it will be performed with the multiprocessing package.
 
     if config["enable_dask"]:
-        simulator_dask(args_dict, proposal, dataset)
+        simulator_dask(args_dict, proposal, dataset, device)
     else:
-        simulator_multiprocess(args_dict, proposal, dataset)
+        simulator_multiprocess(args_dict, proposal, dataset, device)
 
     subprocess.run(command)
 
@@ -568,6 +570,7 @@ def train(args, config):
                             round_current=i,
                             test=False,
                             dataset=dataset,
+                            device=device,
                         )
 
                         # Building the training dataset for sbi.
@@ -616,7 +619,7 @@ def train(args, config):
                                 force_first_round_loss=True,
                             )
                             posterior_ensemble = inference.build_posterior(
-                                density_estimator, prior=prior
+                                density_estimator.to(device), prior=prior
                             )
                             logger.info(
                                 f"Saving the trained model for round {i}..."
@@ -631,8 +634,14 @@ def train(args, config):
                                 )
 
                             posteriors_list.append(posterior_ensemble)
-
-                        posterior = NeuralPosteriorEnsemble(posteriors_list)
+                        # Setting the weights of each ensemble posterior to being able to use a GPU.
+                        weights_ensemble = (
+                            torch.ones(size_ensemble) / size_ensemble
+                        )
+                        posterior = NeuralPosteriorEnsemble(
+                            posteriors_list,
+                            weights=weights_ensemble.to(device),
+                        )
 
                     else:
 
@@ -651,13 +660,13 @@ def train(args, config):
                         )
 
                         with open(
-                            f"{save_dir_round}/trained_model_ensemble{index}.pickle",
+                            f"{save_dir_round}/trained_model.pickle",
                             "wb",
                         ) as output_file:
                             pickle.dump(density_estimator.cpu(), output_file)
 
                         posterior = inference.build_posterior(
-                            density_estimator, prior=prior
+                            density_estimator.to(device), prior=prior
                         )
 
                 with timewith.TimeWith(
@@ -690,6 +699,7 @@ def train(args, config):
                             round_current=i,
                             test=True,
                             dataset=dataset,
+                            device=device,
                         )
 
                     _, parameter_test, matrix_test = prepare_dataset_sbi(
@@ -743,10 +753,14 @@ def train(args, config):
                             accept_reject_fn,
                             posterior=posterior_obs,
                             sample_with="sir",
+                            device=f"{device}",
                         )
                     else:
                         proposal = utils.RestrictedPrior(
-                            prior, accept_reject_fn, sample_with="rejection"
+                            prior,
+                            accept_reject_fn,
+                            sample_with="rejection",
+                            device=f"{device}",
                         )
 
                     if args.plot_proposal:
