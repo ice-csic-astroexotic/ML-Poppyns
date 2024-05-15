@@ -103,7 +103,7 @@ def n_plus_no_delta(
 
     Returns:
         (np.ndarray): Value of the transmission function n+ without the Dirac delta term.
-                      This will have shape (NS_number, len(omega), len(omega_0)).
+                      This will have shape (NS_number, len(E), len(E_0)).
     """
 
     # Reshape the input arrays to make it compatible for broadcasting.
@@ -143,7 +143,7 @@ def n_minus(
 
     Returns:
         (np.ndarray): Value of the transmission function n-.
-                      This will have shape (NS_number, len(omega), len(omega_0)).
+                      This will have shape (NS_number, len(E), len(E_0)).
     """
 
     # Reshape omega to make it compatible for broadcasting.
@@ -181,7 +181,7 @@ def resonant_cyclotron_scat_spectrum(
     Args:
         E (np.ndarray): array of energies in [eV] of the transmitted intensity.
         E_0 (np.ndarray): array of energies in [eV] of the source intensity.
-        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. 2 in Lyutikov and Gavrill 2006).
+        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavrill 2006).
         beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
         I_ph_source (np.ndarray): intensity of the source in [ph cm^-2 s^-1 eV^-1 sterad^-1].
         n_reflections (int): number of reflections (6 reflections guarantees convergence of the final spectrum,
@@ -193,17 +193,16 @@ def resonant_cyclotron_scat_spectrum(
     rcs_spectrum = np.zeros((len(tau_0), len(E)))
 
     # Compute the transmission and reflection probabilities.
-    # For the transmission probability we will consider the analytical integral of the delta function applied
-    # to the source spectrum later on.
     n_trans_no_delta = n_plus_no_delta(E, E_0, tau_0, beta_T)
-    exp_fact = np.exp(-tau_0 / 2.0)
-    exp_fact = exp_fact[:, np.newaxis]
     p_refl = n_minus(E, E_0, tau_0, beta_T)
 
     # Compute the RCS spectrum by considering multiple reflections and transmissions.
     # (see eq. 42 in Lyutikov and Gavrill 2006).
     I_ph = I_ph_source[:, np.newaxis, :]
-    # We consider the analytical integral of the delta function in the first term.
+    # For the transmission probability we calculate the analytical integral of the term with the delta function and
+    # add it to the numerical integral of the second term.
+    exp_fact = np.exp(-tau_0 / 2.0)
+    exp_fact = exp_fact[:, np.newaxis]
     I_ph_trans = I_ph_source * exp_fact + trapz(
         (I_ph * n_trans_no_delta), E_0, axis=2
     )
