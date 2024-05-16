@@ -1,0 +1,14 @@
+{
+  "[TotalSimulation]": {
+    "time": 2138.0457108020782
+  },
+  "[LoadPopulationDynamics]": {
+    "time": 2.4489529132843018
+  },
+  "[SimulatePopulationDetection]": {
+    "time": 5.417611837387085
+  },
+  "[Export]": {
+    "time": 0.0625448226928711
+  }
+}

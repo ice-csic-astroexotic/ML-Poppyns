@@ -26,13 +26,14 @@
 
     Running the code:
 
-        python3 simulator_helper.py --h
+        python simulator_helper.py --h
         To obtain help about all the arguments that can be used.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 
     Copyright (c) MAGNESIA (ICE-CSIC) 2020
 
@@ -72,6 +73,34 @@ unpaused = None
 starting = None
 
 
+def run_simulation_dask(command: str) -> None:
+    """
+    Run the simulation command. Unlike the run_simulation function below, this function does not capture all the
+    terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
+
+    Args:
+        command (str): Full command to execute the simulation.
+
+    Returns:
+        None
+    """
+    log.info(f"Launching simulation: {command}")
+
+    try:
+        # Execute the simulation command.
+        subprocess.run(command, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        # Log any errors raised by the subprocess.
+        log.error(f"Error executing command: {command}")
+        if e.output is not None:
+            log.error(f"Command output: {e.output.decode('utf-8')}")
+        else:
+            log.error("No command output available")
+        raise
+
+    log.info("Simulation finished")
+
+
 def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     """
     Run simulation command.
@@ -80,7 +109,7 @@ def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     set of CLI arguments) and captures all the output of the process.
 
     Args:
-        command (List): full command to execute the simulation.
+        command (str): full command to execute the simulation.
 
     Returns:
         The simulation command and the output of the process.
@@ -178,7 +207,7 @@ def main(args):
     var_names, var_expanded_ranges = psg.check_expand_args(args_dict)
 
     if args_dict["sampling_type"] == "grid":
-        # Create a generator of all the possible combinations of parameters based on their expanded range lists
+        # Create a generator of all the possible combinations of parameters based on their expanded range lists.
         parameter_sets_gen = itertools.product(*var_expanded_ranges)
 
     elif args_dict["sampling_type"] == "random":
@@ -213,7 +242,7 @@ def main(args):
         )
         simulation_output_path.mkdir(parents=True, exist_ok=True)
 
-        # Pack combination into a JSON override file and write it to the folder for a given simulation.
+        # Save the set of parameter values into a JSON override file and write it to the folder for a given simulation.
         simulation_override_json = {}
         for i in range(len(s)):
             simulation_override_json[var_names[i]] = s[i]
