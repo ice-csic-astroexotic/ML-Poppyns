@@ -55,18 +55,18 @@ import torch
 from dask.distributed import Client
 from dask_jobqueue import HTCondorCluster
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
-
-import pypopsyn.learning.configuration_parser as configuration_parser
-from pypopsyn.learning.loaders.loader_multichannel_array_stat import (
-    DatasetMultichannelArray,
-)
-from pypopsyn.simulator.configuration import cfg
 from scripts.simulation_helper import (
     log_simulation,
     run_simulation,
     run_simulation_dask,
     setup_process_pool,
 )
+
+import pypopsyn.learning.configuration_parser as configuration_parser
+from pypopsyn.learning.loaders.loader_multichannel_array_stat import (
+    DatasetMultichannelArray,
+)
+from pypopsyn.simulator.configuration import cfg
 
 log = logging.getLogger(__name__)
 
@@ -212,9 +212,7 @@ def simulator_dask(
         # Generate a list for the command (cmd), including the Python interpreter, the script path specified with
         # 'simulator_type', and the path for the JSON override.
         server_path = cfg["path_to_software"]
-        cmd: str = (
-            f"python {server_path}examples/simulator/{simulator_type}.py"
-        )
+        cmd: str = f"python {server_path}pyposyn/simulator/{simulator_type}.py"
         cmd += f" --output_dir {simulation_output_path}"
         cmd += f" --parameter_override {simulation_override_json_path}"
         if simulator_type == "simulate_population_magrot_det":
@@ -341,7 +339,7 @@ def simulator_multiprocess(
         # 'simulator_type', and the path for the JSON override.
         server_path = cfg["path_to_software"]
         cmd: str = (
-            f"python {server_path}examples/simulator/{simulator_type}.py"
+            f"python {server_path}pypopsyn/simulator/{simulator_type}.py"
         )
         cmd += f" --output_dir {simulation_output_path}"
         cmd += f" --parameter_override {simulation_override_json_path}"

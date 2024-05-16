@@ -61,9 +61,9 @@ import pypopsyn.learning.initializers.initializers as learning_initializers
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
 import pypopsyn.learning.models.models as learning_models
 from pypopsyn.learning.utils.request_device import request_device
-from pypopsyn.simulator.configuration import cfg
-from scripts.coverage_probability import coverage_prob
-from scripts.simulation_helper_sbi import (
+from pypopsyn.simulator.config_simulator import cfg
+from utilities.coverage_probability import coverage_prob
+from utilities.simulation_helper_sbi import (
     initialize_dask_cluster,
     simulator_dask,
     simulator_multiprocess,
@@ -247,7 +247,7 @@ def wrapper_pypopsyn(
     software_path = cfg["path_to_software"]
     command = [
         "python",
-        f"{software_path}examples/generator/generate_dataset_surveys.py",
+        f"{software_path}pypopsyn/generator/generate_dataset_surveys.py",
         "--data",
         str(sim_dir_path),
         "--save_dir",
@@ -741,7 +741,7 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="examples/learning/config_tsnpe.json",
+        default="pypopsyn/learning/config_tsnpe.json",
         help="Machine learning configuration file path.",
     )
 
