@@ -635,7 +635,7 @@ def train(args, config):
                                 )
 
                             posteriors_list.append(posterior_ensemble)
-                        # Setting the weights of each ensemble posterior to being able to use a GPU.
+                        # Setting the weights of each ensemble posterior directly to enable the use of a GPU.
                         weights_ensemble = (
                             torch.ones(size_ensemble) / size_ensemble
                         )
