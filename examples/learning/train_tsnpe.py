@@ -268,7 +268,7 @@ def wrapper_pypopsyn(
     if config["enable_dask"]:
         simulator_dask(args_dict, proposal, dataset, device)
     else:
-        simulator_multiprocess(args_dict, proposal, dataset, device)
+        simulator_multiprocess(args_dict, proposal, dataset)
 
     subprocess.run(command)
 
