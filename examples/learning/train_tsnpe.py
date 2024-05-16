@@ -603,7 +603,7 @@ def train(args, config):
                         posteriors_list = []
 
                         for index in range(size_ensemble):
-
+                            # Training each of the networks that will create the ensemble.
                             density_estimator = inference.append_simulations(
                                 parameter_round.to(device),
                                 matrix_round.to(device),
@@ -618,6 +618,7 @@ def train(args, config):
                                 show_train_summary=True,
                                 force_first_round_loss=True,
                             )
+                            # Build the posterior object for each trained network.
                             posterior_ensemble = inference.build_posterior(
                                 density_estimator.to(device), prior=prior
                             )
@@ -638,13 +639,15 @@ def train(args, config):
                         weights_ensemble = (
                             torch.ones(size_ensemble) / size_ensemble
                         )
+                        # Build the ensemble using the trained neural networks.
                         posterior = NeuralPosteriorEnsemble(
                             posteriors_list,
                             weights=weights_ensemble.to(device),
                         )
 
                     else:
-
+                        # If config["ensemble"] is set to False, only a single neural network will be trained to
+                        # approximate the posterior distribution.
                         density_estimator = inference.append_simulations(
                             parameter_round.to(device), matrix_round.to(device)
                         ).train(
