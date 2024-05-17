@@ -1,0 +1,9 @@
+<prof>[InitialPopulation][Initial] took 2.3492 [s] (cumulative 2.3492 [s])
+<prof>[InitialPopulation][Energy] took 2.5932 [s] (cumulative 4.9425 [s])
+<prof>[InitialPopulation][Export] took 0.3591 [s] (cumulative 5.3015 [s])
+<prof>[InitialPopulation] finished took 5.3018 [s]
+<prof>[EvolvePopulation][Evolution] took 22.4157 [s] (cumulative 22.4157 [s])
+<prof>[EvolvePopulation][Energy] took 0.0057 [s] (cumulative 22.4214 [s])
+<prof>[EvolvePopulation][Export] took 0.5919 [s] (cumulative 23.0133 [s])
+<prof>[EvolvePopulation] finished took 23.0134 [s]
+<prof>generate_population took 28.8673 [s]
