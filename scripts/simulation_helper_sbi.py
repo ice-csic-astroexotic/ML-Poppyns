@@ -96,6 +96,7 @@ def initialize_dask_cluster(
         "getenv": "True",
         "output": f"{htcondor_output_folder}/$(ClusterId)_$(ProcId)-out.txt",
         "error": f"{htcondor_output_folder}/$(ClusterId)_$(ProcId)-err.txt",
+        "+flavour": "long",
     }
 
     # Specifying computing requirements as needed for a single magneto-thermal simulation.
