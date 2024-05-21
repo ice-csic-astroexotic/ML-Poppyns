@@ -96,6 +96,7 @@ def initialize_dask_cluster(
         "getenv": "True",
         "output": f"{htcondor_output_folder}/$(ClusterId)_$(ProcId)-out.txt",
         "error": f"{htcondor_output_folder}/$(ClusterId)_$(ProcId)-err.txt",
+        "+flavour": "long",
     }
 
     # Specifying computing requirements as needed for a single magneto-thermal simulation.
@@ -123,6 +124,7 @@ def simulator_dask(
     args_dict: dict,
     prior: DirectPosterior,
     dataset: DatasetMultichannelArray,
+    device: torch.device,
 ) -> None:
 
     """
@@ -132,6 +134,7 @@ def simulator_dask(
         args_dict (Dictionary): Dictionary with the arguments.
         prior (DirectPosterior): Prior distribution.
         dataset (DatasetMultichannelArray): Stores statistics and scaling information used in the prior distribution.
+        device (torch.device): Device used to run the script.
 
     Returns:
         None
@@ -146,10 +149,10 @@ def simulator_dask(
     var_names = dataset.target_names
 
     # Save the statistics for the filtered labels.
-    par_max = torch.tensor(dataset.target_max)
-    par_min = torch.tensor(dataset.target_min)
-    par_std = torch.tensor(dataset.target_std)
-    par_mean = torch.tensor(dataset.target_mean)
+    par_max = torch.tensor(dataset.target_max).to(device)
+    par_min = torch.tensor(dataset.target_min).to(device)
+    par_std = torch.tensor(dataset.target_std).to(device)
+    par_mean = torch.tensor(dataset.target_mean).to(device)
 
     # Create a generator of the random sets of parameters using the prior distribution.
     parameter_sets_gen_tensor = prior.sample((args_dict["sampling_size"],))

@@ -1,7 +1,7 @@
 {
   "name": "SBI_ConvolutionMDN",
   "n_gpu": 1,
-  "enable_dask": true,
+  "enable_dask": false,
   "n_processes": 4,
   "workers_dask": 4,
   "set_manual_seed": false,
@@ -62,6 +62,8 @@
   
 
   "trainer": {
+    "ensemble": true,
+    "size_ensemble": 5,
     "validation_fraction": 0.1,
     "batch_size": 8,
     "lr": 5e-4,

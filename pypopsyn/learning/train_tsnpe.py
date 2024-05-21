@@ -53,6 +53,7 @@ from sbi import utils
 from sbi.inference import SNPE
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
 from sbi.inference.snpe.snpe_c import SNPE_C
+from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 from tqdm import tqdm
 
 import pypopsyn.benchmark.timewith as timewith
@@ -75,7 +76,7 @@ def calculate_smallest_hdr(
     theta: torch.tensor,
     matrix: torch.tensor,
     n_samples_coverage: int,
-    device: Optional[torch.device] = "cpu",
+    device: torch.device,
 ) -> np.ndarray:
 
     """
@@ -88,7 +89,7 @@ def calculate_smallest_hdr(
                               population in matrix.
         matrix (torch.tensor): Tensor containing the maps of the simulated population.
         n_samples_coverage (float): Number of approximate posterior samples used for computing the coverage.
-        device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
+        device (torch.device): Device used to run the script.
 
     Returns:
         np.ndarray: Smallest highest density region of the posterior that contains the true value.
@@ -120,7 +121,7 @@ def calculate_smallest_hdr(
 
 def build_network(
     config: configuration_parser.ConfigurationParser,
-    device: Optional[torch.device] = "cpu",
+    device: torch.device,
 ) -> SNPE_C:
     """
     Building the neural network using the configuration file specified in the arguments.
@@ -128,7 +129,7 @@ def build_network(
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
                                                            architecture and other settings.
-        device (Optional[torch.device]): Device used to run the script. Defaults to 'cpu'.
+        device (torch.device): Device used to run the script.
 
     Returns:
         inference (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi's SNPE inference objects.
@@ -173,6 +174,7 @@ def wrapper_pypopsyn(
     round_current: int,
     test: bool,
     dataset: dl.DatasetMultichannelArray,
+    device: torch.device,
 ) -> str:
     """
     Simulating `num_sim` of mock neutron star population given the `proposal` distribution. After simulating the
@@ -186,6 +188,7 @@ def wrapper_pypopsyn(
         test (bool): Flag indicating whether the simulations are for testing or training. If set to True, the
                      simulations are for testing purposes.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
+        device (torch.device): Device used to run the script.
 
     Returns:
         str: Path to the generated dataset.
@@ -263,7 +266,7 @@ def wrapper_pypopsyn(
     # the Dask package. Otherwise, it will be performed with the multiprocessing package.
 
     if config["enable_dask"]:
-        simulator_dask(args_dict, proposal, dataset)
+        simulator_dask(args_dict, proposal, dataset, device)
     else:
         simulator_multiprocess(args_dict, proposal, dataset)
 
@@ -434,7 +437,9 @@ def train(args, config):
     )
 
     # Set up GPU device if available.
-    device, device_ids = request_device(config["n_gpu"])
+    logger.info("Requesting {} GPUs...".format(config["n_gpu"]))
+    device, device_ids = request_device(logger, config["n_gpu"])
+    logger.info("Devices obtained: {}".format(device_ids))
 
     if config["enable_dask"]:
         with timewith.TimeWith(
@@ -565,6 +570,7 @@ def train(args, config):
                             round_current=i,
                             test=False,
                             dataset=dataset,
+                            device=device,
                         )
 
                         # Building the training dataset for sbi.
@@ -584,26 +590,94 @@ def train(args, config):
                     logger.info(
                         f"Training the density estimator with {parameter_round.shape[0]} samples in round {i} ..."
                     )
-                    density_estimator = inference.append_simulations(
-                        parameter_round.to(device), matrix_round.to(device)
-                    ).train(
-                        learning_rate=config["trainer"]["lr"],
-                        training_batch_size=config["trainer"]["batch_size"],
-                        validation_fraction=config["trainer"][
-                            "validation_fraction"
-                        ],
-                        show_train_summary=True,
-                        force_first_round_loss=True,
-                    )
+
+                    # If config["ensemble"] is set to 'True', instead of training a single neural network,
+                    # 'config["size_ensemble"]' neural networks are trained to construct an ensemble of posteriors.
+                    # This will prevent narrow posteriors.
+                    if config["trainer"]["ensemble"]:
+                        size_ensemble = config["trainer"]["size_ensemble"]
+
+                        logger.info(
+                            f"Training an ensemble of {size_ensemble} mixture density networks..."
+                        )
+                        posteriors_list = []
+
+                        for index in range(size_ensemble):
+                            # Training each of the networks that will create the ensemble.
+                            density_estimator = inference.append_simulations(
+                                parameter_round.to(device),
+                                matrix_round.to(device),
+                            ).train(
+                                learning_rate=config["trainer"]["lr"],
+                                training_batch_size=config["trainer"][
+                                    "batch_size"
+                                ],
+                                validation_fraction=config["trainer"][
+                                    "validation_fraction"
+                                ],
+                                show_train_summary=True,
+                                force_first_round_loss=True,
+                            )
+                            # Build the posterior object for each trained network.
+                            posterior_ensemble = inference.build_posterior(
+                                density_estimator.to(device), prior=prior
+                            )
+                            logger.info(
+                                f"Saving the trained model for round {i}..."
+                            )
+
+                            with open(
+                                f"{save_dir_round}/trained_model_ensemble_{index}.pickle",
+                                "wb",
+                            ) as output_file:
+                                pickle.dump(
+                                    density_estimator.cpu(), output_file
+                                )
+
+                            posteriors_list.append(posterior_ensemble)
+                        # Setting the weights of each ensemble posterior directly to enable the use of a GPU.
+                        weights_ensemble = (
+                            torch.ones(size_ensemble) / size_ensemble
+                        )
+                        # Build the ensemble using the trained neural networks.
+                        posterior = NeuralPosteriorEnsemble(
+                            posteriors_list,
+                            weights=weights_ensemble.to(device),
+                        )
+
+                    else:
+                        # If config["ensemble"] is set to False, only a single neural network will be trained to
+                        # approximate the posterior distribution.
+                        density_estimator = inference.append_simulations(
+                            parameter_round.to(device), matrix_round.to(device)
+                        ).train(
+                            learning_rate=config["trainer"]["lr"],
+                            training_batch_size=config["trainer"][
+                                "batch_size"
+                            ],
+                            validation_fraction=config["trainer"][
+                                "validation_fraction"
+                            ],
+                            show_train_summary=True,
+                            force_first_round_loss=True,
+                        )
+
+                        with open(
+                            f"{save_dir_round}/trained_model.pickle",
+                            "wb",
+                        ) as output_file:
+                            pickle.dump(density_estimator.cpu(), output_file)
+
+                        posterior = inference.build_posterior(
+                            density_estimator.to(device), prior=prior
+                        )
+
                 with timewith.TimeWith(
                     f"[TestingRound{i}]",
                     prof_log_path,
                     prof_json_path,
                     config["show_profiling"],
                 ):
-                    posterior = inference.build_posterior(
-                        density_estimator, prior=prior
-                    )
 
                     num_sim_test = config["test_data_loader"]["num_sim"]
 
@@ -628,6 +702,7 @@ def train(args, config):
                             round_current=i,
                             test=True,
                             dataset=dataset,
+                            device=device,
                         )
 
                     _, parameter_test, matrix_test = prepare_dataset_sbi(
@@ -681,10 +756,14 @@ def train(args, config):
                             accept_reject_fn,
                             posterior=posterior_obs,
                             sample_with="sir",
+                            device=f"{device}",
                         )
                     else:
                         proposal = utils.RestrictedPrior(
-                            prior, accept_reject_fn, sample_with="rejection"
+                            prior,
+                            accept_reject_fn,
+                            sample_with="rejection",
+                            device=f"{device}",
                         )
 
                     if args.plot_proposal:
