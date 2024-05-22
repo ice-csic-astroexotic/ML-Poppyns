@@ -55,18 +55,18 @@ import torch
 from dask.distributed import Client
 from dask_jobqueue import HTCondorCluster
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
-from scripts.simulation_helper import (
-    log_simulation,
-    run_simulation,
-    run_simulation_dask,
-    setup_process_pool,
-)
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 from pypopsyn.learning.loaders.loader_multichannel_array_stat import (
     DatasetMultichannelArray,
 )
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
+from utilities.simulation_helper import (
+    log_simulation,
+    run_simulation,
+    run_simulation_dask,
+    setup_process_pool,
+)
 
 log = logging.getLogger(__name__)
 
