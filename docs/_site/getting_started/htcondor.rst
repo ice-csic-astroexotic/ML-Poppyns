@@ -8,9 +8,14 @@ This page is primarily for MAGNESIA developers. We focus on explaining the file 
 Location of the files
 **********************
 
-#. The main software repo is located in the folder :code:`/data/magnesia/software`. Note that the repo was cloned in this location following PIC's guidelines: we should use the software folder for shared repositories. The repo was cloned in such a way that every MAGNESIA user has writing, execution and reading access. A user would, in principle, be able to clone the repo in their own home directories, but this should be avoided due to limited disk space. Before lunching simulations from any location in the server, the variable :code:`server_run` in the :code:`configuration.py` file should be set to :code:`true` to ensure that the correct path to the software modules is set.
-#. The scripts to submit a job with HTCondor are in the common folder :code:`/data/magnesia/common`. We use this folder to store the HTCondor files since it is PIC's recommended location for storing intermediate data. This is also where we store our simulations and ML experiments on intermediate timescales (before moving them to long-term storage).
-#. There is also a scratch folder in MAGNESIA's disk space where output files of each run could be saved. These will however be deleted after each run and would thus need to be transferred elsewhere if required. Below we explain how to transfer files from this scratch directory.
+#. The main software repo is located in the folder :code:`/data/magnesia/software`. Note that the repo was cloned in this location following PIC's guidelines: we should use the software folder for shared repositories. The repo was cloned in such a way that every MAGNESIA user has writing, execution and reading access. A user would, in principle, be able to clone the repo in their own home directories, but this should be avoided due to limited disk space. Before lunching simulations from any location in the server, the variable :code:`server_run` in the :code:`config_simulator.py` file should be set to :code:`true` to ensure that the correct path to the software modules is set.
+#. The scripts to create the necessary files to submit a job and to manage the simulations with HTCondor are found in the :code:`utilities` folder in our repo. These are:
+
+    * :code:`PIC_generate_htcondor_submit.py` generates the necessary HTCondor files to launch jobs.
+    * :code:`PIC_generate_htcondor_failed.py` checks for failed simulations and generate the HTCondor files to launch them again.
+    * After the failed simulations have been launched again and finished successfully, :code:`PIC_manage_failed_simulation.py` is used to transfer the new output back to the original folders.
+#. We use the folder :code:`/data/magnesia/common` to store the HTCondor files since it is PIC's recommended location for storing intermediate data. This is also where we store our simulations and ML experiments on intermediate timescales (before moving them to long-term storage).
+#. DID WE USE IT ALSO FOR THIS? There is also a scratch folder in MAGNESIA's disk space where output files of each run could be saved. These will however be deleted after each run and would thus need to be transferred elsewhere if required. Below we explain how to transfer files from this scratch directory.
 
 ***************************
 Useful commands in HTCondor
@@ -32,7 +37,8 @@ Steps to run the dynamical simulations
 SSH sessions
 ************
 
-Using the JupyterHub online interface at https://jupyter.pic.es/ we are able to run and read files in the :code:`software` folder. However, to have writing access to this folder we need to log in via ssh. To do so, type the following command in a terminal:
+Using the JupyterHub online interface at https://jupyter.pic.es/ we are able to run and read files in the :code:`/data/magnesia/software` folder.
+However, to have writing access to this folder we need to log in via ssh. To do so, type the following command in a terminal:
 
 .. code-block:: bash
 
@@ -207,7 +213,7 @@ Running different jobs in parallel
 ***********************************
 
 To take advantage of HTCondor, we show here how to submit and process multiple jobs in parallel. There is a specific way to do this with HTCondor using the :code:`parameter` argument in the .submit file.
-For example, if we want to run our script :code:`/simulate_population_dyn.py` with two different values of :code:`h_c` (in this example :code:`h_c = 1.7` and :code:`1.9`), we can use the following approaches:
+For example, if we want to run our script :code:`simulate_population_dyn.py` with two different values of :code:`h_c` (in this example :code:`h_c = 1.7` and :code:`1.9`), we can use the following approaches:
 
 * We create 2 different jsons (let us call them :code:`test1.json` and :code:`test2.json`) with the values of :code:`h_c`. Then :code:`test1.json` looks like this:
 
