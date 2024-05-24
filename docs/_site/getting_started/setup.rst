@@ -5,17 +5,16 @@ Introduction
 Getting started
 ********************
 
-These instructions will provide you with a copy of the project and help you to get it up
-and running on your local machine. First, you should clone the repository on your 
-computer. The repo contains an environment file that can be installed by running
+These instructions will provide you with a copy of the project and help you to get it up and running on your local machine.
+For this you need conda to be installed on your machine.
+First, you should clone the repository on your computer.
+The repo contains an environment file that can be installed by running
 
 .. code-block:: bash
 
   conda env create -f environment.yaml
 
 NOTE: for OSX users the :code:`cudatoolkit` package has to be commented out in the environment file.
-Furthermore the :code:`julia` package from conda-forge is not available for Mac computers with M1 Apple
-silicon processors.
 
 This environment can be activated using
 
@@ -61,53 +60,11 @@ framework. If the pre-commit checks are passed, the changes are commit. If not f
 are modified and the steps (i) - (iii) have to be repeated. For more info see 
 `pre-commit documentation <https://pre-commit.com/#intro>`_ or `this Medium post <https://medium.com/staqu-dev-logs/keeping-python-code-clean-with-pre-commit-hooks-black-flake8-and-isort-cac8b01e0ea1>`_.
 
-Julia
-*****
+Finally you should setup the absolute path to where the repository is saved on your local machine.
+This can be done by opening the configuration file :code:`pypopsyn/simulator/config_simulator.py` and in the section named
+"GENERAL SIMULATION PARAMETERS" adding the absolute path to the repository folder by modifying the variable
+:code:`cfg["path_to_software"]` under the :code:`else` statement.
 
-To optimise run times, several of our simulation scripts are available in Julia
-(in addition to their native Python versions). The environment created above automatically
-installs Julia. Julia relevant files are located in the folder :code:`pypopsyn/simulator_julia` and :code:`examples/simulator_julia`. However, after activating the environment a few Julia packages need to be
-installed manually by running the following command in a terminal
-
-.. code-block:: bash
-
-    julia -e 'using Pkg; Pkg.add.(["PyCall", "OrdinaryDiffEq", "LSODA"])'
-
-Note that you might have to rebuild the :code:`PyCall` package to link it to the correct Python distribution.
-To do so, enter a Julia console by typing :code:`julia` into a terminal. Then type
-
-.. code-block:: bash
-
-    ENV["PYTHON"]=".../anaconda3/envs/pop_syn/bin/python"
-
-adjusting the path to the location of your conda environment as needed.
-Then, in the Julia console type a :code:`]`, which enters the package manager. Then execute
-
-.. code-block:: bash
-
-    build PyCall
-
-which will rebuild the PyCall package with the correct Python distribution.
-
-To run Python code which uses Julia (those files are named :code:`..._julia.py`),
-the call should be made using :code:`python-jl ...` instead of :code:`python ...`.
-
-You might encounter this error when running Julia code through Python:
-
-.. code-block:: bash
-
-    ImportError: /home/michele/miniconda3/envs/pop_syn/bin/../lib/julia/libstdc++.so.6:
-    version `GLIBCXX_3.4.30' not found (required by /home/michele/miniconda3/envs/pop_syn/lib/python3.10/
-    site-packages/scipy/optimize/_highs/_highs_wrapper.cpython-310-x86_64-linux-gnu.so)
-
-If this happens, a possible solution is to run the following command in the same terminal before
-launching the simulation script:
-
-.. code-block:: bash
-
-    export LD_PRELOAD="/home/michele/miniconda3/envs/pop_syn/lib/libstdc++.so.6.0.30"
-
-taking care of using your anaconda installation path.
 
 Documentation
 *************
@@ -120,39 +77,44 @@ Repository structure
 ********************
 
 The repository is structured in a modular way to allow for easy adjustments and additions as we continue to improve our software package.
-The main folder is :code:`pypopsyn` which contains five sub-folders: :code:`simulator`, :code:`simulator_julia`, :code:`generator` and :code:`learning` and :code:`benchmark`.
+The main folder is :code:`pypopsyn` which contains five sub-folders: :code:`simulator`, :code:`generator` and :code:`learning` and :code:`benchmark`.
 
-* The :code:`simulator` sub-folder contains all the modules and functions necessary to simulate a population of synthetic neutron stars.
+* The :code:`simulator` sub-folder contains all the modules and scripts necessary to simulate a population of synthetic neutron stars.
   We group modules according to their physics, i.e., separating those that are associated with the dynamical evolution, the magneto-rotational evolution, the emission in different electromagnetic wavelengths and the modelled surveys.
 
-* The :code:`simulator_julia` sub-folder contains the modules and functions necessary to perform the dynamical and magneto-rotational evolution with the Julia ODE solvers.
-
 * The :code:`generator` sub-folder acts as the link between the physics and the machine-learning algorithms.
-  It contains all the modules and functions necessary to represent our mock neutron star population in a way that is suitable for the machine-learning pipeline.
+  It contains all the modules and scripts necessary to represent our mock neutron star population in a way that is suitable for the machine-learning pipeline.
   We, for example, represent the stars' properties as density and feature maps.
 
-* The :code:`learning` sub-folder contains all the modules and functions necessary for the machine-learning pipeline, including model architectures, initialization techniques, loss function definitions, training schemes and so on.
+* The :code:`learning` sub-folder contains all the modules and scripts necessary for the machine-learning pipeline, including model architectures, initialization techniques, loss function definitions, training schemes and so on.
 
 * The :code:`benchmark` sub-folder contains all the modules and functions necessary to profile our code.
   We use this functionality to optimize the run-time of our code.
 
+The :code:`data` folder contains seven main sub-folders: five sub-folders containing example data created by running different simulator scripts and the generator script, an :code:`observations` sub-folder and a :code:`paper_results` sub-folder.
+All the simulation examples provided here have been run by using the default parameters specified in :code:`pypopsyn/simulator/config_simulator.py`.
 
-The :code:`examples` folder contains four main sub-folders: :code:`simulator`, :code:`generator`, :code:`learning` and :code:`data`.
-The purpose of these examples is to demonstrate the functionality and usage of the respective modules and functions in :code:`pypopsyn`.
+* The :code:`example_simulation_dyn` sub-folder contains the results of the dynamical evolution of a population of neutron stars obtained by running the script :code:`pypopsyn/simulator/simulate_population_dyn.py`.
 
-* The :code:`simulator` sub-folder contains various scripts that simulate a population of neutron stars (the default population parameters are specified in :code:`pypopsyn/simulator/configuration.py`) from its dynamical evolution to the detection with different surveys as well as a :code:`simulation_helper.py` script to execute a range of simulations in an automated way.
+* The :code:`example_simulation_full` sub-folder contains the results of a full simulation (dynamical + magneto-rotational evolution + detection) of a population of neutron stars obtained by running the script :code:`pypopsyn/simulator/simulate_population_full.py` and by using the :code:`pypopsyn/simulator/initial_population.py` module to setup the initial conditions.
 
-* The :code:`simulator_julia` sub-folder collects all the simulation scripts that use Julia to perform the evolution in time of the population.
+* The :code:`example_simulation_full_edm` sub-folder contains the results of a full simulation (dynamical + magneto-rotational evolution + detection) of a population of neutron stars obtained by running the script :code:`pypopsyn/simulator/simulate_population_full.py` and by using the :code:`pypopsyn/simulator/initial_population_edm.py` module to setup the initial conditions.
 
-* The :code:`generator` sub-folder contains the script :code:`generate_dataset.py` that reads the simulated data and creates a dataset of feature maps.
+* The :code:`example_simulation_magrot_det` sub-folder contains the results of a simulation of magneto-rotational evolution and detection of a population of neutron stars obtained by running the script :code:`pypopsyn/simulator/simulate_population_magrot_det.py`.
 
-* The :code:`learning` sub-folder contains the script :code:`train.py` that trains a neural network on the provided dataset and the script :code:`infer.py` that tests the predictive power of a trained neural network on a test dataset.
+* The :code:`example_generator` sub-folder contains an example dataset of feature maps from simulated populations.
 
-* The :code:`data` sub-folder contains examples of simulated data, generated dataset and inference results.
+* The :code:`observations` sub-folder contains catalogs with observed data.
+
+* The :code:`paper_results` sub-folder contains data results for our publications.
 
 There are also other folders containing additional materials.
-For example the directory :code:`notebooks` contains several jupyter notebooks that can be used to plot the distributions and features of a simulated population of neutron stars as well as their evolution in time, the statistics of the inference results of a trained neural network and finally a simple comparison of our mock population with the real distribution of pulsars.
-The directory :code:`scripts` contains a couple of additional python scripts, including :code:`pop_sampler.py`, which we use to down-sample our large mock population according to some weight function.
-The directory :code:`utilities` contains some modules for statistical analysis and plotting settings.
+For example the directory :code:`tutorials` contains two subfolders with jupyter notebooks with examples to run the simulator, generator and learning scripts and analyze the simulations output.
+
+* The :code:`getting_started` sub-folder contains some notebooks to launch simple examples of the simulator, generator and learning scripts.
+
+* The :code:`analysis_notebooks` contains some analysis jupyter notebooks that can be used to plot the distributions and features of a simulated population of neutron stars as well as their evolution in time, to check some physical models used in the simulations and to compare a mock population with the real distribution of pulsars.
+
+The directory :code:`utilities` contains some additional python modules and scripts for running simulations in the PIC server, launch several simulations and perform a parameter sweep, perform statistical analysis and plotting settings.
 
 
