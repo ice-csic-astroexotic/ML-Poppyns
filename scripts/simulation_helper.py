@@ -109,6 +109,7 @@ def run_simulation_dask(
         # Execute the simulation command.
         subprocess.run(command, shell=True, check=True)
 
+        simulation_output_path.mkdir(parents=True, exist_ok=True)
         # Copy the output folder back to the original location.
         shutil.copytree(
             node_output_path, simulation_output_path, dirs_exist_ok=True
