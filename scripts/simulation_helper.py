@@ -80,7 +80,8 @@ def run_simulation_dask(
 ) -> None:
     """
     Run the simulation command, copying the output folder to the node before execution and back to the original location
-    afterward to prevent overload at PIC.
+    afterward to prevent overload at PIC. Unlike the run_simulation function below, this function does not capture all the
+    terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
 
     Args:
         command (str): Full command to execute the simulation.
