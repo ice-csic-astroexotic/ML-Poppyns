@@ -66,6 +66,7 @@ import typing
 import numpy as np
 
 import utilities.parameter_set_generator as psg
+from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
 
@@ -256,7 +257,10 @@ def main(args):
 
         # Generate list for the command which consists of the python interpreter,
         # the script path and the path for the JSON override.
-        cmd: str = f"python examples/simulator/{simulator_type}.py"
+        server_path = cfg["path_to_software"]
+        cmd: str = (
+            f"python {server_path}/pypopsyn/simulator/{simulator_type}.py"
+        )
         cmd += f" --output_dir {simulation_output_path}"
         cmd += f" --parameter_override {simulation_override_json_path}"
         if simulator_type == "simulate_population_magrot_det":
