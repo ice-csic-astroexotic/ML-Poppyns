@@ -62,6 +62,8 @@
   
 
   "trainer": {
+    "resume": false,
+    "trained_model": "/data/trained",
     "ensemble": true,
     "size_ensemble": 5,
     "validation_fraction": 0.1,

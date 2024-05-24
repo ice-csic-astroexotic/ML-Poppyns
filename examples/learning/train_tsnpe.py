@@ -37,6 +37,7 @@ SOFTWARE.
 
 import argparse
 import collections
+import os
 import pathlib
 import pickle
 import subprocess
@@ -412,6 +413,114 @@ def prepare_dataset_sbi(
     return dataset, parameter, matrix
 
 
+def amortized_posterior(
+    config,
+    inference,
+    parameter_round,
+    matrix_round,
+    device,
+    round_current,
+    prior,
+):
+    """
+    Train the density estimator for a given round.
+
+    Args:
+        config (dict): Configuration object specifying training parameters.
+        inference (SBIInference): SBI inference object.
+        parameter_round (torch.Tensor): Tensor containing the parameters for the current round.
+        matrix_round (torch.Tensor): Tensor containing the matrices for the current round.
+        device (torch.device): Device used for training.
+        round_current (int): Current round number.
+
+    Returns:
+        density_estimator: Trained density estimator or ensemble of estimators.
+    """
+    logger = config.get_logger(f"train_round_{round_current}")
+    logger.info(f"Training density estimator for round {round_current}...")
+
+    trained_model_folder = config["trainer"]["trained_model"]
+    ensemble_size = config["trainer"]["size_ensemble"]
+    resume = config["trainer"]["resume"]
+
+    if config["trainer"]["ensemble"]:
+        posteriors_list = []
+        for index in range(ensemble_size):
+            # TODO: I am assuming that all the trained_models are in the same folder. Usually they are inside the round_0,...
+            trained_model_path = os.path.join(
+                trained_model_folder, f"trained_model_ensemble_{index}.pickle"
+            )
+
+            if resume and round_current == 0:
+                with open(trained_model_path, "rb") as f:
+                    density_estimator = pickle.load(f)
+                logger.info(
+                    f"Loaded pre-trained model for round {round_current}, ensemble index {index}."
+                )
+            else:
+                density_estimator = inference.append_simulations(
+                    parameter_round.to(device), matrix_round.to(device)
+                ).train(
+                    learning_rate=config["trainer"]["lr"],
+                    training_batch_size=config["trainer"]["batch_size"],
+                    validation_fraction=config["trainer"][
+                        "validation_fraction"
+                    ],
+                    show_train_summary=True,
+                    force_first_round_loss=True,
+                )
+                logger.info(
+                    f"Trained density estimator for round {round_current}, ensemble index {index}."
+                )
+
+                with open(trained_model_path, "wb") as output_file:
+                    pickle.dump(density_estimator.cpu(), output_file)
+                logger.info(
+                    f"Saved trained model for round {round_current}, ensemble index {index}."
+                )
+
+            posterior_ensemble = inference.build_posterior(
+                density_estimator.to(device), prior=prior
+            )
+            posteriors_list.append(posterior_ensemble)
+
+        weights_ensemble = torch.ones(ensemble_size) / ensemble_size
+        posterior = NeuralPosteriorEnsemble(
+            posteriors_list, weights=weights_ensemble.to(device)
+        )
+    else:
+        # TODO: check if make sense to use trained_model in both case so resuem and not resume
+        trained_model_path = os.path.join(
+            trained_model_folder, f"trained_model_{round_current}.pickle"
+        )
+        if resume and round_current == 0:
+            with open(trained_model_path, "rb") as f:
+                density_estimator = pickle.load(f)
+            logger.info(f"Loaded pre-trained model for round {round_current}.")
+        else:
+            density_estimator = inference.append_simulations(
+                parameter_round.to(device), matrix_round.to(device)
+            ).train(
+                learning_rate=config["trainer"]["lr"],
+                training_batch_size=config["trainer"]["batch_size"],
+                validation_fraction=config["trainer"]["validation_fraction"],
+                show_train_summary=True,
+                force_first_round_loss=True,
+            )
+            logger.info(
+                f"Trained density estimator for round {round_current}."
+            )
+
+            with open(trained_model_path, "wb") as output_file:
+                pickle.dump(density_estimator.cpu(), output_file)
+            logger.info(f"Saved trained model for round {round_current}.")
+
+        posterior = inference.build_posterior(
+            density_estimator.to(device), prior=prior
+        )
+    return posterior
+
+
 def train(args, config):
     """
     Training a density estimator to infer the posterior distribution at the observed population with the truncated
@@ -591,86 +700,15 @@ def train(args, config):
                         f"Training the density estimator with {parameter_round.shape[0]} samples in round {i} ..."
                     )
 
-                    # If config["ensemble"] is set to 'True', instead of training a single neural network,
-                    # 'config["size_ensemble"]' neural networks are trained to construct an ensemble of posteriors.
-                    # This will prevent narrow posteriors.
-                    if config["trainer"]["ensemble"]:
-                        size_ensemble = config["trainer"]["size_ensemble"]
-
-                        logger.info(
-                            f"Training an ensemble of {size_ensemble} mixture density networks..."
-                        )
-                        posteriors_list = []
-
-                        for index in range(size_ensemble):
-                            # Training each of the networks that will create the ensemble.
-                            density_estimator = inference.append_simulations(
-                                parameter_round.to(device),
-                                matrix_round.to(device),
-                            ).train(
-                                learning_rate=config["trainer"]["lr"],
-                                training_batch_size=config["trainer"][
-                                    "batch_size"
-                                ],
-                                validation_fraction=config["trainer"][
-                                    "validation_fraction"
-                                ],
-                                show_train_summary=True,
-                                force_first_round_loss=True,
-                            )
-                            # Build the posterior object for each trained network.
-                            posterior_ensemble = inference.build_posterior(
-                                density_estimator.to(device), prior=prior
-                            )
-                            logger.info(
-                                f"Saving the trained model for round {i}..."
-                            )
-
-                            with open(
-                                f"{save_dir_round}/trained_model_ensemble_{index}.pickle",
-                                "wb",
-                            ) as output_file:
-                                pickle.dump(
-                                    density_estimator.cpu(), output_file
-                                )
-
-                            posteriors_list.append(posterior_ensemble)
-                        # Setting the weights of each ensemble posterior directly to enable the use of a GPU.
-                        weights_ensemble = (
-                            torch.ones(size_ensemble) / size_ensemble
-                        )
-                        # Build the ensemble using the trained neural networks.
-                        posterior = NeuralPosteriorEnsemble(
-                            posteriors_list,
-                            weights=weights_ensemble.to(device),
-                        )
-
-                    else:
-                        # If config["ensemble"] is set to False, only a single neural network will be trained to
-                        # approximate the posterior distribution.
-                        density_estimator = inference.append_simulations(
-                            parameter_round.to(device), matrix_round.to(device)
-                        ).train(
-                            learning_rate=config["trainer"]["lr"],
-                            training_batch_size=config["trainer"][
-                                "batch_size"
-                            ],
-                            validation_fraction=config["trainer"][
-                                "validation_fraction"
-                            ],
-                            show_train_summary=True,
-                            force_first_round_loss=True,
-                        )
-
-                        with open(
-                            f"{save_dir_round}/trained_model.pickle",
-                            "wb",
-                        ) as output_file:
-                            pickle.dump(density_estimator.cpu(), output_file)
-
-                        posterior = inference.build_posterior(
-                            density_estimator.to(device), prior=prior
-                        )
+                    posterior = amortized_posterior(
+                        config,
+                        inference,
+                        parameter_round,
+                        matrix_round,
+                        device,
+                        i,
+                        prior,
+                    )
 
                 with timewith.TimeWith(
                     f"[TestingRound{i}]",
@@ -783,13 +821,6 @@ def train(args, config):
                             observed_samples_proposal,
                             f"{save_dir_round}/samples_prior_{i+1}.pt",
                         )
-
-                logger.info(f"Saving the trained model for round {i}...")
-
-                with open(
-                    f"{save_dir_round}/trained_model_{i}.pickle", "wb"
-                ) as output_file:
-                    pickle.dump(density_estimator.cpu(), output_file)
 
                 logger.info(
                     f"Inferring the parameters for the observed sample for round {i}..."
