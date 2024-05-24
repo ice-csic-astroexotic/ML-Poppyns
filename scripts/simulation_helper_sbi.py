@@ -47,6 +47,7 @@
 import json
 import logging
 import multiprocessing as mp
+import os
 import pathlib
 from logging import Logger
 
@@ -192,25 +193,16 @@ def simulator_dask(
         log.info("Queuing simulation: ")
         log.info(s)
 
-        # Generate output folder for the simulation.
+        # Setting output folder path for each simulation.
         # Note that the numbering of the folders is limited to 6 digits here,
         # i.e., we can only generate simulations below 10 million.
         simulation_output_path = pathlib.Path().joinpath(
             args_dict["output_dir"], f"{simulation_number:06}"
         )
-        simulation_output_path.mkdir(parents=True, exist_ok=True)
-
-        # Save the set of parameter values into a JSON override file and write it to the folder for a given simulation.
+        # Save the set of parameter values into a dictionary.
         simulation_override_json = {}
         for i in range(len(s)):
             simulation_override_json[var_names[i]] = s[i]
-
-        simulation_override_json_path = pathlib.Path().joinpath(
-            simulation_output_path, "override.json"
-        )
-
-        with open(simulation_override_json_path, "w") as f:
-            json.dump(simulation_override_json, f, indent=4, sort_keys=True)
 
         # Generate a list for the command (cmd), including the Python interpreter, the script path specified with
         # 'simulator_type', and the path for the JSON override.
@@ -218,13 +210,17 @@ def simulator_dask(
         cmd: str = (
             f"python {server_path}examples/simulator/{simulator_type}.py"
         )
-        cmd += f" --output_dir {simulation_output_path}"
-        cmd += f" --parameter_override {simulation_override_json_path}"
+        cmd += f" --output_dir {simulation_number:06}"
+        cmd += f" --parameter_override {simulation_number:06}/override.json"
         if simulator_type == "simulate_population_magrot_det":
             cmd += f" --dyn_data {dyn_data_path}"
 
         # Create delayed computation for each simulation.
-        delayed_simulations.append(run_simulation_delayed(cmd))
+        delayed_simulations.append(
+            run_simulation_delayed(
+                cmd, simulation_output_path, simulation_override_json
+            )
+        )
 
         simulation_number += 1
 

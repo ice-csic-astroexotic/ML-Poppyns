@@ -57,7 +57,9 @@ import itertools
 import json
 import logging
 import multiprocessing as mp
+import os
 import pathlib
+import shutil
 import subprocess
 import sys
 import threading
@@ -73,13 +75,17 @@ unpaused = None
 starting = None
 
 
-def run_simulation_dask(command: str) -> None:
+def run_simulation_dask(
+    command: str, simulation_output_path: str, simulation_override_json: dict
+) -> None:
     """
-    Run the simulation command. Unlike the run_simulation function below, this function does not capture all the
-    terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
+    Run the simulation command, copying the output folder to the node before execution and back to the original location
+    afterward to prevent overload at PIC.
 
     Args:
         command (str): Full command to execute the simulation.
+        simulation_output_path (str): Path to the simulation output folder.
+        simulation_override_json (dict): Dictionary with the parameter values for the override.json file.
 
     Returns:
         None
@@ -87,8 +93,29 @@ def run_simulation_dask(command: str) -> None:
     log.info(f"Launching simulation: {command}")
 
     try:
+        # Create the output folder into the current node.
+        node_output_path = pathlib.Path(
+            os.path.basename(simulation_output_path)
+        )
+        node_output_path.mkdir(parents=True, exist_ok=True)
+
+        # Save the set of parameter values into a JSON override file and write it to the output folder.
+
+        simulation_override_json_path = node_output_path / "override.json"
+        with open(simulation_override_json_path, "w") as f:
+            json.dump(simulation_override_json, f, indent=4, sort_keys=True)
+
         # Execute the simulation command.
         subprocess.run(command, shell=True, check=True)
+
+        # Copy the output folder back to the original location.
+        shutil.copytree(
+            node_output_path, simulation_output_path, dirs_exist_ok=True
+        )
+        log.info(
+            f"Copied output folder back to original location: {simulation_output_path}"
+        )
+
     except subprocess.CalledProcessError as e:
         # Log any errors raised by the subprocess.
         log.error(f"Error executing command: {command}")
