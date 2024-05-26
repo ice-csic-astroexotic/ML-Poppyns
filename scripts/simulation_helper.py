@@ -75,7 +75,7 @@ unpaused = None
 starting = None
 
 
-def run_simulation_dask(args: dict, command: str) -> None:
+def run_simulation_dask(args: dict, simulator_type: str) -> None:
     """
     Run the simulation command. Unlike the run_simulation function below, this function does not capture all the
     terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
@@ -86,19 +86,20 @@ def run_simulation_dask(args: dict, command: str) -> None:
     Returns:
         None
     """
-    log.info(f"Launching simulation: {command}")
 
     try:
-        # Execute the simulation command.
-        subprocess.run(command, shell=True, check=True)
-    except subprocess.CalledProcessError as e:
-        # Log any errors raised by the subprocess.
-        log.error(f"Error executing command: {command}")
-        if e.output is not None:
-            log.error(f"Command output: {e.output.decode('utf-8')}")
+        if simulator_type == "simulate_population_magrot_det":
+            # Call the simulate_population_magrot module.
+            magrot.simulate_population(args)
         else:
-            log.error("No command output available")
+            dyn.simulate_population(args)
+    except Exception as e:
+        # Log any errors raised during the simulation.
+        log.error(f"Error executing simulation with args: {args}")
+        log.error(f"Error details: {str(e)}")
         raise
+
+    log.info("Simulation finished")
 
     log.info("Simulation finished")
 
