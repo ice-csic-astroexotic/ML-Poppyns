@@ -219,19 +219,17 @@ def simulator_dask(
         with open(simulation_override_json_path, "w") as f:
             json.dump(simulation_override_json, f, indent=4, sort_keys=True)
 
-        # Generate a list for the command (cmd), including the Python interpreter, the script path specified with
-        # 'simulator_type', and the path for the JSON override.
-        server_path = cfg["path_to_software"]
-        cmd: str = (
-            f"python {server_path}examples/simulator/{simulator_type}.py"
+        # Prepare arguments for the simulate_population function.
+        simulation_args = SimulationArgs(
+            output_dir=str(simulation_output_path),
+            parameter_override=str(simulation_override_json_path),
+            dyn_data=dyn_data_path,
         )
-        cmd += f" --output_dir {simulation_output_path}"
-        cmd += f" --parameter_override {simulation_override_json_path}"
-        if simulator_type == "simulate_population_magrot_det":
-            cmd += f" --dyn_data {dyn_data_path}"
 
         # Create delayed computation for each simulation.
-        delayed_simulations.append(run_simulation_delayed(cmd))
+        delayed_simulations.append(
+            run_simulation_delayed(simulation_args, simulator_type)
+        )
 
         simulation_number += 1
 
