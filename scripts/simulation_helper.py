@@ -65,6 +65,7 @@ import typing
 
 import numpy as np
 
+import examples.simulator.simulate_population_dyn as dyn
 import examples.simulator.simulate_population_magrot_det as magrot
 import scripts.parameter_set_generator as psg
 
