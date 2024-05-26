@@ -77,11 +77,17 @@ starting = None
 
 def run_simulation_dask(args: dict, simulator_type: str) -> None:
     """
-    Run the simulation command. Unlike the run_simulation function below, this function does not capture all the
-    terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
+    Run the simulation using Dask for distributed computing.
+
+    This function is designed to execute simulations in parallel using Dask, especially when
+    running the `train_tsnpe.py` script with the HTCondor scheduler. Unlike the `run_simulation`
+    function, this function does not capture all the terminal output of the process.
 
     Args:
-        command (str): Full command to execute the simulation.
+        args (SimulationArgs): Arguments required for the simulation, including output directory,
+                               parameter overrides, and optional dynamic data path.
+        simulator_type (str): The type of simulator to use, determining the specific simulation
+                              script to run.
 
     Returns:
         None
