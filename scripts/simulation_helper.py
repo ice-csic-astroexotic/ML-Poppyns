@@ -65,6 +65,7 @@ import typing
 
 import numpy as np
 
+import examples.simulator.simulate_population_magrot_det as magrot
 import scripts.parameter_set_generator as psg
 
 log = logging.getLogger(__name__)
@@ -73,7 +74,7 @@ unpaused = None
 starting = None
 
 
-def run_simulation_dask(command: str) -> None:
+def run_simulation_dask(args: dict, command: str) -> None:
     """
     Run the simulation command. Unlike the run_simulation function below, this function does not capture all the
     terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
