@@ -71,6 +71,13 @@ from scripts.simulation_helper import (
 log = logging.getLogger(__name__)
 
 
+class SimulationArgs:
+    def __init__(self, output_dir, parameter_override, dyn_data=None):
+        self.output_dir = output_dir
+        self.parameter_override = parameter_override
+        self.dyn_data = dyn_data
+
+
 def initialize_dask_cluster(
     logger: Logger, config: configuration_parser.ConfigurationParser
 ) -> HTCondorCluster:
