@@ -118,7 +118,7 @@ Initialising Mock Population
 Configuration File
 *******************
 
-.. automodule:: pypopsyn.simulator.configuration
+.. automodule:: pypopsyn.simulator.config_simulator
   :members: configuration
 
 Initial NS Population
@@ -132,6 +132,24 @@ Initial NS Population from electron density model
 
 .. automodule:: pypopsyn.simulator.initial_population_edm
   :members: initial_population_edm
+
+Simulate only the dynamical evolution of a NS Population
+********************************************************
+
+.. automodule:: pypopsyn.simulator.simulate_population_dyn
+  :members: simulate_population_dyn
+
+Simulate the full evolution of a NS Population
+**********************************************
+
+.. automodule:: pypopsyn.simulator.simulate_population_full
+  :members: simulate_population_full
+
+Simulate the magneto-rotational evolution and detection of a NS Population
+**************************************************************************
+
+.. automodule:: pypopsyn.simulator.simulate_population_magrot_det
+  :members: simulate_population_magrot_det
 
 Basics
 #######
@@ -156,6 +174,12 @@ Galactic Electron Density Model
 
 .. automodule:: simulator.interstellar_medium.e_density_model
   :members: e_density_model
+
+Hydrogen Density Model
+**********************
+
+.. automodule:: simulator.interstellar_medium.nh_model
+  :members: nh_model
 
 Magneto-rotational Physics
 #############################
