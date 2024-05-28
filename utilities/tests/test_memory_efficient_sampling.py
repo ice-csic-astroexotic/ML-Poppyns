@@ -53,7 +53,7 @@ def test_select():
     """
 
     path_file_test = pathlib.Path(
-        "data/example_simulation_dyn/final_pop_dyn.csv"
+        "data/example_simulation_dyn/final_pop_dyn_test.csv"
     )
 
     df = select(path_file_test, 5, 20)
