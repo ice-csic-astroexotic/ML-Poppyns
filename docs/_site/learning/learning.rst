@@ -181,8 +181,8 @@ Utils
 
 Benchmark model performance
 ***************************
-.. automodule:: pypopsyn.learning.utils.json
-  :members: json
+.. automodule:: pypopsyn.learning.utils.benchmark
+  :members: benchmark
 
 JSON file reader
 ****************
@@ -206,6 +206,9 @@ Configuration parser
 ********************
 .. automodule:: pypopsyn.learning.configuration_parser
   :members: configuration_parser
+
+Train and inference scripts
+###########################
 
 train script
 ************
@@ -236,5 +239,3 @@ Infer script for sbi (ensemble method)
 **************************************
 .. automodule:: pypopsyn.learning.infer_test_ensemble
   :members: infer_test_ensemble
-
-

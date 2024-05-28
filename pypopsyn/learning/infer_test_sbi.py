@@ -60,9 +60,9 @@ def calculate_smallest_hdr(
     Args:
         posterior (Callable): Posterior distribution function.
         true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
-         population in simulation_output.
+        population in simulation_output.
         posterior_samples (torch.tensor): Tensor containing the samples from the inferred posterior distribution
-         for simulation_output.
+        for simulation_output.
         simulation_output (torch.tensor): Tensor containing the maps of the simulated population.
         device (str): String specifying the type of the device used to run the script.
 
