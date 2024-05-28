@@ -112,45 +112,6 @@ This telemetry comes from the following setup:
 | Total Time [s]:  59.8273                                                                              |
 +-------------------------------------------------------------+--------------------+--------------------+
 
-Initialising Mock Population
-#############################
-
-Configuration File
-*******************
-
-.. automodule:: pypopsyn.simulator.config_simulator
-  :members: configuration
-
-Initial NS Population
-**********************
-
-.. automodule:: pypopsyn.simulator.initial_population
-  :members: initial_population
-
-Initial NS Population from electron density model
-*************************************************
-
-.. automodule:: pypopsyn.simulator.initial_population_edm
-  :members: initial_population_edm
-
-Simulate only the dynamical evolution of a NS Population
-********************************************************
-
-.. automodule:: pypopsyn.simulator.simulate_population_dyn
-  :members: simulate_population_dyn
-
-Simulate the full evolution of a NS Population
-**********************************************
-
-.. automodule:: pypopsyn.simulator.simulate_population_full
-  :members: simulate_population_full
-
-Simulate the magneto-rotational evolution and detection of a NS Population
-**************************************************************************
-
-.. automodule:: pypopsyn.simulator.simulate_population_magrot_det
-  :members: simulate_population_magrot_det
-
 Basics
 #######
 
@@ -276,3 +237,45 @@ Spiral Model
 
 .. automodule:: simulator.stellar_dynamics.spiral_model
   :members: spiral_model
+
+Initialising Mock Population
+#############################
+
+Configuration File
+*******************
+
+.. automodule:: pypopsyn.simulator.config_simulator
+  :members: configuration
+
+Initial NS Population
+**********************
+
+.. automodule:: pypopsyn.simulator.initial_population
+  :members: initial_population
+
+Initial NS Population from electron density model
+*************************************************
+
+.. automodule:: pypopsyn.simulator.initial_population_edm
+  :members: initial_population_edm
+
+Evolve NS Population
+####################
+
+Simulate only the dynamical evolution of a NS Population
+********************************************************
+
+.. automodule:: pypopsyn.simulator.simulate_population_dyn
+  :members: simulate_population_dyn
+
+Simulate the full evolution of a NS Population
+**********************************************
+
+.. automodule:: pypopsyn.simulator.simulate_population_full
+  :members: simulate_population_full
+
+Simulate the magneto-rotational evolution and detection of a NS Population
+**************************************************************************
+
+.. automodule:: pypopsyn.simulator.simulate_population_magrot_det
+  :members: simulate_population_magrot_det
