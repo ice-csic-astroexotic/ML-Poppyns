@@ -111,17 +111,17 @@ Metric parent class
   :members: metric_base
 
 Chi square error metric
-************************************
+***********************
 .. automodule:: pypopsyn.learning.metrics.metric_chi2
   :members: metric_chi2
 
 Mean absolute error (MAE) metric
-************************************
+********************************
 .. automodule:: pypopsyn.learning.metrics.metric_mae
   :members: metric_mae
 
 Mean square error (MSE) metric
-************************************
+******************************
 .. automodule:: pypopsyn.learning.metrics.metric_mse
   :members: metric_mse
 
@@ -153,6 +153,16 @@ Convolutional model
 .. automodule:: pypopsyn.learning.models.model_conv
   :members: model_conv
 
+Convolutional model for sbi
+***************************
+.. automodule:: pypopsyn.learning.models.model_conv_sbi
+  :members: model_conv_sbi
+
+Deeper Convolutional model for sbi
+**********************************
+.. automodule:: pypopsyn.learning.models.model_conv_sbi_deep
+  :members: model_conv_sbi_deep
+
 Trainers
 ########
 
@@ -168,6 +178,11 @@ Basic trainer
 
 Utils
 #####
+
+Benchmark model performance
+***************************
+.. automodule:: pypopsyn.learning.utils.json
+  :members: json
 
 JSON file reader
 ****************
@@ -192,5 +207,34 @@ Configuration parser
 .. automodule:: pypopsyn.learning.configuration_parser
   :members: configuration_parser
 
+train script
+************
+.. automodule:: pypopsyn.learning.train
+  :members: train
+
+train script for sbi (amortized)
+********************************
+.. automodule:: pypopsyn.learning.train_sbi
+  :members: train_sbi
+
+train script for sbi (truncated SNPE)
+*************************************
+.. automodule:: pypopsyn.learning.train_tsnpe
+  :members: train_tsnpe
+
+Infer script
+************
+.. automodule:: pypopsyn.learning.infer
+  :members: infer
+
+Infer script for sbi
+********************
+.. automodule:: pypopsyn.learning.infer_test_sbi
+  :members: infer_test_sbi
+
+Infer script for sbi (ensemble method)
+**************************************
+.. automodule:: pypopsyn.learning.infer_test_ensemble
+  :members: infer_test_ensemble
 
 
