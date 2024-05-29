@@ -53,9 +53,9 @@ def test_select():
     """
 
     path_file_test = pathlib.Path(
-        "data/example_simulation_dyn/final_pop_dyn_test.csv"
+        "data/example_simulation_dyn/final_pop_dyn.csv"
     )
 
-    df = select(path_file_test, 5, 20)
+    df = select(path_file_test, 5, 300000)
 
     assert isinstance(df, pd.DataFrame)
