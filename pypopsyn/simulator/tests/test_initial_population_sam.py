@@ -28,7 +28,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.initial_population as ipop
+import pypopsyn.simulator.initial_population_sam as ipop
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 from pypopsyn.simulator.config_simulator import cfg
 
