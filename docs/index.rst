@@ -32,6 +32,7 @@ Welcome to pypopsyn's documentation!
    _site/simulator/simulator
    _site/generator/generator
    _site/learning/learning
+   _site/utilities/utilities
 
 .. raw:: latex
 
