@@ -35,7 +35,7 @@ jobs:
       # we cache it after first creation and subsequently restore it to avoid recreation at every push.
       # We also use the hash of the corresponding environment file for the key to check environment modifications below.
       - name: Caching environment
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: /usr/share/miniconda/envs/pop_syn
           key: conda-${{ hashFiles('environment.yaml') }}
