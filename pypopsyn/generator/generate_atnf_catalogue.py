@@ -387,14 +387,14 @@ if __name__ == "__main__":
         "--data",
         nargs="?",
         type=str,
-        default="examples/data/atnf_full_nobinary_13-09-2022.csv",
+        default="data/observations/atnf_full_nobinary_25-04-2023.csv",
         help="Path, with the name of the csv included, to where the ATNF Pulsar Catalogue is located.",
     )
     parser.add_argument(
         "--save_dir",
         nargs="?",
         type=str,
-        default="examples/data/array_train_set",
+        default="output_atnf_maps",
         help="Path to the folder, where the dataset will be saved.",
     )
     parser.add_argument(
