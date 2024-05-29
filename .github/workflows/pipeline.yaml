@@ -29,10 +29,10 @@ jobs:
       # Setup miniconda and create the (empty) environment.
       # Note: this does not install any packages yet but activates the environment.
       - name: Setup miniconda
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           activate-environment: pop_syn
-      # As it takes about 15min to generate the full environment for each run,
+      # As it takes about 5min to generate the full environment for each run,
       # we cache it after first creation and subsequently restore it to avoid recreation at every push.
       # We also use the hash of the corresponding environment file for the key to check environment modifications below.
       - name: Caching environment
