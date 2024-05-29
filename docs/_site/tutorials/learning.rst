@@ -1,6 +1,6 @@
-****************
-Learning Example
-****************
+*****************
+Learning Tutorial
+*****************
 
 We use here a supervised learning approach where training data are suitably labeled and the network has to learn to predict the target value of the label associated to the data samples.
 The :code:`examples/learning/train.py` script allows to train a neural network over a dataset of samples of simulated neutron star populations.

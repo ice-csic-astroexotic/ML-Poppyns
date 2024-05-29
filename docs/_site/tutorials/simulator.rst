@@ -1,6 +1,6 @@
-*****************
-Simulator Example
-*****************
+******************
+Simulator Tutorial
+******************
 
 The simulation of a Galactic population of neutron stars can be performed by using different ways.
 

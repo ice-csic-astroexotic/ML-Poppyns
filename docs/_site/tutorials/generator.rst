@@ -1,6 +1,6 @@
-*****************
-Generator Example
-*****************
+******************
+Generator Tutorial
+******************
 
 
 Once a set of simulated populations is created by running one of the simulator scripts (see above for more information), it is possible to generate a dataset of synthetic representations of the simulations that is readable by a machine-learning pipeline.

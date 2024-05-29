@@ -40,11 +40,11 @@ Welcome to pypopsyn's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Examples
+   :caption: Tutorials
 
-   _site/examples/simulator
-   _site/examples/generator
-   _site/examples/learning
+   _site/tutorials/simulator
+   _site/tutorials/generator
+   _site/tutorials/learning
 
 .. raw:: latex
 
