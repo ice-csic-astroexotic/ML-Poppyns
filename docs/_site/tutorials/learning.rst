@@ -3,14 +3,14 @@ Learning Tutorial
 *****************
 
 We use here a supervised learning approach where training data are suitably labeled and the network has to learn to predict the target value of the label associated to the data samples.
-The :code:`examples/learning/train.py` script allows to train a neural network over a dataset of samples of simulated neutron star populations.
+The :code:`pypopsyn/learning/train.py` script allows to train a neural network over a dataset of samples of simulated neutron star populations.
 Once the dataset containing the heatmaps or 2D arrays has been created, to train the network over the dataset one can run the script:
 
-.. code-block:: bash
+::
 
-  python examples/learning/train.py --configuration="examples/learning/config.json"
+  python pypopsyn/learning/train.py --configuration pypopsyn/learning/config.json
 
-where the :code:`config.json` file contains all the information needed by the network to train. This :term:`CLI` can be left unspecified and the script will take the defautl :code:`examples/learning/config_multiparameter_MLP.json`.
+where the :code:`config.json` file contains all the information needed by the network to train. This :term:`CLI` can be left unspecified and the script will take the default :code:`pypopsyn/learning/config_multiparameter_MLP.json`.
 
 In this file we can specify various options to configure the training process, e.g., the network model architecture to use, the input shape of the dataset, or the number of output parameters to predict.
 
@@ -18,7 +18,7 @@ First of all, we can specify some general settings such as the name of the exper
 The script will try to perform several training trials until all convergence thresholds are met or the number of trials is reached.
 If convergence is not reached in the number of trials indicated the best trained model is saved anyway.
 
-.. code-block:: json
+::
 
   {
     "name": "Linear",
@@ -33,7 +33,7 @@ If convergence is not reached in the number of trials indicated the best trained
 
 The first section we need to specify is the architecture. For the sake of the example, we are using a linear network with fully connected layers which is receiving an array with shape :math:`64 \times 64` with :math:`4` different input channels and is giving as output the predicted value of one parameter for each sample:
 
-.. code-block:: json
+::
 
   {
     "arch": {
@@ -47,7 +47,7 @@ The first section we need to specify is the architecture. For the sake of the ex
 
 We also need to specify a scheme to initialize the weights and biases of the network. In this case, we show an example using the :code:`InitializerKaiming`.
 
-.. code-block:: json
+::
 
   {
     "weights_initializer": {
@@ -67,7 +67,7 @@ This will use the statistical information contained in the :code:`statistics_tra
 If normalized the input channels will have values in the range between 0 and 1.
 If standardized the input channels have values centred around 0 and ranging approximately between -1 and 1.
 
-.. code-block:: json
+::
 
   {
     "training_data_loader": {
@@ -90,7 +90,7 @@ We need to provide a loader for the validation set using the :code:`validation_d
 Such loader must have the same :code:`filter_inputs` and :code:`filter_labels` and be of the same :code:`type` as the training data loader.
 In fact, what matters is that both of them are compatible with the network's input shape.
 
-.. code-block:: json
+::
 
   {
     "validation_data_loader": {
@@ -111,7 +111,7 @@ In fact, what matters is that both of them are compatible with the network's inp
 
 We can set the optimizer type, which regulates the training process (see `here <https://pytorch.org/docs/stable/optim.html>`_ for the different type of PyTorch optimizers). Each specific optimizer has a set of extra parameters that can be provided (such as :code:`lr` or :code:`weight_decay` for ADAM).
 
-.. code-block:: json
+::
 
   {
     "optimizer": {
@@ -123,9 +123,9 @@ We can set the optimizer type, which regulates the training process (see `here <
     },
   }
 
-We have to specify the loss function to minimize and the metric to monitor the predictive accuracy of the neural network model over the validation set during training. The implemeted loss function :code:`LossRMSE` evaluates the :term:`RMSE` between the output of the network and the target labels over every training epoch. For the accuracy metric a similiar :term:`RMSE` metric is implemented called :code:`MetriAccuracyRMSE`. An optimal value of the :term:`RMSE` should be around 0 for a well-trained network:
+We have to specify the loss function to minimize and the metric to monitor the predictive accuracy of the neural network model over the validation set during training. The implemented loss function :code:`LossRMSE` evaluates the :term:`RMSE` between the output of the network and the target labels over every training epoch. For the accuracy metric a similiar :term:`RMSE` metric is implemented called :code:`MetriAccuracyRMSE`. An optimal value of the :term:`RMSE` should be around 0 for a well-trained network:
 
-.. code-block:: json
+::
 
   {
     "loss": {
@@ -146,7 +146,7 @@ For example for an adaptive optimizer like ADAM the learning rate is automatical
 Therefore the learning scheduler could not be effective in this case.
 On the other hand, for optimizer where the learning rate is fixed, rescheduling its value after some training epochs could help to converge faster towards a minimum of the loss landscape.
 
-.. code-block:: json
+::
 
   {
     "lr_scheduler": {
@@ -160,7 +160,7 @@ On the other hand, for optimizer where the learning rate is fixed, rescheduling 
 
 Some parameters for the training routine such as the total number of epochs, the directory path where to save the best model network and some checkpoints during the training process.
 
-.. code-block:: JSON
+::
 
   {
     "trainer": {
@@ -175,35 +175,35 @@ Some parameters for the training routine such as the total number of epochs, the
 
 Once you have set up the configuration file, to launch the training script you can simply run the script:
 
-.. code-block:: bash
+::
 
-  python examples/learning/train.py --configuration examples/learning/config.json
+  python pypopsyn/learning/train.py --configuration examples/learning/config.json
 
 When launching the training script you can also provide some of the parameters contained in the configuration file directly via :term:`CLI`.
 For example one can provide the paths to the training and validation dataset, the input channels and the labels to ignore, the input shape, the number of parameters to predict, either to apply normalization or standardization to the input, the batch size, the learning rate value and the path where to save the trained model.
 For example you can run a script like the following:
 
-.. code-block:: bash
+::
 
-  python examples/learning/train.py --configuration examples/learning/config.json --dataset_training generated_dataset/dataset_train.csv --dataset_validation generated_dataset/dataset_valid.csv --dataset_statistics generated_dataset/statistics_train.json --filter_inputs 0 3 4 5 --filter_labels 14 --input_shape 4 64 64 --num_parameters 1 --normalize 1 --batch_size 1 --lr 1e-5 --save_dir training_results
+  python pypopsyn/learning/train.py --configuration pypopsyn/learning/config.json --dataset_training generated_dataset/dataset_train.csv --dataset_validation generated_dataset/dataset_valid.csv --dataset_statistics generated_dataset/statistics_train.json --filter_inputs 0 3 4 5 --filter_labels 14 --input_shape 4 64 64 --num_parameters 1 --normalize 1 --batch_size 1 --lr 1e-5 --save_dir training_results
 
-The :code:`examples/experiment_launcher.py` script allows you to specify a list of experiment commands in a text file like:
+The :code:`utilities/experiment_launcher.py` script allows you to specify a list of experiment commands in a text file like:
 
-.. code-block:: bash
+::
 
-  python examples/learning/train.py --dataset_training generated_dataset/array_64/train_dataset.csv --dataset_validation generated_dataset/array_64/dataset_valid.csv --dataset_statistics generated_dataset/array_64/statistics_train.json --input_shape 4 64 64 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r64_gc_position_velocity
-  python examples/learning/train.py --dataset_training generated_dataset/array_128/train_dataset.csv --dataset_validation generated_dataset/array_128/dataset_valid.csv --dataset_statistics generated_dataset/array_128/statistics_train.json --input_shape 4 128 128 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r128_gc_position_velocity
-  python examples/learning/train.py --dataset_training generated_dataset/array_256/train_dataset.csv --dataset_validation generated_dataset/array_256/dataset_valid.csv --dataset_statistics generated_dataset/array_256/statistics_train.json --input_shape 4 256 256 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r256_gc_position_velocity
-  python examples/learning/train.py --dataset_training generated_dataset/array_512/train_dataset.csv --dataset_validation generated_dataset/array_512/dataset_valid.csv --dataset_statistics generated_dataset/array_512/statistics_train.json --input_shape 4 512 512 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r512_gc_position_velocity
+  python pypopsyn/learning/train.py --dataset_training generated_dataset/array_64/train_dataset.csv --dataset_validation generated_dataset/array_64/dataset_valid.csv --dataset_statistics generated_dataset/array_64/statistics_train.json --input_shape 4 64 64 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r64_gc_position_velocity
+  python pypopsyn/learning/train.py --dataset_training generated_dataset/array_128/train_dataset.csv --dataset_validation generated_dataset/array_128/dataset_valid.csv --dataset_statistics generated_dataset/array_128/statistics_train.json --input_shape 4 128 128 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r128_gc_position_velocity
+  python pypopsyn/learning/train.py --dataset_training generated_dataset/array_256/train_dataset.csv --dataset_validation generated_dataset/array_256/dataset_valid.csv --dataset_statistics generated_dataset/array_256/statistics_train.json --input_shape 4 256 256 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r256_gc_position_velocity
+  python pypopsyn/learning/train.py --dataset_training generated_dataset/array_512/train_dataset.csv --dataset_validation generated_dataset/array_512/dataset_valid.csv --dataset_statistics generated_dataset/array_512/statistics_train.json --input_shape 4 512 512 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r512_gc_position_velocity
 
-By default, the command list will be held in :code:`examples/command_list.txt`. Each line should contain one full command (including the :code:`python` program call) to execute an experiment. The script will execute those experiments automatically and in parallel providing a number of maximum simultaneous :code:`--processes`.
+By default, the command list will be held in :code:`utilities/command_list.txt`. Each line should contain one full command (including the :code:`python` program call) to execute an experiment. The script will execute those experiments automatically and in parallel providing a number of maximum simultaneous :code:`--processes`.
 Obviously, this number of processes should be set as a function of the number of available threads/cores.
 
 A custom experiments file can be specified with the :code:`--command_list` parameter:
 
-.. code-block:: bash
+::
 
-  python examples/experiment_launcher.py --command_list examples/learning/experiment_list.txt --processes 2
+  python utilities/experiment_launcher.py --command_list example/learning/experiment_list.txt --processes 2
 
 This combined with an intelligent use of the :code:`--save_dir` :term:`CLI` argument will let you run many experiments unattended and check them asynchronously.
 
@@ -211,34 +211,34 @@ Infer on a Data Set
 ###################
 
 Once a network has been trained, it can be used to infer on an existing dataset of density and velocity maps.
-To do so the script :code:`examples/learning/infer.py` allows you to take an experiment configuration file, a pretrained model, and a data set to run inference on selected samples for that dataset.
+To do so the script :code:`pypopsyn/learning/infer.py` allows you to take an experiment configuration file, a pretrained model, and a data set to run inference on selected samples for that dataset.
 
 To use this inference script you will need to provide a dataset to infer (:code:`--dataset`), a checkpoint with a pretrained model (:code:`--weights`), the configuration file of the experiment that generated such model (:code:`--c`) and a directory path where to save the CSV file with the inference results. For instance:
 
-.. code-block:: bash
+::
 
-    python examples/learning/infer.py --c examples/learning/config_multiparameter_MLP.json --dataset examples/data/8_samples/dataset.csv --resume examples/learning/saved/models/Linear/0407_175854/model_best.pth --save_dir inference_results
+    python pypopsyn/learning/infer.py --c pypopsyn/learning/config_multiparameter_MLP.json --dataset examples/data/8_samples/dataset.csv --resume examples/learning/saved/models/Linear/0407_175854/model_best.pth --save_dir inference_results
 
 Then you can use the :code:`--samples` argument to provide a list of samples you would like to infer (their indices in the dataset) or just leave it blank to infer over all.
 Make sure that the data set used for inference has the same input configuration as the data set used for training the model, i.e., same input shape, number of labels to predict, normalization etc..
 If the inference dataset does not match an error is raised automatically by pytorch.
 For example if you put the wrong resolution for the input maps the error raised is similar to:
 
-.. code-block:: bash
+::
 
     RuntimeError: Error(s) in loading state_dict for ModelConv:
         size mismatch for fc1.weight: copying a param with shape torch.Size([64, 26880]) from checkpoint, the shape in current model is torch.Size([64, 12544]).
 
 If the input channels do not match, an error like the following is raised:
 
-.. code-block:: bash
+::
 
     ValueError: all the input array dimensions for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 128 and the array at index 1 has size 64
 
 The output will be the labels (ground truth) for each sample and the corresponding prediction printed on terminal and saved in a CSV file :code:`inference_results.csv`.
 For example, in case of inference over the two parameters :code:`h_c` and :code:`sigma_k` the output file would be like this:
 
-.. code-block:: bash
+::
 
     target:h_c,target:sigma_k,predicted:h_c,predicted:sigma_k
     1.594645619392395,204.6456756591797,1.600591778755188,208.88429260253906

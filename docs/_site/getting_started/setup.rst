@@ -10,7 +10,7 @@ For this you need conda to be installed on your machine.
 First, you should clone the repository on your computer.
 The repo contains an environment file that can be installed by running
 
-.. code-block:: bash
+::
 
   conda env create -f environment.yaml
 
@@ -18,39 +18,39 @@ NOTE: for OSX users the :code:`cudatoolkit` package has to be commented out in t
 
 This environment can be activated using
 
-.. code-block:: bash
+::
 
   conda activate pop_syn
 
 To set up the environment on the PIC servers, we specify the full path where the environment will be saved:
 
-.. code-block:: bash
+::
 
   conda env create --prefix /data/magnesia/scratch/conda/env/pop_syn
   --file /data/magnesia/software/MAGNESIA_population_synthesis/environment.yaml
 
 In this case, the environment can be activated using
 
-.. code-block:: bash
+::
 
   conda activate /data/magnesia/scratch/conda/env/pop_syn
 
 After activating the environment to install the `Simulation Based Inference (SBI) <https://www.mackelab.org/sbi/>`_
 library run:
 
-.. code-block:: bash
+::
 
    pip install sbi
 
 We recommend working within this environment when using the code. To install the :code:`pypopsyn` package and work with the code run
 
-.. code-block:: bash
+::
 
   python setup.py develop
 
 To automate the workflow and improve as well as maintain code quality standards, we have set up pre-commit hooks. To set the hooks run
 
-.. code-block:: bash
+::
 
   pre-commit install
 

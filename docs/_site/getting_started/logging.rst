@@ -6,7 +6,7 @@ For logging information to both console and file outputs we make use of Python's
 
 In each module where the logger needs to be used, you must first import the logging module and get it using the :code:`getLogger` function:
 
-.. code-block:: python
+::
 
   import logging
   [...]
@@ -14,7 +14,7 @@ In each module where the logger needs to be used, you must first import the logg
 
 Then you can issue logging messages at the appropriate level:
 
-.. code-block:: python
+::
 
   log.debug("blablabla")
   log.info("blablabla")
@@ -23,7 +23,7 @@ Then you can issue logging messages at the appropriate level:
 
 As an example if we run the script to simulate a population of 100 neutron stars using the standard configuration file, the following logging information is showed:
 
-.. code-block:: bash
+::
 
     (pop_syn) michele@michele-XPS-13-7390:~/Documents/Magnesia-PhD/MAGNESIA_population_synthesis$ python pypopsyn/simulator/simulate_population_full.py
     INFO:__main__:Seed: 1716554090
@@ -95,7 +95,7 @@ The detailed information will be saved in the folder specified under :code:`prof
 Until commit :code:`4cb335f7b435f1997cef9c5a9dd84117abff1ff8` Hydra was enabled to allow parameter sweeps when running the simulation script.
 By default, Hydra configures the loggers automatically to only produce messages above :code:`info` level, e.g.:
 
-.. code-block:: bash
+::
 
   (pop_syn) agarcia@challenger:~/Workspace/MAGNESIA_population_synthesis$ python examples/simulator/initialize_evolve_population.py
   [2020-03-05 18:34:50,742][__main__][INFO] - Randomizing population age...
@@ -107,7 +107,7 @@ By default, Hydra configures the loggers automatically to only produce messages 
 
 We can configure specific modules to output also debug information by overriding the :code:`hydra.verbose` field providing a list of module names:
 
-.. code-block:: bash
+::
 
   (pop_syn) agarcia@challenger:~/Workspace/MAGNESIA_population_synthesis$ python examples/simulator/initialize_evolve_population.py hydra.verbose=pypopsyn.simulator.initial_population
   [2020-03-05 18:28:47,080][__main__][INFO] - Randomizing population age...

@@ -10,7 +10,7 @@ Instead of hardcoding the simulator parameters, we decided to outsorce them to a
 
 For instance, we could run the previous initial population example like this:
 
-.. code-block:: bash
+::
 
   python examples/simulator/initialize_evolve_population.py r_extent=30.0
 
@@ -20,13 +20,13 @@ Hydra will take care of creating a folder for such experiment by creating an :co
 
 Another cool feature of Hydra is multi-run. Suppose you want to explore a range of parameters, you could do:
 
-.. code-block:: bash
+::
 
   python examples/simulator/generating_population.py r_extent=30.0,40.0 -m
 
 Hydra will automatically take care of executing the script sweeping all the parameters and creating a job for each one of them :math:`30.0` and :math:`40.0`. That will produce an output like:
 
-.. code-block:: bash
+::
 
   [2020-03-04 15:54:07,360][HYDRA] Sweep output dir : multirun/2020-03-04/15-54-07
   [2020-03-04 15:54:07,360][HYDRA] Launching 2 jobs locally
