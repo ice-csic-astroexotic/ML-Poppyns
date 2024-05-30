@@ -29,9 +29,9 @@ SOFTWARE.
 import numpy as np
 
 import pypopsyn.simulator.basics.constants as const
-import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
+import utilities.random_sampler as rs
 from pypopsyn.simulator.config_simulator import cfg
 
 

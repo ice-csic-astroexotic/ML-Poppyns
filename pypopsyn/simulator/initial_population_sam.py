@@ -36,12 +36,12 @@ import numpy as np
 
 import pypopsyn.benchmark.pyinstrument as benchmark
 import pypopsyn.simulator.basics.constants as const
-import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.initial_position as ip
 import pypopsyn.simulator.stellar_dynamics.initial_velocity as iv
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
+import utilities.random_sampler as rs
 from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
