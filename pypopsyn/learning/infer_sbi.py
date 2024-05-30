@@ -9,7 +9,7 @@
 
      Running the code:
 
-        python3 infer_test_sbi.py --h
+        python3 infer_sbi.py --h
 
         To obtain help about all the arguments that can be used.
 
@@ -544,7 +544,7 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="examples/learning/config_sbi.json",
+        default="pypopsyn/learning/config_sbi.json",
         help="Configuration file path.",
     )
     args.add_argument(

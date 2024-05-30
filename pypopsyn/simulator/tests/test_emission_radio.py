@@ -29,8 +29,8 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.multiband_emission.emission_radio as er
+import utilities.random_sampler as rs
 from pypopsyn.simulator.config_simulator import cfg
 
 TOL = 1e-5

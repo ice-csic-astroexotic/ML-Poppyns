@@ -7,7 +7,7 @@
 
     Running the code:
 
-        python3 examples/experiment_launcher.py --h
+        python3 utilities/experiment_launcher.py --h
 
         To obtain help about all the arguments that can be used.
 
@@ -164,7 +164,7 @@ if __name__ == "__main__":
         "--command_list",
         nargs="?",
         type=str,
-        default="examples/command_list.txt",
+        default="utilities/command_list.txt",
         help="List of commands to execute.",
     )
     args.add_argument(

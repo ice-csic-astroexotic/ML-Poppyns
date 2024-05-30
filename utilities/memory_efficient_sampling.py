@@ -96,8 +96,8 @@ def select(
     Args:
 
         file_path (pathlib.Path): Path to the full dataset.
-        size_full_dataset (int): Number of rows of the desired random subset without taking into account the headers.
-        size_subset (int) : Number of rows in the full dataset without taking into account the headers.
+        size_subset (int): Number of rows of the desired random subset without taking into account the headers.
+        size_full_dataset (int): Number of rows in the full dataset without taking into account the headers.
         previously_chosen_rows (list): Rows previously chosen from previous subset.
 
     Returns:

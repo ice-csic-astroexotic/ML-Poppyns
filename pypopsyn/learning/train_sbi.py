@@ -320,7 +320,7 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="examples/learning/config_sbi.json",
+        default="pypopsyn/learning/config_sbi.json",
         help="Configuration file path.",
     )
 
