@@ -41,7 +41,7 @@ import pypopsyn.simulator.stellar_dynamics.initial_position as ip
 import pypopsyn.simulator.stellar_dynamics.initial_velocity as iv
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 import utilities.benchmark.pyinstrument as benchmark
-import utilities.random_sampler as rs
+import utilities.samplers.random_sampler as rs
 from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
