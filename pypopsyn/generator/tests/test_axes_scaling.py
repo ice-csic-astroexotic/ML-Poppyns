@@ -26,7 +26,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import pypopsyn.generator.maps_generator.axes_scaling as axs
+import pypopsyn.generator.maps.axes_scaling as axs
 
 
 @pytest.fixture()
