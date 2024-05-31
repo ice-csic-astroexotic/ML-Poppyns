@@ -27,7 +27,7 @@ import os
 
 import pytest
 
-import utilities.parameter_sweeper as param_sweeper
+import utilities.simulation_helper.parameter_sweeper as param_sweeper
 
 
 @pytest.fixture

@@ -1,9 +1,10 @@
 """
-Tests for the simulation_helper.py module.
+Tests for the run_simulation_set.py module.
 
     Authors:
 
         Michele Ronchi (ronchi @ ice.csic.es)
+        Celsa Pardo Araujo (pardo @ ice.csic.es)
 
 Copyright (c) MAGNESIA (ICE-CSIC) 2024
 
@@ -31,7 +32,7 @@ from unittest.mock import patch
 
 import pytest
 
-import utilities.simulation_helper as sh
+import utilities.simulation_helper.run_simulation_set as rss
 
 
 @pytest.fixture
@@ -58,7 +59,7 @@ def test_run_simulation_dask(mock_subprocess_run, caplog):
     command = "some_command"
     caplog.set_level(logging.INFO)
     # Call the function being tested.
-    sh.run_simulation_dask(command)
+    rss.run_simulation_dask(command)
 
     # Assert that subprocess.run() was called with the correct command.
     mock_subprocess_run.assert_called_once_with(
@@ -79,10 +80,10 @@ def test_run_simulation(mock_subprocess_check_output):
     lock = mp.Lock()
 
     # Set up the process pool.
-    sh.setup_process_pool(event, lock)
+    rss.setup_process_pool(event, lock)
 
     command = "some_command"
-    result = sh.run_simulation(command)
+    result = rss.run_simulation(command)
     assert result[0] == command
     assert result[1] == "Mocked subprocess output"
 
@@ -95,7 +96,7 @@ def test_log_simulation(caplog):
     caplog.set_level(logging.INFO)
 
     # Call the function.
-    sh.log_simulation(process_result)
+    rss.log_simulation(process_result)
 
     # Print the captured log records.
     print("Captured log records:")
@@ -113,6 +114,6 @@ def test_setup_process_pool():
     """
     event = mp.Event
     lock = mp.Lock
-    sh.setup_process_pool(event, lock)
-    assert isinstance(sh.unpaused, type(mp.Event))
-    assert isinstance(sh.starting, type(mp.Lock))
+    rss.setup_process_pool(event, lock)
+    assert isinstance(rss.unpaused, type(mp.Event))
+    assert isinstance(rss.starting, type(mp.Lock))

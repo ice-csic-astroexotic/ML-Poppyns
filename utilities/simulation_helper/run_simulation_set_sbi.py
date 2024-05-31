@@ -1,7 +1,7 @@
 """
     Simulator helper script.
 
-    This script allows us to run various simulator scripts in a multithreaded manner. Unlike the `simulation_helper.py`
+    This script allows us to run various simulator scripts in a multithreaded manner. Unlike the `run_simulation_set.py`
     script, which sample parameters randomly or on a grid, this script follows a prior distribution for parameter
     sampling. Note that this script can be run only when using a prior distribution from the sbi package that has the
     .sample() method available.
@@ -61,7 +61,7 @@ from pypopsyn.learning.loaders.loader_multichannel_array_stat import (
     DatasetMultichannelArray,
 )
 from pypopsyn.simulator.config_simulator import cfg
-from utilities.simulation_helper import (
+from utilities.simulation_helper.run_simulation_set import (
     log_simulation,
     run_simulation,
     run_simulation_dask,
