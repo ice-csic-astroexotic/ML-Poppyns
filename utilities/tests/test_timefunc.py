@@ -1,0 +1,103 @@
+"""
+Test for the timefunc.py module.
+
+    Authors:
+
+        Michele Ronchi (ronchi @ ice.csic.es)
+
+Copyright (c) MAGNESIA (ICE-CSIC) 2024
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
+import os
+import tempfile
+import time
+from unittest.mock import patch
+
+import pytest
+
+from utilities.benchmark.timefunc import time_function
+
+
+def test_time_function_decorator():
+    """
+    Test the time_function decorator when printing to terminal is disabled.
+    """
+    # Simulate a function that takes some time to execute.
+    @time_function(show=False)
+    def dummy_function(x):
+        time.sleep(0.1)
+        return x * 2
+
+    result = dummy_function(2)
+
+    # Assert that the function returns the expected result.
+    assert result == 4
+
+
+@patch("builtins.print")
+def test_time_function_show(mock_print):
+    """
+    Test that the time_function decorator prints the timing information to the console
+    when the show parameter is set to True.
+
+    Args:
+        mock_print (MagicMock): A MagicMock object representing the print function.
+        It allows assertions on how the print function is called within the decorated code.
+    """
+
+    @time_function(show=True)
+    def dummy_function(x):
+        time.sleep(0.1)
+        return x * 2
+
+    dummy_function(2)
+
+    # Assert that the timing information is printed on terminal.
+    assert mock_print.called
+    # Assert that the printed message contains the function name and timing information.
+    assert "dummy_function took" in mock_print.call_args[0][0]
+
+
+def test_time_function_file():
+    """
+    Test that the time_function decorator writes the timing information to a specified file
+    when the filename parameter is provided.
+    """
+
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        filename = temp_file.name
+
+    try:
+
+        @time_function(filename=filename, show=False)
+        def dummy_function(x):
+            time.sleep(0.1)
+            return x * 2
+
+        # Call the decorated function to ensure it writes timing information to the file.
+        dummy_function(2)
+
+        # Read the content of the temporary file after the function has been called.
+        with open(filename, "r") as f:
+            content = f.read()
+
+        assert "dummy_function took" in content
+
+    finally:
+        # Clean up the temporary file.
+        os.remove(filename)
