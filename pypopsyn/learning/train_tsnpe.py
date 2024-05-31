@@ -56,11 +56,11 @@ from sbi.inference.snpe.snpe_c import SNPE_C
 from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 from tqdm import tqdm
 
-import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.initializers.initializers as learning_initializers
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
 import pypopsyn.learning.models.models as learning_models
+import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
 from pypopsyn.simulator.config_simulator import cfg
 from utilities.coverage_probability import coverage_prob

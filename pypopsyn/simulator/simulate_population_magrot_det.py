@@ -38,13 +38,13 @@ import numpy as np
 import orjson
 import pandas as pd
 
-import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
+import utilities.benchmark.timewith as timewith
 from pypopsyn.simulator.config_simulator import cfg
 from utilities.memory_efficient_sampling import select
 

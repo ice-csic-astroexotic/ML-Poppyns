@@ -40,13 +40,13 @@ import numpy as np
 import orjson
 import pandas as pd
 
-import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
+import utilities.benchmark.timewith as timewith
 from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
