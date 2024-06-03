@@ -74,6 +74,16 @@ unpaused = None
 starting = None
 
 
+def log_error(e: Exception):
+    """
+    Log an exception raised during the simulation process.
+
+    Args:
+        e (Exception): The exception to log.
+    """
+    log.error("An error occurred during the simulation.", exc_info=e)
+
+
 def run_simulation_dask(command: str) -> None:
     """
     Run the simulation command. Unlike the run_simulation function below, this function does not capture all the
@@ -123,14 +133,18 @@ def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     # Once the process has released the lock for another process
     # it can proceed with the execution of the experiment.
     log.info(f"Launching simulation {command}")
+    try:
+        process_output = subprocess.check_output(
+            command, stderr=subprocess.STDOUT, shell=True
+        )
 
-    process_output = subprocess.check_output(
-        command, stderr=subprocess.STDOUT, shell=True
-    )
+        log.info("Experiment finished...")
+        return command, process_output.decode("utf-8")
 
-    log.info("Experiment finished...")
-
-    return command, process_output.decode("utf-8")
+    except subprocess.CalledProcessError as e:
+        log.error(f"Simulation failed with error code {e.returncode}")
+        log.error(e.output.decode("utf-8"))
+        return command, e.output.decode("utf-8")
 
 
 def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
@@ -266,7 +280,12 @@ def main(args):
         if simulator_type == "simulate_population_magrot_det":
             cmd += f" --dyn_data {dyn_data_path}"
 
-        pool.apply_async(run_simulation, args=(cmd,), callback=log_simulation)
+        pool.apply_async(
+            run_simulation,
+            args=(cmd,),
+            callback=log_simulation,
+            error_callback=log_error,
+        )
 
         simulation_number += 1
 
