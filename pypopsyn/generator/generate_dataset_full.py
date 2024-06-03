@@ -316,7 +316,7 @@ if __name__ == "__main__":
         "--save_dir",
         nargs="?",
         type=str,
-        default="output/generator",
+        default="output/gen_full",
         help="Path to the folder where the dataset will be saved.",
     )
     parser.add_argument(
