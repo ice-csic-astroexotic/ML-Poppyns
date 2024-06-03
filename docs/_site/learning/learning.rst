@@ -232,10 +232,10 @@ Infer script
 
 Infer script for sbi
 ********************
-.. automodule:: pypopsyn.learning.infer_test_sbi
-  :members: infer_test_sbi
+.. automodule:: pypopsyn.learning.infer_sbi
+  :members: infer_sbi
 
 Infer script for sbi (ensemble method)
 **************************************
-.. automodule:: pypopsyn.learning.infer_test_ensemble
-  :members: infer_test_ensemble
+.. automodule:: pypopsyn.learning.infer_sbi_ensemble
+  :members: infer_sbi_ensemble

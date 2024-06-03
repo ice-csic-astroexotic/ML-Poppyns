@@ -115,12 +115,6 @@ This telemetry comes from the following setup:
 Basics
 #######
 
-Random Sampler
-**************
-
-.. automodule:: simulator.basics.random_sampler
-  :members: random_sampler
-
 Constants
 *************
 
@@ -247,11 +241,11 @@ Configuration File
 .. automodule:: pypopsyn.simulator.config_simulator
   :members: configuration
 
-Initial NS Population
-**********************
+Initial NS Population from spiral-arm model
+*******************************************
 
-.. automodule:: pypopsyn.simulator.initial_population
-  :members: initial_population
+.. automodule:: pypopsyn.simulator.initial_population_sam
+  :members: initial_population_sam
 
 Initial NS Population from electron density model
 *************************************************

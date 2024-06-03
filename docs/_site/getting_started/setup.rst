@@ -88,15 +88,12 @@ The main folder is :code:`pypopsyn` which contains five sub-folders: :code:`simu
 
 * The :code:`learning` sub-folder contains all the modules and scripts necessary for the machine-learning pipeline, including model architectures, initialization techniques, loss function definitions, training schemes and so on.
 
-* The :code:`benchmark` sub-folder contains all the modules and functions necessary to profile our code.
-  We use this functionality to optimize the run-time of our code.
-
 The :code:`data` folder contains seven main sub-folders: five sub-folders containing example data created by running different simulator scripts and the generator script, an :code:`observations` sub-folder and a :code:`paper_results` sub-folder.
 All the simulation examples provided here have been run by using the default parameters specified in :code:`pypopsyn/simulator/config_simulator.py`.
 
 * The :code:`example_simulation_dyn` sub-folder contains the results of the dynamical evolution of a population of neutron stars obtained by running the script :code:`pypopsyn/simulator/simulate_population_dyn.py`.
 
-* The :code:`example_simulation_full` sub-folder contains the results of a full simulation (dynamical + magneto-rotational evolution + detection) of a population of neutron stars obtained by running the script :code:`pypopsyn/simulator/simulate_population_full.py` and by using the :code:`pypopsyn/simulator/initial_population.py` module to setup the initial conditions.
+* The :code:`example_simulation_full_sam` sub-folder contains the results of a full simulation (dynamical + magneto-rotational evolution + detection) of a population of neutron stars obtained by running the script :code:`pypopsyn/simulator/simulate_population_full.py` and by using the :code:`pypopsyn/simulator/initial_population_sam.py` module to setup the initial conditions.
 
 * The :code:`example_simulation_full_edm` sub-folder contains the results of a full simulation (dynamical + magneto-rotational evolution + detection) of a population of neutron stars obtained by running the script :code:`pypopsyn/simulator/simulate_population_full.py` and by using the :code:`pypopsyn/simulator/initial_population_edm.py` module to setup the initial conditions.
 
@@ -115,6 +112,6 @@ For example the directory :code:`tutorials` contains two subfolders with jupyter
 
 * The :code:`analysis_notebooks` contains some analysis jupyter notebooks that can be used to plot the distributions and features of a simulated population of neutron stars as well as their evolution in time, to check some physical models used in the simulations and to compare a mock population with the real distribution of pulsars.
 
-The directory :code:`utilities` contains some additional python modules and scripts for running simulations in the PIC server, launch several simulations and perform a parameter sweep, perform statistical analysis and plotting settings.
+The directory :code:`utilities` contains some additional python modules and scripts for profiling our code, running simulations in the PIC server, launch several simulations and perform a parameter sweep, sampling distributions or dataframes, perform statistical analysis and plotting settings.
 
 
