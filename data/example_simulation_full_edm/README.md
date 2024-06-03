@@ -3,5 +3,5 @@ This is an example of full simulation (dynamical + magneto-rotational + detectio
 
 To run this example we then use the following command:
 ```commandline
-python pypopsyn/simulator/simulate_population_full.py --output_dir data/example_simulation_full_edm
+python pypopsyn/simulator/simulate_population_full.py --save_dir data/example_simulation_full_edm
 ```

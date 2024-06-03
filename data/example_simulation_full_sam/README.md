@@ -18,5 +18,5 @@ This is needed because the default model relies on the electron density to popul
 
 To run this example we then use the following command:
 ```commandline
-python pypopsyn/simulator/simulate_population_full.py --output_dir data/example_simulation_full_sam
+python pypopsyn/simulator/simulate_population_full.py --save_dir data/example_simulation_full_sam
 ```
