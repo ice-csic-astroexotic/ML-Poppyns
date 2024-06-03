@@ -107,9 +107,12 @@ def run_simulation_dask(
             os.path.basename(simulation_output_path)
         )
         node_output_path.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(
-            dyn_data_path, os.path.basename(dyn_data_path), dirs_exist_ok=True
-        )
+        if not os.path.exists(os.path.basename(dyn_data_path)):
+            shutil.copytree(
+                dyn_data_path,
+                os.path.basename(dyn_data_path),
+                dirs_exist_ok=True,
+            )
         # Save the set of parameter values into a JSON override file and write it to the output folder.
 
         simulation_override_json_path = node_output_path / "override.json"

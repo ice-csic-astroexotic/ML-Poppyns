@@ -71,6 +71,9 @@ from scripts.simulation_helper import (
 
 log = logging.getLogger(__name__)
 
+# Forcing dask to wait 120 s before considering an unresponsive worker as dead
+dask.config.set({"distributed.comm.timeouts.tcp": "120s"})
+
 
 class SimulationArgs:
     def __init__(self, output_dir, parameter_override, dyn_data=None):
