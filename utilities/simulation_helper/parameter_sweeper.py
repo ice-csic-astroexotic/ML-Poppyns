@@ -88,7 +88,7 @@ def main(args):
     # Save the input arguments to run each simulation in a file.
     log.info("Generating simulation parameter sets...")
 
-    output_path = pathlib.Path(args.output_dir)
+    output_path = pathlib.Path(args.save_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
     simulation_arguments_path = pathlib.Path().joinpath(
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     args = argparse.ArgumentParser(description="PyPopSyn parameters")
 
     args.add_argument(
-        "--output_dir",
+        "--save_dir",
         nargs="?",
         type=str,
         required=True,

@@ -261,7 +261,7 @@ def main(args):
         cmd: str = (
             f"python {server_path}/pypopsyn/simulator/{simulator_type}.py"
         )
-        cmd += f" --output_dir {simulation_output_path}"
+        cmd += f" --save_dir {simulation_output_path}"
         cmd += f" --parameter_override {simulation_override_json_path}"
         if simulator_type == "simulate_population_magrot_det":
             cmd += f" --dyn_data {dyn_data_path}"
@@ -305,7 +305,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--output_dir",
+        "--save_dir",
         nargs="?",
         type=str,
         required=True,
