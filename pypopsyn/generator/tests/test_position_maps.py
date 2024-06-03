@@ -1,0 +1,106 @@
+"""
+Test for the position_maps.py module
+
+    Authors:
+
+        Michele Ronchi (ronchi @ ice.csic.es)
+
+Copyright (c) MAGNESIA (ICE-CSIC) 2024
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
+import os
+
+import numpy as np
+import pytest
+
+from pypopsyn.generator.maps.position_maps import generate_position_map
+
+
+@pytest.fixture()
+def test_case_1():
+    data = {
+        "map_name": "test_map",
+        "sample_number": 1,
+        "map_type": "array",
+        "x_positions": np.linspace(-10, 10, 100),
+        "y_positions": np.linspace(-10, 10, 100),
+        "x_resolution": 32,
+        "y_resolution": 32,
+        "position_maps_dictionary": {},
+    }
+
+    return data
+
+
+# Fixture to create a temporary directory for testing
+@pytest.fixture
+def temp_dir(tmpdir):
+    """
+    Fixture to create a temporary directory for testing.
+
+    Args:
+        (tmpdir): Pytest's built-in fixture to create temporary directories.
+
+    Yields:
+        (str): The path to the temporary directory.
+    """
+    yield str(tmpdir)
+    tmpdir.remove()
+
+
+def test_generate_position_map(temp_dir, test_case_1):
+    """
+    Test function for generate_position_map.
+
+    Args:
+        temp_dir (str): Path to the temporary directory created by the fixture.
+        test_case_1 (dict): input args.
+    """
+    # Call the function to generate position map.
+    generate_position_map(
+        dataset_path=temp_dir,
+        map_name=test_case_1["map_name"],
+        sample_number=test_case_1["sample_number"],
+        map_type=test_case_1["map_type"],
+        x_positions=test_case_1["x_positions"],
+        y_positions=test_case_1["y_positions"],
+        x_resolution=test_case_1["x_resolution"],
+        y_resolution=test_case_1["y_resolution"],
+        position_maps_dictionary=test_case_1["position_maps_dictionary"],
+    )
+
+    # Check if the map file is created.
+    map_file = os.path.join(
+        temp_dir,
+        "{}_{}.npy".format(
+            test_case_1["map_name"], test_case_1["sample_number"]
+        ),
+    )
+    assert os.path.exists(map_file)
+
+    # Check if the map file is added to the position maps dictionary.
+    assert (
+        "input:" + test_case_1["map_name"]
+        in test_case_1["position_maps_dictionary"]
+    )
+    assert (
+        map_file
+        in test_case_1["position_maps_dictionary"][
+            "input:" + test_case_1["map_name"]
+        ]
+    )

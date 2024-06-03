@@ -31,7 +31,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.ndimage
 
-import pypopsyn.generator.axes_scaling as axs
+import pypopsyn.generator.maps.axes_scaling as axs
 
 
 def generate_density_map(

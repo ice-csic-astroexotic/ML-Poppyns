@@ -30,7 +30,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import utilities.pop_sampler as ps
+import utilities.samplers.pop_sampler as ps
 
 TOL = 1e-5
 

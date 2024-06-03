@@ -37,9 +37,9 @@ import torch
 from sbi import utils
 from sbi.inference import SNPE
 
-import pypopsyn.benchmark.timewith as timewith
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
+import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
 from utilities.coverage_probability import coverage_prob
 

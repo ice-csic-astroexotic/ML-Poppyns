@@ -28,7 +28,7 @@ import pathlib
 
 import pytest
 
-from utilities.PIC_generate_htcondor_submit import (
+from utilities.PIC_scripts.PIC_generate_htcondor_submit import (
     generate_job_submit,
     generate_wrapper,
     submit_generator,

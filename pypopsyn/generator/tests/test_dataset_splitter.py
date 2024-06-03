@@ -26,7 +26,7 @@ SOFTWARE.
 import numpy as np
 import pytest
 
-import utilities.dataset_splitter as ds
+import pypopsyn.generator.dataset_splitter as ds
 
 TOL = 1e-5
 

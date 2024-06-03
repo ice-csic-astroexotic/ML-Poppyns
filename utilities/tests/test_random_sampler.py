@@ -31,7 +31,7 @@ import numpy as np
 import pytest
 
 import pypopsyn.simulator.stellar_dynamics.initial_position as ip
-import utilities.random_sampler as rs
+import utilities.samplers.random_sampler as rs
 
 TOL = 1e-5
 

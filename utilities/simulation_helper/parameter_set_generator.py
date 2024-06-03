@@ -2,7 +2,7 @@
     Parameter-set generator module.
 
     This module contains the methods necessary to produce a sweep of the simulation parameters,
-    used in the parameter_sweeper.py and the simulation_helper.py script.
+    used in the parameter_sweeper.py and the run_simulation_set.py script.
 
     If the --sampling_type argument is set to "grid", we require the following for each tunable parameter:
 
@@ -166,7 +166,7 @@ def check_expand_args(args_dict: dict) -> (list, list):
     # Open the parameter dictionary to load requirements.
     config_sweeper_path = pathlib.Path().joinpath(
         path_to_software,
-        "utilities/config_sweeper.json",
+        "utilities/simulation_helper/config_sweeper.json",
     )
     f = open(config_sweeper_path)
     check_arg = json.load(f)
