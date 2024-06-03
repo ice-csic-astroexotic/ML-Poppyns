@@ -49,7 +49,7 @@ def cdf_calculator(
         np.ndarray: normalized cumulative distribution function.
     """
 
-    cdf = integrate.cumtrapz(pdf(x), x, initial=0)
+    cdf = integrate.cumulative_trapezoid(pdf(x), x, initial=0)
     cdf = cdf / np.max(cdf)
 
     return cdf
@@ -122,11 +122,17 @@ def random_from_pdf_2d(
 
     # Build the cumulative function grid by computing a cumulative function
     # for each column (i.e., for each value of x2) over axis=0.
-    cum_func_grid = integrate.cumtrapz(pdf_2d, x1, axis=0, initial=0)
+    cum_func_grid = integrate.cumulative_trapezoid(
+        pdf_2d, x1, axis=0, initial=0
+    )
+
     # Compute the cumulative density function of the last row of the cumulative function grid
     # to find the total cdf for variable x2.
-    cdf_x2 = integrate.cumtrapz(cum_func_grid[-1, :], x2, initial=0)
+    cdf_x2 = integrate.cumulative_trapezoid(
+        cum_func_grid[-1, :], x2, initial=0
+    )
     cdf_x2 = cdf_x2 / np.max(cdf_x2)
+
     # Normalize the cumulative function grid, column-wise, to find the cdf for x1 given a value of x2.
     cdf_x1x2 = cum_func_grid / cum_func_grid.max(axis=0)
 
