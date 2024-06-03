@@ -394,7 +394,7 @@ if __name__ == "__main__":
         "--save_dir",
         nargs="?",
         type=str,
-        default="output_atnf_maps",
+        default="output/gen_atnf",
         help="Path to the folder, where the dataset will be saved.",
     )
     parser.add_argument(
