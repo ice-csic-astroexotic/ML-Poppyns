@@ -67,6 +67,8 @@ import typing
 
 import numpy as np
 
+import examples.simulator.simulate_population_dyn as dyn
+import examples.simulator.simulate_population_magrot_det as magrot
 import scripts.parameter_set_generator as psg
 
 log = logging.getLogger(__name__)
@@ -76,7 +78,11 @@ starting = None
 
 
 def run_simulation_dask(
-    command: str, simulation_output_path: str, simulation_override_json: dict
+    args: dict,
+    simulator_type: str,
+    simulation_output_path: str,
+    simulation_override_json: dict,
+    dyn_data_path: str,
 ) -> None:
     """
     Run the simulation command, copying the output folder to the node before execution and back to the original location
@@ -84,14 +90,16 @@ def run_simulation_dask(
     terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
 
     Args:
-        command (str): Full command to execute the simulation.
+        args (SimulationArgs): Arguments required for the simulation, including output directory,
+                               parameter overrides, and optional dynamic data path.
+        simulator_type (str): The type of simulator to use, determining the specific simulation
+                              script to run..
         simulation_output_path (str): Path to the simulation output folder.
         simulation_override_json (dict): Dictionary with the parameter values for the override.json file.
-
+        dyn_data_path (str): dynamical database path.
     Returns:
         None
     """
-    log.info(f"Launching simulation: {command}")
 
     try:
         # Create the output folder into the current node.
@@ -99,15 +107,20 @@ def run_simulation_dask(
             os.path.basename(simulation_output_path)
         )
         node_output_path.mkdir(parents=True, exist_ok=True)
-
+        shutil.copytree(
+            dyn_data_path, os.path.basename(dyn_data_path), dirs_exist_ok=True
+        )
         # Save the set of parameter values into a JSON override file and write it to the output folder.
 
         simulation_override_json_path = node_output_path / "override.json"
         with open(simulation_override_json_path, "w") as f:
             json.dump(simulation_override_json, f, indent=4, sort_keys=True)
 
-        # Execute the simulation command.
-        subprocess.run(command, shell=True, check=True)
+        if simulator_type == "simulate_population_magrot_det":
+            # Call the simulate_population_magrot module.
+            magrot.simulate_population(args)
+        else:
+            dyn.simulate_population(args)
 
         simulation_output_path.mkdir(parents=True, exist_ok=True)
         # Copy the output folder back to the original location.
@@ -119,12 +132,9 @@ def run_simulation_dask(
         )
 
     except subprocess.CalledProcessError as e:
-        # Log any errors raised by the subprocess.
-        log.error(f"Error executing command: {command}")
-        if e.output is not None:
-            log.error(f"Command output: {e.output.decode('utf-8')}")
-        else:
-            log.error("No command output available")
+        # Log any errors raised during the simulation.
+        log.error(f"Error executing simulation with args: {args}")
+        log.error(f"Error details: {str(e)}")
         raise
 
     log.info("Simulation finished")

@@ -72,6 +72,13 @@ from scripts.simulation_helper import (
 log = logging.getLogger(__name__)
 
 
+class SimulationArgs:
+    def __init__(self, output_dir, parameter_override, dyn_data=None):
+        self.output_dir = output_dir
+        self.parameter_override = parameter_override
+        self.dyn_data = dyn_data
+
+
 def initialize_dask_cluster(
     logger: Logger, config: configuration_parser.ConfigurationParser
 ) -> HTCondorCluster:
@@ -204,21 +211,26 @@ def simulator_dask(
         for i in range(len(s)):
             simulation_override_json[var_names[i]] = s[i]
 
+        simulation_override_json_path = pathlib.Path().joinpath(
+            simulation_output_path, "override.json"
+        )
         # Generate a list for the command (cmd), including the Python interpreter, the script path specified with
         # 'simulator_type', and the path for the JSON override.
-        server_path = cfg["path_to_software"]
-        cmd: str = (
-            f"python {server_path}examples/simulator/{simulator_type}.py"
+        # Prepare arguments for the simulate_population function.
+        simulation_args = SimulationArgs(
+            output_dir=str(simulation_output_path),
+            parameter_override=str(simulation_override_json_path),
+            dyn_data=os.path.basename(dyn_data_path),
         )
-        cmd += f" --output_dir {simulation_number:06}"
-        cmd += f" --parameter_override {simulation_number:06}/override.json"
-        if simulator_type == "simulate_population_magrot_det":
-            cmd += f" --dyn_data {dyn_data_path}"
 
         # Create delayed computation for each simulation.
         delayed_simulations.append(
             run_simulation_delayed(
-                cmd, simulation_output_path, simulation_override_json
+                simulation_args,
+                simulator_type,
+                simulation_output_path,
+                simulation_override_json,
+                dyn_data_path,
             )
         )
 
