@@ -69,11 +69,10 @@ else:
     cfg["path_to_output"] = ""
 
 if cfg["path_to_software"] == "":
-    log.error(
+    log.warning(
         "path_to_software variable not set. Remember to set the right absolute path_to_software in the "
         "pypopsyn/simulator/config_simulator.py file."
     )
-    sys.exit()
 
 # ===================== INITIAL POPULATION CLASS PARAMETERS ========================
 
