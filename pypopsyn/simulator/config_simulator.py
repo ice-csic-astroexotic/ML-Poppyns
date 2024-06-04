@@ -70,7 +70,8 @@ else:
 
 if cfg["path_to_software"] == "":
     log.error(
-        "path_to_software variable not set. Remember to set the right absolute path_to_software in the pypopsyn/simulator/config_simulator.py file."
+        "path_to_software variable not set. Remember to set the right absolute path_to_software in the "
+        "pypopsyn/simulator/config_simulator.py file."
     )
     sys.exit()
 
