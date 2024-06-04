@@ -199,8 +199,8 @@ def check_expand_args(args_dict: dict) -> (list, list):
             # In the latter case we have to: (a) check whether the selection is valid,
             # (b) capture the list of required parameters, and (c) gather the forbidden ones
             # (i.e., those that belong to other types of selections).
-            if arg == "output_dir":
-                cli_args.append("--output_dir")
+            if arg == "save_dir":
+                cli_args.append("--save_dir")
                 cli_str.append(value)
             elif arg == "dyn_data":
                 cli_args.append("--dyn_data")
