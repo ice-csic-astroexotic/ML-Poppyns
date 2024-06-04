@@ -253,7 +253,7 @@ def main(args):
         # Note that the numbering of the folders is limited to 6 digits here,
         # i.e., we can only generate simulations below 10 million.
         simulation_output_path = pathlib.Path().joinpath(
-            args.output_dir, f"{simulation_number:06}"
+            args.save_dir, f"{simulation_number:06}"
         )
         simulation_output_path.mkdir(parents=True, exist_ok=True)
 
