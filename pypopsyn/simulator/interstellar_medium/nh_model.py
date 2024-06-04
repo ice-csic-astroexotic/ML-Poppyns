@@ -93,10 +93,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
         dbins = np.load(map_path)["radius"]
 
     except Exception as e:
-        log.error(
-            f"An error occurred: {str(e)}. "
-            f"Remember to set the right absolute path_to_software in the pypopsyn/simulator/config_simulator.py file."
-        )
+        log.error(f"An error occurred: {str(e)}. ")
 
     # Load the calibration parameters.
     # - Rv is the extinction law parameter or the total-to-selective extinction ratio, and represents the ratio

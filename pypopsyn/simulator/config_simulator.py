@@ -26,9 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import logging
+import sys
 from typing import List
 
 import pypopsyn.simulator.basics.constants as const
+
+log = logging.getLogger(__name__)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 cfg = {}
 
@@ -62,6 +67,12 @@ else:
     # /home/michele/Documents/MAGNESIA_population_synthesis. Otherwise, some notebooks might not work!
     cfg["path_to_software"] = ""
     cfg["path_to_output"] = ""
+
+if cfg["path_to_software"] == "":
+    log.error(
+        "path_to_software variable not set. Remember to set the right absolute path_to_software in the pypopsyn/simulator/config_simulator.py file."
+    )
+    sys.exit()
 
 # ===================== INITIAL POPULATION CLASS PARAMETERS ========================
 
