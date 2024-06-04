@@ -3,5 +3,5 @@ This is an example of dynamical simulation run with the `simulate_population_dyn
 
 To run this example we use the following command:
 ```commandline
-python pypopsyn/simulator/simulate_population_dyn.py --output_dir data/example_simulation_dyn
+python pypopsyn/simulator/simulate_population_dyn.py --save_dir data/example_simulation_dyn
 ```
