@@ -1,0 +1,39 @@
+{
+  "[TotalSimulation]": {
+    "time": 130.55550837516785
+  },
+  "[InitialPopulation]": {
+    "time": 5.062594890594482,
+    "[Initial position and velocity]": {
+      "elapsed_time": 2.685389280319214,
+      "cumulative_time": 2.685389280319214
+    },
+    "[Initial energy]": {
+      "elapsed_time": 2.04329776763916,
+      "cumulative_time": 4.728687047958374
+    },
+    "[Initial Angular momentum]": {
+      "elapsed_time": 0.3333556652069092,
+      "cumulative_time": 5.062042713165283
+    }
+  },
+  "[EvolvePopulation]": {
+    "time": 125.4910979270935,
+    "[Dynamic evolution]": {
+      "elapsed_time": 122.33110737800598,
+      "cumulative_time": 122.33110737800598
+    },
+    "[Final energy]": {
+      "elapsed_time": 0.02004075050354004,
+      "cumulative_time": 122.35114812850952
+    },
+    "[Final angular momentum]": {
+      "elapsed_time": 0.0032088756561279297,
+      "cumulative_time": 122.35435700416565
+    },
+    "[Export]": {
+      "elapsed_time": 3.1363532543182373,
+      "cumulative_time": 125.49071025848389
+    }
+  }
+}

@@ -29,7 +29,7 @@ import numpy as np
 import pytest
 
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 TOL = 1e-5
 

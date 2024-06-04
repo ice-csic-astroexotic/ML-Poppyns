@@ -31,7 +31,7 @@ import pytest
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 TOL = 1e-5
 

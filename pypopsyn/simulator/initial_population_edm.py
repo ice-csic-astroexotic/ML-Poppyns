@@ -34,14 +34,14 @@ from typing import Tuple
 
 import numpy as np
 
-import pypopsyn.benchmark.pyinstrument as benchmark
 import pypopsyn.simulator.basics.constants as const
-import pypopsyn.simulator.basics.random_sampler as rs
 import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.initial_position as ip
 import pypopsyn.simulator.stellar_dynamics.initial_velocity as iv
-from pypopsyn.simulator.configuration import cfg
+import utilities.benchmark.pyinstrument as benchmark
+import utilities.samplers.random_sampler as rs
+from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
 
@@ -235,7 +235,7 @@ class InitialNeutronStarPopulation:
         """
         Determining the initial rotation periods of each pulsar in the sample,
         as drawn from a log-normal distribution. The characteristic
-        parameters are defined in configuration.py.
+        parameters are defined in config_simulator.py.
 
         Returns:
 
@@ -269,7 +269,7 @@ class InitialNeutronStarPopulation:
         We follow Faucher-Giguère & Kaspi (2006) and Gullon et al. (2014) and determine the
         initial magnetic field strengths of each pulsar in the sample, by drawing values from
         a log-normal distribution, i.e., the log_10 values of the magnetic field strengths are
-        themselves normally distributed. The characteristic parameters are defined in configuration.py.
+        themselves normally distributed. The characteristic parameters are defined in config_simulator.py.
 
         Returns:
 
