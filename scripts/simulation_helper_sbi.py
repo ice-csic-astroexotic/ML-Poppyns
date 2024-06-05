@@ -206,8 +206,9 @@ def simulator_dask(
         # Setting output folder path for each simulation.
         # Note that the numbering of the folders is limited to 6 digits here,
         # i.e., we can only generate simulations below 10 million.
+        folder_name = f"{simulation_number:06}"
         simulation_output_path = pathlib.Path().joinpath(
-            args_dict["output_dir"], f"{simulation_number:06}"
+            args_dict["output_dir"], folder_name
         )
         # Save the set of parameter values into a dictionary.
         simulation_override_json = {}
@@ -215,14 +216,14 @@ def simulator_dask(
             simulation_override_json[var_names[i]] = s[i]
 
         simulation_override_json_path = pathlib.Path().joinpath(
-            simulation_output_path, "override.json"
+            folder_name, "override.json"
         )
         # Generate a list for the command (cmd), including the Python interpreter, the script path specified with
         # 'simulator_type', and the path for the JSON override.
         # Prepare arguments for the simulate_population function.
         simulation_args = SimulationArgs(
-            output_dir=str(simulation_output_path),
-            parameter_override=str(simulation_override_json_path),
+            output_dir=folder_name,
+            parameter_override=simulation_override_json_path,
             dyn_data=os.path.basename(dyn_data_path),
         )
 
