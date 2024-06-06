@@ -108,7 +108,8 @@ def run_simulation_dask(
                 os.path.basename(dyn_data_path),
                 dirs_exist_ok=True,
             )
-        output_dir_path = args.output_dir
+
+        output_dir_path = pathlib.Path(args.output_dir)
         output_dir_path.mkdir(parents=True, exist_ok=True)
 
         with open(args.parameter_override, "w") as f:
