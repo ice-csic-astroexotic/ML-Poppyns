@@ -93,7 +93,7 @@ def run_simulation_dask(
         args (SimulationArgs): Arguments required for the simulation, including output directory,
                                parameter overrides, and optional dynamic data path.
         simulator_type (str): The type of simulator to use, determining the specific simulation
-                              script to run..
+                              script to run.
         simulation_output_path (str): Path to the simulation output folder.
         simulation_override_json (dict): Dictionary with the parameter values for the override.json file.
         dyn_data_path (str): dynamical database path.
@@ -102,21 +102,14 @@ def run_simulation_dask(
     """
 
     try:
-        # Create the output folder into the current node.
-        node_output_path = pathlib.Path(
-            os.path.basename(simulation_output_path)
-        )
-        node_output_path.mkdir(parents=True, exist_ok=True)
         if not os.path.exists(os.path.basename(dyn_data_path)):
             shutil.copytree(
                 dyn_data_path,
                 os.path.basename(dyn_data_path),
                 dirs_exist_ok=True,
             )
-        # Save the set of parameter values into a JSON override file and write it to the output folder.
 
-        simulation_override_json_path = node_output_path / "override.json"
-        with open(simulation_override_json_path, "w") as f:
+        with open(args["parameter_override"], "w") as f:
             json.dump(simulation_override_json, f, indent=4, sort_keys=True)
 
         if simulator_type == "simulate_population_magrot_det":
@@ -125,10 +118,9 @@ def run_simulation_dask(
         else:
             dyn.simulate_population(args)
 
-        simulation_output_path.mkdir(parents=True, exist_ok=True)
         # Copy the output folder back to the original location.
         shutil.copytree(
-            node_output_path, simulation_output_path, dirs_exist_ok=True
+            args["output_dir"], simulation_output_path, dirs_exist_ok=True
         )
         log.info(
             f"Copied output folder back to original location: {simulation_output_path}"
