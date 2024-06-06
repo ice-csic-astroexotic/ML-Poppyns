@@ -108,6 +108,8 @@ def run_simulation_dask(
                 os.path.basename(dyn_data_path),
                 dirs_exist_ok=True,
             )
+        output_dir_path = args.output_dir
+        output_dir_path.mkdir(parents=True, exist_ok=True)
 
         with open(args.parameter_override, "w") as f:
             json.dump(simulation_override_json, f, indent=4, sort_keys=True)
@@ -120,7 +122,7 @@ def run_simulation_dask(
 
         # Copy the output folder back to the original location.
         shutil.copytree(
-            args.output_dir, simulation_output_path, dirs_exist_ok=True
+            output_dir_path, simulation_output_path, dirs_exist_ok=True
         )
         log.info(
             f"Copied output folder back to original location: {simulation_output_path}"

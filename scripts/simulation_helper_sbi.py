@@ -207,7 +207,7 @@ def simulator_dask(
         # Note that the numbering of the folders is limited to 6 digits here,
         # i.e., we can only generate simulations below 10 million.
         folder_name = f"{simulation_number:06}"
-        simulation_output_path = pathlib.Path().joinpath(
+        simulation_output_path_original = pathlib.Path().joinpath(
             args_dict["output_dir"], folder_name
         )
         # Save the set of parameter values into a dictionary.
@@ -232,7 +232,7 @@ def simulator_dask(
             run_simulation_delayed(
                 simulation_args,
                 simulator_type,
-                simulation_output_path,
+                simulation_output_path_original,
                 simulation_override_json,
                 dyn_data_path,
             )
