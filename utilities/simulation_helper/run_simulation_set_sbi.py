@@ -196,7 +196,7 @@ def simulator_dask(
         # Note that the numbering of the folders is limited to 6 digits here,
         # i.e., we can only generate simulations below 10 million.
         simulation_output_path = pathlib.Path().joinpath(
-            args_dict["output_dir"], f"{simulation_number:06}"
+            args_dict["save_dir"], f"{simulation_number:06}"
         )
         simulation_output_path.mkdir(parents=True, exist_ok=True)
 
@@ -216,7 +216,7 @@ def simulator_dask(
         # 'simulator_type', and the path for the JSON override.
         server_path = cfg["path_to_software"]
         cmd: str = f"python {server_path}pyposyn/simulator/{simulator_type}.py"
-        cmd += f" --output_dir {simulation_output_path}"
+        cmd += f" --save_dir {simulation_output_path}"
         cmd += f" --parameter_override {simulation_override_json_path}"
         if simulator_type == "simulate_population_magrot_det":
             cmd += f" --dyn_data {dyn_data_path}"
@@ -322,7 +322,7 @@ def simulator_multiprocess(
         # Note that the numbering of the folders is limited to 6 digits here,
         # i.e., we can only generate simulations below 10 million.
         simulation_output_path = pathlib.Path().joinpath(
-            args_dict["output_dir"], f"{simulation_number:06}"
+            args_dict["save_dir"], f"{simulation_number:06}"
         )
         simulation_output_path.mkdir(parents=True, exist_ok=True)
 
@@ -344,7 +344,7 @@ def simulator_multiprocess(
         cmd: str = (
             f"python {server_path}/pypopsyn/simulator/{simulator_type}.py"
         )
-        cmd += f" --output_dir {simulation_output_path}"
+        cmd += f" --save_dir {simulation_output_path}"
         cmd += f" --parameter_override {simulation_override_json_path}"
         if simulator_type == "simulate_population_magrot_det":
             cmd += f" --dyn_data {dyn_data_path}"

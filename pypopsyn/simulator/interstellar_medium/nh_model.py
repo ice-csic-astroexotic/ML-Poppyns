@@ -94,8 +94,8 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
 
     except Exception as e:
         log.error(
-            f"An error occurred: {str(e)}. "
-            f"Remember to set the right absolute path_to_software in the pypopsyn/simulator/config_simulator.py file."
+            f"An error occurred: {str(e)}. Remember to set the right absolute path_to_software in the "
+            "pypopsyn/simulator/config_simulator.py file."
         )
 
     # Load the calibration parameters.

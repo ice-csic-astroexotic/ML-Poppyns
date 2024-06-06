@@ -62,7 +62,7 @@ def simulate_population(args) -> None:
     Args:
         args:
             dyn_data (str): Path to a dynamically evolved population database.
-            output_path (str): Output directory for the run.
+            save_dir (str): Output directory for the run.
             parameter_override (str): Path to JSON with parameter overrides.
 
     Returns:
@@ -74,7 +74,7 @@ def simulate_population(args) -> None:
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     # If the output directory does not exist, create it.
-    output_path = pathlib.Path(args.output_dir)
+    output_path = pathlib.Path(args.save_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
     # Update path-dependent configurations prepending the specified output path.
@@ -1210,15 +1210,15 @@ if __name__ == "__main__":
         "--dyn_data",
         nargs="?",
         type=str,
-        default="output/test",
+        default="output/sim_dyn",
         help="Path to the file where the dynamically evolved population database is saved.",
     )
 
     args.add_argument(
-        "--output_dir",
+        "--save_dir",
         nargs="?",
         type=str,
-        default="output/test",
+        default="output/sim_magrot",
         help="Path to the directory where the run will be saved.",
     )
 

@@ -69,7 +69,7 @@ def simulate_population(args) -> None:
 
     Args:
         args:
-            output_path (pathlib.Path): Output directory for the run.
+            save_dir (pathlib.Path): Output directory for the run.
             json_override_path (pathlib.Path): Path to JSON with parameter overrides.
 
     Returns:
@@ -81,7 +81,7 @@ def simulate_population(args) -> None:
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     # If the output directory does not exist, create it.
-    output_path = pathlib.Path(args.output_dir)
+    output_path = pathlib.Path(args.save_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
     # Update path-dependent configurations prepending the specified output path.
@@ -994,7 +994,7 @@ def simulate_population(args) -> None:
 
         # Save the data frame as a compressed binary file.
         HTRU_high_output_path = pathlib.Path().joinpath(
-            output_path, "survey_HTRU_high_results.pkl.gz"
+            output_path, "survey_HTRU_results_high.pkl.gz"
         )
         df_HTRU_high.to_pickle(HTRU_high_output_path, compression="gzip")
 
@@ -1053,7 +1053,7 @@ def simulate_population(args) -> None:
 
         # Save the data frame as a compressed binary file.
         HTRU_low_mid_output_path = pathlib.Path().joinpath(
-            output_path, "survey_HTRU_low_mid_results.pkl.gz"
+            output_path, "survey_HTRU_results_low_mid.pkl.gz"
         )
         df_HTRU_low_mid.to_pickle(HTRU_low_mid_output_path, compression="gzip")
 
@@ -1072,10 +1072,10 @@ if __name__ == "__main__":
     args = argparse.ArgumentParser(description="PyPopSyn parameters")
 
     args.add_argument(
-        "--output_dir",
+        "--save_dir",
         nargs="?",
         type=str,
-        default="output/test",
+        default="output/sim_full",
         help="Path to the directory where the run will be saved.",
     )
 

@@ -316,7 +316,7 @@ if __name__ == "__main__":
         "--save_dir",
         nargs="?",
         type=str,
-        default="output/generator",
+        default="output/gen_full",
         help="Path to the folder where the dataset will be saved.",
     )
     parser.add_argument(
@@ -332,14 +332,14 @@ if __name__ == "__main__":
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the position and velocity maps that will be generated (in number of cells).",
+        help="Resolution of the position and velocity maps that will be generated (in number of bins).",
     )
     parser.add_argument(
         "--resolution_ppdot",
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the P-Pdot maps that will be generated (in number of cells).",
+        help="Resolution of the P-Pdot maps that will be generated (in number of bins).",
     )
 
     args = parser.parse_args()

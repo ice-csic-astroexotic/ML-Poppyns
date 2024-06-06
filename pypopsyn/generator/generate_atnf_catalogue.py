@@ -208,15 +208,15 @@ def generate_dataset(args) -> None:
         "GC:M30",
     ]
 
-    df_atnf = df_atnf[~df_atnf["P0"]["[s]"].isin(["NAN"])]
-    df_atnf = df_atnf[~df_atnf["P1"]["[s/s]"].isin(["NAN"])]
+    df_atnf = df_atnf[~df_atnf["P0"]["(s)"].isin(["NAN"])]
+    df_atnf = df_atnf[~df_atnf["P1"]["(s/s)"].isin(["NAN"])]
     df_atnf = df_atnf[
         ~df_atnf["ASSOC"]["Unnamed: 24_level_1"].str.match("|".join(discard))
     ]
 
     # Select only isolated, non-recycled neutron stars, i.e., those with Pdot > 1e-19.
     df_atnf = df_atnf[
-        df_atnf["P1"]["[s/s]"].to_numpy().astype(np.float64) > 1.0e-19
+        df_atnf["P1"]["(s/s)"].to_numpy().astype(np.float64) > 1.0e-19
     ]
 
     # Parkes multibeam pulsar survey database.
@@ -225,12 +225,12 @@ def generate_dataset(args) -> None:
     ]
 
     # Extracting Galactic longitude, latitude, period and period derivative.
-    RA_pmps_obs = df_atnf_pmps["RAJD"]["[deg]"].to_numpy().astype(np.float64)
-    DEC_pmps_obs = df_atnf_pmps["DECJD"]["[deg]"].to_numpy().astype(np.float64)
-    l_pmps_obs = df_atnf_pmps["Gl"]["[deg]"].to_numpy().astype(np.float64)
-    b_pmps_obs = df_atnf_pmps["Gb"]["[deg]"].to_numpy().astype(np.float64)
-    P_pmps_obs = df_atnf_pmps["P0"]["[s]"].to_numpy().astype(np.float64)
-    Pdot_pmps_obs = df_atnf_pmps["P1"]["[s/s]"].to_numpy().astype(np.float64)
+    RA_pmps_obs = df_atnf_pmps["RAJD"]["(deg)"].to_numpy().astype(np.float64)
+    DEC_pmps_obs = df_atnf_pmps["DECJD"]["(deg)"].to_numpy().astype(np.float64)
+    l_pmps_obs = df_atnf_pmps["Gl"]["(deg)"].to_numpy().astype(np.float64)
+    b_pmps_obs = df_atnf_pmps["Gb"]["(deg)"].to_numpy().astype(np.float64)
+    P_pmps_obs = df_atnf_pmps["P0"]["(s)"].to_numpy().astype(np.float64)
+    Pdot_pmps_obs = df_atnf_pmps["P1"]["(s/s)"].to_numpy().astype(np.float64)
 
     # Converting galactic latitude into the range [-180., 180].
     l_pmps_obs[(l_pmps_obs > 180.0) & (l_pmps_obs < 360.0)] = (
@@ -256,11 +256,11 @@ def generate_dataset(args) -> None:
     ]
 
     # Extracting Galactic longitude, latitude, right ascension and declination, period and period derivative.
-    RA_smps_obs = df_atnf_smps["RAJD"]["[deg]"].to_numpy().astype(np.float64)
-    DEC_smps_obs = df_atnf_smps["DECJD"]["[deg]"].to_numpy().astype(np.float64)
-    l_smps_obs = df_atnf_smps["Gl"]["[deg]"].to_numpy().astype(np.float64)
-    P_smps_obs = df_atnf_smps["P0"]["[s]"].to_numpy().astype(np.float64)
-    Pdot_smps_obs = df_atnf_smps["P1"]["[s/s]"].to_numpy().astype(np.float64)
+    RA_smps_obs = df_atnf_smps["RAJD"]["(deg)"].to_numpy().astype(np.float64)
+    DEC_smps_obs = df_atnf_smps["DECJD"]["(deg)"].to_numpy().astype(np.float64)
+    l_smps_obs = df_atnf_smps["Gl"]["(deg)"].to_numpy().astype(np.float64)
+    P_smps_obs = df_atnf_smps["P0"]["(s)"].to_numpy().astype(np.float64)
+    Pdot_smps_obs = df_atnf_smps["P1"]["(s/s)"].to_numpy().astype(np.float64)
 
     # Converting galactic latitude into the range [-180., 180].
     l_smps_obs[(l_smps_obs > 180.0) & (l_smps_obs < 360.0)] = (
@@ -282,10 +282,10 @@ def generate_dataset(args) -> None:
         df_atnf["SURVEY"]["Unnamed: 25_level_1"].str.contains("htru_pks")
     ]
 
-    RA_htru_obs = df_atnf_htru["RAJD"]["[deg]"].to_numpy().astype(np.float64)
-    DEC_htru_obs = df_atnf_htru["DECJD"]["[deg]"].to_numpy().astype(np.float64)
-    P_htru_obs = df_atnf_htru["P0"]["[s]"].to_numpy().astype(np.float64)
-    Pdot_htru_obs = df_atnf_htru["P1"]["[s/s]"].to_numpy().astype(np.float64)
+    RA_htru_obs = df_atnf_htru["RAJD"]["(deg)"].to_numpy().astype(np.float64)
+    DEC_htru_obs = df_atnf_htru["DECJD"]["(deg)"].to_numpy().astype(np.float64)
+    P_htru_obs = df_atnf_htru["P0"]["(s)"].to_numpy().astype(np.float64)
+    Pdot_htru_obs = df_atnf_htru["P1"]["(s/s)"].to_numpy().astype(np.float64)
 
     log.info("Generating sample...")
 
@@ -394,7 +394,7 @@ if __name__ == "__main__":
         "--save_dir",
         nargs="?",
         type=str,
-        default="output_atnf_maps",
+        default="output/gen_atnf",
         help="Path to the folder, where the dataset will be saved.",
     )
     parser.add_argument(
@@ -410,14 +410,14 @@ if __name__ == "__main__":
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the position and velocity maps that will be generated (in number of cells).",
+        help="Resolution of the position and velocity maps that will be generated (in number of bins).",
     )
     parser.add_argument(
         "--resolution_ppdot",
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the P-Pdot maps that will be generated (in number of cells).",
+        help="Resolution of the P-Pdot maps that will be generated (in number of bins).",
     )
 
     args = parser.parse_args()

@@ -279,14 +279,30 @@ def generate_dataset(args) -> None:
     label_path = pathlib.Path(f"{root_path}/override.json")
 
     if not label_path.exists():
-        log.error(f"File containing labels not found in {label_path}")
-        sys.exit()
-
-    # Save the parameter values as a dictionary.
-    with open(label_path) as file:
-        dictionary = json.load(file)
-        for key, val in dictionary.items():
-            param_dictionary.setdefault(key, []).append(val)
+        config_json = json.load(
+            open(
+                pathlib.Path().joinpath(root_path, "configuration.json"),
+            )
+        )
+        # If the override.json is not found we save the parameter values from the configuration.json file as a
+        # dictionary.
+        param_dictionary.update(
+            {
+                "B_initial_log10_mean": config_json["B_initial_log10_mean"],
+                "B_initial_log10_sigma": config_json["B_initial_log10_sigma"],
+                "P_initial_log10_mean": config_json["P_initial_log10_mean"],
+                "P_initial_log10_sigma": config_json["P_initial_log10_sigma"],
+                "a_late": config_json["a_late"],
+                "h_c": config_json["h_c"],
+                "sigma_k": config_json["sigma_k"],
+            }
+        )
+    else:
+        # Save the parameter values as a dictionary.
+        with open(label_path) as file:
+            dictionary = json.load(file)
+            for key, val in dictionary.items():
+                param_dictionary.setdefault(key, []).append(val)
 
     # Merge the filename and parameter dictionaries into a single dictionary.
     dataset_dictionary = {
@@ -330,7 +346,7 @@ if __name__ == "__main__":
         "--save_dir",
         nargs="?",
         type=str,
-        default="output/generator",
+        default="output/gen_single",
         help="Path to the folder, where the dataset will be saved.",
     )
     parser.add_argument(
@@ -346,14 +362,14 @@ if __name__ == "__main__":
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the position and velocity maps that will be generated (in number of cells).",
+        help="Resolution of the position and velocity maps that will be generated (in number of bins).",
     )
     parser.add_argument(
         "--resolution_ppdot",
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the P-Pdot maps that will be generated (in number of cells).",
+        help="Resolution of the P-Pdot maps that will be generated (in number of bins).",
     )
 
     args = parser.parse_args()
