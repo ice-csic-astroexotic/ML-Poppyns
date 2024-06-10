@@ -76,7 +76,6 @@ def simulate_population(args) -> None:
     # If the output directory does not exist, create it.
     output_path = pathlib.Path(args.output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
-
     # Update path-dependent configurations prepending the specified output path.
     prof_log_path = pathlib.Path().joinpath(output_path, cfg["profile_log"])
     prof_json_path = pathlib.Path().joinpath(output_path, cfg["profile_json"])
@@ -1200,6 +1199,8 @@ def simulate_population(args) -> None:
 
         # Cleanup. Reset seed to empty value.
         cfg["seed_magrot"] = None
+        cfg["profile_log"] = "profile.log"
+        cfg["profile_json"] = "profile.json"
 
 
 if __name__ == "__main__":
