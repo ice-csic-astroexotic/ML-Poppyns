@@ -125,6 +125,9 @@ def run_simulation_dask(
         shutil.copytree(
             output_dir_path, simulation_output_path, dirs_exist_ok=True
         )
+        # Remove the folder to prevent issues with overwriting.
+        shutil.rmtree(output_dir_path)
+
         log.info(
             f"Copied output folder back to original location: {simulation_output_path}"
         )
