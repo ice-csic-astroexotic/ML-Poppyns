@@ -10,8 +10,6 @@ computer. The repo contains an environment file that can be installed by running
 $ conda env create -f environment.yaml
 ```
 NOTE: for OSX users the `cudatoolkit` package has to be commented out in the environment file.
-Furthermore the `julia` package from conda-forge is not available for Mac computers with M1 Apple 
-silicon processors. 
 
 This environment can be activated using
 ```
@@ -40,42 +38,9 @@ framework. If the pre-commit checks are passed, the changes are commit. If not f
 are modified and the steps (i) - (iii) have to be repeated. For more info see 
 [here](https://pre-commit.com/#intro) or [here](https://medium.com/staqu-dev-logs/keeping-python-code-clean-with-pre-commit-hooks-black-flake8-and-isort-cac8b01e0ea1).
 
-## Julia 
-
-To optimise run times, several of our simulation scripts are available in Julia 
-(in addition to their native Python versions). The environment created above automatically 
-installs Julia. Julia relevant files are located in the folder `julia`. However, after activating the environment a few Julia packages need to be 
-installed manually by running the following command in a terminal
-```
-julia -e 'using Pkg; Pkg.add.(["PyCall", "OrdinaryDiffEq", "LSODA"])'
-```
-Note that you might have to rebuild the `PyCall` package to link it to the correct Python distribution.
-To do so, enter a Julia console by typing `julia` into a terminal. Then type
-```
-ENV["PYTHON"]=".../anaconda3/envs/pop_syn/bin/python"
-```
-adjusting the path to the location of your conda environment as needed.
-Then, in the Julia console type a `]`, which enters the package manager. Then execute
-```
-build PyCall
-```
-which will rebuild the PyCall package with the correct Python distribution.
-
-To run Python code which uses Julia (those files are named `..._julia.py`.), 
-the call should be made using `python-jl ...` instead of `python ...`.
-
-You might encounter this error when running Julia code through Python:
-```
-ImportError: /home/michele/miniconda3/envs/pop_syn/bin/../lib/julia/libstdc++.so.6: 
-version `GLIBCXX_3.4.30' not found (required by /home/michele/miniconda3/envs/pop_syn/lib/python3.10/
-site-packages/scipy/optimize/_highs/_highs_wrapper.cpython-310-x86_64-linux-gnu.so)
-```
-If this happens, a possible solution is to run the following command in the same terminal before 
-launching the simulation script:
-```
-export LD_PRELOAD="/home/michele/miniconda3/envs/pop_syn/lib/libstdc++.so.6.0.30"
-```
-taking care of using your anaconda installation path.
+Finally you should setup the absolute path to where the repository is saved on your local machine.
+This can be done by opening the configuration file `pypopsyn/simulator/config_simulator.py` and in the section named
+"GENERAL SIMULATION PARAMETERS" adding the absolute path to the repository folder by modifying the variable `cfg["path_to_software"]` under the `else` statement.
 
 ## Documentation
 
