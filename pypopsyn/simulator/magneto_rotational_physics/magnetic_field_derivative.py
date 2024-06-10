@@ -30,7 +30,7 @@ import numpy as np
 from numba import float64, jit
 
 import pypopsyn.simulator.basics.constants as const
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 # Redefining global variables to allow type specification.
 # Necessary right now in order to get JIT to work.
@@ -55,7 +55,7 @@ def timescale_ohmic(L: float, sigma: float) -> float:
         (float): ohmic diffusion timescale in [yr].
     """
 
-    tau_ohm = 4 * np.pi * sigma * L ** 2 / (const.C ** 2 * const.YR_TO_S)
+    tau_ohm = 4 * np.pi * sigma * L**2 / (const.C**2 * const.YR_TO_S)
 
     return tau_ohm
 
@@ -79,7 +79,7 @@ def timescale_Hall(B: float, L: float, n_e: float) -> float:
     """
 
     tau_Hall = (
-        4 * np.pi * const.E * n_e * L ** 2 / (const.C * B * const.YR_TO_S)
+        4 * np.pi * const.E * n_e * L**2 / (const.C * B * const.YR_TO_S)
     )
 
     return tau_Hall
@@ -107,6 +107,6 @@ def field_derivative(B: float, B_initial: float) -> float:
     tau_ohm = timescale_ohmic(L_cfg, sigma_cfg)
     tau_Hall = timescale_Hall(B_initial, L_cfg, n_e_cfg)
 
-    B_deriv = -B / tau_ohm - B ** 2 / (tau_Hall * B_initial)
+    B_deriv = -B / tau_ohm - B**2 / (tau_Hall * B_initial)
 
     return B_deriv

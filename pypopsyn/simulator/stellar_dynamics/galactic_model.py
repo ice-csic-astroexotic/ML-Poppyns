@@ -49,7 +49,7 @@ from numba import float64
 from numba.experimental import jitclass
 
 import pypopsyn.simulator.basics.constants as const
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 galactic_model = None
 

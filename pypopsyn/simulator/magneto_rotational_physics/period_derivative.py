@@ -30,7 +30,7 @@ import numpy as np
 from numba import float64, jit
 
 import pypopsyn.simulator.basics.constants as const
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 # Redefining global variables to allow type specification.
 # Necessary right now in order to get JIT to work.
@@ -61,15 +61,15 @@ def period_derivative(B: float, chi: float, P: float) -> float:
     """
 
     # Canonical neutron star moment of inertia in [g cm^2] assuming a perfect solid sphere.
-    NS_inertia = 2.0 / 5.0 * NS_mass * NS_radius ** 2
+    NS_inertia = 2.0 / 5.0 * NS_mass * NS_radius**2
 
     # Auxiliary quantity beta as defined in eq. (72) of Pons & Vigano (2019).
-    beta = np.pi ** 2 * NS_radius ** 6 / (NS_inertia * const.C ** 3)
+    beta = np.pi**2 * NS_radius**6 / (NS_inertia * const.C**3)
 
     # Period derivative.
     P_deriv = (
         beta
-        * B ** 2
+        * B**2
         / P
         * (k_coefficients_0 + k_coefficients_1 * np.sin(chi) ** 2)
     ) * const.YR_TO_S

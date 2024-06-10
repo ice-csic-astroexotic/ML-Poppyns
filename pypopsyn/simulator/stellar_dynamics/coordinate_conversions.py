@@ -33,7 +33,7 @@ import astropy.units as u
 import numpy as np
 from astropy.coordinates import galactocentric_frame_defaults
 
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 
 def check_radial_coordinate(r: np.ndarray) -> None:

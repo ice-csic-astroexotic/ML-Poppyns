@@ -44,7 +44,7 @@ from astropy.wcs import WCS
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.multiband_emission.emission_radio as er
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 
 def smearing_in_channel(
@@ -313,7 +313,7 @@ class SurveyRadio:
         # channel_width (float): width of a single frequency channel [Hz].
         # n_pol (float): number of polarizations.
         # FWHM (float): FWHM of the beam[arcmin].
-        # SNR_th (float): threshold signal to noise ratio.
+        # SNR_th (float): threshold signal-to-noise ratio.
         # RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
         # DEC_range(np.ndarray): range of the sky covered by the survey in DEC [deg].
         # l_range(np.ndarray): range of the sky covered by the survey in Galactic longitude l[deg].

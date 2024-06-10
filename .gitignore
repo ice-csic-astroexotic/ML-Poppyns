@@ -132,9 +132,8 @@ dmypy.json
 .idea/
 outputs/
 multirun/
-examples/learning/saved
 .DS_Store/
-notebooks/.DS_Store/
+tutorials/.DS_Store/
 pypopsyn/simulator/interstellar_medium/ebv_map.npz
 
 # Sphinx documentation

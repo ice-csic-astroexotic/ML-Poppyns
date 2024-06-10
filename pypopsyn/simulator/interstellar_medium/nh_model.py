@@ -40,8 +40,8 @@ import astropy.units as u
 import healpy as hp
 import numpy as np
 
-import scripts.download_online_content as do
-from pypopsyn.simulator.configuration import cfg
+import utilities.download_online_content as do
+from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
 
@@ -94,8 +94,8 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
 
     except Exception as e:
         log.error(
-            f"An error occurred: {str(e)}. "
-            f"Remember to set the right absolute path_to_software in the configuration file."
+            f"An error occurred: {str(e)}. Remember to set the right absolute path_to_software in the "
+            "pypopsyn/simulator/config_simulator.py file."
         )
 
     # Load the calibration parameters.

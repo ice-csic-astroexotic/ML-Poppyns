@@ -1,0 +1,74 @@
+{
+  "name": "SBI_ConvolutionMDN",
+  "n_gpu": 1,
+  "enable_dask": false,
+  "n_processes": 4,
+  "workers_dask": 4,
+  "set_manual_seed": false,
+  "manual_seed": 42,
+  "profile_log": "profile.log",
+  "profile_json": "profile.json",
+  "show_profiling": true,
+
+  "arch": {
+    "type": "ModelConvSBI",
+    "args": {
+        "input_shape": [3, 32, 32],
+        "len_output_layer": 32
+    }
+  },
+
+  "weights_initializer": {
+      "type": "InitializerKaiming",
+      "args": {}
+  },
+
+  "density_estimator": {
+    "type": "mdn",
+    "args": {
+      "num_components": 10
+       }
+  },
+  
+  "prior_ranges": {
+      "labels": ["B_initial_log10_mean", "B_initial_log10_sigma", "P_initial_log10_mean", "P_initial_log10_sigma", "a_late"],
+	  "low": [12,0.1,-1.5,0.1,-3],
+	  "high": [14,1,-0.3,1,-0.5]
+	  },
+	
+  "training_data_loader": {
+    "dataset_path": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/training_dataset",
+    "statistic_path": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/statistics_train_10K.json",
+    "dataset_path_first_round":"/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/training_dataset/generated_dataset/round_0",
+    "filter_inputs": [9, 10, 11],
+    "filter_labels": [12, 13, 14, 15, 16],
+    "normalize": false,
+    "standardize": true,
+    "num_sim": 2
+  },
+  
+  "test_data_loader": {
+    "dataset_path": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/test_dataset",
+    "dataset_path_first_round":"/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/test_dataset/generated_dataset/round_0",
+    "num_sim":3},
+  
+  "dyn_data_loader":{
+      "dataset_path": "/data/magnesia/common/dyn_database/sim_dyn_ns1e7_t1e8_maxwell_hc180"
+      },
+      
+  "observed_sample":{
+      "dataset_path": "/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/observed_ATNF_res32"
+      },
+  
+
+  "trainer": {
+    "ensemble": true,
+    "size_ensemble": 5,
+    "validation_fraction": 0.1,
+    "batch_size": 8,
+    "lr": 5e-4,
+    "num_rounds": 3,
+    "sir": true,
+    "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/learning"
+  }
+}

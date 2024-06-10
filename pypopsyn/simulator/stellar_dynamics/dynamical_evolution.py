@@ -41,7 +41,7 @@ from scipy.integrate import odeint
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 gm.initialize_galactic_model()
 

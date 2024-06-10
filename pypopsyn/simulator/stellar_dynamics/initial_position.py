@@ -41,7 +41,7 @@ from typing import Tuple
 import numpy as np
 
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 
 def pdf_radial_density_YK04(r: np.ndarray) -> np.ndarray:
