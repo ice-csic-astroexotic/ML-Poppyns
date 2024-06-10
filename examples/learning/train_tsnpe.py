@@ -39,7 +39,6 @@ import argparse
 import collections
 import pathlib
 import pickle
-import subprocess
 import sys
 import time
 from logging import Logger
@@ -61,8 +60,8 @@ import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.initializers.initializers as learning_initializers
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
 import pypopsyn.learning.models.models as learning_models
+from examples.generator.generate_dataset_surveys import generate_dataset
 from pypopsyn.learning.utils.request_device import request_device
-from pypopsyn.simulator.configuration import cfg
 from scripts.coverage_probability import coverage_prob
 from scripts.simulation_helper_sbi import (
     initialize_dask_cluster,
@@ -246,20 +245,12 @@ def wrapper_pypopsyn(
         "processes": config["n_processes"],
     }
 
-    # Constructing the command to generate the density map of the simulations.
-    software_path = cfg["path_to_software"]
-    command = [
-        "python",
-        f"{software_path}examples/generator/generate_dataset_surveys.py",
-        "--data",
-        str(sim_dir_path),
-        "--save_dir",
-        str(dataset_path),
-        "--resolution_ppdot",
-        str(config["arch"]["args"]["input_shape"][1]),
-        "--data_type",
-        "array",
-    ]
+    args_gen = argparse.Namespace(
+        data=str(sim_dir_path),
+        save_dir=str(dataset_path),
+        resolution_ppdot=config["arch"]["args"]["input_shape"][1],
+        data_type="array",
+    )
 
     # Running the simulations and generating the corresponding density maps for each simulation. The simulations are run
     # in a multithreaded manner. If config["enable_dask"] is equal to True, then multithreading will be performed with
@@ -270,7 +261,8 @@ def wrapper_pypopsyn(
     else:
         simulator_multiprocess(args_dict, proposal, dataset)
 
-    subprocess.run(command)
+    # Call the generate_dataset function directly
+    generate_dataset(args_gen)
 
     return dataset_path
 
