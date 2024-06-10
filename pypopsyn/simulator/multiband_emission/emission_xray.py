@@ -32,7 +32,7 @@ from scipy.integrate import trapz
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.interstellar_medium.nh_model as nhm
 import pypopsyn.simulator.interstellar_medium.xray_abs_cross_section as xabs
-from pypopsyn.simulator.configuration import cfg
+from pypopsyn.simulator.config_simulator import cfg
 
 # General relativity correction factor that accounts for space-time curvature around a neutron star.
 gr_correction = (
