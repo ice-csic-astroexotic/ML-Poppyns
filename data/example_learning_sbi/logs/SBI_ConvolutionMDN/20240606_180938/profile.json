@@ -1,0 +1,20 @@
+{
+  "[TotalTraining]": {
+    "time": 1.54996919631958
+  },
+  "[Initialization]": {
+    "time": 0.0078105926513671875
+  },
+  "[TrainingDatasetLoader]": {
+    "time": 0.05148673057556152
+  },
+  "[TrainingSetup]": {
+    "time": 0.020386934280395508
+  },
+  "[Training]": {
+    "time": 0.8233366012573242
+  },
+  "[SaveOutput]": {
+    "time": 0.6445713043212891
+  }
+}
