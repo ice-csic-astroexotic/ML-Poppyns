@@ -249,6 +249,7 @@ def wrapper_pypopsyn(
         data=str(sim_dir_path),
         save_dir=str(dataset_path),
         resolution_ppdot=config["arch"]["args"]["input_shape"][1],
+        resolution_dyn=32,
         data_type="array",
     )
 
