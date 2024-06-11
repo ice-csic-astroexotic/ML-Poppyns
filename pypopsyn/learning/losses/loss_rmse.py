@@ -1,12 +1,10 @@
-""" root mean square error loss.
+"""
+    Root mean square error loss.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import torch
@@ -16,11 +14,11 @@ from .loss_base import LossBase
 
 
 class LossRMSE(LossBase):
-    """ Root Mean Square Error (RMSE) loss """
+    """Root Mean Square Error (RMSE) loss"""
 
     def __call__(self, output, target):
 
-        """ Computation of the RMSE loss.
+        """Computation of the RMSE loss.
 
         Args:
             output: Network output tensor (predictions).
@@ -37,6 +35,6 @@ class LossRMSE(LossBase):
 
     def __str__(self):
 
-        """ String representation for the RMSE loss. """
+        """String representation for the RMSE loss."""
 
         return "RMSE Loss"

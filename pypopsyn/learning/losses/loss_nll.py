@@ -1,11 +1,9 @@
-""" Negative Log-Likelihood loss.
+"""
+    Negative Log-Likelihood loss.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import torch.nn.functional as F
@@ -15,13 +13,15 @@ from .loss_base import LossBase
 
 class LossNLL(LossBase):
 
-    """ Negative Log-Likelihood (NLL) loss. """
+    """Negative Log-Likelihood (NLL) loss."""
 
     def __call__(
-        self, output, target,
+        self,
+        output,
+        target,
     ):
 
-        """ Computation of the negative log-likelihood.
+        """Computation of the negative log-likelihood.
 
         Args:
             output: Network output tensor (predictions).
@@ -35,6 +35,6 @@ class LossNLL(LossBase):
 
     def __str__(self):
 
-        """ String representation for the NLL loss. """
+        """String representation for the NLL loss."""
 
         return "NLL Loss"
