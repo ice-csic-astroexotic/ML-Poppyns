@@ -1,31 +1,11 @@
 """
-Uniform initializer.
+    Uniform initializer.
 
-Class for an uniform weight initializer.
+    Class for a uniform weight initializer.
 
-Authors:
+    Authors:
 
-    Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-MIT License
-
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
+        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
 import numpy as np
@@ -61,7 +41,7 @@ class InitializerUniform(InitializerBase):
             Nothing.
         """
 
-        if type(m) == torch.nn.Linear:
+        if type(m) is torch.nn.Linear:
             torch.nn.init.uniform_(m.weight)
             m.bias.data.fill_(0.0)
 
