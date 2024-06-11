@@ -18,9 +18,6 @@
 
         Michele Ronchi (ronchi@ice.csic.es)
         Celsa Pardo Araujo (pardo@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import argparse
