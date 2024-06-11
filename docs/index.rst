@@ -18,6 +18,7 @@ Welcome to pypopsyn's documentation!
    _site/getting_started/logging
    _site/getting_started/testing
    _site/getting_started/htcondor
+   _site/getting_started/dask
    _site/getting_started/hydra
    _site/getting_started/glossary
 
