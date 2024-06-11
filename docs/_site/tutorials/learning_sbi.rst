@@ -2,8 +2,14 @@
 Learning (sbi) Tutorial
 ***********************
 
-We use here a simulation-based inference (sbi) framework (see https://sbi-dev.github.io/sbi/ ), a supervised learning approach where training data are suitably labeled and the network has to learn to predict the posterior distribution of the target label associated to the data samples.
-The :code:`pypopsyn/learning/train_sbi.py` script allows to train a neural density estimator over a dataset of samples of simulated neutron star populations.
+Neural Posterior Estimation (amortized)
+#######################################
+
+We use here a simulation-based inference (sbi) framework (see https://sbi-dev.github.io/sbi/ ), a supervised learning approach where a network is trained to learn the mapping between simulated data and the posterior distribution of the model parameters used to simulate them.
+
+The :code:`pypopsyn/learning/train_sbi.py` script employs a sbi method called Neural Posterior Estimation (NPE) that allows to train a neural density estimator over a dataset of samples of simulated neutron star populations to directly approximate the posterior distributions of the input parameters.
+In this case the inference is amortized, meaning that the trained model is able to predict a posterior distribution for any input simulated population of neutron stars.
+
 Once the dataset containing the heatmaps or 2D arrays has been created, to train the network over the dataset one can run the script:
 
 ::
@@ -153,3 +159,10 @@ As for the training script you could provide some arguments via :term:`CLI`, for
 
 The inference script will also save the Gaussian coeffiecients for the components of the Gaussian mixture for each of the test sample in :code:`coeff_Gaussians.csv` and the coverage probability diagnostic test resuts in :code:`coverage_plot.pdf` and :code:`coverage_probability.npy`.
 You could also specify the argument :code:`--corner_plot True` in order to produce the posterior corner plots for each of the test samples.
+
+
+Infer on a Data Set with an Ensemble
+####################################
+
+Truncated Neural Posterior Estimation
+#####################################

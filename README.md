@@ -18,7 +18,7 @@ $ conda activate pop_syn
 After activating the environment to install the [Simulation Based Inference (SBI)](https://www.mackelab.org/sbi/) 
 library run:
 ```
-$ pip install sbi==0.21.0
+$ pip install sbi==0.22.0
 ```
 We recommend working within this environment when using the code.
 
