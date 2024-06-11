@@ -1,11 +1,9 @@
-""" Model for a simple linear neural network.
+"""
+    Model for a simple linear neural network.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import numpy as np
@@ -17,13 +15,13 @@ from .model_base import ModelBase
 
 class ModelLinear(ModelBase):
 
-    """ A linear neural network Model """
+    """A linear neural network Model"""
 
     def __init__(
         self, input_shape: np.array = None, num_parameters: int = 1
     ) -> None:
 
-        """ Linear model initialization.
+        """Linear model initialization.
 
         Args:
             input_shape: Shape of the input batch (C x H x W).
@@ -38,7 +36,7 @@ class ModelLinear(ModelBase):
 
     def forward(self, x):
 
-        """ Forward pass.
+        """Forward pass.
 
         Args:
             x: Input tensor for the network.

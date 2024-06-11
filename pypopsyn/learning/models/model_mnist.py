@@ -1,11 +1,9 @@
-""" MNIST Model.
+"""
+    MNIST Model.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import torch.nn as nn
@@ -16,11 +14,11 @@ from .model_base import ModelBase
 
 class ModelMNIST(ModelBase):
 
-    """ MNIST Model """
+    """MNIST Model"""
 
     def __init__(self, num_classes=10) -> None:
 
-        """ MNIST Model Initialization.
+        """MNIST Model Initialization.
 
         Args:
             num_classes: Number of classes to predict.
@@ -36,7 +34,7 @@ class ModelMNIST(ModelBase):
 
     def forward(self, x):
 
-        """ Forward pass.
+        """Forward pass.
 
         Args:
             x: Input tensor for the network.
