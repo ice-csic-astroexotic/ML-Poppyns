@@ -1,14 +1,11 @@
-""" RMSE Accuracy metric.
+"""
+    RMSE Accuracy metric.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
         Vanessa Graber (graber@ice.csic.es)
-
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import typing
@@ -23,7 +20,7 @@ from .metric_base import MetricBase
 class MetricAccuracyRMSE(MetricBase):
     def __call__(self, output, target) -> float:
 
-        """ Computation of the accuracy metric defined as root mean squared error.
+        """Computation of the accuracy metric defined as root mean squared error.
             The value of the RMSE should be 0 for the best accuracy.
 
         Args:
@@ -43,19 +40,19 @@ class MetricAccuracyRMSE(MetricBase):
 
     def __str__(self) -> str:
 
-        """ String representation for the Accuracy metric. """
+        """String representation for the Accuracy metric."""
 
         return "Root Mean Squared Error accuracy metric"
 
     def initial_value(self) -> float:
 
-        """ Starting value for the metric to start optimization. """
+        """Starting value for the metric to start optimization."""
 
         return np.inf
 
     def improved(self, value_a, value_b) -> bool:
 
-        """ Check if a metric value is better than other.
+        """Check if a metric value is better than other.
 
         Args:
             value_a: First value to compare (current value).
@@ -65,6 +62,6 @@ class MetricAccuracyRMSE(MetricBase):
             True if the second value is lower than the first value, false
             otherwise.
 
-         """
+        """
 
         return value_b < value_a

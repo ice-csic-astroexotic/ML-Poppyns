@@ -1,11 +1,9 @@
-""" Accuracy metric.
+"""
+    Accuracy metric.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import typing
@@ -19,7 +17,7 @@ from .metric_base import MetricBase
 class MetricAccuracy(MetricBase):
     def __call__(self, output, target) -> float:
 
-        """ Computation of the accuracy metric.
+        """Computation of the accuracy metric.
 
         Args:
             output: Network output tensor (predictions).
@@ -42,19 +40,19 @@ class MetricAccuracy(MetricBase):
 
     def __str__(self) -> str:
 
-        """ String representation for the Accuracy metric. """
+        """String representation for the Accuracy metric."""
 
         return "Accuracy Metric"
 
     def initial_value(self) -> float:
 
-        """ Starting value for the metric to start optimization. """
+        """Starting value for the metric to start optimization."""
 
         return -np.inf
 
     def improved(self, value_a, value_b) -> bool:
 
-        """ Check if a metric value is better than other.
+        """Check if a metric value is better than other.
 
         Args:
             value_a: First value to compare.
@@ -64,6 +62,6 @@ class MetricAccuracy(MetricBase):
             True if the second value is greater than the first value, false
             otherwise.
 
-         """
+        """
 
         return value_b > value_a

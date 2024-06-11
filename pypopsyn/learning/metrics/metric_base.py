@@ -1,11 +1,9 @@
-""" Base metric.
+"""
+    Base metric.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import abc
@@ -24,33 +22,33 @@ class MetricBehavior(enum.Enum):
 
 class MetricBase:
 
-    """ Base abstract class for all metrics. """
+    """Base abstract class for all metrics."""
 
     @abc.abstractmethod
     def __call__(self, output, target) -> float:
 
-        """ Actual computation of the metric function. """
+        """Actual computation of the metric function."""
 
         raise NotImplementedError
 
     @abc.abstractmethod
     def __str__(self) -> str:
 
-        """ String representation of the metric. """
+        """String representation of the metric."""
 
         raise NotImplementedError
 
     @abc.abstractmethod
     def initial_value(self) -> float:
 
-        """ Starting value for the metric to start optimization. """
+        """Starting value for the metric to start optimization."""
 
         raise NotImplementedError
 
     @abc.abstractmethod
     def improved(self, value_a, value_b) -> bool:
 
-        """ Check if the metric value has improved.
+        """Check if the metric value has improved.
 
         Args:
             value_a: First value to compare.
