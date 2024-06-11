@@ -45,6 +45,7 @@ Welcome to pypopsyn's documentation!
    _site/tutorials/simulator
    _site/tutorials/generator
    _site/tutorials/learning
+   _site/tutorials/learning_sbi
 
 .. raw:: latex
 

@@ -180,7 +180,7 @@ Once you have set up the configuration file, to launch the training script you c
   python pypopsyn/learning/train.py --configuration examples/learning/config.json
 
 When launching the training script you can also provide some of the parameters contained in the configuration file directly via :term:`CLI`.
-For example one can provide the paths to the training and validation dataset, the input channels and the labels to ignore, the input shape, the number of parameters to predict, either to apply normalization or standardization to the input, the batch size, the learning rate value and the path where to save the trained model.
+For example one can provide the paths to the training and validation dataset, the input channels and the labels to select, the input shape, the number of parameters to predict, either to apply normalization or standardization to the input, the batch size, the learning rate value and the path where to save the trained model.
 For example you can run a script like the following:
 
 ::
@@ -203,7 +203,7 @@ A custom experiments file can be specified with the :code:`--command_list` param
 
 ::
 
-  python utilities/experiment_launcher.py --command_list example/learning/experiment_list.txt --processes 2
+  python utilities/experiment_launcher.py --command_list pypopsyn/learning/experiment_list.txt --processes 2
 
 This combined with an intelligent use of the :code:`--save_dir` :term:`CLI` argument will let you run many experiments unattended and check them asynchronously.
 
@@ -257,7 +257,3 @@ For example, in case of inference over the two parameters :code:`h_c` and :code:
     1.0957480669021606,254.1811065673828,1.0770119428634644,255.84629821777344
     1.5634645223617554,490.85040283203125,1.507364273071289,493.6461181640625
     ...
-
-To plot the inference results in the form of residuals plot you can use the jupyter notebooks :code:`inference_results_1par_plots.ipynb` or :code:`inference_results_2par_plots.ipynb` for the single parameter or the two parameter inference respectively.
-To run the first script notebook, you need to specify the path to the :code:`inference_results.csv` files for either one or both the :code:`h_c` and :code:`sigma_k` parameters directly in the notebook.
-To run the second notebook, you need to provide the path to the :code:`inference_results.csv` containing the prediction on both parameters directly in the notebook.
