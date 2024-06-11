@@ -1,4 +1,5 @@
-""" Generator for the observed population.
+"""
+    Generator for the observed population.
 
     This module creates compressed representations for the observed population in the ATNF Pulsar Catalogue.
 
@@ -14,10 +15,8 @@
 
         Michele Ronchi (ronchi@ice.csic.es)
         Celsa Pardo Araujo  (pardo@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
+
 import argparse
 import logging
 import pathlib
