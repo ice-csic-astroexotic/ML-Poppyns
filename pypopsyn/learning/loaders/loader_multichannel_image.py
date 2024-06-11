@@ -1,4 +1,6 @@
-""" Loader for multichannel 2D map.
+"""
+    Loader for multichannel 2D map.
+
     This loader creates a multichannel 2D image for each sample in the dataset by
     stucking together different 2D density maps.
     These images can be loaded as an input of the neural network together with
@@ -8,9 +10,6 @@
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import numpy as np
@@ -23,7 +22,7 @@ from .loader_base import LoaderBase
 
 class DatasetMultichannelImage:
     """
-         Dataset for a multichannel image input.
+    Dataset for a multichannel image input.
     """
 
     def __init__(self, file_path, ignore=[], ignore_labels=[], transform=None):

@@ -1,12 +1,10 @@
-""" Loader for RGB density map images
+"""
+    Loader for RGB density map images
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import numpy as np
@@ -19,7 +17,7 @@ from .loader_base import LoaderBase
 
 class DatasetRGBImage:
     """
-        upload the images dataset and their labels
+    upload the images dataset and their labels
     """
 
     def __init__(self, file_path, transform=None):
