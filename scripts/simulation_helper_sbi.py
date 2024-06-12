@@ -44,6 +44,7 @@
     SOFTWARE.
 """
 
+import argparse
 import json
 import logging
 import multiprocessing as mp
@@ -73,13 +74,6 @@ log = logging.getLogger(__name__)
 
 # Forcing dask to wait 120 s before considering an unresponsive worker as dead
 dask.config.set({"distributed.comm.timeouts.tcp": "120s"})
-
-
-class SimulationArgs:
-    def __init__(self, output_dir, parameter_override, dyn_data=None):
-        self.output_dir = output_dir
-        self.parameter_override = parameter_override
-        self.dyn_data = dyn_data
 
 
 def initialize_dask_cluster(
@@ -221,7 +215,7 @@ def simulator_dask(
         # Generate a list for the command (cmd), including the Python interpreter, the script path specified with
         # 'simulator_type', and the path for the JSON override.
         # Prepare arguments for the simulate_population function.
-        simulation_args = SimulationArgs(
+        simulation_args = argparse.Namespace(
             output_dir=folder_name,
             parameter_override=simulation_override_json_path,
             dyn_data=os.path.basename(dyn_data_path),
