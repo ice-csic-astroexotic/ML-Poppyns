@@ -110,7 +110,12 @@ def run_simulation_dask(
                 os.path.basename(dyn_data_path),
                 dirs_exist_ok=True,
             )
-
+        if not os.path.exists("pypopsyn"):
+            shutil.copytree(
+                "/data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn",
+                "pypopsyn",
+                dirs_exist_ok=True,
+            )
         # Generate the output folder with the parameter_override.json file in each node.
         output_dir_path = pathlib.Path(args.output_dir)
         output_dir_path.mkdir(parents=True, exist_ok=True)
