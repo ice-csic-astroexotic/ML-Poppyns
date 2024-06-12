@@ -28,7 +28,7 @@ To simulate populations with different initial parameters, the user can directly
 
 ::
 
-  python pypopsyn/simulator/simulate_population_full.py --output_dir simulated_data --parameter_override parameter_override.json
+  python pypopsyn/simulator/simulate_population_full.py --save_dir simulated_data --parameter_override parameter_override.json
 
 For example you can set the number of neutron stars to simulate, the models for the kick velocity distribution, the structure of the Galactic spiral arms, the number of spiral arms to include (5 or 4 depending if you want to include or not the Local arm) and several other parameters.
 
@@ -44,7 +44,7 @@ If you instead want to run separately the dynamical evolution to create a databa
 
 ::
 
-  python pypopsyn/simulator/simulate_population_dyn.py --output_dir dyn_database
+  python pypopsyn/simulator/simulate_population_dyn.py --save_dir dyn_database
 
 This will create a population of neutron stars according to the initial conditions specified in the :code:`pypopsyn/simulator/config_simulator.py` and evolve it in time dynamically.
 The output is saved in the specified output folder and as explained above it consists of the `initial_population.pkl.gz`, the final population in the same format `final_population.pkl.gz`, a `.pkl.gz` file for each one of the modelled surveys containing the population detected by that survey, the profiles for the simulation if enabled and the dictionary containing the configuration parameters in `configuration.json` for reproducibility.
@@ -55,7 +55,7 @@ After the creation of the dynamical database you can run the script:
 
 ::
 
-  python pypopsyn/simulator/simulate_population_magrot_det.py --dyn_data dyn_database --output_dir simulated_data
+  python pypopsyn/simulator/simulate_population_magrot_det.py --dyn_data dyn_database --save_dir simulated_data
 
 This script performs the following steps in a loop until the specified number of detections for each survey is reached:
 
@@ -83,21 +83,24 @@ Simulations with parameter sweep
 
 If you want to run simulations with a large parameter sweep, you can use the helper script called :code:`run_simulation_set` in the :code:`utilities.simulation_helper` folder.
 This script allows us to choose the type of simulation you want to run (:code:`simulate_population_dyn`, :code:`simulate_population_magrot_det` or :code:`simulate_population_full`) and to specify the relevant simulation parameters with two types of sampling, determined by the argument :code:`--sampling_type`.
+You can also specify the number of cores to use in order to run the simulation in parallel via the argument :code:`--processes`.
 
 If :code:`--sampling_type = grid`, you should provide the parameters in a linear spacing format :code:`--parameter [low] [high] [steps]`:
 
 ::
 
-  python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100 --sampling_type grid
+  python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --save_dir simulated_data --vk_c 100.0 200.0 100 --sampling_type grid
 
-This example will run the dynamical simulation only and generate a sweep of :code:`100` uniformly spaced samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model. The results will be saved in the specified :code:`simulated_data` folder.
+
+This example will run the dynamical simulation only and generate a sweep of :code:`100` uniformly spaced samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]`. As this parameter is related to the :code:`km_exp` kick model, the script will first check if this model is properly set in the :code:`config_simulator.py` file. If not an error will be thrown.
+The results will be saved in the specified :code:`simulated_data` folder.
 If :code:`--sampling_type = random` you should provide the parameter ranges in the format :code:`--parameter [low] [high]` and specify the :code:`--sampling_size` argument, which sets the number of values drawn from a uniform distribution for each parameter.
 
 ::
 
-  python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 --sampling_type random --sampling_size 100
+  python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --save_dir simulated_data --vk_c 100.0 200.0 --sampling_type random --sampling_size 100
 
-This example will generate a sweep of :code:`100` randomly drawn samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]` using the :code:`km_exp` kick model. The results will be saved in the specified :code:`simulated_data` folder.
+This example will generate a sweep of :code:`100` randomly drawn samples for the :code:`vk_c` parameter in the range :code:`[100.0, 200.0]`. The results will be saved in the specified :code:`simulated_data` folder.
 
 
 In the following, we list the parameters that can be swept with the simulation helper.
@@ -116,19 +119,30 @@ For the magneto-rotational evolution:
 * :code:`a_late` for the power-law index describing the late-time decay of the magnetic field.
 
 
-You can also sweep over more than one parameter by running the above script as follows:
+You can also sweep over more than one parameter.
+For example if one wants to simulate 100 populations of neutron stars varying the parameters :code:`P_initial_log10_mean` in the range -1.5 -0.3 and the parameter :code:`B_initial_log10_mean` in the range 12 14 using the :code:`simulate_population_magrot_det.py` and a previously simulated dynamical database saved in :code:`dyn_database` you can run the above script as follows:
 
 ::
 
-  python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --output_dir simulated_data --kick_model "km_exp" --vk_c 100.0 200.0 100 --h_c 0.01 2 10 --sampling_type grid
+  python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --save_dir simulated_data --dyn_data dyn_database --P_initial_log10_mean -1.5 -0.3 --B_initial_log10_mean 12 14 --sampling_type random --sampling_size 100
 
-In this way, a population is simulated for each combination of values of :code:`vk_c` and :code:`h_c`, i.e., the above case corresponds to :code:`100 x 10 = 1000` simulations.
+In this way, a population is simulated for each pair of random values of :code:`P_initial_log10_mean` and :code:`B_initial_log10_mean`.
+
+If instead :code:`--sampling_type grid` is specified like in the following command:
+
+::
+
+  python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --save_dir simulated_data --dyn_data dyn_database --P_initial_log10_mean -1.5 -0.3 10 --B_initial_log10_mean 12 14 10 --sampling_type grid
+
+The scripts will simulate a population for each combination of values of :code:`P_initial_log10_mean` and :code:`B_initial_log10_mean`, i.e., the above case corresponds to :code:`10 x 10 = 100` simulations.
 The sweeper will generate a directory :code:`simulated_data`, which will contain a folder for each simulation (parameter combination) named with an identifier number, i.e, :code:`000000`, :code:`000001`, :code:`000002` and so on.
 
-Note that it is important to distinguish between two types of arguments for the helper: options and parameters. Options are arguments which specify procedures for the simulation and they cannot be swept in a range, e.g., the kick model, because we assume these are not going to be outputs that will need to be predicted. Parameters are values that we expect to use as ground truth for the learning system and therefore are to be predicted. Hence, these can be swept in a range to generate a dataset, e.g., :code:`vk_c`.
 
-The script automatically checks the compatibility of the present parameters for the selected options, e.g., :code:`vk_c` cannot be specified if :code:`km_maxwell` has been chosen as kick model.
-The dictionary :code:`utilities/config_sweeper.json` specifies a list of required parameters for each option.
+Note that it is important to distinguish between two types of arguments for the helper: options and parameters. Options are arguments which specify procedures for the simulation helper and they cannot be swept in a range, e.g., the dynamical data or the symulation type, because we assume these are not going to be outputs that will need to be predicted.
+Parameters are values that we expect to use as ground truth for the learning system and therefore are to be predicted. Hence, these can be swept in a range to generate a dataset.
+
+The script automatically checks the compatibility of the present parameters for the selected options, e.g., :code:`vk_c` cannot be specified if :code:`km_maxwell` has been chosen as kick model in the :code:`config_simulator.py`.
+The dictionary :code:`utilities/config_sweeper.json` also specifies a list of required parameters for each option.
 
 Visualize simulation results
 ############################
