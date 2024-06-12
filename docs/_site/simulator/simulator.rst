@@ -112,7 +112,7 @@ This telemetry comes from the following setup:
 | Total Time [s]:  59.8273                                                                              |
 +-------------------------------------------------------------+--------------------+--------------------+
 
-.. note:: Commit  (12/06/2024).
+.. note:: Commit 144046bfbdbb18ccd9ddcf468254671d1d88f360 (12/06/2024).
 
 This telemetry comes from the following setup:
 
