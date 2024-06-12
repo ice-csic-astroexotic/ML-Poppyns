@@ -8,11 +8,17 @@
     Finally we model the radio emission and simulate the detection from two radio surveys,
     Parkes multibeam (PMPS) and Swinburne (SMPS).
 
-        Authors:
+    Running the code:
 
-            Vanessa Graber (graber @ ice.csic.es)
-            Michele Ronchi (ronchi @ ice.csic.es)
-            Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
+        python3 simulate_population_full.py --h
+
+        To obtain help about all the arguments that can be used.
+
+    Authors:
+
+        Vanessa Graber (graber @ ice.csic.es)
+        Michele Ronchi (ronchi @ ice.csic.es)
+        Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
 """
 
 import argparse

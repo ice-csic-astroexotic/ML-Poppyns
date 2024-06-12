@@ -4,11 +4,17 @@
     An initial neutron star population of uniformly distributed ages is generated
     and the respective objects evolved dynamically in time according to their age.
 
-        Authors:
+    Running the code:
 
-            Vanessa Graber (graber @ ice.csic.es)
-            Michele Ronchi (ronchi @ ice.csic.es)
-            Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
+        python3 simulate_population_dyn.py --h
+
+        To obtain help about all the arguments that can be used.
+
+    Authors:
+
+        Vanessa Graber (graber @ ice.csic.es)
+        Michele Ronchi (ronchi @ ice.csic.es)
+        Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
 """
 
 import argparse
