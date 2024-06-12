@@ -14,9 +14,9 @@ Once the dataset containing the heatmaps or 2D arrays has been created, to train
 
 ::
 
-  python pypopsyn/learning/train.py --configuration pypopsyn/learning/config.json
+  python pypopsyn/learning/train_sbi.py --configuration pypopsyn/learning/config_sbi.json
 
-where the :code:`config.json` file contains all the information needed by the network to train.
+where the :code:`config_sbi.json` file contains all the information needed by the network to train.
 This :term:`CLI` can be left unspecified and the script will take the default :code:`pypopsyn/learning/config_sbi.json`.
 
 In this file we can specify various options to configure the training process, e.g., the network model architecture to use as an embedding net, the density estimator type, the input shape of the dataset, and some training hyperparameters.
@@ -34,7 +34,8 @@ First of all, we can specify some general settings such as the name of the exper
   "show_profiling": true,
 
 The first section we need to specify is the architecture of the embedding neural network.
-For the sake of the example, we are using a Convolutional Nerual Network which is receiving an array with shape :math:`32 \times 32` with :math:`3` different input channels and is giving a latent vector of size :math:`32` containing a summary of the input feature maps:
+The embedding net is used to extract features from the input data and to compress them into a latent vector that will be passed to the density estimator.
+Since in this example we are using 2D maps as input for the sake of the example, we are using a Convolutional Nerual Network which is receiving an array with shape :math:`32 \times 32` with :math:`3` different input channels and is giving a latent vector of size :math:`32` containing a compressed representation of the input feature maps:
 
 ::
 
@@ -120,6 +121,7 @@ We can set some hyperparameters related to the trainer, i.e. the fraction of the
   },
 
 Finally we can set up the directory path where the inference results on the test set will be saved.
+This is not used during the training process but will be necessary when doing inference (see next section).
 
 ::
 
@@ -131,7 +133,7 @@ Once you have set up the configuration file, to launch the training script you c
 
 ::
 
-  python pypopsyn/learning/train_sbi.py --configuration pypopsyn/learning/config.json
+  python pypopsyn/learning/train_sbi.py --configuration pypopsyn/learning/config_sbi.json
 
 When launching the training script you can also provide some of the parameters contained in the configuration file directly via :term:`CLI`.
 For example one can provide the paths to the training, the input channels and the labels to select, the input shape, either to apply normalization or standardization to the input, the batch size, the learning rate value and the path where to save the trained model.
@@ -139,7 +141,7 @@ For example you can run a script like the following:
 
 ::
 
-  python pypopsyn/learning/train_sbi.py --configuration pypopsyn/learning/config.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 9 10 11 --filter_labels 12 13 --input_shape 3 32 32 ----len_output_layer 32 --standardize 1 --batch_size 1 --lr 1e-5 --save_dir data/example_learning_sbi
+  python pypopsyn/learning/train_sbi.py --configuration pypopsyn/learning/config_sbi.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 9 10 11 --filter_labels 12 13 --input_shape 3 32 32 ----len_output_layer 32 --standardize 1 --batch_size 1 --lr 1e-5 --save_dir data/example_learning_sbi
 
 
 Infer on a Data Set
@@ -152,17 +154,17 @@ Once the configuration file is properly set up with the path to the test dataset
 
 ::
 
-    python pypopsyn/learning/infer_sbi.py --configuration pypopsyn/learning/config.json --trained_model data/learning_sbi/models/SBI_ConvolutionMDN/20240606_180938/trained_model.pickle
+    python pypopsyn/learning/infer_sbi.py --configuration pypopsyn/learning/config_sbi.json --trained_model data/learning_sbi/models/SBI_ConvolutionMDN/20240606_180938/trained_model.pickle
 
 
 As for the training script you could provide some arguments via :term:`CLI`, for example the path to the test dataset, the input channels and the labels to select, the input shape, either to apply normalization or standardization to the input:
 
 The inference script will also save the Gaussian coeffiecients for the components of the Gaussian mixture for each of the test sample in :code:`coeff_Gaussians.csv` and the coverage probability diagnostic test resuts in :code:`coverage_plot.pdf` and :code:`coverage_probability.npy`.
-You could also specify the argument :code:`--corner_plot True` in order to produce the posterior corner plots for each of the test samples.
+You could also specify the argument :code:`--corner_plot True` in order to produce and save the posterior corner plots in :code:`.pdf` format for each of the test samples.
 
 
 Infer on a Data Set with an Ensemble
 ####################################
 
-Truncated Neural Posterior Estimation
-#####################################
+Truncated Sequential Neural Posterior Estimation
+################################################
