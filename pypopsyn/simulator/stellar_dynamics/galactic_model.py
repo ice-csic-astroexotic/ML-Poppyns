@@ -1,44 +1,25 @@
 """
-Model for the Milky Way gravitational potential.
+    Model for the Milky Way gravitational potential.
 
-We consider two different models:
+    We consider two different models:
 
-1) gmFK06: A galactic structure as in Faucher-Giguère & Kaspi (2006). Their
-model consists of three components: a disk-halo, a bulge and a nucleus.
-The parameters of the model are taken from Table B1 in Kuijken & Gilmore (1989).
+    1) gmFK06: A galactic structure as in Faucher-Giguère & Kaspi (2006). Their
+    model consists of three components: a disk-halo, a bulge and a nucleus.
+    The parameters of the model are taken from Table B1 in Kuijken & Gilmore (1989).
 
-2) gmM19: The galaxy model from Marchetti et al. (2019). This is a four-component
-galactic potential model consisting of a Hernquist bulge and nucleus (Hernquist 1990),
-a Miyamoto-Nagai disk (Miyamoto & Nagai 1975) and a Navarro-Frenk-White halo (Navarro
-et al. 1996). The parameters of the model are taken from Table 1 in Marchetti et al.
-(2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy 2015).
+    2) gmM19: The galaxy model from Marchetti et al. (2019). This is a four-component
+    galactic potential model consisting of a Hernquist bulge and nucleus (Hernquist 1990),
+    a Miyamoto-Nagai disk (Miyamoto & Nagai 1975) and a Navarro-Frenk-White halo (Navarro
+    et al. 1996). The parameters of the model are taken from Table 1 in Marchetti et al.
+    (2019) and are chosen to fit the enclosed mass profile of the Milky Way (Bovy 2015).
 
-To improve performance when evolving the neutron stars' position in the galactic
-potential (see dynamical_evolution.py), we add Numba's jit decorator to all functions.
+    To improve performance when evolving the neutron stars' position in the galactic
+    potential (see dynamical_evolution.py), we add Numba's jit decorator to all functions.
 
-Authors:
+    Authors:
 
-        Vanessa Graber (graber@ice.csic.es)
-        Michele Ronchi (ronchi@ice.csic.es)
-
-MIT License
-
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+            Vanessa Graber (graber@ice.csic.es)
+            Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import abc
