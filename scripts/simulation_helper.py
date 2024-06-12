@@ -101,6 +101,8 @@ def run_simulation_dask(
         None
     """
 
+    # Copy the dynamical database to the node if it is not already there.
+    # This action prevents overloading the PIC with too many calls.
     try:
         if not os.path.exists(os.path.basename(dyn_data_path)):
             shutil.copytree(
@@ -109,6 +111,7 @@ def run_simulation_dask(
                 dirs_exist_ok=True,
             )
 
+        # Generate the output folder with the parameter_override.json file in each node.
         output_dir_path = pathlib.Path(args.output_dir)
         output_dir_path.mkdir(parents=True, exist_ok=True)
 
