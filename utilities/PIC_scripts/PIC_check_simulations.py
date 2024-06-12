@@ -5,6 +5,12 @@
 
     We save the directory name of those simulations which failed in a csv called failed_folder.csv.
 
+    Running the code:
+
+        python PIC_check_simulations.py --h
+
+        To obtain help about all the arguments that can be used.
+
     Authors:
 
         Celsa Pardo (pardo @ csic.es)

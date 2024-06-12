@@ -26,7 +26,7 @@
 
     Running the code:
 
-        python simulator_helper.py --h
+        python run_simulation_set.py --h
 
         To obtain help about all the arguments that can be used.
 

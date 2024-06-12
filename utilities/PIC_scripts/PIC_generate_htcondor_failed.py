@@ -9,6 +9,12 @@
     Note that to run this script, we first need to run the check_simulation.py script
     to generate the failed_folders.csv file.
 
+    Running the code:
+
+        python PIC_generate_htcondor_failed.py --h
+
+        To obtain help about all the arguments that can be used.
+
     Authors:
 
         Celsa Pardo Araujo (pardo @ csic.es)
