@@ -1,35 +1,18 @@
 """
-Simulating a final population of neutron stars.
+    Simulating a final population of neutron stars.
 
-An initial neutron star population of uniformly distributed ages is generated
-and the respective objects evolved in time according to their age.
-We simulate both the dynamical evolution in the Galaxy and the magneto-rotational
-evolution.
-Finally we model the radio emission and simulate the detection from two radio surveys,
-Parkes multibeam (PMPS) and Swinburne (SMPS).
+    An initial neutron star population of uniformly distributed ages is generated
+    and the respective objects evolved in time according to their age.
+    We simulate both the dynamical evolution in the Galaxy and the magneto-rotational
+    evolution.
+    Finally we model the radio emission and simulate the detection from two radio surveys,
+    Parkes multibeam (PMPS) and Swinburne (SMPS).
 
-    Authors:
+        Authors:
 
-        Vanessa Graber (graber @ ice.csic.es)
-        Michele Ronchi (ronchi @ ice.csic.es)
-        Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
-
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+            Vanessa Graber (graber @ ice.csic.es)
+            Michele Ronchi (ronchi @ ice.csic.es)
+            Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
 """
 
 import argparse
