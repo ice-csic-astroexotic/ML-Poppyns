@@ -4,11 +4,11 @@
     This module splits the provided dataset into training, validation and test datasets
     according to the given split fractions.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 dataset_splitter.py --h
+    python dataset_splitter.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

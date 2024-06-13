@@ -24,11 +24,11 @@
     NOTE: if an error occurs in one of the simulations, the script will not stop until all the processes will be
     terminated. The error will be only shown on the terminal in this case.
 
-    Running the code:
+    Display help message to run the code:
 
-        python run_simulation_set.py --h
+    python run_simulation_set.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

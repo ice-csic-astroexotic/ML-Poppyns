@@ -1,11 +1,11 @@
 """
     Simulating a detected population of neutron stars from a dynamically evolved population database.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 simulate_population_magrot_det.py --h
+    python simulate_population_magrot_det.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

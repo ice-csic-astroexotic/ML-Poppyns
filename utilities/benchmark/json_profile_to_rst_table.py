@@ -4,11 +4,11 @@
     This script parses a timing profile from TimeWith contexts and generates an
     RST table representation to include in our documentation automagically.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 utilities/json_profile_to_rst_table.py --h
+    python json_profile_to_rst_table.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

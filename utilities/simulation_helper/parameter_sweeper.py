@@ -21,11 +21,11 @@
     parameter combinations if in "grid" mode or sets of random parameter values if in "random" mode.
     Each set will be saved in a JSON "parameter_override" file that will be used as input to a simulation.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 parameter_sweeper.py --h
+    python parameter_sweeper.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

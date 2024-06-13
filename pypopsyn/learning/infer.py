@@ -4,11 +4,11 @@
     This script infers a set of samples from a dataset by leveraging a
     pretrained model and its architecture.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 infer.py --h
+    python infer.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

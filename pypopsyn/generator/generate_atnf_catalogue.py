@@ -5,11 +5,11 @@
 
     The user can choose to generate either a dataset of images or of 2D arrays.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 generate_atnf_catalogue.py --h
+    python generate_atnf_catalogue.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

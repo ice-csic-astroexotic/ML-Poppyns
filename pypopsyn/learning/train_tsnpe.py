@@ -13,6 +13,12 @@
 
     For further details, visit https://www.mackelab.org/sbi/.
 
+    Display help message to run the code:
+
+    python train_tsnpe.py --h
+
+    Displays all the relevant arguments that can be used.
+
     Authors:
 
         Celsa Pardo Araujo (pardo @ ice.csic.es)

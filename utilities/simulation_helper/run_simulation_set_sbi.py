@@ -17,11 +17,11 @@
     NOTE: if an error occurs in one of the simulations, the script will not stop until all the processes have been
     terminated. The error will be only shown in the terminal in this case.
 
-    Running the code:
+    Display help message to run the code:
 
-        python run_simulation_set_sbi.py --h
+    python run_simulation_set_sbi.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

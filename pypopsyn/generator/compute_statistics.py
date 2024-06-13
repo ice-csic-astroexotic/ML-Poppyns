@@ -4,11 +4,11 @@
     This module computes the statistics of the provided dataset.
     In particular it computes the mean, std, max and min values for the labels in the dataset.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 compute_statistics.py --h
+    python compute_statistics.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

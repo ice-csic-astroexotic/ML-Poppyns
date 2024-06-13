@@ -9,11 +9,11 @@
     The submit files for each job, the arguments.txt and a wrapper are saved in the path
     specified with the command line argument --output_dir_htcondor.
 
-    Running the code:
+    Display help message to run the code:
 
-        python PIC_generate_htcondor_submit.py --h
+    python PIC_generate_htcondor_submit.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

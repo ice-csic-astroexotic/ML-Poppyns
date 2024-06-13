@@ -18,11 +18,11 @@
     The statistical information about the labels (average value, standard deviation,
     maximum and minimum) are saved in a .json file.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 generate_dataset_surveys.py --h
+    python generate_dataset_surveys.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

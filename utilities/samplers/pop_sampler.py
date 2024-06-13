@@ -16,11 +16,11 @@
     The resampled population is also saved in a .pkl.gz file alongside with the .json
     file containing the related labels.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 pop_sampler.py --h
+    python pop_sampler.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

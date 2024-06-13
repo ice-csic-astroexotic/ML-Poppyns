@@ -4,11 +4,11 @@
     After the failed simulations have been launched again and finished successfully,
     we use this script to transfer the new output back to the original folders.
 
-    Running the code:
+    Display help message to run the code:
 
-        python PIC_manage_failed_simulation.py --h
+    python PIC_manage_failed_simulation.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 

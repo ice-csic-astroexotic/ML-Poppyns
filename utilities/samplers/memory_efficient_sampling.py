@@ -1,7 +1,6 @@
 """
     Sampling a random subset from a csv file without loading the full dataset into memory.
 
-
     Authors:
 
         Vanessa Graber (graber @ ice.csic.es)

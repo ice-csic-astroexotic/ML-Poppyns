@@ -7,11 +7,11 @@
     having to re-train the model. This is called amortization. An amortized posterior is one that is not
     focused on any particular observation. See https://www.mackelab.org/sbi/ for more details.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 train_sbi.py --h
+    python train_sbi.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 
