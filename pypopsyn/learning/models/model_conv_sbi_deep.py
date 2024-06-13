@@ -1,5 +1,6 @@
 """
-    Model for a deeper convolutional neural network
+    Model for a deeper convolutional neural network used as an embedding network in the sbi framework to compress the
+    input features into a latent vector.
 
     Authors:
 
@@ -17,20 +18,19 @@ from .model_base import ModelBase
 
 class ModelConvSBIdeep(ModelBase):
 
-    """A convolutional neural network Model"""
+    """A convolutional neural network model with 4 convolutional filters."""
 
     def __init__(
         self, input_shape: np.array, len_output_layer: int = 1
     ) -> None:
 
         """
-        CNN Model Initialization.
+        CNN model initialization.
         This CNN automatically adapts to the shape of the initial input features.
 
         Args:
             input_shape: Shape of the input batch (C x H x W).
-            num_parameters: Number of parameters to predict.
-
+            len_output_layer: length of the latent vector.
         """
 
         super().__init__()

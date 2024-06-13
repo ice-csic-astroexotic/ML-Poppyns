@@ -1,5 +1,5 @@
 """
-    Model for a convolutional neural network
+    Model for a convolutional neural network.
 
     Authors:
 
@@ -17,12 +17,12 @@ from .model_base import ModelBase
 
 class ModelConv(ModelBase):
 
-    """A convolutional neural network Model"""
+    """A convolutional neural network model"""
 
     def __init__(self, input_shape: np.array, num_parameters: int = 1) -> None:
 
         """
-        CNN Model Initialization.
+        CNN model initialization.
         This CNN automatically adapts to the shape of the initial input features.
 
         Args:

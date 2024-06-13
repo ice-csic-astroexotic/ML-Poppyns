@@ -1,5 +1,5 @@
 """
-    Base Model.
+    Base model.
 
     Authors:
 
