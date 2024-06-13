@@ -1,11 +1,10 @@
 """
-    Model for a convolutional neural network used as an embedding network in the sbi framework to compress the
+    Model for a shallow convolutional neural network used as an embedding network in the sbi framework to compress the
     input features into a latent vector.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
-        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
 import numpy as np

@@ -5,7 +5,6 @@
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
-        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
 import numpy as np
