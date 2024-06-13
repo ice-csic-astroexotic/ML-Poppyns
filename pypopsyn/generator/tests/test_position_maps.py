@@ -1,5 +1,5 @@
 """
-    Test for the position_maps.py module
+    Test for the position_maps.py module.
 
     Authors:
 

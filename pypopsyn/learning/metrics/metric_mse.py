@@ -1,5 +1,5 @@
 """
-    MSE Accuracy metric.
+    Mean square error accuracy metric.
 
     Authors:
 
@@ -28,7 +28,7 @@ class MetricAccuracyMSE(MetricBase):
             target: Ground truth tensor (labels).
 
         Returns:
-            Mean Square Error computed over a batch.
+            Mean square error computed over a batch.
         """
 
         with torch.no_grad():
@@ -40,9 +40,9 @@ class MetricAccuracyMSE(MetricBase):
 
     def __str__(self) -> str:
 
-        """String representation for the Accuracy metric."""
+        """String representation for the accuracy metric."""
 
-        return "Mean Square Error accuracy metric"
+        return "Mean square error accuracy metric"
 
     def initial_value(self) -> float:
 

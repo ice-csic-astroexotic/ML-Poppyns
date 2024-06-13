@@ -1,5 +1,5 @@
 """
-    Test for the compute_statistics.py module
+    Test for the compute_statistics.py module.
 
     Authors:
 

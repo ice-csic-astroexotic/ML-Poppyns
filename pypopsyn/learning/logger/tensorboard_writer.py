@@ -1,5 +1,5 @@
 """
-    Tensorboard Writer.
+    Tensorboard writer.
 
     This module provides a class for integrating Tensorboard logging functionality into your project,
     allowing for the visualization of metrics.

@@ -1,5 +1,5 @@
 """
-    Negative Log-Likelihood loss.
+    Negative log-likelihood loss.
 
     Authors:
 
@@ -13,7 +13,7 @@ from .loss_base import LossBase
 
 class LossNLL(LossBase):
 
-    """Negative Log-Likelihood (NLL) loss."""
+    """Negative log-likelihood (NLL) loss."""
 
     def __call__(
         self,

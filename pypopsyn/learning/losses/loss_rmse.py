@@ -14,7 +14,7 @@ from .loss_base import LossBase
 
 
 class LossRMSE(LossBase):
-    """Root Mean Square Error (RMSE) loss"""
+    """Root mean square error (RMSE) loss."""
 
     def __call__(self, output, target):
 

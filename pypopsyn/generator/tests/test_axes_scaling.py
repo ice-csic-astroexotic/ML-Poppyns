@@ -1,5 +1,5 @@
 """
-    Test for the axes_scaling.py module
+    Test for the axes_scaling.py module.
 
     Authors:
 

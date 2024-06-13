@@ -1,5 +1,5 @@
 """
-    Test for the velocity_maps.py module
+    Test for the velocity_maps.py module.
 
     Authors:
 

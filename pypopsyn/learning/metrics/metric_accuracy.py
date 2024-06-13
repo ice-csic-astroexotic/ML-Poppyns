@@ -40,7 +40,7 @@ class MetricAccuracy(MetricBase):
 
     def __str__(self) -> str:
 
-        """String representation for the Accuracy metric."""
+        """String representation for the accuracy metric."""
 
         return "Accuracy Metric"
 

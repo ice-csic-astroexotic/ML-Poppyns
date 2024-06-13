@@ -40,9 +40,9 @@ class MetricAccuracyCHI2(MetricBase):
 
     def __str__(self) -> str:
 
-        """String representation for the Accuracy metric."""
+        """String representation for the accuracy metric."""
 
-        return "Reduced chi square Accuracy Metric"
+        return "Reduced chi square accuracy metric"
 
     def initial_value(self) -> float:
 

@@ -1,5 +1,5 @@
 """
-    RMSE Accuracy metric.
+    Root mean squared error accuracy metric.
 
     Authors:
 
@@ -28,7 +28,7 @@ class MetricAccuracyRMSE(MetricBase):
             target: Ground truth tensor (labels).
 
         Returns:
-            Root Mean Squared Error computed over a batch.
+            Root mean squared error computed over a batch.
         """
 
         with torch.no_grad():
@@ -40,9 +40,9 @@ class MetricAccuracyRMSE(MetricBase):
 
     def __str__(self) -> str:
 
-        """String representation for the Accuracy metric."""
+        """String representation for the accuracy metric."""
 
-        return "Root Mean Squared Error accuracy metric"
+        return "Root mean squared error accuracy metric"
 
     def initial_value(self) -> float:
 

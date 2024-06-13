@@ -1,5 +1,5 @@
 """
-    MAE Accuracy metric.
+    Mean absolute error accuracy metric.
 
     Authors:
 
@@ -40,7 +40,7 @@ class MetricAccuracyMAE(MetricBase):
 
     def __str__(self) -> str:
 
-        """String representation for the Accuracy metric."""
+        """String representation for the accuracy metric."""
 
         return "Mean Absolute Error accuracy metric"
 
