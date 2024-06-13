@@ -1,5 +1,5 @@
 """
-    Metric Tracker.
+    Metric tracker.
 
     Authors:
 
@@ -10,7 +10,7 @@ import pandas as pd
 
 
 class MetricTracker:
-    """Metric Tracker.
+    """Metric tracker.
 
     This class is responsible for keeping track of metrics throughout
     training and testing. It is able to update the values, add new

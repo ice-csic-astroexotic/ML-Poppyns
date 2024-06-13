@@ -1,5 +1,5 @@
 """
-    JSON Profile to RST Table.
+    JSON profile to RST table.
 
     This script parses a timing profile from TimeWith contexts and generates an
     RST table representation to include in our documentation automagically.

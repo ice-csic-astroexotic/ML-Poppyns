@@ -1,5 +1,6 @@
 """
     Initial galactocentric position for the stellar population.
+
     We follow Faucher-Giguère & Kaspi (2006) and choose a galactocentric coordinate system,
     where the galactic center is located at the origin. In terms of galactic latitude l and
     longitude b, the x-,y-, and z-axes are parallel to (l, b) = (90, 0), (180, 0) and (0,

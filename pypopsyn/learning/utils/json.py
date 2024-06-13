@@ -1,5 +1,5 @@
 """
-    JSON Utils.
+    JSON utils.
 
     Authors:
 

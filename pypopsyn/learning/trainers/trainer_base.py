@@ -1,5 +1,5 @@
 """
-    Base Trainer.
+    Base trainer.
 
     Authors:
 

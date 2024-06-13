@@ -1,5 +1,5 @@
 """
-    Dynamical evolution of the neutron stars in the galactic potential
+    Dynamical evolution of the neutron stars in the galactic potential.
 
     We solve the system of dynamical differential equations in cylindrical coordinates,
     using a galactocentric reference frame. Here we are using the scipy.integrate.odeint

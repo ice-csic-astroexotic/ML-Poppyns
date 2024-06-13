@@ -1,7 +1,7 @@
 """
     Trainers.
 
-    This is just an empty module that gathers all the available modules.
+    This is just an empty module that gathers all the available trainer modules.
 
     Authors:
 

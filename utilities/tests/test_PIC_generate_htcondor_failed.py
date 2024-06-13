@@ -1,5 +1,5 @@
 """
-    Tests for the PIC_generate_htcondor_failed.py module.
+    Tests for the PIC_generate_htcondor_failed module.
 
     Authors:
 
