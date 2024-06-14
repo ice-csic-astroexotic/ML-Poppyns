@@ -1,5 +1,5 @@
 """
-    Accuracy metric.
+    chi square metric.
 
     Authors:
 
@@ -27,7 +27,7 @@ class MetricAccuracyCHI2(MetricBase):
             target: Ground truth tensor (labels).
 
         Returns:
-            reduced chi square value computed on a batch.
+            Reduced chi square value computed on a batch.
         """
 
         with torch.no_grad():
