@@ -1,5 +1,5 @@
 """
-    Mean absolute error accuracy metric.
+    Mean absolute error metric.
 
     Authors:
 
@@ -20,7 +20,7 @@ from .metric_base import MetricBase
 class MetricAccuracyMAE(MetricBase):
     def __call__(self, output, target) -> float:
 
-        """Computation of the accuracy metric defined as mean absolute error.
+        """Computation of the metric defined as mean absolute error.
             The value of the MAE should be 0 for the best accuracy.
 
         Args:
@@ -28,7 +28,7 @@ class MetricAccuracyMAE(MetricBase):
             target: Ground truth tensor (labels).
 
         Returns:
-            Mean Absolute Error computed over a batch.
+            Mean absolute error computed over a batch.
         """
 
         with torch.no_grad():

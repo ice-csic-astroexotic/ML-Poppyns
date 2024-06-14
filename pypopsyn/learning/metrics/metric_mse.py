@@ -1,5 +1,5 @@
 """
-    Mean square error accuracy metric.
+    Mean square error metric.
 
     Authors:
 
@@ -20,7 +20,7 @@ from .metric_base import MetricBase
 class MetricAccuracyMSE(MetricBase):
     def __call__(self, output, target) -> float:
 
-        """Computation of the accuracy metric defined as mean square error.
+        """Computation of the metric defined as mean square error.
             The value of the MSE should be 0 for the best accuracy.
 
         Args:

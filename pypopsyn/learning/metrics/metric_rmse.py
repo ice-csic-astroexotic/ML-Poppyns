@@ -1,5 +1,5 @@
 """
-    Root mean squared error accuracy metric.
+    Root mean squared error metric.
 
     Authors:
 
@@ -20,7 +20,7 @@ from .metric_base import MetricBase
 class MetricAccuracyRMSE(MetricBase):
     def __call__(self, output, target) -> float:
 
-        """Computation of the accuracy metric defined as root mean squared error.
+        """Computation of the metric defined as root mean squared error.
             The value of the RMSE should be 0 for the best accuracy.
 
         Args:
