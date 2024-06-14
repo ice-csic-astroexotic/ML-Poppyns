@@ -1,5 +1,5 @@
 """
-    Tests for electron density model module.
+    Tests for e_density_model module.
 
         Authors:
 

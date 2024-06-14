@@ -1,5 +1,5 @@
 """
-    Tests for the stellar_dynamics/coordinate_conversion module.
+    Tests for the coordinate_conversion module.
 
         Authors:
 

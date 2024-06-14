@@ -1,5 +1,5 @@
 """
-    Test for the cprofile.py module.
+    Test for the cprofile module.
 
     Authors:
 

@@ -1,5 +1,5 @@
 """
-    Tests for the magneto_rotational_physics/magneto_rotational_evolution_fit module.
+    Tests for the magneto_rotational_evolution_fit module.
 
     Authors:
 

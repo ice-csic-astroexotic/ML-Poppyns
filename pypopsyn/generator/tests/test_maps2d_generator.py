@@ -1,5 +1,5 @@
 """
-    Test for the maps2d_generator.py module.
+    Test for the maps2d_generator module.
 
     Authors:
 

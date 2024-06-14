@@ -1,5 +1,5 @@
 """
-    Tests for N_H model module.
+    Tests for nh_model module.
 
     Authors:
 

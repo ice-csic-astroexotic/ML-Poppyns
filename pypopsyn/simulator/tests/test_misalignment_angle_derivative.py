@@ -1,5 +1,5 @@
 """
-    Test for the magneto_rotational_physics/misalignment_angle_derivative module.
+    Test for the misalignment_angle_derivative module.
 
     Authors:
 

@@ -1,5 +1,5 @@
 """
-    Test for the timefunc.py module.
+    Test for the timefunc module.
 
     Authors:
 

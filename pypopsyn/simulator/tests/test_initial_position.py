@@ -1,5 +1,5 @@
 """
-    Tests for the stellar_dynamics/initial_position module.
+    Tests for the initial_position module.
 
         Authors:
 

@@ -1,5 +1,5 @@
 """
-    Test for the timewith.py module.
+    Test for the timewith module.
 
     Authors:
 

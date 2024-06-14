@@ -1,5 +1,5 @@
 """
-    Tests for the radio emission module.
+    Tests for the emission_radio module.
 
         Authors:
 

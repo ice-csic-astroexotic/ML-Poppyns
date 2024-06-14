@@ -1,5 +1,5 @@
 """
-    Tests for the run_simulation_set.py module.
+    Tests for the run_simulation_set module.
 
     Authors:
 

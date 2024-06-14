@@ -1,5 +1,5 @@
 """
-    Test for the PIC_manage_failed_simulation.py module.
+    Test for the PIC_manage_failed_simulation module.
 
     Authors:
 

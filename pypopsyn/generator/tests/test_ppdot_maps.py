@@ -1,5 +1,5 @@
 """
-    Test for the ppdot_maps.py module.
+    Test for the ppdot_maps module.
 
     Authors:
 

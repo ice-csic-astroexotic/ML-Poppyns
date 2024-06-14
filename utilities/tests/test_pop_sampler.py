@@ -1,5 +1,5 @@
 """
-    Test for the pop_sampler.py module.
+    Test for the pop_sampler module.
 
     Authors:
 

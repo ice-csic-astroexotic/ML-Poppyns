@@ -1,5 +1,5 @@
 """
-    Tests for the stellar_dynamics/spiral_model module.
+    Tests for the spiral_model module.
 
     Authors:
 

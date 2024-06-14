@@ -1,5 +1,5 @@
 """
-    Test for the magneto_rotational_physics/period_derivative module.
+    Test for the period_derivative module.
 
     Authors:
 

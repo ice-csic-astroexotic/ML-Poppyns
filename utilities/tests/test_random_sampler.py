@@ -1,5 +1,5 @@
 """
-    Tests for the basics/cdf_calculator module.
+    Tests for the random_sampler module.
 
     Authors:
 

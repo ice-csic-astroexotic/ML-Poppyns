@@ -1,5 +1,5 @@
 """
-    Test for the json_profile_to_rst_table.py module.
+    Test for the json_profile_to_rst_table module.
 
     Authors:
 

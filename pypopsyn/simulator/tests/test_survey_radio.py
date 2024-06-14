@@ -1,5 +1,5 @@
 """
-    Tests for the radio survey module.
+    Tests for the survey_radio module.
 
     Authors:
 

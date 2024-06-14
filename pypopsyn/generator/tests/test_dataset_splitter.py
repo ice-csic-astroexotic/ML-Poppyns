@@ -1,5 +1,5 @@
 """
-    Test for the dataset_splitter.py module.
+    Test for the dataset_splitter module.
 
     Authors:
 

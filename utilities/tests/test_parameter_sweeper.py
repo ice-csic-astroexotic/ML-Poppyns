@@ -1,5 +1,5 @@
 """
-    Tests for the parameter_sweeper.py module.
+    Tests for the parameter_sweeper module.
 
     Authors:
 

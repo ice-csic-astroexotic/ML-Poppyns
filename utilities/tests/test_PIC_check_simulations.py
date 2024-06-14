@@ -1,5 +1,5 @@
 """
-    Tests for the PIC_check_simulations.py module.
+    Tests for the PIC_check_simulations module.
 
     Authors:
 

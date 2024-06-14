@@ -1,5 +1,5 @@
 """
-    Test for the memory_efficient_sampling.py module.
+    Test for the memory_efficient_sampling module.
 
     Authors:
 

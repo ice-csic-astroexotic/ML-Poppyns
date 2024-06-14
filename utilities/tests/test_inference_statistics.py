@@ -1,5 +1,5 @@
 """
-    Tests for the statistics module.
+    Tests for the inference_statistics module.
 
     Authors:
 

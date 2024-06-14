@@ -1,5 +1,5 @@
 """
-    Tests for the parameter_set_generator.py module.
+    Tests for the parameter_set_generator module.
 
     Authors:
 

@@ -1,5 +1,5 @@
 """
-    Tests for the X-ray absorption cross section module.
+    Tests for the xray_abs_cross_section module.
 
     Authors:
 

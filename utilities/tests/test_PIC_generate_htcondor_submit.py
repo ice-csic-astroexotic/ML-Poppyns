@@ -1,5 +1,5 @@
 """
-    Tests for the PIC_generate_htcondor_submit.py module.
+    Tests for the PIC_generate_htcondor_submit module.
 
     Authors:
 
