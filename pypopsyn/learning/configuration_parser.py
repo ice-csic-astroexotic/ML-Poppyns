@@ -1,5 +1,5 @@
 """
-    Configuration Parser.
+    Configuration parser.
 
     Authors:
 
