@@ -1,5 +1,5 @@
 """
-    Tests for the magnetic_field_derivative module.
+    Tests for the magnetic_field_derivative.py module.
 
         Authors:
 

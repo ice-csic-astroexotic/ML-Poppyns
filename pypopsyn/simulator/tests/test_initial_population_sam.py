@@ -1,5 +1,5 @@
 """
-    Tests for the initial_population_sam module.
+    Tests for the initial_population_sam.py module.
 
         Authors:
 

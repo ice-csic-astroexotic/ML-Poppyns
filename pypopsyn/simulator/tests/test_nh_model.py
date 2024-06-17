@@ -1,5 +1,5 @@
 """
-    Tests for nh_model module.
+    Tests for nh_model.py module.
 
     Authors:
 

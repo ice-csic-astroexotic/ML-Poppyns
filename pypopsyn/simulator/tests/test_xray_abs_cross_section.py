@@ -1,5 +1,5 @@
 """
-    Tests for the xray_abs_cross_section module.
+    Tests for the xray_abs_cross_section.py module.
 
     Authors:
 

@@ -1,5 +1,5 @@
 """
-    Tests for e_density_model module.
+    Tests for e_density_model.py module.
 
         Authors:
 

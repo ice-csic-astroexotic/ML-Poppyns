@@ -1,5 +1,5 @@
 """
-    Tests for the galactic_model module.
+    Tests for the galactic_model.py module.
 
         Authors:
 

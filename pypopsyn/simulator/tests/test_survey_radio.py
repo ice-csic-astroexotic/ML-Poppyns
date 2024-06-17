@@ -1,5 +1,5 @@
 """
-    Tests for the survey_radio module.
+    Tests for the survey_radio.py module.
 
     Authors:
 

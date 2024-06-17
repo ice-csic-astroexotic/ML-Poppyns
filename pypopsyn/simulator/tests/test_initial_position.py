@@ -1,5 +1,5 @@
 """
-    Tests for the initial_position module.
+    Tests for the initial_position.py module.
 
         Authors:
 

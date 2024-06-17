@@ -1,5 +1,5 @@
 """
-    Test for the period_derivative module.
+    Test for the period_derivative.py module.
 
     Authors:
 
