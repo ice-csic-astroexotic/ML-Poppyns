@@ -1,5 +1,5 @@
 """
-    Tests for the dynamical_evolution.py module.
+    Tests for the dynamical_evolution module.
 
         Authors:
 

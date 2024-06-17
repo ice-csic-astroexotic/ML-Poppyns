@@ -1,5 +1,5 @@
 """
-    Tests for the spiral_model.py module.
+    Tests for the spiral_model module.
 
     Authors:
 

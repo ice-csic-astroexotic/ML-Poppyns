@@ -1,5 +1,5 @@
 """
-    Tests for the coordinate_conversion.py module.
+    Tests for the coordinate_conversion module.
 
         Authors:
 

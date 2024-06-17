@@ -1,5 +1,5 @@
 """
-    Test for the misalignment_angle_derivative.py module.
+    Test for the misalignment_angle_derivative module.
 
     Authors:
 

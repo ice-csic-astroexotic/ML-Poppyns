@@ -1,5 +1,5 @@
 """
-    Tests for the initial_velocity.py module.
+    Tests for the initial_velocity module.
 
         Authors:
 

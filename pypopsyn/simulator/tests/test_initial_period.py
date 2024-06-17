@@ -1,5 +1,5 @@
 """
-    Test for the initial_period.py module.
+    Test for the initial_period module.
 
         Authors:
 

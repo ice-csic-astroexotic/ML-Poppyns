@@ -1,5 +1,5 @@
 """
-    Tests for the emission_radi.py module.
+    Tests for the emission_radio module.
 
         Authors:
 
