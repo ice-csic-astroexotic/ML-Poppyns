@@ -1,5 +1,5 @@
 """
-    Test for the download_online_content.py script.
+    Test for the download_online_content script.
 
     Authors:
 

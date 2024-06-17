@@ -1,5 +1,5 @@
 """
-    Test for the coverage_probability.py module
+    Test for the coverage_probability module
 
     Authors:
 
