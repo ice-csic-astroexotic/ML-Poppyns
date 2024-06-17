@@ -8,19 +8,16 @@
     Simulation-based Calibration is also performed to check if the ensemble posterior is well behaved.
     See https://www.mackelab.org/sbi/ for more details.
 
-     Running the code:
+    Display help message to run the code:
 
-        python3 infer_sbi_ensemble.py --h
+    python infer_sbi_ensemble.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Celsa Pardo Araujo (pardo@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import argparse

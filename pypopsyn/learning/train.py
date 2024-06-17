@@ -4,18 +4,15 @@
     This script carries out the training for a machine learning architecture
     using the specified run configuration file.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 train.py --h
+    python train.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import argparse

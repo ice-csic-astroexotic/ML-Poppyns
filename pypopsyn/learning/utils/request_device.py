@@ -1,11 +1,9 @@
-""" Request Device.
+"""
+    Request device.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import typing
@@ -27,7 +25,7 @@ def request_device(
         A tuple containing the kind of device the pipeline can run on and
         a list of devices if available.
 
-        If no GPUs are avaible or zero are requested, the returned device
+        If no GPUs are available or zero are requested, the returned device
         is CPU.
 
     """

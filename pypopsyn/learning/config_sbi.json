@@ -8,7 +8,7 @@
   "show_profiling": true,
 
   "arch": {
-    "type": "ModelConvSBI",
+    "type": "ModelConvSBIshallow",
     "args": {
         "input_shape": [3, 32, 32],
         "len_output_layer": 32

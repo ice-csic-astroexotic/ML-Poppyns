@@ -1,12 +1,10 @@
-""" mean square error loss.
+"""
+    Mean square error loss.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import torch
@@ -20,7 +18,7 @@ class LossMSE(LossBase):
 
     def __call__(self, output, target):
 
-        """ Computation of the MSE loss.
+        """Computation of the MSE loss.
 
         Args:
             output: Network output tensor (predictions).
@@ -37,6 +35,6 @@ class LossMSE(LossBase):
 
     def __str__(self):
 
-        """ String representation for the MSE loss. """
+        """String representation for the MSE loss."""
 
         return "MSE Loss"

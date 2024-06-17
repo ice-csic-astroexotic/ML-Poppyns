@@ -1,33 +1,14 @@
 """
-Model for computing the hydrogen column density for X-ray absorption.
+    Model for computing the hydrogen column density for X-ray absorption.
 
-For computing the N_H we provide two options:
-1) Using the map and routines from the 3D N_H-tool by Doroshenko (2024),
-available for download at https://zenodo.org/records/10779060.
-2) Using the relation between N_H and DM found by He, Ng and Kaspi (2013).
+    For computing the N_H we provide two options:
+    1) Using the map and routines from the 3D N_H-tool by Doroshenko (2024),
+    available for download at https://zenodo.org/records/10779060.
+    2) Using the relation between N_H and DM found by He, Ng and Kaspi (2013).
 
-Authors:
+    Authors:
 
-        Michele Ronchi (ronchi@ice.csic.es)
-
-MIT License
-
-Copyright (c) MAGNESIA (ICE-CSIC) 2024
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+            Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import logging

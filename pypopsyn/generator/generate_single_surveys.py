@@ -1,4 +1,5 @@
-""" Generator for a single simulation.
+"""
+    Generator for a single simulation.
 
     This module creates a dataset of compressed representations for the output of
     a single simulated populations from the simulator `simulate_population_magrot_det.py`.
@@ -12,20 +13,16 @@
     corresponding input files are specified with their paths and labels.
 
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 generate_single_surveys.py --h
+    python generate_single_surveys.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Celsa Pardo Araujo  (pardo@ice.csic.es)
-
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import argparse

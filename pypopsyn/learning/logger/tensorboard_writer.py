@@ -1,12 +1,12 @@
-""" Tensorboard Writer.
+"""
+    Tensorboard writer.
 
-    TODO: Document.
+    This module provides a class for integrating Tensorboard logging functionality into your project,
+    allowing for the visualization of metrics.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
 
 """
 
@@ -16,14 +16,26 @@ import importlib
 
 class TensorboardWriter:
     """
-    TODO: Document.
+    A class for writing logs to Tensorboard, supporting both `torch.utils.tensorboard` and `tensorboardX`.
 
+    Attributes:
+        writer: The Tensorboard writer object.
+        selected_module: The name of the selected module for writing logs.
+        step: The current step for logging.
+        mode: The current mode (e.g., "train" or "valid").
+        tb_writer_ftns: A set of Tensorboard writing functions.
+        tag_mode_exceptions: A set of functions that do not require mode tags.
+        timer: A datetime object to track the time between steps.
     """
 
     def __init__(self, log_dir, logger, enabled):
         """
-        TODO: Document...
+        Initializes the TensorboardWriter with the specified log directory, logger, and enable flag.
 
+        Args:
+            log_dir (str): The directory where Tensorboard logs will be saved.
+            logger: The logger for displaying warnings or errors.
+            enabled (bool): Flag to enable or disable Tensorboard logging.
         """
 
         self.writer = None
@@ -84,8 +96,11 @@ class TensorboardWriter:
 
     def set_step(self, step, mode="train") -> None:
         """
-        TODO: document.
+        Sets the current step and mode, and logs the steps per second.
 
+        Args:
+            step (int): The current step for logging.
+            mode (str): The current mode (default is "train").
         """
 
         self.mode = mode
@@ -99,13 +114,15 @@ class TensorboardWriter:
 
     def __getattr__(self, name):
         """
-        TODO: brief description.
+        Provides dynamic access to Tensorboard logging methods.
+
+        Args:
+            name (str): The name of the Tensorboard method to access.
 
         Returns:
-            If visualization is configured to use returns add_data() methods
-            of tensorboard with additional information (step, tag) added.
-            Otherwise returns a blank function handle that does nothing.
-
+            function: A wrapped function that adds additional information (step, tag) to the Tensorboard log entry.
+            If visualization is configured to use returns add_data() methods of tensorboard with additional information
+            (step, tag) added. Otherwise returns a blank function handle that does nothing.
         """
 
         if name in self.tb_writer_ftns:

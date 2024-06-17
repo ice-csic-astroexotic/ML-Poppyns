@@ -1,4 +1,5 @@
-""" Logger.
+"""
+    Logger.
 
     Utility functions for setting up and dealing with the logging subsystem in
     order to generate messages both to the console and to log useful info of
