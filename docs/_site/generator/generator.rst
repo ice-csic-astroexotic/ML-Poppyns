@@ -32,6 +32,12 @@ Maps generator for a single survey simulation
 .. automodule:: pypopsyn.generator.generate_single_surveys
   :members: generate_single_surveys
 
+Maps generator for ATNF catalog
+*******************************
+
+.. automodule:: pypopsyn.generator.generate_atnf_catalogue
+  :members: generate_atnf_catalogue
+
 Maps
 ####
 
