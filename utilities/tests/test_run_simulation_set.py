@@ -49,6 +49,7 @@ def test_run_simulation_dask(caplog):
 
     caplog.set_level(logging.INFO)
 
+    # Mock the necessary functions and methods used in run_simulation_dask
     with mock.patch("os.path.exists", return_value=True), mock.patch(
         "shutil.copytree"
     ), mock.patch("pathlib.Path.mkdir"), mock.patch("json.dump"), mock.patch(
@@ -56,7 +57,7 @@ def test_run_simulation_dask(caplog):
     ), mock.patch(
         "pypopsyn.simulator.simulate_population_magrot_det.simulate_population"
     ):
-
+        # Call the function being tested.
         rss.run_simulation_dask(
             args,
             simulator_type,
@@ -64,7 +65,7 @@ def test_run_simulation_dask(caplog):
             simulation_override_json,
             dyn_data_path,
         )
-
+        # Assert that the log messages are present
         assert "Copied output folder back to original location" in caplog.text
         assert "Simulation finished" in caplog.text
 

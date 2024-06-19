@@ -1187,7 +1187,10 @@ def simulate_population(args) -> None:
                 f"Output of the detected population with HTRU high surveys generated in {os.getcwd()}/{HTRU_high_output_path}"
             )
 
-        # Cleanup. Reset seed to empty value.
+        # Reset seed, profile_log, and profile_json to default values. This is done to prevent issues when
+        # calling the simulate_population function in other scripts more than once, ensuring that the values are
+        # properly reset.
+
         cfg["seed_magrot"] = None
         cfg["profile_log"] = "profile.log"
         cfg["profile_json"] = "profile.json"

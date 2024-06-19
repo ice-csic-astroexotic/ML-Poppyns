@@ -65,6 +65,16 @@ unpaused = None
 starting = None
 
 
+def log_error(e: Exception):
+    """
+    Log an exception raised during the simulation process.
+
+    Args:
+        e (Exception): The exception to log.
+    """
+    log.error("An error occurred during the simulation.", exc_info=e)
+
+
 def safe_copytree(src, dst, retries=3, delay=5):
     """
     Safely copy a directory tree with retries.
@@ -72,8 +82,8 @@ def safe_copytree(src, dst, retries=3, delay=5):
     Args:
         src (str): Source directory path.
         dst (str): Destination directory path.
-        retries (int): Number of retry attempts.
-        delay (int): Delay between retry attempts in seconds.
+        retries (int): Number of retry attempts. Default is 3 retries.
+        delay (int): Delay between retry attempts in seconds. Default is 5 seconds.
 
     Returns:
         None
@@ -92,6 +102,8 @@ def safe_copytree(src, dst, retries=3, delay=5):
             )
 
             if attempt < retries - 1:
+                # Wait for the specified delay before retrying. This allows time for transient issues
+                # (e.g., unstable connection) to be resolved.
                 time.sleep(delay)
             else:
                 raise
@@ -103,6 +115,8 @@ def robust_run_simulation_dask(*args, max_attempts=3, delay=5, **kwargs):
 
     Args:
         *args: Variable length argument list.
+        max_attempts (int, optional): Maximum number of retry attempts. Default is 3.
+        delay (int, optional): Delay between retry attempts in seconds. Default is 5.
         **kwargs: Arbitrary keyword arguments.
 
     Returns:
@@ -112,27 +126,27 @@ def robust_run_simulation_dask(*args, max_attempts=3, delay=5, **kwargs):
     while attempts < max_attempts:
         try:
             run_simulation_dask(*args, **kwargs)
-            # If run_simulation_dask finish successfully, exit function.
+            # If run_simulation_dask finishes successfully, exit function.
             return
         except Exception as e:
-            # If an error occurs during the copy operation, the function will log the error message, including the
-            # current time and the machine name.
+            # If an error occurs during the run_simulation_dask function, log the error message, including the current
+            # time and the machine name.
             current_time = time.strftime("%Y-%m-%d %H:%M:%S")
             machine_name = platform.node()
             log.error(
                 f"Attempt {attempts + 1} failed with error at {current_time} on {machine_name}: {e}"
             )
-            # Wait for the seconds define in the delay variable before retrying.
+            # Wait for the seconds defined in the delay variable before retrying.
             time.sleep(delay)
             attempts += 1
             if attempts == max_attempts:
-                # If the number of attempts reach the maximum number raise an exception.
+                # If the number of attempts reaches the maximum number raise an exception.
                 log.error("Maximum retry attempts reached, failing task.")
                 raise
 
 
 def run_simulation_dask(
-    args: dict,
+    args: argparse.Namespace,
     simulator_type: str,
     simulation_output_path: str,
     simulation_override_json: dict,
@@ -155,7 +169,7 @@ def run_simulation_dask(
         None
     """
 
-    # Copy the dynamical database to the node if it is not already there.
+    # Copy the dynamical database adn the repository to the node if it is not already there.
     # This action prevents overloading the PIC with too many calls.
     try:
         if not os.path.exists(os.path.basename(dyn_data_path)):
@@ -175,8 +189,8 @@ def run_simulation_dask(
         with open(args.parameter_override, "w") as f:
             json.dump(simulation_override_json, f, indent=4, sort_keys=True)
 
+        # Call either the simulate_population_magrot or simulate_population_dyn module depending on the case.
         if simulator_type == "simulate_population_magrot_det":
-            # Call the simulate_population_magrot module.
             magrot.simulate_population(args)
         else:
             dyn.simulate_population(args)
@@ -197,16 +211,6 @@ def run_simulation_dask(
         raise
 
     log.info("Simulation finished")
-
-
-def log_error(e: Exception):
-    """
-    Log an exception raised during the simulation process.
-
-    Args:
-        e (Exception): The exception to log.
-    """
-    log.error("An error occurred during the simulation.", exc_info=e)
 
 
 def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:

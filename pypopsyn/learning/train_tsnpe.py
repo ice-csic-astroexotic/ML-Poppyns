@@ -251,7 +251,7 @@ def wrapper_pypopsyn(
     else:
         simulator_multiprocess(args_dict, proposal, dataset)
 
-    # Call the generate_dataset function directly
+    # Call the generate_dataset function directly.
     generate_dataset(args_gen)
 
     return dataset_path
