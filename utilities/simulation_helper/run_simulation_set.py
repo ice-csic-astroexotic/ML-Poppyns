@@ -169,7 +169,7 @@ def run_simulation_dask(
                 "MAGNESIA_population_synthesis",
             )
         # Generate the output folder with the parameter_override.json file in each node.
-        output_dir_path = pathlib.Path(args.output_dir)
+        output_dir_path = pathlib.Path(args.save_dir)
         output_dir_path.mkdir(parents=True, exist_ok=True)
 
         with open(args.parameter_override, "w") as f:

@@ -187,7 +187,7 @@ def simulator_dask(
         # i.e., we can only generate simulations below 10 million.
         folder_name = f"{simulation_number:06}"
         simulation_output_path_original = pathlib.Path().joinpath(
-            args_dict["output_dir"], folder_name
+            args_dict["save_dir"], folder_name
         )
         # Save the set of parameter values into a dictionary.
         simulation_override_json = {}
@@ -201,7 +201,7 @@ def simulator_dask(
         # 'simulator_type', and the path for the JSON override.
         # Prepare arguments for the simulate_population function.
         simulation_args = argparse.Namespace(
-            output_dir=folder_name,
+            save_dir=folder_name,
             parameter_override=simulation_override_json_path,
             dyn_data=os.path.basename(dyn_data_path),
         )

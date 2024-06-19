@@ -208,7 +208,7 @@ def wrapper_pypopsyn(
     dyn_data_path = config["dyn_data_loader"]["dataset_path"]
     args_dict = {
         "dyn_data": dyn_data_path,
-        "output_dir": sim_dir_path,
+        "save_dir": sim_dir_path,
         "simulator_type": "simulate_population_magrot_det",
         "sampling_size": num_sim,
         "P_initial_log10_mean": [
