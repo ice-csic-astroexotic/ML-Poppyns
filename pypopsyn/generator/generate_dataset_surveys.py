@@ -279,7 +279,7 @@ def generate_dataset(args) -> None:
             root_path,
             dataset_path,
             "HTRU",
-            "survey_HTRU_results_low_mid",
+            "survey_HTRU_low_mid_results",
             s,
             args.data_type,
             args.resolution_dyn,

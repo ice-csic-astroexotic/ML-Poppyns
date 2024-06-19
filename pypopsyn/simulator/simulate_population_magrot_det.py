@@ -1164,13 +1164,13 @@ def simulate_population(args) -> None:
             df_SMPS.to_pickle(SMPS_output_path, compression="gzip")
 
             HTRU_output_low_mid_path = pathlib.Path().joinpath(
-                output_path, "survey_HTRU_results_low_mid.pkl.gz"
+                output_path, "survey_HTRU_low_mid_results.pkl.gz"
             )
 
             df_HTRU.to_pickle(HTRU_output_low_mid_path, compression="gzip")
 
             HTRU_high_output_path = pathlib.Path().joinpath(
-                output_path, "survey_HTRU_results_high.pkl.gz"
+                output_path, "survey_HTRU_high_results.pkl.gz"
             )
             df_HTRU_high.to_pickle(HTRU_high_output_path, compression="gzip")
 
