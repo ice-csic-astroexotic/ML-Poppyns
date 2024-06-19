@@ -59,10 +59,12 @@ import logging
 import multiprocessing as mp
 import os
 import pathlib
+import platform
 import shutil
 import subprocess
 import sys
 import threading
+import time
 import typing
 
 import numpy as np
@@ -75,6 +77,72 @@ log = logging.getLogger(__name__)
 
 unpaused = None
 starting = None
+
+
+def safe_copytree(src, dst, retries=3, delay=5):
+    """
+    Safely copy a directory tree with retries.
+
+    Args:
+        src (str): Source directory path.
+        dst (str): Destination directory path.
+        retries (int): Number of retry attempts.
+        delay (int): Delay between retry attempts in seconds.
+
+    Returns:
+        None
+    """
+    for attempt in range(retries):
+        try:
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+            return
+        except Exception as e:
+            # If an error occurs during the copy operation, the function will log the error message, including the
+            # current time and the machine name.
+            current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+            machine_name = platform.node()
+            log.error(
+                f"Error copying from {src} to {dst} at {current_time} on {machine_name}: {e}"
+            )
+
+            if attempt < retries - 1:
+                time.sleep(delay)
+            else:
+                raise
+
+
+def robust_run_simulation_dask(*args, max_attempts=3, delay=5, **kwargs):
+    """
+    Wrapper function to add retry logic to run_simulation_dask.
+
+    Args:
+        *args: Variable length argument list.
+        **kwargs: Arbitrary keyword arguments.
+
+    Returns:
+        None
+    """
+    attempts = 0
+    while attempts < max_attempts:
+        try:
+            run_simulation_dask(*args, **kwargs)
+            # If run_simulation_dask finish successfully, exit function.
+            return
+        except Exception as e:
+            # If an error occurs during the copy operation, the function will log the error message, including the
+            # current time and the machine name.
+            current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+            machine_name = platform.node()
+            log.error(
+                f"Attempt {attempts + 1} failed with error at {current_time} on {machine_name}: {e}"
+            )
+            # Wait for the seconds define in the delay variable before retrying.
+            time.sleep(delay)
+            attempts += 1
+            if attempts == max_attempts:
+                # If the number of attempts reach the maximum number raise an exception.
+                log.error("Maximum retry attempts reached, failing task.")
+                raise
 
 
 def run_simulation_dask(
@@ -105,16 +173,14 @@ def run_simulation_dask(
     # This action prevents overloading the PIC with too many calls.
     try:
         if not os.path.exists(os.path.basename(dyn_data_path)):
-            shutil.copytree(
+            safe_copytree(
                 dyn_data_path,
                 os.path.basename(dyn_data_path),
-                dirs_exist_ok=True,
             )
-        if not os.path.exists("pypopsyn"):
-            shutil.copytree(
-                "/data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn",
-                "pypopsyn",
-                dirs_exist_ok=True,
+        if not os.path.exists("MAGNESIA_population_synthesis"):
+            safe_copytree(
+                "/data/magnesia/software/MAGNESIA_population_synthesis",
+                "MAGNESIA_population_synthesis",
             )
         # Generate the output folder with the parameter_override.json file in each node.
         output_dir_path = pathlib.Path(args.output_dir)
@@ -130,9 +196,7 @@ def run_simulation_dask(
             dyn.simulate_population(args)
 
         # Copy the output folder back to the original location.
-        shutil.copytree(
-            output_dir_path, simulation_output_path, dirs_exist_ok=True
-        )
+        safe_copytree(output_dir_path, simulation_output_path)
         # Remove the folder to prevent issues with overwriting.
         shutil.rmtree(output_dir_path)
 

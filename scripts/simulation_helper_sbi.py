@@ -65,8 +65,8 @@ from pypopsyn.learning.loaders.loader_multichannel_array_stat import (
 from pypopsyn.simulator.configuration import cfg
 from scripts.simulation_helper import (
     log_simulation,
+    robust_run_simulation_dask,
     run_simulation,
-    run_simulation_dask,
     setup_process_pool,
 )
 
@@ -191,7 +191,7 @@ def simulator_dask(
 
     # Create a delayed version of the 'run_simulation_dask' function using Dask that allows for lazy evaluation.
     # This enables parallel processing capabilities within Dask.
-    run_simulation_delayed = dask.delayed(run_simulation_dask)
+    run_simulation_delayed = dask.delayed(robust_run_simulation_dask)
 
     for s in parameter_sets_gen:
         log.info("Queuing simulation: ")
@@ -229,6 +229,8 @@ def simulator_dask(
                 simulation_output_path_original,
                 simulation_override_json,
                 dyn_data_path,
+                max_attempts=3,
+                delay=5,
             )
         )
 
