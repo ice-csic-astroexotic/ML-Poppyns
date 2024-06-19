@@ -42,14 +42,20 @@ import itertools
 import json
 import logging
 import multiprocessing as mp
+import os
 import pathlib
+import platform
+import shutil
 import subprocess
 import sys
 import threading
+import time
 import typing
 
 import numpy as np
 
+import pypopsyn.simulator.simulate_population_dyn as dyn
+import pypopsyn.simulator.simulate_population_magrot_det as magrot
 import utilities.simulation_helper.parameter_set_generator as psg
 from pypopsyn.simulator.config_simulator import cfg
 
@@ -57,6 +63,140 @@ log = logging.getLogger(__name__)
 
 unpaused = None
 starting = None
+
+
+def safe_copytree(src, dst, retries=3, delay=5):
+    """
+    Safely copy a directory tree with retries.
+
+    Args:
+        src (str): Source directory path.
+        dst (str): Destination directory path.
+        retries (int): Number of retry attempts.
+        delay (int): Delay between retry attempts in seconds.
+
+    Returns:
+        None
+    """
+    for attempt in range(retries):
+        try:
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+            return
+        except Exception as e:
+            # If an error occurs during the copy operation, the function will log the error message, including the
+            # current time and the machine name.
+            current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+            machine_name = platform.node()
+            log.error(
+                f"Error copying from {src} to {dst} at {current_time} on {machine_name}: {e}"
+            )
+
+            if attempt < retries - 1:
+                time.sleep(delay)
+            else:
+                raise
+
+
+def robust_run_simulation_dask(*args, max_attempts=3, delay=5, **kwargs):
+    """
+    Wrapper function to add retry logic to run_simulation_dask.
+
+    Args:
+        *args: Variable length argument list.
+        **kwargs: Arbitrary keyword arguments.
+
+    Returns:
+        None
+    """
+    attempts = 0
+    while attempts < max_attempts:
+        try:
+            run_simulation_dask(*args, **kwargs)
+            # If run_simulation_dask finish successfully, exit function.
+            return
+        except Exception as e:
+            # If an error occurs during the copy operation, the function will log the error message, including the
+            # current time and the machine name.
+            current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+            machine_name = platform.node()
+            log.error(
+                f"Attempt {attempts + 1} failed with error at {current_time} on {machine_name}: {e}"
+            )
+            # Wait for the seconds define in the delay variable before retrying.
+            time.sleep(delay)
+            attempts += 1
+            if attempts == max_attempts:
+                # If the number of attempts reach the maximum number raise an exception.
+                log.error("Maximum retry attempts reached, failing task.")
+                raise
+
+
+def run_simulation_dask(
+    args: dict,
+    simulator_type: str,
+    simulation_output_path: str,
+    simulation_override_json: dict,
+    dyn_data_path: str,
+) -> None:
+    """
+    Run the simulation command, copying the output folder to the node before execution and back to the original location
+    afterward to prevent overload at PIC. Unlike the run_simulation function below, this function does not capture all the
+    terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
+
+    Args:
+        args (SimulationArgs): Arguments required for the simulation, including output directory,
+                               parameter overrides, and optional dynamic data path.
+        simulator_type (str): The type of simulator to use, determining the specific simulation
+                              script to run.
+        simulation_output_path (str): Path to the simulation output folder.
+        simulation_override_json (dict): Dictionary with the parameter values for the override.json file.
+        dyn_data_path (str): dynamical database path.
+    Returns:
+        None
+    """
+
+    # Copy the dynamical database to the node if it is not already there.
+    # This action prevents overloading the PIC with too many calls.
+    try:
+        if not os.path.exists(os.path.basename(dyn_data_path)):
+            safe_copytree(
+                dyn_data_path,
+                os.path.basename(dyn_data_path),
+            )
+        if not os.path.exists("MAGNESIA_population_synthesis"):
+            safe_copytree(
+                "/data/magnesia/software/MAGNESIA_population_synthesis",
+                "MAGNESIA_population_synthesis",
+            )
+        # Generate the output folder with the parameter_override.json file in each node.
+        output_dir_path = pathlib.Path(args.output_dir)
+        output_dir_path.mkdir(parents=True, exist_ok=True)
+
+        with open(args.parameter_override, "w") as f:
+            json.dump(simulation_override_json, f, indent=4, sort_keys=True)
+
+        if simulator_type == "simulate_population_magrot_det":
+            # Call the simulate_population_magrot module.
+            magrot.simulate_population(args)
+        else:
+            dyn.simulate_population(args)
+
+        # Copy the output folder back to the original location.
+        safe_copytree(output_dir_path, simulation_output_path)
+        # Remove the folder to prevent issues with overwriting.
+        shutil.rmtree(output_dir_path)
+
+        log.info(
+            f"Copied output folder back to original location: {simulation_output_path}"
+        )
+
+    except subprocess.CalledProcessError as e:
+        # Log any errors raised during the simulation.
+        log.error(f"Error executing simulation with args: {args}")
+        log.error(f"Error details: {str(e)}")
+        raise
+
+    log.info("Simulation finished")
 
 
 def log_error(e: Exception):
@@ -67,34 +207,6 @@ def log_error(e: Exception):
         e (Exception): The exception to log.
     """
     log.error("An error occurred during the simulation.", exc_info=e)
-
-
-def run_simulation_dask(command: str) -> None:
-    """
-    Run the simulation command. Unlike the run_simulation function below, this function does not capture all the
-    terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
-
-    Args:
-        command (str): Full command to execute the simulation.
-
-    Returns:
-        None
-    """
-    log.info(f"Launching simulation: {command}")
-
-    try:
-        # Execute the simulation command.
-        subprocess.run(command, shell=True, check=True)
-    except subprocess.CalledProcessError as e:
-        # Log any errors raised by the subprocess.
-        log.error(f"Error executing command: {command}")
-        if e.output is not None:
-            log.error(f"Command output: {e.output.decode('utf-8')}")
-        else:
-            log.error("No command output available")
-        raise
-
-    log.info("Simulation finished")
 
 
 def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:

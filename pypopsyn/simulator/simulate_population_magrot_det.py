@@ -1189,6 +1189,8 @@ def simulate_population(args) -> None:
 
         # Cleanup. Reset seed to empty value.
         cfg["seed_magrot"] = None
+        cfg["profile_log"] = "profile.log"
+        cfg["profile_json"] = "profile.json"
 
 
 if __name__ == "__main__":

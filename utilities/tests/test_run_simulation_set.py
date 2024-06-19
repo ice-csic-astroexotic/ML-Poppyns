@@ -11,7 +11,7 @@ import logging
 import multiprocessing as mp
 import pathlib
 import subprocess
-from unittest.mock import patch
+from unittest import mock
 
 import pytest
 
@@ -26,32 +26,47 @@ def mock_subprocess_check_output(monkeypatch):
     monkeypatch.setattr(subprocess, "check_output", mock_check_output)
 
 
-@pytest.fixture
-def mock_subprocess_run():
-    """
-    Mock subprocess.run() function.
-    """
-    with patch("subprocess.run") as mock_run:
-        yield mock_run
+class MockArgs:
+    def __init__(self, output_dir, parameter_override, dyn_data):
+        self.output_dir = output_dir
+        self.parameter_override = parameter_override
+        self.dyn_data = dyn_data
 
 
-def test_run_simulation_dask(mock_subprocess_run, caplog):
+def test_run_simulation_dask(caplog):
     """
     Test the run_simulation_dask method.
     """
-    command = "some_command"
-    caplog.set_level(logging.INFO)
-    # Call the function being tested.
-    rss.run_simulation_dask(command)
+    # Define mock inputs
+    dyn_data_path = "mock_dyn_data_path"
 
-    # Assert that subprocess.run() was called with the correct command.
-    mock_subprocess_run.assert_called_once_with(
-        command, shell=True, check=True
+    args = MockArgs(
+        "mock_output_dir", "mock_parameter_override.json", dyn_data_path
     )
+    simulator_type = "simulate_population_magrot_det"
+    simulation_output_path = "mock_simulation_output_path"
+    simulation_override_json = {"param1": "value1", "param2": "value2"}
 
-    # Check log messages.
-    assert "Launching simulation" in caplog.text
-    assert "Simulation finished" in caplog.text
+    caplog.set_level(logging.INFO)
+
+    with mock.patch("os.path.exists", return_value=True), mock.patch(
+        "shutil.copytree"
+    ), mock.patch("pathlib.Path.mkdir"), mock.patch("json.dump"), mock.patch(
+        "shutil.rmtree"
+    ), mock.patch(
+        "pypopsyn.simulator.simulate_population_magrot_det.simulate_population"
+    ):
+
+        rss.run_simulation_dask(
+            args,
+            simulator_type,
+            simulation_output_path,
+            simulation_override_json,
+            dyn_data_path,
+        )
+
+        assert "Copied output folder back to original location" in caplog.text
+        assert "Simulation finished" in caplog.text
 
 
 def test_run_simulation(mock_subprocess_check_output):
