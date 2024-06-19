@@ -1,52 +1,33 @@
 """
-Models for cross section of the X-ray interstellar absorption.
+    Models for cross section of the X-ray interstellar absorption.
 
-This module translates the Fortran 77 modules written by Monika Balucinska-Church and Dan McCammon into Python.
-For details on these routines see their paper "Photoelectric Absorption Cross Sections with Variable Abundances",
-ApJ 400, 699 (1992), which is based on atomic absorption cross sections from Henke et al. (1982).
-The routines themselves are available for download at https://cdsarc.cds.unistra.fr/viz-bin/cat/VI/62#/browse.
+    This module translates the Fortran 77 modules written by Monika Balucinska-Church and Dan McCammon into Python.
+    For details on these routines see their paper "Photoelectric Absorption Cross Sections with Variable Abundances",
+    ApJ 400, 699 (1992), which is based on atomic absorption cross sections from Henke et al. (1982).
+    The routines themselves are available for download at https://cdsarc.cds.unistra.fr/viz-bin/cat/VI/62#/browse.
 
-The polynomial fits in Balucinska-Church and McCammon (1992) are applicable to the atomic absorption cross sections
-in the energy range of 0.03 -- 10 keV for seventeen elements: hydrogen, helium, carbon, nitrogen, oxygen, neon, sodium,
-magnesium, aluminium, silicon, sulphur, chlorine, argon, calcium, chromium, iron and nickel.
+    The polynomial fits in Balucinska-Church and McCammon (1992) are applicable to the atomic absorption cross sections
+    in the energy range of 0.03 -- 10 keV for seventeen elements: hydrogen, helium, carbon, nitrogen, oxygen, neon, sodium,
+    magnesium, aluminium, silicon, sulphur, chlorine, argon, calcium, chromium, iron and nickel.
 
-The functions fit Henke's data points with a typical error of 2% and a maximum error of 7%, except for points below
-~40eV for argon, calcium and sodium, where the errors are larger. The effective cross section per hydrogen atom for
-a particular set of elemental abundances may be calculated from the individual cross sections. For more detail see
-Balucinska-Church and McCammon (1992)
+    The functions fit Henke's data points with a typical error of 2% and a maximum error of 7%, except for points below
+    ~40eV for argon, calcium and sodium, where the errors are larger. The effective cross section per hydrogen atom for
+    a particular set of elemental abundances may be calculated from the individual cross sections. For more detail see
+    Balucinska-Church and McCammon (1992)
 
-The underlying data (except for helium) are from: B. L. Henke, P. Lee, T. J. Tanaka, R. L. Shimabukuro and
-B. K. Fujikawa, Atomic Data and Nuclear Data Tables, 27, 1 (1982)
-The mass absorption coefficients for helium are in better agreement with the best experiments as well as theoretical
-models (see W. F. Chen, G. Cooper, and C. E. Brion, Phys. Rev. A, 44, 186 (1991)).
+    The underlying data (except for helium) are from: B. L. Henke, P. Lee, T. J. Tanaka, R. L. Shimabukuro and
+    B. K. Fujikawa, Atomic Data and Nuclear Data Tables, 27, 1 (1982)
+    The mass absorption coefficients for helium are in better agreement with the best experiments as well as theoretical
+    models (see W. F. Chen, G. Cooper, and C. E. Brion, Phys. Rev. A, 44, 186 (1991)).
 
-Finally note that the cross sections here only take into account the neutral atomic form of the elements and do not
-account for the possibility of ionization and the presence of molecules and grains. However, including these effects
-would give only a minor correction to the cross sections (see Wilms, Allen, McCray 2000).
+    Finally note that the cross sections here only take into account the neutral atomic form of the elements and do not
+    account for the possibility of ionization and the presence of molecules and grains. However, including these effects
+    would give only a minor correction to the cross sections (see Wilms, Allen, McCray 2000).
 
 
-    Authors:
+        Authors:
 
-        Michele Ronchi (ronchi@ice.csic.es)
-
-MIT License
-
-Copyright (c) MAGNESIA (ICE-CSIC) 2024
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+            Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import numpy as np

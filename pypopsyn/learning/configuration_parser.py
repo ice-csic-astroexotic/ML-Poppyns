@@ -1,11 +1,9 @@
-""" Configuration Parser.
+"""
+    Configuration parser.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import datetime

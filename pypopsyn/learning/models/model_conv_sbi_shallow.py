@@ -1,27 +1,10 @@
 """
-Model for a convolutional neural network
+    Model for a shallow convolutional neural network used as an embedding network in the sbi framework to compress the
+    input features into a latent vector.
 
-Authors:
+    Authors:
 
-    Michele Ronchi (ronchi@ice.csic.es)
-    Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-Copyright (c) MAGNESIA (ICE-CSIC)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import numpy as np
@@ -32,21 +15,21 @@ import torch.nn.functional as F
 from .model_base import ModelBase
 
 
-class ModelConvSBI(ModelBase):
+class ModelConvSBIshallow(ModelBase):
 
-    """A convolutional neural network Model"""
+    """A convolutional neural network model with 2 convolutional filters."""
 
     def __init__(
         self, input_shape: np.array, len_output_layer: int = 1
     ) -> None:
 
         """
-        CNN Model Initialization.
+        CNN model initialization.
         This CNN automatically adapts to the shape of the initial input features.
 
         Args:
             input_shape: Shape of the input batch (C x H x W).
-            num_parameters: Number of parameters to predict.
+            len_output_layer: length of the latent vector.
 
         """
 

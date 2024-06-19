@@ -1,23 +1,21 @@
-""" Metric Tracker.
+"""
+    Metric tracker.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import pandas as pd
 
 
 class MetricTracker:
-    """ Metric Tracker.
+    """Metric tracker.
 
-        This class is responsible for keeping track of metrics throughout
-        training and testing. It is able to update the values, add new
-        metrics to be tracked, reset them all or extract higher-level info.
-        such as averaging.
+    This class is responsible for keeping track of metrics throughout
+    training and testing. It is able to update the values, add new
+    metrics to be tracked, reset them all or extract higher-level info.
+    such as averaging.
 
     """
 
@@ -41,7 +39,7 @@ class MetricTracker:
         self.reset()
 
     def reset(self) -> None:
-        """ Resets all tracked metrics values to zero.
+        """Resets all tracked metrics values to zero.
 
         Args:
             None.
@@ -55,7 +53,7 @@ class MetricTracker:
             self._data[col].values[:] = 0
 
     def update(self, key, value, n=1) -> None:
-        """ Metric update.
+        """Metric update.
 
         Updates a given metric adding the provided value and a specified count.
         If the metric is not yet tracked, it creates a new track for it.

@@ -17,31 +17,16 @@
     NOTE: if an error occurs in one of the simulations, the script will not stop until all the processes have been
     terminated. The error will be only shown in the terminal in this case.
 
-    Running the code:
+    Display help message to run the code:
 
-        python simulator_helper_sbi.py --h
-        To obtain help about all the arguments that can be used.
+    python run_simulation_set_sbi.py --h
+
+    Displays all the relevant arguments that can be used.
 
     Authors:
 
         Celsa Pardo Araujo (pardo@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC) 2020
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
 """
 
 import json

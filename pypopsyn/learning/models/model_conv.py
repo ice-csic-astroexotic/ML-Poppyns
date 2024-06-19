@@ -1,27 +1,10 @@
 """
-Model for a convolutional neural network
+    Model for a convolutional neural network.
 
-Authors:
+    Authors:
 
-    Michele Ronchi (ronchi@ice.csic.es)
-    Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-Copyright (c) MAGNESIA (ICE-CSIC)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+        Michele Ronchi (ronchi@ice.csic.es)
+        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
 import numpy as np
@@ -34,12 +17,12 @@ from .model_base import ModelBase
 
 class ModelConv(ModelBase):
 
-    """ A convolutional neural network Model """
+    """A convolutional neural network model"""
 
     def __init__(self, input_shape: np.array, num_parameters: int = 1) -> None:
 
         """
-        CNN Model Initialization.
+        CNN model initialization.
         This CNN automatically adapts to the shape of the initial input features.
 
         Args:
