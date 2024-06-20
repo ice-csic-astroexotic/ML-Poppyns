@@ -120,7 +120,9 @@ def simulate_population(args) -> None:
         ) as timer:
 
             # Generate an initial neutron star population.
-            NS_population_initial = ipop.InitialNeutronStarPopulation()
+            NS_population_initial = ipop.InitialNeutronStarPopulation(
+                cfg["NS_number"]
+            )
 
             # Generating ages.
             log.info("Randomizing population age...")
