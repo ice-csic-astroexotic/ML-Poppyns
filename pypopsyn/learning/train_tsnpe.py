@@ -28,7 +28,6 @@ import argparse
 import collections
 import pathlib
 import pickle
-import subprocess
 import sys
 import time
 from logging import Logger
@@ -50,8 +49,8 @@ import pypopsyn.learning.initializers.initializers as learning_initializers
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
 import pypopsyn.learning.models.models as learning_models
 import utilities.benchmark.timewith as timewith
+from pypopsyn.generator.generate_dataset_surveys import generate_dataset
 from pypopsyn.learning.utils.request_device import request_device
-from pypopsyn.simulator.config_simulator import cfg
 from utilities.coverage_probability import coverage_prob
 from utilities.simulation_helper.run_simulation_set_sbi import (
     initialize_dask_cluster,
@@ -209,7 +208,7 @@ def wrapper_pypopsyn(
     dyn_data_path = config["dyn_data_loader"]["dataset_path"]
     args_dict = {
         "dyn_data": dyn_data_path,
-        "output_dir": sim_dir_path,
+        "save_dir": sim_dir_path,
         "simulator_type": "simulate_population_magrot_det",
         "sampling_size": num_sim,
         "P_initial_log10_mean": [
@@ -235,20 +234,13 @@ def wrapper_pypopsyn(
         "processes": config["n_processes"],
     }
 
-    # Constructing the command to generate the density map of the simulations.
-    software_path = cfg["path_to_software"]
-    command = [
-        "python",
-        f"{software_path}pypopsyn/generator/generate_dataset_surveys.py",
-        "--data",
-        str(sim_dir_path),
-        "--save_dir",
-        str(dataset_path),
-        "--resolution_ppdot",
-        str(config["arch"]["args"]["input_shape"][1]),
-        "--data_type",
-        "array",
-    ]
+    args_gen = argparse.Namespace(
+        data=str(sim_dir_path),
+        save_dir=str(dataset_path),
+        resolution_ppdot=config["arch"]["args"]["input_shape"][1],
+        resolution_dyn=32,
+        data_type="array",
+    )
 
     # Running the simulations and generating the corresponding density maps for each simulation. The simulations are run
     # in a multithreaded manner. If config["enable_dask"] is equal to True, then multithreading will be performed with
@@ -259,7 +251,8 @@ def wrapper_pypopsyn(
     else:
         simulator_multiprocess(args_dict, proposal, dataset)
 
-    subprocess.run(command)
+    # Call the generate_dataset function directly.
+    generate_dataset(args_gen)
 
     return dataset_path
 
@@ -772,13 +765,6 @@ def train(args, config):
                             observed_samples_proposal,
                             f"{save_dir_round}/samples_prior_{i+1}.pt",
                         )
-
-                logger.info(f"Saving the trained model for round {i}...")
-
-                with open(
-                    f"{save_dir_round}/trained_model_{i}.pickle", "wb"
-                ) as output_file:
-                    pickle.dump(density_estimator.cpu(), output_file)
 
                 logger.info(
                     f"Inferring the parameters for the observed sample for round {i}..."

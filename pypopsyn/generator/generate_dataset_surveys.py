@@ -127,7 +127,7 @@ def create_survey_maps(
         df_survey["RA"],
         df_survey["DEC"],
         resolution_dyn,
-        int(args.resolution_dyn / 2),
+        int(resolution_dyn / 2),
         dictionary_position_map_radec,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
