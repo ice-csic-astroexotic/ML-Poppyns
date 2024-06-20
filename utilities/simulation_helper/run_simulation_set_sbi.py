@@ -57,7 +57,7 @@ from utilities.simulation_helper.run_simulation_set import (
 
 log = logging.getLogger(__name__)
 
-# Forcing Dask to wait 120 s before considering an unresponsive worker as dead
+# Forcing Dask to wait 120 s before considering an unresponsive worker as dead.
 dask.config.set({"distributed.comm.timeouts.tcp": "120s"})
 
 

@@ -75,43 +75,51 @@ def log_error(e: Exception):
     log.error("An error occurred during the simulation.", exc_info=e)
 
 
-def safe_copytree(src, dst, retries=3, delay=5):
+def safe_copytree(
+    src: str, dst: str, max_attempts: int = 3, delay: int = 5
+) -> None:
     """
-    Safely copy a directory tree with retries.
+    Safely copy a directory tree with retries. This function attempts to copy a directory tree from the source path to
+    the destination path. If the copy operation fails (e.g., due to connection issues), it will retry the operation
+    a specified number of times with a delay between each attempt.
 
     Args:
         src (str): Source directory path.
         dst (str): Destination directory path.
-        retries (int): Number of retry attempts. Default is 3 retries.
+        max_attempts (int): Maximum number of retry attempts. Default is 3 retries.
         delay (int): Delay between retry attempts in seconds. Default is 5 seconds.
 
     Returns:
         None
     """
-    for attempt in range(retries):
+    attempts = 0
+    while attempts < max_attempts:
         try:
             shutil.copytree(src, dst, dirs_exist_ok=True)
+            # If copytree finishes successfully, exit function.
             return
         except Exception as e:
-            # If an error occurs during the copy operation, the function will log the error message, including the
-            # current time and the machine name.
+            # If an error occurs during the copy operation, log the error message,including the current time and the
+            # machine name.
             current_time = time.strftime("%Y-%m-%d %H:%M:%S")
             machine_name = platform.node()
             log.error(
-                f"Error copying from {src} to {dst} at {current_time} on {machine_name}: {e}"
+                f"Attempt {attempts + 1} failed with error at {current_time} on {machine_name}: {e}"
             )
-
-            if attempt < retries - 1:
-                # Wait for the specified delay before retrying. This allows time for transient issues
-                # (e.g., unstable connection) to be resolved.
-                time.sleep(delay)
-            else:
+            # Wait for the seconds defined in the delay variable before retrying.
+            time.sleep(delay)
+            attempts += 1
+            if attempts == max_attempts:
+                # If the number of attempts reaches the maximum number, raise an exception.
+                log.error("Maximum retry attempts reached, failing task.")
                 raise
 
 
 def robust_run_simulation_dask(*args, max_attempts=3, delay=5, **kwargs):
     """
-    Wrapper function to add retry logic to run_simulation_dask.
+    This function wraps around the run_simulation_dask function, adding retry logic to handle transient issues
+    (e.g., connection problems). If an error occurs during the run_simulation_dask function, it will retry the operation
+    a specified number of times with a delay between each attempt.
 
     Args:
         *args: Variable length argument list.
@@ -169,7 +177,7 @@ def run_simulation_dask(
         None
     """
 
-    # Copy the dynamical database adn the repository to the node if it is not already there.
+    # Copy the dynamical database and the repository to the node if it is not already there.
     # This action prevents overloading the PIC with too many calls.
     try:
         if not os.path.exists(os.path.basename(dyn_data_path)):
