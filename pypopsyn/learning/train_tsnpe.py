@@ -766,13 +766,6 @@ def train(args, config):
                             f"{save_dir_round}/samples_prior_{i+1}.pt",
                         )
 
-                logger.info(f"Saving the trained model for round {i}...")
-
-                with open(
-                    f"{save_dir_round}/trained_model_{i}.pickle", "wb"
-                ) as output_file:
-                    pickle.dump(density_estimator.cpu(), output_file)
-
                 logger.info(
                     f"Inferring the parameters for the observed sample for round {i}..."
                 )
