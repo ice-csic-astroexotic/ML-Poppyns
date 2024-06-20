@@ -807,14 +807,14 @@ def train(args, config):
                             f"Loading the test dataset for round {real_round}..."
                         )
                         if resume:
-                            train_dataset_all_round_path = (
+                            test_dataset_all_round_path = (
                                 pathlib.Path().joinpath(
                                     config["test_data_loader"]["dataset_path"],
                                     "generated_dataset",
                                 )
                             )
                             test_dataset_path = merge_all_rounds_dataset(
-                                train_dataset_all_round_path
+                                test_dataset_all_round_path
                             )
                         else:
                             test_dataset_path = config["test_data_loader"][
