@@ -26,6 +26,7 @@
 
 import argparse
 import collections
+import os
 import pathlib
 import pickle
 import sys
@@ -36,6 +37,7 @@ from typing import Optional, Tuple
 import corner
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import torch
 from sbi import utils
 from sbi.inference import SNPE
@@ -321,6 +323,47 @@ def corner_plot(
     plt.close()
 
 
+def merge_all_rounds_dataset(base_path):
+    """
+    Merge all dataset_full.csv files from each round into a single dataframe.
+
+    Args:
+        base_path (Path): The base path where the generated datasets are stored.
+
+    Returns:
+        pd.DataFrame: The merged dataset.
+    """
+    # Initialize an empty list to hold the dataframes
+    dataframes = []
+
+    # Iterate through the directories to find all rounds
+    round_num = 0
+    while True:
+        round_path = os.path.join(base_path, f"round_{round_num}")
+        dataset_path = os.path.join(round_path, "dataset_full.csv")
+
+        # Check if the dataset file exists
+        if os.path.exists(dataset_path):
+            # Read the dataset and append to the list
+            df = pd.read_csv(dataset_path)
+            dataframes.append(df)
+            round_num += 1
+        else:
+            break
+
+    # Merge all dataframes
+    merged_df = pd.concat(dataframes, ignore_index=True)
+    # Define the output path
+    output_path = os.path.join(base_path, f"combine_round_{round_num-1}")
+    os.makedirs(output_path, exist_ok=True)
+    merged_dataset_path = os.path.join(output_path, "dataset_full.csv")
+
+    # Save the merged dataframe to a CSV file
+    merged_df.to_csv(merged_dataset_path, index=False)
+
+    return output_path
+
+
 def prepare_dataset_sbi(
     train_data_set: str,
     config: configuration_parser.ConfigurationParser,
@@ -394,6 +437,147 @@ def prepare_dataset_sbi(
     return dataset, parameter, matrix
 
 
+def amortized_posterior(
+    config,
+    save_dir_round,
+    logger,
+    inference,
+    parameter_round,
+    matrix_round,
+    device,
+    round_current,
+    prior,
+):
+    """
+    Train the density estimator for a given round.
+
+    Args:
+        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
+        save_dir_round (Path): Directory where the trained model will be saved or is saved already.
+        logger (Logger): Logger object.
+        inference (SBIInference): SBI inference object.
+        parameter_round (torch.Tensor): Tensor containing the parameters for the current round.
+        matrix_round (torch.Tensor): Tensor containing the matrices for the current round.
+        device (torch.device): Device used for training.
+        round_current (int): Current round number.
+        prior ()
+    Returns:
+        density_estimator: Trained density estimator or ensemble of estimators.
+    """
+    logger.info(f"Training density estimator for round {round_current}...")
+
+    ensemble_size = config["trainer"]["size_ensemble"]
+    resume = config["resume_training"]["resume"]
+    # In order to have the logs properly done we need to log the proper number of the round when we are in resume mode.
+    if resume:
+        real_round = round_current + config["resume_training"]["last_round"]
+    else:
+        real_round = round_current
+
+    if config["trainer"]["ensemble"]:
+
+        posteriors_list = []
+        for index in range(ensemble_size):
+            trained_model_path = os.path.join(
+                save_dir_round, f"trained_model_ensemble_{index}.pickle"
+            )
+
+            if resume and round_current == 0:
+                with open(trained_model_path, "rb") as f:
+                    density_estimator = pickle.load(f)
+                logger.info(
+                    f"Loaded pre-trained model for round {real_round}, ensemble index {index}."
+                )
+            else:
+                density_estimator = inference.append_simulations(
+                    parameter_round.to(device), matrix_round.to(device)
+                ).train(
+                    learning_rate=config["trainer"]["lr"],
+                    training_batch_size=config["trainer"]["batch_size"],
+                    validation_fraction=config["trainer"][
+                        "validation_fraction"
+                    ],
+                    show_train_summary=True,
+                    force_first_round_loss=True,
+                )
+                logger.info(
+                    f"Trained density estimator for round {real_round}, ensemble index {index}."
+                )
+
+                with open(trained_model_path, "wb") as output_file:
+                    pickle.dump(density_estimator.cpu(), output_file)
+                logger.info(
+                    f"Saved trained model for round {real_round}, ensemble index {index}."
+                )
+
+            posterior_ensemble = inference.build_posterior(
+                density_estimator.to(device), prior=prior
+            )
+            posteriors_list.append(posterior_ensemble)
+
+        weights_ensemble = torch.ones(ensemble_size) / ensemble_size
+        posterior = NeuralPosteriorEnsemble(
+            posteriors_list, weights=weights_ensemble.to(device)
+        )
+    else:
+        trained_model_path = os.path.join(
+            save_dir_round, "trained_model.pickle"
+        )
+        if resume and round_current == 0:
+            with open(trained_model_path, "rb") as f:
+                density_estimator = pickle.load(f)
+            logger.info(f"Loaded pre-trained model for round {real_round}.")
+        else:
+            density_estimator = inference.append_simulations(
+                parameter_round.to(device), matrix_round.to(device)
+            ).train(
+                learning_rate=config["trainer"]["lr"],
+                training_batch_size=config["trainer"]["batch_size"],
+                validation_fraction=config["trainer"]["validation_fraction"],
+                show_train_summary=True,
+                force_first_round_loss=True,
+            )
+            logger.info(f"Trained density estimator for round {real_round}.")
+
+            with open(trained_model_path, "wb") as output_file:
+                pickle.dump(density_estimator.cpu(), output_file)
+            logger.info(f"Saved trained model for round {real_round}.")
+
+        posterior = inference.build_posterior(
+            density_estimator.to(device), prior=prior
+        )
+    return posterior
+
+
+def compute_proposal_prior(posterior_obs, config, prior, device):
+    # Computing the region of the posterior distribution used to constrain the prior.
+    accept_reject_fn = utils.get_density_thresholder(
+        posterior_obs,
+        quantile=1e-4,
+        num_samples_to_estimate_support=10000,
+    )
+    # Computing the new proposal by restricting the prior to the posterior of the observation.
+    # If config["sir"] is set to true, the restricted prior sampling uses sampling importance
+    # resampling (Rubin et al., 1988); otherwise, it employs rejection sampling. Note that the latter
+    # method may take longer for a narrowed posterior distribution where the rejection rate is high.
+    if config["trainer"]["sir"]:
+        proposal = utils.RestrictedPrior(
+            prior,
+            accept_reject_fn,
+            posterior=posterior_obs,
+            sample_with="sir",
+            device=f"{device}",
+        )
+    else:
+        proposal = utils.RestrictedPrior(
+            prior,
+            accept_reject_fn,
+            sample_with="rejection",
+            device=f"{device}",
+        )
+    return proposal
+
+
 def train(args, config):
     """
     Training a density estimator to infer the posterior distribution at the observed population with the truncated
@@ -422,6 +606,7 @@ def train(args, config):
     logger.info("Requesting {} GPUs...".format(config["n_gpu"]))
     device, device_ids = request_device(logger, config["n_gpu"])
     logger.info("Devices obtained: {}".format(device_ids))
+    resume = config["resume_training"]["resume"]
 
     if config["enable_dask"]:
         with timewith.TimeWith(
@@ -448,17 +633,25 @@ def train(args, config):
             config["show_profiling"],
         ):
             logger.info("Loading the training dataset for the first round...")
-            train_dataset_path = config["training_data_loader"][
-                "dataset_path_first_round"
-            ]
 
+            if resume:
+                train_dataset_all_round_path = pathlib.Path().joinpath(
+                    config["training_data_loader"]["dataset_path"],
+                    "generated_dataset",
+                )
+                train_dataset_path = merge_all_rounds_dataset(
+                    train_dataset_all_round_path
+                )
+            else:
+                train_dataset_path = config["training_data_loader"][
+                    "dataset_path_first_round"
+                ]
             logger.info(
                 "Preparing the training data set for sbi for the first round..."
             )
             dataset, parameter, matrix = prepare_dataset_sbi(
                 train_dataset_path, config, logger
             )
-
             n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
             num_rounds = config["trainer"]["num_rounds"]
 
@@ -503,25 +696,44 @@ def train(args, config):
                     device=f"{device}",
                 )
 
-            # At the first round, we set the proposal equal to the prior.
+            logger.info("Building the neural network...")
+            inference = build_network(config, device)
+
+            # Create the matrix for the observed sample of neutron stars.
+            _, _, x_o = prepare_dataset_sbi(
+                config["observed_sample"]["dataset_path"],
+                config,
+                logger,
+                atnf=True,
+            )
             proposal = prior
 
             # Lists to store parameters and matrices from each round.
             parameter_list = []
             matrix_list = []
 
-            logger.info("Building the neural network...")
-            inference = build_network(config, device)
-
         for i in range(num_rounds):
+            # Creating a folder to save the model, coverage and posterior distribution for each round.
+            if resume:
+                real_round = i + config["resume_training"]["last_round"]
+                save_dir_round = (
+                    config["resume_training"]["trained_model"]
+                    / f"round_{real_round}"
+                )
+
+            else:
+                real_round = i
+                save_dir_round = config.save_dir / f"round_{i}"
+            save_dir_round.mkdir(parents=True, exist_ok=True)
+
             with timewith.TimeWith(
-                f"[TotalRound{i}]",
+                f"[TotalRound{real_round}]",
                 prof_log_path,
                 prof_json_path,
                 config["show_profiling"],
             ):
                 with timewith.TimeWith(
-                    f"[TrainingRound{i}]",
+                    f"[TrainingRound{real_round}]",
                     prof_log_path,
                     prof_json_path,
                     config["show_profiling"],
@@ -529,15 +741,11 @@ def train(args, config):
 
                     num_sim_train = config["training_data_loader"]["num_sim"]
 
-                    # Creating a folder to save the model, coverage and posterior distribution for each round.
-                    save_dir_round = config.save_dir / f"round_{i}"
-                    save_dir_round.mkdir(parents=True, exist_ok=True)
-
                     # In the first round, instead of simulating the training dataset, we use the simulations
                     # previously run.
                     if i > 0:
                         logger.info(
-                            f"Training, ------------------------------- round {i} -------------------------------------"
+                            f"Training, ------------------------------- round {real_round} -------------------------------------"
                         )
 
                         logger.info(
@@ -549,7 +757,7 @@ def train(args, config):
                             proposal,
                             config=config,
                             num_sim=num_sim_train,
-                            round_current=i,
+                            round_current=real_round,
                             test=False,
                             dataset=dataset,
                             device=device,
@@ -570,89 +778,20 @@ def train(args, config):
                     matrix_round = torch.cat(matrix_list, dim=0)
 
                     logger.info(
-                        f"Training the density estimator with {parameter_round.shape[0]} samples in round {i} ..."
+                        f"Training the density estimator with {parameter_round.shape[0]} samples in round {real_round} ..."
                     )
 
-                    # If config["ensemble"] is set to 'True', instead of training a single neural network,
-                    # 'config["size_ensemble"]' neural networks are trained to construct an ensemble of posteriors.
-                    # This will prevent narrow posteriors.
-                    if config["trainer"]["ensemble"]:
-                        size_ensemble = config["trainer"]["size_ensemble"]
-
-                        logger.info(
-                            f"Training an ensemble of {size_ensemble} mixture density networks..."
-                        )
-                        posteriors_list = []
-
-                        for index in range(size_ensemble):
-                            # Training each of the networks that will create the ensemble.
-                            density_estimator = inference.append_simulations(
-                                parameter_round.to(device),
-                                matrix_round.to(device),
-                            ).train(
-                                learning_rate=config["trainer"]["lr"],
-                                training_batch_size=config["trainer"][
-                                    "batch_size"
-                                ],
-                                validation_fraction=config["trainer"][
-                                    "validation_fraction"
-                                ],
-                                show_train_summary=True,
-                                force_first_round_loss=True,
-                            )
-                            # Build the posterior object for each trained network.
-                            posterior_ensemble = inference.build_posterior(
-                                density_estimator.to(device), prior=prior
-                            )
-                            logger.info(
-                                f"Saving the trained model for round {i}..."
-                            )
-
-                            with open(
-                                f"{save_dir_round}/trained_model_ensemble_{index}.pickle",
-                                "wb",
-                            ) as output_file:
-                                pickle.dump(
-                                    density_estimator.cpu(), output_file
-                                )
-
-                            posteriors_list.append(posterior_ensemble)
-                        # Setting the weights of each ensemble posterior directly to enable the use of a GPU.
-                        weights_ensemble = (
-                            torch.ones(size_ensemble) / size_ensemble
-                        )
-                        # Build the ensemble using the trained neural networks.
-                        posterior = NeuralPosteriorEnsemble(
-                            posteriors_list,
-                            weights=weights_ensemble.to(device),
-                        )
-
-                    else:
-                        # If config["ensemble"] is set to False, only a single neural network will be trained to
-                        # approximate the posterior distribution.
-                        density_estimator = inference.append_simulations(
-                            parameter_round.to(device), matrix_round.to(device)
-                        ).train(
-                            learning_rate=config["trainer"]["lr"],
-                            training_batch_size=config["trainer"][
-                                "batch_size"
-                            ],
-                            validation_fraction=config["trainer"][
-                                "validation_fraction"
-                            ],
-                            show_train_summary=True,
-                            force_first_round_loss=True,
-                        )
-
-                        with open(
-                            f"{save_dir_round}/trained_model.pickle",
-                            "wb",
-                        ) as output_file:
-                            pickle.dump(density_estimator.cpu(), output_file)
-
-                        posterior = inference.build_posterior(
-                            density_estimator.to(device), prior=prior
-                        )
+                    posterior = amortized_posterior(
+                        config,
+                        save_dir_round,
+                        logger,
+                        inference,
+                        parameter_round,
+                        matrix_round,
+                        device,
+                        i,
+                        prior,
+                    )
 
                 with timewith.TimeWith(
                     f"[TestingRound{i}]",
@@ -665,11 +804,22 @@ def train(args, config):
 
                     if i == 0:
                         logger.info(
-                            "Loading the test dataset for the first round..."
+                            f"Loading the test dataset for round {real_round}..."
                         )
-                        test_dataset_path = config["test_data_loader"][
-                            "dataset_path_first_round"
-                        ]
+                        if resume:
+                            train_dataset_all_round_path = (
+                                pathlib.Path().joinpath(
+                                    config["test_data_loader"]["dataset_path"],
+                                    "generated_dataset",
+                                )
+                            )
+                            test_dataset_path = merge_all_rounds_dataset(
+                                train_dataset_all_round_path
+                            )
+                        else:
+                            test_dataset_path = config["test_data_loader"][
+                                "dataset_path_first_round"
+                            ]
 
                     else:
                         logger.info(
@@ -681,7 +831,7 @@ def train(args, config):
                             proposal,
                             config=config,
                             num_sim=num_sim_test,
-                            round_current=i,
+                            round_current=real_round,
                             test=True,
                             dataset=dataset,
                             device=device,
@@ -706,47 +856,19 @@ def train(args, config):
                     coverage_prob(hdr, n_betas=12, save_dir=save_dir_round)
 
                 with timewith.TimeWith(
-                    f"[ComputeRestrictedPriorRound{i}]",
+                    f"[ComputeRestrictedPriorRound{real_round}]",
                     prof_log_path,
                     prof_json_path,
                     config["show_profiling"],
                 ):
                     logger.info(
-                        f"Computing the proposal prior for round {i + 1}..."
+                        f"Computing the proposal prior for round {real_round + 1}..."
                     )
-                    # Create the matrix for the observed sample of neutron stars.
-                    _, _, x_o = prepare_dataset_sbi(
-                        config["observed_sample"]["dataset_path"],
-                        config,
-                        logger,
-                        atnf=True,
-                    )
-                    # Computing the region of the posterior distribution used to constrain the prior.
+
                     posterior_obs = posterior.set_default_x(x_o)
-                    accept_reject_fn = utils.get_density_thresholder(
-                        posterior_obs,
-                        quantile=1e-4,
-                        num_samples_to_estimate_support=10000,
+                    proposal = compute_proposal_prior(
+                        posterior_obs, config, prior, device
                     )
-                    # Computing the new proposal by restricting the prior to the posterior of the observation.
-                    # If config["sir"] is set to true, the restricted prior sampling uses sampling importance
-                    # resampling (Rubin et al., 1988); otherwise, it employs rejection sampling. Note that the latter
-                    # method may take longer for a narrowed posterior distribution where the rejection rate is high.
-                    if config["trainer"]["sir"]:
-                        proposal = utils.RestrictedPrior(
-                            prior,
-                            accept_reject_fn,
-                            posterior=posterior_obs,
-                            sample_with="sir",
-                            device=f"{device}",
-                        )
-                    else:
-                        proposal = utils.RestrictedPrior(
-                            prior,
-                            accept_reject_fn,
-                            sample_with="rejection",
-                            device=f"{device}",
-                        )
 
                     if args.plot_proposal:
                         # If `args.plot_proposal` is set to True, a corner plot of the proposal distribution will be
@@ -758,16 +880,16 @@ def train(args, config):
                         corner_plot(
                             observed_samples_proposal,
                             dataset,
-                            f"{save_dir_round}/corner_plot_prior_round_{i+1}.pdf",
+                            f"{save_dir_round}/corner_plot_prior_round_{real_round+1}.pdf",
                         )
                         # Save the samples from the inferred posterior distribution.
                         torch.save(
                             observed_samples_proposal,
-                            f"{save_dir_round}/samples_prior_{i+1}.pt",
+                            f"{save_dir_round}/samples_prior_{real_round+1}.pt",
                         )
 
                 logger.info(
-                    f"Inferring the parameters for the observed sample for round {i}..."
+                    f"Inferring the parameters for the observed sample for round {real_round}..."
                 )
 
                 observed_samples_posterior = posterior_obs.sample(
@@ -776,12 +898,15 @@ def train(args, config):
                 corner_plot(
                     observed_samples_posterior,
                     dataset,
-                    f"{save_dir_round}/corner_plot_observed_sample_{i}.pdf",
+                    f"{save_dir_round}/corner_plot_observed_sample_{real_round}.pdf",
                 )
                 torch.save(
                     observed_samples_posterior,
-                    f"{save_dir_round}/samples_posterior_{i}.pt",
+                    f"{save_dir_round}/samples_posterior_{real_round}.pt",
                 )
+
+            if real_round == num_rounds:
+                break
 
         if config["enable_dask"]:
             # Closing the cluster once the training has finished.

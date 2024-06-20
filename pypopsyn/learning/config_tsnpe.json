@@ -4,7 +4,7 @@
   "enable_dask": false,
   "n_processes": 4,
   "workers_dask": 4,
-  "set_manual_seed": false,
+  "set_manual_seed": true,
   "manual_seed": 42,
   "profile_log": "profile.log",
   "profile_json": "profile.json",
@@ -60,6 +60,13 @@
       "dataset_path": "/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/observed_ATNF_res32"
       },
   
+"resume_training": {
+    "resume": false,
+    "trained_model": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/learning/models/SBI_ConvolutionMDN/20240619_201818",
+    "last_round": 7,
+    "save_dir": "path_to_save_dir",
+    "log_dir": "path_to_log"
+    },
 
   "trainer": {
     "ensemble": true,

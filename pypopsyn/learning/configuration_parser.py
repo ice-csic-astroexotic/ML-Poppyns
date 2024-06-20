@@ -33,33 +33,41 @@ class ConfigurationParser:
             configuration, options
         )
 
-        # TODO: Not used now, will be able to resume training from checkpoint.
         self.resume = resume
 
-        # Generate a name for the experiment/run.
-        run_name = self._configuration["name"]
-        if run_id is None:
-            run_id = datetime.datetime.now().strftime(r"%Y%m%d_%H%M%S")
-
-        # Set save directory where the trained model or the inference results will be saved.
-        if infer:
-            save_dir = pathlib.Path(self._configuration["infer"]["save_dir"])
+        if self.resume:
+            self.save_dir = self._configuration["resume_training"]["save_dir"]
+            self.log_dir = self._configuration["resume_training"]["log_dir"]
         else:
-            save_dir = pathlib.Path(self._configuration["trainer"]["save_dir"])
 
-            # Create directory for saving the model.
-            self.save_dir = pathlib.Path().joinpath(
-                save_dir, "models", run_name, run_id
+            # Generate a name for the experiment/run.
+            run_name = self._configuration["name"]
+            if run_id is None:
+                run_id = datetime.datetime.now().strftime(r"%Y%m%d_%H%M%S")
+
+            # Set save directory where the trained model or the inference results will be saved.
+            if infer:
+                save_dir = pathlib.Path(
+                    self._configuration["infer"]["save_dir"]
+                )
+            else:
+                save_dir = pathlib.Path(
+                    self._configuration["trainer"]["save_dir"]
+                )
+
+                # Create directory for saving the model.
+                self.save_dir = pathlib.Path().joinpath(
+                    save_dir, "models", run_name, run_id
+                )
+                self.save_dir.mkdir(parents=True, exist_ok=True)
+
+            # Create directory for saving the log file.
+            self.log_dir = pathlib.Path().joinpath(
+                save_dir, "logs", run_name, run_id
             )
-            self.save_dir.mkdir(parents=True, exist_ok=True)
+            self.log_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create directory for saving the log file.
-        self.log_dir = pathlib.Path().joinpath(
-            save_dir, "logs", run_name, run_id
-        )
-        self.log_dir.mkdir(parents=True, exist_ok=True)
-
-        # Configure logging module.
+            # Configure logging module.
         learning_logger.setup_logging(self.log_dir)
 
     @classmethod
