@@ -27,8 +27,8 @@ def mock_subprocess_check_output(monkeypatch):
 
 
 class MockArgs:
-    def __init__(self, output_dir, parameter_override, dyn_data):
-        self.output_dir = output_dir
+    def __init__(self, save_dir, parameter_override, dyn_data):
+        self.save_dir = save_dir
         self.parameter_override = parameter_override
         self.dyn_data = dyn_data
 
