@@ -11,6 +11,10 @@
     to run the simulations simultaneously in a multithreaded manner. To use Dask change the variable `enable_dask` in
     the configuration file to True. Otherwise, change it to False to use multiprocessing.
 
+    Note that there is an option to resume training from a previous run. This allows for training over multiple rounds
+    on a server. If the maximum wall time is reached or if any interruptions occur, the training can be resumed from the
+    last completed round.
+
     For further details, visit https://www.mackelab.org/sbi/.
 
     Display help message to run the code:
@@ -32,7 +36,7 @@ import pickle
 import sys
 import time
 from logging import Logger
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import corner
 import matplotlib.pyplot as plt
@@ -89,7 +93,9 @@ def calculate_smallest_hdr(
         range(theta.size(0)), desc="Computing Coverage Probability"
     ):
         simulation_output = matrix[index]
-        # Adding batch dimension. Converting simulation_output shape from [3,32,32] to [1,3,32,32].
+        # Adding batch dimension (e.g: converting the shape from [3,32,32] to [1,3,32,32]), this is needed for the sbi
+        # new version.
+
         simulation_output = simulation_output.unsqueeze(0)
         true_value = theta[index]
         posterior_samples = posterior.set_default_x(simulation_output).sample(
@@ -439,36 +445,46 @@ def prepare_dataset_sbi(
 
 
 def amortized_posterior(
-    config,
-    save_dir_round,
-    logger,
-    inference,
-    parameter_round,
-    matrix_round,
-    device,
-    round_current,
-    prior,
-):
+    config: configuration_parser.ConfigurationParser,
+    save_dir_round: pathlib.Path,
+    logger: Logger,
+    inference: SNPE_C,
+    parameter_round: torch.Tensor,
+    matrix_round: torch.Tensor,
+    device: torch.device,
+    round_current: int,
+    prior: Union[utils.BoxUniform, utils.RestrictedPrior],
+) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
+
     """
     Train the density estimator for a given round.
+    If resuming is set to True then this mode allows training to continue
+     from the last completed round if interrupted. It uses the previously saved state to resume training without
+     starting over.
+    If ensemble training is enabled, multiple models (an ensemble) are trained and their predictions
+    are combined to ensure conservative coverages. Each of the neural networks will be trained in the same training
+    dataset.
+
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
         save_dir_round (Path): Directory where the trained model will be saved or is saved already.
         logger (Logger): Logger object.
-        inference (SBIInference): SBI inference object.
+        inference (SNPE_C): SBI inference object.
         parameter_round (torch.Tensor): Tensor containing the parameters for the current round.
         matrix_round (torch.Tensor): Tensor containing the matrices for the current round.
         device (torch.device): Device used for training.
         round_current (int): Current round number.
-        prior ()
+        prior (Union[utils.BoxUniform, utils.RestrictedPrior]): Prior distribution.
+
     Returns:
-        density_estimator: Trained density estimator or ensemble of estimators.
+        Union[DirectPosterior, NeuralPosteriorEnsemble]: Trained density estimator or ensemble of estimators.
     """
 
     ensemble_size = config["trainer"]["size_ensemble"]
     resume = config["resume_training"]["resume"]
-    # In order to have the logs properly done we need to log the proper number of the round when we are in resume mode.
+    # If resuming from a previous run, compute the "real" round number to create the proper folder structure and save
+    # files accordingly.
     if resume:
         real_round = round_current + int(
             config["resume_training"]["last_round"]
@@ -477,13 +493,13 @@ def amortized_posterior(
         real_round = round_current
 
     if config["trainer"]["ensemble"]:
-
         posteriors_list = []
         for index in range(ensemble_size):
             trained_model_path = os.path.join(
                 save_dir_round, f"trained_model_ensemble_{index}.pickle"
             )
-
+            # If resuming from a previous round and this is the first iteration, load the training model from
+            # the last completed round of the previous run instead of training again.
             if resume and round_current == 0:
                 with open(trained_model_path, "rb") as f:
                     density_estimator = pickle.load(f)
@@ -525,6 +541,8 @@ def amortized_posterior(
         trained_model_path = os.path.join(
             save_dir_round, "trained_model.pickle"
         )
+        # If resuming from a previous round and this is the first iteration, load the training model from
+        # the last completed round of the previous run instead of training again.
         if resume and round_current == 0:
             with open(trained_model_path, "rb") as f:
                 density_estimator = pickle.load(f)
@@ -551,7 +569,24 @@ def amortized_posterior(
     return posterior
 
 
-def compute_proposal_prior(posterior_obs, config, prior, device):
+def compute_proposal_prior(
+    posterior_obs: DirectPosterior,
+    config: configuration_parser.ConfigurationParser,
+    prior: Union[utils.BoxUniform, utils.RestrictedPrior],
+    device: torch.device,
+) -> utils.RestrictedPrior:
+    """
+    Compute the proposal prior by restricting the prior to the posterior of the observation.
+
+    Args:
+        posterior_obs (DirectPosterior): Posterior distribution at the observation.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
+        prior (Union[utils.BoxUniform, utils.RestrictedPrior]): Prior distribution.
+        device (torch.device): Device used for training.
+
+    Returns:
+        utils.RestrictedPrior: The restricted prior based on the posterior distribution of the observation.
+    """
     # Computing the region of the posterior distribution used to constrain the prior.
     accept_reject_fn = utils.get_density_thresholder(
         posterior_obs,
@@ -716,6 +751,7 @@ def train(args, config):
 
         for i in range(num_rounds):
             # Creating a folder to save the model, coverage and posterior distribution for each round.
+            # If resuming from a previous run, compute the "real" round number to continue from.
             if resume:
                 real_round = i + int(config["resume_training"]["last_round"])
                 save_dir_round = pathlib.Path(
@@ -783,15 +819,15 @@ def train(args, config):
                     )
 
                     posterior = amortized_posterior(
-                        config,
-                        save_dir_round,
-                        logger,
-                        inference,
-                        parameter_round,
-                        matrix_round,
-                        device,
-                        i,
-                        prior,
+                        config=config,
+                        save_dir_round=save_dir_round,
+                        logger=logger,
+                        inference=inference,
+                        parameter_round=parameter_round,
+                        matrix_round=matrix_round,
+                        device=device,
+                        round_current=i,
+                        prior=prior,
                     )
 
                 with timewith.TimeWith(
