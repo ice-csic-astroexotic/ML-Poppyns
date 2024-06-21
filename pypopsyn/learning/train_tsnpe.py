@@ -68,7 +68,6 @@ def calculate_smallest_hdr(
     n_samples_coverage: int,
     device: torch.device,
 ) -> np.ndarray:
-
     """
     Calculating the smallest highest density region of the posterior distribution, that contains the true value for the
     test dataset produced with the values theta and simulation output in matrix.
@@ -90,6 +89,8 @@ def calculate_smallest_hdr(
         range(theta.size(0)), desc="Computing Coverage Probability"
     ):
         simulation_output = matrix[index]
+        # Adding batch dimension. Converting simulation_output shape from [3,32,32] to [1,3,32,32].
+        simulation_output = simulation_output.unsqueeze(0)
         true_value = theta[index]
         posterior_samples = posterior.set_default_x(simulation_output).sample(
             (n_samples_coverage,), show_progress_bars=False
@@ -354,7 +355,7 @@ def merge_all_rounds_dataset(base_path):
     # Merge all dataframes
     merged_df = pd.concat(dataframes, ignore_index=True)
     # Define the output path
-    output_path = os.path.join(base_path, f"combine_round_{round_num-1}")
+    output_path = os.path.join(base_path, f"combine_round_{round_num - 1}")
     os.makedirs(output_path, exist_ok=True)
     merged_dataset_path = os.path.join(output_path, "dataset_full.csv")
 
@@ -464,13 +465,14 @@ def amortized_posterior(
     Returns:
         density_estimator: Trained density estimator or ensemble of estimators.
     """
-    logger.info(f"Training density estimator for round {round_current}...")
 
     ensemble_size = config["trainer"]["size_ensemble"]
     resume = config["resume_training"]["resume"]
     # In order to have the logs properly done we need to log the proper number of the round when we are in resume mode.
     if resume:
-        real_round = round_current + config["resume_training"]["last_round"]
+        real_round = round_current + int(
+            config["resume_training"]["last_round"]
+        )
     else:
         real_round = round_current
 
@@ -715,11 +717,10 @@ def train(args, config):
         for i in range(num_rounds):
             # Creating a folder to save the model, coverage and posterior distribution for each round.
             if resume:
-                real_round = i + config["resume_training"]["last_round"]
-                save_dir_round = (
+                real_round = i + int(config["resume_training"]["last_round"])
+                save_dir_round = pathlib.Path(
                     config["resume_training"]["trained_model"]
-                    / f"round_{real_round}"
-                )
+                ) / pathlib.Path(f"round_{real_round}")
 
             else:
                 real_round = i
@@ -807,15 +808,13 @@ def train(args, config):
                             f"Loading the test dataset for round {real_round}..."
                         )
                         if resume:
-                            test_dataset_all_round_path = (
+                            test_dataset_path = str(
                                 pathlib.Path().joinpath(
                                     config["test_data_loader"]["dataset_path"],
-                                    "generated_dataset",
+                                    f"generated_dataset/round_{real_round}",
                                 )
                             )
-                            test_dataset_path = merge_all_rounds_dataset(
-                                test_dataset_all_round_path
-                            )
+
                         else:
                             test_dataset_path = config["test_data_loader"][
                                 "dataset_path_first_round"
@@ -836,7 +835,6 @@ def train(args, config):
                             dataset=dataset,
                             device=device,
                         )
-
                     _, parameter_test, matrix_test = prepare_dataset_sbi(
                         test_dataset_path, config, logger
                     )
@@ -880,12 +878,12 @@ def train(args, config):
                         corner_plot(
                             observed_samples_proposal,
                             dataset,
-                            f"{save_dir_round}/corner_plot_prior_round_{real_round+1}.pdf",
+                            f"{save_dir_round}/corner_plot_prior_round_{real_round + 1}.pdf",
                         )
                         # Save the samples from the inferred posterior distribution.
                         torch.save(
                             observed_samples_proposal,
-                            f"{save_dir_round}/samples_prior_{real_round+1}.pt",
+                            f"{save_dir_round}/samples_prior_{real_round + 1}.pt",
                         )
 
                 logger.info(
