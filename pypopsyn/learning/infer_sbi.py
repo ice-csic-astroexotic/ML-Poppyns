@@ -470,6 +470,11 @@ def infer(args, config):
 
                 # Run SBC: for each test sample, we draw 10000 posterior samples.
                 num_posterior_samples = 10000
+
+                # Reshape the matrix tensor to remove the extra dimension otherwise in sbi 0.22.0 an error is produced
+                # when running run_sbc.
+                matrix = matrix.squeeze(1)
+
                 ranks, dap_samples = run_sbc(
                     parameter.to(device),
                     matrix.to(device),
