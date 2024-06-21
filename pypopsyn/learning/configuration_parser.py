@@ -32,7 +32,8 @@ class ConfigurationParser:
         self._configuration = self._update_configuration(
             configuration, options
         )
-
+        # If resuming training from a previous run, do not create new save_dir and log_dir folders.
+        # Instead, use the same directories from the previous run.
         self.resume = resume
 
         if self.resume:

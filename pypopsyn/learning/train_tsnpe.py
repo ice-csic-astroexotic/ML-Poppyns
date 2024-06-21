@@ -671,6 +671,9 @@ def train(args, config):
         ):
             logger.info("Loading the training dataset for the first round...")
 
+            # If resuming from a previous training run, first create the training dataset for the first round
+            # by merging all the training datasets from the previous completed rounds.
+
             if resume:
                 train_dataset_all_round_path = pathlib.Path().joinpath(
                     config["training_data_loader"]["dataset_path"],
@@ -750,6 +753,7 @@ def train(args, config):
             matrix_list = []
 
         for i in range(num_rounds):
+
             # Creating a folder to save the model, coverage and posterior distribution for each round.
             # If resuming from a previous run, compute the "real" round number to continue from.
             if resume:
@@ -843,6 +847,9 @@ def train(args, config):
                         logger.info(
                             f"Loading the test dataset for round {real_round}..."
                         )
+                        # If resuming from a previous training run, we do not create the test dataset in the first
+                        # iteration. Instead, we use the test dataset from the last completed round.
+
                         if resume:
                             test_dataset_path = str(
                                 pathlib.Path().joinpath(
@@ -876,7 +883,7 @@ def train(args, config):
                     )
 
                     logger.info(
-                        f"Computing coverage probability for the test dataset for round {i}..."
+                        f"Computing coverage probability for the test dataset for round {real_round}..."
                     )
                     num_posterior_samples = 1000
                     hdr = calculate_smallest_hdr(
@@ -939,6 +946,8 @@ def train(args, config):
                     f"{save_dir_round}/samples_posterior_{real_round}.pt",
                 )
 
+            # Stop the training when the number of rounds is reached. This is necessary in the resume case to avoid
+            # performing extra rounds, since the iteration counter (i) does not reflect the real round number.
             if real_round == num_rounds:
                 break
 
