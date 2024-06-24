@@ -4,7 +4,7 @@
     This script performs inference on a test dataset in a simulation-based inference framework with the sbi package.
     It loads a density estimator trained to approximate the posterior distribution for a dataset of simulated data
     and checks its performance on a test dataset.
-    Simulation-based Calibration is also performed to check if the posterior is well behaved.
+    Simulation-based Calibration is also performed to check if the posterior is well-behaved.
     See https://www.mackelab.org/sbi/ for more details.
 
      Display help message to run the code:
@@ -238,7 +238,7 @@ def infer(args, config):
 
             # Set up the inference procedure -----------------------------
             logger.info("Loading the amortized trained posterior...")
-            # By default the procedure uses SNPE-C
+            # By default, the procedure uses SNPE-C
             # (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
             inference = SNPE()
 
@@ -471,8 +471,9 @@ def infer(args, config):
                 # Run SBC: for each test sample, we draw 10000 posterior samples.
                 num_posterior_samples = 10000
 
-                # Reshape the matrix tensor to remove the extra dimension otherwise in sbi 0.22.0 an error is produced
-                # when running run_sbc.
+                # Reshape the matrix tensor to remove the extra dimension and change the dimensionality
+                # from [n_test, 1, n_channels, res_x, res_y] to [n_test, n_channels, res_x, res_y].
+                # Otherwise, an error is produced in sbi 0.22.0 when running run_sbc.
                 matrix = matrix.squeeze(1)
 
                 ranks, dap_samples = run_sbc(
