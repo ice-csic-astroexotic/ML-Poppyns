@@ -33,7 +33,7 @@ class InitialNeutronStarPopulation:
     Generating a random pulsar population in the Milky Way.
     """
 
-    def __init__(self, NS_number: int = cfg["NS_number"]) -> None:
+    def __init__(self, NS_number: int) -> None:
         """
         Initialization for the initial population synthesis.
         """
