@@ -122,10 +122,10 @@ def robust_run_simulation_dask(*args, max_attempts=3, delay=5, **kwargs):
     a specified number of times with a delay between each attempt.
 
     Args:
-        *args: Variable length argument list.
+        args: Variable length argument list.
         max_attempts (int, optional): Maximum number of retry attempts. Default is 3.
         delay (int, optional): Delay between retry attempts in seconds. Default is 5.
-        **kwargs: Arbitrary keyword arguments.
+        kwargs: Arbitrary keyword arguments.
 
     Returns:
         None
@@ -166,13 +166,13 @@ def run_simulation_dask(
     terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
 
     Args:
-        args (SimulationArgs): Arguments required for the simulation, including output directory,
-                               parameter overrides, and optional dynamic data path.
-        simulator_type (str): The type of simulator to use, determining the specific simulation
-                              script to run.
+        args (SimulationArgs): Arguments required for the simulation, including output directory, parameter overrides,
+        and optional dynamic data path.
+        simulator_type (str): The type of simulator to use, determining the specific simulation script to run.
         simulation_output_path (str): Path to the simulation output folder.
         simulation_override_json (dict): Dictionary with the parameter values for the override.json file.
         dyn_data_path (str): dynamical database path.
+
     Returns:
         None
     """
