@@ -15,7 +15,7 @@ import torch.nn.functional as F
 from .model_base import ModelBase
 
 
-class ModelConvSBIshallow(ModelBase):
+class ModelConvSBI(ModelBase):
 
     """A convolutional neural network model with 2 convolutional filters."""
 
