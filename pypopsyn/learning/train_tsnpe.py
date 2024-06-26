@@ -330,12 +330,13 @@ def corner_plot(
     plt.close()
 
 
-def merge_all_rounds_dataset(base_path):
+def merge_all_rounds_dataset(base_path, last_completed_round):
     """
     Merge all dataset_full.csv files from each round into a single dataframe.
 
     Args:
         base_path (Path): The base path where the generated datasets are stored.
+        last_completed_round (int): Las completed round number.
 
     Returns:
         pd.DataFrame: The merged dataset.
@@ -344,24 +345,17 @@ def merge_all_rounds_dataset(base_path):
     dataframes = []
 
     # Iterate through the directories to find all rounds
-    round_num = 0
-    while True:
-        round_path = os.path.join(base_path, f"round_{round_num}")
+    for i in range(last_completed_round + 1):
+        round_path = os.path.join(base_path, f"round_{i}")
         dataset_path = os.path.join(round_path, "dataset_full.csv")
 
-        # Check if the dataset file exists
-        if os.path.exists(dataset_path):
-            # Read the dataset and append to the list
-            df = pd.read_csv(dataset_path)
-            dataframes.append(df)
-            round_num += 1
-        else:
-            break
+        df = pd.read_csv(dataset_path)
+        dataframes.append(df)
 
     # Merge all dataframes
     merged_df = pd.concat(dataframes, ignore_index=True)
     # Define the output path
-    output_path = os.path.join(base_path, f"combine_round_{round_num - 1}")
+    output_path = os.path.join(base_path, f"combine_round_{i}")
     os.makedirs(output_path, exist_ok=True)
     merged_dataset_path = os.path.join(output_path, "dataset_full.csv")
 
@@ -680,7 +674,8 @@ def train(args, config):
                     "generated_dataset",
                 )
                 train_dataset_path = merge_all_rounds_dataset(
-                    train_dataset_all_round_path
+                    train_dataset_all_round_path,
+                    int(config["resume_training"]["last_round"]),
                 )
             else:
                 train_dataset_path = config["training_data_loader"][
