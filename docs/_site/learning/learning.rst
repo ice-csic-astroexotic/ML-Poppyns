@@ -155,8 +155,8 @@ Convolutional model
 
 Convolutional model for sbi
 ***************************
-.. automodule:: pypopsyn.learning.models.model_conv_sbi_shallow
-  :members: model_conv_sbi_shallow
+.. automodule:: pypopsyn.learning.models.model_conv_sbi
+  :members: model_conv_sbi
 
 Deeper Convolutional model for sbi
 **********************************
