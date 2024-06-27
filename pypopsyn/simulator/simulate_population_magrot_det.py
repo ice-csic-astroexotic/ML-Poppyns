@@ -1164,13 +1164,13 @@ def simulate_population(args) -> None:
             df_SMPS.to_pickle(SMPS_output_path, compression="gzip")
 
             HTRU_output_low_mid_path = pathlib.Path().joinpath(
-                output_path, "survey_HTRU_results_low_mid.pkl.gz"
+                output_path, "survey_HTRU_low_mid_results.pkl.gz"
             )
 
             df_HTRU.to_pickle(HTRU_output_low_mid_path, compression="gzip")
 
             HTRU_high_output_path = pathlib.Path().joinpath(
-                output_path, "survey_HTRU_results_high.pkl.gz"
+                output_path, "survey_HTRU_high_results.pkl.gz"
             )
             df_HTRU_high.to_pickle(HTRU_high_output_path, compression="gzip")
 
@@ -1187,8 +1187,13 @@ def simulate_population(args) -> None:
                 f"Output of the detected population with HTRU high surveys generated in {os.getcwd()}/{HTRU_high_output_path}"
             )
 
-        # Cleanup. Reset seed to empty value.
+        # Reset seed, profile_log, and profile_json to default values. This is done to prevent issues when
+        # calling the simulate_population function in other scripts more than once, ensuring that the values are
+        # properly reset.
+
         cfg["seed_magrot"] = None
+        cfg["profile_log"] = "profile.log"
+        cfg["profile_json"] = "profile.json"
 
 
 if __name__ == "__main__":

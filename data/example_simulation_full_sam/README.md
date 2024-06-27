@@ -3,7 +3,7 @@ This is an example of full simulation (dynamical + magneto-rotational + detectio
 For this simulation we used the spiral arm model and galactic structure defined in the `pypopsyn/simulator/initial_population_sam.py` module.
 For this to work one has to modify the `pypopsyn/simulator/simulate_population_full.py` by importing the modules:
 ```commandline
-import pypopsyn.simulator.initial_population_sam
+import pypopsyn.simulator.initial_population_sam as ipop
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 ```
 and specify the spiral arm model when initializing the initial positions by changing line 191 in the code with 

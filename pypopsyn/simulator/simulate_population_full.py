@@ -162,7 +162,9 @@ def simulate_population(args) -> None:
         ) as timer:
 
             # Generate an initial neutron star population.
-            NS_population_initial = ipop.InitialNeutronStarPopulation()
+            NS_population_initial = ipop.InitialNeutronStarPopulation(
+                cfg["NS_number"]
+            )
 
             # Generate an array of indices.
             NS_idx = np.arange(cfg["NS_number"], dtype=int)
@@ -983,7 +985,7 @@ def simulate_population(args) -> None:
 
         # Save the data frame as a compressed binary file.
         HTRU_high_output_path = pathlib.Path().joinpath(
-            output_path, "survey_HTRU_results_high.pkl.gz"
+            output_path, "survey_HTRU_high_results.pkl.gz"
         )
         df_HTRU_high.to_pickle(HTRU_high_output_path, compression="gzip")
 
@@ -1042,7 +1044,7 @@ def simulate_population(args) -> None:
 
         # Save the data frame as a compressed binary file.
         HTRU_low_mid_output_path = pathlib.Path().joinpath(
-            output_path, "survey_HTRU_results_low_mid.pkl.gz"
+            output_path, "survey_HTRU_low_mid_results.pkl.gz"
         )
         df_HTRU_low_mid.to_pickle(HTRU_low_mid_output_path, compression="gzip")
 

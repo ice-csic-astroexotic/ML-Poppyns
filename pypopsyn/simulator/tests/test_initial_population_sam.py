@@ -37,7 +37,7 @@ sm.initialize_spiral_model()
 @pytest.fixture()
 def test_case_1():
     np.random.seed(cfg["seed"])
-    NS_population_initial = ipop.InitialNeutronStarPopulation()
+    NS_population_initial = ipop.InitialNeutronStarPopulation(cfg["NS_number"])
     age = NS_population_initial.age()
     position = NS_population_initial.position(
         t_age=age, spiral_model=sm.spiral_model
@@ -61,7 +61,7 @@ def test_case_1():
 @pytest.fixture()
 def test_case_2():
     np.random.seed(cfg["seed"])
-    NS_population_initial = ipop.InitialNeutronStarPopulation()
+    NS_population_initial = ipop.InitialNeutronStarPopulation(cfg["NS_number"])
     age = NS_population_initial.age()
     position = NS_population_initial.position(
         t_age=age, spiral_model=sm.spiral_model
