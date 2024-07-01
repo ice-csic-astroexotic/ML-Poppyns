@@ -119,6 +119,7 @@ def calculate_smallest_hdr(
 def build_network(
     config: configuration_parser.ConfigurationParser,
     device: torch.device,
+    prior: utils.BoxUniform,
 ) -> SNPE_C:
     """
     Building the neural network using the configuration file specified in the arguments.
@@ -159,6 +160,7 @@ def build_network(
     inference = SNPE(
         density_estimator=neural_posterior,
         device=f"{device}",
+        prior=prior,
     )
 
     return inference
@@ -168,7 +170,7 @@ def wrapper_pypopsyn(
     proposal: DirectPosterior,
     num_sim: int,
     config: configuration_parser.ConfigurationParser,
-    round_current: int,
+    real_round: int,
     test: bool,
     dataset: dl.DatasetMultichannelArray,
     device: torch.device,
@@ -181,7 +183,7 @@ def wrapper_pypopsyn(
         proposal (DirectPosterior): Proposal distribution used for sampling the parameters.
         num_sim (int): Number of simulations to perform.
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
-        round_current (int): Number of current round during the sequential inference approach.
+        real_round (int): Number of the real round during the sequential inference approach.
         test (bool): Flag indicating whether the simulations are for testing or training. If set to True, the
                      simulations are for testing purposes.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
@@ -197,20 +199,20 @@ def wrapper_pypopsyn(
     if test:
         sim_dir_path = (
             config["test_data_loader"]["dataset_path"]
-            + f"/simulations/round_{round_current}"
+            + f"/simulations/round_{real_round}"
         )
         dataset_path = (
             config["test_data_loader"]["dataset_path"]
-            + f"/generated_dataset/round_{round_current}"
+            + f"/generated_dataset/round_{real_round}"
         )
     else:
         sim_dir_path = (
             config["training_data_loader"]["dataset_path"]
-            + f"/simulations/round_{round_current}"
+            + f"/simulations/round_{real_round}"
         )
         dataset_path = (
             config["training_data_loader"]["dataset_path"]
-            + f"/generated_dataset/round_{round_current}"
+            + f"/generated_dataset/round_{real_round}"
         )
 
     # Extracting simulation parameters from configuration file.
@@ -220,26 +222,6 @@ def wrapper_pypopsyn(
         "save_dir": sim_dir_path,
         "simulator_type": "simulate_population_magrot_det",
         "sampling_size": num_sim,
-        "P_initial_log10_mean": [
-            config["prior_ranges"]["low"][2],
-            config["prior_ranges"]["high"][2],
-        ],
-        "P_initial_log10_sigma": [
-            config["prior_ranges"]["low"][3],
-            config["prior_ranges"]["high"][3],
-        ],
-        "B_initial_log10_mean": [
-            config["prior_ranges"]["low"][0],
-            config["prior_ranges"]["high"][0],
-        ],
-        "B_initial_log10_sigma": [
-            config["prior_ranges"]["low"][1],
-            config["prior_ranges"]["high"][1],
-        ],
-        "a_late": [
-            config["prior_ranges"]["low"][4],
-            config["prior_ranges"]["high"][4],
-        ],
         "processes": config["n_processes"],
     }
 
@@ -447,7 +429,6 @@ def amortized_posterior(
     matrix_round: torch.Tensor,
     device: torch.device,
     round_current: int,
-    prior: Union[utils.BoxUniform, utils.RestrictedPrior],
 ) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
 
     """
@@ -469,7 +450,6 @@ def amortized_posterior(
         matrix_round (torch.Tensor): Tensor containing the matrices for the current round.
         device (torch.device): Device used for training.
         round_current (int): Current round number.
-        prior (Union[utils.BoxUniform, utils.RestrictedPrior]): Prior distribution.
 
     Returns:
         Union[DirectPosterior, NeuralPosteriorEnsemble]: Trained density estimator or ensemble of estimators.
@@ -523,7 +503,7 @@ def amortized_posterior(
                 )
 
             posterior_ensemble = inference.build_posterior(
-                density_estimator.to(device), prior=prior
+                density_estimator.to(device)
             )
             posteriors_list.append(posterior_ensemble)
 
@@ -557,16 +537,14 @@ def amortized_posterior(
                 pickle.dump(density_estimator.cpu(), output_file)
             logger.info(f"Saved trained model for round {real_round}.")
 
-        posterior = inference.build_posterior(
-            density_estimator.to(device), prior=prior
-        )
+        posterior = inference.build_posterior(density_estimator.to(device))
     return posterior
 
 
 def compute_proposal_prior(
     posterior_obs: DirectPosterior,
     config: configuration_parser.ConfigurationParser,
-    prior: Union[utils.BoxUniform, utils.RestrictedPrior],
+    prior: utils.BoxUniform,
     device: torch.device,
 ) -> utils.RestrictedPrior:
     """
@@ -575,7 +553,7 @@ def compute_proposal_prior(
     Args:
         posterior_obs (DirectPosterior): Posterior distribution at the observation.
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
-        prior (Union[utils.BoxUniform, utils.RestrictedPrior]): Prior distribution.
+        prior (utils.BoxUniform): Prior distribution.
         device (torch.device): Device used for training.
 
     Returns:
@@ -793,7 +771,7 @@ def train(args, config):
                             proposal,
                             config=config,
                             num_sim=num_sim_train,
-                            round_current=real_round,
+                            real_round=real_round,
                             test=False,
                             dataset=dataset,
                             device=device,
@@ -826,7 +804,6 @@ def train(args, config):
                         matrix_round=matrix_round,
                         device=device,
                         round_current=i,
-                        prior=prior,
                     )
 
                 with timewith.TimeWith(
@@ -868,7 +845,7 @@ def train(args, config):
                             proposal,
                             config=config,
                             num_sim=num_sim_test,
-                            round_current=real_round,
+                            real_round=real_round,
                             test=True,
                             dataset=dataset,
                             device=device,
