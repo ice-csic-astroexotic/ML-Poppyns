@@ -538,6 +538,7 @@ def amortized_posterior(
             logger.info(f"Saved trained model for round {real_round}.")
 
         posterior = inference.build_posterior(density_estimator.to(device))
+
     return posterior
 
 
@@ -647,13 +648,15 @@ def train(args, config):
             # by merging all the training datasets from the previous completed rounds.
 
             if resume:
+                last_completed_round = int(
+                    config["resume_training"]["last_round"]
+                )
                 train_dataset_all_round_path = pathlib.Path().joinpath(
                     config["training_data_loader"]["dataset_path"],
                     "generated_dataset",
                 )
                 train_dataset_path = merge_all_rounds_dataset(
-                    train_dataset_all_round_path,
-                    int(config["resume_training"]["last_round"]),
+                    train_dataset_all_round_path, last_completed_round
                 )
             else:
                 train_dataset_path = config["training_data_loader"][
@@ -710,7 +713,15 @@ def train(args, config):
                 )
 
             logger.info("Building the neural network...")
-            inference = build_network(config, device, prior=prior)
+            if resume:
+                inference_path = pathlib.Path().joinpath(
+                    config["resume_training"]["save_dir"],
+                    f"round_{last_completed_round}/inference.pkl",
+                )
+                with open(inference_path, "rb") as inference_file:
+                    inference = pickle.load(inference_file)
+            else:
+                inference = build_network(config, device, prior=prior)
 
             # Create the matrix for the observed sample of neutron stars.
             _, _, x_o = prepare_dataset_sbi(
@@ -805,6 +816,12 @@ def train(args, config):
                         device=device,
                         round_current=i,
                     )
+                    inference_path = os.path.join(
+                        save_dir_round, f"inference_{real_round}.pkl"
+                    )
+
+                    with open(inference_path, "wb") as inference_file:
+                        pickle.dump(inference, inference_file)
 
                 with timewith.TimeWith(
                     f"[TestingRound{i}]",
@@ -920,7 +937,7 @@ def train(args, config):
 
             # Stop the training when the number of rounds is reached. This is necessary in the resume case to avoid
             # performing extra rounds, since the iteration counter (i) does not reflect the real round number.
-            if real_round == num_rounds:
+            if real_round == num_rounds - 1:
                 break
 
         if config["enable_dask"]:
