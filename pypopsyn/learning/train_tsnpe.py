@@ -710,7 +710,7 @@ def train(args, config):
                 )
 
             logger.info("Building the neural network...")
-            inference = build_network(config, device)
+            inference = build_network(config, device, prior=prior)
 
             # Create the matrix for the observed sample of neutron stars.
             _, _, x_o = prepare_dataset_sbi(
