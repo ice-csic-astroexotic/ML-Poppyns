@@ -181,11 +181,13 @@ def run_simulation_dask(
     # This action prevents overloading the PIC with too many calls.
     try:
         if not os.path.exists(os.path.basename(dyn_data_path)):
+            os.listdir("/data/magnesia/common")
             safe_copytree(
                 dyn_data_path,
                 os.path.basename(dyn_data_path),
             )
         if not os.path.exists("MAGNESIA_population_synthesis"):
+            os.listdir("/data/magnesia/software")
             safe_copytree(
                 "/data/magnesia/software/MAGNESIA_population_synthesis",
                 "MAGNESIA_population_synthesis",
@@ -204,6 +206,7 @@ def run_simulation_dask(
             dyn.simulate_population(args)
 
         # Copy the output folder back to the original location.
+        os.listdir("/data/magnesia/common")
         safe_copytree(output_dir_path, simulation_output_path)
         # Remove the folder to prevent issues with overwriting.
         shutil.rmtree(output_dir_path)
