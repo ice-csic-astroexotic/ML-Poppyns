@@ -14,6 +14,12 @@ Split the dataset in training, validation and testing
 .. automodule:: pypopsyn.generator.dataset_splitter
   :members: dataset_splitter
 
+Maps generator for ATNF catalog
+*******************************
+
+.. automodule:: pypopsyn.generator.generate_atnf_catalogue
+  :members: generate_atnf_catalogue
+
 Maps generator for a dataset of full simulations
 ************************************************
 
@@ -31,12 +37,6 @@ Maps generator for a single survey simulation
 
 .. automodule:: pypopsyn.generator.generate_single_surveys
   :members: generate_single_surveys
-
-Maps generator for ATNF catalog
-*******************************
-
-.. automodule:: pypopsyn.generator.generate_atnf_catalogue
-  :members: generate_atnf_catalogue
 
 Maps
 ####
@@ -59,16 +59,16 @@ Position maps
 .. automodule:: pypopsyn.generator.maps.position_maps
   :members: position_maps
 
-Velocity maps
-**************
-
-.. automodule:: pypopsyn.generator.maps.velocity_maps
-  :members: velocity_maps
-
 :math:`P-\dot{P}` maps
 **********************
 
 .. automodule:: pypopsyn.generator.maps.ppdot_maps
   :members: ppdot_maps
+
+Velocity maps
+**************
+
+.. automodule:: pypopsyn.generator.maps.velocity_maps
+  :members: velocity_maps
 
 
