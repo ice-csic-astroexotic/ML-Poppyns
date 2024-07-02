@@ -77,11 +77,6 @@ Tensorboard
 Losses
 ######
 
-Metric monitoring and update
-****************************
-.. automodule:: pypopsyn.learning.metrics.metric_accuracy
-  :members: metric_accuracy
-
 Loss parent class
 *****************
 .. automodule:: pypopsyn.learning.losses.loss_base
@@ -109,6 +104,11 @@ Root mean square error (RMSE) loss
 
 Accuracy metrics
 ################
+
+Metric monitoring and update
+****************************
+.. automodule:: pypopsyn.learning.metrics.metric_accuracy
+  :members: metric_accuracy
 
 Metric parent class
 *******************
