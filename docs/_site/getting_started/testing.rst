@@ -2,10 +2,10 @@
 Testing
 *******
 
-To run all the test available in this repo at once, run 
+To run all the test available in this repo at once, navigate to the software repository and run
 
 ::
 
   pytest
 
-which will output a report including coverage.
+which will also output a report including coverage.
