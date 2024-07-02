@@ -29,13 +29,13 @@ The code has been tested on Ubuntu and macOS.
    ```
 
 4. Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local 
-5. machine. To this end, open the configuration file `pypopsyn/simulator/config_simulator.py`, scroll to the section 
-6. titled "GENERAL SIMULATION PARAMETERS" (specifically lines 49 and 50) and add the absolute path to the repository 
-7. folder by modifying the variable `cfg["path_to_software"]`. 
+machine. To this end, open the configuration file `pypopsyn/simulator/config_simulator.py`, scroll to the section 
+titled "GENERAL SIMULATION PARAMETERS" (specifically lines 49 and 50) and add the absolute path to the repository 
+folder by modifying the variable `cfg["path_to_software"]`. 
 
 5. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will 
-6. need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/) library after activating the 
-7. environment by running:
+need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/) library after activating the 
+environment by running:
    ```
    pip install sbi==0.22.0
    ```
