@@ -1,0 +1,14 @@
+site_name: pypopsyn documentation
+theme:
+  name: material
+  features:
+    - navigation.tabs
+nav:
+  - Home: index.md
+  - The Basics:
+      - basics/introduction.md
+  - Code:
+      - code/simulator.md
+plugins:
+  - mkdocstrings
+  - search
