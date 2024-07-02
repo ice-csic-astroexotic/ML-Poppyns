@@ -77,7 +77,7 @@ Repository structure
 ********************
 
 The repository is structured in a modular way to allow for easy adjustments and additions as we continue to improve our software package.
-The main folder is :code:`pypopsyn` which contains five sub-folders: :code:`simulator`, :code:`generator` and :code:`learning` and :code:`benchmark`.
+The main folder is :code:`pypopsyn` which contains three sub-folders: :code:`simulator`, :code:`generator`, and :code:`learning`.
 
 * The :code:`simulator` sub-folder contains all the modules and scripts necessary to simulate a population of synthetic neutron stars.
   We group modules according to their physics, i.e., separating those that are associated with the dynamical evolution, the magneto-rotational evolution, the emission in different electromagnetic wavelengths and the modelled surveys.
