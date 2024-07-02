@@ -47,7 +47,7 @@ However, to have writing access to this folder we need to log in via ssh. To do 
 where :code:`user` is your PIC user name. You will be prompted to enter your password.
 Currently access via UAB's wireless and ethernet network does not allow ssh connections; in particular PIC uses port 22 which is blocked. As a result a standard ssh connection from the ICE cannot be established at the moment.  However, we can establish a ssh connection through a terminal session within https://jupyter.pic.es/. A standard ssh connection from outside the ICE can however be readily established.
 
-The software repository located in :code:`/data/magnesia/software` should be used to execute large experiments. Any changes, developments or updates of the code itself should be done on personal laptops whenever possible. To update the repository on the PIC servers, we use :code:`git pull`. To establish GitHub access to the repository follow these steps:
+The software repository located in :code:`/data/magnesia/software` should be used to execute large experiments. Any changes, developments or updates of the code itself should be done on personal laptops whenever possible. To update the repository on the PIC servers, we use :code:`git pull`. To establish GitHub access to the repository for the first time follow these steps:
 
   #. Paste the text below (in your ssh session), substituting your GitHub email address  :code:`ssh-keygen -t ed25519 -C "your_email@example.com"` This creates a new SSH key, using the provided email as a label.
   #. When you are prompted to "Enter a file in which to save the key," enter :code:`/data/magnesia/software/ssh_keys/your_lastname` substituting in your last name.
