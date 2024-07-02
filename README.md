@@ -7,24 +7,24 @@ These instructions will provide you with a copy of the project and help you get 
 The code has been tested on Ubuntu and macOS.
 
 1. First, you need to clone the repository on your computer. To get the files from our GitHub repository, run
-    ```
+   ```commandline
    git clone https://github.com/csic-ice-magnesia/MAGNESIA_population_synthesis.git
    ```
 
 2. The repo contains an environment file that can be installed by running
-   ```
+   ```commandline
    conda env create -f environment.yaml
    ```
    NOTE: For macOS users the `cudatoolkit` package has to be commented out in the environment file.
 
    This environment can be activated using
-   ```
+   ```commandline
    conda activate pop_syn
    ```
    We recommend working within this environment when using the code.
 
 3. To install the `pypopsyn` package locally and work with the code, navigate to the cloned software repository and run
-   ```
+   ```commandline
    python setup.py develop
    ```
 
@@ -36,7 +36,7 @@ folder by modifying the variable `cfg["path_to_software"]`.
 5. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will 
 need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/) library after activating the 
 environment by running:
-   ```
+   ```commandline
    pip install sbi==0.22.0
    ```
    
@@ -57,7 +57,7 @@ commands will generate their output in `docs/_build`.
 
 To automate the workflow and improve as well as maintain code quality standards, we have set up pre-commit hooks. To 
 set the hooks run
-```
+```commandline
 pre-commit install
 ```
 The steps with pre-commit are as follows: (i) modify code, (ii) stage changes with `git add`, (iii) running `git commit` 
