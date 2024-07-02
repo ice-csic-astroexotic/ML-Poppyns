@@ -221,7 +221,7 @@ Training script for sbi (amortized)
   :members: train_sbi
 
 Training script for sbi (truncated SNPE)
-***************************************(
+****************************************
 .. automodule:: pypopsyn.learning.train_tsnpe
   :members: train_tsnpe
 
