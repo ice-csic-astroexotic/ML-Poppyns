@@ -2,7 +2,7 @@
 Learning
 ********
 
-Weights initializers
+Weight initializers
 ####################
 
 Initializer parent class
@@ -77,6 +77,11 @@ Tensorboard
 Losses
 ######
 
+Metric monitoring and update
+****************************
+.. automodule:: pypopsyn.learning.metrics.metric_accuracy
+  :members: metric_accuracy
+
 Loss parent class
 *****************
 .. automodule:: pypopsyn.learning.losses.loss_base
@@ -129,11 +134,6 @@ Root mean square error (RMSE) metric
 ************************************
 .. automodule:: pypopsyn.learning.metrics.metric_rmse
   :members: metric_rmse
-
-Metric monitoring and update
-****************************
-.. automodule:: pypopsyn.learning.metrics.metric_accuracy
-  :members: metric_accuracy
 
 Neural network architecture models
 ##################################
