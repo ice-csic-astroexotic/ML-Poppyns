@@ -210,32 +210,32 @@ Configuration parser
 Train and inference scripts
 ###########################
 
-train script
-************
+Training script
+***************
 .. automodule:: pypopsyn.learning.train
   :members: train
 
-train script for sbi (amortized)
-********************************
+Training script for sbi (amortized)
+***********************************
 .. automodule:: pypopsyn.learning.train_sbi
   :members: train_sbi
 
-train script for sbi (truncated SNPE)
-*************************************
+Training script for sbi (truncated SNPE)
+***************************************(
 .. automodule:: pypopsyn.learning.train_tsnpe
   :members: train_tsnpe
 
-Infer script
-************
+Inference script
+****************
 .. automodule:: pypopsyn.learning.infer
   :members: infer
 
-Infer script for sbi
-********************
+Inference script for sbi
+************************
 .. automodule:: pypopsyn.learning.infer_sbi
   :members: infer_sbi
 
-Infer script for sbi (ensemble method)
-**************************************
+Inference script for sbi (ensemble method)
+******************************************
 .. automodule:: pypopsyn.learning.infer_sbi_ensemble
   :members: infer_sbi_ensemble
