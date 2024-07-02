@@ -716,7 +716,7 @@ def train(args, config):
             if resume:
                 inference_path = pathlib.Path().joinpath(
                     config["resume_training"]["save_dir"],
-                    f"round_{last_completed_round}/inference.pkl",
+                    f"round_{last_completed_round}/inference_{last_completed_round}.pkl",
                 )
                 with open(inference_path, "rb") as inference_file:
                     inference = pickle.load(inference_file)
