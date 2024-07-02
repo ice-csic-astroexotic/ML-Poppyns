@@ -143,11 +143,6 @@ Model parent class
 .. automodule:: pypopsyn.learning.models.model_base
   :members: model_base
 
-Linear fully connected model
-****************************
-.. automodule:: pypopsyn.learning.models.model_linear
-  :members: model_linear
-
 Convolutional model
 *******************
 .. automodule:: pypopsyn.learning.models.model_conv
@@ -158,10 +153,15 @@ Convolutional model for sbi
 .. automodule:: pypopsyn.learning.models.model_conv_sbi
   :members: model_conv_sbi
 
-Deeper Convolutional model for sbi
+Deeper convolutional model for sbi
 **********************************
 .. automodule:: pypopsyn.learning.models.model_conv_sbi_deep
   :members: model_conv_sbi_deep
+
+Linear fully connected model
+****************************
+.. automodule:: pypopsyn.learning.models.model_linear
+  :members: model_linear
 
 Trainers
 ########
