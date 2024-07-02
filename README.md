@@ -4,46 +4,46 @@ Population synthesis code for the ERC project MAGNESIA - The Magnetar Census
 ## Getting Started
 
 These instructions will provide you with a copy of the project and help you get it up 
-and running on your local machine. First, you should clone the repository on your 
-computer. The repo contains an environment file that can be installed by running
+and running on your local machine. The code has been tested on Ubuntu and macOS.
+
+First, you need to clone the repository on your 
+computer. To get the files from our GitHub repository, run
 ```
-$ conda env create -f environment.yaml
+git clone https://github.com/csic-ice-magnesia/MAGNESIA_population_synthesis.git
 ```
-NOTE: for OSX users the `cudatoolkit` package has to be commented out in the environment file.
+
+The repo contains an environment file that can be installed by running
+```
+conda env create -f environment.yaml
+```
+NOTE: For macOS users the `cudatoolkit` package has to be commented out in the environment file.
 
 This environment can be activated using
 ```
-$ conda activate pop_syn
-```
-After activating the environment to install the [Simulation Based Inference (SBI)](https://www.mackelab.org/sbi/) 
-library run:
-```
-$ pip install sbi==0.22.0
+conda activate pop_syn
 ```
 We recommend working within this environment when using the code.
 
-Finally, to install the `pypopsyn` package and work with the code run
+To install the `pypopsyn` package locally and work with the code, navigate to the cloned software repository and run
 ```
-$ python setup.py develop
+python setup.py develop
+```
+Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local machine. To this end, open the configuration file `pypopsyn/simulator/config_simulator.py`, scroll to the section titled
+"GENERAL SIMULATION PARAMETERS" (specifically lines 49 and 50) and add the absolute path to the repository folder by modifying the variable `cfg["path_to_software"]`. 
+
+If you also want to use the code to perform machine learning experiments with simulation-based inference, you will need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/) library after activating the environment by running:
+```
+pip install sbi==0.22.0
 ```
 
-To automate the workflow and improve as well as maintain code quality standards, we 
-have set up pre-commit hooks. To set the hooks run
+To automate the workflow and improve as well as maintain code quality standards, we have set up pre-commit hooks. To set the hooks run
 ```
-$ pre-commit install
+pre-commit install
 ```
-The steps with pre-commit are as follows: (i) modify code, (ii) stage changes with 
-`git add`, (iii) running `git commit` will automatically execute the pre-commit 
-framework. If the pre-commit checks are passed, the changes are commit. If not files
-are modified and the steps (i) - (iii) have to be repeated. For more info see 
-[here](https://pre-commit.com/#intro) or [here](https://medium.com/staqu-dev-logs/keeping-python-code-clean-with-pre-commit-hooks-black-flake8-and-isort-cac8b01e0ea1).
+The steps with pre-commit are as follows: (i) modify code, (ii) stage changes with `git add`, (iii) running `git commit` will automatically execute the pre-commit framework. If the pre-commit checks are passed, the changes are commit. If not files are modified and the steps (i) - (iii) have to be repeated. For more info see [here](https://pre-commit.com/#intro) or [here](https://medium.com/staqu-dev-logs/keeping-python-code-clean-with-pre-commit-hooks-black-flake8-and-isort-cac8b01e0ea1).
 
-Finally you should setup the absolute path to where the repository is saved on your local machine.
-This can be done by opening the configuration file `pypopsyn/simulator/config_simulator.py` and in the section named
-"GENERAL SIMULATION PARAMETERS" adding the absolute path to the repository folder by modifying the variable `cfg["path_to_software"]` under the `else` statement.
 
 ## Documentation
 
-Documentation is held in `docs` and can be compiled into an HTML webpage or to a PDF LaTeX file using
-`make html` or `make latexpdf` respectively inside the `docs` folder with the environment activated. Both
+Documentation is held in `docs` and can be compiled into an HTML webpage or to a PDF LaTeX file using `make html` or `make latexpdf` respectively inside the `docs` folder with the environment activated. Both
 commands will generate their output in `docs/_build`.
