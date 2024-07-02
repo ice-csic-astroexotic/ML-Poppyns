@@ -69,7 +69,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+docs_original/_build/
 
 # PyBuilder
 target/
@@ -137,4 +137,4 @@ tutorials/.DS_Store/
 pypopsyn/simulator/interstellar_medium/ebv_map.npz
 
 # Sphinx documentation
-docs/_build
+docs_original/_build
