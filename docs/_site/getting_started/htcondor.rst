@@ -8,8 +8,8 @@ This page is primarily for MAGNESIA developers. We focus on explaining the file 
 Location of the files
 **********************
 
-#. The main software repo is located in the folder :code:`/data/magnesia/software`. Note that the repo was cloned in this location following PIC's guidelines: we should use the software folder for shared repositories. The repo was cloned in such a way that every MAGNESIA user has writing, execution and reading access. A user would, in principle, be able to clone the repo in their own home directories, but this should be avoided due to limited disk space. Before lunching simulations from any location in the server, the variable :code:`server_run` in the :code:`config_simulator.py` file should be set to :code:`true` to ensure that the correct path to the software modules is set.
-#. The scripts to create the necessary files to submit a job and to manage the simulations with HTCondor are found in the :code:`utilities` folder in our repo. These are:
+#. The main software repo is located in the folder :code:`/data/magnesia/software`. Note that the repo was cloned in this location following PIC's guidelines: We should use the :code:`software` folder for shared repositories. The repo was cloned in such a way that every MAGNESIA user has writing, execution and reading access. A user would, in principle, be able to clone the repo in their own home directories, but this should be avoided due to limited disk space. Before lunching simulations from any location in the server, the variable :code:`server_run` in the :code:`config_simulator.py` file should be set to :code:`true` to ensure that the correct path to the software modules is set.
+#. The scripts to create the necessary files to submit a job and to manage the simulations with HTCondor are found in the :code:`utilities` folder in the subdirectory :code:`PIC_scripts` in our repo. These are:
 
     * :code:`PIC_generate_htcondor_submit.py` generates the necessary HTCondor files to launch jobs.
     * :code:`PIC_generate_htcondor_failed.py` checks for failed simulations and generate the HTCondor files to launch them again.
@@ -40,7 +40,7 @@ SSH sessions
 Using the JupyterHub online interface at https://jupyter.pic.es/ we are able to run and read files in the :code:`/data/magnesia/software` folder.
 However, to have writing access to this folder we need to log in via ssh. To do so, type the following command in a terminal:
 
-:: bash
+::
 
     ssh user@ui.pic.es
 
@@ -99,7 +99,7 @@ and the output (whatever is printed in the terminal during the execution of the 
 
 For example, if the output file is called :code:`output1.txt` and we want to keep that file, we need to add the following line to the submit file:
 
-:: bash
+::
 
     transfer_output_files= output1.txt
 
