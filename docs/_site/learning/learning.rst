@@ -2,7 +2,7 @@
 Learning
 ********
 
-Weights initializers
+Weight initializers
 ####################
 
 Initializer parent class
@@ -105,6 +105,11 @@ Root mean square error (RMSE) loss
 Accuracy metrics
 ################
 
+Metric monitoring and update
+****************************
+.. automodule:: pypopsyn.learning.metrics.metric_accuracy
+  :members: metric_accuracy
+
 Metric parent class
 *******************
 .. automodule:: pypopsyn.learning.metrics.metric_base
@@ -130,11 +135,6 @@ Root mean square error (RMSE) metric
 .. automodule:: pypopsyn.learning.metrics.metric_rmse
   :members: metric_rmse
 
-Metric monitoring and update
-****************************
-.. automodule:: pypopsyn.learning.metrics.metric_accuracy
-  :members: metric_accuracy
-
 Neural network architecture models
 ##################################
 
@@ -143,11 +143,6 @@ Model parent class
 .. automodule:: pypopsyn.learning.models.model_base
   :members: model_base
 
-Linear fully connected model
-****************************
-.. automodule:: pypopsyn.learning.models.model_linear
-  :members: model_linear
-
 Convolutional model
 *******************
 .. automodule:: pypopsyn.learning.models.model_conv
@@ -155,13 +150,18 @@ Convolutional model
 
 Convolutional model for sbi
 ***************************
-.. automodule:: pypopsyn.learning.models.model_conv_sbi_shallow
-  :members: model_conv_sbi_shallow
+.. automodule:: pypopsyn.learning.models.model_conv_sbi
+  :members: model_conv_sbi
 
-Deeper Convolutional model for sbi
+Deeper convolutional model for sbi
 **********************************
 .. automodule:: pypopsyn.learning.models.model_conv_sbi_deep
   :members: model_conv_sbi_deep
+
+Linear fully connected model
+****************************
+.. automodule:: pypopsyn.learning.models.model_linear
+  :members: model_linear
 
 Trainers
 ########
@@ -210,32 +210,32 @@ Configuration parser
 Train and inference scripts
 ###########################
 
-train script
-************
+Training script
+***************
 .. automodule:: pypopsyn.learning.train
   :members: train
 
-train script for sbi (amortized)
-********************************
+Training script for sbi (amortized)
+***********************************
 .. automodule:: pypopsyn.learning.train_sbi
   :members: train_sbi
 
-train script for sbi (truncated SNPE)
-*************************************
+Training script for sbi (truncated SNPE)
+****************************************
 .. automodule:: pypopsyn.learning.train_tsnpe
   :members: train_tsnpe
 
-Infer script
-************
+Inference script
+****************
 .. automodule:: pypopsyn.learning.infer
   :members: infer
 
-Infer script for sbi
-********************
+Inference script for sbi
+************************
 .. automodule:: pypopsyn.learning.infer_sbi
   :members: infer_sbi
 
-Infer script for sbi (ensemble method)
-**************************************
+Inference script for sbi (ensemble method)
+******************************************
 .. automodule:: pypopsyn.learning.infer_sbi_ensemble
   :members: infer_sbi_ensemble

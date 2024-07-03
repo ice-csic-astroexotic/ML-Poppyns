@@ -8,14 +8,15 @@ This page is primarily for MAGNESIA developers. We focus on explaining the file 
 Location of the files
 **********************
 
-#. The main software repo is located in the folder :code:`/data/magnesia/software`. Note that the repo was cloned in this location following PIC's guidelines: we should use the software folder for shared repositories. The repo was cloned in such a way that every MAGNESIA user has writing, execution and reading access. A user would, in principle, be able to clone the repo in their own home directories, but this should be avoided due to limited disk space. Before lunching simulations from any location in the server, the variable :code:`server_run` in the :code:`config_simulator.py` file should be set to :code:`true` to ensure that the correct path to the software modules is set.
-#. The scripts to create the necessary files to submit a job and to manage the simulations with HTCondor are found in the :code:`utilities` folder in our repo. These are:
+#. The main software repo is located in the folder :code:`/data/magnesia/software`. Note that the repo was cloned in this location following PIC's guidelines: We should use the :code:`software` folder for shared repositories. The repo was cloned in such a way that every MAGNESIA user has writing, execution and reading access. A user would, in principle, be able to clone the repo in their own home directories, but this should be avoided due to limited disk space. Before lunching simulations from any location in the server, the variable :code:`server_run` in the :code:`config_simulator.py` file should be set to :code:`true` to ensure that the correct path to the software modules is set.
+#. The scripts to create the necessary files to submit a job and to manage the simulations with HTCondor are found in the :code:`utilities` folder in the subdirectory :code:`PIC_scripts` in our repo. These are:
 
     * :code:`PIC_generate_htcondor_submit.py` generates the necessary HTCondor files to launch jobs.
+    * :code:`PIC_check_simulations.py` checks which simulations have failed from a previous run with HTCondor.
     * :code:`PIC_generate_htcondor_failed.py` checks for failed simulations and generate the HTCondor files to launch them again.
     * After the failed simulations have been launched again and finished successfully, :code:`PIC_manage_failed_simulation.py` is used to transfer the new output back to the original folders.
-#. We use the folder :code:`/data/magnesia/common` to store the HTCondor files since it is PIC's recommended location for storing intermediate data. This is also where we store our simulations and ML experiments on intermediate timescales (before moving them to long-term storage).
-#. DID WE USE IT ALSO FOR THIS? There is also a scratch folder in MAGNESIA's disk space where output files of each run could be saved. These will however be deleted after each run and would thus need to be transferred elsewhere if required. Below we explain how to transfer files from this scratch directory.
+#. We use the folder :code:`/data/magnesia/common` to store the HTCondor files since it is PIC's recommended location for storing intermediate data. This is also where we store our simulations and ML experiments on intermediate timescales.
+#. There is also a scratch folder in :code:`/data/magnesia/scratch` which contains our :code:`conda` environment. This folder also offers extra disk space where output files of each run could be saved. These will however be deleted after each run and would thus need to be transferred elsewhere if required. Below we explain how to transfer files from this scratch directory.
 
 ***************************
 Useful commands in HTCondor
@@ -40,14 +41,14 @@ SSH sessions
 Using the JupyterHub online interface at https://jupyter.pic.es/ we are able to run and read files in the :code:`/data/magnesia/software` folder.
 However, to have writing access to this folder we need to log in via ssh. To do so, type the following command in a terminal:
 
-:: bash
+::
 
     ssh user@ui.pic.es
 
 where :code:`user` is your PIC user name. You will be prompted to enter your password.
 Currently access via UAB's wireless and ethernet network does not allow ssh connections; in particular PIC uses port 22 which is blocked. As a result a standard ssh connection from the ICE cannot be established at the moment.  However, we can establish a ssh connection through a terminal session within https://jupyter.pic.es/. A standard ssh connection from outside the ICE can however be readily established.
 
-The software repository located in :code:`/data/magnesia/software` should be used to execute large experiments. Any changes, developments or updates of the code itself should be done on personal laptops whenever possible. To update the repository on the PIC servers, we use :code:`git pull`. To establish GitHub access to the repository follow these steps:
+The software repository located in :code:`/data/magnesia/software` should be used to execute large experiments. Any changes, developments or updates of the code itself should be done on personal laptops whenever possible. To update the repository on the PIC servers, we use :code:`git pull`. To establish GitHub access to the repository for the first time follow these steps:
 
   #. Paste the text below (in your ssh session), substituting your GitHub email address  :code:`ssh-keygen -t ed25519 -C "your_email@example.com"` This creates a new SSH key, using the provided email as a label.
   #. When you are prompted to "Enter a file in which to save the key," enter :code:`/data/magnesia/software/ssh_keys/your_lastname` substituting in your last name.
@@ -99,7 +100,7 @@ and the output (whatever is printed in the terminal during the execution of the 
 
 For example, if the output file is called :code:`output1.txt` and we want to keep that file, we need to add the following line to the submit file:
 
-:: bash
+::
 
     transfer_output_files= output1.txt
 

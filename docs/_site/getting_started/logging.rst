@@ -16,12 +16,12 @@ Then you can issue logging messages at the appropriate level:
 
 ::
 
-  log.debug("blablabla")
-  log.info("blablabla")
-  log.warning("blablabla")
-  log.error("blablabla")
+  log.debug("add debug info")
+  log.info("add info")
+  log.warning("add warning message")
+  log.error("add error log message")
 
-As an example if we run the script to simulate a population of 100 neutron stars using the standard configuration file, the following logging information is showed:
+As an example, if we run the script to simulate a population of 100 neutron stars using the standard configuration file, the following logging information is shown:
 
 ::
 
@@ -87,34 +87,7 @@ As an example if we run the script to simulate a population of 100 neutron stars
 
 
 
-If the :code:`show_profiling` in the :code:`pyposyn/simulator/config_simulator.py` file is set to :code:`True`, the timing profile for each section of the simulator is also shown on terminal.
-In general the timing information is saved as a :code:`profile.log` file in the same folder where the output of the simulation is saved.
+If the :code:`show_profiling` option in the :code:`pyposyn/simulator/config_simulator.py` file is set to :code:`True`, the timing profile for each section of the simulator is also shown in the terminal.
+In genera, the timing information is saved as a :code:`profile.log` file in the same folder where the output of the simulation is saved.
 Function-specific profiling can also be activated by setting :code:`enable_profiles` and / or :code:`show_profiles` to :code:`True`.
 The detailed information will be saved in the folder specified under :code:`profiles_dir`.
-
-Until commit :code:`4cb335f7b435f1997cef9c5a9dd84117abff1ff8` Hydra was enabled to allow parameter sweeps when running the simulation script.
-By default, Hydra configures the loggers automatically to only produce messages above :code:`info` level, e.g.:
-
-::
-
-  (pop_syn) agarcia@challenger:~/Workspace/MAGNESIA_population_synthesis$ python examples/simulator/initialize_evolve_population.py
-  [2020-03-05 18:34:50,742][__main__][INFO] - Randomizing population age...
-  [2020-03-05 18:34:50,743][__main__][INFO] - Generating initial positions...
-  [2020-03-05 18:34:57,597][__main__][INFO] - Generating initial proper velocities...
-  [2020-03-05 18:34:57,796][__main__][INFO] - Computing orbital velocities...
-  [2020-03-05 18:34:58,300][__main__][INFO] - Creating data frame for exporting...
-  [2020-03-05 18:34:59,036][__main__][INFO] - Output generated in /home/agarcia/Workspace/MAGNESIA_population_synthesis/outputs/2020-03-05/18-34-50/initial_population.txt
-
-We can configure specific modules to output also debug information by overriding the :code:`hydra.verbose` field providing a list of module names:
-
-::
-
-  (pop_syn) agarcia@challenger:~/Workspace/MAGNESIA_population_synthesis$ python examples/simulator/initialize_evolve_population.py hydra.verbose=pypopsyn.simulator.initial_population
-  [2020-03-05 18:28:47,080][__main__][INFO] - Randomizing population age...
-  [2020-03-05 18:28:47,081][pypopsyn.simulator.initial_population][DEBUG] - Drawing random age in range [1.0,100000000.0]
-  [2020-03-05 18:28:47,081][__main__][INFO] - Generating initial positions...
-  [2020-03-05 18:28:54,013][__main__][INFO] - Generating initial proper velocities...
-  [2020-03-05 18:28:54,216][__main__][INFO] - Computing orbital velocities...
-  [2020-03-05 18:28:54,723][__main__][INFO] - Creating data frame for exporting...
-
-In this case a log file containing all the experiment's logged messages will be stored in the corresponding folder for the experiments in :code:`outputs` or :code:`multirun` if a multirun sweep is scheduled.

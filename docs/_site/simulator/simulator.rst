@@ -202,12 +202,12 @@ Timing profile for the :code:`simulate_population_dyn.py` script with the defaul
 +-------------------------------------------------------------+--------------------+--------------------+
 
 Timing profile for the :code:`simulate_population_magrot_det.py` script with the default configuration in :code:`config_simulator.py`.
-Here we report the average times and standard deviation over 7 loops for:
+Here, we report the average time and standard deviation over 7 loops for:
 
-- loading a dynamical database with a total of 300000 neutron stars with a sampling batch size of 100000 neutron stars.
-- Perform the magneto-rotational evolution of the sampled star and apply the detection filters.
+- loading a dynamical database with a total of 300000 neutron stars and sampling these stars during the detection loop with a batch size of 100000.
+- performing the magneto-rotational evolution of the sampled stars and applying the detection filters.
 
-Note that in the remaining couple of loops of the simulation the time to perform these steps is less due to the reduced batch size.
+Note that in the remaining couple of loops of the detection procedure, the time to perform these calculations is shorter due to the reduced batch size.
 We do not take into account these loops to compute the following timing statistics.
 
 +-------------------------------------------------------------+--------------------+
@@ -249,6 +249,12 @@ Hydrogen Density Model
 
 .. automodule:: simulator.interstellar_medium.nh_model
   :members: nh_model
+
+X-ray Absorption Cross section
+******************************
+
+.. automodule:: simulator.interstellar_medium.xray_abs_cross_section
+  :members: xray_abs_cross_section
 
 Magneto-rotational Physics
 #############################
