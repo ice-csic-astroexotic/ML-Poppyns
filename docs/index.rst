@@ -18,7 +18,7 @@ Welcome to pypopsyn's documentation!
    _site/getting_started/logging
    _site/getting_started/testing
    _site/getting_started/htcondor
-   _site/getting_started/hydra
+   _site/getting_started/dask
    _site/getting_started/glossary
 
 .. raw:: latex
@@ -32,6 +32,7 @@ Welcome to pypopsyn's documentation!
    _site/simulator/simulator
    _site/generator/generator
    _site/learning/learning
+   _site/utilities/utilities
 
 .. raw:: latex
 
@@ -39,11 +40,12 @@ Welcome to pypopsyn's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Examples
+   :caption: Tutorials
 
-   _site/examples/simulator
-   _site/examples/generator
-   _site/examples/learning
+   _site/tutorials/simulator
+   _site/tutorials/generator
+   _site/tutorials/learning
+   _site/tutorials/learning_sbi
 
 .. raw:: latex
 

@@ -1,25 +1,25 @@
-*****************
-Generator Example
-*****************
+******************
+Generator Tutorial
+******************
 
 
 Once a set of simulated populations is created by running one of the simulator scripts (see above for more information), it is possible to generate a dataset of synthetic representations of the simulations that is readable by a machine-learning pipeline.
-Depending on the type of simulations that have been performed, two types of generator scripts can be used, the :code:`examples/generator/generate_dataset.py` or the :code:`examples/generator/generate_dataset_survey.py`.
+Depending on the type of simulations that have been performed, two types of generator scripts can be used, the :code:`pypopsyn/generator/generate_dataset_full.py` or the :code:`pypopsyn/generator/generate_dataset_survey.py`.
 
-The first script :code:`examples/generator/generate_dataset.py` can be used if simulations have been run using the :code:`simulate_population_full` script, since it will read the corresponding :code:`final_population.pkl.gz` output files.
+The first script :code:`pypopsyn/generator/generate_dataset_full.py` can be used if simulations have been run using the :code:`simulate_population_full` script, since it will read the corresponding :code:`final_population.pkl.gz` output files.
 For each simulated population, this script can generate a set of density maps in the form of either :code:`.png` images or 2D numpy :code:`.npy` arrays.
 These maps store the spatial density and velocity information in galactocentric or equatorial (ICRS) reference frames and the density in a :math:`P-\dot{P}` diagram of all the evolved neutron stars.
 
-The second script :code:`examples/generator/generate_dataset_survey.py` can be used if simulations have been run using the :code:`simulate_population_magrot_det` script, since it will read the corresponding :code:`.pkl.gz` output files that are produced for each of the simulated surveys.
+The second script :code:`pypopsyn/generator/generate_dataset_survey.py` can be used if simulations have been run using the :code:`simulate_population_magrot_det` script, since it will read the corresponding :code:`.pkl.gz` output files that are produced for each of the simulated surveys.
 For each simulated population, this script can generate a set of density maps in the form of either :code:`.png` images or 2D numpy :code:`.npy` arrays.
 These maps store the spatial density and proper motion information in equatorial (ICRS) reference frames and the density in a :math:`P-\dot{P}` diagram of the simulated neutron stars that have been detected by the modelled surveys only.
 
 Suppose that you have created a set of simulated populations stored in :code:`simulated_data` using the :code:`simulate_population_full` script.
 If you want to create a dataset of 2D arrays storing the spatial density and the velocity information of the simulated neutron stars with a resolution of :math:`64 \times 64` and the density in the :math:`P-\dot{P}` diagram with a resolution of :math:`32 \times 32` you can run the following command:
 
-.. code-block:: bash
+::
 
-  python examples/generator/generate_dataset.py --data simulated_data --save_dir generated_dataset --data_type array --resolution_dyn 64 --resolution_ppdot 32
+  python pypopsyn/generator/generate_dataset_full.py --data simulated_data --save_dir generated_dataset --data_type array --resolution_dyn 64 --resolution_ppdot 32
 
 You need to provide the path to the location where the simulated populations data are stored, the path where to save the dataset that you are going to create, the type of the representations (you can choose :code:`array` or :code:`image`) and the resolution.
 By running the script, the folder :code:`generated_dataset` is created where a set of 2D arrays are stored for each simulated population (sample) along with a :code:`dataset_full.csv` file containing all the information about the dataset and a :code:`statistics_full.json` file containing the statistical information on each label.
@@ -39,12 +39,12 @@ The JSON file contains information about the mean, standard deviation, minimum a
 This statistical information will be used during the training process if one wants to normalize or standardize the label values.
 
 You can also choose to split the dataset into training/validation or into training/validation/test sets.
-To do this you can run the :code:`dataset_splitter.py` script in the :code:`scripts` folder.
+To do this you can run the :code:`dataset_splitter.py` script in the :code:`pypopsyn/generator` folder.
 To generate a dataset split into two subsets, one specifically for training and the other for validation, you can specify a fraction of the total dataset that will form the validation subset by passing the argument :code:`valid_split` in the :code:`dataset_splitter` script. For example:
 
-.. code-block:: bash
+::
 
- python scripts/dataset_splitter.py --dataset_path generated_dataset --valid_split 0.2
+ python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --valid_split 0.2
 
 This will create two files :code:`dataset_train.csv` and :code:`dataset_valid.csv` that will specify the samples belonging to the train dataset (80 % of the total dataset in this case) and the ones belonging to the validation dataset  (20 % of the total dataset).
 The split is performed by randomly sampling the validation subset from the total dataset according to the specified split fraction.
@@ -53,34 +53,47 @@ In this case, the :code:`statistics_train.json` file will contain the statistics
 If you also want to create a test set in addition to the training and validation sets, you can specify the argument :code:`test_split`, which sets the fraction of the total dataset to be dedicated for testing purposes.
 In this case, the :code:`valid_split` argument will specify the fraction of the dataset not used for testing but instead dedicated for validation.
 
-.. code-block:: bash
+::
 
- python scripts/dataset_splitter.py --dataset_path generated_dataset --test_split 0.1 --valid_split 0.2
+ python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --test_split 0.1 --valid_split 0.2
 
 This will create three files :code:`dataset_train.csv`, :code:`dataset_valid.csv` and :code:`dataset_test.csv` that will specify the samples belonging to the train dataset (80 % of the dataset not used for testing in this case), the ones belonging to the validation dataset  (20 % of the dataset not used for testing) and the ones belonging to the test set (10 % of the total dataset), respectively.
 Again the split is performed by randomly sampling the test and validation subsets from the dataset according to the specified split fractions.
 In this case, the :code:`statistics_train.json` file will also contain the statistics computed on the labels of the training set only.
 
-*******************
-Experiment Launcher
-*******************
+The :code:`utilities/experiment_helper/experiment_launcher.py` script allows you to specify a list of experiment commands in a text file like:
 
-The :code:`examples/experiment_launcher.py` script allows you to specify a list of experiment commands in a text file like:
+::
 
-.. code-block:: bash
+  python  pypopsyn/generator/generate_dataset_full.py --data simulated_data --save_dir generated_data/array_64 --type array --resolution_dyn 64 --resolution_ppdot 32
+  python  pypopsyn/generator/generate_dataset_full.py --data simulated_data --save_dir generated_data/array_128 --type array --resolution_dyn 128 --resolution_ppdot 32
+  python  pypopsyn/generator/generate_dataset_full.py --data simulated_data --save_dir generated_data/array_256 --type array --resolution_dyn 256 --resolution_ppdot 32
+  python  pypopsyn/generator/generate_dataset_full.py --data simulated_data --save_dir generated_data/array_512 --type array --resolution_dyn 512 --resolution_ppdot 32
 
-  python  examples/generator/generate_dataset.py --data simulated_data --save_dir generated_data/array_64 --type array --resolution_dyn 64 --resolution_ppdot 32
-  python  examples/generator/generate_dataset.py --data simulated_data --save_dir generated_data/array_128 --type array --resolution_dyn 128 --resolution_ppdot 32
-  python  examples/generator/generate_dataset.py --data simulated_data --save_dir generated_data/array_256 --type array --resolution_dyn 256 --resolution_ppdot 32
-  python  examples/generator/generate_dataset.py --data simulated_data --save_dir generated_data/array_512 --type array --resolution_dyn 512 --resolution_ppdot 32
-
-By default, the command list will be held in :code:`examples/command_list.txt`. Each line should contain one full command (including the :code:`python` program call) to execute an experiment. The script will execute those experiments automatically and in parallel providing a number of maximum simultaneous :code:`--processes`.
+By default, the command list will be held in :code:`command_list.txt`. Each line should contain one full command (including the :code:`python` program call) to execute an experiment. The script will execute those experiments automatically and in parallel providing a number of maximum simultaneous :code:`--processes`.
 Obviously, this number of processes should be set as a function of the number of available threads/cores.
 
 A custom experiments file can be specified with the :code:`--command_list` parameter:
 
-.. code-block:: bash
+::
 
-  python examples/experiment_launcher.py --command_list examples/generator/experiment_list.txt --processes 2
+  python utilities/experiment_helper/experiment_launcher.py --command_list pypopsyn/generator/experiment_list.txt --processes 2
 
 This combined with an intelligent use of the :code:`--save_dir` :term:`CLI` argument will let you run many experiments unattended and check them asynchronously.
+
+
+Generate ATNF maps
+******************
+
+In order to perform inference on the observed data in the ATNF catalog we need to produce the same maps used to train the network but for the observed sample.
+To do this one can use the following command:
+
+::
+
+  python pypopsyn/generator/generate_atnf_catalogue.py
+
+As for the scripts above, you can specify the type of the maps (either :code:`array` or :code:`image`) with the argument :code:`--data_type` and the resolution with the arguments :code:`--resolution_dyn` and :code:`resolution_ppdot`.
+Note that in order for the inference to work with a specific trained model the type and resolution of the maps generated from the ATNF catalog has to match the type and resolution of the simulated maps used to train the model neural network.
+
+This script will generate 6 maps in total, a position density map in ICRS frame and a :math:`P-\dot{P}` density map for each of the three radio surveys modeled by the simulator.
+Moreover a :code:`dataset_atnf.csv` will be created containing summary information of the dataset generated by this method.

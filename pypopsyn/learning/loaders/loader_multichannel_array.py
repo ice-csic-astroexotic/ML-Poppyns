@@ -1,6 +1,9 @@
 """
     Loader for multichannel 2D arrays datasets.
 
+    This loader computes the statistics to perform normalization or standardization on the targets
+    directly on the loaded dataset.
+
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)

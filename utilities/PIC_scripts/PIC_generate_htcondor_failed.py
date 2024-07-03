@@ -36,10 +36,10 @@ def generate_htcondor_failed(args):
         args:
             output_dir_simulation (pathlib.Path): Output directory where the simulation outputs are.
             number_sim_job (int): Number of simulations per job were chosen when running the original set of
-                simulations with HTCondor.
+            simulations with HTCondor.
             dyn_data (pathlib.Path): Path to the file where the dynamically evolved population database is stored.
             type_simulation (str): Type of simulation that we want to run in the PIC with HTCondor.
-                Choose between dyn or magrot.
+            Choose between dyn or magrot.
 
     Returns:
         Nothing.

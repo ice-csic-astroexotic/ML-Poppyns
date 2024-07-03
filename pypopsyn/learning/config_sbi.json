@@ -28,19 +28,19 @@
   },
 
   "training_data_loader": {
-    "dataset_path": "/data/magnesia/common/radio_survey_sim_database/output_generator_res32/dataset_train_25.csv",
-    "statistic_path": "/data/magnesia/common/radio_survey_sim_database/output_generator_res32/statistics_full.json",
+    "dataset_path": "data/example_generator_magrot/dataset_train.csv",
+    "statistic_path": "data/example_generator_magrot/statistics_train.json",
     "filter_inputs": [9, 10, 11],
-    "filter_labels": [12, 13, 14, 15, 16],
+    "filter_labels": [12, 13],
     "normalize": false,
     "standardize": true
   },
 
   "test_data_loader": {
-    "dataset_path": "/data/magnesia/common/radio_survey_sim_database/output_generator_res32/dataset_test_25.csv",
-    "statistic_path": "/data/magnesia/common/radio_survey_sim_database/output_generator_res32/statistics_full.json",
+    "dataset_path": "data/example_generator_magrot/dataset_test.csv",
+    "statistic_path": "data/example_generator_magrot/statistics_train.json",
     "filter_inputs": [9, 10, 11],
-    "filter_labels": [12, 13, 14, 15, 16],
+    "filter_labels": [12, 13],
     "normalize": false,
     "standardize": true
   },
@@ -49,10 +49,10 @@
     "validation_fraction": 0.1,
     "batch_size": 8,
     "lr": 5e-4,
-    "save_dir": "toremove/learning"
+    "save_dir": "data/example_training_sbi"
   },
 
   "infer": {
-    "save_dir": "toremove/inference"
+    "save_dir": "data/example_inference_sbi"
   }
 }
