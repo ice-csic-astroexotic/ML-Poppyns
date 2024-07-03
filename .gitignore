@@ -68,9 +68,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/_build/
-
 # PyBuilder
 target/
 
@@ -135,6 +132,3 @@ multirun/
 .DS_Store/
 tutorials/.DS_Store/
 pypopsyn/simulator/interstellar_medium/ebv_map.npz
-
-# Sphinx documentation
-docs/_build
