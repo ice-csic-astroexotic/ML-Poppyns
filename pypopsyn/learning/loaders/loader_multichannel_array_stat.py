@@ -1,5 +1,7 @@
 """
     Loader for multichannel 2D arrays datasets.
+    This loader import the statistics to perform normalization or standardization on the targets
+    from an already existent statistics.json file.
 
     Authors:
 
