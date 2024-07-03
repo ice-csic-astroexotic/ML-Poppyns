@@ -12,10 +12,11 @@ Location of the files
 #. The scripts to create the necessary files to submit a job and to manage the simulations with HTCondor are found in the :code:`utilities` folder in the subdirectory :code:`PIC_scripts` in our repo. These are:
 
     * :code:`PIC_generate_htcondor_submit.py` generates the necessary HTCondor files to launch jobs.
+    * :code:`PIC_check_simulations.py` checks which simulations have failed from a previous run with HTCondor.
     * :code:`PIC_generate_htcondor_failed.py` checks for failed simulations and generate the HTCondor files to launch them again.
     * After the failed simulations have been launched again and finished successfully, :code:`PIC_manage_failed_simulation.py` is used to transfer the new output back to the original folders.
 #. We use the folder :code:`/data/magnesia/common` to store the HTCondor files since it is PIC's recommended location for storing intermediate data. This is also where we store our simulations and ML experiments on intermediate timescales.
-#. DID WE USE IT ALSO FOR THIS? There is also a scratch folder in MAGNESIA's disk space where output files of each run could be saved. These will however be deleted after each run and would thus need to be transferred elsewhere if required. Below we explain how to transfer files from this scratch directory.
+#. DID WE USE IT ALSO FOR THIS? There is also a scratch folder in :code:`/data/magnesia/scratch` which contains our :code:`conda` environment. This folder also offers extra disk space where output files of each run could be saved. These will however be deleted after each run and would thus need to be transferred elsewhere if required. Below we explain how to transfer files from this scratch directory.
 
 ***************************
 Useful commands in HTCondor
