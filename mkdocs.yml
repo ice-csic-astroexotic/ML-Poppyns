@@ -2,10 +2,18 @@ site_name: pypopsyn documentation
 # Comment out the site_url for now as we cannot deploy this yet.
 #site_url: https://mydomain.org/mysite
 theme:
+  # Load materials theme and adjust some colour settings.
   name: material
+  palette:
+    scheme: slate
+    primary: teal
+    accent: deep orange
   features:
     # Add navigation buttons at the top.
     - navigation.tabs
+# Adding link to github repo.
+repo_url: https://github.com/csic-ice-magnesia/MAGNESIA_population_synthesis
+repo_name: MAGNESIA/population-synthesis
 nav:
   # Overall navigation structure of the documentation.
   - Home: index.md
