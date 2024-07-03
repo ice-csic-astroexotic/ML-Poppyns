@@ -43,6 +43,7 @@ The code has been tested on Ubuntu and macOS.
 
 3. To install the :code:`pypopsyn` package locally and work with the code, navigate to the cloned software repository and run
    ::
+
      python setup.py develop
 
 4. Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local
@@ -54,6 +55,7 @@ The code has been tested on Ubuntu and macOS.
    need to install the `Simulation Based Inference (SBI) <https://sbi-dev.github.io/sbi/>`_ library after activating the
    environment by running:
    ::
+
      pip install sbi==0.22.0
 
 
