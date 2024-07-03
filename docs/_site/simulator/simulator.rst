@@ -251,7 +251,7 @@ Hydrogen Density Model
   :members: nh_model
 
 X-ray Absorption Cross section
-**********************
+******************************
 
 .. automodule:: simulator.interstellar_medium.xray_abs_cross_section
   :members: xray_abs_cross_section
