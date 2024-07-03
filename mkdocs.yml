@@ -1,0 +1,20 @@
+site_name: pypopsyn documentation
+# Comment out the site_url for now as we cannot deploy this yet.
+#site_url: https://mydomain.org/mysite
+theme:
+  name: material
+  features:
+    # Add navigation buttons at the top.
+    - navigation.tabs
+nav:
+  # Overall navigation structure of the documentation.
+  - Home: index.md
+  - The Basics:
+      - basics/introduction.md
+  - Code:
+      - code/simulator.md
+plugins:
+  # Adding plugin to autogenerate documentation.
+  - mkdocstrings
+  # Adding plugin to generate search bar.
+  - search
