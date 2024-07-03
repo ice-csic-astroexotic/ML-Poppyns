@@ -16,12 +16,12 @@ Then you can issue logging messages at the appropriate level:
 
 ::
 
-  log.debug("blablabla")
-  log.info("blablabla")
-  log.warning("blablabla")
-  log.error("blablabla")
+  log.debug("add debug info")
+  log.info("add info")
+  log.warning("add warning message")
+  log.error("add error log message")
 
-As an example if we run the script to simulate a population of 100 neutron stars using the standard configuration file, the following logging information is showed:
+As an example, if we run the script to simulate a population of 100 neutron stars using the standard configuration file, the following logging information is shown:
 
 ::
 
@@ -87,7 +87,7 @@ As an example if we run the script to simulate a population of 100 neutron stars
 
 
 
-If the :code:`show_profiling` in the :code:`pyposyn/simulator/config_simulator.py` file is set to :code:`True`, the timing profile for each section of the simulator is also shown on terminal.
-In general the timing information is saved as a :code:`profile.log` file in the same folder where the output of the simulation is saved.
+If the :code:`show_profiling` option in the :code:`pyposyn/simulator/config_simulator.py` file is set to :code:`True`, the timing profile for each section of the simulator is also shown in the terminal.
+In genera, the timing information is saved as a :code:`profile.log` file in the same folder where the output of the simulation is saved.
 Function-specific profiling can also be activated by setting :code:`enable_profiles` and / or :code:`show_profiles` to :code:`True`.
 The detailed information will be saved in the folder specified under :code:`profiles_dir`.
