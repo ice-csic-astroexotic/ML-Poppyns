@@ -39,7 +39,7 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
         DEC (np.ndarray): array of declination coordinates in deg.
         d (np.ndarray): array of distances in kpc.
 
-    Return:
+    Returns:
         N_H (np.ndarray): array of hydrogen column densities in cm^(-2).
     """
 
@@ -146,7 +146,7 @@ def compute_NH_from_DM(DM: np.ndarray) -> np.ndarray:
     Args:
         DM (np.ndarray): array of dispersion measures in pc cm^-3.
 
-    Return:
+    Returns:
         N_H (np.ndarray): array of hydrogen column densities in cm^(-2).
     """
 
