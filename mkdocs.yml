@@ -5,9 +5,19 @@ theme:
   # Load materials theme and adjust some colour settings.
   name: material
   palette:
-    scheme: slate
-    primary: teal
-    accent: deep orange
+    # Palette toggle for light mode
+    - scheme: default
+      primary: teal
+      accent: deep orange
+      toggle:
+        icon: material/brightness-6
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: deep orange
+      toggle:
+        icon: material/brightness-5
+        name: Switch to light mode
   features:
     # Add navigation buttons at the top.
     - navigation.tabs
