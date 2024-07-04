@@ -27,10 +27,32 @@ repo_name: MAGNESIA/population-synthesis
 nav:
   # Overall navigation structure of the documentation.
   - Home: index.md
-  - The Basics:
-      - basics/introduction.md
+  - Basics:
+      - basics/getting_started.md
+      - basics/testing.md
+      - basics/logging.md
+      - basics/HTCondor.md
+      - basics/dask.md
+  - Tutorials:
+      - tutorials/simulator_tutorial.md
+      - tutorials/generator_tutorial.md
+      - tutorials/learning_tutorial.md
+      - tutorials/learning_tutorial_sbi.md
   - Code:
-      - code/simulator.md
+      - Simulator:
+          - code/simulator/simulator.md
+          - code/simulator/basics.md
+          - code/simulator/stellar_dynamics.md
+          - code/simulator/magneto_rotational_physics.md
+          - code/simulator/interstellar_medium.md
+          - code/simulator/multiband_emission.md
+          - code/simulator/multiband_surveys.md
+      - Generator:
+          - code/generator/generator.md
+      - Learning:
+          - code/learning/learning.md
+      - Utilities:
+          - code/utilities/utilities.md
 plugins:
   # Adding plugin to autogenerate documentation.
   - mkdocstrings
