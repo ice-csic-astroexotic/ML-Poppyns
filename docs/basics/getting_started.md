@@ -11,13 +11,12 @@ The code has been tested on Ubuntu and macOS.
    git clone https://github.com/csic-ice-magnesia/MAGNESIA_population_synthesis.git
    ```
 
-
 2. The repo contains an environment file that can be installed by running
    ```commandline
    conda env create -f environment.yaml
    ```
    
-   NOTE: for OSX users the `cudatoolkit` package has to be commented out in the environment file.
+   **NOTE:** for OSX users the `cudatoolkit` package has to be commented out in the environment file.
 
    This environment can be activated using
    ```commandline
@@ -26,8 +25,7 @@ The code has been tested on Ubuntu and macOS.
    
    To set up the environment on the PIC servers, we specify the full path where the environment will be saved:
    ```commandline
-   conda env create --prefix /data/magnesia/scratch/conda/env/pop_syn 
-     --file /data/magnesia/software/MAGNESIA_population_synthesis/environment.yaml
+   conda env create --prefix /data/magnesia/scratch/conda/env/pop_syn --file /data/magnesia/software/MAGNESIA_population_synthesis/environment.yaml
    ```
    In this case, the environment can be activated using
    ```commandline
@@ -35,7 +33,6 @@ The code has been tested on Ubuntu and macOS.
    ```
 
    We recommend working within this environment when using the code.
-
 
 3. To install the `pypopsyn` package locally and work with the code, navigate to the cloned software repository and run
    ```commandline
