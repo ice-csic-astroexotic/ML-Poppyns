@@ -15,14 +15,11 @@ The code has been tested on Ubuntu and macOS.
    ```commandline
    conda env create -f environment.yaml
    ```
-   
-   **NOTE:** for OSX users the `cudatoolkit` package has to be commented out in the environment file.
-
+   **NOTE:** for OSX users the `cudatoolkit` package has to be commented out in the environment file.  
    This environment can be activated using
    ```commandline
    conda activate pop_syn
    ```
-   
    To set up the environment on the PIC servers, we specify the full path where the environment will be saved:
    ```commandline
    conda env create --prefix /data/magnesia/scratch/conda/env/pop_syn --file /data/magnesia/software/MAGNESIA_population_synthesis/environment.yaml
@@ -31,7 +28,6 @@ The code has been tested on Ubuntu and macOS.
    ```commandline
    conda activate /data/magnesia/scratch/conda/env/pop_syn
    ```
-
    We recommend working within this environment when using the code.
 
 3. To install the `pypopsyn` package locally and work with the code, navigate to the cloned software repository and run
