@@ -58,3 +58,7 @@ plugins:
   - mkdocstrings
   # Adding plugin to generate search bar.
   - search
+
+markdown_extensions:
+  # Adding extension to correctly render indented code blocks.
+  - pymdownx.superfences
