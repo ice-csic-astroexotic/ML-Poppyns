@@ -38,10 +38,10 @@ def magnetic_field_evolution_fit_numpy(
     magneto_rotational_evolution method.
 
     Args:
-        B_initial(float): initial magnetic field strength in [G].
-        t(np.ndarray): time in [s].
-        B_asymptotic(float): asymptotic magnetic field strength at late times in [G].
-        a_late(float): power-law index for the late-time evolution of the magnetic field strength.
+        B_initial (float): initial magnetic field strength in [G].
+        t (np.ndarray): time in [s].
+        B_asymptotic (float): asymptotic magnetic field strength at late times in [G].
+        a_late (float): power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
         (np.ndarray): magnetic field evolution in [G] as a function of time t.
@@ -94,10 +94,10 @@ def magnetic_field_evolution_fit(
     magneto_rotational_evolution method.
 
     Args:
-        B_initial(float): initial magnetic field strength in [G].
-        t(float): time in [s].
-        B_asymptotic(float): asymptotic magnetic field strength at late times in [G].
-        a_late(float): power-law index for the late-time evolution of the magnetic field strength.
+        B_initial (float): initial magnetic field strength in [G].
+        t (float): time in [s].
+        B_asymptotic (float): asymptotic magnetic field strength at late times in [G].
+        a_late (float): power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
         (float): magnetic field value in [G] at time t.
@@ -161,8 +161,8 @@ def combined_derivatives(
         y (np.ndarray): two magneto-rotational parameters, i.e., chi in [rad]
         and P in [s] for a single pulsar at a given time.
         B_initial (float): initial magnetic field magnitude for one pulsar, measured in [G].
-        B_asymptotic(float): asymptotic magnetic field strength at late times in [G].
-        a_late(float): power-law index for the late-time evolution of the magnetic field strength.
+        B_asymptotic (float): asymptotic magnetic field strength at late times in [G].
+        a_late (float): power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
         (np.ndarray): derivative of the two magneto-rotational parameters for one pulsar,
@@ -202,13 +202,12 @@ def magneto_rotational_evolution(
         chi_initial (np.ndarray): pulsars' initial misalignment angles, measured in [rad].
         P_initial (np.ndarray): pulsars' initial rotation periods, measured in [s].
         t_age (np.ndarray): array of neutron star ages in [yr].
-        a_late(float): power-law index for the late-time evolution of the magnetic field strength.
+        a_late (float): power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray, dict): Tuple consisting of three arrays
-        defining the neutron stars' final magnetic field strengths in [G],
-        misalignment angles in [rad] and rotation periods in [s] and a dictionary containing
-        the time evolution of these quantities for each neutron star (if the option to save
+        (np.ndarray, np.ndarray, np.ndarray, dict): Tuple consisting of three arrays defining the neutron stars'
+        final magnetic field strengths in [G], misalignment angles in [rad] and rotation periods in [s] and a
+        dictionary containing the time evolution of these quantities for each neutron star (if the option to save
         the time evolution is enabled).
     """
 
