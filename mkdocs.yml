@@ -52,6 +52,7 @@ nav:
           - code/generator/maps.md
       - Learning:
           - code/learning/learning.md
+          - code/learning/initializers.md
       - Utilities:
           - code/utilities/utilities.md
 plugins:
