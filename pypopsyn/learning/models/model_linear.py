@@ -24,8 +24,8 @@ class ModelLinear(ModelBase):
         """Linear model initialization.
 
         Args:
-            input_shape: Shape of the input batch (C x H x W).
-            num_parameters: Number of parameters to predict.
+            input_shape (np.array): Shape of the input batch (C x H x W).
+            num_parameters (int): Number of parameters to predict.
 
         """
 

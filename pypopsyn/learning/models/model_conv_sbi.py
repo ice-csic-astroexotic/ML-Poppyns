@@ -28,8 +28,8 @@ class ModelConvSBI(ModelBase):
         This CNN automatically adapts to the shape of the initial input features.
 
         Args:
-            input_shape: Shape of the input batch (C x H x W).
-            len_output_layer: length of the latent vector.
+            input_shape (np.array): Shape of the input batch (C x H x W).
+            len_output_layer (int): length of the latent vector.
 
         """
 
