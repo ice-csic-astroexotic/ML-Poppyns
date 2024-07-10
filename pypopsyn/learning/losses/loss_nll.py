@@ -24,11 +24,11 @@ class LossNLL(LossBase):
         """Computation of the negative log-likelihood.
 
         Args:
-            output: Network output tensor (predictions).
-            target: Ground truth tensor (labels).
+            output (torch.Tensor): Network output tensor (predictions).
+            target (torch.Tensor): Ground truth tensor (labels).
 
         Returns:
-            Tensor with a NLL loss value for each input pair output-target.
+            (torch.Tensor): Tensor with a NLL loss value for each input pair output-target.
 
         """
         return F.nll_loss(output, target)
