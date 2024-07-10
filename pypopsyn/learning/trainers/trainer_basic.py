@@ -47,7 +47,7 @@ class TrainerBasic(BaseTrainer):
         Args:
             model (torch.nn.Module): network model to train.
             criterion (pypopsyn.LossBase): criterion for the loss calculation.
-            metrics (pypopsyn.MetricBase): accuracy metric to be computed.
+            metric (pypopsyn.MetricBase): accuracy metric to be computed.
             optimizer (torch.optim.Optimizer): optimizer for training.
             configuration (pypopsyn.learning.configuration_parser): config dict.
             train_loader (pypopsyn.learning.loaders.loader_base): train loader.
@@ -120,18 +120,17 @@ class TrainerBasic(BaseTrainer):
         Single-epoch training routine.
 
         Args:
-            epoch: Current epoch number.
+            epoch (int): Current epoch number.
 
         Returns:
-            dict: a dictionary with the results for the epoch, i.e., the
-            average for the losses and for the tracked metric for the training
-            set.
-            dict: the same but for the validation set (if available, None is
-            returned otherwise).
-            dict: a dictionary with the values for each individual loss for
-            each one of the targets. If validation is performed, such losses
-            correspond to validation losses, otherwise they are the training
-            set losses.
+            (dict): a dictionary with the results for the epoch, i.e., the
+                average for the losses and for the tracked metric for the training set.
+            (dict): the same but for the validation set (if available, None is
+                returned otherwise).
+            (dict): a dictionary with the values for each individual loss for
+                each one of the targets. If validation is performed, such losses
+                correspond to validation losses, otherwise they are the training
+                set losses.
 
         """
 
@@ -310,8 +309,8 @@ class TrainerBasic(BaseTrainer):
             epoch (int): Current epoch number.
 
         Returns:
-            A dictionary which contains the results of the validation over the
-            whole dataset for all the requested metrics and losses.
+            (dict): A dictionary which contains the results of the validation over the
+                whole dataset for all the requested metrics and losses.
 
         """
 

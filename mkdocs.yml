@@ -59,6 +59,7 @@ nav:
           - code/learning/losses.md
           - code/learning/metrics.md
           - code/learning/models.md
+          - code/learning/trainers.md
       - Utilities:
           - code/utilities/utilities.md
 plugins:

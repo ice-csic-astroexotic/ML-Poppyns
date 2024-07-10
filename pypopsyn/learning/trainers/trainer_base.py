@@ -141,11 +141,11 @@ class BaseTrainer:
                 and checkpoints. Can be none if no trial is specified.
 
         Returns:
-            dict: a dictionary with the best values for each individual loss for
-            each one of the targets.
-            float: the best result for the specified metric over the whole
-            training process (validation accuracy according to the metric if
-            validation is performed and training accuracy otherwise).
+            (dict): a dictionary with the best values for each individual loss for
+                each one of the targets.
+            (float): the best result for the specified metric over the whole
+                training process (validation accuracy according to the metric if
+                validation is performed and training accuracy otherwise).
 
         """
 
@@ -290,9 +290,9 @@ class BaseTrainer:
         Epoch progress tracker.
 
         Args:
-            batch_idx: Current batch index.
+            batch_idx (int): Current batch index.
             data_loader: Data loader in use.
-            len_epoch: Length of a whole epoch.
+            len_epoch (int): Length of a whole epoch.
 
         Returns:
             A string representation of the progress in the current epoch.
@@ -322,12 +322,11 @@ class BaseTrainer:
         configuration.
 
         Args:
-            epoch: current training epoch.
-            filename: filename to save the checkpoint to.
+            epoch (int): current training epoch.
+            filename (str): filename to save the checkpoint to.
 
         Returns:
-            Nothing. Saves the checkpoint in the checkpoint folder with
-            the specified filename.
+            Nothing. Saves the checkpoint in the checkpoint folder with the specified filename.
 
         """
 
