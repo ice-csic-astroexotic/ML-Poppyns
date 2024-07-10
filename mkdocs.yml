@@ -57,6 +57,7 @@ nav:
           - code/learning/loaders.md
           - code/learning/logger.md
           - code/learning/losses.md
+          - code/learning/metrics.md
       - Utilities:
           - code/utilities/utilities.md
 plugins:
@@ -66,6 +67,5 @@ plugins:
   - search
 
 markdown_extensions:
-  # Adding extension to correctly render indented code blocks.
   - pymdownx.superfences
   - pymdownx.arithmatex

@@ -27,14 +27,18 @@ class MetricBase:
     @abc.abstractmethod
     def __call__(self, output, target) -> float:
 
-        """Actual computation of the metric function."""
+        """
+        Actual computation of the metric function.
+        """
 
         raise NotImplementedError
 
     @abc.abstractmethod
     def __str__(self) -> str:
 
-        """String representation of the metric."""
+        """
+        String representation of the metric.
+        """
 
         raise NotImplementedError
 
@@ -48,14 +52,15 @@ class MetricBase:
     @abc.abstractmethod
     def improved(self, value_a, value_b) -> bool:
 
-        """Check if the metric value has improved.
+        """
+        Check if the metric value has improved.
 
         Args:
-            value_a: First value to compare.
-            value_b: Second value to compare.
+            value_a (torch.Tensor): First value to compare.
+            value_b (torch.Tensor): Second value to compare.
 
         Returns:
-            True if the second value is better than the first, false otherwise.
+            (bool): True if the second value is better than the first, false otherwise.
 
         """
 
