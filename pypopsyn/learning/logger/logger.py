@@ -35,8 +35,8 @@ def setup_logging(
     configuration file.
 
     Args:
-        log_dir: The directory to output the log files to.
-        log_config_file: Path to the JSON configuration file.
+        log_dir (str): The directory to output the log files to.
+        log_config_file (str): Path to the JSON configuration file.
         default_level: Default logging level.
 
     Returns:

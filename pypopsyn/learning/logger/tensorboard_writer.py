@@ -120,9 +120,9 @@ class TensorboardWriter:
             name (str): The name of the Tensorboard method to access.
 
         Returns:
-            function: A wrapped function that adds additional information (step, tag) to the Tensorboard log entry.
-            If visualization is configured to use returns add_data() methods of tensorboard with additional information
-            (step, tag) added. Otherwise returns a blank function handle that does nothing.
+            (function): A wrapped function that adds additional information (step, tag) to the Tensorboard log entry.
+                If visualization is configured to use returns add_data() methods of tensorboard with additional
+                information (step, tag) added. Otherwise returns a blank function handle that does nothing.
         """
 
         if name in self.tb_writer_ftns:
