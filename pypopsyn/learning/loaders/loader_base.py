@@ -29,7 +29,7 @@ class LoaderBase(torch.utils.data.DataLoader):
         num_workers: int,
         shuffle: bool = False,
         collate_fn=torch.utils.data.dataloader.default_collate,
-    ):
+    ) -> None:
         """
         Initialization of base loader.
 

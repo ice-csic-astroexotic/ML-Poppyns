@@ -27,15 +27,13 @@ class DatasetMultichannelImage:
 
     def __init__(self, file_path, ignore=[], ignore_labels=[], transform=None):
         """
-            Initialization or constructor function for the dataset.
+        Initialization or constructor function for the dataset.
 
         Args:
             file_path (str): path to the dataset.csv file containing all the
-            information on the dataset.
-
+                information on the dataset.
             ignore (list): indices of the columns of the dataset that
-            will be ignored by the loader.
-
+                will be ignored by the loader.
             transform: transformations to apply to the images.
         """
         self.dataset = pd.read_csv(file_path)
@@ -47,28 +45,27 @@ class DatasetMultichannelImage:
 
     def __len__(self):
         """
-            Length of the dataset (number of samples).
+        Length of the dataset (number of samples).
 
         Returns:
-            int: length of the dataset
+            (int): length of the dataset
 
         """
         return len(self.dataset)
 
     def __getitem__(self, index):
         """
-            Read the dataset and extract the images and the corresponding labels.
+        Read the dataset and extract the images and the corresponding labels.
 
         Args:
             index (int): index running along the rows of the dataset.csv file.
 
         Returns:
-            np.ndarray or torch tensor: multi-channel 2D image composed by all the
+            (np.ndarray or torch tensor): multi-channel 2D image composed by all the
             input maps from the dataset for the specified sample with shape
             N x N x channels where N is the number of pixels along a row or
             column of the .png file.
-
-            np.ndarray: labels (ground truth) of each image.
+            (np.ndarray): labels (ground truth) of each image.
         """
 
         channels = []
@@ -112,9 +109,9 @@ class LoaderMultichannelImage(LoaderBase):
         ignored_labels: list,
         num_workers: int = 1,
         shuffle: bool = False,
-    ):
+    ) -> None:
         """
-        data loader for the density maps dataset. The dataset is expected to be
+        Data loader for the density maps dataset. The dataset is expected to be
         packed in dataset.csv file.
 
         Args:

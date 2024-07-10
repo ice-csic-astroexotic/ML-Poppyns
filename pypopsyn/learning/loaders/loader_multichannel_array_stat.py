@@ -29,7 +29,7 @@ class DatasetMultichannelArray:
     tensor for the loader. Labels will be generated as a vector.
     """
 
-    def __import_statistics(self, statistic_path):
+    def __import_statistics(self, statistic_path) -> None:
         """
         Import dataset statistics for normalization and standardization.
 
@@ -77,7 +77,7 @@ class DatasetMultichannelArray:
             dtype=np.float32,
         )
 
-    def __fetch_target_names(self):
+    def __fetch_target_names(self) -> None:
         """
         Fetch the names of the targets/labels from the dataset file.
 
@@ -150,7 +150,7 @@ class DatasetMultichannelArray:
         Length of the dataset (number of samples).
 
         Returns:
-            int: length of the dataset
+            (int): length of the dataset
 
         """
         return len(self.dataset)
@@ -163,13 +163,11 @@ class DatasetMultichannelArray:
             index (int): index running along the rows of the dataset CSV file.
 
         Returns:
-            np.ndarray: multi-channel 2D array composed by stacking all input
-            arrays specified in the dataset for the requested sample with
-            shape N x N x channels where N is the number of entries along a
-            row or column of the array in the .npy file.
-
-            np.ndarray: labels for the requested sample.
-
+            (np.ndarray): multi-channel 2D array composed by stacking all input
+                arrays specified in the dataset for the requested sample with
+                shape N x N x channels where N is the number of entries along a
+                row or column of the array in the .npy file.
+            (np.ndarray): labels for the requested sample.
         """
 
         channels = []
@@ -241,7 +239,7 @@ class LoaderMultichannelArray(LoaderBase):
         shuffle: bool = False,
         normalize: bool = False,
         standardize: bool = False,
-    ):
+    ) -> None:
         """
         Data loader for a multi-channel array-based dataset. The dataset is
         expected to be packed in a dataset.csv file and contain paths to .npy

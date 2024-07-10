@@ -53,6 +53,8 @@ nav:
       - Learning:
           - code/learning/learning.md
           - code/learning/initializers.md
+          - code/learning/layers.md
+          - code/learning/loaders.md
       - Utilities:
           - code/utilities/utilities.md
 plugins:
