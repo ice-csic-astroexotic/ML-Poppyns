@@ -180,7 +180,7 @@ class GalaxyModelM19(GalaxyModelBase):
 
         Returns:
             (float, float): value of the shape parameter and its derivative with
-            respect to z.
+                respect to z.
         """
 
         a_d = self.a_d
@@ -450,7 +450,7 @@ class GalaxyModelM19(GalaxyModelBase):
 
         Returns:
             (np.ndarray): gradient of the galactic potential in cylindrical
-            coordinates.
+                coordinates.
         """
 
         dpot_d_dr, dpot_d_dz = self.r_z_derivatives_d_potential(r, z)
@@ -525,7 +525,7 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         Returns:
             (float, float): value of the shape parameter and its derivative with
-            respect to z.
+                respect to z.
         """
 
         a_d = self.a_d
@@ -657,7 +657,7 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         Returns:
             (float, float): derivatives with respect to r and z of the disk-halo
-            potential.
+                potential.
         """
 
         M_dh = self.M_dh
@@ -761,7 +761,7 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         Returns:
             (np.ndarray): gradient of the galactic potential in cylindrical
-            coordinates.
+                coordinates.
         """
 
         dpot_dh_dr, dpot_dh_dz = self.r_z_derivatives_dh_potential(r, z)

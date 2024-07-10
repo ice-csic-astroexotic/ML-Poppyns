@@ -113,7 +113,7 @@ def smear_initial_coordinates(
     Returns:
 
         (np.ndarray, np.ndarray): galactocentric coordinates phi [rad], r [kpc] with
-        noise applied.
+            noise applied.
 
     """
 
@@ -135,13 +135,13 @@ def spiral_arm_time_evol(phi0: np.ndarray, t: np.ndarray) -> np.ndarray:
     Args:
 
         phi0 (np.ndarray): current angular positions in [rad] for the chosen
-        spiral pattern.
+            spiral pattern.
         t (np.ndarray): times in [yr] to propagate backward.
 
     Returns:
 
         (np.ndarray): angular positions in [rad] for the spiral pattern as they were
-        t years ago.
+            t years ago.
 
     """
 
@@ -172,7 +172,7 @@ def calculate_noise_for_coordinates(
     Returns:
 
         (np.ndarray, np.ndarray): array of noise for the galactocentric coordinates
-        phi [rad], r [kpc].
+            phi [rad], r [kpc].
 
     """
 

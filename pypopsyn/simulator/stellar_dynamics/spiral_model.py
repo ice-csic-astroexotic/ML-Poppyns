@@ -68,12 +68,10 @@ class SpiralModelBase:
         and the limited extension of the Local arm with respect to the other arms.
 
         Args:
-
             arm_number (int): number of arms to simulate.
             NS_number (int): number of stars to simulate.
 
         Returns:
-
             (np.ndarray) array of random indices for the spiral arm associated to each star.
 
         """
@@ -102,13 +100,11 @@ class SpiralModelBase:
         Check that the index for the spiral galaxy arms is not <1 or >5.
 
         Args:
-
             arm_index (np.ndarray): index for the respective spiral arms.
 
         Returns:
-
             Returns None if arm_index between or equal to 1 and 5,
-            otherwise raises ValueError.
+                otherwise raises ValueError.
 
         """
         if np.any(arm_index < 1) or np.any(arm_index > 5):
@@ -123,10 +119,9 @@ class SpiralModelBase:
         to eq. (12) of Faucher-Giguère & Kaspi (2006) (see also Wainscoat et al. 1992).
 
         Args:
-
             r (np.ndarray): distances from the galactic center in [kpc].
             arm_index (np.ndarray): indices for the respective spiral arms,
-            0 < arm_index < 6.
+                0 < arm_index < 6.
 
         Returns:
 
