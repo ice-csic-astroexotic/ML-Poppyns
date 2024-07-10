@@ -19,14 +19,12 @@ def request_device(
 
     Args
         logger: A logger to log information to.
-        num_gpu: Number of GPUs requested.
+        num_gpu (int): Number of GPUs requested.
 
     Returns:
-        A tuple containing the kind of device the pipeline can run on and
-        a list of devices if available.
-
-        If no GPUs are available or zero are requested, the returned device
-        is CPU.
+        (torch.device, list): A tuple containing the kind of device the pipeline can run on and
+            a list of devices if available. If no GPUs are available or zero are requested, the returned device
+            is CPU.
 
     """
 
