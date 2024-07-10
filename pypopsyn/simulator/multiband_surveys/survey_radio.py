@@ -266,7 +266,7 @@ class SurveyRadio:
     The parameters for the survey are imported from a JSON file.
     """
 
-    def __import_parameters(self, parameters_path):
+    def __import_parameters(self, parameters_path) -> None:
         """
         This routine imports the parameters of a radio survey.
 
@@ -320,7 +320,7 @@ class SurveyRadio:
     def __init__(
         self,
         parameters_path,
-    ):
+    ) -> None:
         """
         Radio survey initialization.
 

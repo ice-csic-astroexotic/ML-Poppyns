@@ -50,8 +50,7 @@ class InitialNeutronStarPopulation:
         probability distribution in a given range of time.
 
         Returns:
-
-            np.ndarray: array of ages in [yr].
+            (np.ndarray): array of ages in [yr].
 
         """
 
@@ -83,14 +82,11 @@ class InitialNeutronStarPopulation:
         This 2D array is used to sample the neutron star positions in the Galaxy.
 
         Args:
-
             t_age (np.ndarray): array of neutron star ages in [yr].
 
         Returns:
-
-            (np.ndarray, np.ndarray, np.ndarray):
-            polar r, phi and z coordinates in [kpc], [rad] and [kpc] respectively
-            for each generated neutron star.
+            (np.ndarray, np.ndarray, np.ndarray): polar r, phi and z coordinates in [kpc], [rad] and [kpc]
+                respectively for each generated neutron star.
         """
 
         # Load the neutron star density model table.
@@ -140,12 +136,11 @@ class InitialNeutronStarPopulation:
         galactocentric coordinate system.
 
         Returns:
-
             (np.ndarray, np.ndarray, np.ndarray): vk_r, vk_phi and vk_z kick
-            velocities in [kpc/yr] for each generated neutron stars. In particular
-            vk_r is the component of the kick velocity along the galactocentric
-            radial direction, vk_phi is the component along the azimuthal phi
-            direction and vk_z is the component along the z direction.
+                velocities in [kpc/yr] for each generated neutron stars. In particular
+                vk_r is the component of the kick velocity along the galactocentric
+                radial direction, vk_phi is the component along the azimuthal phi
+                direction and vk_z is the component along the z direction.
 
         """
 
@@ -197,15 +192,12 @@ class InitialNeutronStarPopulation:
         values, the phi component is negative.
 
         Args:
-
             r (np.ndarray): distance in the galactic disk from the galactic center
-            in [kpc].
+                in [kpc].
             z (np.ndarray): height from the galactic disk in [kpc].
 
         Returns:
-
             (np.ndarray): array of orbital velocities in [kpc/yr].
-
         """
         circular_velocity_vect = np.vectorize(iv.circular_velocity)
         v_orb = -circular_velocity_vect(r, z)
@@ -219,9 +211,7 @@ class InitialNeutronStarPopulation:
         parameters are defined in config_simulator.py.
 
         Returns:
-
             (np.ndarray): initial spin periods of the pulsar sample in [s].
-
         """
 
         spin_period_model = cfg["spin_period_model"]
@@ -253,9 +243,7 @@ class InitialNeutronStarPopulation:
         themselves normally distributed. The characteristic parameters are defined in config_simulator.py.
 
         Returns:
-
             (np.ndarray): initial magnetic field strengths of the pulsar sample in [G].
-
         """
 
         B_rand = 10 ** np.random.normal(
@@ -272,9 +260,7 @@ class InitialNeutronStarPopulation:
         range [0, np.pi / 2] according to the probability density distribution np.sin.
 
         Returns:
-
             (np.ndarray): initial misalignment angles of the pulsar sample in [rad].
-
         """
 
         chi_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
