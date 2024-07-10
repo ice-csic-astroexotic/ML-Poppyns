@@ -39,7 +39,7 @@ def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
         dataset_dict (dict): Dictionary containing the information on the dataset.
         split (float): Fraction of set_1 size with respect to the provided dataset size.
 
-    Return:
+    Returns:
         (dict, dict): Two dictionaries providing the information on the two sub-datasets created from the split.
     """
 

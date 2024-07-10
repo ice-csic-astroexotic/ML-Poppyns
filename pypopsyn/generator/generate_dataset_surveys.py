@@ -67,35 +67,23 @@ def create_survey_maps(
     and generates a set of density maps in the specified format (images or arrays) and with a specified resolution.
 
     Args:
-
         simulation_output_path (str): Path to where the simulated populations are located.
-
         dataset_path (str): Path to where the generated dataset will be saved.
-
         survey_name (str): Survey acronym.
-
         survey_filename (str): Survey filename.
-
         sample_number (int): Number to suffix this map in the dataset.
-
         data_type (str): Type of dataset to generate: array or image.
-
         resolution_dyn (int): Resolution (number of bins per axis for the 2d
             histograms) for the position and velocity maps to generate. In case of RA DEC maps the
             DEC axis has half the number of bins with respect to the RA axis.
-
         resolution_ppdot (int): Resolution (number of bins per axis for the 2d
             histograms) for the P-Pdot density maps to generate.
-
         dictionary_position_map_radec (dict): Dictionary containing the path to the position maps in RA, DEC for
             all the simulated surveys.
-
         dictionary_velocity_map_vra (dict): Dictionary containing the path to the proper motion maps in RA for
             all the simulated surveys.
-
         dictionary_velocity_map_vdec (dict): Dictionary containing the path to the proper motion maps in DEC for
             all the simulated surveys.
-
         dictionary_ppdot_map (dict): Dictionary containing the path to the P-Pdot maps for
             all the simulated surveys.
 
@@ -189,17 +177,13 @@ def generate_dataset(args) -> None:
     Args:
         args:
             data (str): Path to where the simulated populations are located.
-
             save_dir (str): Path to where the generated dataset will be saved.
-
             data_type (str): Type of dataset to generate: array or image.
-
             resolution_dyn (int): Resolution (number of bins per axis for the 2d
-            histograms) for the position and velocity maps to generate. In case of RA DEC maps the
-            DEC axis has half the number of bins with respect to the RA axis.
-
+                histograms) for the position and velocity maps to generate. In case of RA DEC maps the
+                DEC axis has half the number of bins with respect to the RA axis.
             resolution_ppdot (int): Resolution (number of bins per axis for the 2d
-            histograms) for the P-Pdot density maps to generate.
+                histograms) for the P-Pdot density maps to generate.
 
     Returns:
         Nothing.

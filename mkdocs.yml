@@ -49,6 +49,7 @@ nav:
           - code/simulator/multiband_surveys.md
       - Generator:
           - code/generator/generator.md
+          - code/generator/maps.md
       - Learning:
           - code/learning/learning.md
       - Utilities:

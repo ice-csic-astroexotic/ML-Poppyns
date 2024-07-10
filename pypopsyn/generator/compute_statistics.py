@@ -26,9 +26,8 @@ def compute_statistics(dataset_dict: dict) -> dict:
     Args:
         dataset_dict (dict): Dictionary containing the information on the dataset.
 
-    Return:
-        dict: Dictionary providing the statistical information of each label.
-
+    Returns:
+        (dict): Dictionary providing the statistical information of each label.
     """
 
     statistics_dictionary = {}
