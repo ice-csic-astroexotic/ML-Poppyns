@@ -159,7 +159,7 @@ def combined_derivatives(
     Args:
         t (float): unused time variable, required for the integration below.
         y (np.ndarray): two magneto-rotational parameters, i.e., chi in [rad]
-        and P in [s] for a single pulsar at a given time.
+            and P in [s] for a single pulsar at a given time.
         B_initial (float): initial magnetic field magnitude for one pulsar, measured in [G].
         B_asymptotic (float): asymptotic magnetic field strength at late times in [G].
         a_late (float): power-law index for the late-time evolution of the magnetic field strength.
@@ -206,9 +206,9 @@ def magneto_rotational_evolution(
 
     Returns:
         (np.ndarray, np.ndarray, np.ndarray, dict): Tuple consisting of three arrays defining the neutron stars'
-        final magnetic field strengths in [G], misalignment angles in [rad] and rotation periods in [s] and a
-        dictionary containing the time evolution of these quantities for each neutron star (if the option to save
-        the time evolution is enabled).
+            final magnetic field strengths in [G], misalignment angles in [rad] and rotation periods in [s] and a
+            dictionary containing the time evolution of these quantities for each neutron star (if the option to save
+            the time evolution is enabled).
     """
 
     # Save the number of simulated neutron stars, which is flexible depending on whether

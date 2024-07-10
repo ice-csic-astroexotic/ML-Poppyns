@@ -32,9 +32,9 @@ def misalignment_angle_derivative(B: float, chi: float, P: float) -> float:
 
     Args:
         B (float): values of the dipolar component of the magnetic field at the
-        magnetic pole for the sample of simulated neutron stars, measured in [G].
+            magnetic pole for the sample of simulated neutron stars, measured in [G].
         chi (float): angles between the magnetic dipolar moment, i.e., the magnetic
-        field axis, and the rotation axis for all simulated pulsars, measured in [rad].
+            field axis, and the rotation axis for all simulated pulsars, measured in [rad].
         P (float): spin periods of simulated pulsars, measured in [s].
 
     Returns:

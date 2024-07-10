@@ -27,7 +27,7 @@ def beam_aperture(P: np.ndarray, r_em: float) -> np.ndarray:
     Args:
         P (np.ndarray): array of spin periods of the pulsars in [s].
         r_em (float): distance from the center of the star where the radio emission
-        is supposed to be generated [cm].
+            is supposed to be generated [cm].
 
     Returns:
         (np.ndarray): half angular aperture of the radio beam in [rad].
@@ -51,7 +51,7 @@ def pulse_width(
         chi (np.ndarray): array of inclination angles between the magnetic axis and the rotation axis [rad].
         rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
         los (np.ndarray): polar angles of the line of sight intercept computed with respect
-        to the rotation axis of the star [rad].
+            to the rotation axis of the star [rad].
 
     Returns:
         (np.ndarray): array of intrinsic pulse widths in [rad].
@@ -100,7 +100,7 @@ def beam_fraction(chi: np.ndarray, rho_b: np.ndarray) -> np.ndarray:
 
     Args:
         chi (np.ndarray): array of inclination angles of the magnetic axis
-        with respect to the rotation axis of the pulsars in [rad].
+            with respect to the rotation axis of the pulsars in [rad].
         rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
 
     Returns:
@@ -125,7 +125,7 @@ def los_intercept(
         chi (np.ndarray): array of inclination angles of the pulsars in [rad].
         rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
         los (np.ndarray): polar angle of the line of sight intercept computed with respect
-        to the rotation axis of the star [rad].
+            to the rotation axis of the star [rad].
 
     Returns:
         (np.ndarray): array of boolean variables: true if the radio beam intercepts the LOS and false if not.
