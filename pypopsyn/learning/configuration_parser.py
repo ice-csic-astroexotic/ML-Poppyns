@@ -20,13 +20,22 @@ import pypopsyn.learning.utils.json as learning_utils_json
 
 class ConfigurationParser:
 
-    """ConfigurationParser"""
+    """
+    ConfigurationParser
+    """
 
     def __init__(
-        self, configuration, infer, options=None, resume=None, run_id=None
+        self,
+        configuration: dict,
+        infer: bool,
+        options=None,
+        resume=None,
+        run_id=None,
     ) -> None:
 
-        """Initialize instance."""
+        """
+        Initialize instance.
+        """
 
         # Load configuration file and apply specified options.
         self._configuration = self._update_configuration(
@@ -65,7 +74,9 @@ class ConfigurationParser:
     @classmethod
     def from_args(cls, args, options=""):
 
-        """Initialize configuration from command line arguments."""
+        """
+        Initialize configuration from command line arguments.
+        """
 
         # Add custom CLI options to arguments.
         for opt in options:
@@ -90,24 +101,22 @@ class ConfigurationParser:
         return cls(configuration, args.infer, modification, args.trained_model)
 
     def init_object(self, name: str, module, *args, **kwargs):
-        """Object handler finder.
+        """
+        Object handler finder.
 
         Finds an object handle with the provided name as type in the parsed
         configuration and gets its initialized instance with the arguments.
 
         Args:
-
-            name: Name of the object to find.
+            name (str): Name of the object to find.
             module: The Python module where the object class resides.
             args: Extra arguments for creating the instance.
             kwargs: Extra arguments for creating the instance.
 
         Returns:
-
             The object instance initialized with the provided arguments if
             the name of the requested object exists in the configuration
             dictionary. None otherwise.
-
         """
 
         if name in self._configuration:
@@ -120,17 +129,15 @@ class ConfigurationParser:
 
     def get_logger(self, name: str, verbosity: int = 2):
 
-        """Logger getter.
+        """
+        Logger getter.
 
         Args:
-
-            name: Name for the logger.
-            verbosity: Logging level. By default it is set to INFO.
+            name (str): Name for the logger.
+            verbosity (int): Logging level. By default it is set to INFO.
 
         Returns:
-
             Initialized logger with the specified name and verbosity level.
-
         """
 
         logger = logging.getLogger(name)
@@ -139,26 +146,28 @@ class ConfigurationParser:
 
     def __getitem__(self, name: str):
 
-        """Dictionary-like access to the configuration class."""
+        """
+        Dictionary-like access to the configuration class.
+        """
         return self._configuration[name]
 
-    def _update_configuration(self, configuration, modifications):
+    def _update_configuration(
+        self, configuration: dict, modifications: dict
+    ) -> dict:
 
-        """Helper function to update configuration dictionary.
+        """
+        Helper function to update configuration dictionary.
 
         Updates the configuration dictionary with custom CLI options. If no
         modifications are provided, the same configuration dictionary is
         returned.
 
         Args:
-
-            configuration: The configuration dictionary.
-            modifications: Additional parsed command line options.
+            configuration (dict): The configuration dictionary.
+            modifications (dict): Additional parsed command line options.
 
         Returns:
-
-            The updated configuration dictionary.
-
+            (dict): The updated configuration dictionary.
         """
 
         def _apply_update(k, v):

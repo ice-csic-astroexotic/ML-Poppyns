@@ -74,13 +74,13 @@ def calculate_smallest_hdr(
     Args:
         posterior (DirectPosterior): Posterior distribution.
         theta (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
-        population in matrix.
+            population in matrix.
         matrix (torch.tensor): Tensor containing the maps of the simulated population.
         n_samples_coverage (float): Number of approximate posterior samples used for computing the coverage.
         device (torch.device): Device used to run the script.
 
     Returns:
-        np.ndarray: Smallest highest density region of the posterior that contains the true value.
+        (np.ndarray): Smallest highest density region of the posterior that contains the true value.
     """
     hdr = np.zeros(len(theta))
 
@@ -116,7 +116,7 @@ def build_network(
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
-        architecture and other settings.
+            architecture and other settings.
         device (torch.device): Device used to run the script.
 
     Returns:
@@ -174,12 +174,12 @@ def wrapper_pypopsyn(
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
         round_current (int): Number of current round during the sequential inference approach.
         test (bool): Flag indicating whether the simulations are for testing or training. If set to True, the
-        simulations are for testing purposes.
+            simulations are for testing purposes.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
         device (torch.device): Device used to run the script.
 
     Returns:
-        str: Path to the generated dataset.
+        (str): Path to the generated dataset.
     """
 
     # Setting paths.
@@ -334,12 +334,12 @@ def prepare_dataset_sbi(
         train_data_set (str): Path to the training dataset.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
         atnf (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to
-        the observed population or to a simulated population. If set to True, the simulations correspond to the
-        observed ATNF population. The default is False.
+            the observed population or to a simulated population. If set to True, the simulations correspond to the
+            observed ATNF population. The default is False.
         logger (Logger): Logger object.
 
     Returns:
-        tuple: A tuple containing the dataset, parameter tensor and input matrix tensor.
+        (tuple): A tuple containing the dataset, parameter tensor and input matrix tensor.
     """
 
     # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
@@ -394,7 +394,7 @@ def prepare_dataset_sbi(
     return dataset, parameter, matrix
 
 
-def train(args, config):
+def train(args, config) -> None:
     """
     Training a density estimator to infer the posterior distribution at the observed population with the truncated
     sequential neural posterior estimator approach in Deistler et al. (2022) using the sbi package.

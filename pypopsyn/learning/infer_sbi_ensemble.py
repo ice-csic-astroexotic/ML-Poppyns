@@ -56,14 +56,14 @@ def calculate_smallest_hdr_ensemble(
 
     Args:
         experiments (Dictionary): Dictionary containing the parameters, matrix, posterior and type of scaling
-        (std or norm) for each experiment.
+            (std or norm) for each experiment.
         posterior_ensemble (Callable): Ensemble posterior distribution function.
         true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
-        population in simulation_output.
+            population in simulation_output.
         posterior_samples_std (torch.tensor): Tensor containing the samples standardized from the inferred ensemble
-        posterior distribution for simulation_output.
+            posterior distribution for simulation_output.
         posterior_samples_norm (torch.tensor): Tensor containing the samples normalized from the inferred ensemble
-        posterior distribution for simulation_output.
+            posterior distribution for simulation_output.
         simulation_output (torch.tensor): Tensor containing the maps of the simulated population.
         device (str): String specifying the type of the device used to run the script.
 
