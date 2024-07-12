@@ -12,7 +12,7 @@
 import json
 import os
 import time
-from typing import Tuple
+from typing import Optional, Self, Tuple, Type
 
 import termcolor
 
@@ -34,19 +34,10 @@ class TimeWith:
         capturing the current time as the starting time for the scope.
 
         Args:
-
             name (str): A name for the context to be used when printing info.
-
             log_filename (str): Name of the LOG file to dump profiling information.
-
             json_filename (str): Name of the JSON file to dump profiling information.
-
             show (bool): Whether or not to print info to terminal.
-
-        Returns:
-
-            Nothing.
-
         """
 
         self.name = name
@@ -77,10 +68,9 @@ class TimeWith:
         calls (i.e., time between checkpoints).
 
         Returns:
-
-            A tuple (float, float) that contains the cumulative time since the
-            start of the context and this call and the total time spent just on
-            that time window in seconds.
+            (Tuple[float, float]): tuple that contains the cumulative time since the
+                start of the context and this call and the total time spent just on
+                that time window in seconds.
 
         """
 
@@ -103,13 +93,7 @@ class TimeWith:
         is specified.
 
         Args:
-
             name (str): A name for the checkpoint to print information.
-
-        Returns:
-
-            Nothing.
-
         """
 
         cumulative, total = self.elapsed()
@@ -138,18 +122,22 @@ class TimeWith:
             with open(self.json_filename, "w") as f:
                 json.dump(data, f, indent=2)
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """
         Enter method when a context is created.
 
         Returns:
-
-            Self.
+            Self: The instance of the class.
         """
 
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(
+        self,
+        type: Optional[Type[BaseException]],
+        value: Optional[BaseException],
+        traceback: Optional[BaseException],
+    ) -> None:
         """
         Boilerplate exit method when the context is finished. In this case, it
         is overridden to optionally print the total time elapsed since its
@@ -158,9 +146,10 @@ class TimeWith:
         Note: the signature of __exit__ is painful, forgive me for not typing
         all the arguments here.
 
-        Returns:
-
-            Nothing.
+        Args:
+            type (Optional[Type[BaseException]]): The exception type if an exception occurred, else None.
+            value (Optional[BaseException]]): The exception instance if an exception occurred, else None.
+            traceback (Optional[BaseException]]): The traceback object if an exception occurred, else None.
         """
 
         cumulative, _ = self.elapsed()

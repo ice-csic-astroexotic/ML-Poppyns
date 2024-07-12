@@ -63,6 +63,7 @@ nav:
           - code/learning/utils.md
       - Utilities:
           - code/utilities/utilities.md
+          - code/utilities/benchmark.md
 plugins:
   # Adding plugin to autogenerate documentation.
   - mkdocstrings
