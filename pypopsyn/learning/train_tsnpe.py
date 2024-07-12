@@ -30,11 +30,11 @@
 
 import argparse
 import collections
-import concurrent.futures
 import json
 import os
 import pathlib
 import pickle
+import signal
 import sys
 import time
 from logging import Logger
@@ -69,42 +69,57 @@ from utilities.simulation_helper.run_simulation_set_sbi import (
 )
 
 
+# Define the signal handler for the timeout
+def handler(signum, frame):
+    raise TimeoutError("Sampling timed out")
+
+
+# Function to perform the sampling
+def sample(
+    posterior: DirectPosterior,
+    simulation_output: torch.Tensor,
+    n_samples_coverage: int,
+) -> torch.Tensor:
+    return posterior.set_default_x(simulation_output).sample(
+        (n_samples_coverage,), show_progress_bars=False
+    )
+
+
 def sample_with_timeout(
     posterior: DirectPosterior,
-    simulation_output: torch.tensor,
+    simulation_output: torch.Tensor,
     n_samples_coverage: int,
-    timeout: int = 10,
-):
+    timeout: int = 180,
+) -> Tuple[Optional[torch.Tensor], bool]:
     """
-
     Perform sampling from the posterior distribution with a specified timeout.
 
     Args:
         posterior (DirectPosterior): The posterior distribution object.
         simulation_output (torch.Tensor): Simulation output matrix.
         n_samples_coverage (int): The number of samples to draw from the posterior distribution.
-        timeout (int, optional): The maximum time in seconds to allow for sampling. Defaults to 10 seconds.
+        timeout (int, optional): The maximum time in seconds to allow for sampling. Defaults to 60 seconds.
 
     Returns:
         Tuple[Optional[torch.Tensor], bool]: A tuple containing the result of the sampling (or None if it times out)
             and a boolean indicating whether the sampling was successful.
     """
-    # Define the sample function to be executed with a timeout.
-    def sample():
-        return posterior.set_default_x(simulation_output).sample(
-            (n_samples_coverage,), show_progress_bars=False
-        )
+    # Register the signal handler
+    signal.signal(signal.SIGALRM, handler)
+    # Start the timer
+    signal.alarm(timeout)
 
-    # Create a ThreadPoolExecutor to run the sample function in a separate thread.
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        # Submit the sample function to be executed in a separate thread.
-        future = executor.submit(sample)
-        # If the sampling is completed within the timeout period, return the result and True; otherwise, return None and False.
-        try:
-            result = future.result(timeout=timeout)
-            return result, True
-        except concurrent.futures.TimeoutError:
-            return None, False
+    try:
+        result = sample(posterior, simulation_output, n_samples_coverage)
+        success = True
+    except TimeoutError:
+        result = None
+        success = False
+    finally:
+        # Cancel the timer
+        signal.alarm(0)
+
+    return result, success
 
 
 def calculate_smallest_hdr(
@@ -145,7 +160,7 @@ def calculate_smallest_hdr(
 
         # Perform sampling with a timeout of 10 seconds.
         posterior_samples, success = sample_with_timeout(
-            posterior, simulation_output, n_samples_coverage, timeout=10
+            posterior, simulation_output, n_samples_coverage, timeout=180
         )
 
         if not success:
