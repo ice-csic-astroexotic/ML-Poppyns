@@ -72,7 +72,7 @@ def initialize_dask_cluster(
         config (ConfigurationParser): Configuration object specifying dataset loading parameters.
 
     Returns:
-        HTCondorCluster: Initialized Dask cluster object.
+        (HTCondorCluster): Initialized Dask cluster object.
     """
 
     # Creating a folder to save the stdout and stderr of the terminal for each worker.
@@ -125,9 +125,6 @@ def simulator_dask(
         prior (DirectPosterior): Prior distribution.
         dataset (DatasetMultichannelArray): Stores statistics and scaling information used in the prior distribution.
         device (torch.device): Device used to run the script.
-
-    Returns:
-        None
     """
     # Create a list to hold delayed computations for each simulation.
     delayed_simulations = []
@@ -243,9 +240,6 @@ def simulator_multiprocess(
         args_dict (Dictionary): Dictionary with the arguments.
         prior (DirectPosterior): Prior distribution.
         dataset (DatasetMultichannelArray):  Stores statistics and scaling information used in the prior distribution.
-
-    Returns:
-        None
     """
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.

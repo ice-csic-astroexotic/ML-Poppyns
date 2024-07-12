@@ -65,7 +65,7 @@ unpaused = None
 starting = None
 
 
-def log_error(e: Exception):
+def log_error(e: Exception) -> None:
     """
     Log an exception raised during the simulation process.
 
@@ -88,9 +88,6 @@ def safe_copytree(
         dst (str): Destination directory path.
         max_attempts (int): Maximum number of retry attempts. Default is 3 retries.
         delay (int): Delay between retry attempts in seconds. Default is 5 seconds.
-
-    Returns:
-        None
     """
     attempts = 0
     while attempts < max_attempts:
@@ -115,7 +112,9 @@ def safe_copytree(
                 raise
 
 
-def robust_run_simulation_dask(*args, max_attempts=3, delay=5, **kwargs):
+def robust_run_simulation_dask(
+    *args, max_attempts: int = 3, delay: int = 5, **kwargs
+) -> None:
     """
     This function wraps around the run_simulation_dask function, adding retry logic to handle transient issues
     (e.g., connection problems). If an error occurs during the run_simulation_dask function, it will retry the operation
@@ -126,9 +125,6 @@ def robust_run_simulation_dask(*args, max_attempts=3, delay=5, **kwargs):
         max_attempts (int, optional): Maximum number of retry attempts. Default is 3.
         delay (int, optional): Delay between retry attempts in seconds. Default is 5.
         kwargs: Arbitrary keyword arguments.
-
-    Returns:
-        None
     """
     attempts = 0
     while attempts < max_attempts:
@@ -167,14 +163,12 @@ def run_simulation_dask(
 
     Args:
         args (SimulationArgs): Arguments required for the simulation, including output directory, parameter overrides,
-        and optional dynamic data path.
+            and optional dynamic data path.
         simulator_type (str): The type of simulator to use, determining the specific simulation script to run.
         simulation_output_path (str): Path to the simulation output folder.
         simulation_override_json (dict): Dictionary with the parameter values for the override.json file.
         dyn_data_path (str): dynamical database path.
 
-    Returns:
-        None
     """
 
     # Copy the dynamical database and the repository to the node if it is not already there.
@@ -232,7 +226,7 @@ def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
         command (str): full command to execute the simulation.
 
     Returns:
-        The simulation command and the output of the process.
+        (Tuple[pathlib.Path, str]): The simulation command and the output of the process.
     """
 
     # Acquire the lock and block any other process from executing for two seconds.
@@ -262,11 +256,8 @@ def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
     Callback to log all the info returned from a simulation run.
 
     Args:
-        process_result: tuple containing the process simulation command and the
-                        whole process output to console string.
-
-    Returns:
-        Nothing.
+        process_result (Tuple[pathlib.Path, str]): tuple containing the process simulation command and the
+            whole process output to console string.
     """
 
     log.info("")
@@ -284,13 +275,11 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
     Set up the process pool for multiprocessing with a global pause/resume event.
 
     Args:
-        event: reference to a master process event that will signal the child
-               processes to pause or resume execution.
-        lock: a reference to a master process lock that will coordinate the
-              child process launching with waiting times.
+        event (mp.Event): reference to a master process event that will signal the child
+            processes to pause or resume execution.
+        lock (mp.Lock): a reference to a master process lock that will coordinate the
+            child process launching with waiting times.
 
-    Returns:
-        Nothing.
     """
 
     global unpaused

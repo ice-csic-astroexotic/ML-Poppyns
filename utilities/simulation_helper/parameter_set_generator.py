@@ -36,15 +36,12 @@ from pypopsyn.simulator.config_simulator import cfg
 log = logging.getLogger(__name__)
 
 
-def check_parameter_compatibility(args_dict: dict):
+def check_parameter_compatibility(args_dict: dict) -> None:
     """
     Check if the parsed input arguments are coherent with the ones provided in the configuration file of the simulator.
 
     Args:
         args_dict (dict): dictionary of the parsed argument via CLI.
-
-    Returns:
-        Nothing.
     """
 
     if (
@@ -137,7 +134,7 @@ def check_expand_args(args_dict: dict) -> (list, list):
 
     Returns:
         (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
-        expanded parameters.
+            expanded parameters.
     """
 
     # Check if the provided parameters are compatible with the simulation configuration file.
