@@ -12,7 +12,7 @@
 
     Authors:
 
-        Celsa Pardo (pardo @ csic.es)
+        Celsa Pardo Araujo (pardo@csic.es)
 """
 
 
@@ -22,17 +22,14 @@ import pathlib
 import shutil
 
 
-def manage_failed_simulations(args):
+def manage_failed_simulations(args: argparse.Namespace) -> None:
     """
     Copying the successfully relaunched output back to the original folders.
 
     Args:
-        args:
+        args (Namespace): An argparse.Namespace object containing the following attributes:
             simulation_dir (pathlib.Path): Output directory where the simulation outputs are.
             failed_simulation_dir (pathlib.Path): Output directory where the failed simulation outputs are.
-
-    Returns:
-        Nothing.
     """
 
     output_simulations_path = args.simulation_dir

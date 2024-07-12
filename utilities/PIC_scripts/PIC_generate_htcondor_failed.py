@@ -17,7 +17,7 @@
 
     Authors:
 
-        Celsa Pardo Araujo (pardo @ csic.es)
+        Celsa Pardo Araujo (pardo@csic.es)
 """
 
 import argparse
@@ -28,21 +28,18 @@ import numpy as np
 import pandas as pd
 
 
-def generate_htcondor_failed(args):
+def generate_htcondor_failed(args: argparse.Namespace) -> None:
     """
     Create the submit file and wrapper file necessary to relaunch the failed simulations.
 
     Args:
-        args:
+        args (Namespace): An argparse.Namespace object containing the following attributes:
             output_dir_simulation (pathlib.Path): Output directory where the simulation outputs are.
             number_sim_job (int): Number of simulations per job were chosen when running the original set of
-            simulations with HTCondor.
+                simulations with HTCondor.
             dyn_data (pathlib.Path): Path to the file where the dynamically evolved population database is stored.
             type_simulation (str): Type of simulation that we want to run in the PIC with HTCondor.
-            Choose between dyn or magrot.
-
-    Returns:
-        Nothing.
+                Choose between dyn or magrot.
     """
     output_simulations_path = pathlib.Path(args.output_dir_simulation)
 

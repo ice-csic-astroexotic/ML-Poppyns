@@ -65,6 +65,7 @@ nav:
           - code/utilities/utilities.md
           - code/utilities/benchmark.md
           - code/utilities/experiment_helper.md
+          - code/utilities/PIC_scripts.md
 plugins:
   # Adding plugin to autogenerate documentation.
   - mkdocstrings
