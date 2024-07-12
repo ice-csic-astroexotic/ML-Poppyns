@@ -90,8 +90,18 @@ def initialize_dask_cluster(
     }
 
     # Specifying computing requirements as needed for a single magneto-thermal simulation.
+    # If nanny is set to True, each worker is started by a nanny process which can restart it if it fails. Setting 1
+    # thread per worker to prevent system overload. The timeout duration to wait for a worker to start is set to 60
+    # seconds.
+
     cluster = HTCondorCluster(
-        cores=1, memory="2 GB", disk="2 GB", job_extra_directives=extra
+        cores=1,
+        memory="2 GB",
+        disk="2 GB",
+        job_extra_directives=extra,
+        nanny=True,
+        death_timeout="60s",
+        worker_extra_args=["--nthreads", "1"],
     )
 
     # Scaling the cluster to the number of workers specified in the configuration file.
@@ -214,8 +224,8 @@ def simulator_dask(
                 simulation_output_path_original,
                 simulation_override_json,
                 dyn_data_path,
-                max_attempts=3,
-                delay=5,
+                max_attempts=5,
+                delay=10,
             )
         )
 
