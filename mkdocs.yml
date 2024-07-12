@@ -64,6 +64,7 @@ nav:
       - Utilities:
           - code/utilities/utilities.md
           - code/utilities/benchmark.md
+          - code/utilities/experiment_helper.md
 plugins:
   # Adding plugin to autogenerate documentation.
   - mkdocstrings
