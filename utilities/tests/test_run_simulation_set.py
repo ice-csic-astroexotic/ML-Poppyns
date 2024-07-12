@@ -56,6 +56,8 @@ def test_run_simulation_dask(caplog):
         "shutil.rmtree"
     ), mock.patch(
         "pypopsyn.simulator.simulate_population_magrot_det.simulate_population"
+    ), mock.patch(
+        "os.listdir", return_value=[]
     ):
         # Call the function being tested.
         rss.run_simulation_dask(
