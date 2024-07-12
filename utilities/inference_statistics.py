@@ -24,8 +24,8 @@ def inference_running_stat(
 
     Returns:
         (np.array, np.array, np.array, np.array): array of central values of each bin, running value of the RMSE
-        corresponding to each bin, running value of the average residuals corresponding to each bin and running
-        MRE corresponding to each bin.
+            corresponding to each bin, running value of the average residuals corresponding to each bin and running
+            MRE corresponding to each bin.
     """
     inf_lim = np.min(targets)
     sup_lim = np.max(targets)

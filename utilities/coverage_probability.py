@@ -25,9 +25,6 @@ def coverage_prob(
         hdr_testset (np.ndarray): array containing the highest density region for each of the test samples.
         n_betas (int): number of betas that we want to use to compute the coverage probability.
         save_dir (pathlib.Path): path to the directory where the coverage probability array and plot will be saved.
-
-    Returns:
-        None
     """
 
     # Calculate the coverage from the smallest hdr.
