@@ -65,14 +65,14 @@ def calculate_selection_weights(d: np.ndarray) -> np.ndarray:
     return w
 
 
-def data_sampler(args) -> None:
+def data_sampler(args: argparse.Namespace) -> None:
     """
     This function reads the simulated population files (usually by the simulation
     helper) folder and creates simulated population files with a reduced number
     of stars by randomly sampling the original evolved population file.
 
     Args:
-        args:
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
             data (str): Path to where the simulated populations are located.
             save_dir (str): Path to where to save the resampled population files.
             size (int): Number of stars to randomly sample from the population files.

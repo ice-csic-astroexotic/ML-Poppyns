@@ -36,14 +36,12 @@ def choose_rows(
     Choose a subset of random indices from all the indices of a dataframe.
 
     Args:
-
         number_of_rows_to_select (int): Number of rows to randomly select from the full dataset without taking into
-        account the headers.
+            account the headers.
         total_number_of_rows (int) : Number of rows in the full dataset without taking into account the headers.
         previously_chosen_rows (list): Rows previously chosen from previous subset.
 
     Returns:
-
         (list): A sorted list of the randomly chosen indices.
     """
 
@@ -75,15 +73,14 @@ def select(
     Select a random subset from a dataset without loading the full file into memory.
     The following implementation only works when the full dataset has two headers as our `final_pop_dyn.csv`, it won't
     work otherwise.
-    Args:
 
+    Args:
         file_path (pathlib.Path): Path to the full dataset.
         size_subset (int): Number of rows of the desired random subset without taking into account the headers.
         size_full_dataset (int): Number of rows in the full dataset without taking into account the headers.
         previously_chosen_rows (list): Rows previously chosen from previous subset.
 
     Returns:
-
         (Dataframe): Dataframe of the random subset.
 
     """
