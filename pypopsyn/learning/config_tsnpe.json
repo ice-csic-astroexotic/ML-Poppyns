@@ -62,10 +62,9 @@
   
 "resume_training": {
     "resume": false,
-    "trained_model": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/learning/models/SBI_ConvolutionMDN/20240619_201818",
     "last_round": 7,
-    "save_dir": "path_to_save_dir",
-    "log_dir": "path_to_log"
+    "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_6_10rounds_1ksim_long_flavour_ensemble_10comp/learning/models/SBI_ConvolutionMDN/20240705_123828",
+    "log_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_6_10rounds_1ksim_long_flavour_ensemble_10comp/learning/models/SBI_ConvolutionMDN/20240705_123828"
     },
 
   "trainer": {

@@ -967,7 +967,7 @@ def train(args, config):
             num_rounds = config["trainer"]["num_rounds"]
 
             # Loading the test data as a data frame and extracting the ground truth labels.
-            filter_labels = config["test_data_loader"]["filter_labels"]
+            filter_labels = config["training_data_loader"]["filter_labels"]
             dataset_df = pd.read_csv(train_dataset_path + "/dataset_full.csv")
             parameter_labels = dataset_df.columns[filter_labels]
 
@@ -1047,7 +1047,7 @@ def train(args, config):
                     config["resume_training"]["last_round"]
                 )
                 save_dir_round = pathlib.Path(
-                    config["resume_training"]["trained_model"]
+                    config["resume_training"]["save_dir"]
                 ) / pathlib.Path(f"round_{effective_round}")
 
             else:

@@ -181,6 +181,9 @@ def run_simulation_dask(
     # This action prevents overloading the PIC with too many calls.
     try:
         if not os.path.exists(os.path.basename(dyn_data_path)):
+            # Doing ls ensure that the /data/magnesia/common partition is mounted before accessing it, preventing
+            # unstable connection issue.
+
             os.listdir("/data/magnesia/common")
             safe_copytree(
                 dyn_data_path,
