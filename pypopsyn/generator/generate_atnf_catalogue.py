@@ -71,9 +71,6 @@ def create_survey_maps(
         Pdot (np.ndarray): Array of spin period derivatives of the pulsars in [s/s].
         ra (np.ndarray): Right ascension in [deg] defined between [0, 360] deg in ICRS frame.
         dec (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
-
-    Returns:
-        Nothing.
     """
 
     # Create position density maps projected onto the RA DEC plane.
@@ -132,9 +129,6 @@ def generate_dataset(args) -> None:
             data_type (str): Type of dataset to generate: array or image.
             resolution_ppdot (int): Resolution (number of bins per axis for the 2d
             histograms) for the P-Pdot density maps to generate.
-
-    Returns:
-        Nothing.
     """
 
     # Create the dataset directory path.

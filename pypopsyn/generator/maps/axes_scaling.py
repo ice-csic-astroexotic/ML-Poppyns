@@ -18,11 +18,7 @@ def check_range_above_zero(r_range: typing.Tuple[float, float]) -> None:
     Check that a range larger than zero is provided.
 
     Args:
-        r_range (float, float): value range to be checked.
-
-    Returns:
-        Returns None if r_range[0] and r_range[1] greater than 0,
-        otherwise raises ValueError.
+        r_range (Tuple[float, float]): value range to be checked.
     """
     if (r_range[0] <= 0) or (r_range[1] <= 0):
         raise ValueError("Value range has to be above zero.")
@@ -50,7 +46,7 @@ def log_scale_vs_linear_scale(
         n_y_bins (int): number of vertical bins for the density map.
 
     Returns:
-        (float, float): edges of the bins in x and y direction according to
+        (Tuple[float, float]): edges of the bins in x and y direction according to
         the chosen scale.
 
     """
