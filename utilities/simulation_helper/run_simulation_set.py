@@ -51,6 +51,7 @@ import sys
 import threading
 import time
 import typing
+from typing import Any
 
 import numpy as np
 
@@ -113,7 +114,7 @@ def safe_copytree(
 
 
 def robust_run_simulation_dask(
-    *args, max_attempts: int = 3, delay: int = 5, **kwargs
+    *args: Any, max_attempts: int = 3, delay: int = 5, **kwargs: Any
 ) -> None:
     """
     This function wraps around the run_simulation_dask function, adding retry logic to handle transient issues
@@ -121,10 +122,10 @@ def robust_run_simulation_dask(
     a specified number of times with a delay between each attempt.
 
     Args:
-        args: Variable length argument list.
+        args (Any): Variable length argument list.
         max_attempts (int, optional): Maximum number of retry attempts. Default is 3.
         delay (int, optional): Delay between retry attempts in seconds. Default is 5.
-        kwargs: Arbitrary keyword arguments.
+        kwargs (Any): Arbitrary keyword arguments.
     """
     attempts = 0
     while attempts < max_attempts:
