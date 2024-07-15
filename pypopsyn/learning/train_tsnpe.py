@@ -179,9 +179,15 @@ def calculate_smallest_hdr(
         log_p_samples = posterior.log_prob(
             posterior_samples.to(device), simulation_output.to(device)
         )
-
         # Determining the fraction of PDF values that are larger than that of the ground truth.
-        hdr.append((log_p_samples > log_p_true).float().mean())
+        hdr_value = (log_p_samples > log_p_true).float().mean()
+
+        if device.type == "cuda":
+            hdr_value = hdr_value.cpu().item()
+        else:
+            hdr_value = hdr_value.item()
+
+        hdr.append(hdr_value)
     # Log the number of successful test samples used to compute the coverage.
     logger.info(
         f"Number of successful samples used to compute coverage: {successful_samples}"
