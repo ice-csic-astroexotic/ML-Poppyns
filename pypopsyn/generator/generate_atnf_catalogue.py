@@ -115,7 +115,7 @@ def create_survey_maps(
     )
 
 
-def generate_dataset(args) -> None:
+def generate_dataset(args: argparse.Namespace) -> None:
     """
     This method generates a dataset of density maps in the specified format (images or arrays) and with a specified
     resolution from the ATNF Pulsar Catalogue.
@@ -123,7 +123,7 @@ def generate_dataset(args) -> None:
     and the set of parameter values for each simulated population.
 
     Args:
-        args:
+        args (Namespace): An argparse.Namespace object containing the following attributes:
             data (str): Path to where the observed population is located.
             save_dir (str): Path to where the generated dataset will be saved.
             data_type (str): Type of dataset to generate: array or image.

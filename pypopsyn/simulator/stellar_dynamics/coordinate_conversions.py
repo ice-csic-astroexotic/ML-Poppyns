@@ -23,9 +23,6 @@ def check_radial_coordinate(r: np.ndarray) -> None:
 
     Args:
         r (np.ndarray): distance from the origin in units of length.
-
-    Returns:
-        Returns None if r greater than or equal to 0, otherwise raises ValueError.
     """
     if np.any(r < 0):
         raise ValueError("One of the radial coordinates is out of range.")
@@ -42,7 +39,7 @@ def polar_to_cartesian(
         phi (np.ndarray): angular coordinate, [0, 2*pi].
 
     Returns:
-        (np.ndarray, np.ndarray): x and y coordinates in a Cartesian system.
+        (Tuple[np.ndarray, np.ndarray]): x and y coordinates in a Cartesian system.
     """
 
     x = r * np.cos(phi)
@@ -64,7 +61,7 @@ def spherical_to_cartesian(
         psi (np.ndarray): azimuthal angle, [0, 2*pi].
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray): x, y and z coordinates in a Cartesian system.
+        (Tuple[np.ndarray, np.ndarray, np.ndarray]): x, y and z coordinates in a Cartesian system.
     """
 
     x = r * np.sin(theta) * np.cos(psi)
@@ -88,7 +85,7 @@ def speed_cylindrical_to_cartesian(
         phi (np.ndarray): azimuthal angle [0, 2*pi] in cylindrical coordinates.
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray): v_x, v_y and v_z velocity components in a Cartesian
+        (Tuple[np.ndarray, np.ndarray, np.ndarray]): v_x, v_y and v_z velocity components in a Cartesian
             galactocentric frame.
     """
 
@@ -124,7 +121,7 @@ def galactocentric_to_icrs(
         v_z (np.ndarray): z velocity component in [km/s] in galactocentric reference frame.
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray): RA, DEC coordinates in [deg],
+        (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): RA, DEC coordinates in [deg],
             distance from the ICRS origin in [kpc], proper motion pm_RA, pm_DEC components
             in [mas/yr] in the ICRS reference frame and the line of sight velocity in [km/s].
     """
@@ -209,7 +206,7 @@ def galactocentric_to_galactic(
         v_z (np.ndarray): z component of the velocity in [km/s] in galactocentric reference frame.
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray): galactic longitude l,
+        (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): galactic longitude l,
             galactic latitude b in [deg], distance in [kpc], pm_l, pm_b proper motion components in [mas/yr]
             and line of sight velocity v_ls in [km/s].
     """

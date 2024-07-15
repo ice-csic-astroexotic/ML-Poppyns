@@ -7,8 +7,8 @@
 
     Authors:
 
-            Vanessa Graber (graber@ice.csic.es)
-            Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import numpy as np
@@ -26,7 +26,7 @@ def pdf_kick_velocity_exp(v: np.ndarray) -> np.ndarray:
         v (np.ndarray): initial kick velocity magnitude in [km/s].
 
     Returns:
-        np.ndarray: stellar kick velocity distribution in [1/(km/s)].
+        (np.ndarray): stellar kick velocity distribution in [1/(km/s)].
     """
     vk_mean = cfg["vk_c"]
     pdf_vk = v / vk_mean**2 * np.exp(-v / vk_mean)
@@ -43,7 +43,7 @@ def pdf_kick_velocity_maxwell(v: np.ndarray) -> np.ndarray:
         v (np.ndarray): initial kick velocity magnitude in [km/s].
 
     Returns:
-        np.ndarray: stellar kick velocity distribution in [1/(km/s)].
+        (np.ndarray): stellar kick velocity distribution in [1/(km/s)].
     """
     sigma = cfg["sigma_k"]
     pdf_vk = (
@@ -65,7 +65,7 @@ def pdf_kick_velocity_2maxwell(v: np.ndarray) -> np.ndarray:
         v (np.ndarray): initial kick velocity magnitude in [km/s].
 
     Returns:
-        np.ndarray: stellar kick velocity distribution in [1/(km/s)].
+        (np.ndarray): stellar kick velocity distribution in [1/(km/s)].
     """
 
     # Define the dispersions of the two Maxwellian components.

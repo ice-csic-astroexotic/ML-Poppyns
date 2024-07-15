@@ -3,8 +3,8 @@
 
     Authors:
 
-            Michele Ronchi (ronchi@ice.csic.es)
-            Celsa Pardo Araujo (pardo@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import numpy as np

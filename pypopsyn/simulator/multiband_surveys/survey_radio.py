@@ -266,17 +266,13 @@ class SurveyRadio:
     The parameters for the survey are imported from a JSON file.
     """
 
-    def __import_parameters(self, parameters_path) -> None:
+    def __import_parameters(self, parameters_path: str) -> None:
         """
         This routine imports the parameters of a radio survey.
 
         Args:
             parameters_path (str): path to the survey_parameter.json file
                 containing the parameters of the radio survey.
-
-        Returns:
-            Nothing.
-
         """
 
         # Load parameters from JSON file.
@@ -319,7 +315,7 @@ class SurveyRadio:
 
     def __init__(
         self,
-        parameters_path,
+        parameters_path: str,
     ) -> None:
         """
         Radio survey initialization.
@@ -327,10 +323,6 @@ class SurveyRadio:
         Args:
             parameters_path (str): path to the survey_parameter.json file
                 containing the parameters of the radio survey.
-
-        Returns:
-            Nothing.
-
         """
 
         self.__import_parameters(parameters_path)
@@ -536,7 +528,7 @@ class SurveyRadio:
             S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
 
         Returns:
-            (np.ndarray, np.ndarray, np.ndarray): Tuple consisting of three arrays defining the indexes of the
+            (Tuple[np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of three arrays defining the indexes of the
                 pulsars detected by the survey, the effective pulse width and period-averaged flux.
         """
 
@@ -604,7 +596,7 @@ class SurveyRadio:
             dist_cutoff: (np.ndarray) array of boolean variables where true values represent stars within 35 kpc.
 
         Returns:
-            (np.ndarray, np.ndarray, np.ndarray, np.ndarray): Tuple consisting of four arrays defining
+            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of four arrays defining
                 the indexes of the pulsars detected by the survey, the observed period-averaged radio flux density,the
                 effective pulse width and the observed radio flux density.
         """

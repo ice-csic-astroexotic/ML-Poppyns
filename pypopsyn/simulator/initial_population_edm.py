@@ -3,10 +3,10 @@
     random parameters. For the initial positions we assume that the distribution
     of progenitors follows the free electron density model ymw16 from Yau et al. (2016).
 
-        Authors:
+    Authors:
 
-            Vanessa Graber (graber@ice.csic.es)
-            Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import logging
@@ -35,6 +35,9 @@ class InitialNeutronStarPopulation:
     def __init__(self, NS_number: int) -> None:
         """
         Initialization for the initial population synthesis.
+
+        Args:
+            NS_number (int): Number of neutron stars to simulate.
         """
 
         # Number of neutron stars to generate in a single call of the InitialNeutronStarPopulation class.
@@ -51,7 +54,6 @@ class InitialNeutronStarPopulation:
 
         Returns:
             (np.ndarray): array of ages in [yr].
-
         """
 
         log.debug(
@@ -85,7 +87,7 @@ class InitialNeutronStarPopulation:
             t_age (np.ndarray): array of neutron star ages in [yr].
 
         Returns:
-            (np.ndarray, np.ndarray, np.ndarray): polar r, phi and z coordinates in [kpc], [rad] and [kpc]
+            (Tuple[np.ndarray, np.ndarray, np.ndarray]): polar r, phi and z coordinates in [kpc], [rad] and [kpc]
                 respectively for each generated neutron star.
         """
 
@@ -136,7 +138,7 @@ class InitialNeutronStarPopulation:
         galactocentric coordinate system.
 
         Returns:
-            (np.ndarray, np.ndarray, np.ndarray): vk_r, vk_phi and vk_z kick
+            (Tuple[np.ndarray, np.ndarray, np.ndarray]): vk_r, vk_phi and vk_z kick
                 velocities in [kpc/yr] for each generated neutron stars. In particular
                 vk_r is the component of the kick velocity along the galactocentric
                 radial direction, vk_phi is the component along the azimuthal phi

@@ -10,8 +10,8 @@
 
     Authors:
 
-            Vanessa Graber (graber@ice.csic.es)
-            Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 from typing import Tuple
@@ -89,7 +89,7 @@ def dynamical_evolution(
         t_age (np.ndarray): array of neutron star ages in [yr].
 
     Returns:
-        (np.ndarray, dict): Tuple consisting of a two-dimensional array of shape (NS_number, 6)
+        (Tuple[np.ndarray, dict]): Tuple consisting of a two-dimensional array of shape (NS_number, 6)
             defining the neutron stars' final positions r [kpc], phi [rad], z [kpc] and velocities
             in [kpc/yr] in cylindrical coordinates and a dictionary containing the time evolution of
             these quantities for each neutron star (if the option to save the time evolution is enabled).

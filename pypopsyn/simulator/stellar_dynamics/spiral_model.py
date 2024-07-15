@@ -72,7 +72,7 @@ class SpiralModelBase:
             NS_number (int): number of stars to simulate.
 
         Returns:
-            (np.ndarray) array of random indices for the spiral arm associated to each star.
+            (np.ndarray): array of random indices for the spiral arm associated to each star.
 
         """
 
@@ -101,11 +101,6 @@ class SpiralModelBase:
 
         Args:
             arm_index (np.ndarray): index for the respective spiral arms.
-
-        Returns:
-            Returns None if arm_index between or equal to 1 and 5,
-                otherwise raises ValueError.
-
         """
         if np.any(arm_index < 1) or np.any(arm_index > 5):
             raise ValueError("One of arm indices is out of range.")
@@ -124,8 +119,7 @@ class SpiralModelBase:
                 0 < arm_index < 6.
 
         Returns:
-
-            np.ndarray: galactocentric phi coordinates in [rad].
+            (np.ndarray): galactocentric phi coordinates in [rad].
 
         """
 

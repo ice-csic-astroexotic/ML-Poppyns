@@ -8,7 +8,7 @@
 
     Authors:
 
-            Michele Ronchi (ronchi@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import logging

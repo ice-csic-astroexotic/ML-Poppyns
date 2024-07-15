@@ -4,8 +4,8 @@
 
     Authors:
 
-            Vanessa Graber (graber@ice.csic.es)
-            Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 from typing import Tuple
@@ -205,7 +205,7 @@ def magneto_rotational_evolution(
         a_late (float): power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray, dict): Tuple consisting of three arrays defining the neutron stars'
+        (Tuple[np.ndarray, np.ndarray, np.ndarray, dict]): Tuple consisting of three arrays defining the neutron stars'
             final magnetic field strengths in [G], misalignment angles in [rad] and rotation periods in [s] and a
             dictionary containing the time evolution of these quantities for each neutron star (if the option to save
             the time evolution is enabled).
