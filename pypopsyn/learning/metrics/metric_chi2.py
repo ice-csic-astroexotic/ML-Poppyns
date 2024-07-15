@@ -18,7 +18,6 @@ from .metric_base import MetricBase
 
 class MetricAccuracyCHI2(MetricBase):
     def __call__(self, output: torch.Tensor, target: torch.Tensor) -> float:
-
         """
         Computation of the accuracy metric defined as the reduced chi square value.
         The value of the reduced chi square should be near 1 for a best accuracy.
@@ -40,23 +39,26 @@ class MetricAccuracyCHI2(MetricBase):
         return red_chi2
 
     def __str__(self) -> str:
-
         """
-        String representation for the accuracy metric.
+        String representation for the chi squared metric.
+
+        Returns:
+            (str): String representation for the chi squared metric.
         """
 
         return "Reduced chi square accuracy metric"
 
     def initial_value(self) -> float:
-
         """
         Starting value for the metric to start optimization.
+
+        Returns:
+            (float): Starting value for the metric to start optimization.
         """
 
         return np.inf
 
     def improved(self, value_a: torch.Tensor, value_b: torch.Tensor) -> bool:
-
         """
         Check if a metric value is better than other.
 
@@ -67,7 +69,6 @@ class MetricAccuracyCHI2(MetricBase):
         Returns:
             (bool): True if the second value is lower than the first value, false
                 otherwise.
-
         """
 
         return value_b < value_a

@@ -40,17 +40,21 @@ class MetricAccuracyMAE(MetricBase):
         return mae
 
     def __str__(self) -> str:
-
         """
-        String representation for the accuracy metric.
+        String representation for the MAE metric.
+
+        Returns:
+            (str): String representation for the MAE metric.
         """
 
         return "Mean Absolute Error accuracy metric"
 
     def initial_value(self) -> float:
-
         """
         Starting value for the metric to start optimization.
+
+        Returns:
+            (float): Starting value for the metric to start optimization.
         """
 
         return np.inf
@@ -67,7 +71,6 @@ class MetricAccuracyMAE(MetricBase):
         Returns:
             (bool): True if the second value is lower than the first value, false
                 otherwise.
-
         """
 
         return value_b < value_a

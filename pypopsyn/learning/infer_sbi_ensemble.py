@@ -129,7 +129,21 @@ def calculate_smallest_hdr_ensemble(
     return hdr
 
 
-def infer(args, config):
+def infer(
+    args: argparse.Namespace, config: configuration_parser.ConfigurationParser
+) -> None:
+    """
+    Perform simulation-based inference using an ensemble method on different trained models on the provided dataset.
+
+    Args:
+        args (argparse.Namespace): Command line arguments containing configuration options:
+            - configuration (str): Path to the configuration file.
+            - corner_plot (bool): If set to True, generates posterior corner plots for each test sample.
+            - trained_model (str): Path to a .txt file containing the paths to the pretrained models.
+            - infer (str): Flag to set up the inference saving path (default is True).
+        config (configuration_parser.ConfigurationParser): Configuration object with settings
+            for data loading, model architecture, profiling options, and other parameters.
+    """
 
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("Inference")

@@ -7,22 +7,23 @@
 """
 
 import typing
+from logging import Logger
 
 import torch
 
 
 def request_device(
-    logger, num_gpu: int = 0
+    logger: Logger, num_gpu: int = 0
 ) -> typing.Tuple[torch.device, list]:
     """
     Selects the requested devices for training/testing.
 
     Args
-        logger: A logger to log information to.
+        logger (Logger): A logger to log information to.
         num_gpu (int): Number of GPUs requested.
 
     Returns:
-        (torch.device, list): A tuple containing the kind of device the pipeline can run on and
+        (Tuple[torch.device, list]): A tuple containing the kind of device the pipeline can run on and
             a list of devices if available. If no GPUs are available or zero are requested, the returned device
             is CPU.
 

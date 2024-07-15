@@ -43,14 +43,19 @@ class MetricAccuracyMSE(MetricBase):
 
         """
         String representation for the accuracy metric.
+
+        Returns:
+            (str): String representation for the accuracy metric.
         """
 
         return "Mean square error accuracy metric"
 
     def initial_value(self) -> float:
-
         """
         Starting value for the metric to start optimization.
+
+        Returns:
+            (float): Starting value for the metric to start optimization.
         """
 
         return np.inf
@@ -67,7 +72,6 @@ class MetricAccuracyMSE(MetricBase):
         Returns:
             (bool): True if the second value is lower than the first value, false
                 otherwise.
-
         """
 
         return value_b < value_a

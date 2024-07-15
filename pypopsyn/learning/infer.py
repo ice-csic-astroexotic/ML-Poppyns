@@ -29,7 +29,23 @@ import pypopsyn.learning.models.models as learning_models
 from pypopsyn.learning.utils.request_device import request_device
 
 
-def infer(args, config):
+def infer(
+    args: argparse.Namespace, config: configuration_parser.ConfigurationParser
+) -> None:
+    """
+    Perform inference on the model using the specified configuration and command line arguments.
+
+    Args:
+        args (Namespace): The command line arguments containing configuration options,
+            save directory, and sample indices. It includes:
+            - configuration (str): Path to the configuration file.
+            - trained_model (str): Path to the pretrained model.
+            - samples (List[int]): Sample indices in the dataset.
+            - save_dir (str): Directory where inference results are saved.
+            - infer (bool): Flag to set up the inference saving path.
+        config (ConfigurationParser): The configuration object containing settings for data loading,
+            model architecture, and other parameters.
+    """
 
     # Create the saving directory path.
     inference_results_path = f"{args.save_dir}"

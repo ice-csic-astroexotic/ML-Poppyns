@@ -50,7 +50,6 @@ def calculate_smallest_hdr(
     simulation_output: torch.tensor,
     device: str,
 ) -> float:
-
     """
     Calculating the smallest highest density region of the posterior, that contains the true value.
 
@@ -83,7 +82,21 @@ def calculate_smallest_hdr(
     return hdr
 
 
-def infer(args, config):
+def infer(
+    args: argparse.Namespace, config: configuration_parser.ConfigurationParser
+) -> None:
+    """
+    Perform simulation-based inference using a trained model on the provided dataset.
+
+    Args:
+        args (argparse.Namespace): Command line arguments containing configuration options:
+            - configuration (str): Path to the configuration file.
+            - corner_plot (bool): If set to True, generates posterior corner plots for each test sample.
+            - trained_model (str): Path to the pretrained model.
+            - infer (str): Flag to set up the inference saving path (default is True).
+        config (configuration_parser.ConfigurationParser): Configuration object with settings
+            for data loading, model architecture, profiling options, and other parameters.
+    """
 
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("Inference")

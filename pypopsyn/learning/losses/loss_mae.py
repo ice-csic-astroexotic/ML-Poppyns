@@ -14,11 +14,16 @@ from .loss_base import LossBase
 
 
 class LossMAE(LossBase):
-    """Mean Absolute Error (MAE) loss"""
+    """
+    Mean Absolute Error (MAE) loss.
+    """
 
-    def __call__(self, output, target):
+    def __call__(
+        self, output: torch.Tensor, target: torch.Tensor
+    ) -> torch.Tensor:
 
-        """Computation of the MAE loss.
+        """
+        Computation of the MAE loss.
 
         Args:
             output (torch.Tensor): Network output tensor (predictions).
@@ -33,8 +38,12 @@ class LossMAE(LossBase):
         loss = self.mae(output, target)
         return loss
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        String representation for the MAE loss.
 
-        """String representation for the MAE loss."""
+        Returns:
+            (str): String representation for the MAE loss.
+        """
 
         return "MAE Loss"

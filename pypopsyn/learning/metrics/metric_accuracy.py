@@ -16,7 +16,6 @@ from .metric_base import MetricBase
 
 class MetricAccuracy(MetricBase):
     def __call__(self, output: torch.Tensor, target: torch.Tensor) -> float:
-
         """
         Computation of the accuracy metric.
 
@@ -40,16 +39,19 @@ class MetricAccuracy(MetricBase):
         return correct / len(target)
 
     def __str__(self) -> str:
-
         """
         String representation for the accuracy metric.
+
+        Returns:
+            (str): String representation for the accuracy metric.
         """
 
         return "Accuracy Metric"
 
     def initial_value(self) -> float:
-
-        """Starting value for the metric to start optimization."""
+        """
+        Starting value for the metric to start optimization.
+        """
 
         return -np.inf
 
@@ -65,7 +67,6 @@ class MetricAccuracy(MetricBase):
         Returns:
             (bool): True if the second value is greater than the first value, false
                 otherwise.
-
         """
 
         return value_b > value_a

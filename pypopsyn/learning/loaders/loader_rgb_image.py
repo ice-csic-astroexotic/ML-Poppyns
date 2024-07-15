@@ -7,6 +7,8 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
+from typing import Tuple
+
 import numpy as np
 import pandas as pd
 import torchvision.transforms
@@ -20,7 +22,7 @@ class DatasetRGBImage:
     Upload the images dataset and their labels.
     """
 
-    def __init__(self, file_path, transform=None):
+    def __init__(self, file_path: str, transform=None):
         """
         Load the images and labels dataset.
 
@@ -32,8 +34,9 @@ class DatasetRGBImage:
         self.dataset = pd.read_csv(file_path)
         self.transform = transform
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
+        Length of the dataset (number of samples).
 
         Returns:
             (int): length of the dataset
@@ -41,7 +44,7 @@ class DatasetRGBImage:
         """
         return len(self.dataset)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Tuple[np.ndarray, np.ndarray]:
         """
         Read the dataset and extract the images and the corresponding labels.
 
@@ -49,10 +52,9 @@ class DatasetRGBImage:
             index (int): index running along the raws of the dataset.csv file.
 
         Returns:
-            (np.ndarray or torch tensor): multidimensional matrices for the images of
-                shape N x N x 3 where N is the number of pixels along a raw or column of
-                the .png file.
-            (np.ndarray): labels of each image.
+            (Tuple[np.ndarray, np.ndarray]): Tuple composed by a multidimensional matrices for the images of
+                shape N x N x 3 (where N is the number of pixels along a raw or column of
+                the .png file) and an array of labels of each image.
         """
         image_name = self.dataset.iloc[index, 0]
 
@@ -85,10 +87,6 @@ class LoaderRGBImage(LoaderBase):
             ignored_inputs (list): Indices of columns in the dataset to ignore.
             num_workers (int): Workers to load the data.
             shuffle (bool): Shuffle the samples or not.
-
-        Returns:
-            Nothing
-
         """
 
         transformation = torchvision.transforms.ToTensor()

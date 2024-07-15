@@ -13,13 +13,13 @@ import logging
 import operator
 import os
 import pathlib
+from typing import Any, Dict, List, Optional
 
 import pypopsyn.learning.logger.logger as learning_logger
 import pypopsyn.learning.utils.json as learning_utils_json
 
 
 class ConfigurationParser:
-
     """
     ConfigurationParser
     """
@@ -28,13 +28,19 @@ class ConfigurationParser:
         self,
         configuration: dict,
         infer: bool,
-        options=None,
-        resume=None,
-        run_id=None,
+        options: Optional[Dict] = None,
+        resume: Optional[str] = None,
+        run_id: Optional[str] = None,
     ) -> None:
-
         """
         Initialize instance.
+
+        Args:
+            configuration (dict): The configuration dictionary.
+            infer (bool): Whether to run in inference mode.
+            options (Optional[Dict]): Modifications to apply to the configuration.
+            resume (Optional[str]): Path to the checkpoint to resume training.
+            run_id (Optional[str]): Unique identifier for the run.
         """
 
         # Load configuration file and apply specified options.
@@ -72,10 +78,18 @@ class ConfigurationParser:
         learning_logger.setup_logging(self.log_dir)
 
     @classmethod
-    def from_args(cls, args, options=""):
-
+    def from_args(
+        cls, args: Any, options: Optional[List] = ""
+    ) -> "ConfigurationParser":
         """
         Initialize configuration from command line arguments.
+
+        Args:
+            args (Any): Parsed command line arguments.
+            options (Optional[List[Any]]): Custom CLI options to add to arguments.
+
+        Returns:
+            (ConfigurationParser): An instance of ConfigurationParser.
         """
 
         # Add custom CLI options to arguments.
@@ -89,9 +103,7 @@ class ConfigurationParser:
             args = args.parse_args()
 
         # Load configuration from JSON file.
-        configuration = learning_utils_json.read_json(
-            pathlib.Path(args.configuration)
-        )
+        configuration = learning_utils_json.read_json(args.configuration)
 
         # Parse custom CLI arguments.
         modification = {
@@ -100,7 +112,9 @@ class ConfigurationParser:
 
         return cls(configuration, args.infer, modification, args.trained_model)
 
-    def init_object(self, name: str, module, *args, **kwargs):
+    def init_object(
+        self, name: str, module: Any, *args: Any, **kwargs: Any
+    ) -> Optional[Any]:
         """
         Object handler finder.
 
@@ -109,12 +123,12 @@ class ConfigurationParser:
 
         Args:
             name (str): Name of the object to find.
-            module: The Python module where the object class resides.
-            args: Extra arguments for creating the instance.
-            kwargs: Extra arguments for creating the instance.
+            module (Any): The Python module where the object class resides.
+            args (Any): Extra arguments for creating the instance.
+            kwargs (Any): Extra arguments for creating the instance.
 
         Returns:
-            The object instance initialized with the provided arguments if
+            (Optional[Any]): The object instance initialized with the provided arguments if
             the name of the requested object exists in the configuration
             dictionary. None otherwise.
         """
@@ -127,8 +141,7 @@ class ConfigurationParser:
         else:
             return None
 
-    def get_logger(self, name: str, verbosity: int = 2):
-
+    def get_logger(self, name: str, verbosity: int = 2) -> logging.Logger:
         """
         Logger getter.
 
@@ -137,24 +150,28 @@ class ConfigurationParser:
             verbosity (int): Logging level. By default it is set to INFO.
 
         Returns:
-            Initialized logger with the specified name and verbosity level.
+            logging.Logger: Initialized logger with the specified name and verbosity level.
         """
 
         logger = logging.getLogger(name)
         logger.setLevel(learning_logger.LOG_LEVELS[verbosity])
         return logger
 
-    def __getitem__(self, name: str):
-
+    def __getitem__(self, name: str) -> Any:
         """
         Dictionary-like access to the configuration class.
+
+        Args:
+            name (str): The key of the configuration item.
+
+        Returns:
+            (Any): The value corresponding to the given key.
         """
         return self._configuration[name]
 
     def _update_configuration(
         self, configuration: dict, modifications: dict
     ) -> dict:
-
         """
         Helper function to update configuration dictionary.
 
@@ -190,7 +207,20 @@ class ConfigurationParser:
         return configuration
 
 
-def _get_opt_name(flags):
+def _get_opt_name(flags: List[str]) -> str:
+    """
+    Extracts the option name from a list of command line flags.
+
+    This function looks for a flag that starts with '--' and returns it
+    without the leading '--'. If no such flag is found, it returns the
+    first flag in the list without the leading '--'.
+
+    Args:
+        flags (List[str]): A list of command line flags.
+
+    Returns:
+        (str): The extracted option name without the leading '--'.
+    """
     for flg in flags:
         if flg.startswith("--"):
             return flg.replace("--", "")

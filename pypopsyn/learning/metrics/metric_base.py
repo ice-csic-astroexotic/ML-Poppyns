@@ -11,6 +11,7 @@ import enum
 import typing
 
 import numpy as np
+import torch
 
 
 class MetricBehavior(enum.Enum):
@@ -21,11 +22,12 @@ class MetricBehavior(enum.Enum):
 
 
 class MetricBase:
-
-    """Base abstract class for all metrics."""
+    """
+    Base abstract class for all metrics.
+    """
 
     @abc.abstractmethod
-    def __call__(self, output, target) -> float:
+    def __call__(self, output: torch.Tensor, target: torch.Tensor) -> float:
 
         """
         Actual computation of the metric function.
@@ -35,7 +37,6 @@ class MetricBase:
 
     @abc.abstractmethod
     def __str__(self) -> str:
-
         """
         String representation of the metric.
         """
@@ -44,24 +45,16 @@ class MetricBase:
 
     @abc.abstractmethod
     def initial_value(self) -> float:
-
-        """Starting value for the metric to start optimization."""
+        """
+        Starting value for the metric to start optimization.
+        """
 
         raise NotImplementedError
 
     @abc.abstractmethod
-    def improved(self, value_a, value_b) -> bool:
-
+    def improved(self, value_a: torch.Tensor, value_b: torch.Tensor) -> bool:
         """
         Check if the metric value has improved.
-
-        Args:
-            value_a (torch.Tensor): First value to compare.
-            value_b (torch.Tensor): Second value to compare.
-
-        Returns:
-            (bool): True if the second value is better than the first, false otherwise.
-
         """
 
         raise NotImplementedError

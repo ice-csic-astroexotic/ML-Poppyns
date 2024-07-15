@@ -17,7 +17,9 @@ import torch
 
 class InitializerBase:
 
-    """Base abstract class for all weight initializers."""
+    """
+    Base abstract class for all weight initializers.
+    """
 
     @abc.abstractmethod
     def __call__(self, m: torch.nn.Module) -> None:
@@ -27,9 +29,6 @@ class InitializerBase:
         Args:
             m (torch.module): module with parameters to be initialized. Could
                 be anything from a linear layer to a convolutional one.
-
-        Returns:
-            Nothing.
         """
         raise NotImplementedError
 

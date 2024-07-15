@@ -12,7 +12,6 @@ import pathlib
 
 
 def read_json(filename: str) -> dict:
-
     """
     Read a specified JSON file and generate an ordered dictionary.
 

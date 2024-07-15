@@ -12,6 +12,8 @@
 
 import datetime
 import importlib
+from logging import Logger
+from typing import Any, Callable, Union
 
 
 class TensorboardWriter:
@@ -28,13 +30,13 @@ class TensorboardWriter:
         timer: A datetime object to track the time between steps.
     """
 
-    def __init__(self, log_dir, logger, enabled):
+    def __init__(self, log_dir: str, logger: Logger, enabled: bool):
         """
         Initializes the TensorboardWriter with the specified log directory, logger, and enable flag.
 
         Args:
             log_dir (str): The directory where Tensorboard logs will be saved.
-            logger: The logger for displaying warnings or errors.
+            logger (Logger): The logger for displaying warnings or errors.
             enabled (bool): Flag to enable or disable Tensorboard logging.
         """
 
@@ -94,7 +96,7 @@ class TensorboardWriter:
         self.tag_mode_exceptions = {"add_histogram", "add_embedding"}
         self.timer = datetime.datetime.now()
 
-    def set_step(self, step, mode="train") -> None:
+    def set_step(self, step: int, mode: str = "train") -> None:
         """
         Sets the current step and mode, and logs the steps per second.
 
@@ -112,7 +114,7 @@ class TensorboardWriter:
             self.add_scalar("steps_per_sec", 1 / duration.total_seconds())
             self.timer = datetime.datetime.now()
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Union[Callable, Any]:
         """
         Provides dynamic access to Tensorboard logging methods.
 
@@ -120,16 +122,29 @@ class TensorboardWriter:
             name (str): The name of the Tensorboard method to access.
 
         Returns:
-            (function): A wrapped function that adds additional information (step, tag) to the Tensorboard log entry.
-                If visualization is configured to use returns add_data() methods of tensorboard with additional
-                information (step, tag) added. Otherwise returns a blank function handle that does nothing.
+            (Union[Callable, Any]): A wrapped function that adds additional information (step, tag) to the Tensorboard
+                log entry. If visualization is configured to use returns add_data() methods of tensorboard with
+                additional information (step, tag) added. Otherwise returns a blank function handle that does nothing.
         """
 
         if name in self.tb_writer_ftns:
 
             add_data = getattr(self.writer, name, None)
 
-            def _wrapper(tag, data, *args, **kwargs):
+            def _wrapper(
+                tag: str, data: Any, *args: Any, **kwargs: Any
+            ) -> None:
+                """
+                Wrapper function for Tensorboard logging methods.
+
+                Adds the current mode and step information to the log entry.
+
+                Args:
+                    tag (str): The tag for the Tensorboard log entry.
+                    data (Any): The data to be logged.
+                    *args (Any): Additional positional arguments for the Tensorboard method.
+                    **kwargs (Any): Additional keyword arguments for the Tensorboard method.
+                """
 
                 if add_data is not None:
 

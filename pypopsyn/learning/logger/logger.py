@@ -26,7 +26,7 @@ LOG_LEVELS = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
 def setup_logging(
     log_dir: str,
     log_config_file: str = "pypopsyn/learning/logger/default_logger_config.json",
-    default_level=logging.INFO,
+    default_level: int = logging.INFO,
 ) -> None:
     """
     Setup logging configuration.
@@ -37,11 +37,7 @@ def setup_logging(
     Args:
         log_dir (str): The directory to output the log files to.
         log_config_file (str): Path to the JSON configuration file.
-        default_level: Default logging level.
-
-    Returns:
-        Nothing.
-
+        default_level (int): Default logging level.
     """
 
     path_to_software = cfg["path_to_software"]

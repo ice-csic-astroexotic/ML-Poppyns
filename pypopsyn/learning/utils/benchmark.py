@@ -81,7 +81,7 @@ def benchmark(
         output_dummy (torch.tensor): dummy tensor for output purposes.
 
     Returns:
-        (float, float): A tuple that contains the median time spent in the
+        (Tuple[float, float]): A tuple that contains the median time spent in the
             forward pass and the backward pass, both in milliseconds.
 
     """

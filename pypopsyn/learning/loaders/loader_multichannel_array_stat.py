@@ -11,6 +11,7 @@
 """
 
 import json
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -29,21 +30,17 @@ class DatasetMultichannelArray:
     tensor for the loader. Labels will be generated as a vector.
     """
 
-    def __import_statistics(self, statistic_path) -> None:
+    def __import_statistics(self, statistic_path: str) -> None:
         """
         Import dataset statistics for normalization and standardization.
 
         This routine import the training dataset statistics that might be needed for
         input/targets normalization and standardization like mean, standard
-        deviation, minimum, maximum...
+        deviation, minimum and maximum.
 
         Args:
             statistic_path (str): path to the statistics.json file containing the statistics
                 of the training dataset.
-
-        Returns:
-            Nothing.
-
         """
 
         # Load statistics from JSON file.
@@ -80,13 +77,6 @@ class DatasetMultichannelArray:
     def __fetch_target_names(self) -> None:
         """
         Fetch the names of the targets/labels from the dataset file.
-
-        Args:
-            None.
-
-        Returns:
-            Nothing.
-
         """
 
         self.target_names = []
@@ -99,12 +89,12 @@ class DatasetMultichannelArray:
 
     def __init__(
         self,
-        dataset_path,
-        statistic_path,
-        filter_channels=[],
-        filter_labels=[],
-        normalize=False,
-        standardize=False,
+        dataset_path: str,
+        statistic_path: str,
+        filter_channels: list = [],
+        filter_labels: list = [],
+        normalize: bool = False,
+        standardize: bool = False,
         transform=None,
     ) -> None:
         """
@@ -124,10 +114,6 @@ class DatasetMultichannelArray:
             standardize (bool): whether or not to standardize inputs and targets
                 on the fly while loading samples.
             transform: transformations to apply to the arrays.
-
-        Returns:
-            Nothing.
-
         """
 
         self.normalize = normalize
@@ -145,7 +131,7 @@ class DatasetMultichannelArray:
         self.__import_statistics(statistic_path)
         self.__fetch_target_names()
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Length of the dataset (number of samples).
 
@@ -155,7 +141,7 @@ class DatasetMultichannelArray:
         """
         return len(self.dataset)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Tuple[np.ndarray, np.ndarray]:
         """
         Read the dataset and extract the arrays and the corresponding labels.
 
@@ -163,11 +149,11 @@ class DatasetMultichannelArray:
             index (int): index running along the rows of the dataset CSV file.
 
         Returns:
-            (np.ndarray): multi-channel 2D array composed by stacking all input
-                arrays specified in the dataset for the requested sample with
-                shape N x N x channels where N is the number of entries along a
-                row or column of the array in the .npy file.
-            (np.ndarray): labels for the requested sample.
+            (Tuple[np.ndarray, np.ndarray]): tuple consisting of a multi-channel 2D array
+                with shape N x N x channels (where N is the number of entries
+                along a row or column of the array in the .npy file) composed by stacking
+                all input arrays specified in the dataset for the requested sample
+                and the corresponding labels for the requested sample.
         """
 
         channels = []
@@ -255,10 +241,6 @@ class LoaderMultichannelArray(LoaderBase):
             shuffle (bool): Shuffle the samples or not.
             normalize (bool): whether to normalize inputs and targets or not.
             standardize (bool): whether or not to standardize inputs and targets.
-
-        Returns:
-            Nothing.
-
         """
 
         transformation = torchvision.transforms.ToTensor()

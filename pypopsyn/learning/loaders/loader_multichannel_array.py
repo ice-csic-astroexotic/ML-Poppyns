@@ -10,6 +10,8 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
+from typing import Tuple
+
 import numpy as np
 import pandas as pd
 import torch
@@ -35,14 +37,7 @@ class DatasetMultichannelArray:
 
         This routine computes dataset-wide statistics that might be needed for
         input/targets normalization and standardization like mean, standard
-        deviation, minimum, maximum...
-
-        Args:
-            None.
-
-        Returns:
-            Nothing.
-
+        deviation, minimum and maximum.
         """
 
         i = 0
@@ -74,13 +69,6 @@ class DatasetMultichannelArray:
     def __fetch_target_names(self):
         """
         Fetch the names of the targets/labels from the dataset file.
-
-        Args:
-            None.
-
-        Returns:
-            Nothing.
-
         """
 
         self.target_names = []
@@ -93,11 +81,11 @@ class DatasetMultichannelArray:
 
     def __init__(
         self,
-        file_path,
-        ignore=[],
-        ignore_labels=[],
-        normalize=False,
-        standardize=False,
+        file_path: str,
+        ignore: list = [],
+        ignore_labels: list = [],
+        normalize: bool = False,
+        standardize: bool = False,
         transform=None,
     ) -> None:
         """
@@ -115,10 +103,6 @@ class DatasetMultichannelArray:
             standardize (bool): whether or not to standardize inputs and targets
                 on the fly while loading samples.
             transform: transformations to apply to the arrays.
-
-        Returns:
-            Nothing.
-
         """
 
         self.normalize = normalize
@@ -138,17 +122,16 @@ class DatasetMultichannelArray:
         self.__compute_statistics()
         self.__fetch_target_names()
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Length of the dataset (number of samples).
 
         Returns:
             (int): length of the dataset
-
         """
         return len(self.dataset)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Tuple[np.ndarray, np.ndarray]:
         """
         Read the dataset and extract the arrays and the corresponding labels.
 
@@ -156,13 +139,11 @@ class DatasetMultichannelArray:
             index (int): index running along the rows of the dataset CSV file.
 
         Returns:
-            (np.ndarray): multi-channel 2D array composed by stacking all input
-                arrays specified in the dataset for the requested sample with
-                shape N x N x channels where N is the number of entries along a
-                row or column of the array in the .npy file.
-
-            (np.ndarray): labels for the requested sample.
-
+            (Tuple[np.ndarray, np.ndarray]): tuple consisting of a multi-channel 2D array
+                with shape N x N x channels (where N is the number of entries
+                along a row or column of the array in the .npy file) composed by stacking
+                all input arrays specified in the dataset for the requested sample
+                and the corresponding labels for the requested sample.
         """
 
         channels = []
@@ -248,10 +229,6 @@ class LoaderMultichannelArray(LoaderBase):
             shuffle (bool): Shuffle the samples or not.
             normalize (bool): whether to normalize inputs and targets or not.
             standardize (bool): whether or not to standardize inputs and targets.
-
-        Returns:
-            Nothing.
-
         """
 
         transformation = torchvision.transforms.ToTensor()

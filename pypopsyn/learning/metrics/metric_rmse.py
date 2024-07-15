@@ -40,23 +40,26 @@ class MetricAccuracyRMSE(MetricBase):
         return rmse
 
     def __str__(self) -> str:
-
         """
-        String representation for the accuracy metric.
+        String representation for the RMSE metric.
+
+        Returns:
+            (str): String representation for the RMSE metric.
         """
 
         return "Root mean squared error accuracy metric"
 
     def initial_value(self) -> float:
-
         """
         Starting value for the metric to start optimization.
+
+        Returns:
+            (float): Starting value for the metric to start optimization.
         """
 
         return np.inf
 
     def improved(self, value_a: torch.Tensor, value_b: torch.Tensor) -> bool:
-
         """
         Check if a metric value is better than other.
 
@@ -67,7 +70,6 @@ class MetricAccuracyRMSE(MetricBase):
         Returns:
             (bool): True if the second value is lower than the first value, false
                 otherwise.
-
         """
 
         return value_b < value_a

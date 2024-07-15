@@ -7,6 +7,7 @@
 """
 
 import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -14,14 +15,15 @@ from .model_base import ModelBase
 
 
 class ModelLinear(ModelBase):
-
-    """A linear neural network Model"""
+    """
+    A linear neural network Model.
+    """
 
     def __init__(
         self, input_shape: np.array = None, num_parameters: int = 1
     ) -> None:
-
-        """Linear model initialization.
+        """
+        Linear model initialization.
 
         Args:
             input_shape (np.array): Shape of the input batch (C x H x W).
@@ -34,15 +36,15 @@ class ModelLinear(ModelBase):
         input_features = input_shape[0] * input_shape[1] * input_shape[2]
         self.fc1 = nn.Linear(input_features, num_parameters)
 
-    def forward(self, x):
-
-        """Forward pass.
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass.
 
         Args:
-            x: Input tensor for the network.
+            x (torch.Tensor): Input tensor for the network.
 
         Returns:
-            Output tensor of the network after forwarding all layers.
+            (torch.Tensor): Output tensor of the network after forwarding all layers.
 
         """
 

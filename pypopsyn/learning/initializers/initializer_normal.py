@@ -36,9 +36,6 @@ class InitializerNormal(InitializerBase):
             m (torch.module): module with parameters to be initialized. Could
                 be anything from a linear layer to a convolutional one. Right now,
                 only initialization of Linear layers is performed.
-
-        Returns:
-            Nothing.
         """
         if type(m) is torch.nn.Linear:
             y = m.in_features

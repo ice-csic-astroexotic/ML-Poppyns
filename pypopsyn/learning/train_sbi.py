@@ -43,7 +43,14 @@ import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
 
 
-def train(config):
+def train(config: configuration_parser.ConfigurationParser) -> None:
+    """
+    Main training loop for the model with simulation-based inference approach.
+
+    Args:
+        config (ConfigurationParser): A configuration object containing parameters for data loaders,
+            model architecture, training criteria, and other training settings.
+    """
 
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("train")
