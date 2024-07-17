@@ -76,5 +76,7 @@ plugins:
   - search
 
 markdown_extensions:
+  # Extension for advanced code block formatting.
   - pymdownx.superfences
+  # Extension for rendering of mathematical expressions.
   - pymdownx.arithmatex
