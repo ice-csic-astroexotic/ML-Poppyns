@@ -11,7 +11,7 @@
 """
 
 import json
-from typing import Tuple
+from typing import Callable, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -95,7 +95,7 @@ class DatasetMultichannelArray:
         filter_labels: list = [],
         normalize: bool = False,
         standardize: bool = False,
-        transform=None,
+        transform: Optional[Callable] = None,
     ) -> None:
         """
         Initialization or constructor routine for the dataset.
@@ -113,7 +113,7 @@ class DatasetMultichannelArray:
                 the fly while loading samples.
             standardize (bool): whether or not to standardize inputs and targets
                 on the fly while loading samples.
-            transform: transformations to apply to the arrays.
+            transform (Optional[Callable]): transformations to apply to the arrays.
         """
 
         self.normalize = normalize

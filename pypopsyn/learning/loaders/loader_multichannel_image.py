@@ -12,7 +12,7 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
-from typing import Tuple
+from typing import Callable, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -32,8 +32,8 @@ class DatasetMultichannelImage:
         file_path: str,
         ignore: list = [],
         ignore_labels: list = [],
-        transform=None,
-    ):
+        transform: Optional[Callable] = None,
+    ) -> None:
         """
         Initialization or constructor function for the dataset.
 
@@ -44,7 +44,7 @@ class DatasetMultichannelImage:
                 will be ignored by the loader.
             ignore_labels (list): indices of the target/label columns in the dataset that
                 will be ignored by the loader.
-            transform: transformations to apply to the images.
+            transform (Optional[Callable]): transformations to apply to the images.
         """
         self.dataset = pd.read_csv(file_path)
         # Remove the input columns and labels that are to be ignored.

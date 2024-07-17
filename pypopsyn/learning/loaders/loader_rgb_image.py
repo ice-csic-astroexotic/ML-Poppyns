@@ -7,7 +7,7 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
-from typing import Tuple
+from typing import Callable, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -22,14 +22,16 @@ class DatasetRGBImage:
     Upload the images dataset and their labels.
     """
 
-    def __init__(self, file_path: str, transform=None):
+    def __init__(
+        self, file_path: str, transform: Optional[Callable] = None
+    ) -> None:
         """
         Load the images and labels dataset.
 
         Args:
             file_path (str): path to the dataset.csv file containing all the
                 information on the dataset.
-            transform: transformation to apply to the images.
+            transform (Optional[Callable]): transformation to apply to the images.
         """
         self.dataset = pd.read_csv(file_path)
         self.transform = transform
@@ -40,7 +42,6 @@ class DatasetRGBImage:
 
         Returns:
             (int): length of the dataset
-
         """
         return len(self.dataset)
 
