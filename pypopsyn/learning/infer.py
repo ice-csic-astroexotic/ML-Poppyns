@@ -41,14 +41,13 @@ def infer(
             - configuration (str): Path to the configuration file.
             - trained_model (str): Path to the pretrained model.
             - samples (List[int]): Sample indices in the dataset.
-            - save_dir (str): Directory where inference results are saved.
             - infer (bool): Flag to set up the inference saving path.
         config (ConfigurationParser): The configuration object containing settings for data loading,
             model architecture, and other parameters.
     """
 
     # Create the saving directory path.
-    inference_results_path = f"{args.save_dir}"
+    inference_results_path = config["infer"]["save_dir"]
     pathlib.Path(inference_results_path).mkdir(parents=True, exist_ok=True)
 
     # Force data to load in a sequential manner without shuffling.
@@ -183,14 +182,6 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--save_dir",
-        nargs="?",
-        type=str,
-        default="inference_result",
-        help="Path to the directory where the inference results are saved.",
-    )
-
-    args.add_argument(
         "--infer",
         nargs="?",
         type=str,
@@ -238,6 +229,9 @@ if __name__ == "__main__":
             type=int,
             nargs="?",
             target="arch;args;num_parameters",
+        ),
+        CustomArgs(
+            ["--save_dir"], type=str, nargs="?", target="infer;save_dir"
         ),
         CustomArgs(
             ["--normalize"],
