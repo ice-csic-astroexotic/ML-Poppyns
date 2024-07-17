@@ -10,8 +10,8 @@
 
     Authors:
 
-            Vanessa Graber (graber@ice.csic.es)
-            Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 from typing import Tuple
@@ -38,23 +38,17 @@ def dynamical_eq_system(
     t: float, initial_cond: np.ndarray, galactic_model: gm.GalaxyModelBase
 ) -> np.ndarray:
     """
-    System of dynamical equations to solve to determine the orbits of the neutron
-    stars in the galactic potential. The differential equation are written in
-    cylindrical galactocentric coordinates (r, phi, z).
+    System of dynamical equations to solve to determine the orbits of the neutron stars in the galactic potential.
+    The differential equation are written in cylindrical galactocentric coordinates (r, phi, z).
 
     Args:
-        initial_cond (np.ndarray): array of 6 components defining the initial
-        conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
-        with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
-
+        initial_cond (np.ndarray): array of 6 components defining the initial conditions in cylindrical coordinates
+            (r0, phi0, z0, v_r0, omega0, v_z0) with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
         t (float): unused time variable, required for the integration below.
-
-        galactic_model (gm.GalaxyModelBase): a galactic model to calculate
-        the needed potential.
+        galactic_model (gm.GalaxyModelBase): a galactic model to calculate the needed potential.
 
     Returns:
-         (np.ndarray): array of 6 values of the first order and second order
-         derivatives at each time step.
+         (np.ndarray): array of 6 values of the first order and second order derivatives at each time step.
 
     """
 
@@ -89,16 +83,16 @@ def dynamical_evolution(
 
     Args:
         initial_cond (np.ndarray): array of 6 components defining the initial
-        conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
-        with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
+            conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
+            with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
 
         t_age (np.ndarray): array of neutron star ages in [yr].
 
     Returns:
-        (np.ndarray, dict): Tuple consisting of a two-dimensional array of shape (NS_number, 6)
-        defining the neutron stars' final positions r [kpc], phi [rad], z [kpc] and velocities
-        in [kpc/yr] in cylindrical coordinates and a dictionary containing the time evolution of
-        these quantities for each neutron star (if the option to save the time evolution is enabled).
+        (Tuple[np.ndarray, dict]): Tuple consisting of a two-dimensional array of shape (NS_number, 6)
+            defining the neutron stars' final positions r [kpc], phi [rad], z [kpc] and velocities
+            in [kpc/yr] in cylindrical coordinates and a dictionary containing the time evolution of
+            these quantities for each neutron star (if the option to save the time evolution is enabled).
     """
 
     # Save the number of simulated neutron stars, which is flexible depending on whether

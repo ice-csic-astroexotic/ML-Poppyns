@@ -51,42 +51,26 @@ def create_survey_maps(
     and generates a set of density maps in the specified format (images or arrays) and with a specified resolution.
 
     Args:
-
         dataset_path (str): Path to where the generated dataset will be saved.
-
         survey_name (str): Survey acronym.
-
         data_type (str): Type of dataset to generate: array or image.
-
         resolution_dyn (int): Resolution (number of bins per axis for the 2d histograms) for the position and
             velocity maps to generate. In case of RA DEC maps the DEC axis has half the number of bins
             with respect to the RA axis.
-
         resolution_ppdot (int): Resolution (number of bins per axis for the 2d
             histograms) for the P-Pdot density maps to generate.
-
         dictionary_position_map_radec (dict): Dictionary containing the path to the position maps in RA, DEC for
             all the simulated surveys.
-
         dictionary_velocity_map_vra (dict): Dictionary containing the path to the proper motion maps in RA for
             all the simulated surveys.
-
         dictionary_velocity_map_vdec (dict): Dictionary containing the path to the proper motion maps in DEC for
             all the simulated surveys.
-
         dictionary_ppdot_map (dict): Dictionary containing the path to the P-Pdot maps for
             all the simulated surveys.
-
         P (np.ndarray): Array of spin periods of the pulsars in [s].
-
         Pdot (np.ndarray): Array of spin period derivatives of the pulsars in [s/s].
-
         ra (np.ndarray): Right ascension in [deg] defined between [0, 360] deg in ICRS frame.
-
         dec (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
-
-    Returns:
-        Nothing.
     """
 
     # Create position density maps projected onto the RA DEC plane.
@@ -131,7 +115,7 @@ def create_survey_maps(
     )
 
 
-def generate_dataset(args) -> None:
+def generate_dataset(args: argparse.Namespace) -> None:
     """
     This method generates a dataset of density maps in the specified format (images or arrays) and with a specified
     resolution from the ATNF Pulsar Catalogue.
@@ -139,18 +123,12 @@ def generate_dataset(args) -> None:
     and the set of parameter values for each simulated population.
 
     Args:
-        args:
+        args (Namespace): An argparse.Namespace object containing the following attributes:
             data (str): Path to where the observed population is located.
-
             save_dir (str): Path to where the generated dataset will be saved.
-
             data_type (str): Type of dataset to generate: array or image.
-
             resolution_ppdot (int): Resolution (number of bins per axis for the 2d
             histograms) for the P-Pdot density maps to generate.
-
-    Returns:
-        Nothing.
     """
 
     # Create the dataset directory path.

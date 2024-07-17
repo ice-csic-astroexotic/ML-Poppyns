@@ -13,7 +13,7 @@
 
     Authors:
 
-        Celsa Pardo (pardo @ csic.es)
+        Celsa Pardo Araujo (pardo@csic.es)
 """
 
 import argparse
@@ -23,17 +23,14 @@ import pathlib
 import pandas as pd
 
 
-def check_simulations(args):
+def check_simulations(args: argparse.Namespace) -> None:
     """
     Checking how many simulations run using HTCondor have failed.
     We save the name of the output folder for each of the failed simulations in the failed_folders.csv file.
 
     Args:
-        args:
+        args (Namespace): An argparse.Namespace object containing the following attributes:
             output_dir_simulation (pathlib.Path): Output directory where the simulation outputs are.
-
-    Returns:
-        Nothing.
     """
 
     output_simulations_path = args.output_dir_simulation

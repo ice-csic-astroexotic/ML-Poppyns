@@ -17,7 +17,7 @@
 
     Authors:
 
-        Celsa Pardo (pardo @ csic.es)
+        Celsa Pardo Araujo (pardo@csic.es)
 """
 
 import argparse
@@ -30,16 +30,13 @@ from pypopsyn.simulator.config_simulator import cfg
 
 def generate_job_submit(
     path_output: pathlib.Path, path_arguments: pathlib.Path
-):
+) -> None:
     """
     Create all the submit files.
 
     Args:
         path_output (pathlib.Path): Output directory for the submit file.
         path_arguments (pathlib.Path): Path for the simulation arguments.
-
-    Returns:
-        Nothing.
     """
     # Path where each submit file will be saved.
     path_submit = pathlib.Path().joinpath(path_output, "job.submit")
@@ -62,7 +59,7 @@ def generate_wrapper(
     type_simulation: str,
     dyn_path: pathlib.Path,
     path_wrapper: pathlib.Path,
-):
+) -> None:
     """
     Create all the wrapper files.
 
@@ -70,9 +67,6 @@ def generate_wrapper(
         type_simulation (str): String with the type of simulation we want to run.
         path_wrapper (pathlib.Path): Output directory for the wrapper file.
         dyn_path (pathlib.Path): Path to where the dynamically evolved population database is stored.
-
-    Returns:
-        Nothing.
     """
 
     # Writing the `wrapper.sh` file where we loop over the lines of the `"/arguments_job" + str(j + 1) + ".txt"` file.

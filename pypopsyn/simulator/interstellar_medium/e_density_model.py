@@ -6,7 +6,7 @@
 
     Authors:
 
-            Michele Ronchi (ronchi@ice.csic.es)
+         Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import numpy as np
@@ -24,8 +24,8 @@ def compute_DM(
     the dispersion measures DMs related to the given heliocentric distances.
 
     Args:
-        l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] [deg].
-        b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] [deg].
+        l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
+        b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
         d (np.ndarray): heliocentric distance in [kpc].
         ed_model (str): free electron density model, either 'ymw16' or 'ne2001'.
 

@@ -51,20 +51,15 @@ from pypopsyn.simulator.config_simulator import cfg
 log = logging.getLogger(__name__)
 
 
-def simulate_population(args) -> None:
+def simulate_population(args: argparse.Namespace) -> None:
     """
     Generating a neutron star population starting from some initial
     conditions and dynamically evolving it forward in time.
 
     Args:
-        args:
+        args (Namespace): An argparse.Namespace object containing the following attributes:
             save_dir (pathlib.Path): Output directory for the run.
             json_override_path (pathlib.Path): Path to JSON with parameter overrides.
-
-    Returns:
-
-        Nothing.
-
     """
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)

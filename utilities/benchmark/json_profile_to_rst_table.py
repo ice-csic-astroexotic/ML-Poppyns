@@ -35,7 +35,7 @@ def generate_header(fields: typing.List) -> str:
         fields (List): Names for the fields (columns) excluding the first one.
 
     Returns:
-        An RST string representation for the table header.
+        (str): An RST string representation for the table header.
     """
     name = "Context"
     row_str = "| " + name + " " * (WIDTH - len(name) - 2) + " |"
@@ -59,7 +59,7 @@ def generate_multicolumn(name: str, columns: int) -> str:
         columns (int): Number of fields or columns to take.
 
     Returns:
-        An RST string representation of the multicolumn.
+        (str): An RST string representation of the multicolumn.
     """
     multicolumn_str = (
         "| "
@@ -75,10 +75,10 @@ def generate_separator(fields: int) -> str:
     Generates a separator for the table with automatic width for it.
 
     Args:
-        fields: Number of columns or fields (excluding the checkpoint names).
+        fields (int): Number of columns or fields (excluding the checkpoint names).
 
     Returns:
-        An RST string containing the separator representation.
+        (str): An RST string containing the separator representation.
     """
     separator_str = "+"
     for _ in range(fields + 1):
@@ -98,7 +98,7 @@ def generate_row(name: str, values: typing.List) -> str:
         values (List): Values for each field in the checkpoint (columns).
 
     Returns:
-        An RST string representation of the row with newline at the end.
+        (str): An RST string representation of the row with newline at the end.
     """
     row_str = "| " + name + " " * (WIDTH - len(name) - 2) + " |"
     for v in values:
@@ -118,9 +118,6 @@ def print_table(filename: str) -> None:
 
     Args:
         filename (str): Path to the JSON profile to parse.
-
-    Returns:
-        Nothing, prints the RST table to the screen.
     """
 
     with open(filename, "r") as f:

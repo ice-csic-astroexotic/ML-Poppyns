@@ -47,16 +47,12 @@ class TrainerBasic(BaseTrainer):
         Args:
             model (torch.nn.Module): network model to train.
             criterion (pypopsyn.LossBase): criterion for the loss calculation.
-            metrics (pypopsyn.MetricBase): accuracy metric to be computed.
+            metric (pypopsyn.MetricBase): accuracy metric to be computed.
             optimizer (torch.optim.Optimizer): optimizer for training.
             configuration (pypopsyn.learning.configuration_parser): config dict.
             train_loader (pypopsyn.learning.loaders.loader_base): train loader.
             val_loader (pypopsyn.learning.loaders.loader_base): validation loader.
             lr_scheduler (torch.optim.lr_scheduler): learning rate scheduler.
-
-        Returns:
-            Nothing.
-
         """
 
         super().__init__(model, criterion, metric, optimizer, configuration)
@@ -120,19 +116,18 @@ class TrainerBasic(BaseTrainer):
         Single-epoch training routine.
 
         Args:
-            epoch: Current epoch number.
+            epoch (int): Current epoch number.
 
         Returns:
-            dict: a dictionary with the results for the epoch, i.e., the
-            average for the losses and for the tracked metric for the training
-            set.
-            dict: the same but for the validation set (if available, None is
-            returned otherwise).
-            dict: a dictionary with the values for each individual loss for
-            each one of the targets. If validation is performed, such losses
-            correspond to validation losses, otherwise they are the training
-            set losses.
-
+            (Tuple[dict, dict, dict): a Tuple containing the following dictionaries:
+                dictionary with the results for the epoch, i.e., the
+                average for the losses and for the tracked metric for the training set.
+                A dictionary with the same info but for the validation set (if available, None is
+                returned otherwise).
+                A dictionary with the values for each individual loss for
+                each one of the targets. If validation is performed, such losses
+                correspond to validation losses, otherwise they are the training
+                set losses.
         """
 
         # Set the model on training mode and reset all tracked metrics to zero.
@@ -236,6 +231,20 @@ class TrainerBasic(BaseTrainer):
         return log, val_log, train_denormalized_log, losses
 
     def _training_eval_epoch(self, epoch: int) -> dict:
+        """
+        Evaluate the model on the training dataset for a single epoch.
+
+        This method sets the model to evaluation mode and processes the training dataset
+        without gradient computation. It computes the loss and metrics, denormalizes or
+        destandardizes the outputs and targets if necessary, and logs the results using
+        TensorBoard.
+
+        Args:
+            epoch (int): The current epoch number.
+
+        Returns:
+            (dict): A dictionary containing the evaluation metrics for the training dataset.
+        """
 
         # Set the model to evaluation mode and reset validation metrics.
         self.model.eval()
@@ -310,8 +319,8 @@ class TrainerBasic(BaseTrainer):
             epoch (int): Current epoch number.
 
         Returns:
-            A dictionary which contains the results of the validation over the
-            whole dataset for all the requested metrics and losses.
+            (dict): A dictionary which contains the results of the validation over the
+                whole dataset for all the requested metrics and losses.
 
         """
 

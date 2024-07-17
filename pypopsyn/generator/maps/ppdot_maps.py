@@ -39,7 +39,7 @@ def generate_ppdot_map(
     ppdot_maps_dictionary: dict,
     p_limits: typing.Tuple[float, float] = (0.001, 100.0),
     pdot_limits: typing.Tuple[float, float] = (1.0e-21, 1.0e-9),
-):
+) -> None:
     """
     This method generates a discrete P-Pdot diagram map with great flexibility, the
     dimensions of the map can be chosen, the type (image or array) can also be
@@ -60,12 +60,8 @@ def generate_ppdot_map(
         p_resolution (int): resolution in the horizontal axis.
         pdot_resolution (int): resolution in the vertical axis.
         ppdot_maps_dictionary (dict): partial dictionary of P-Pdot maps.
-        p_limits (float, float): limits of the horizontal axis.
-        pdot_limits (float, float): limits of the vertical axis.
-
-    Returns:
-        Nothing.
-
+        p_limits Tuple[float, float]: limits of the horizontal axis.
+        pdot_limits Tuple[float, float]: limits of the vertical axis.
     """
 
     # Compose the final filename with the dataset path, the name for the map,

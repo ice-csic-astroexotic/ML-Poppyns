@@ -221,7 +221,7 @@ cfg["detected_real_htru_low_mid"]: int = 1023
 cfg["detected_real_htru_high"]: int = 20
 
 
-def update_configuration(new_configuration) -> None:
+def update_configuration(new_configuration: dict) -> None:
     """
     Update current configuration with custom one.
 
@@ -229,13 +229,7 @@ def update_configuration(new_configuration) -> None:
     configuration dictionary and output each updated key-value pair.
 
     Args:
-
-        new_configuration: dictionary with custom configuration.
-
-    Returns:
-
-        Nothing.
-
+        new_configuration (dict): dictionary with custom configuration.
     """
 
     for key, value in new_configuration.items():

@@ -12,15 +12,14 @@ import pathlib
 
 
 def read_json(filename: str) -> dict:
-
     """
     Read a specified JSON file and generate an ordered dictionary.
 
     Args:
-        filename: File path to the JSON file.
+        filename (str): File path to the JSON file.
 
     returns:
-        A dictionary containing the JSON information.
+        (dict): A dictionary containing the JSON information.
 
     """
 

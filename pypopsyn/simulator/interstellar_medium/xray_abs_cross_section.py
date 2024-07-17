@@ -67,7 +67,7 @@ def aluminium(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -109,7 +109,7 @@ def argon(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -155,7 +155,7 @@ def calcium(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -201,7 +201,7 @@ def carbon(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -237,7 +237,7 @@ def chlorine(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -284,7 +284,7 @@ def chromium(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -334,7 +334,7 @@ def fano_resonance_line(
         gamma (float): gamma coefficient for resonance (Oza 1986).
         wavelength (np.ndarray): array of wavelengths in angstroms.
 
-    Return:
+    Returns:
         fano line profile (np.ndarray): fano line profile.
     """
 
@@ -363,7 +363,7 @@ def helium(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -431,7 +431,7 @@ def hydrogen(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -458,7 +458,7 @@ def iron(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -503,7 +503,7 @@ def magnesium(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -542,7 +542,7 @@ def neon(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -578,7 +578,7 @@ def nickel(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -616,7 +616,7 @@ def nitrogen(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -652,7 +652,7 @@ def oxygen(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -688,7 +688,7 @@ def silicon(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -731,7 +731,7 @@ def sodium(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -771,7 +771,7 @@ def sulfur(energy: np.ndarray) -> np.ndarray:
 
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
-    Return:
+    Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
@@ -822,7 +822,7 @@ def absorption_cross_section_tot(
         energy (np.ndarray): array of energies of the incoming photons in eV.
         abundances (np.ndarray): array of abundances in log10 relative to hydrogen (= 12.00).
 
-    Return:
+    Returns:
         effective cross section (np.ndarray): effective cross section as a function of the energy
         in cm^2/(eV hydrogen atom).
     """
@@ -873,7 +873,7 @@ def absorption_cross_section_approx(energy: np.ndarray) -> np.ndarray:
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
 
-    Return:
+    Returns:
         effective cross section (np.ndarray): effective cross section as a function of the energy
         in cm^2/(eV hydrogen atom).
     """

@@ -180,7 +180,7 @@ class GalaxyModelM19(GalaxyModelBase):
 
         Returns:
             (float, float): value of the shape parameter and its derivative with
-            respect to z.
+                respect to z.
         """
 
         a_d = self.a_d
@@ -318,7 +318,7 @@ class GalaxyModelM19(GalaxyModelBase):
             z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): derivatives with respect to r and z of the disk potential.
+            (Tuple[float, float]): derivatives with respect to r and z of the disk potential.
         """
 
         M_d = self.M_d
@@ -348,7 +348,7 @@ class GalaxyModelM19(GalaxyModelBase):
             r (float): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (float): height from the galactic disk in [kpc].
         Returns:
-            (float, float): derivatives with respect to r and z of the bulge potential.
+            (Tuple[float, float]): derivatives with respect to r and z of the bulge potential.
         """
 
         M_b = self.M_b
@@ -382,7 +382,7 @@ class GalaxyModelM19(GalaxyModelBase):
             r (float): distance from the galactic rotation axis in [kpc], i.e., cylindrical r coordinate.
             z (float): height from the galactic disk in [kpc].
         Returns:
-            (float, float): derivatives with respect to r and z of the nucleus potential.
+            (Tuple[float, float]): derivatives with respect to r and z of the nucleus potential.
         """
 
         M_n = self.M_n
@@ -417,7 +417,7 @@ class GalaxyModelM19(GalaxyModelBase):
             z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): derivatives with respect to r and z of the halo potential.
+            (Tuple[float, float]): derivatives with respect to r and z of the halo potential.
         """
 
         M_h = self.M_h
@@ -450,7 +450,7 @@ class GalaxyModelM19(GalaxyModelBase):
 
         Returns:
             (np.ndarray): gradient of the galactic potential in cylindrical
-            coordinates.
+                coordinates.
         """
 
         dpot_d_dr, dpot_d_dz = self.r_z_derivatives_d_potential(r, z)
@@ -524,8 +524,8 @@ class GalaxyModelFK06(GalaxyModelBase):
             z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): value of the shape parameter and its derivative with
-            respect to z.
+            (Tuple[float, float]): value of the shape parameter and its derivative with
+                respect to z.
         """
 
         a_d = self.a_d
@@ -656,8 +656,8 @@ class GalaxyModelFK06(GalaxyModelBase):
             z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): derivatives with respect to r and z of the disk-halo
-            potential.
+            (Tuple[float, float]): derivatives with respect to r and z of the disk-halo
+                potential.
         """
 
         M_dh = self.M_dh
@@ -692,7 +692,7 @@ class GalaxyModelFK06(GalaxyModelBase):
             z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): derivatives with respect to r and z of the bulge potential.
+            (Tuple[float, float]): derivatives with respect to r and z of the bulge potential.
         """
 
         M_b = self.M_b
@@ -726,7 +726,7 @@ class GalaxyModelFK06(GalaxyModelBase):
             z (float): height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): derivatives with respect to r and z of the nucleus potential.
+            (Tuple[float, float]): derivatives with respect to r and z of the nucleus potential.
         """
 
         M_n = self.M_n
@@ -761,7 +761,7 @@ class GalaxyModelFK06(GalaxyModelBase):
 
         Returns:
             (np.ndarray): gradient of the galactic potential in cylindrical
-            coordinates.
+                coordinates.
         """
 
         dpot_dh_dr, dpot_dh_dz = self.r_z_derivatives_dh_potential(r, z)

@@ -26,9 +26,8 @@ class ModelConv(ModelBase):
         This CNN automatically adapts to the shape of the initial input features.
 
         Args:
-            input_shape: Shape of the input batch (C x H x W).
-            num_parameters: Number of parameters to predict.
-
+            input_shape (np.array): Shape of the input batch (C x H x W).
+            num_parameters (int): Number of parameters to predict.
         """
 
         super().__init__()
@@ -48,15 +47,15 @@ class ModelConv(ModelBase):
         self.fc1 = nn.Linear(self._to_linear, 64)
         self.fc2 = nn.Linear(64, num_parameters)
 
-    def convs(self, x):
+    def convs(self, x: torch.Tensor) -> torch.Tensor:
         """
         Convolution and pooling layers forward pass.
 
         Args:
-            x: Input tensor for the convolution layers.
+            x (torch.Tensor): Input tensor for the convolution layers.
 
         Returns:
-            Output tensor of the convolution and pooling layers.
+            (torch.Tensor): Output tensor of the convolution and pooling layers.
         """
 
         x = self.pool(F.relu(self.conv1(x)))
@@ -68,16 +67,15 @@ class ModelConv(ModelBase):
 
         return x
 
-    def forward(self, x):
-
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Forward pass.
 
         Args:
-            x: Input tensor for the network.
+            x (torch.Tensor): Input tensor for the network.
 
         Returns:
-            Output tensor of the network after forwarding all layers.
+            (torch.Tensor): Output tensor of the network after forwarding all layers.
 
         """
 

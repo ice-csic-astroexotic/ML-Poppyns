@@ -14,18 +14,23 @@ from .loss_base import LossBase
 
 
 class LossMSE(LossBase):
-    """Mean Square Error (MSE) loss"""
+    """
+    Mean Square Error (MSE) loss.
+    """
 
-    def __call__(self, output, target):
+    def __call__(
+        self, output: torch.Tensor, target: torch.Tensor
+    ) -> torch.Tensor:
 
-        """Computation of the MSE loss.
+        """
+        Computation of the MSE loss.
 
         Args:
-            output: Network output tensor (predictions).
-            target: Ground truth tensor (labels).
+            output (torch.Tensor): Network output tensor (predictions).
+            target (torch.Tensor): Ground truth tensor (labels).
 
         Returns:
-            Tensor with a MSE loss value for each input pair output-target.
+            (torch.Tensor): Tensor with a MSE loss value for each input pair output-target.
 
         """
         self.mse = nn.MSELoss()
@@ -33,8 +38,12 @@ class LossMSE(LossBase):
         loss = self.mse(output, target)
         return loss
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        String representation for the MSE loss.
 
-        """String representation for the MSE loss."""
+        Returns:
+            (str): String representation for the MSE loss.
+        """
 
         return "MSE Loss"

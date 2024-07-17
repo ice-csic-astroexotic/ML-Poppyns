@@ -37,10 +37,10 @@ def run_experiment(command: str) -> typing.Tuple[pathlib.Path, str]:
     set of CLI arguments) and captures all the output of the process.
 
     Args:
-        command: full command to execute the experiment.
+        command (str): full command to execute the experiment.
 
     Returns:
-        The experiment command and the convoluted output of the process.
+        (Tuple[pathlib.Path, str]): The experiment command and the convoluted output of the process.
     """
 
     # Acquire the lock and block any other process from executing
@@ -68,11 +68,8 @@ def log_experiment(process_result: typing.Tuple[pathlib.Path, str]) -> None:
     Callback to log all the info returned from an experiment run.
 
     Args:
-        process_result: tuple containing the process experiment command and the
-          whole process output to console string.
-
-    Returns:
-        Nothing.
+        process_result (Tuple[pathlib.Path, str]): tuple containing the process experiment command and the
+            whole process output to console string.
     """
 
     log.info("")
@@ -89,13 +86,10 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
     Set up the process pool for multiprocessing with a global pause/resume event.
 
     Args:
-        event: reference to a master process event that will signal the child
+        event (mp.Event): reference to a master process event that will signal the child
             processes to pause or resume execution.
-        lock: a reference to a master process lock that will coordinate the
+        lock (mp.lock): a reference to a master process lock that will coordinate the
             child process launching with waiting times.
-
-    Returns:
-        Nothing.
     """
 
     global unpaused
@@ -105,7 +99,7 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
     starting = lock
 
 
-def main(args):
+def main(args) -> None:
 
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.

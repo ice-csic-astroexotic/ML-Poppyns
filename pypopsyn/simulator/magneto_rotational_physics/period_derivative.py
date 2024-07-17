@@ -3,8 +3,8 @@
 
     Authors:
 
-            Vanessa Graber (graber@ice.csic.es)
-            Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import numpy as np
@@ -32,9 +32,9 @@ def period_derivative(B: float, chi: float, P: float) -> float:
 
     Args:
         B (float): value of the dipolar component of the magnetic field at the
-        magnetic pole for a simulated neutron star, measured in [G].
+            magnetic pole for a simulated neutron star, measured in [G].
         chi (float): angle between the magnetic dipolar moment, i.e., the magnetic
-        field axis, and the rotation axis for a simulated pulsar, measured in [rad].
+            field axis, and the rotation axis for a simulated pulsar, measured in [rad].
         P (float): spin period of a simulated pulsar, measured in [s].
 
     Returns:

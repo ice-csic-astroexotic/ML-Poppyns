@@ -56,14 +56,14 @@ def calculate_smallest_hdr_ensemble(
 
     Args:
         experiments (Dictionary): Dictionary containing the parameters, matrix, posterior and type of scaling
-        (std or norm) for each experiment.
+            (std or norm) for each experiment.
         posterior_ensemble (Callable): Ensemble posterior distribution function.
         true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
-        population in simulation_output.
+            population in simulation_output.
         posterior_samples_std (torch.tensor): Tensor containing the samples standardized from the inferred ensemble
-        posterior distribution for simulation_output.
+            posterior distribution for simulation_output.
         posterior_samples_norm (torch.tensor): Tensor containing the samples normalized from the inferred ensemble
-        posterior distribution for simulation_output.
+            posterior distribution for simulation_output.
         simulation_output (torch.tensor): Tensor containing the maps of the simulated population.
         device (str): String specifying the type of the device used to run the script.
 
@@ -129,7 +129,21 @@ def calculate_smallest_hdr_ensemble(
     return hdr
 
 
-def infer(args, config):
+def infer(
+    args: argparse.Namespace, config: configuration_parser.ConfigurationParser
+) -> None:
+    """
+    Perform simulation-based inference using an ensemble method on different trained models on the provided dataset.
+
+    Args:
+        args (argparse.Namespace): Command line arguments containing configuration options:
+            - configuration (str): Path to the configuration file.
+            - corner_plot (bool): If set to True, generates posterior corner plots for each test sample.
+            - trained_model (str): Path to a .txt file containing the paths to the pretrained models.
+            - infer (str): Flag to set up the inference saving path (default is True).
+        config (configuration_parser.ConfigurationParser): Configuration object with settings
+            for data loading, model architecture, profiling options, and other parameters.
+    """
 
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("Inference")

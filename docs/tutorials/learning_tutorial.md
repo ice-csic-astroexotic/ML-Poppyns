@@ -1,0 +1,1 @@
+# Training a CNN for pulsar population synthesis

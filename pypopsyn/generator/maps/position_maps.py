@@ -39,7 +39,7 @@ def generate_position_map(
     position_maps_dictionary: dict,
     x_limits: typing.Tuple[float, float] = (-20.0, 20.0),
     y_limits: typing.Tuple[float, float] = (-20.0, 20.0),
-):
+) -> None:
     """
     This method generates a discrete position map with great flexibility, the
     dimensions of the map can be chosen, the type (image or array) can also be
@@ -60,12 +60,8 @@ def generate_position_map(
         x_resolution (int): resolution in the horizontal axis.
         y_resolution (int): resolution in the vertical axis.
         position_maps_dictionary (dict): partial dictionary of position maps.
-        x_limits (float, float): limits of the horizontal axis.
-        y_limits (float, float): limits of the vertical axis.
-
-    Returns:
-        Nothing.
-
+        x_limits Tuple[float, float]: limits of the horizontal axis.
+        y_limits Tuple[float, float]: limits of the vertical axis.
     """
 
     # Compose the final filename with the dataset path, the name for the map,

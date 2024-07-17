@@ -11,10 +11,10 @@
     Faucher-Giguère & Kaspi (2006). We reserve the variable theta for the polar angle in a
     spherical coordinate system.
 
-        Authors:
+    Authors:
 
-            Vanessa Graber (graber@ice.csic.es)
-            Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 
@@ -32,12 +32,10 @@ def pdf_radial_density_YK04(r: np.ndarray) -> np.ndarray:
     to eq. (15) of Yusifov & Küçük (2004).
 
     Args:
-
         r (np.ndarray): distance from the galactic center in [kpc].
 
     Returns:
-
-        np.ndarray: stellar radial density in [1/kpc].
+        (np.ndarray): stellar radial density in [1/kpc].
 
     """
 
@@ -72,12 +70,10 @@ def pdf_radial_density_VV21(r: np.ndarray) -> np.ndarray:
     from the work of Verberne & Vink (2021).
 
     Args:
-
         r (np.ndarray): distance from the galactic center in [kpc].
 
     Returns:
-
-        np.ndarray: SNR radial density in [1/kpc].
+        (np.ndarray): SNR radial density in [1/kpc].
 
     """
 
@@ -105,15 +101,13 @@ def smear_initial_coordinates(
     Smear the initial radial and angular coordinates in the galactocentric frame by adding noise.
 
     Args:
-
         r (np.ndarray): distances from the galactic center in [kpc].
         phi (np.ndarray): azimuthal coordinate of the stars on the spiral arms [rad].
         NS_number (int): total number of neutron stars created in the simulation.
 
     Returns:
-
-        (np.ndarray, np.ndarray): galactocentric coordinates phi [rad], r [kpc] with
-        noise applied.
+        (Tuple[np.ndarray, np.ndarray]): galactocentric coordinates phi [rad], r [kpc] with
+            noise applied.
 
     """
 
@@ -133,15 +127,13 @@ def spiral_arm_time_evol(phi0: np.ndarray, t: np.ndarray) -> np.ndarray:
     of the Milky Way' by Vallée (2017)).
 
     Args:
-
         phi0 (np.ndarray): current angular positions in [rad] for the chosen
-        spiral pattern.
+            spiral pattern.
         t (np.ndarray): times in [yr] to propagate backward.
 
     Returns:
-
         (np.ndarray): angular positions in [rad] for the spiral pattern as they were
-        t years ago.
+            t years ago.
 
     """
 
@@ -165,14 +157,12 @@ def calculate_noise_for_coordinates(
     see Sec. 3.2.1 in Faucher-Giguère & Kaspi (2006) for details.
 
     Args:
-
         r (np.ndarray): array of distances from the galactic center in [kpc].
         NS_number (int): total number of neutron stars created in the simulation.
 
     Returns:
-
-        (np.ndarray, np.ndarray): array of noise for the galactocentric coordinates
-        phi [rad], r [kpc].
+        (Tuple[np.ndarray, np.ndarray]): array of noise for the galactocentric coordinates
+            phi [rad], r [kpc].
 
     """
 
@@ -188,11 +178,9 @@ def pdf_initial_height(z: np.ndarray) -> np.ndarray:
     according to eq. (2) in Gullon et al. (2014).
 
     Args:
-
         z (np.ndarray): distance from the galactic plane in [kpc].
 
     Returns:
-
         (np.ndarray): distribution of stars per kpc in z direction.
 
     """
@@ -213,12 +201,10 @@ def random_scatter_about_plane(z: np.ndarray, NS_number: int) -> np.ndarray:
     located at z=0.
 
     Args:
-
         z (np.ndarray): array of heights in [kpc] with positive values.
         NS_number (int): total number of neutron stars created in the simulation.
 
     Returns:
-
         (np.ndarray): array of heights in [kpc] randomly scattered above or below 0.
 
     """

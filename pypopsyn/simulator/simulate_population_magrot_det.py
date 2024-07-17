@@ -9,10 +9,10 @@
 
     Authors:
 
-        Vanessa Graber (graber @ ice.csic.es)
-        Michele Ronchi (ronchi @ ice.csic.es)
-        Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
-        Celsa Pardo Araujo (pardo @ ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+        Alberto Garcia-Garcia (garciagarcia@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import argparse
@@ -43,21 +43,16 @@ log = logging.getLogger(__name__)
 logging.getLogger("healpy").setLevel(logging.WARNING)
 
 
-def simulate_population(args) -> None:
+def simulate_population(args: argparse.Namespace) -> None:
     """
     Simulating a detected neutron star population starting from a dynamically evolved
     population database.
 
     Args:
-        args:
+        args (Namespace): An argparse.Namespace object containing the following attributes:
             dyn_data (str): Path to a dynamically evolved population database.
             save_dir (str): Output directory for the run.
             parameter_override (str): Path to JSON with parameter overrides.
-
-    Returns:
-
-        Nothing.
-
     """
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)

@@ -30,7 +30,20 @@ import pypopsyn.learning.trainers.trainer_basic as learning_trainer
 import pypopsyn.learning.utils.benchmark as benchmark
 
 
-def main(config):
+def main(config: configuration_parser.ConfigurationParser) -> None:
+    """
+    Main training loop for the model.
+
+    This function initializes the training process, including setting up
+    data loaders, model architecture, weight initialization, loss criterion,
+    metrics, optimizer, and learning rate scheduler. It then conducts
+    training trials until the specified convergence criteria are met or
+    the maximum number of trials is reached.
+
+    Args:
+        config (ConfigurationParser): A configuration object containing parameters for data loaders,
+            model architecture, training criteria, convergence thresholds, and other training settings.
+    """
 
     trials = 1
     converged = False

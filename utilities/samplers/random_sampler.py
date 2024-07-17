@@ -27,7 +27,7 @@ def cdf_calculator(
         pdf (Callable): probability density function.
 
     Returns:
-        np.ndarray: normalized cumulative distribution function.
+        (np.ndarray): normalized cumulative distribution function.
     """
 
     cdf = integrate.cumulative_trapezoid(pdf(x), x, initial=0)
@@ -48,7 +48,7 @@ def random_from_cdf(
         num_draw (int): number of values to draw.
 
     Returns:
-        np.ndarray: random values drawn from the cdf.
+        (np.ndarray): random values drawn from the cdf.
     """
 
     cdf_rand = np.random.uniform(0, 1, num_draw)
@@ -71,7 +71,7 @@ def random_from_pdf(
         num_draw (int): number of values to draw.
 
     Returns:
-        np.ndarray: random values drawn from the pdf.
+        (np.ndarray): random values drawn from the pdf.
     """
 
     cdf = cdf_calculator(x, pdf)
@@ -98,7 +98,7 @@ def random_from_pdf_2d(
         num_draw (int): number of values to draw.
 
     Returns:
-        (np.ndarray, np.ndarray): random points of coordinates (x1, x2) drawn from the pdf.
+        (Tuple[np.ndarray, np.ndarray]): random points of coordinates (x1, x2) drawn from the pdf.
     """
 
     # Build the cumulative function grid by computing a cumulative function
