@@ -47,6 +47,7 @@ nav:
           - code/simulator/interstellar_medium.md
           - code/simulator/multiband_emission.md
           - code/simulator/multiband_surveys.md
+          - code/simulator/telemetry.md
       - Generator:
           - code/generator/generator.md
           - code/generator/maps.md
