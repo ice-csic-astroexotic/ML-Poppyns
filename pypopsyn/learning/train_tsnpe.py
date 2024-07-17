@@ -38,6 +38,7 @@ import signal
 import sys
 import time
 from logging import Logger
+from types import FrameType
 from typing import List, Optional, Tuple, Union
 
 import corner
@@ -69,17 +70,38 @@ from utilities.simulation_helper.run_simulation_set_sbi import (
 )
 
 
-# Define the signal handler for the timeout
-def handler(signum, frame):
-    raise TimeoutError("Sampling timed out")
+def handler(signum: int, frame: FrameType) -> None:
+    """
+    Signal handler that raises a TimeoutError when a SIGALRM signal is received.
+
+    Args:
+        signum (int): The signal number.
+        frame (Any): The current stack frame.
+
+    Raises:
+        (TimeoutError): Indicates that the operation timed out.
+    """
+    raise TimeoutError("The operation timed out")
 
 
-# Function to perform the sampling
 def sample(
     posterior: DirectPosterior,
     simulation_output: torch.Tensor,
     n_samples_coverage: int,
 ) -> torch.Tensor:
+
+    """
+     Perform sampling from the posterior distribution. This function is designed to be used with a signal handler
+     to enforce a timeout during sampling.
+
+     Args:
+        posterior (DirectPosterior): Posterior distribution.
+        simulation_output (torch.Tensor): Simulation output matrix.
+        n_samples_coverage (int): The number of samples to draw from the posterior distribution.
+
+    Returns:
+        (torch.Tensor): The samples drawn from the posterior distribution.
+    """
     return posterior.set_default_x(simulation_output).sample(
         (n_samples_coverage,), show_progress_bars=False
     )
@@ -95,28 +117,29 @@ def sample_with_timeout(
     Perform sampling from the posterior distribution with a specified timeout.
 
     Args:
-        posterior (DirectPosterior): The posterior distribution object.
+        posterior (DirectPosterior): Posterior distribution.
         simulation_output (torch.Tensor): Simulation output matrix.
         n_samples_coverage (int): The number of samples to draw from the posterior distribution.
         timeout (int, optional): The maximum time in seconds to allow for sampling. Defaults to 60 seconds.
 
     Returns:
-        Tuple[Optional[torch.Tensor], bool]: A tuple containing the result of the sampling (or None if it times out)
+        (Tuple[Optional[torch.Tensor], bool]): A tuple containing the result of the sampling (or None if it times out)
             and a boolean indicating whether the sampling was successful.
     """
-    # Register the signal handler
+    # Set the signal handler and start the alarm to enforce the function timeout.
     signal.signal(signal.SIGALRM, handler)
-    # Start the timer
     signal.alarm(timeout)
 
     try:
+        # If the sampling completes before the timeout, return the result and True.
         result = sample(posterior, simulation_output, n_samples_coverage)
         success = True
     except TimeoutError:
+        # If the timeout is reached, return None and False.
         result = None
         success = False
     finally:
-        # Cancel the timer
+        # Cancel the timer to prevent the signal from being sent after completion.
         signal.alarm(0)
 
     return result, success
@@ -143,10 +166,11 @@ def calculate_smallest_hdr(
         device (torch.device): Device used to run the script.
 
     Returns:
-        np.ndarray: Smallest highest density region of the posterior that contains the true value.
+        (np.ndarray): Smallest highest density region of the posterior that contains the true value.
     """
     hdr = []
-    successful_samples = 0  # Counter for successful samples
+    # Counter for successful samples.
+    successful_samples = 0
 
     for index in tqdm(
         range(theta.size(0)), desc="Computing Coverage Probability"
@@ -182,6 +206,7 @@ def calculate_smallest_hdr(
         # Determining the fraction of PDF values that are larger than that of the ground truth.
         hdr_value = (log_p_samples > log_p_true).float().mean()
 
+        # Handle the device to ensure coverage works on both CPU and GPU
         if device.type == "cuda":
             hdr_value = hdr_value.cpu().item()
         else:
@@ -212,7 +237,7 @@ def build_network(
         prior (utils.BoxUniform): Prior distribution.
 
     Returns:
-        inference (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi's SNPE inference objects.
+        (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi's SNPE inference objects.
     """
 
     embedding_net = config.init_object("arch", learning_models)
@@ -262,7 +287,7 @@ def load_inference(
         ensemble (bool): Flag indicating if ensemble mode is enabled. Defaults to False.
 
     Returns:
-        Union[List[SNPE_C], SNPE_C]: A list of inference objects.
+        (Union[List[SNPE_C], SNPE_C]): A list of inference objects.
     """
     save_dir = config["resume_training"]["save_dir"]
     inference_list = []
@@ -304,7 +329,7 @@ def initialize_inference(
         ensemble (bool): Flag indicating if ensemble mode is enabled. Defaults to False.
 
     Returns:
-        Union[List[SNPE_C], SNPE_C]: A list of initialized inference objects.
+        (Union[List[SNPE_C], SNPE_C]): A list of initialized inference objects.
     """
     inference_list = []
     for _ in range(config["trainer"]["size_ensemble"] if ensemble else 1):
@@ -337,7 +362,7 @@ def wrapper_pypopsyn(
         device (torch.device): Device used to run the script.
 
     Returns:
-        str: Path to the generated dataset.
+        (str): Path to the generated dataset.
     """
 
     # Setting paths.
@@ -407,8 +432,6 @@ def corner_plot(
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
         save_dir (str): Directory to save the corner plot.
 
-    Returns:
-        None
     """
 
     # Save the statistics for the filtered labels.
@@ -461,6 +484,7 @@ def corner_plot(
 def merge_all_rounds_dataset(
     base_path: pathlib.Path, last_completed_round: int
 ) -> pathlib.Path:
+
     """
     Merge all dataset_full.csv files from each round into a single DataFrame. This is necessary in resume mode because,
     during the first round of resuming the training, we need to load all the previous training datasets from the earlier
@@ -471,7 +495,7 @@ def merge_all_rounds_dataset(
         last_completed_round (int): Last completed round number.
 
     Returns:
-        pathlib.Path: The path to the merged dataset.
+        (pathlib.Path): The path to the merged dataset.
     """
     dataframes = []
 
@@ -501,6 +525,7 @@ def prepare_dataset_sbi(
     logger: Logger,
     atnf: Optional[bool] = False,
 ) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
+
     """
     Prepare dataset for use in sbi training.
 
@@ -513,7 +538,7 @@ def prepare_dataset_sbi(
         logger (Logger): Logger object.
 
     Returns:
-        tuple: A tuple containing the dataset, parameter tensor and input matrix tensor.
+        (tuple): A tuple containing the dataset, parameter tensor and input matrix tensor.
     """
 
     # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
@@ -574,6 +599,7 @@ def save_training_statistics(
     index: int,
     effective_round: int,
 ) -> None:
+
     """
     Save training statistics including scalars and training/validation loss plots.
 
@@ -582,8 +608,6 @@ def save_training_statistics(
         inference (SNPE_C): SBI inference object.
         index (int): The ensemble index, if ensemble is set to False index is equal to 0.
         effective_round (int): Number of the effective round during the sequential inference approach.
-    Returns:
-        None
     """
     all_event_data = tbo._get_event_data_from_log_dir(
         inference._summary_writer.log_dir
@@ -642,6 +666,7 @@ def amortized_posterior(
     prof_log_path: str,
     prof_json_path: str,
 ) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
+
     """
     Train the density estimator for a given round.
     If resuming is set to True, this mode allows training to continue from the last completed round if interrupted.
@@ -662,8 +687,9 @@ def amortized_posterior(
         round_current (int): Current round number.
         prof_json_path (str): The profile.json path.
         prof_log_path (str): The profile.log path.
+
     Returns:
-        Union[DirectPosterior, NeuralPosteriorEnsemble]: Trained density estimator or ensemble of estimators.
+        (Union[DirectPosterior, NeuralPosteriorEnsemble]): Trained density estimator or ensemble of estimators.
     """
     ensemble = config["trainer"]["ensemble"]
     ensemble_size = config["trainer"]["size_ensemble"] if ensemble else 1
@@ -759,6 +785,7 @@ def compute_proposal_prior(
     prior: utils.BoxUniform,
     device: torch.device,
 ) -> utils.RestrictedPrior:
+
     """
     Compute the proposal prior by restricting the prior to the posterior of the observation.
 
@@ -769,7 +796,7 @@ def compute_proposal_prior(
         device (torch.device): Device used for training.
 
     Returns:
-        utils.RestrictedPrior: The restricted prior based on the posterior distribution of the observation.
+        (utils.RestrictedPrior): The restricted prior based on the posterior distribution of the observation.
     """
     # Computing the region of the posterior distribution used to constrain the prior.
     accept_reject_fn = utils.get_density_thresholder(
@@ -821,9 +848,6 @@ def compute_rank_coverage(
         parameter_labels (List[str]): Labels for the parameters in the test dataset.
         logger (Logger): Logger object.
         effective_round (int): Number of the effective round during the sequential inference approach.
-
-    Returns:
-        None
     """
     logger.info(
         f"Computing coverage probability for the test dataset for round {effective_round}..."
@@ -904,6 +928,7 @@ def compute_rank_coverage(
 
 
 def train(args, config):
+
     """
     Training a density estimator to infer the posterior distribution at the observed population with the truncated
     sequential neural posterior estimator approach in Deistler et al. (2022) using the sbi package.
@@ -911,9 +936,6 @@ def train(args, config):
     Args:
         args (argparse.Namespace): Command-line arguments parsed by argparse.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
-
-    Returns:
-        None
     """
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("train")
