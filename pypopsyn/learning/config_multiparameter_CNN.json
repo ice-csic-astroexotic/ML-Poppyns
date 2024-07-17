@@ -4,14 +4,16 @@
   "convergence": {
     "h_c_threshold": 0.5,
     "vk_c_threshold": 10.0,
-    "sigma_k_threshold": 10.0
+    "sigma_k_threshold": 10.0,
+    "B_initial_log10_mean_threshold": 0.5,
+    "P_initial_log10_mean_threshold": 0.5
   },
   "n_gpu": 1,
 
   "arch": {
     "type": "ModelConv",
     "args": {
-        "input_shape": [4, 128, 128],
+        "input_shape": [3, 32, 32],
         "num_parameters": 2
     }
   },
@@ -24,12 +26,12 @@
   "training_data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "dataset_path": "examples/data/multiparameter/dataset_train.csv",
-      "statistic_path": "examples/data/multiparameter/statistics_train.json",
+      "dataset_path": "data/example_generator_magrot/dataset_train.csv",
+      "statistic_path": "data/example_generator_magrot/statistics_train.json",
       "batch_size": 8,
       "num_workers": 1,
-      "filter_inputs": [1, 2, 6, 7],
-      "filter_labels": [],
+      "filter_inputs": [9, 10, 11],
+      "filter_labels": [12, 13],
       "shuffle": true,
       "normalize": false,
       "standardize": false
@@ -39,12 +41,12 @@
   "validation_data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "dataset_path": "examples/data/multiparameter/dataset_valid.csv",
-      "statistic_path": "examples/data/multiparameter/statistics_train.json",
+      "dataset_path": "data/example_generator_magrot/dataset_train.csv",
+      "statistic_path": "data/example_generator_magrot/statistics_train.json",
       "batch_size": 8,
       "num_workers": 1,
-      "filter_inputs": [1, 2, 6, 7],
-      "filter_labels": [],
+      "filter_inputs": [9, 10, 11],
+      "filter_labels": [12, 13],
       "shuffle": false,
       "normalize": false,
       "standardize": false
@@ -54,12 +56,12 @@
   "test_data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "dataset_path": "examples/data/multiparameter/dataset_test.csv",
-      "statistic_path": "examples/data/multiparameter/statistics_train.json",
+      "dataset_path": "data/example_generator_magrot/dataset_test.csv",
+      "statistic_path": "data/example_generator_magrot/statistics_train.json",
       "batch_size": 1,
       "num_workers": 1,
-      "filter_inputs": [1, 2, 6, 7],
-      "filter_labels": [],
+      "filter_inputs": [9, 10, 11],
+      "filter_labels": [12, 13],
       "shuffle": false,
       "normalize": false,
       "standardize": false
@@ -94,7 +96,7 @@
 
   "trainer": {
     "epochs": 1024,
-    "save_dir": "examples/learning/saved",
+    "save_dir": "toremove/oldtrain",
     "save_period": 1000,
     "verbosity": 1,
     "early_stop": 128,
@@ -102,6 +104,6 @@
   },
 
   "infer": {
-    "save_dir": "examples/inference/saved"
+    "save_dir": "toremove/oldinfer"
   }
 }

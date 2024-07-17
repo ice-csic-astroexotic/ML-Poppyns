@@ -63,10 +63,13 @@ class MetricTracker:
         """
 
         if key not in self._data.index:
-            self._data = self._data.append(
-                pd.DataFrame(
-                    index=[key], columns=["total", "counts", "average"]
-                )
+            self._data = pd.concat(
+                [
+                    self._data,
+                    pd.DataFrame(
+                        index=[key], columns=["total", "counts", "average"]
+                    ),
+                ]
             )
             self._data.total[key] = 0
             self._data.counts[key] = 0
