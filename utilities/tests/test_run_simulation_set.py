@@ -9,6 +9,7 @@
 
 import logging
 import multiprocessing as mp
+import os
 import pathlib
 import subprocess
 from unittest import mock
@@ -59,17 +60,24 @@ def test_run_simulation_dask(caplog):
     ), mock.patch(
         "os.listdir", return_value=[]
     ):
-        # Call the function being tested.
-        rss.run_simulation_dask(
-            args,
-            simulator_type,
-            simulation_output_path,
-            simulation_override_json,
-            dyn_data_path,
-        )
-        # Assert that the log messages are present
-        assert "Copied output folder back to original location" in caplog.text
-        assert "Simulation finished" in caplog.text
+        try:
+            # Call the function being tested.
+            rss.run_simulation_dask(
+                args,
+                simulator_type,
+                simulation_output_path,
+                simulation_override_json,
+                dyn_data_path,
+            )
+            # Assert that the log messages are present
+            assert (
+                "Copied output folder back to original location" in caplog.text
+            )
+            assert "Simulation finished" in caplog.text
+        finally:
+            # Ensure the file is deleted after the test
+            if os.path.exists("mock_parameter_override.json"):
+                os.remove("mock_parameter_override.json")
 
 
 def test_run_simulation(mock_subprocess_check_output):
