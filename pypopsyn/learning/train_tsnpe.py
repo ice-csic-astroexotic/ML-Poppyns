@@ -120,7 +120,7 @@ def sample_with_timeout(
         posterior (DirectPosterior): Posterior distribution.
         simulation_output (torch.Tensor): Simulation output matrix.
         n_samples_coverage (int): The number of samples to draw from the posterior distribution.
-        timeout (int, optional): The maximum time in seconds to allow for sampling. Defaults to 60 seconds.
+        timeout (int, optional): The maximum time in seconds to allow for sampling. Defaults to 180 seconds.
 
     Returns:
         (Tuple[Optional[torch.Tensor], bool]): A tuple containing the result of the sampling (or None if it times out)
@@ -178,11 +178,11 @@ def calculate_smallest_hdr(
         simulation_output = matrix[index]
 
         # Adding batch dimension (e.g: converting the shape from [3,32,32] to [1,3,32,32]), this is needed for the sbi
-        # new version.
+        # new version 0.22.0.
         simulation_output = simulation_output.unsqueeze(0)
         true_value = theta[index]
 
-        # Perform sampling with a timeout of 10 seconds.
+        # Perform sampling with a timeout of 180 seconds.
         posterior_samples, success = sample_with_timeout(
             posterior, simulation_output, n_samples_coverage, timeout=180
         )
@@ -213,9 +213,11 @@ def calculate_smallest_hdr(
             hdr_value = hdr_value.item()
 
         hdr.append(hdr_value)
+
+    percentage_successful = (successful_samples / theta.size(0)) * 100
     # Log the number of successful test samples used to compute the coverage.
     logger.info(
-        f"Number of successful samples used to compute coverage: {successful_samples}"
+        f"Percentage of successful samples used to compute coverage: {percentage_successful}"
     )
 
     return np.array(hdr)
@@ -509,7 +511,9 @@ def merge_all_rounds_dataset(
 
     merged_df = pd.concat(dataframes, ignore_index=True)
     # Define the path for the merged dataset.
-    output_path = os.path.join(base_path, f"combine_round_{i}")
+    output_path = os.path.join(
+        base_path, f"combine_round_{last_completed_round + 1}"
+    )
     os.makedirs(output_path, exist_ok=True)
     merged_dataset_path = os.path.join(output_path, "dataset_full.csv")
 
@@ -520,7 +524,7 @@ def merge_all_rounds_dataset(
 
 
 def prepare_dataset_sbi(
-    train_data_set: str,
+    dataset_folder: str,
     config: configuration_parser.ConfigurationParser,
     logger: Logger,
     atnf: Optional[bool] = False,
@@ -530,7 +534,7 @@ def prepare_dataset_sbi(
     Prepare dataset for use in sbi training.
 
     Args:
-        train_data_set (str): Path to the training dataset.
+        dataset_folder (str): Path to the folder where the dataset is saved.
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
         atnf (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to
             the observed population or to a simulated population. If set to True, the simulations correspond to the
@@ -543,9 +547,9 @@ def prepare_dataset_sbi(
 
     # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
     dataset_path = (
-        train_data_set + "/dataset_atnf.csv"
+        dataset_folder + "/dataset_atnf.csv"
         if atnf
-        else train_data_set + "/dataset_full.csv"
+        else dataset_folder + "/dataset_full.csv"
     )
     dataset_stat_path = config["training_data_loader"]["statistic_path"]
     filter_inputs = config["training_data_loader"]["filter_inputs"]
@@ -719,8 +723,9 @@ def amortized_posterior(
         )
 
         inference = inference_list[index if ensemble else 0]
-        # If we are in the first round of training and resume mode is enabled, instead of training again, the model is
-        # loaded from the last completed round.
+        # If we are in the first round of training and resume mode is enabled, the model is loaded from the last
+        # completed round instead of being trained again.
+        # This is needed to compute the proposal prior for the next round.
         if resume and round_current == 0:
 
             with open(trained_model_path, "rb") as f:

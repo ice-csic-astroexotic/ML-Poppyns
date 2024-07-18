@@ -4,7 +4,7 @@
   "enable_dask": false,
   "n_processes": 4,
   "workers_dask": 4,
-  "set_manual_seed": true,
+  "set_manual_seed": false,
   "manual_seed": 42,
   "profile_log": "profile.log",
   "profile_json": "profile.json",

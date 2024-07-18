@@ -44,6 +44,9 @@
     "normalize": false,
     "standardize": true
   },
+  "resume_training": {
+    "resume": false
+    },
 
   "trainer": {
     "validation_fraction": 0.1,
