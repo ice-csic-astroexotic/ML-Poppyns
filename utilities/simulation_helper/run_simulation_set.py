@@ -204,7 +204,6 @@ def run_simulation_dask(
             dyn.simulate_population(args)
 
         # Copy the output folder back to the original location.
-        os.listdir("/data/magnesia/common")
         safe_copytree(output_dir_path, simulation_output_path)
         # Remove the folder to prevent issues with overwriting.
         shutil.rmtree(output_dir_path)
