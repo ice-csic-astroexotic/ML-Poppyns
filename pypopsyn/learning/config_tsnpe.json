@@ -68,6 +68,7 @@
     },
 
   "trainer": {
+    "retrain_from_scratch": true,
     "ensemble": true,
     "size_ensemble": 5,
     "validation_fraction": 0.1,

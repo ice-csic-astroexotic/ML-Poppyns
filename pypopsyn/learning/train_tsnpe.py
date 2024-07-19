@@ -669,6 +669,7 @@ def amortized_posterior(
     round_current: int,
     prof_log_path: str,
     prof_json_path: str,
+    retrain_from_scratch: bool = False,
 ) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
 
     """
@@ -691,6 +692,8 @@ def amortized_posterior(
         round_current (int): Current round number.
         prof_json_path (str): The profile.json path.
         prof_log_path (str): The profile.log path.
+        retrain_from_scratch (bool) : Whether to retrain the conditional density estimator for the posterior from
+            scratch each round. Default value is False.
 
     Returns:
         (Union[DirectPosterior, NeuralPosteriorEnsemble]): Trained density estimator or ensemble of estimators.
@@ -750,6 +753,7 @@ def amortized_posterior(
                     ],
                     show_train_summary=True,
                     force_first_round_loss=True,
+                    retrain_from_scratch=retrain_from_scratch,
                 )
             logger.info(
                 f"Trained density estimator for round {effective_round}, ensemble index {index}."
@@ -764,11 +768,12 @@ def amortized_posterior(
         posterior = inference.build_posterior(density_estimator.to(device))
         posteriors_list.append(posterior)
 
-        logger.info(
-            f"Saved inference for round {effective_round}, ensemble index {index}."
-        )
-        with open(inference_model_path, "wb") as inference_file:
-            pickle.dump(inference, inference_file)
+        if not retrain_from_scratch:
+            logger.info(
+                f"Saved inference for round {effective_round}, ensemble index {index}."
+            )
+            with open(inference_model_path, "wb") as inference_file:
+                pickle.dump(inference, inference_file)
 
         # Saving the training statistics.
         save_training_statistics(config, inference, index, effective_round)
@@ -960,6 +965,7 @@ def train(args, config):
     logger.info("Devices obtained: {}".format(device_ids))
     resume = config["resume_training"]["resume"]
     ensemble = config["trainer"]["ensemble"]
+    retrain_from_scratch = config["trainer"]["retrain_from_scratch"]
 
     if config["enable_dask"]:
         with timewith.TimeWith(
@@ -1063,15 +1069,20 @@ def train(args, config):
             logger.info("Building the neural network...")
 
             # When resuming from a previous run, load the inference object that contains the weights of the previously
-            # trained neural networks.
-            if resume:
-                inference_list = load_inference(
-                    config, last_completed_round, ensemble
-                )
-            else:
+            # trained neural networks if retrain_from_scratch is false; otherwise, initialize the neural network.
+            if retrain_from_scratch:
                 inference_list = initialize_inference(
                     config, device, prior, ensemble
                 )
+            else:
+                if resume:
+                    inference_list = load_inference(
+                        config, last_completed_round, ensemble
+                    )
+                else:
+                    inference_list = initialize_inference(
+                        config, device, prior, ensemble
+                    )
 
             # Create the matrix for the observed sample of neutron stars.
             _, _, x_o = prepare_dataset_sbi(
@@ -1157,6 +1168,13 @@ def train(args, config):
                     logger.info(
                         f"Training the density estimator with {parameter_round.shape[0]} samples in round {effective_round} ..."
                     )
+                    # If retrain_from_scratch is set to True, initialize the inference object to reset the weights
+                    # and avoid reusing the previously trained weights at each round.
+
+                    if retrain_from_scratch:
+                        inference_list = initialize_inference(
+                            config, device, prior, ensemble
+                        )
 
                     posterior = amortized_posterior(
                         config=config,
@@ -1169,6 +1187,7 @@ def train(args, config):
                         round_current=i,
                         prof_log_path=prof_log_path,
                         prof_json_path=prof_json_path,
+                        retrain_from_scratch=retrain_from_scratch,
                     )
 
                 with timewith.TimeWith(
