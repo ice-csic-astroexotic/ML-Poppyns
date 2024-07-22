@@ -79,9 +79,9 @@ def initialize_dask_cluster(
     htcondor_output_folder = f"{config.save_dir}/htcondor_output"
     pathlib.Path(htcondor_output_folder).mkdir(parents=True, exist_ok=True)
     logger.info(
-        f"Saving the stdout and stderr of the terminal of each worker in {htcondor_output_folder}."
+        f"Saving the stdout and stderr of the terminal for each worker in {htcondor_output_folder}."
     )
-    # Creating the cluster with dask for HTCondor.
+    # Creating the cluster with Dask for HTCondor.
     extra = {
         "getenv": "True",
         "output": f"{htcondor_output_folder}/$(ClusterId)_$(ProcId)-out.txt",
@@ -128,7 +128,7 @@ def simulator_dask(
 ) -> None:
 
     """
-    Execute simulations based on the provided prior distribution in a multithreaded manner using the `Dask` package.
+    Execute simulations based on the provided prior distribution in a multithreaded manner using the Dask package.
 
     Args:
         args_dict (Dictionary): Dictionary with the arguments.
@@ -246,8 +246,8 @@ def simulator_multiprocess(
     dataset: DatasetMultichannelArray,
 ) -> None:
     """
-    Execute simulations based on the provided prior distribution in a multithreaded manner using the `multiprocessing`
-    package.
+    Execute simulations based on the provided prior distribution in a multithreaded manner using the package
+    multiprocessing.
 
     Args:
         args_dict (Dictionary): Dictionary with the arguments.
