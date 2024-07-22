@@ -1021,7 +1021,7 @@ def train(args, config):
             n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
             num_rounds = config["trainer"]["num_rounds"]
 
-            # Loading the test data as a data frame and extracting the ground truth labels.
+            # Loading the train dataset as a data frame and extracting the ground truth labels.
             filter_labels = config["training_data_loader"]["filter_labels"]
             dataset_df = pd.read_csv(train_dataset_path + "/dataset_full.csv")
             parameter_labels = dataset_df.columns[filter_labels]

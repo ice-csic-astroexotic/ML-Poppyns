@@ -77,5 +77,10 @@
     "num_rounds": 3,
     "sir": true,
     "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/learning"
+  },
+  "infer": {
+    "compute_coverage":true,
+    "load_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_10_10rounds_1ksim_long_flavour_ensemble_5_comp_retrain_from_scratch_True/learning/models/SBI_ConvolutionMDN/20240719_164759",
+    "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_10_10rounds_1ksim_long_flavour_ensemble_5_comp_retrain_from_scratch_True/inference"
   }
 }
