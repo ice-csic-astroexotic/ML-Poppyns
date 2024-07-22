@@ -1017,7 +1017,7 @@ def train(args, config):
                     "dataset_path_first_round"
                 ]
             logger.info(
-                "Preparing the training data set for sbi for the first round..."
+                "Preparing the training dataset for sbi for the first round..."
             )
             dataset, parameter, matrix = prepare_dataset_sbi(
                 train_dataset_path, config, logger
@@ -1025,7 +1025,7 @@ def train(args, config):
             n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
             num_rounds = config["trainer"]["num_rounds"]
 
-            # Loading the train dataset as a data frame and extracting the ground truth labels.
+            # Loading the train dataset as a dataframe and extracting the ground truth labels.
             filter_labels = config["training_data_loader"]["filter_labels"]
             dataset_df = pd.read_csv(train_dataset_path + "/dataset_full.csv")
             parameter_labels = dataset_df.columns[filter_labels]
@@ -1074,9 +1074,9 @@ def train(args, config):
             logger.info("Building the neural network...")
 
             # When resuming from a previous run, load the inference object that contains the weights of the previously
-            # trained neural networks; otherwise, initialize the neural network. Note that if resume = True and
-            # retrain_from_scratch = true, in the first round we load the trained model, so there is no need to load
-            # the inference object since all the information about the weights is already in the trained model.
+            # trained neural networks. Otherwise, initialize the neural network. Note that if resume = True and
+            # retrain_from_scratch = True, in the first round we load the trained model. Hence, there is no need to load
+            # the inference object as all the information about the weights is already in the trained model.
 
             if resume and not retrain_from_scratch:
                 inference_list = load_inference(
