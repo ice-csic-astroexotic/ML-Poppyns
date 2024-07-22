@@ -923,7 +923,7 @@ def compute_rank_coverage(
         f"{save_dir}/ranks_histograms.pdf",
         bbox_inches="tight",
     )
-
+    plt.close()
     f, ax = sbc_rank_plot(
         ranks=ranks,
         num_posterior_samples=num_posterior_samples,
@@ -935,6 +935,7 @@ def compute_rank_coverage(
         f"{save_dir}/ranks_cumulative.pdf",
         bbox_inches="tight",
     )
+    plt.close()
 
 
 def train(args, config):
