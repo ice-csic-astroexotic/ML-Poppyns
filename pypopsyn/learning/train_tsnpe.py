@@ -335,9 +335,11 @@ def initialize_inference(
         (Union[List[SNPE_C], SNPE_C]): A list of initialized inference objects.
     """
     inference_list = []
+
     for _ in range(config["trainer"]["size_ensemble"] if ensemble else 1):
         inference = build_network(config, device, prior=prior)
         inference_list.append(inference)
+
     return inference_list
 
 
