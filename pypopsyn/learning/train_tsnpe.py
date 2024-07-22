@@ -513,6 +513,7 @@ def merge_all_rounds_dataset(
         dataframes.append(df)
 
     merged_df = pd.concat(dataframes, ignore_index=True)
+
     # Define the path for the merged dataset.
     output_path = os.path.join(
         base_path, f"combine_round_{last_completed_round + 1}"
