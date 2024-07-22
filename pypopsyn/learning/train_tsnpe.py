@@ -1070,20 +1070,18 @@ def train(args, config):
             logger.info("Building the neural network...")
 
             # When resuming from a previous run, load the inference object that contains the weights of the previously
-            # trained neural networks if retrain_from_scratch is false; otherwise, initialize the neural network.
-            if retrain_from_scratch:
+            # trained neural networks; otherwise, initialize the neural network. Note that if resume = True and
+            # retrain_from_scratch = true, in the first round we load the trained model, so there is no need to load
+            # the inference object since all the information about the weights is already in the trained model.
+
+            if resume and not retrain_from_scratch:
+                inference_list = load_inference(
+                    config, last_completed_round, ensemble
+                )
+            else:
                 inference_list = initialize_inference(
                     config, device, prior, ensemble
                 )
-            else:
-                if resume:
-                    inference_list = load_inference(
-                        config, last_completed_round, ensemble
-                    )
-                else:
-                    inference_list = initialize_inference(
-                        config, device, prior, ensemble
-                    )
 
             # Create the matrix for the observed sample of neutron stars.
             _, _, x_o = prepare_dataset_sbi(
@@ -1169,13 +1167,6 @@ def train(args, config):
                     logger.info(
                         f"Training the density estimator with {parameter_round.shape[0]} samples in round {effective_round} ..."
                     )
-                    # If retrain_from_scratch is set to True, initialize the inference object to reset the weights
-                    # and avoid reusing the previously trained weights at each round.
-
-                    if retrain_from_scratch:
-                        inference_list = initialize_inference(
-                            config, device, prior, ensemble
-                        )
 
                     posterior = amortized_posterior(
                         config=config,
@@ -1301,6 +1292,14 @@ def train(args, config):
                     observed_samples_posterior,
                     f"{save_dir_round}/samples_posterior_{effective_round}.pt",
                 )
+
+                # If retrain_from_scratch is set to True, initialize the inference object to reset the weights
+                # and avoid reusing the previously trained weights at each round.
+
+                if retrain_from_scratch:
+                    inference_list = initialize_inference(
+                        config, device, prior, ensemble
+                    )
 
             # Stop the training when the number of rounds is reached. This is necessary in the resume case to avoid
             # performing extra rounds, since the iteration counter (i) does not reflect the effective round number.
