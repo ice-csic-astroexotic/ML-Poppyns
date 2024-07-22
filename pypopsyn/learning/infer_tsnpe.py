@@ -148,16 +148,13 @@ def infer(args, config):
         ):
             logger.info("Loading the training dataset for the first round...")
 
-            # If resuming from a previous training run, first create the training dataset for the first round
-            # by merging all the training datasets from the previous completed rounds.
-
             train_dataset_path = config["training_data_loader"][
                 "dataset_path_first_round"
             ]
-            # Load the training dataset to access the statistics. Note that when training, we do not need to use the
-            # training dataset.
+            # Load the training dataset to access the statistics. Note that when testing, we do not need
+            # to use the training dataset.
             logger.info(
-                "Preparing the training data set for sbi for the first round..."
+                "Loading the training dataset to extract the statistics..."
             )
             dataset, _, _ = prepare_dataset_sbi(
                 train_dataset_path, config, logger
@@ -165,10 +162,12 @@ def infer(args, config):
             n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
             num_rounds = config["trainer"]["num_rounds"]
 
-            # Loading the train dataset as a data frame and extracting the ground truth labels.
+            # Loading the header of the train dataset to extract the ground truth labels.
             filter_labels = config["training_data_loader"]["filter_labels"]
-            dataset_df = pd.read_csv(train_dataset_path + "/dataset_full.csv")
-            parameter_labels = dataset_df.columns[filter_labels]
+            dataset_header = pd.read_csv(
+                f"{train_dataset_path}/dataset_full.csv", nrows=0
+            )
+            parameter_labels = dataset_header.columns[filter_labels]
 
             if config["set_manual_seed"] is True:
                 torch.manual_seed(config["manual_seed"])
@@ -229,7 +228,6 @@ def infer(args, config):
             )
         for i in range(num_rounds):
 
-            effective_round = i
             save_dir_round = config.log_dir / f"round_{i}"
             save_dir_round.mkdir(parents=True, exist_ok=True)
             # Load_dir folder is where the trained_model.pkl is saved.
@@ -237,7 +235,7 @@ def infer(args, config):
             load_dir_round = load_dir + f"/round_{i}"
 
             with timewith.TimeWith(
-                f"[TotalRound{effective_round}]",
+                f"[TotalRound{i}]",
                 prof_log_path,
                 prof_json_path,
                 config["show_profiling"],
@@ -258,7 +256,7 @@ def infer(args, config):
                         test_dataset_path = str(
                             pathlib.Path().joinpath(
                                 config["test_data_loader"]["dataset_path"],
-                                f"generated_dataset/round_{effective_round}",
+                                f"generated_dataset/round_{i}",
                             )
                         )
 
@@ -266,7 +264,7 @@ def infer(args, config):
                             test_dataset_path, config, logger
                         )
                         logger.info(
-                            f"Computing the ranks and the coverage probability for round_{effective_round}"
+                            f"Computing the ranks and the coverage probability for round_{i}"
                         )
 
                         compute_rank_coverage(
@@ -277,17 +275,17 @@ def infer(args, config):
                             device=device,
                             parameter_labels=parameter_labels,
                             logger=logger,
-                            effective_round=effective_round,
+                            effective_round=i,
                         )
 
                 with timewith.TimeWith(
-                    f"[ComputeRestrictedPriorRound{effective_round}]",
+                    f"[ComputeRestrictedPriorRound{i}]",
                     prof_log_path,
                     prof_json_path,
                     config["show_profiling"],
                 ):
                     logger.info(
-                        f"Computing the proposal prior for round {effective_round + 1}..."
+                        f"Computing the proposal prior for round {i + 1}..."
                     )
 
                     posterior_obs = posterior.set_default_x(x_o)
@@ -305,16 +303,16 @@ def infer(args, config):
                         corner_plot(
                             observed_samples_proposal,
                             dataset,
-                            f"{save_dir_round}/corner_plot_prior_round_{effective_round + 1}.pdf",
+                            f"{save_dir_round}/corner_plot_prior_round_{i + 1}.pdf",
                         )
                         # Save the samples from the inferred posterior distribution.
                         torch.save(
                             observed_samples_proposal,
-                            f"{save_dir_round}/samples_prior_{effective_round + 1}.pt",
+                            f"{save_dir_round}/samples_prior_{i + 1}.pt",
                         )
 
                 logger.info(
-                    f"Inferring the parameters for the observed sample for round {effective_round}..."
+                    f"Inferring the parameters for the observed sample for round {i}..."
                 )
 
                 observed_samples_posterior = posterior_obs.sample(
@@ -323,11 +321,11 @@ def infer(args, config):
                 corner_plot(
                     observed_samples_posterior,
                     dataset,
-                    f"{save_dir_round}/corner_plot_observed_sample_{effective_round}.pdf",
+                    f"{save_dir_round}/corner_plot_observed_sample_{i}.pdf",
                 )
                 torch.save(
                     observed_samples_posterior,
-                    f"{save_dir_round}/samples_posterior_{effective_round}.pt",
+                    f"{save_dir_round}/samples_posterior_{i}.pt",
                 )
 
 
