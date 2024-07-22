@@ -7,13 +7,13 @@
     based on the previously approximated posterior distribution at the observed sample. This approach focuses on
     the region of the parameter space that matches the observed population to save computational resources.
 
-    To create the training and test datasets, we use either the `multiprocessing` or `Dask` (https://www.dask.org/) package
-    to run the simulations simultaneously in a multithreaded manner. To use Dask change the variable `enable_dask` in
-    the configuration file to True. Otherwise, change it to False to use multiprocessing.
+    To create the training and test datasets, we use either the `multiprocessing` or `Dask` (https://www.dask.org/)
+    package to run the simulations simultaneously in a multithreaded manner. To use Dask change the variable
+    `enable_dask` in the configuration file to True. Otherwise, change it to False to use multiprocessing.
 
     Note that there is an option to resume training from a previous run. This allows for training over multiple rounds
-    on a server. If the maximum wall time is reached or if any interruptions occur, the training can be resumed from the
-    last completed round.
+    on a server. If the maximum wall time is reached or if any interruptions occur, the training can be resumed from
+    the last completed round.
 
     For further details, visit https://www.mackelab.org/sbi/.
 
@@ -242,6 +242,7 @@ def build_network(
         (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi's SNPE inference objects.
     """
 
+    # Building the embedding network.
     embedding_net = config.init_object("arch", learning_models)
 
     # Initialize weights.
