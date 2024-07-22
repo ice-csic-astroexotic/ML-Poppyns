@@ -146,16 +146,14 @@ def infer(args, config):
             prof_json_path,
             config["show_profiling"],
         ):
-            logger.info("Loading the training dataset for the first round...")
-
+            logger.info(
+                "Loading the training dataset to extract the statistics..."
+            )
             train_dataset_path = config["training_data_loader"][
                 "dataset_path_first_round"
             ]
             # Load the training dataset to access the statistics. Note that when testing, we do not need
             # to use the training dataset.
-            logger.info(
-                "Loading the training dataset to extract the statistics..."
-            )
             dataset, _, _ = prepare_dataset_sbi(
                 train_dataset_path, config, logger
             )
