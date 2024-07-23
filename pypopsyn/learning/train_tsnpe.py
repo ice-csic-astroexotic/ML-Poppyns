@@ -711,7 +711,7 @@ def amortized_posterior(
         round_current (int): Current round number.
         prof_json_path (str): The profile.json path.
         prof_log_path (str): The profile.log path.
-        retrain_from_scratch (bool) : Whether to retrain the conditional density estimator for the posterior from
+        retrain_from_scratch (bool): Whether to retrain the conditional density estimator for the posterior from
             scratch each round. Default value is False.
 
     Returns:
@@ -805,6 +805,7 @@ def amortized_posterior(
         save_training_statistics(config, inference, index, effective_round)
 
     if ensemble:
+        # Giving each network in the ensemble an equal weight.
         weights_ensemble = torch.ones(ensemble_size) / ensemble_size
         final_posterior = NeuralPosteriorEnsemble(
             posteriors_list, weights=weights_ensemble.to(device)
@@ -888,7 +889,7 @@ def compute_rank_coverage(
     logger.info(
         f"Computing coverage probability for the test dataset for round {effective_round}..."
     )
-    num_posterior_samples = 1000
+    num_posterior_samples = 10000
     hdr = calculate_smallest_hdr(
         posterior,
         parameter.to(device),
@@ -900,7 +901,6 @@ def compute_rank_coverage(
 
     coverage_prob(hdr, n_betas=12, save_dir=save_dir)
 
-    num_posterior_samples = 10000
     ranks, dap_samples = run_sbc(
         parameter.to(device),
         matrix.to(device),
@@ -964,7 +964,9 @@ def compute_rank_coverage(
     plt.close()
 
 
-def train(args, config):
+def train(
+    args: argparse.Namespace, config: configuration_parser.ConfigurationParser
+) -> None:
 
     """
     Training a density estimator to infer the posterior distribution at the observed population with the truncated
@@ -1020,7 +1022,7 @@ def train(args, config):
         ):
             logger.info("Loading the training dataset for the first round...")
 
-            # If resuming from a previous training run, first create the training dataset for the first round
+            # If resuming from a previously training run, first create the training dataset for the first round
             # by merging all the training datasets from the previous completed rounds.
 
             if resume:

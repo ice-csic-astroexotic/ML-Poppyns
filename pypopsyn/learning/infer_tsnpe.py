@@ -60,7 +60,7 @@ def load_posterior(
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
         save_dir_round (pathlib.Path): Directory where the trained model will be saved or is saved already.
         logger (Logger): Logger object.
-        inference_list (Union[SNPE_C, List[SNPE_C]]): SBI inference object or list of inference objects for ensemble.
+        inference_list (Union[SNPE_C, List[SNPE_C]]): sbi inference object or list of inference objects for ensemble.
         device (torch.device): Device used for training.
         round_current (int): Current round number.
 
@@ -103,7 +103,9 @@ def load_posterior(
     return final_posterior
 
 
-def infer(args, config):
+def infer(
+    args: argparse.Namespace, config: configuration_parser.ConfigurationParser
+) -> None:
 
     """
     Infer the posterior distribution for the observed population using the truncated sequential neural posterior
@@ -152,7 +154,7 @@ def infer(args, config):
             train_dataset_path = config["training_data_loader"][
                 "dataset_path_first_round"
             ]
-            # Load the training dataset to access the statistics. Note that when testing, we do not need
+            # Load the training dataset to access the statistics. Note that when performing inference, we do not need
             # to use the training dataset.
             dataset, _, _ = prepare_dataset_sbi(
                 train_dataset_path, config, logger
@@ -219,8 +221,8 @@ def infer(args, config):
             )
 
             # During inference, we load the trained model. The inference object is used to identify which neural
-            # posterior estimator algorithm is employed in this case SNPE. Therefore, we only need to initialize the
-            # network at the beginning.
+            # posterior estimation algorithm is employed. This this case we use SNPE. Therefore, we only need to
+            # initialize the network at the beginning.
             inference_list = initialize_inference(
                 config, device, prior, ensemble
             )
