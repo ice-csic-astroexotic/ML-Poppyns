@@ -307,6 +307,11 @@ def load_inference(
             )
         )
 
+        if not os.path.exists(inference_path):
+            raise FileNotFoundError(
+                "The folder specified in the config file at cfg['resume_training']['save_dir'] does not contain a inference.pickle file. To use the resume mode, you need to specify the correct path."
+            )
+
         with open(inference_path, "rb") as inference_file:
             inference = pickle.load(inference_file)
 
@@ -734,6 +739,11 @@ def amortized_posterior(
         # completed round instead of being trained again.
         # This is needed to compute the proposal prior for the next round.
         if resume and round_current == 0:
+
+            if not os.path.exists(trained_model_path):
+                raise FileNotFoundError(
+                    "The folder specified in the config file at cfg['resume_training']['save_dir'] does not contain a trained_model.pkl file. To use the resume mode, you need to specify the correct path."
+                )
 
             with open(trained_model_path, "rb") as f:
                 density_estimator = pickle.load(f)
