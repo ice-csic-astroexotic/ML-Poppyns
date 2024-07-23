@@ -133,15 +133,16 @@ def sample_with_timeout(
     signal.alarm(timeout)
 
     try:
-        # If the sampling completes before the timeout, return the result and True.
+        # If the sampling completes before the timeout, return the result and set success to True.
         result = sample(posterior, simulation_output, n_samples_coverage)
         success = True
     except TimeoutError:
-        # If the timeout is reached, return None and False.
+        # If the timeout is reached, return None and set success to False.
         result = None
         success = False
     finally:
-        # Cancel the timer to prevent the signal from being sent after completion.
+        # Cancel the timer whether an exception was raised or not to prevent the signal from being sent after
+        # completion.
         signal.alarm(0)
 
     return result, success
@@ -165,6 +166,7 @@ def calculate_smallest_hdr(
             population in matrix.
         matrix (torch.tensor): Tensor containing the maps of the simulated population.
         n_samples_coverage (float): Number of approximate posterior samples used for computing the coverage.
+        logger (logging.Logger): Logger object.
         device (torch.device): Device used to run the script.
 
     Returns:
@@ -179,8 +181,8 @@ def calculate_smallest_hdr(
     ):
         simulation_output = matrix[index]
 
-        # Adding batch dimension (e.g: converting the shape from [3,32,32] to [1,3,32,32]), this is needed for the sbi
-        # new version 0.22.0.
+        # Adding batch dimension (e.g, converting the shape from [3,32,32] to [1,3,32,32]).
+        # This is needed for sbi version 0.22.0.
         simulation_output = simulation_output.unsqueeze(0)
         true_value = theta[index]
 
@@ -191,7 +193,9 @@ def calculate_smallest_hdr(
 
         if not success:
             # Skip this test sample if the sampling times out.
-            logger.info(f"Skipping index {index} due to timeout.")
+            logger.info(
+                f"Skipping test sample with index {index} due to timeout."
+            )
             continue
 
         # Increment the successful samples counter.
@@ -208,7 +212,7 @@ def calculate_smallest_hdr(
         # Determining the fraction of PDF values that are larger than that of the ground truth.
         hdr_value = (log_p_samples > log_p_true).float().mean()
 
-        # Handle the device to ensure coverage works on both CPU and GPU
+        # Handle the device to ensure coverage works on both CPU and GPU.
         if device.type == "cuda":
             hdr_value = hdr_value.cpu().item()
         else:
@@ -217,6 +221,7 @@ def calculate_smallest_hdr(
         hdr.append(hdr_value)
 
     percentage_successful = (successful_samples / theta.size(0)) * 100
+
     # Log the number of successful test samples used to compute the coverage.
     logger.info(
         f"Percentage of successful samples used to compute coverage: {percentage_successful}"
@@ -343,6 +348,8 @@ def initialize_inference(
     """
     inference_list = []
 
+    # If ensemble is set to False, only one neural network will be used for training, resulting in a single inference
+    # object. Otherwise, there will be as many inference objects as the number of components in the ensemble.
     for _ in range(config["trainer"]["size_ensemble"] if ensemble else 1):
         inference = build_network(config, device, prior=prior)
         inference_list.append(inference)
@@ -519,6 +526,7 @@ def merge_all_rounds_dataset(
         df = pd.read_csv(dataset_path)
         dataframes.append(df)
 
+    # Concatenating all the training datasets into one to use in the first round of the resume.
     merged_df = pd.concat(dataframes, ignore_index=True)
 
     # Define the path for the merged dataset.
@@ -620,14 +628,14 @@ def save_training_statistics(
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
-        inference (SNPE_C): SBI inference object.
+        inference (SNPE_C): sbi inference object.
         index (int): The ensemble index, if ensemble is set to False index is equal to 0.
         effective_round (int): Number of the effective round during the sequential inference approach.
     """
     all_event_data = tbo._get_event_data_from_log_dir(
         inference._summary_writer.log_dir
     )
-    scalars = all_event_data["scalars"]
+    training_statistics = all_event_data["scalars"]
 
     log_dir_round_path = os.path.join(
         config.log_dir, f"round_{effective_round}"
@@ -638,15 +646,15 @@ def save_training_statistics(
         f"{log_dir_round_path}/training_statistics_{index}.json"
     )
     with open(training_statistics_path, "w") as f:
-        json.dump(scalars, f, indent=4, sort_keys=True)
+        json.dump(training_statistics, f, indent=4, sort_keys=True)
 
     # Save the plot showing the evolution of the training and validation losses.
     f, ax = plt.subplots(figsize=(8, 6))
     ax.set_xlabel(r"Epoch")
     ax.set_ylabel(r"Accuracy")
     ax.plot(
-        scalars["training_log_probs"]["step"],
-        scalars["training_log_probs"]["value"],
+        training_statistics["training_log_probs"]["step"],
+        training_statistics["training_log_probs"]["value"],
         linestyle="-",
         linewidth=4,
         color="tab:blue",
@@ -654,8 +662,8 @@ def save_training_statistics(
         label="training",
     )
     ax.plot(
-        scalars["validation_log_probs"]["step"],
-        scalars["validation_log_probs"]["value"],
+        training_statistics["validation_log_probs"]["step"],
+        training_statistics["validation_log_probs"]["value"],
         linestyle="-",
         linewidth=4,
         color="tab:orange",
@@ -696,7 +704,7 @@ def amortized_posterior(
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
         save_dir_round (pathlib.Path): Directory where the trained model will be saved or is saved already.
         logger (Logger): Logger object.
-        inference_list (Union[SNPE_C, List[SNPE_C]]): SBI inference object or list of inference objects for ensemble.
+        inference_list (Union[SNPE_C, List[SNPE_C]]): sbi inference object or list of inference objects for ensemble.
         parameter_round (torch.Tensor): Tensor containing the parameters for the current round.
         matrix_round (torch.Tensor): Tensor containing the matrices for the current round.
         device (torch.device): Device used for training.
@@ -714,8 +722,8 @@ def amortized_posterior(
     resume = config["resume_training"]["resume"]
     last_round = config["resume_training"]["last_round"]
 
-    # Note that the round_current number is not the effective round when resume mode is enabled, as we did not start
-    # from 0.
+    # Determining the number of the effective inference round of the sequential sbi approach. Note that the
+    # round_current number is not the effective round when resume mode is enabled, as we did not start from 0.
     effective_round = (
         round_current + int(last_round) if resume else round_current
     )
@@ -730,13 +738,9 @@ def amortized_posterior(
             if ensemble
             else os.path.join(save_dir_round, "trained_model.pickle")
         )
-        inference_model_path = (
-            os.path.join(save_dir_round, f"inference_ensemble_{index}.pickle")
-            if ensemble
-            else os.path.join(save_dir_round, "inference.pickle")
-        )
 
-        inference = inference_list[index if ensemble else 0]
+        inference = inference_list[index]
+
         # If we are in the first round of training and resume mode is enabled, the model is loaded from the last
         # completed round instead of being trained again.
         # This is needed to compute the proposal prior for the next round.
@@ -783,6 +787,12 @@ def amortized_posterior(
 
         posterior = inference.build_posterior(density_estimator.to(device))
         posteriors_list.append(posterior)
+
+        inference_model_path = (
+            os.path.join(save_dir_round, f"inference_ensemble_{index}.pickle")
+            if ensemble
+            else os.path.join(save_dir_round, "inference.pickle")
+        )
 
         if not retrain_from_scratch:
             logger.info(
