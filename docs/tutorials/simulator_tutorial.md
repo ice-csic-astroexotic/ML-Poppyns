@@ -82,7 +82,61 @@ In this case the output of the simulation will consist of separate files contain
 
 To see a tutorial example for this simulator you can look at the notebook in `tutorials/tutorial_notebooks/simulator_magrot_det_tutorial.ipynb`. 
 
+## Simulations with parameter sweep
 
+If you want to run simulations with a large parameter sweep, you can use the helper script `run_simulation_set.py` in the `utilities/simulation_helper` folder.
+This script allows to run multiple simulations with different input paramethers.
+You can choose the type of simulation you want to run (`simulate_population_dyn.py`, `simulate_population_magrot_det.py` or `simulate_population_full.py`) and to specify the relevant simulation parameters with two types of sampling, determined by the argument `--sampling_type`.
+You can also specify the number of cores to use in order to run the simulation in parallel via the argument `--processes`.
+
+If `--sampling_type = grid`, a regular multi-dimensional grid is created, you should provide the parameters in a linear spacing format `--parameter [low] [high] [steps]`, for example:
+```
+python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 20 --sampling_type grid
+```
+This example will run the dynamical simulation only and generate a sweep of `20` uniformly spaced samples for the `vk_c` parameter in the range `[100.0, 200.0]`. 
+As this parameter is related to the `km_exp` kick model, the script will first check if this model is properly set in the `config_simulator.py` file. If not an error will be thrown.
+If `--sampling_type = random` the parameters are randomly uniformly sampled in the provided parameter ranges. In this case you should provide the parameter ranges in the format `--parameter [low] [high]` and specify the `--sampling_size` argument, which sets the number of values drawn from a uniform distribution for each parameter.
+```
+python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 --sampling_type random --sampling_size 20
+```
+This example will generate a sweep of `20` randomly drawn samples for the `vk_c` parameter in the range `[100.0, 200.0]`.
+
+In the following, we list the parameters that can be swept with the simulation helper.
+
+For the dynamical evolution:
+
+* `vk_c` for the exponential kick-velocity model `km_exp`;
+* `sigma_k` for the Maxwell kick-velocity model `km_maxwell`;
+* `h_c` for the Galactic scale-height-distribution model of birth places.
+
+For the magneto-rotational evolution:
+
+* `P_initial_mean` and `P_initial_sigma` for the birth spin-period `normal` distribution model;
+* `P_initial_log10_mean` and `P_initial_log10_sigma` for the birth spin-period `log-normal` distribution model;
+* `B_initial_log10_mean` and `B_initial_log10_sigma` for the birth magnetic-field lognormal distribution;
+* `a_late` for the power-law index describing the late-time decay of the magnetic field.
+
+You can also sweep over more than one parameter.
+For example if one wants to simulate 20 populations of neutron stars varying the parameters `P_initial_log10_mean` in the range -1.5 -0.3 and the parameter `B_initial_log10_mean` in the range 12 14 using the `simulate_population_magrot_det.py` and a previously simulated dynamical database saved in `data/example_simulation_dyn` you can run the above script as follows:
+```
+  python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 --B_initial_log10_mean 12 14 --sampling_type random --sampling_size 20
+```
+In this way, a population is simulated for each pair of random values of `P_initial_log10_mean` and `B_initial_log10_mean`.
+
+If instead `--sampling_type grid` is specified like in the following command:
+```
+  python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_magrot_det --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 10 --B_initial_log10_mean 12 14 10 --sampling_type grid
+```
+The scripts will simulate a population for each combination of values of `P_initial_log10_mean` and `B_initial_log10_mean`, i.e., the above case corresponds to `10 x 10 = 100` simulations.
+The sweeper will generate a directory `output/sim_helper`, which will contain a folder for each simulation (parameter combination) named with an identifier number, i.e, `000000`, `000001`, `000002` and so on.
+
+Note that it is important to distinguish between two types of arguments for the helper: options and parameters. Options are arguments which specify procedures for the simulation helper and they cannot be swept in a range, e.g., the dynamical data or the symulation type, because we assume these are not going to be outputs that will need to be predicted.
+Parameters are values that we expect to use as ground truth for the learning system and therefore are to be predicted. Hence, these can be swept in a range to generate a dataset.
+
+The script automatically checks the compatibility of the present parameters for the selected options, e.g., `vk_c` cannot be specified if `km_maxwell` has been chosen as kick model in the `config_simulator.py`.
+The dictionary `utilities/config_sweeper.json` also specifies a list of required parameters for each option.
+
+To see a tutorial example for this simulation helper script you can look at the notebook in `tutorials/tutorial_notebooks/simulation_helper_tutorial.ipynb`. 
 
 
 
