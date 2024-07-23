@@ -59,8 +59,8 @@
   "observed_sample":{
       "dataset_path": "/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/observed_ATNF_res32"
       },
-  
-"resume_training": {
+
+  "resume_training": {
     "resume": false,
     "last_round": 7,
     "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_6_10rounds_1ksim_long_flavour_ensemble_10comp/learning/models/SBI_ConvolutionMDN/20240705_123828",
@@ -78,6 +78,7 @@
     "sir": true,
     "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/learning"
   },
+
   "infer": {
     "compute_coverage":true,
     "load_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_10_10rounds_1ksim_long_flavour_ensemble_5_comp_retrain_from_scratch_True/learning/models/SBI_ConvolutionMDN/20240719_164759",

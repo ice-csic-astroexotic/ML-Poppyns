@@ -6,13 +6,15 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
+import argparse
 import datetime
 import functools
-import json
 import logging
 import operator
-import os
 import pathlib
+from collections import OrderedDict
+from logging import Logger
+from typing import Any, Optional, Union
 
 import pypopsyn.learning.logger.logger as learning_logger
 import pypopsyn.learning.utils.json as learning_utils_json
@@ -23,10 +25,21 @@ class ConfigurationParser:
     """ConfigurationParser"""
 
     def __init__(
-        self, configuration, infer, options=None, resume=None, run_id=None
+        self,
+        configuration: OrderedDict,
+        infer: bool,
+        options: Optional[list] = None,
+        run_id: Optional[int] = None,
     ) -> None:
+        """
+        Initialize instance.
+        Args:
+            configuration (OrderedDict): The configuration dictionary.
+            infer (bool): Boolean indicating if inference mode is on.
+            options (Optional[list]): Optional dictionary with additional options. Default None.
+            run_id (Optional[int]): Optional string identifier for the run. Default None.
 
-        """Initialize instance."""
+        """
 
         # Load configuration file and apply specified options.
         self._configuration = self._update_configuration(
@@ -72,9 +85,17 @@ class ConfigurationParser:
         learning_logger.setup_logging(self.log_dir)
 
     @classmethod
-    def from_args(cls, args, options=""):
+    def from_args(cls, args: argparse.Namespace, options: list = ""):
+        """
+        Initialize configuration from command line arguments.
 
-        """Initialize configuration from command line arguments."""
+        Args:
+            args (argparse.Namespace): Command-line arguments parsed by argparse.
+            options (list): Options parsed by argparse. Default is an empty list.
+
+        Returns:
+            An instance of the ConfigurationParser class.
+        """
 
         # Add custom CLI options to arguments.
         for opt in options:
@@ -98,24 +119,24 @@ class ConfigurationParser:
 
         return cls(configuration, args.infer, modification, args.trained_model)
 
-    def init_object(self, name: str, module, *args, **kwargs):
-        """Object handler finder.
+    def init_object(
+        self, name: str, module, *args, **kwargs
+    ) -> Union[Any, None]:
+        """
+        Object handler finder.
 
         Finds an object handle with the provided name as type in the parsed
         configuration and gets its initialized instance with the arguments.
 
         Args:
-
-            name: Name of the object to find.
+            name (str): Name of the object to find.
             module: The Python module where the object class resides.
             args: Extra arguments for creating the instance.
             kwargs: Extra arguments for creating the instance.
 
         Returns:
-
-            The object instance initialized with the provided arguments if
-            the name of the requested object exists in the configuration
-            dictionary. None otherwise.
+            (Union[Any, None]): The object instance initialized with the provided arguments if the name of the requested
+                object exists in the configuration dictionary. None otherwise.
 
         """
 
@@ -127,18 +148,16 @@ class ConfigurationParser:
         else:
             return None
 
-    def get_logger(self, name: str, verbosity: int = 2):
-
-        """Logger getter.
+    def get_logger(self, name: str, verbosity: int = 2) -> Logger:
+        """
+        Logger getter.
 
         Args:
-
-            name: Name for the logger.
-            verbosity: Logging level. By default it is set to INFO.
+            name (str): Name for the logger.
+            verbosity (int): Logging level. By default it is set to INFO.
 
         Returns:
-
-            Initialized logger with the specified name and verbosity level.
+            (Logger) Initialized logger with the specified name and verbosity level.
 
         """
 
@@ -146,27 +165,35 @@ class ConfigurationParser:
         logger.setLevel(learning_logger.LOG_LEVELS[verbosity])
         return logger
 
-    def __getitem__(self, name: str):
+    def __getitem__(self, name: str) -> Any:
+        """
+        Dictionary-like access to the configuration class.
 
-        """Dictionary-like access to the configuration class."""
+        Args:
+            str: Name of the configuration key.
+
+        Returns:
+            Any: The value associated with the given key in the configuration.
+
+        """
         return self._configuration[name]
 
-    def _update_configuration(self, configuration, modifications):
-
-        """Helper function to update configuration dictionary.
+    def _update_configuration(
+        self, configuration: OrderedDict, modifications: dict
+    ) -> OrderedDict:
+        """
+        Helper function to update configuration dictionary.
 
         Updates the configuration dictionary with custom CLI options. If no
         modifications are provided, the same configuration dictionary is
         returned.
 
         Args:
-
-            configuration: The configuration dictionary.
-            modifications: Additional parsed command line options.
+            configuration (OrderedDict): The configuration dictionary.
+            modifications (dict): Additional parsed command line options.
 
         Returns:
-
-            The updated configuration dictionary.
+            (OrderedDict): The updated configuration dictionary.
 
         """
 
@@ -190,7 +217,16 @@ class ConfigurationParser:
         return configuration
 
 
-def _get_opt_name(flags):
+def _get_opt_name(flags: list) -> str:
+    """
+    Extract the option name from the flags.
+
+    Args:
+        flags (list): List of command line flags.
+
+    Returns:
+        str: The option name extracted from the flags.
+    """
     for flg in flags:
         if flg.startswith("--"):
             return flg.replace("--", "")

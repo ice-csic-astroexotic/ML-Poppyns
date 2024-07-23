@@ -244,6 +244,7 @@ def simulator_multiprocess(
     args_dict: dict,
     prior: DirectPosterior,
     dataset: DatasetMultichannelArray,
+    device: torch.device,
 ) -> None:
     """
     Execute simulations based on the provided prior distribution in a multithreaded manner using the package
@@ -253,6 +254,7 @@ def simulator_multiprocess(
         args_dict (Dictionary): Dictionary with the arguments.
         prior (DirectPosterior): Prior distribution.
         dataset (DatasetMultichannelArray):  Stores statistics and scaling information used in the prior distribution.
+        device (torch.device): Device used to run the script.
 
     Returns:
         None
@@ -286,10 +288,10 @@ def simulator_multiprocess(
     var_names = dataset.target_names
 
     # Save the statistics for the filtered labels.
-    par_max = torch.tensor(dataset.target_max)
-    par_min = torch.tensor(dataset.target_min)
-    par_std = torch.tensor(dataset.target_std)
-    par_mean = torch.tensor(dataset.target_mean)
+    par_max = torch.tensor(dataset.target_max).to(device)
+    par_min = torch.tensor(dataset.target_min).to(device)
+    par_std = torch.tensor(dataset.target_std).to(device)
+    par_mean = torch.tensor(dataset.target_mean).to(device)
 
     # Create a generator of the random sets of parameters using the prior distribution.
     parameter_sets_gen_tensor = prior.sample((args_dict["sampling_size"],))
