@@ -30,15 +30,19 @@ def test_coverage_prob(sample_data):
     Test of the `coverage_prob` function to verify whether the coverage probability numpy array
     and plot are correctly created and saved.
     """
-
     hdr_testset, n_betas, save_dir = sample_data
+    try:
+        coverage_prob(hdr_testset, n_betas, save_dir)
 
-    coverage_prob(hdr_testset, n_betas, save_dir)
+        # Check if the output files exist.
+        assert (save_dir / "coverage_probability.npy").exists()
+        assert (save_dir / "coverage_plot.pdf").exists()
 
-    # Check if the output files exist.
-    assert (save_dir / "coverage_probability.npy").exists()
-    assert (save_dir / "coverage_plot.pdf").exists()
+        # Check if the coverage_probability numpy array contains correct data.
+        coverage_probability = np.load(save_dir / "coverage_probability.npy")
+        assert len(coverage_probability) == n_betas
 
-    # Check if the coverage_probability numpy array contains correct data.
-    coverage_probability = np.load(save_dir / "coverage_probability.npy")
-    assert len(coverage_probability) == n_betas
+    finally:
+        # Clean up the generated files.
+        (save_dir / "coverage_probability.npy").unlink(missing_ok=True)
+        (save_dir / "coverage_plot.pdf").unlink(missing_ok=True)

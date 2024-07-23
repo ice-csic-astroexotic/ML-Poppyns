@@ -13,7 +13,9 @@
 
     Note that there is an option to resume training from a previous run. This allows for training over multiple rounds
     on a server. If the maximum wall time is reached or if any interruptions occur, the training can be resumed from
-    the last completed round.
+    the last completed round. To enable the resume mode, set the `resume_training` field to `True` in the configuration
+    file. It is also necessary to specify where the logs and models were saved in the first run and indicate the last
+    completed round.
 
     For further details, visit https://www.mackelab.org/sbi/.
 

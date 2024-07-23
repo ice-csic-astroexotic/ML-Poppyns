@@ -4,6 +4,7 @@
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import argparse
@@ -53,7 +54,6 @@ class ConfigurationParser:
             self.save_dir = self._configuration["resume_training"]["save_dir"]
             self.log_dir = self._configuration["resume_training"]["log_dir"]
         else:
-
             # Generate a name for the experiment/run.
             run_name = self._configuration["name"]
             if run_id is None:
@@ -81,7 +81,7 @@ class ConfigurationParser:
             )
             self.log_dir.mkdir(parents=True, exist_ok=True)
 
-            # Configure logging module.
+        # Configure logging module.
         learning_logger.setup_logging(self.log_dir)
 
     @classmethod
