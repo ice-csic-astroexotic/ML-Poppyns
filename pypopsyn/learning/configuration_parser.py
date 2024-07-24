@@ -158,7 +158,7 @@ class ConfigurationParser:
             verbosity (int): Logging level. By default it is set to INFO.
 
         Returns:
-            (Logger) Initialized logger with the specified name and verbosity level.
+            (Logger): Initialized logger with the specified name and verbosity level.
 
         """
 
