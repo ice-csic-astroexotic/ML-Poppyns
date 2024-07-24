@@ -121,7 +121,7 @@ def sample_with_timeout(
         posterior (DirectPosterior): Posterior distribution.
         simulation_output (torch.Tensor): Simulation output matrix.
         n_samples_coverage (int): The number of samples to draw from the posterior distribution.
-        timeout (int, optional): The maximum time in seconds to allow for sampling. Defaults to 180 seconds.
+        timeout (int, optional): The maximum time in seconds to allow for n_samples_coverage to be drawn. Defaults to 180 seconds.
 
     Returns:
         (Tuple[Optional[torch.Tensor], bool]): A tuple containing the result of the sampling (or None if it times out)
@@ -165,7 +165,7 @@ def calculate_smallest_hdr(
             population in matrix.
         matrix (torch.tensor): Tensor containing the maps of the simulated population.
         n_samples_coverage (float): Number of approximate posterior samples used for computing the coverage.
-        logger (logging.Logger): Logger object.
+        logger (Logger): Logger object.
         device (torch.device): Device used to run the script.
 
     Returns:
@@ -235,7 +235,8 @@ def build_network(
     prior: utils.BoxUniform,
 ) -> SNPE_C:
     """
-    Building the neural network using the configuration file specified in the arguments.
+    Building the neural network (composed of the embedding net and the density estimator) using the configuration file
+    specified in the arguments, and setting up the inference procedure.
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
@@ -314,7 +315,8 @@ def load_inference(
 
         if not os.path.exists(inference_path):
             raise FileNotFoundError(
-                "The folder specified in the config file at cfg['resume_training']['save_dir'] does not contain a inference.pickle file. To use the resume mode, you need to specify the correct path."
+                "The folder specified in the config file at cfg['resume_training']['save_dir'] does not contain a inference.pickle file.\n"
+                "To use the resume mode, you need to specify the correct path."
             )
 
         with open(inference_path, "rb") as inference_file:
@@ -727,13 +729,21 @@ def amortized_posterior(
     posteriors_list = []
 
     for index in range(ensemble_size):
-        trained_model_path = (
-            os.path.join(
+
+        if ensemble:
+            trained_model_path = os.path.join(
                 save_dir_round, f"trained_model_ensemble_{index}.pickle"
             )
-            if ensemble
-            else os.path.join(save_dir_round, "trained_model.pickle")
-        )
+            inference_model_path = os.path.join(
+                save_dir_round, f"inference_ensemble_{index}.pickle"
+            )
+        else:
+            trained_model_path = os.path.join(
+                save_dir_round, "trained_model.pickle"
+            )
+            inference_model_path = os.path.join(
+                save_dir_round, "inference.pickle"
+            )
 
         inference = inference_list[index]
 
@@ -744,7 +754,8 @@ def amortized_posterior(
 
             if not os.path.exists(trained_model_path):
                 raise FileNotFoundError(
-                    "The folder specified in the config file at cfg['resume_training']['save_dir'] does not contain a trained_model.pkl file. To use the resume mode, you need to specify the correct path."
+                    "The folder specified in the config file at cfg['resume_training']['save_dir'] does not contain a trained_model.pkl file.\n"
+                    "To use the resume mode, you need to specify the correct path."
                 )
 
             with open(trained_model_path, "rb") as f:
@@ -783,12 +794,6 @@ def amortized_posterior(
 
         posterior = inference.build_posterior(density_estimator.to(device))
         posteriors_list.append(posterior)
-
-        inference_model_path = (
-            os.path.join(save_dir_round, f"inference_ensemble_{index}.pickle")
-            if ensemble
-            else os.path.join(save_dir_round, "inference.pickle")
-        )
 
         if not retrain_from_scratch:
             logger.info(

@@ -153,8 +153,9 @@ def infer(
             train_dataset_path = config["training_data_loader"][
                 "dataset_path_first_round"
             ]
-            # Load the training dataset to access the statistics. Note that when performing inference, we do not need
-            # to use the training dataset.
+
+            # Load the training dataset information. Note that when performing inference, we do not require the
+            # underlying data samples, only the corresponding ground truths and their statistics.
             dataset, _, _ = prepare_dataset_sbi(
                 train_dataset_path, config, logger
             )

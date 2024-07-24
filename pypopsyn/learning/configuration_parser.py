@@ -30,7 +30,7 @@ class ConfigurationParser:
         configuration: OrderedDict,
         infer: bool,
         options: Optional[list] = None,
-        run_id: Optional[int] = None,
+        run_id: Optional[str] = None,
     ) -> None:
         """
         Initialize instance.
@@ -39,7 +39,7 @@ class ConfigurationParser:
             configuration (OrderedDict): The configuration dictionary.
             infer (bool): Boolean indicating if inference mode is on.
             options (Optional[list]): Optional dictionary with additional options. Default None.
-            run_id (Optional[int]): Optional string identifier for the run. Default None.
+            run_id (Optional[str]): Optional string identifier for the run. Default None.
         """
 
         # Load configuration file and apply specified options.
@@ -85,7 +85,9 @@ class ConfigurationParser:
         learning_logger.setup_logging(self.log_dir)
 
     @classmethod
-    def from_args(cls, args: argparse.Namespace, options: list = ""):
+    def from_args(
+        cls, args: argparse.Namespace, options: list = ""
+    ) -> "ConfigurationParser":
         """
         Initialize configuration from command line arguments.
 
@@ -94,7 +96,7 @@ class ConfigurationParser:
             options (list): Options parsed by argparse. Default is an empty list.
 
         Returns:
-            An instance of the ConfigurationParser class.
+            (ConfigurationParser): An instance of the ConfigurationParser class.
         """
 
         # Add custom CLI options to arguments.
@@ -120,7 +122,7 @@ class ConfigurationParser:
         return cls(configuration, args.infer, modification, args.trained_model)
 
     def init_object(
-        self, name: str, module, *args, **kwargs
+        self, name: str, module: Any, *args, **kwargs
     ) -> Union[Any, None]:
         """
         Object handler finder.
@@ -193,7 +195,14 @@ class ConfigurationParser:
             (OrderedDict): The updated configuration dictionary.
         """
 
-        def _apply_update(k, v):
+        def _apply_update(k: str, v: str) -> None:
+            """
+            Updates a nested dictionary using a semi-colon separated key string.
+
+            Args:
+                k (str): A semi-colon separated string representing the keys to traverse in the dictionary.
+                v (Any): The value to set at the specified location in the dictionary.
+            """
             if v is not None:
                 keys = k.split(";")
                 functools.reduce(operator.getitem, keys[:-1], configuration)[
