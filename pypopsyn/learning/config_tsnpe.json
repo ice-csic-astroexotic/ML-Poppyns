@@ -34,12 +34,12 @@
       "labels": ["B_initial_log10_mean", "B_initial_log10_sigma", "P_initial_log10_mean", "P_initial_log10_sigma", "a_late"],
 	  "low": [12,0.1,-1.5,0.1,-3],
 	  "high": [14,1,-0.3,1,-0.5]
-	  },
+  },
 	
   "training_data_loader": {
     "dataset_path": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/training_dataset",
     "statistic_path": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/statistics_train_10K.json",
-    "dataset_path_first_round":"/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/training_dataset/generated_dataset/round_0",
+    "dataset_path_first_round": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/training_dataset/generated_dataset/round_0",
     "filter_inputs": [9, 10, 11],
     "filter_labels": [12, 13, 14, 15, 16],
     "normalize": false,
@@ -49,23 +49,24 @@
   
   "test_data_loader": {
     "dataset_path": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/test_dataset",
-    "dataset_path_first_round":"/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/test_dataset/generated_dataset/round_0",
-    "num_sim":3},
+    "dataset_path_first_round": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/test_dataset/generated_dataset/round_0",
+    "num_sim": 3
+  },
   
-  "dyn_data_loader":{
+  "dyn_data_loader": {
       "dataset_path": "/data/magnesia/common/dyn_database/sim_dyn_ns1e7_t1e8_maxwell_hc180"
-      },
+  },
       
-  "observed_sample":{
+  "observed_sample": {
       "dataset_path": "/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/observed_ATNF_res32"
-      },
+  },
 
   "resume_training": {
     "resume": false,
     "last_round": 7,
     "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_6_10rounds_1ksim_long_flavour_ensemble_10comp/learning/models/SBI_ConvolutionMDN/20240705_123828",
     "log_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_6_10rounds_1ksim_long_flavour_ensemble_10comp/learning/models/SBI_ConvolutionMDN/20240705_123828"
-    },
+  },
 
   "trainer": {
     "retrain_from_scratch": true,
@@ -80,7 +81,7 @@
   },
 
   "infer": {
-    "compute_coverage":true,
+    "compute_coverage": true,
     "load_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_10_10rounds_1ksim_long_flavour_ensemble_5_comp_retrain_from_scratch_True/learning/models/SBI_ConvolutionMDN/20240719_164759",
     "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_10_10rounds_1ksim_long_flavour_ensemble_5_comp_retrain_from_scratch_True/inference"
   }
