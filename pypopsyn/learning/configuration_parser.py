@@ -34,6 +34,7 @@ class ConfigurationParser:
     ) -> None:
         """
         Initialize instance.
+
         Args:
             configuration (OrderedDict): The configuration dictionary.
             infer (bool): Boolean indicating if inference mode is on.
