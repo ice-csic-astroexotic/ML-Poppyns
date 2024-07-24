@@ -170,7 +170,7 @@ class ConfigurationParser:
         Dictionary-like access to the configuration class.
 
         Args:
-            str: Name of the configuration key.
+            name (str): Name of the configuration key.
 
         Returns:
             Any: The value associated with the given key in the configuration.
