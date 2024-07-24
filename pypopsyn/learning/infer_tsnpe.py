@@ -161,7 +161,7 @@ def infer(
             n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
             num_rounds = config["trainer"]["num_rounds"]
 
-            # Loading the header of the train dataset to extract the ground truth labels.
+            # Loading the header of the training dataset to extract the ground truth labels.
             filter_labels = config["training_data_loader"]["filter_labels"]
             dataset_header = pd.read_csv(
                 f"{train_dataset_path}/dataset_full.csv", nrows=0
