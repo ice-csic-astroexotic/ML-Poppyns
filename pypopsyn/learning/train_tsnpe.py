@@ -523,7 +523,7 @@ def merge_all_rounds_dataset(
         df = pd.read_csv(dataset_path)
         dataframes.append(df)
 
-    # Concatenating all the training datasets into one to use in the first round of the resume.
+    # Concatenating all the training datasets into one to use in the first round of the resumed inference.
     merged_df = pd.concat(dataframes, ignore_index=True)
 
     # Define the path for the merged dataset.
