@@ -91,7 +91,6 @@ def sample(
     simulation_output: torch.Tensor,
     n_samples_coverage: int,
 ) -> torch.Tensor:
-
     """
      Perform sampling from the posterior distribution. This function is designed to be used with a signal handler
      to enforce a timeout during sampling.
@@ -235,7 +234,6 @@ def build_network(
     device: torch.device,
     prior: utils.BoxUniform,
 ) -> SNPE_C:
-
     """
     Building the neural network using the configuration file specified in the arguments.
 
@@ -503,7 +501,6 @@ def corner_plot(
 def merge_all_rounds_dataset(
     base_path: pathlib.Path, last_completed_round: int
 ) -> pathlib.Path:
-
     """
     Merge all dataset_full.csv files from each round into a single DataFrame. This is necessary in resume mode because,
     during the first round of resuming the training, we need to load all the previous training datasets from the earlier
@@ -548,7 +545,6 @@ def prepare_dataset_sbi(
     logger: Logger,
     atnf: Optional[bool] = False,
 ) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
-
     """
     Prepare dataset for use in sbi training.
 
@@ -622,7 +618,6 @@ def save_training_statistics(
     index: int,
     effective_round: int,
 ) -> None:
-
     """
     Save training statistics including scalars and training/validation loss plots.
 
@@ -690,13 +685,14 @@ def amortized_posterior(
     prof_json_path: str,
     retrain_from_scratch: bool = False,
 ) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
-
     """
     Train the density estimator for a given round.
+
     If resuming is set to True, this mode allows training to continue from the last completed round if interrupted.
     It uses the previously saved state to resume training without starting over.
     If ensemble training is enabled, multiple models (an ensemble) are trained and their predictions are combined to
     ensure conservative coverages. Each of the neural networks will be trained on the same training dataset.
+
     Note that the inference object should be different for each component of the ensemble to ensure independent weights
     for each component.
 
@@ -822,7 +818,6 @@ def compute_proposal_prior(
     prior: utils.BoxUniform,
     device: torch.device,
 ) -> utils.RestrictedPrior:
-
     """
     Compute the proposal prior by restricting the prior to the posterior of the observation.
 
@@ -967,7 +962,6 @@ def compute_rank_coverage(
 def train(
     args: argparse.Namespace, config: configuration_parser.ConfigurationParser
 ) -> None:
-
     """
     Training a density estimator to infer the posterior distribution at the observed population with the truncated
     sequential neural posterior estimator approach in Deistler et al. (2022) using the sbi package.
