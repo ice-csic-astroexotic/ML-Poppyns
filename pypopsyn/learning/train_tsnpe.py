@@ -180,7 +180,7 @@ def calculate_smallest_hdr(
     ):
         simulation_output = matrix[index]
 
-        # Adding batch dimension (e.g, converting the shape from [3,32,32] to [1,3,32,32]).
+        # Adding batch dimension (e.g., converting the shape from [3,32,32] to [1,3,32,32]).
         # This is needed for sbi version 0.22.0.
         simulation_output = simulation_output.unsqueeze(0)
         true_value = theta[index]
