@@ -106,7 +106,6 @@ def load_posterior(
 def infer(
     args: argparse.Namespace, config: configuration_parser.ConfigurationParser
 ) -> None:
-
     """
     Infer the posterior distribution for the observed population using the truncated sequential neural posterior
     estimator approach described in Deistler et al. (2022), assuming that the train_tsnpe.py script has already been run
@@ -221,7 +220,7 @@ def infer(
             )
 
             # During inference, we load the trained model. The inference object is used to identify which neural
-            # posterior estimation algorithm is employed. This this case we use SNPE. Therefore, we only need to
+            # posterior estimation algorithm is employed. In this case we use SNPE. Therefore, we only need to
             # initialize the network at the beginning.
             inference_list = initialize_inference(
                 config, device, prior, ensemble
