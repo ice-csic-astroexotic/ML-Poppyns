@@ -1016,8 +1016,8 @@ def train(
         ):
             logger.info("Loading the training dataset for the first round...")
 
-            # If resuming from a previously training run, first create the training dataset for the first round
-            # by merging all the training datasets from the previous completed rounds.
+            # If resuming from a previous training run, first create the training dataset for the first round
+            # by merging all the training datasets from the previously completed rounds.
 
             if resume:
                 last_completed_round = int(
