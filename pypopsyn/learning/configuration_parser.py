@@ -40,7 +40,6 @@ class ConfigurationParser:
             infer (bool): Boolean indicating if inference mode is on.
             options (Optional[list]): Optional dictionary with additional options. Default None.
             run_id (Optional[int]): Optional string identifier for the run. Default None.
-
         """
 
         # Load configuration file and apply specified options.
@@ -138,7 +137,6 @@ class ConfigurationParser:
         Returns:
             (Union[Any, None]): The object instance initialized with the provided arguments if the name of the requested
                 object exists in the configuration dictionary. None otherwise.
-
         """
 
         if name in self._configuration:
@@ -159,7 +157,6 @@ class ConfigurationParser:
 
         Returns:
             (Logger): Initialized logger with the specified name and verbosity level.
-
         """
 
         logger = logging.getLogger(name)
@@ -175,7 +172,6 @@ class ConfigurationParser:
 
         Returns:
             Any: The value associated with the given key in the configuration.
-
         """
         return self._configuration[name]
 
@@ -195,7 +191,6 @@ class ConfigurationParser:
 
         Returns:
             (OrderedDict): The updated configuration dictionary.
-
         """
 
         def _apply_update(k, v):
