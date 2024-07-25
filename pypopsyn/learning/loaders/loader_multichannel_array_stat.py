@@ -1,6 +1,9 @@
 """
     Loader for multichannel 2D arrays datasets.
 
+    This loader imports the statistics to perform normalization or standardization on the targets
+    from an already existent statistics.json file.
+
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
@@ -173,7 +176,7 @@ class DatasetMultichannelArray:
         i = 0
 
         # Loop over the input column of the dataset to get all input channels in
-        # a list so we can stack them later. We assume that all columns must be
+        # a list, so we can stack them later. We assume that all columns must be
         # ordered so "input:" columns go first then all the labels.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in
