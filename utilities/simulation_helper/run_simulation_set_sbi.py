@@ -79,19 +79,29 @@ def initialize_dask_cluster(
     htcondor_output_folder = f"{config.save_dir}/htcondor_output"
     pathlib.Path(htcondor_output_folder).mkdir(parents=True, exist_ok=True)
     logger.info(
-        f"Saving the stdout and stderr of the terminal of each worker in {htcondor_output_folder}."
+        f"Saving the stdout and stderr of the terminal for each worker in {htcondor_output_folder}."
     )
-    # Creating the cluster with dask for HTCondor.
+    # Creating the cluster with Dask for HTCondor.
     extra = {
         "getenv": "True",
         "output": f"{htcondor_output_folder}/$(ClusterId)_$(ProcId)-out.txt",
         "error": f"{htcondor_output_folder}/$(ClusterId)_$(ProcId)-err.txt",
-        "+flavour": "long",
+        "+flavour": '"long"',
     }
 
-    # Specifying computing requirements as needed for a single magneto-thermal simulation.
+    # Specifying the computing requirements as needed for a single magneto-thermal simulation.
+    # If nanny is set to True, each worker is started by a nanny process which can restart the worker if it fails.
+    # We set 1 thread per worker to prevent system overload. The timeout duration to wait for a worker to start is set
+    # to 60 seconds.
+
     cluster = HTCondorCluster(
-        cores=1, memory="2 GB", disk="2 GB", job_extra_directives=extra
+        cores=1,
+        memory="2 GB",
+        disk="2 GB",
+        job_extra_directives=extra,
+        nanny=True,
+        death_timeout="60s",
+        worker_extra_args=["--nthreads", "1"],
     )
 
     # Scaling the cluster to the number of workers specified in the configuration file.
@@ -118,7 +128,7 @@ def simulator_dask(
 ) -> None:
 
     """
-    Execute simulations based on the provided prior distribution in a multithreaded manner using the `Dask` package.
+    Execute simulations based on the provided prior distribution in a multithreaded manner using the Dask package.
 
     Args:
         args_dict (Dictionary): Dictionary with the arguments.
@@ -206,7 +216,10 @@ def simulator_dask(
             dyn_data=os.path.basename(dyn_data_path),
         )
 
-        # Create delayed computation for each simulation.
+        # Create delayed computation for each simulation. Each simulation will be attempted up to 5 times in case of an
+        # error, with a 10-second wait between each attempt. This is done to avoid stopping the entire training process
+        # if there is a connection issue with a worker.
+
         delayed_simulations.append(
             run_simulation_delayed(
                 simulation_args,
@@ -214,8 +227,8 @@ def simulator_dask(
                 simulation_output_path_original,
                 simulation_override_json,
                 dyn_data_path,
-                max_attempts=3,
-                delay=5,
+                max_attempts=5,
+                delay=10,
             )
         )
 
@@ -234,15 +247,17 @@ def simulator_multiprocess(
     args_dict: dict,
     prior: DirectPosterior,
     dataset: DatasetMultichannelArray,
+    device: torch.device,
 ) -> None:
     """
-    Execute simulations based on the provided prior distribution in a multithreaded manner using the `multiprocessing`
-    package.
+    Execute simulations based on the provided prior distribution in a multithreaded manner using the package
+    multiprocessing.
 
     Args:
         args_dict (Dictionary): Dictionary with the arguments.
         prior (DirectPosterior): Prior distribution.
         dataset (DatasetMultichannelArray):  Stores statistics and scaling information used in the prior distribution.
+        device (torch.device): Device used to run the script.
 
     Returns:
         None
@@ -276,10 +291,10 @@ def simulator_multiprocess(
     var_names = dataset.target_names
 
     # Save the statistics for the filtered labels.
-    par_max = torch.tensor(dataset.target_max)
-    par_min = torch.tensor(dataset.target_min)
-    par_std = torch.tensor(dataset.target_std)
-    par_mean = torch.tensor(dataset.target_mean)
+    par_max = torch.tensor(dataset.target_max).to(device)
+    par_min = torch.tensor(dataset.target_min).to(device)
+    par_std = torch.tensor(dataset.target_std).to(device)
+    par_mean = torch.tensor(dataset.target_mean).to(device)
 
     # Create a generator of the random sets of parameters using the prior distribution.
     parameter_sets_gen_tensor = prior.sample((args_dict["sampling_size"],))

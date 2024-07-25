@@ -9,6 +9,7 @@
 
 import logging
 import multiprocessing as mp
+import os
 import pathlib
 import subprocess
 from unittest import mock
@@ -37,7 +38,7 @@ def test_run_simulation_dask(caplog):
     """
     Test the run_simulation_dask method.
     """
-    # Define mock inputs
+    # Define mock inputs.
     dyn_data_path = "mock_dyn_data_path"
 
     args = MockArgs(
@@ -49,7 +50,7 @@ def test_run_simulation_dask(caplog):
 
     caplog.set_level(logging.INFO)
 
-    # Mock the necessary functions and methods used in run_simulation_dask
+    # Mock the necessary functions and methods used in run_simulation_dask.
     with mock.patch("os.path.exists", return_value=True), mock.patch(
         "shutil.copytree"
     ), mock.patch("pathlib.Path.mkdir"), mock.patch("json.dump"), mock.patch(
@@ -57,17 +58,24 @@ def test_run_simulation_dask(caplog):
     ), mock.patch(
         "pypopsyn.simulator.simulate_population_magrot_det.simulate_population"
     ):
-        # Call the function being tested.
-        rss.run_simulation_dask(
-            args,
-            simulator_type,
-            simulation_output_path,
-            simulation_override_json,
-            dyn_data_path,
-        )
-        # Assert that the log messages are present
-        assert "Copied output folder back to original location" in caplog.text
-        assert "Simulation finished" in caplog.text
+        try:
+            # Call the function being tested.
+            rss.run_simulation_dask(
+                args,
+                simulator_type,
+                simulation_output_path,
+                simulation_override_json,
+                dyn_data_path,
+            )
+            # Assert that the log messages are present.
+            assert (
+                "Copied output folder back to original location" in caplog.text
+            )
+            assert "Simulation finished" in caplog.text
+        finally:
+            # Ensure the file is deleted after the test.
+            if os.path.exists("mock_parameter_override.json"):
+                os.remove("mock_parameter_override.json")
 
 
 def test_run_simulation(mock_subprocess_check_output):
