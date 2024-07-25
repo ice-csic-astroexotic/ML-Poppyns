@@ -6,6 +6,7 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
+import argparse
 import datetime
 import functools
 import json
@@ -91,26 +92,34 @@ class ConfigurationParser:
         Returns:
             (ConfigurationParser): An instance of ConfigurationParser.
         """
-
-        # Add custom CLI options to arguments.
-        for opt in options:
-            args.add_argument(
-                *opt.flags, default=None, type=opt.type, nargs=opt.nargs
-            )
-
-        # Parse arguments if they are not already parsed.
-        if not isinstance(args, tuple):
-            args = args.parse_args()
+        if isinstance(args, argparse.ArgumentParser):
+            # Add custom CLI options to arguments.
+            for opt in options:
+                args.add_argument(
+                    *opt.flags, default=None, type=opt.type, nargs=opt.nargs
+                )
+            parsed_args = args.parse_args()
+        else:
+            # args is already a Namespace.
+            parsed_args = args
 
         # Load configuration from JSON file.
-        configuration = learning_utils_json.read_json(args.configuration)
+        configuration = learning_utils_json.read_json(
+            parsed_args.configuration
+        )
 
         # Parse custom CLI arguments.
         modification = {
-            o.target: getattr(args, _get_opt_name(o.flags)) for o in options
+            o.target: getattr(parsed_args, _get_opt_name(o.flags))
+            for o in options
         }
 
-        return cls(configuration, args.infer, modification, args.trained_model)
+        return cls(
+            configuration,
+            parsed_args.infer,
+            modification,
+            parsed_args.trained_model,
+        )
 
     def init_object(
         self, name: str, module: Any, *args: Any, **kwargs: Any
