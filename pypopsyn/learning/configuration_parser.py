@@ -197,7 +197,7 @@ class ConfigurationParser:
 
         def _apply_update(k: str, v: Any) -> None:
             """
-            Updates a nested dictionary using a semi-colon separated key string.
+            Updates a nested dictionary using a semicolon separated key string.
 
             Args:
                 k (str): A semicolon separated string representing the keys to traverse in the dictionary.
