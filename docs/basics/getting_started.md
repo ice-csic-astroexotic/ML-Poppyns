@@ -89,6 +89,8 @@ The main folder is `pypopsyn` which contains three sub-folders: `simulator`, `ge
 The `data` folder contains ten main sub-folders: eight sub-folders containing example data created by running different simulator scripts, the generator script and the training and inference scripts, an :code:`observations` sub-folder and a :code:`paper_results` sub-folder.
 All the simulation examples provided here have been run by using the default parameters specified in `pypopsyn/simulator/config_simulator.py`.
 
+* The `example_generator_atnf` sub-folder contains an example dataset of feature maps from the observed pulsar population in the [ATNF catalog](https://www.atnf.csiro.au/research/pulsar/psrcat/).
+
 * The `example_generator_magrot` sub-folder contains an example dataset of feature maps from simulated populations.
 
 * The `example_inference_sbi` sub-folder contains the results of an inference run with sbi on some test simulated data.
