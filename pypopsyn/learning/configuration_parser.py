@@ -4,17 +4,18 @@
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import argparse
 import datetime
 import functools
-import json
 import logging
 import operator
-import os
 import pathlib
-from typing import Any, Dict, List, Optional
+from collections import OrderedDict
+from logging import Logger
+from typing import Any, Optional, Union
 
 import pypopsyn.learning.logger.logger as learning_logger
 import pypopsyn.learning.utils.json as learning_utils_json
@@ -27,71 +28,78 @@ class ConfigurationParser:
 
     def __init__(
         self,
-        configuration: dict,
+        configuration: OrderedDict,
         infer: bool,
-        options: Optional[Dict] = None,
-        resume: Optional[str] = None,
+        options: Optional[dict] = None,
         run_id: Optional[str] = None,
     ) -> None:
         """
         Initialize instance.
 
         Args:
-            configuration (dict): The configuration dictionary.
-            infer (bool): Whether to run in inference mode.
-            options (Optional[Dict]): Modifications to apply to the configuration.
-            resume (Optional[str]): Path to the checkpoint to resume training.
-            run_id (Optional[str]): Unique identifier for the run.
+            configuration (OrderedDict): The configuration dictionary.
+            infer (bool): Boolean indicating if inference mode is on.
+            options (Optional[dict]): Optional dictionary with additional options. Default None.
+            run_id (Optional[str]): Optional string identifier for the run. Default None.
         """
 
         # Load configuration file and apply specified options.
         self._configuration = self._update_configuration(
             configuration, options
         )
+        # If resuming training from a previous run, do not create new save_dir and log_dir folders.
+        # Instead, use the same directories from the previous run.
+        self.resume = self._configuration["resume_training"]["resume"]
 
-        # TODO: Not used now, will be able to resume training from checkpoint.
-        self.resume = resume
-
-        # Generate a name for the experiment/run.
-        run_name = self._configuration["name"]
-        if run_id is None:
-            run_id = datetime.datetime.now().strftime(r"%Y%m%d_%H%M%S")
-
-        # Set save directory where the trained model or the inference results will be saved.
-        if infer:
-            save_dir = pathlib.Path(self._configuration["infer"]["save_dir"])
+        if self.resume:
+            self.save_dir = self._configuration["resume_training"]["save_dir"]
+            self.log_dir = self._configuration["resume_training"]["log_dir"]
         else:
-            save_dir = pathlib.Path(self._configuration["trainer"]["save_dir"])
+            # Generate a name for the experiment/run.
+            run_name = self._configuration["name"]
+            if run_id is None:
+                run_id = datetime.datetime.now().strftime(r"%Y%m%d_%H%M%S")
 
-            # Create directory for saving the model.
-            self.save_dir = pathlib.Path().joinpath(
-                save_dir, "models", run_name, run_id
+            # Set save directory where the trained model or the inference results will be saved.
+            if infer:
+                save_dir = pathlib.Path(
+                    self._configuration["infer"]["save_dir"]
+                )
+            else:
+                save_dir = pathlib.Path(
+                    self._configuration["trainer"]["save_dir"]
+                )
+
+                # Create directory for saving the model.
+                self.save_dir = pathlib.Path().joinpath(
+                    save_dir, "models", run_name, run_id
+                )
+                self.save_dir.mkdir(parents=True, exist_ok=True)
+
+            # Create directory for saving the log file.
+            self.log_dir = pathlib.Path().joinpath(
+                save_dir, "logs", run_name, run_id
             )
-            self.save_dir.mkdir(parents=True, exist_ok=True)
-
-        # Create directory for saving the log file.
-        self.log_dir = pathlib.Path().joinpath(
-            save_dir, "logs", run_name, run_id
-        )
-        self.log_dir.mkdir(parents=True, exist_ok=True)
+            self.log_dir.mkdir(parents=True, exist_ok=True)
 
         # Configure logging module.
         learning_logger.setup_logging(self.log_dir)
 
     @classmethod
     def from_args(
-        cls, args: Any, options: Optional[List] = ""
+        cls, args: argparse.Namespace, options: list = ""
     ) -> "ConfigurationParser":
         """
         Initialize configuration from command line arguments.
 
         Args:
-            args (Any): Parsed command line arguments.
-            options (Optional[List[Any]]): Custom CLI options to add to arguments.
+            args (argparse.Namespace): Command-line arguments parsed by argparse.
+            options (list): Options parsed by argparse. Default is an empty list.
 
         Returns:
-            (ConfigurationParser): An instance of ConfigurationParser.
+            (ConfigurationParser): An instance of the ConfigurationParser class.
         """
+
         if isinstance(args, argparse.ArgumentParser):
             # Add custom CLI options to arguments.
             for opt in options:
@@ -123,7 +131,7 @@ class ConfigurationParser:
 
     def init_object(
         self, name: str, module: Any, *args: Any, **kwargs: Any
-    ) -> Optional[Any]:
+    ) -> Union[Any, None]:
         """
         Object handler finder.
 
@@ -137,9 +145,8 @@ class ConfigurationParser:
             kwargs (Any): Extra arguments for creating the instance.
 
         Returns:
-            (Optional[Any]): The object instance initialized with the provided arguments if
-            the name of the requested object exists in the configuration
-            dictionary. None otherwise.
+            (Union[Any, None]): The object instance initialized with the provided arguments if the name of the requested
+                object exists in the configuration dictionary. None otherwise.
         """
 
         if name in self._configuration:
@@ -150,7 +157,7 @@ class ConfigurationParser:
         else:
             return None
 
-    def get_logger(self, name: str, verbosity: int = 2) -> logging.Logger:
+    def get_logger(self, name: str, verbosity: int = 2) -> Logger:
         """
         Logger getter.
 
@@ -159,7 +166,7 @@ class ConfigurationParser:
             verbosity (int): Logging level. By default it is set to INFO.
 
         Returns:
-            logging.Logger: Initialized logger with the specified name and verbosity level.
+            (Logger): Initialized logger with the specified name and verbosity level.
         """
 
         logger = logging.getLogger(name)
@@ -171,16 +178,17 @@ class ConfigurationParser:
         Dictionary-like access to the configuration class.
 
         Args:
-            name (str): The key of the configuration item.
+            name (str): Name of the configuration key.
 
         Returns:
-            (Any): The value corresponding to the given key.
+            (Any): The value associated with the given key in the configuration.
         """
         return self._configuration[name]
 
     def _update_configuration(
-        self, configuration: dict, modifications: dict
-    ) -> dict:
+        self, configuration: OrderedDict, modifications: dict
+    ) -> OrderedDict:
+
         """
         Helper function to update configuration dictionary.
 
@@ -189,14 +197,21 @@ class ConfigurationParser:
         returned.
 
         Args:
-            configuration (dict): The configuration dictionary.
+            configuration (OrderedDict): The configuration dictionary.
             modifications (dict): Additional parsed command line options.
 
         Returns:
-            (dict): The updated configuration dictionary.
+            (OrderedDict): The updated configuration dictionary.
         """
 
-        def _apply_update(k, v):
+        def _apply_update(k: str, v: Any) -> None:
+            """
+            Updates a nested dictionary using a semicolon separated key string.
+
+            Args:
+                k (str): A semicolon separated string representing the keys to traverse in the dictionary.
+                v (Any): The value to set at the specified location in the dictionary.
+            """
             if v is not None:
                 keys = k.split(";")
                 functools.reduce(operator.getitem, keys[:-1], configuration)[
@@ -216,19 +231,15 @@ class ConfigurationParser:
         return configuration
 
 
-def _get_opt_name(flags: List[str]) -> str:
+def _get_opt_name(flags: list) -> str:
     """
-    Extracts the option name from a list of command line flags.
-
-    This function looks for a flag that starts with '--' and returns it
-    without the leading '--'. If no such flag is found, it returns the
-    first flag in the list without the leading '--'.
+    Extract the option name from the flags.
 
     Args:
-        flags (List[str]): A list of command line flags.
+        flags (list): List of command line flags.
 
     Returns:
-        (str): The extracted option name without the leading '--'.
+        (str): The option name extracted from the flags.
     """
     for flg in flags:
         if flg.startswith("--"):
