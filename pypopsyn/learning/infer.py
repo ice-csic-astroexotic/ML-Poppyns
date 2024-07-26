@@ -80,8 +80,8 @@ def infer(
     model.eval()
 
     # Load pretrained model ----------------------------------------------------
-    logger.info(f"Loading checkpoint: {config.resume} ...")
-    checkpoint = torch.load(config.resume)
+    logger.info(f"Loading checkpoint: {args.trained_model} ...")
+    checkpoint = torch.load(args.trained_model)
     # Load the state dict
     state_dict = checkpoint["state_dict"]
     model.load_state_dict(state_dict)

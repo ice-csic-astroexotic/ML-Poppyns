@@ -113,8 +113,10 @@ class BaseTrainer:
             trainer_configuration["tensorboard"],
         )
 
-        if configuration.resume is not None:
-            self._resume_checkpoint(configuration.resume)
+        if configuration.resume:
+            self._resume_checkpoint(
+                configuration["resume_training"]["save_dir"]
+            )
 
     @abstractmethod
     def _train_epoch(self, epoch: int):

@@ -97,6 +97,10 @@
     }
   },
 
+  "resume_training": {
+    "resume": false
+    },
+
   "trainer": {
     "epochs": 1024,
     "save_dir": "data/example_learning",
