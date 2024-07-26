@@ -6,7 +6,10 @@
     "vk_c_threshold": 10.0,
     "sigma_k_threshold": 10.0,
     "B_initial_log10_mean_threshold": 0.5,
-    "P_initial_log10_mean_threshold": 0.5
+    "B_initial_log10_sigma_threshold": 0.5,
+    "P_initial_log10_mean_threshold": 0.5,
+    "P_initial_log10_sigma_threshold": 0.5,
+    "a_late_threshold": 0.5
   },
   "n_gpu": 1,
 
@@ -34,7 +37,7 @@
       "filter_labels": [12, 13],
       "shuffle": true,
       "normalize": false,
-      "standardize": false
+      "standardize": true
     }
   },
 
@@ -49,7 +52,7 @@
       "filter_labels": [12, 13],
       "shuffle": false,
       "normalize": false,
-      "standardize": false
+      "standardize": true
     }
   },
 
@@ -64,7 +67,7 @@
       "filter_labels": [12, 13],
       "shuffle": false,
       "normalize": false,
-      "standardize": false
+      "standardize": true
     }
   },
 
@@ -96,7 +99,7 @@
 
   "trainer": {
     "epochs": 1024,
-    "save_dir": "toremove/oldtrain",
+    "save_dir": "data/example_learning",
     "save_period": 1000,
     "verbosity": 1,
     "early_stop": 128,
@@ -104,6 +107,6 @@
   },
 
   "infer": {
-    "save_dir": "toremove/oldinfer"
+    "save_dir": "data/example_inference"
   }
 }
