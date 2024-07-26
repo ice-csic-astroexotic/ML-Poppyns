@@ -122,12 +122,7 @@ class ConfigurationParser:
             for o in options
         }
 
-        return cls(
-            configuration,
-            parsed_args.infer,
-            modification,
-            parsed_args.trained_model,
-        )
+        return cls(configuration, parsed_args.infer, modification)
 
     def init_object(
         self, name: str, module: Any, *args: Any, **kwargs: Any

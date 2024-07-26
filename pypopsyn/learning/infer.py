@@ -47,7 +47,7 @@ def infer(
     """
 
     # Create the saving directory path.
-    inference_results_path = config["infer"]["save_dir"]
+    inference_results_path = config.log_dir
     pathlib.Path(inference_results_path).mkdir(parents=True, exist_ok=True)
 
     # Force data to load in a sequential manner without shuffling.
