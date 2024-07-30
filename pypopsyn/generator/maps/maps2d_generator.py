@@ -242,8 +242,8 @@ def generate_avg_weight_matrix(
     filename: str,
     x_log_scale: bool = False,
     y_log_scale: bool = False,
-    n_x_bins: int = 128,
-    n_y_bins: int = 128,
+    n_x_bins: int = 32,
+    n_y_bins: int = 32,
 ) -> None:
     """
     Average weighted matrix generator.

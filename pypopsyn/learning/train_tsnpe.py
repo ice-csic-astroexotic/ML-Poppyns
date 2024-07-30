@@ -62,7 +62,10 @@ import pypopsyn.learning.initializers.initializers as learning_initializers
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
 import pypopsyn.learning.models.models as learning_models
 import utilities.benchmark.timewith as timewith
-from pypopsyn.generator.generate_dataset_surveys import generate_dataset
+from pypopsyn.generator import (
+    generate_dataset_surveys_5prms,
+    generate_dataset_surveys_7prms,
+)
 from pypopsyn.learning.utils.request_device import request_device
 from utilities.coverage_probability import coverage_prob
 from utilities.simulation_helper.run_simulation_set_sbi import (
@@ -433,7 +436,10 @@ def wrapper_pypopsyn(
     else:
         simulator_multiprocess(args_dict, proposal, dataset, device)
 
-    generate_dataset(args_gen)
+    if len(config["prior_ranges"]["labels"]) == 5:
+        generate_dataset_surveys_5prms.generate_dataset(args_gen)
+    elif len(config["prior_ranges"]["labels"]) == 7:
+        generate_dataset_surveys_7prms.generate_dataset(args_gen)
 
     return dataset_path
 

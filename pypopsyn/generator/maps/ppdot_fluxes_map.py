@@ -38,8 +38,8 @@ def generate_ppdot_fluxes_map(
     x_resolution: int,
     y_resolution: int,
     ppdot_fluxes_maps_dictionary: dict,
-    x_limits: typing.Tuple[float, float] = (-20.0, 20.0),
-    y_limits: typing.Tuple[float, float] = (-20.0, 20.0),
+    x_limits: typing.Tuple[float, float] = (1e-3, 1e2),
+    y_limits: typing.Tuple[float, float] = (1e-21, 1e-9),
 ) -> None:
     """
     This method generates a fluxes average ppdot map, the dimensions of the map
