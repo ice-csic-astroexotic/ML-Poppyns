@@ -201,10 +201,12 @@ cfg["B_millisec_sigma"] = 0.5
 cfg["r_em"]: float = 3.0e7
 
 # Mean and standard deviation for the log-normally distributed radio luminosity normalization factor
-# Given in [erg s^(3 * epsilon_L - 1) ]. Parameters were adjusted to match observed data.
-cfg["L_radio_log10_mean"]: float = 35.5
+# If this is used in the pdf_luminosity_radio, the units are [erg s^(3 * epsilon_L - 1) ]; otherwise, L_0 has units of
+# ergs/s. Parameters were adjusted to match observed data.
+cfg["L_radio_log10_mean"]: float = 24.6
 cfg["L_radio_log10_sigma"]: float = 0.8
-cfg["epsilon_L"]: float = 0.5
+cfg["epsilon_L"]: float = 0.1
+cfg["Erot_dot_0"]: float = 1e29
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["ed_model"]: str = "ymw16"
@@ -219,6 +221,12 @@ cfg["detected_real_PMPS"]: int = 1009
 cfg["detected_real_SMPS"]: int = 218
 cfg["detected_real_htru_low_mid"]: int = 1023
 cfg["detected_real_htru_high"]: int = 20
+
+# This numbers comes from the generate_atnf_merkat_catalogue_7prms.py script looking at the length of the observed
+# meerkat sample per each survey using Posselt et al 2023 data.
+cfg["detected_meerkat_PMPS"]: int = 638
+cfg["detected_meerkat_SMPS"]: int = 170
+cfg["detected_meerkat_HTRU"]: int = 657
 
 
 def update_configuration(new_configuration) -> None:
