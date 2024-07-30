@@ -399,7 +399,7 @@ def calculate_radio_emission_full(
     """
 
     # Determining the luminosity in different electromagnetic bands.
-    L_radio_bol = pdf_luminosity_radio_edot(
+    L_radio_bol = pdf_luminosity_radio(
         P,
         P_dot,
     )
