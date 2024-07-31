@@ -183,7 +183,7 @@ For example you can run a script like the following:
 python pypopsyn/learning/train.py --configuration config.json --dataset_training generated_dataset/dataset_train.csv --dataset_validation generated_dataset/dataset_valid.csv --dataset_statistics generated_dataset/statistics_train.json --filter_inputs 0 3 4 5 --filter_labels 14 --input_shape 4 64 64 --num_parameters 1 --normalize 1 --batch_size 1 --lr 1e-5 --save_dir training_results
 ```
 
-The results of the training will be saved in the directory specified under the key `["trainer"]["save_dir"]` specified in the configuration file.
+The results of the training will be saved in the directory specified under the key `["trainer"]["save_dir"]` in the configuration file.
 In this directory path two folders will be created, a `logs` folder and a `models` folder that will contain subfolders for each specific training experiment with the structure of the form `name/YYYYMMDD_HHMMSS` where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was performed with a particular `name` specified in the configuration file.
 Each subfolder in the `logs` directory will contain three `json` files:
 * `train_results.json` containing the training loss evolution. if the labels where normalized or standardized the training loss here will be also normalized or standardized i.e. it will not have physical units.
@@ -246,8 +246,9 @@ If the input channels do not match, an error like the following is raised:
 ```commandline
 ValueError: all the input array dimensions for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 128 and the array at index 1 has size 64
 ```
-The output of the inference script will be saved in the file `logs/inference_results.csv` in the path specified by the `save_dir` in the configuration file.
-This file will contain the labels (ground truth) for each sample and the corresponding predictions from the trained model.
+The output of the inference script will be saved in the directory specified under the key `["infer"]["save_dir"]` in the configuration file.
+In this directory path a folder `logs` will be created that will contain subfolders for each specific training experiment with the structure of the form `name/YYYYMMDD_HHMMSS` where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was performed with a particular `name` specified in the configuration file.
+Each subfolder in the `logs` directory will contain a `inference_results.csv` containing the labels (ground truth) for each sample and the corresponding predictions from the trained model.
 For example, in case of inference over the two parameters `P_initial_log10_mean` and `B_initial_log10_mean` for four test samples the output file would be like this:
 ```commandline
 target:B_initial_log10_mean,target:P_initial_log10_mean,predicted:B_initial_log10_mean,predicted:P_initial_log10_mean
@@ -257,4 +258,4 @@ target:B_initial_log10_mean,target:P_initial_log10_mean,predicted:B_initial_log1
 13.581913948059082,-1.2630716562271118,13.486227989196777,-1.055734395980835
 ```
 
-To see a tutorial example for how to use this training and inference scripts you can look at the notebook in `tutorials/tutorial_notebooks/learning_tutorial.ipynb`.
+To see a tutorial example for how to use these training and inference scripts you can look at the notebook in `tutorials/tutorial_notebooks/learning_tutorial.ipynb`.
