@@ -392,7 +392,7 @@ def infer(
                     )
 
                     logger.info(
-                        "Estimated parameter values (we consider the median as the best value"
+                        "Estimated parameter values (we consider the median as the best value "
                         "and the 95 % credibility interval):"
                     )
 

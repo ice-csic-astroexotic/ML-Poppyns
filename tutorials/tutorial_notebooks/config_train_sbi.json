@@ -1,0 +1,62 @@
+{
+  "name": "SBI_ConvolutionMDN",
+  "n_gpu": 1,
+  "set_manual_seed": false,
+  "manual_seed": 42,
+  "profile_log": "profile.log",
+  "profile_json": "profile.json",
+  "show_profiling": true,
+
+  "arch": {
+    "type": "ModelConvSBI",
+    "args": {
+        "input_shape": [3, 32, 32],
+        "len_output_layer": 32
+    }
+  },
+
+  "weights_initializer": {
+      "type": "InitializerKaiming",
+      "args": {}
+  },
+
+  "density_estimator": {
+    "type": "mdn",
+    "args": {
+      "num_components": 10
+       }
+  },
+
+  "training_data_loader": {
+    "dataset_path": "output/generator/dataset_train.csv",
+    "statistic_path": "output/generator/statistics_train.json",
+    "filter_inputs": [9, 10, 11],
+    "filter_labels": [12, 13],
+    "normalize": false,
+    "standardize": true
+  },
+
+  "test_data_loader": {
+    "dataset_path": "output/generator/dataset_test.csv",
+    "statistic_path": "output/generator/statistics_train.json",
+    "filter_inputs": [9, 10, 11],
+    "filter_labels": [12, 13],
+    "normalize": false,
+    "standardize": true
+  },
+
+  "resume_training": {
+    "resume": false
+    },
+
+  "trainer": {
+    "validation_fraction": 0.1,
+    "batch_size": 8,
+    "lr": 5e-4,
+    "save_dir": "output/example_training_sbi"
+  },
+
+  "infer": {
+    "save_dir": "output/example_inference_sbi"
+  }
+}
