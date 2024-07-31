@@ -110,9 +110,7 @@ def main(args):
             )
 
             with open(simulation_override_json_path, "w") as f:
-                json.dump(
-                    simulation_override_json, f, indent=4, sort_keys=True
-                )
+                json.dump(simulation_override_json, f, indent=4)
 
             f_sa.write(
                 f"{simulation_output_path} {simulation_override_json_path}"

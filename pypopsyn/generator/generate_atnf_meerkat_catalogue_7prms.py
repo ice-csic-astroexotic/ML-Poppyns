@@ -391,8 +391,6 @@ def generate_dataset(args) -> None:
             "P_initial_log10_mean": [np.nan],
             "P_initial_log10_sigma": [np.nan],
             "a_late": [np.nan],
-            "h_c": [np.nan],
-            "sigma_k": [np.nan],
             "L_radio_log10_mean": [np.nan],
             "epsilon_L": [np.nan],
         }
