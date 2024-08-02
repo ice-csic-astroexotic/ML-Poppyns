@@ -63,11 +63,9 @@ If not files are modified and the steps (i) - (iii) have to be repeated. For mor
 
 
 ## Documentation
-THIS HAS TO BE CHANGED
 
-The documentation for this project is held in `docs` and can be compiled into an HTML webpage or to a PDF
-LaTeX file using `make html` or `make latexpdf` respectively inside the `docs` folder with the
-environment activated. Both commands will generate their output in `docs/_build`.
+The documentation for this project is held in `docs` and can be compiled into an HTML webpage by running `mkdocs serve`
+with the environment activated. The configuration file to set up the documentation with [mkdocs.org](https://www.mkdocs.org) is called `mkdocs.yml` and is located in the main repository folder.
 
 
 ## Repository structure
@@ -86,7 +84,7 @@ The main folder is `pypopsyn` which contains three sub-folders: `simulator`, `ge
 
 * The `learning` sub-folder contains all the modules and scripts necessary for the machine-learning pipeline, including model architectures, initialization techniques, loss function definitions, training schemes and so on.
 
-The `data` folder contains ten main sub-folders: eight sub-folders containing example data created by running different simulator scripts, the generator script and the training and inference scripts, an :code:`observations` sub-folder and a :code:`paper_results` sub-folder.
+The `data` folder contains ten main sub-folders: eight sub-folders containing example data created by running different simulator scripts, the generator script and the training and inference scripts, an `observations` sub-folder and a `paper_results` sub-folder.
 All the simulation examples provided here have been run by using the default parameters specified in `pypopsyn/simulator/config_simulator.py`.
 
 * The `example_generator_atnf` sub-folder contains an example dataset of feature maps from the observed pulsar population in the [ATNF catalog](https://www.atnf.csiro.au/research/pulsar/psrcat/).

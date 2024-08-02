@@ -2,7 +2,8 @@
 
 ## Neural Posterior Estimation (amortized)
 
-We use here a simulation-based inference (sbi) framework (see https://sbi-dev.github.io/sbi/ ), a supervised learning approach where a network is trained to learn the mapping between simulated data and the posterior distribution of the model parameters used to simulate them.
+We use here a simulation-based inference framework that uses the library [sbi](https://sbi-dev.github.io/sbi/ ).
+This is a supervised learning approach where a network is trained to learn the mapping between simulated data and the posterior distribution of the model parameters used to simulate them.
 
 The `pypopsyn/learning/train_sbi.py` script employs a sbi method called Neural Posterior Estimation (NPE) that allows to train a neural density estimator over a dataset of samples of simulated neutron star populations to directly approximate the posterior distributions of the input parameters.
 In this case the inference is amortized, meaning that the trained model is able to predict a posterior distribution for any input simulated population of neutron stars.
@@ -162,7 +163,7 @@ Once the configuration file is properly set up with the path to the test dataset
 python pypopsyn/learning/infer_sbi.py --configuration config_sbi.json --trained_model data/learning_sbi/models/SBI_ConvolutionMDN/20240606_180938/trained_model.pickle
 ```
 
-As for the training script you could provide some arguments via `CLI`, for example the path to the test dataset, the input channels and the labels to select, the input shape, either to apply normalization or standardization to the input:
+As for the training script you could provide some arguments via `CLI`, for example the path to the test dataset, the input channels and the labels to select, the input shape, either to apply normalization or standardization to the input and so on.
 
 The output of the inference script will be saved in the directory specified under the key `["infer"]["save_dir"]` in the configuration file.
 In this directory path a folder `logs` will be created that will contain subfolders for each specific training experiment with the structure of the form `name/YYYYMMDD_HHMMSS` where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was performed with a particular `name` specified in the configuration file.
