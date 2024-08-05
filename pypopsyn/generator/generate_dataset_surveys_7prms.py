@@ -20,7 +20,7 @@
 
     Display help message to run the code:
 
-    python generate_dataset_surveys.py --h
+    python generate_dataset_surveys_7prms.py --h
 
     Displays all the relevant arguments that can be used.
 

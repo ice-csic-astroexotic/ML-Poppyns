@@ -15,7 +15,7 @@
 
     Display help message to run the code:
 
-    python generate_single_surveys.py --h
+    python generate_single_surveys_7prms.py --h
 
     Displays all the relevant arguments that can be used.
 
@@ -124,7 +124,7 @@ def create_survey_maps(
         df_survey["RA"],
         df_survey["DEC"],
         resolution_dyn,
-        int(args.resolution_dyn / 2),
+        int(resolution_dyn / 2),
         dictionary_position_map_radec,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
@@ -175,7 +175,7 @@ def create_survey_maps(
         dictionary_ppdot_map,
     )
 
-    # Since the TPA survey by Meerkat is not complete, we will take a random subsample of the PMPS, SMPS, and HTRU
+    # Since the TPA program by Meerkat is not complete, we will take a random subsample of the PMPS, SMPS, and HTRU
     # surveys that match the numbers in the TPA, ensuring there is no bias in this subsample.
     if int(cfg[f"detected_meerkat_{survey_name}"]) < len(df_survey["P"]):
         df_survey = df_survey.sample(

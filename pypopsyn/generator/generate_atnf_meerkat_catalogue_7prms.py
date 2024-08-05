@@ -1,13 +1,17 @@
 """
     Generator for the observed population.
 
-    This module creates compressed representations for the observed population in the ATNF Pulsar Catalogue.
+    This module creates compressed representations for the observed population
+    in the ATNF Pulsar Catalogue using the fluxes of the Meerkat TPA program in Posselt, B. et al 2023.
+
+    We selected the fluxes from the ch6flux column in Posselt, B. et al. (2023), corresponding to measurements at
+    1429 MHz. These fluxes are used in Figure 7 of the paper for comparison with those from the ATNF catalog.
 
     The user can choose to generate either a dataset of images or of 2D arrays.
 
     Display help message to run the code:
 
-    python generate_atnf_catalogue.py --h
+    python generate_atnf_meerkat_catalogue_7prms.py --h
 
     Displays all the relevant arguments that can be used.
 
@@ -52,11 +56,10 @@ def create_survey_maps(
     Pdot_meerkat: np.ndarray,
 ) -> None:
     """
-    This method reads the observed population from the ATNF Pulsar Catalogue
+    This method reads the observed population from the ATNF Pulsar Catalogue and the Meerkat TPA program (Posselt ,B et al 2023).
     and generates a set of density maps in the specified format (images or arrays) and with a specified resolution.
 
     Args:
-
         dataset_path (str): Path to where the generated dataset will be saved.
         survey_name (str): Survey acronym.
         data_type (str): Type of dataset to generate: array or image.
@@ -80,8 +83,11 @@ def create_survey_maps(
         ra (np.ndarray): Right ascension in [deg] defined between [0, 360] deg in ICRS frame.
         dec (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
         S1400 (np.ndarray): Array of period-averaged radio flux density in [Jy].
-        P_meerkat (np.ndarray) : Array of spin periods of the pulsars in TPA Meerkat survey in [s].
-        Pdot_meerkat (np.ndarray): Array of spin period derivatives of the pulsars in TPA Meerkat survey in [s/s].
+        P_meerkat (np.ndarray): Array of spin periods from the ATNF catalog for the pulsars in the TPA MeerKAT program,
+            in seconds [s].
+        Pdot_meerkat (np.ndarray): Array of spin period derivatives from the ATNF catalog for the pulsars in the TPA
+            MeerKAT program, in seconds per second [s/s].
+
     """
 
     # Create position density maps projected onto the RA DEC plane.
@@ -93,7 +99,7 @@ def create_survey_maps(
         ra,
         dec,
         resolution_dyn,
-        int(args.resolution_dyn / 2),
+        int(resolution_dyn / 2),
         dictionary_position_map_radec,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
@@ -140,20 +146,22 @@ def create_survey_maps(
     )
 
 
-def generate_dataset(args) -> None:
+def generate_dataset(args: argparse.Namespace) -> None:
     """
     This method generates a dataset of density maps in the specified format (images or arrays) and with a specified
-    resolution from the ATNF Pulsar Catalogue.
+    resolution from the ATNF Pulsar Catalogue and the Meerkat TPA program (Posselt ,B et al 2023).
     All the information about the dataset is stored in a dataset.csv file containing the density-map file names
     and the set of parameter values for each simulated population.
 
     Args:
-        args:
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
             data (str): Path to where the observed population is located.
             save_dir (str): Path to where the generated dataset will be saved.
             data_type (str): Type of dataset to generate: array or image.
             resolution_ppdot (int): Resolution (number of bins per axis for the 2d
-            histograms) for the P-Pdot density maps to generate.
+                histograms) for the P-Pdot density maps to generate.
+            path_atnf (str): Path to the ATNF catalogue.
+            path_meerkat (str): Path to the Meerkat catalogue.
     """
 
     # Create the dataset directory path.
@@ -189,7 +197,7 @@ def generate_dataset(args) -> None:
         header=[0, 1],
     )
 
-    # Read the meerkat tpa pulsar survey.
+    # Read the meerkat tpa pulsar program.
     df_meerkat = pd.read_csv(
         args.path_meerkat,
         delimiter=",",
@@ -250,6 +258,7 @@ def generate_dataset(args) -> None:
         & (l_pmps_obs < 50.0)
         & (np.abs(b_pmps_obs) < 5.0)
     )
+    # Merge the Meerkat TPA program data with the Parkes ATNF catalog to obtain MeerKAT flux measurements for the Parkes pulsars.
     df_meerkat_pmps = pd.merge(
         df_meerkat, df_atnf_pmps[cond], left_on="PSRJ", right_on="PSRJ"
     )
@@ -283,6 +292,8 @@ def generate_dataset(args) -> None:
     # Select only pulsars falling into the Swinburne sky coverage where completeness is above 90%.
     # See Edwards et al. (2001) and Jacoby et al. (2009) for details.
     cond = (l_smps_obs > -100.0) & (l_smps_obs < 50.0)
+
+    # Merge the Meerkat TPA program data with the Swinburne ATNF catalog to obtain MeerKAT flux measurements for the Swinburne pulsars.
     df_meerkat_smps = pd.merge(
         df_meerkat, df_atnf_smps[cond], left_on="PSRJ", right_on="PSRJ"
     )
@@ -304,6 +315,7 @@ def generate_dataset(args) -> None:
     # measurements are from the low- and mid- latitude surveys only.
     df_atnf_htru = df_atnf[df_atnf["SURVEY"].str.contains("htru_pks")]
 
+    # Merge the Meerkat TPA program data with the HTRU ATNF catalog to obtain MeerKAT flux measurements for the HTRU pulsars.
     df_meerkat_htru = pd.merge(
         df_meerkat, df_atnf_htru, left_on="PSRJ", right_on="PSRJ"
     )
@@ -368,10 +380,10 @@ def generate_dataset(args) -> None:
         args.data_type,
         args.resolution_dyn,
         args.resolution_ppdot,
-        survey_SMPS_position_map_radec_dictionary,
-        survey_SMPS_velocity_map_vra_dictionary,
-        survey_SMPS_velocity_map_vdec_dictionary,
-        survey_SMPS_ppdot_map_dictionary,
+        survey_HTRU_position_map_radec_dictionary,
+        survey_HTRU_velocity_map_vra_dictionary,
+        survey_HTRU_velocity_map_vdec_dictionary,
+        survey_HTRU_ppdot_map_dictionary,
         survey_HTRU_ppdot_fluxes_map_dictionary,
         P_htru_obs,
         Pdot_htru_obs,
