@@ -1,30 +1,13 @@
 """
-Loader for multichannel 2D arrays datasets.
+    Loader for multichannel 2D arrays datasets.
 
-Authors:
+    This loader imports the statistics to perform normalization or standardization on the targets
+    from an already existent statistics.json file.
 
-    Michele Ronchi (ronchi@ice.csic.es)
-    Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+    Authors:
 
-MIT License
-
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
+        Michele Ronchi (ronchi@ice.csic.es)
+        Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
 import json
@@ -193,7 +176,7 @@ class DatasetMultichannelArray:
         i = 0
 
         # Loop over the input column of the dataset to get all input channels in
-        # a list so we can stack them later. We assume that all columns must be
+        # a list, so we can stack them later. We assume that all columns must be
         # ordered so "input:" columns go first then all the labels.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in

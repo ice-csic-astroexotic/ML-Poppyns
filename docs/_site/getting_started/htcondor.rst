@@ -8,9 +8,15 @@ This page is primarily for MAGNESIA developers. We focus on explaining the file 
 Location of the files
 **********************
 
-#. The main software repo is located in the folder :code:`/data/magnesia/software`. Note that the repo was cloned in this location following PIC's guidelines: we should use the software folder for shared repositories. The repo was cloned in such a way that every MAGNESIA user has writing, execution and reading access. A user would, in principle, be able to clone the repo in their own home directories, but this should be avoided due to limited disk space. Before lunching simulations from any location in the server, the variable :code:`server_run` in the :code:`configuration.py` file should be set to :code:`true` to ensure that the correct path to the software modules is set.
-#. The scripts to submit a job with HTCondor are in the common folder :code:`/data/magnesia/common`. We use this folder to store the HTCondor files since it is PIC's recommended location for storing intermediate data. This is also where we store our simulations and ML experiments on intermediate timescales (before moving them to long-term storage).
-#. There is also a scratch folder in MAGNESIA's disk space where output files of each run could be saved. These will however be deleted after each run and would thus need to be transferred elsewhere if required. Below we explain how to transfer files from this scratch directory.
+#. The main software repo is located in the folder :code:`/data/magnesia/software`. Note that the repo was cloned in this location following PIC's guidelines: We should use the :code:`software` folder for shared repositories. The repo was cloned in such a way that every MAGNESIA user has writing, execution and reading access. A user would, in principle, be able to clone the repo in their own home directories, but this should be avoided due to limited disk space. Before lunching simulations from any location in the server, the variable :code:`server_run` in the :code:`config_simulator.py` file should be set to :code:`true` to ensure that the correct path to the software modules is set.
+#. The scripts to create the necessary files to submit a job and to manage the simulations with HTCondor are found in the :code:`utilities` folder in the subdirectory :code:`PIC_scripts` in our repo. These are:
+
+    * :code:`PIC_generate_htcondor_submit.py` generates the necessary HTCondor files to launch jobs.
+    * :code:`PIC_check_simulations.py` checks which simulations have failed from a previous run with HTCondor.
+    * :code:`PIC_generate_htcondor_failed.py` checks for failed simulations and generate the HTCondor files to launch them again.
+    * After the failed simulations have been launched again and finished successfully, :code:`PIC_manage_failed_simulation.py` is used to transfer the new output back to the original folders.
+#. We use the folder :code:`/data/magnesia/common` to store the HTCondor files since it is PIC's recommended location for storing intermediate data. This is also where we store our simulations and ML experiments on intermediate timescales.
+#. There is also a scratch folder in :code:`/data/magnesia/scratch` which contains our :code:`conda` environment. This folder also offers extra disk space where output files of each run could be saved. These will however be deleted after each run and would thus need to be transferred elsewhere if required. Below we explain how to transfer files from this scratch directory.
 
 ***************************
 Useful commands in HTCondor
@@ -32,16 +38,17 @@ Steps to run the dynamical simulations
 SSH sessions
 ************
 
-Using the JupyterHub online interface at https://jupyter.pic.es/ we are able to run and read files in the :code:`software` folder. However, to have writing access to this folder we need to log in via ssh. To do so, type the following command in a terminal:
+Using the JupyterHub online interface at https://jupyter.pic.es/ we are able to run and read files in the :code:`/data/magnesia/software` folder.
+However, to have writing access to this folder we need to log in via ssh. To do so, type the following command in a terminal:
 
-.. code-block:: bash
+::
 
     ssh user@ui.pic.es
 
 where :code:`user` is your PIC user name. You will be prompted to enter your password.
 Currently access via UAB's wireless and ethernet network does not allow ssh connections; in particular PIC uses port 22 which is blocked. As a result a standard ssh connection from the ICE cannot be established at the moment.  However, we can establish a ssh connection through a terminal session within https://jupyter.pic.es/. A standard ssh connection from outside the ICE can however be readily established.
 
-The software repository located in :code:`/data/magnesia/software` should be used to execute large experiments. Any changes, developments or updates of the code itself should be done on personal laptops whenever possible. To update the repository on the PIC servers, we use :code:`git pull`. To establish GitHub access to the repository follow these steps:
+The software repository located in :code:`/data/magnesia/software` should be used to execute large experiments. Any changes, developments or updates of the code itself should be done on personal laptops whenever possible. To update the repository on the PIC servers, we use :code:`git pull`. To establish GitHub access to the repository for the first time follow these steps:
 
   #. Paste the text below (in your ssh session), substituting your GitHub email address  :code:`ssh-keygen -t ed25519 -C "your_email@example.com"` This creates a new SSH key, using the provided email as a label.
   #. When you are prompted to "Enter a file in which to save the key," enter :code:`/data/magnesia/software/ssh_keys/your_lastname` substituting in your last name.
@@ -59,7 +66,7 @@ In  order to submit jobs with HTCondor we need two different scripts: an HTCondo
 
 The HTCondor submit file looks like the following:
 
-.. code-block:: bash
+::
 
     (base) [cpardoar@ui02 test_htcondor]$ cat test.submit
     # The UNIVERSE defines an execution environment. You will always use VANILLA.
@@ -82,7 +89,7 @@ The HTCondor submit file looks like the following:
 
 In our case, the executable is a wrapper (explained below) where we call the .py file. When submitting an HTCondor job, simulations are run on a remote host. To see the terminal output (stdout) or errors (stderr) arising during the execution, we save the details in the path specified in the output, log and error variables. The path :code:`OUTPUT/hello.out.$(Cluster).$(Process).txt` is an example. You can choose the path that is most convenient for your purpose. In our example, we want the output to be saved in a folder called :code:`OUTPUT`, in the same location as the submit file and with the name :code:`hello.out.$(Cluster).$(Process).txt`. For example, we could change the path of the output to
 
-.. code-block:: bash
+::
 
     output = test.txt
 
@@ -93,7 +100,7 @@ and the output (whatever is printed in the terminal during the execution of the 
 
 For example, if the output file is called :code:`output1.txt` and we want to keep that file, we need to add the following line to the submit file:
 
-.. code-block:: bash
+::
 
     transfer_output_files= output1.txt
 
@@ -104,7 +111,7 @@ Wrappers
 
 An example wrapper looks like this:
 
-.. code-block:: bash
+::
 
     (base) [cpardoar@ui02 test_htcondor]$ cat wrapper.sh
     #!/bin/bash
@@ -135,26 +142,26 @@ Submitting jobs and related queries
 
 In order to submit a job (= running the simulation on the server), we use
 
-.. code-block:: bash
+::
 
     (base) [cpardoar@ui02 test_htcondor]$ condor_submit test.submit
 
 and it should return
 
-.. code-block:: bash
+::
 
     Submitting job(s).
     1 job(s) submitted to cluster 5889056.
 
 To look at the status of the jobs that we have submitted, run
 
-.. code-block:: bash
+::
 
     (base) [cpardoar@ui02 test_htcondor]$ condor_q
 
 with the expected output
 
-.. code-block:: bash
+::
 
     -- Schedd: submit01.pic.es : <193.109.174.82:9618?... @ 02/18/22 18:39:10
     OWNER    BATCH_NAME     SUBMITTED   DONE   RUN    IDLE  TOTAL JOB_IDS
@@ -167,13 +174,13 @@ with the expected output
 
 In this example, we have 2 jobs running. Note that if you have initiated a session at https://jupyter.pic.es/, it will appear as a running job. If we see that some jobs are IDLE, these are currently in HTCondor's queue and waiting to be launched. If you see a job that is on HOLD, this might indicate that something went wrong. To see what happened to held jobs run the following command:
 
-.. code-block:: bash
+::
 
     condor_q -const 'JobStatus == 5' -af HoldReason
 
 If you want to remove a job, first execute :code:`condor_q` to search for the :code:`job_id` of the job you want to remove. For example, with the output from :code:`condor_q` above, removing the job with the id 5888825.0 can be achieved by running:
 
-.. code-block:: bash
+::
 
     condor_rm 5888825.0
 
@@ -182,13 +189,13 @@ If you want to remove a job, first execute :code:`condor_q` to search for the :c
 
 If you want to access the working node at which the job is running, use the following command:
 
-.. code-block:: bash
+::
 
     condor_ssh_to_job 5888825.0
 
 The expected output is
 
-.. code-block:: bash
+::
 
     (base) [cpardoar@ui04 dyn_database]$ condor_ssh_to_job 5888825.0
     Welcome to slot1_4@td820.pic.es!
@@ -196,7 +203,7 @@ The expected output is
 
 In this working node, we can directly access the :code:`_condor_stdout` file and check the current status by looking at the printed output of our job. To exit the working node enter:
 
-.. code-block:: bash
+::
 
     (base) [cpardoar@ui04 dyn_database]$ exit
     logout
@@ -207,25 +214,25 @@ Running different jobs in parallel
 ***********************************
 
 To take advantage of HTCondor, we show here how to submit and process multiple jobs in parallel. There is a specific way to do this with HTCondor using the :code:`parameter` argument in the .submit file.
-For example, if we want to run our script :code:`/simulate_population_dyn.py` with two different values of :code:`h_c` (in this example :code:`h_c = 1.7` and :code:`1.9`), we can use the following approaches:
+For example, if we want to run our script :code:`simulate_population_dyn.py` with two different values of :code:`h_c` (in this example :code:`h_c = 1.7` and :code:`1.9`), we can use the following approaches:
 
 * We create 2 different jsons (let us call them :code:`test1.json` and :code:`test2.json`) with the values of :code:`h_c`. Then :code:`test1.json` looks like this:
 
-  .. code-block:: bash
+  ::
 
     (base) [cpardoar@gpu05 ~]$  cat test1.json
     {"h_c":1.7}
 
   And :code:`test2.json` reads
 
-  .. code-block:: bash
+  ::
 
     (base) [cpardoar@gpu05 ~]$  cat test2.json
     {"h_c":1.9}
 
   We next have to specify in the submit file the jsons that will be taken as arguments for the :code:`parameter_override` in our .py script. We also have to specify 2 different directories to not mix the outputs from both simulation. Adjusting the submit file accordingly, we thus arrive at:
 
-  .. code-block:: bash
+  ::
 
     universe        = vanilla
     executable      = wrapper.sh
@@ -239,7 +246,7 @@ For example, if we want to run our script :code:`/simulate_population_dyn.py` wi
 
   In the wrapper, we also have to specify that the :code:`parameter_override` and :code:`output` arguments will take the values passed via the submit file. Again, we just need to change the last line of our wrapper file:
 
-  .. code-block:: bash
+  ::
 
     #!/bin/bash
 
@@ -253,7 +260,7 @@ For example, if we want to run our script :code:`/simulate_population_dyn.py` wi
 
   1. Using a loop over the arguments:
 
-  .. code-block:: bash
+  ::
 
       (base) [cpardoar@gpu05 ~]$ test_argument.submit
       universe        = vanilla
@@ -271,7 +278,7 @@ For example, if we want to run our script :code:`/simulate_population_dyn.py` wi
 
   2. Using a text file:
 
-  .. code-block:: bash
+  ::
 
       (base) [cpardoar@gpu05 ~]$ test_argument_txt.submit
       universe        = vanilla
@@ -284,7 +291,7 @@ For example, if we want to run our script :code:`/simulate_population_dyn.py` wi
 
   where the :code:`arguments.txt` file looks like this:
 
-  .. code-block:: bash
+  ::
 
       (base) [cpardoar@ui03 test_htcondor]$ cat arguments.txt
       /data/magnesia/common/test_htcondor/OUTPUT_args_txt/output_repo_test1 /nfs/pic.es/user/c/cpardoar/test1.json

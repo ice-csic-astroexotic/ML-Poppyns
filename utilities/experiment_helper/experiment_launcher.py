@@ -5,18 +5,15 @@
     executing them with a process pool. This way, a huge list of experiments can
     be left running unattended.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 utilities/experiment_launcher.py --h
+    python experiment_launcher.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import argparse
@@ -164,7 +161,7 @@ if __name__ == "__main__":
         "--command_list",
         nargs="?",
         type=str,
-        default="utilities/command_list.txt",
+        default="utilities/experiment_helper/command_list.txt",
         help="List of commands to execute.",
     )
     args.add_argument(

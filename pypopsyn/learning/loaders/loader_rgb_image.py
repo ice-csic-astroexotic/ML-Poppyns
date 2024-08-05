@@ -1,12 +1,10 @@
-""" Loader for RGB density map images
+"""
+    Loader for RGB density map images.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import numpy as np
@@ -19,17 +17,17 @@ from .loader_base import LoaderBase
 
 class DatasetRGBImage:
     """
-        upload the images dataset and their labels
+    Upload the images dataset and their labels.
     """
 
     def __init__(self, file_path, transform=None):
         """
-            load the images and labels dataset
+            Load the images and labels dataset.
         Args:
             file_path (str): path to the dataset.csv file containing all the
-            information on the dataset
+            information on the dataset.
 
-            transform: transformation to apply to the images
+            transform: transformation to apply to the images.
         """
         self.dataset = pd.read_csv(file_path)
         self.transform = transform
@@ -45,17 +43,17 @@ class DatasetRGBImage:
 
     def __getitem__(self, index):
         """
-            Read the dataset and extract the images and the corresponding labels
+            Read the dataset and extract the images and the corresponding labels.
 
         Args:
-            index (int): index running along the raws of the dataset.csv file
+            index (int): index running along the raws of the dataset.csv file.
 
         Returns:
             np.ndarray or torch tensor: multidimensional matrices for the images of
             shape N x N x 3 where N is the number of pixels along a raw or column of
-            the .png file
+            the .png file.
 
-            np.ndarray: labels of each image
+            np.ndarray: labels of each image.
         """
         image_name = self.dataset.iloc[index, 0]
 

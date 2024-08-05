@@ -1,4 +1,5 @@
-""" Generator for dataset.
+"""
+    Generator for full population dataset.
 
     This module creates a dataset of compressed representations for the output of
     simulated populations from the simulator `simulate_population_full.py`
@@ -20,19 +21,16 @@
     training and validation subsets (without test subset) and in this case only the
     two related .csv files will be created.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 generate_dataset_full.py --h
+    python generate_dataset_full.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia-Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import argparse

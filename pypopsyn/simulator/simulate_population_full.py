@@ -1,35 +1,24 @@
 """
-Simulating a final population of neutron stars.
+    Simulating a final population of neutron stars.
 
-An initial neutron star population of uniformly distributed ages is generated
-and the respective objects evolved in time according to their age.
-We simulate both the dynamical evolution in the Galaxy and the magneto-rotational
-evolution.
-Finally we model the radio emission and simulate the detection from two radio surveys,
-Parkes multibeam (PMPS) and Swinburne (SMPS).
+    An initial neutron star population of uniformly distributed ages is generated
+    and the respective objects evolved in time according to their age.
+    We simulate both the dynamical evolution in the Galaxy and the magneto-rotational
+    evolution.
+    Finally we model the radio emission and simulate the detection from two radio surveys,
+    Parkes multibeam (PMPS) and Swinburne (SMPS).
+
+    Display help message to run the code:
+
+    python simulate_population_full.py --h
+
+    Displays all the relevant arguments that can be used.
 
     Authors:
 
         Vanessa Graber (graber @ ice.csic.es)
         Michele Ronchi (ronchi @ ice.csic.es)
         Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
-
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 """
 
 import argparse
@@ -173,7 +162,9 @@ def simulate_population(args) -> None:
         ) as timer:
 
             # Generate an initial neutron star population.
-            NS_population_initial = ipop.InitialNeutronStarPopulation()
+            NS_population_initial = ipop.InitialNeutronStarPopulation(
+                cfg["NS_number"]
+            )
 
             # Generate an array of indices.
             NS_idx = np.arange(cfg["NS_number"], dtype=int)
@@ -994,7 +985,7 @@ def simulate_population(args) -> None:
 
         # Save the data frame as a compressed binary file.
         HTRU_high_output_path = pathlib.Path().joinpath(
-            output_path, "survey_HTRU_results_high.pkl.gz"
+            output_path, "survey_HTRU_high_results.pkl.gz"
         )
         df_HTRU_high.to_pickle(HTRU_high_output_path, compression="gzip")
 
@@ -1053,7 +1044,7 @@ def simulate_population(args) -> None:
 
         # Save the data frame as a compressed binary file.
         HTRU_low_mid_output_path = pathlib.Path().joinpath(
-            output_path, "survey_HTRU_results_low_mid.pkl.gz"
+            output_path, "survey_HTRU_low_mid_results.pkl.gz"
         )
         df_HTRU_low_mid.to_pickle(HTRU_low_mid_output_path, compression="gzip")
 

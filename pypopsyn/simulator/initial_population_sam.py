@@ -1,32 +1,13 @@
 """
-Generating an initial population of neutron stars in the Milky Way with
-random parameters. For the initial positions we assume that the distribution
-of progenitors follows a given radial distribution and the spiral arms with a given
-parametrized shape.
+    Generating an initial population of neutron stars in the Milky Way with
+    random parameters. For the initial positions we assume that the distribution
+    of progenitors follows a given radial distribution and the spiral arms with a given
+    parametrized shape.
 
-    Authors:
+        Authors:
 
-        Vanessa Graber (graber@ice.csic.es)
-        Michele Ronchi (ronchi@ice.csic.es)
-
-MIT License
-
-Copyright (c) MAGNESIA (ICE-CSIC) 2020
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+            Vanessa Graber (graber@ice.csic.es)
+            Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import logging
@@ -52,7 +33,7 @@ class InitialNeutronStarPopulation:
     Generating a random pulsar population in the Milky Way.
     """
 
-    def __init__(self, NS_number: int = cfg["NS_number"]) -> None:
+    def __init__(self, NS_number: int) -> None:
         """
         Initialization for the initial population synthesis.
         """

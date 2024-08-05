@@ -1,4 +1,5 @@
-""" Generator for dataset.
+"""
+    Generator for survey dataset.
 
     This module creates a dataset of compressed representations for the output of
     simulated populations from the simulator `simulate_population_magrot_det.py`
@@ -17,19 +18,16 @@
     The statistical information about the labels (average value, standard deviation,
     maximum and minimum) are saved in a .json file.
 
-    Running the code:
+    Display help message to run the code:
 
-        python3 generate_dataset_surveys.py --h
+    python generate_dataset_surveys.py --h
 
-        To obtain help about all the arguments that can be used.
+    Displays all the relevant arguments that can be used.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia-Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import argparse
@@ -129,7 +127,7 @@ def create_survey_maps(
         df_survey["RA"],
         df_survey["DEC"],
         resolution_dyn,
-        int(args.resolution_dyn / 2),
+        int(resolution_dyn / 2),
         dictionary_position_map_radec,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
@@ -281,7 +279,7 @@ def generate_dataset(args) -> None:
             root_path,
             dataset_path,
             "HTRU",
-            "survey_HTRU_results_low_mid",
+            "survey_HTRU_low_mid_results",
             s,
             args.data_type,
             args.resolution_dyn,

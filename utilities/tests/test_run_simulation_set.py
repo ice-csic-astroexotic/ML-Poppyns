@@ -1,34 +1,18 @@
 """
-Tests for the run_simulation_set.py module.
+    Tests for the run_simulation_set module.
 
     Authors:
 
         Michele Ronchi (ronchi @ ice.csic.es)
         Celsa Pardo Araujo (pardo @ ice.csic.es)
-
-Copyright (c) MAGNESIA (ICE-CSIC) 2024
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 """
 
 import logging
 import multiprocessing as mp
+import os
 import pathlib
 import subprocess
-from unittest.mock import patch
+from unittest import mock
 
 import pytest
 
@@ -43,32 +27,55 @@ def mock_subprocess_check_output(monkeypatch):
     monkeypatch.setattr(subprocess, "check_output", mock_check_output)
 
 
-@pytest.fixture
-def mock_subprocess_run():
-    """
-    Mock subprocess.run() function.
-    """
-    with patch("subprocess.run") as mock_run:
-        yield mock_run
+class MockArgs:
+    def __init__(self, save_dir, parameter_override, dyn_data):
+        self.save_dir = save_dir
+        self.parameter_override = parameter_override
+        self.dyn_data = dyn_data
 
 
-def test_run_simulation_dask(mock_subprocess_run, caplog):
+def test_run_simulation_dask(caplog):
     """
     Test the run_simulation_dask method.
     """
-    command = "some_command"
-    caplog.set_level(logging.INFO)
-    # Call the function being tested.
-    rss.run_simulation_dask(command)
+    # Define mock inputs.
+    dyn_data_path = "mock_dyn_data_path"
 
-    # Assert that subprocess.run() was called with the correct command.
-    mock_subprocess_run.assert_called_once_with(
-        command, shell=True, check=True
+    args = MockArgs(
+        "mock_output_dir", "mock_parameter_override.json", dyn_data_path
     )
+    simulator_type = "simulate_population_magrot_det"
+    simulation_output_path = "mock_simulation_output_path"
+    simulation_override_json = {"param1": "value1", "param2": "value2"}
 
-    # Check log messages.
-    assert "Launching simulation" in caplog.text
-    assert "Simulation finished" in caplog.text
+    caplog.set_level(logging.INFO)
+
+    # Mock the necessary functions and methods used in run_simulation_dask.
+    with mock.patch("os.path.exists", return_value=True), mock.patch(
+        "shutil.copytree"
+    ), mock.patch("pathlib.Path.mkdir"), mock.patch("json.dump"), mock.patch(
+        "shutil.rmtree"
+    ), mock.patch(
+        "pypopsyn.simulator.simulate_population_magrot_det.simulate_population"
+    ):
+        try:
+            # Call the function being tested.
+            rss.run_simulation_dask(
+                args,
+                simulator_type,
+                simulation_output_path,
+                simulation_override_json,
+                dyn_data_path,
+            )
+            # Assert that the log messages are present.
+            assert (
+                "Copied output folder back to original location" in caplog.text
+            )
+            assert "Simulation finished" in caplog.text
+        finally:
+            # Ensure the file is deleted after the test.
+            if os.path.exists("mock_parameter_override.json"):
+                os.remove("mock_parameter_override.json")
 
 
 def test_run_simulation(mock_subprocess_check_output):

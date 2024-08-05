@@ -1,11 +1,9 @@
-""" Base Model.
+"""
+    Base model.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import abc
@@ -16,11 +14,11 @@ import torch.nn as nn
 
 class ModelBase(nn.Module):
 
-    """ Base abstract class for all models. """
+    """Base abstract class for all models."""
 
     @abc.abstractmethod
     def forward(self, *inputs):
-        """ Forward pass
+        """Forward pass
 
         Abstract method for the forward pass that must be implemented for each
         model that derives this class to implement its whole forward pass.
@@ -36,7 +34,7 @@ class ModelBase(nn.Module):
 
     def __str__(self):
 
-        """ String representation of the model. """
+        """String representation of the model."""
 
         model_parameters = filter(lambda p: p.requires_grad, self.parameters())
         params = sum([np.prod(p.size()) for p in model_parameters])

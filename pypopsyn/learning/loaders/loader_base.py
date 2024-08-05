@@ -1,13 +1,11 @@
-""" Base Loader.
+"""
+    Base Loader.
 
     Base abstract class for any custom data loader.
 
     Authors:
 
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import typing

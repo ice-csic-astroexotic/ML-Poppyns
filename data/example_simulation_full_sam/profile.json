@@ -1,84 +1,84 @@
 {
   "[TotalSimulation]": {
-    "time": 494.6479821205139
+    "time": 511.44583344459534
   },
   "[InitialPopulation]": {
-    "time": 4.707030296325684,
+    "time": 5.557007074356079,
     "[Initial position and velocity]": {
-      "elapsed_time": 1.3965907096862793,
-      "cumulative_time": 1.3965907096862793
+      "elapsed_time": 1.4026103019714355,
+      "cumulative_time": 1.4026103019714355
     },
     "[Initial energy]": {
-      "elapsed_time": 1.8011512756347656,
-      "cumulative_time": 3.197741985321045
+      "elapsed_time": 2.250990629196167,
+      "cumulative_time": 3.6536009311676025
     },
     "[Initial angular momentum]": {
-      "elapsed_time": 0.31520915031433105,
-      "cumulative_time": 3.512951135635376
+      "elapsed_time": 0.48618292808532715,
+      "cumulative_time": 4.13978385925293
     },
     "[Initial field strengths, misalignment angles and periods]": {
-      "elapsed_time": 0.07233786582946777,
-      "cumulative_time": 3.5852890014648438
+      "elapsed_time": 0.08641242980957031,
+      "cumulative_time": 4.2261962890625
     },
     "[Initial period derivatives]": {
-      "elapsed_time": 0.08633971214294434,
-      "cumulative_time": 3.671628713607788
+      "elapsed_time": 0.10024166107177734,
+      "cumulative_time": 4.326437950134277
     },
     "[Export]": {
-      "elapsed_time": 1.0348691940307617,
-      "cumulative_time": 4.70649790763855
+      "elapsed_time": 1.22963547706604,
+      "cumulative_time": 5.556073427200317
     }
   },
   "[DynamicalEvolution]": {
-    "time": 127.47580146789551,
+    "time": 142.219313621521,
     "[Dynamical evolution]": {
-      "elapsed_time": 127.45909905433655,
-      "cumulative_time": 127.45909905433655
+      "elapsed_time": 142.18902039527893,
+      "cumulative_time": 142.18902039527893
     },
     "[Final energy]": {
-      "elapsed_time": 0.014165401458740234,
-      "cumulative_time": 127.47326445579529
+      "elapsed_time": 0.02765679359436035,
+      "cumulative_time": 142.2166771888733
     },
     "[Final angular momentum]": {
-      "elapsed_time": 0.0021886825561523438,
-      "cumulative_time": 127.47545313835144
+      "elapsed_time": 0.002124309539794922,
+      "cumulative_time": 142.2188014984131
     }
   },
   "[MagnetoRotationalEvolution]": {
-    "time": 314.92701721191406,
+    "time": 318.01822805404663,
     "[Final field strengths, misalignment angles and periods]": {
-      "elapsed_time": 314.7500789165497,
-      "cumulative_time": 314.7500789165497
+      "elapsed_time": 317.90468406677246,
+      "cumulative_time": 317.90468406677246
     },
     "[Final period derivatives]": {
-      "elapsed_time": 0.17632246017456055,
-      "cumulative_time": 314.92640137672424
+      "elapsed_time": 0.11308169364929199,
+      "cumulative_time": 318.01776576042175
     }
   },
   "[RadioEmission]": {
-    "time": 0.1555488109588623,
+    "time": 0.1047205924987793,
     "[Radio emission]": {
-      "elapsed_time": 0.15492677688598633,
-      "cumulative_time": 0.15492677688598633
+      "elapsed_time": 0.10428380966186523,
+      "cumulative_time": 0.10428380966186523
     }
   },
   "[RadioDetection]": {
-    "time": 44.35896277427673,
+    "time": 41.94608688354492,
     "[Total sky coverage]": {
-      "elapsed_time": 0.0061304569244384766,
-      "cumulative_time": 0.0061304569244384766
+      "elapsed_time": 0.009675025939941406,
+      "cumulative_time": 0.009675025939941406
     },
     "[DM computation]": {
-      "elapsed_time": 44.2526376247406,
-      "cumulative_time": 44.25876808166504
+      "elapsed_time": 41.561194896698,
+      "cumulative_time": 41.57086992263794
     },
     "[Radio surveys detection]": {
-      "elapsed_time": 0.0994870662689209,
-      "cumulative_time": 44.35825514793396
+      "elapsed_time": 0.37384605407714844,
+      "cumulative_time": 41.94471597671509
     },
     "[Export]": {
-      "elapsed_time": 3.0148470401763916,
-      "cumulative_time": 47.373809814453125
+      "elapsed_time": 3.5974245071411133,
+      "cumulative_time": 45.543511390686035
     }
   }
 }

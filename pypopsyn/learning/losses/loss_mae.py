@@ -1,12 +1,10 @@
-""" mean absolute error loss.
+"""
+    Mean absolute error loss.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
-
-    Copyright (c) MAGNESIA (ICE-CSIC)
-
 """
 
 import torch
@@ -20,7 +18,7 @@ class LossMAE(LossBase):
 
     def __call__(self, output, target):
 
-        """ Computation of the MAE loss.
+        """Computation of the MAE loss.
 
         Args:
             output: Network output tensor (predictions).
@@ -37,6 +35,6 @@ class LossMAE(LossBase):
 
     def __str__(self):
 
-        """ String representation for the MAE loss. """
+        """String representation for the MAE loss."""
 
         return "MAE Loss"
