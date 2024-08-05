@@ -3,7 +3,8 @@
 
     This module creates a dataset of compressed representations for the output of
     simulated populations from the simulator `simulate_population_magrot_det.py`
-    with different initial parameters.
+    where the following initial parameters were modified:  B_initial_log10_mean`,
+    `B_initial_log10_sigma`, `P_initial_log10_mean`, `P_initial_log10_sigma`, `a_late`.
 
     These compressed representations will encode both the dynamical properties
     and the magneto-rotational properties of detected synthetic pulsars.

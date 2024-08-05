@@ -6,6 +6,7 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
         Vanessa Graber (graber@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import logging
@@ -15,7 +16,7 @@ import numpy as np
 
 import pypopsyn.generator.maps.maps2d_generator as mg
 
-# Initialize the multiple options we have to generate the different data
+# Initialize the various options we have to generate the different data
 # inputs which will be later selected at runtime depending on the arguments.
 ppdot_fluxes_map_generators = {
     "array": mg.generate_avg_fluxes_matrix,
@@ -42,12 +43,12 @@ def generate_ppdot_fluxes_map(
     y_limits: typing.Tuple[float, float] = (1e-21, 1e-9),
 ) -> None:
     """
-    This method generates a fluxes average ppdot map, the dimensions of the map
+    This method generate a flux-averaged ppdot map. The dimensions of the map
     can be chosen, the type (image or array) can also be decided, and the limits
     and resolution for it can be specified. As a result, a map with the specified
     filename and an extension determined by the chosen type is created as output.
 
-    The dictionary of fluxes ppdot maps for the dataset is also updated with the
+    The dictionary of flux ppdot maps for the dataset is also updated with the
     generated example.
 
     Args:
@@ -63,10 +64,6 @@ def generate_ppdot_fluxes_map(
         ppdot_fluxes_maps_dictionary (dict): dictionary of fluxes in the ppdot maps.
         x_limits (float, float): limits of the horizontal axis.
         y_limits (float, float): limits of the vertical axis.
-
-    Returns:
-        Nothing.
-
     """
 
     # Compose the final filename with the dataset path, the name for the map,

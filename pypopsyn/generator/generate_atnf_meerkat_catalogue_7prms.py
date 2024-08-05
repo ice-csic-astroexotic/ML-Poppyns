@@ -2,10 +2,12 @@
     Generator for the observed population.
 
     This module creates compressed representations for the observed population
-    in the ATNF Pulsar Catalogue using the fluxes of the Meerkat TPA program in Posselt, B. et al 2023.
+    in the ATNF Pulsar Catalogue using the fluxes of the Meerkat TPA program
+     in Posselt, B. et al 2023.
 
-    We selected the fluxes from the ch6flux column in Posselt, B. et al. (2023), corresponding to measurements at
-    1429 MHz. These fluxes are used in Figure 7 of the paper for comparison with those from the ATNF catalog.
+    We selected the fluxes from the ch6flux column in Posselt, B. et al. (2023),
+    corresponding to measurements at 1429 MHz. These fluxes are used in Figure 7
+    of the paper for comparison with those from the ATNF catalog.
 
     The user can choose to generate either a dataset of images or of 2D arrays.
 
@@ -76,7 +78,7 @@ def create_survey_maps(
             all the simulated surveys.
         dictionary_ppdot_map (dict): Dictionary containing the path to the P-Pdot maps for
             all the simulated surveys.
-        dictionary_ppdot_flux_map (dict): Dictionary containing the path to the averaged fluxes P-Pdot maps for
+        dictionary_ppdot_flux_map (dict): Dictionary containing the path to the averaged flux P-Pdot maps for
             all the simulated surveys.
         P (np.ndarray): Array of spin periods of the pulsars in [s].
         Pdot (np.ndarray): Array of spin period derivatives of the pulsars in [s/s].
@@ -197,7 +199,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         header=[0, 1],
     )
 
-    # Read the meerkat tpa pulsar program.
+    # Read in the pulsar data from the TPA program.
     df_meerkat = pd.read_csv(
         args.path_meerkat,
         delimiter=",",
@@ -268,6 +270,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
     DEC_pmps_obs = DEC_pmps_obs[cond]
     P_pmps_obs = P_pmps_obs[cond]
     Pdot_pmps_obs = Pdot_pmps_obs[cond]
+
+    # We convert the Jy to mJy to compare with simulations.
     S1400_pmps_meerkat = (
         df_meerkat_pmps["ch6flux"].to_numpy().astype(np.float64) / 1000
     )
@@ -304,7 +308,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
     P_smps_obs = P_smps_obs[cond]
     Pdot_smps_obs = Pdot_smps_obs[cond]
 
-    # We convert the Jy to mJy to compare with sim.
+    # We convert the Jy to mJy to compare with simulations.
     S1400_smps_meerkat = (
         df_meerkat_smps["ch6flux"].to_numpy().astype(np.float64) / 1000
     )
@@ -325,6 +329,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
     DEC_htru_obs = df_atnf_htru["DECJD"].to_numpy().astype(np.float64)
     P_htru_obs = df_atnf_htru["P0"].to_numpy().astype(np.float64)
     Pdot_htru_obs = df_atnf_htru["P1"].to_numpy().astype(np.float64)
+
+    # We convert the Jy to mJy to compare with simulations.
     S1400_htru_meerkat = (
         df_meerkat_htru["ch6flux"].to_numpy().astype(np.float64) / 1000
     )
@@ -454,7 +460,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default="data/observations/meerkat_tpa_posselt_2023.csv",
-        help="Path, with the name of the csv included, to where the ATNF Pulsar Catalogue is located.",
+        help="Path, with the name of the csv included, to where the Meerkat TPA program is located.",
     )
     parser.add_argument(
         "--save_dir",

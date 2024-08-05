@@ -6,6 +6,7 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
         Michele Ronchi (ronchi@ice.csic.es)
         Vanessa Graber (graber@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import typing
@@ -46,10 +47,6 @@ def generate_density_map(
         n_x_bins (int): number of horizontal bins for the density map.
         n_y_bins (int): number of vertical bins for the density map.
         colormap (str): colormap to use for the image.
-
-    Returns:
-        Nothing. An image is generated in the specified file path.
-
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(
@@ -125,10 +122,6 @@ def generate_avg_weight_map(
         n_x_bins (int): number of horizontal bins for the weight map.
         n_y_bins (int): number of vertical bins for the weight map.
         colormap (str): colormap to use for the image.
-
-    Returns:
-        Nothing. An image is generated in the specified file path.
-
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(
@@ -311,7 +304,7 @@ def generate_avg_fluxes_matrix(
     n_y_bins: int = 32,
 ) -> None:
     """
-    Average fluxes matrix generator.
+    Average log10 fluxes matrix generator.
 
     Creates a matrix of the average weight w of a distribution of points given their
     X/Y coordinates in a 2D space.
