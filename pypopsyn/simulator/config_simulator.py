@@ -200,10 +200,15 @@ cfg["B_millisec_sigma"] = 0.5
 # (see Johnston et al. 2020).
 cfg["r_em"]: float = 3.0e7
 
-# Mean and standard deviation for the log-normally distributed radio luminosity normalization factor
-# If this is used in the pdf_luminosity_radio, the units are [erg s^(3 * epsilon_L - 1) ]; otherwise, L_0 has units of
-# ergs/s. Parameters were adjusted to match observed data.
-cfg["L_radio_log10_mean"]: float = 35.5  # 26.6 [erg s^(- 1) ]
+# Mean and standard deviation for the log-normally distributed radio luminosity normalization factor.
+# We have implemented two different prescriptions for the luminosity: one following Faucher-Giguère & Kaspi (2006)
+# (pdf_luminosity_radio_ppdot), and another one that directly depends on the loss of rotational energy (pdf_luminosity_radio_edot).
+# If the luminosity is given by pdf_luminosity_radio_ppdot then the units of L_radio_log10_mean are [erg s^(3 * epsilon_L - 1)].
+# Otherwise, L_0 has units of [ergs/s]. Parameters were adjusted to match observed data.
+cfg[
+    "L_radio_log10_mean"
+]: float = 26.6  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
+# cfg["L_radio_log10_mean"]: float = 35.5 [erg s^(3 * epsilon_L - 1) ] if pdf_luminosity_radio_ppdot is used.
 cfg["L_radio_log10_sigma"]: float = 0.8
 cfg["epsilon_L"]: float = 0.5
 cfg["Erot_dot_0"]: float = 1e29
@@ -222,8 +227,8 @@ cfg["detected_real_SMPS"]: int = 218
 cfg["detected_real_htru_low_mid"]: int = 1023
 cfg["detected_real_htru_high"]: int = 20
 
-# This numbers comes from the generate_atnf_merkat_catalogue_7prms.py script looking at the length of the observed
-# meerkat sample per each survey using Posselt et al 2023 data.
+# Numbers of objects associated with the three pulsars surveys as followed up with the TPA programme on Meerkat. For details see Posselt et al. (2023).
+# Note these numbers are used in the generate_atnf_merkat_catalogue_7prms.py script and differ from those given in the full ATNF catalogue.
 cfg["detected_meerkat_PMPS"]: int = 638
 cfg["detected_meerkat_SMPS"]: int = 170
 cfg["detected_meerkat_HTRU"]: int = 657

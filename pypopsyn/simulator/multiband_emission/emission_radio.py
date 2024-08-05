@@ -137,7 +137,7 @@ def los_intercept(
     return intercepted
 
 
-def pdf_luminosity_radio(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
+def pdf_luminosity_radio_ppdot(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     """
     Draw random bolometric radio luminosities from a distribution that depends on the spin period
     and spin period derivative. We assume a random log-normal spread for the normalization constant L_0.
@@ -184,7 +184,7 @@ def pdf_luminosity_radio_edot(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
 
 def loss_rotational_energy(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     """
-    Compute the loss of the rotational energy given the period and period derivative (Lorimer and Kramer (2004) eq 3.5).
+    Compute the loss of the rotational energy given the period and period derivative (see, e.g., Equation (3.5) in Lorimer and Kramer, 2004).
 
     Args:
         P (np.ndarray): array of spin periods of the pulsars in [s].
@@ -329,6 +329,8 @@ def calculate_radio_emission(
     )
 
     # Determining the bolometric radio luminosity.
+    # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
+    # L_radio_bol = pdf_luminosity_radio_ppdot(P_det, P_dot_det)
     L_radio_bol = pdf_luminosity_radio_edot(P_det, P_dot_det)
 
     # Computing the intrinsic bolometric radio flux.
@@ -398,11 +400,10 @@ def calculate_radio_emission_full(
         L_radio_bol (np.ndarray): pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.
     """
 
-    # Determining the luminosity in different electromagnetic bands.
-    L_radio_bol = pdf_luminosity_radio(
-        P,
-        P_dot,
-    )
+    # Determining the bolometric radio luminosity.
+    # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
+    L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
+    # L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
 
     # Determining the radio beam angular aperture.
     rho_beam = beam_aperture(P, cfg["r_em"])

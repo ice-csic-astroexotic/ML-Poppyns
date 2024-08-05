@@ -176,7 +176,7 @@ def test_los_intercept(test_case_1):
     ).all()
 
 
-def test_pdf_luminosity_radio(monkeypatch, test_case_1):
+def test_pdf_luminosity_radio_ppdot(monkeypatch, test_case_1):
     """
     Verifying that the effective pulse width is computed correctly.
     """
@@ -187,7 +187,7 @@ def test_pdf_luminosity_radio(monkeypatch, test_case_1):
 
     monkeypatch.setattr(np.random, "normal", mock_log10_L_0)
 
-    L_radio_out = er.pdf_luminosity_radio(
+    L_radio_out = er.pdf_luminosity_radio_ppdot(
         np.array([test_case_1["P"]]),
         test_case_1["P_dot"],
     )
@@ -245,10 +245,12 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
 
     monkeypatch.setattr(rs, "random_from_pdf", mock_los_rand)
 
-    def mock_pdf_luminosity_radio(*args, **kwargs):
+    def mock_pdf_luminosity_radio_ppdot(*args, **kwargs):
         return test_case_2["dataset_dict"]["l_radio_bol"]
 
-    monkeypatch.setattr(er, "pdf_luminosity_radio", mock_pdf_luminosity_radio)
+    monkeypatch.setattr(
+        er, "pdf_luminosity_radio_ppdot", mock_pdf_luminosity_radio_ppdot
+    )
 
     emission_radio_dict_out = er.calculate_radio_emission(
         test_case_2["dataset_dict"]["P"],
@@ -283,10 +285,12 @@ def test_calculate_radio_emission_full(monkeypatch, test_case_2):
 
     monkeypatch.setattr(rs, "random_from_pdf", mock_los_rand)
 
-    def mock_pdf_luminosity_radio(*args, **kwargs):
+    def mock_pdf_luminosity_radio_ppdot(*args, **kwargs):
         return test_case_2["dataset_dict"]["l_radio_bol"]
 
-    monkeypatch.setattr(er, "pdf_luminosity_radio", mock_pdf_luminosity_radio)
+    monkeypatch.setattr(
+        er, "pdf_luminosity_radio_ppdot", mock_pdf_luminosity_radio_ppdot
+    )
 
     (
         intercepted_radio,

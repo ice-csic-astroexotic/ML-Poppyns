@@ -87,7 +87,7 @@ def generate_ppdot_fluxes_map(
         n_y_bins=y_resolution,
     )
 
-    # Save ppdot-fluxes map file names into the partial dataset dictionary.
+    # Save file names of ppdot-flux maps into the partial dataset dictionary.
     ppdot_fluxes_maps_dictionary.setdefault("input:" + map_name, []).append(
         ppdot_fluxes_map_filename
     )
