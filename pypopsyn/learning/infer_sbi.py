@@ -5,7 +5,7 @@
     It loads a density estimator trained to approximate the posterior distribution for a dataset of simulated data
     and checks its performance on a test dataset.
     Simulation-based Calibration is also performed to check if the posterior is well-behaved.
-    See https://www.mackelab.org/sbi/ for more details.
+    See [https://www.mackelab.org/sbi/](https://www.mackelab.org/sbi/) for more details.
 
      Display help message to run the code:
 

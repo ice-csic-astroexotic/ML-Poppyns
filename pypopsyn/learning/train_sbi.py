@@ -5,7 +5,8 @@
     It trains a density estimator to approximate the posterior distribution for a dataset of simulated data.
     Note that with this method we can evaluate the posterior for different simulated populations without
     having to re-train the model. This is called amortization. An amortized posterior is one that is not
-    focused on any particular observation. See https://www.mackelab.org/sbi/ for more details.
+    focused on any particular observation. See [https://www.mackelab.org/sbi/](https://www.mackelab.org/sbi/)
+    for more details.
 
     Display help message to run the code:
 

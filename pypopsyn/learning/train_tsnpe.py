@@ -1,15 +1,16 @@
 """
     Training script for truncated sequential neural posterior estimation following Deistler et al. (2022).
-    (https://arxiv.org/abs/2210.04815).
+    [https://arxiv.org/abs/2210.04815](https://arxiv.org/abs/2210.04815).
 
     This script implements the truncated sequential neural posterior estimator using the sbi package. It iteratively
     trains a density estimator for `num_rounds`, where each iteration involves generating training and testing datasets
     based on the previously approximated posterior distribution at the observed sample. This approach focuses on
     the region of the parameter space that matches the observed population to save computational resources.
 
-    To create the training and test datasets, we use either the `multiprocessing` or `Dask` (https://www.dask.org/)
-    package to run the simulations simultaneously in a multithreaded manner. To use Dask change the variable
-    `enable_dask` in the configuration file to True. Otherwise, change it to False to use multiprocessing.
+    To create the training and test datasets, we use either the `multiprocessing` or `Dask`
+    [https://www.dask.org/](https://www.dask.org/) package to run the simulations simultaneously in a multithreaded
+    manner. To use Dask change the variable `enable_dask` in the configuration file to True. Otherwise, change it to
+    False to use multiprocessing.
 
     Note that there is an option to resume training from a previous run. This allows for training over multiple rounds
     on a server. If the maximum wall time is reached or if any interruptions occur, the training can be resumed from
@@ -17,7 +18,7 @@
     file. It is also necessary to specify where the logs and models were saved in the first run and indicate the last
     completed round.
 
-    For further details, visit https://www.mackelab.org/sbi/.
+    For further details, visit [https://www.mackelab.org/sbi/](https://www.mackelab.org/sbi/).
 
     Display help message to run the code:
 

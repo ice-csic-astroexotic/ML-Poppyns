@@ -6,7 +6,7 @@
     deal with different training experiments. Note that the ensemble method in the sbi package has limitations
     on the types of experiments it can support (e.g., different input shapes).
     Simulation-based Calibration is also performed to check if the ensemble posterior is well behaved.
-    See https://www.mackelab.org/sbi/ for more details.
+    See [https://www.mackelab.org/sbi/](https://www.mackelab.org/sbi/) for more details.
 
     Display help message to run the code:
 
