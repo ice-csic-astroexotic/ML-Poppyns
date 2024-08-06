@@ -64,14 +64,14 @@ pre-commit install
 
 The steps with pre-commit are as follows: (i) modify code, (ii) stage changes with `git add`, (iii) running `git commit`
 will automatically execute the pre-commit framework. If the pre-commit checks are passed, the changes are commit. 
-If not files are modified and the steps (i) - (iii) have to be repeated. For more info see 
+If not files are modified and the steps (i) - (iii) have to be repeated. For more info see the 
 [pre-commit documentation](https://pre-commit.com/#intro>).
 
 
 ## Documentation
 
 The documentation for this project is held in `docs` and can be compiled into an HTML webpage by running `mkdocs serve`
-with the environment activated. The configuration file to set up the documentation with [mkdocs.org](https://www.mkdocs.org) is called `mkdocs.yml` and is located in the main repository folder.
+with the environment activated. The configuration file to set up the documentation with [Materials for MkDocs](https://squidfunk.github.io/mkdocs-material/) is called `mkdocs.yml` and is located in the main repository folder.
 
 
 ## Repository structure
