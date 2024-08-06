@@ -1,13 +1,17 @@
 # Telemetry
 
-**NOTE:** Commit 144046bfbdbb18ccd9ddcf468254671d1d88f360 (12/06/2024).
+!!! note
 
-This telemetry comes from the following setup:
+    Results were obtained with commit hash 144046bfbdbb18ccd9ddcf468254671d1d88f360 (12/06/2024).
+
+The following telemetry results have been obtained with the following computing setup:
 
 * Ubuntu 18.04.
 * Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz × 8.
 * 16 GiB RAM DDR4.
 * 1024 GiB.
+
+## Full simulation
 
 Timing profile for the `simulate_population_full.py` script with the default configuration in `config_simulator.py`.
 
@@ -40,8 +44,9 @@ Timing profile for the `simulate_population_full.py` script with the default con
 |                                                            |          |                   |
 | Total Time                                                 |          |  361.1944         |
 
-Timing profile for the `simulate_population_dyn.py` script with the default configuration in `config_simulator.py`.
+## Dynamical simulation
 
+Timing profile for the `simulate_population_dyn.py` script with the default configuration in `config_simulator.py`.
 
 | Context                         | Time [s]           | Cumulative [s]     |
 |---------------------------------|--------------------|--------------------|
@@ -59,14 +64,17 @@ Timing profile for the `simulate_population_dyn.py` script with the default conf
 | Total Time                      |                    | 130.5555           |
 
 
+## Magneto-rotational simulation
+
 Timing profile for the `simulate_population_magrot_det.py` script with the default configuration in `config_simulator.py`.
-Here, we report the average time and standard deviation over 7 loops for:
 
-- loading a dynamical database with a total of 300000 neutron stars and sampling these stars during the detection loop with a batch size of 100000.
-- performing the magneto-rotational evolution of the sampled stars and applying the detection filters.
+Here, we report the average time and standard deviation over seven loops when performing the
+magneto-rotational evolution of the sampled stars and applying the detection filters. We specifically load a 
+dynamical database with a total of 300,000 neutron stars and focus on sampling from these stars during the
+detection loop with a batch size of 100,000.
 
-Note that in the remaining couple of loops of the detection procedure, the time to perform these calculations is shorter due to the reduced batch size.
-We do not take into account these loops to compute the following timing statistics.
+Note that in the final loops of the detection procedure, the time to perform these calculations is shorter
+due to the reduced batch size. We do not take into account these loops to compute the following timing statistics.
 
 | Context                                  | Time [s]         |
 |------------------------------------------|------------------|
