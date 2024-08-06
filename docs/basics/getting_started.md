@@ -15,8 +15,12 @@ The code has been tested on Ubuntu and macOS.
    ```commandline
    conda env create -f environment.yaml
    ```
-   **NOTE:** for OSX users the `cudatoolkit` package has to be commented out in the environment file.  
-   This environment can be activated using
+
+    !!! note
+
+        For OSX users the `cudatoolkit` package has to be commented out in the environment file.
+   
+3. This environment can be activated using
    ```commandline
    conda activate pop_syn
    ```
