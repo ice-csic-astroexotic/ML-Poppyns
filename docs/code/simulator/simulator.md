@@ -1,4 +1,4 @@
-# Simulator modules
+# Basic simulator modules
 
 ::: pypopsyn.simulator.config_simulator
 

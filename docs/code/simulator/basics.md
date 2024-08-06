@@ -1,3 +1,3 @@
-# Basic simulation modules
+# Basics
 
 ::: pypopsyn.simulator.basics.constants
