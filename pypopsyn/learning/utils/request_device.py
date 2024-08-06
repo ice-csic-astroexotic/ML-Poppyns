@@ -18,7 +18,7 @@ def request_device(
     """
     Selects the requested devices for training/testing.
 
-    Args
+    Args:
         logger (Logger): A logger to log information to.
         num_gpu (int): Number of GPUs requested.
 
@@ -26,7 +26,6 @@ def request_device(
         (Tuple[torch.device, list]): A tuple containing the kind of device the pipeline can run on and
             a list of devices if available. If no GPUs are available or zero are requested, the returned device
             is CPU.
-
     """
 
     num_available_gpus = torch.cuda.device_count()

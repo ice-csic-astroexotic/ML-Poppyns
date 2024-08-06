@@ -18,9 +18,8 @@ def read_json(filename: str) -> dict:
     Args:
         filename (str): File path to the JSON file.
 
-    returns:
+    Returns:
         (dict): A dictionary containing the JSON information.
-
     """
 
     json_filename = pathlib.Path(filename)

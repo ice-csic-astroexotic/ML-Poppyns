@@ -93,7 +93,6 @@ class MetricTracker:
 
         Returns:
             (float): The average of that metric.
-
         """
 
         return self._data.average[key]
