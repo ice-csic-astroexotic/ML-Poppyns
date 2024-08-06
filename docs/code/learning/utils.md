@@ -1,4 +1,4 @@
-# Learning tilities
+# Learning utilities
 
 ::: pypopsyn.learning.utils.benchmark
 
