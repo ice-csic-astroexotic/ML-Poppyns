@@ -16,15 +16,14 @@ from .model_base import ModelBase
 
 
 class ModelConvSBI(ModelBase):
-
     """A convolutional neural network model with 2 convolutional filters."""
 
     def __init__(
         self, input_shape: np.array, len_output_layer: int = 1
     ) -> None:
-
         """
         CNN model initialization.
+
         This CNN automatically adapts to the shape of the initial input features.
 
         Args:

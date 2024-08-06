@@ -28,7 +28,6 @@ class ModelLinear(ModelBase):
         Args:
             input_shape (np.array): Shape of the input batch (C x H x W).
             num_parameters (int): Number of parameters to predict.
-
         """
 
         super().__init__()
@@ -45,7 +44,6 @@ class ModelLinear(ModelBase):
 
         Returns:
             (torch.Tensor): Output tensor of the network after forwarding all layers.
-
         """
 
         x = x.view(x.shape[0], -1)
