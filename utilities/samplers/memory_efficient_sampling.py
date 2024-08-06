@@ -31,7 +31,6 @@ def choose_rows(
     total_number_of_rows: int,
     previously_chosen_rows: Optional[List[int]] = None,
 ) -> List[int]:
-
     """
     Choose a subset of random indices from all the indices of a dataframe.
 
@@ -68,7 +67,6 @@ def select(
     size_full_dataset: int,
     previously_chosen_rows: Optional[List[int]] = None,
 ) -> pd.DataFrame:
-
     """
     Select a random subset from a dataset without loading the full file into memory.
     The following implementation only works when the full dataset has two headers as our `final_pop_dyn.csv`, it won't
@@ -82,7 +80,6 @@ def select(
 
     Returns:
         (Dataframe): Dataframe of the random subset.
-
     """
 
     selected_rows = choose_rows(
