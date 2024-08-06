@@ -8,8 +8,6 @@
         Vanessa Graber (graber@ice.csic.es)
 """
 
-import typing
-
 import numpy as np
 import torch
 import torch.nn as nn
