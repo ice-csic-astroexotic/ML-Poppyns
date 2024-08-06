@@ -10,7 +10,6 @@ import typing
 
 import numpy as np
 import torch
-from torchvision.utils import make_grid
 
 import pypopsyn.learning.utils as learning_utils
 import pypopsyn.learning.utils.metric_tracker
@@ -27,7 +26,6 @@ class TrainerBasic(BaseTrainer):
     customize every single step of the pipeline (model to use, criterion to
     optimize, metrics to compute, optimizer to update the weights, and loaders
     from which data and targets can be fetched).
-
     """
 
     def __init__(
@@ -163,7 +161,7 @@ class TrainerBasic(BaseTrainer):
             # Update tracked general loss and output to TensorBoard.
             self.train_metrics.update("loss", loss.item())
 
-            # Only backpropagate on total loss not on invidiual ones.
+            # Only backpropagate on total loss not on individual ones.
             loss.backward()
             self.optimizer.step()
 
@@ -201,7 +199,7 @@ class TrainerBasic(BaseTrainer):
         # results for each tracked metrics: usually the average loss and any
         # other specified accuracy metrics.
         log = self.train_metrics.result()
-        # Pack the individual losses separatedly.
+        # Pack the individual losses separately.
         losses = dict(
             filter(
                 lambda e: e[0] in self.train_loader.target_names, log.items()
@@ -216,7 +214,7 @@ class TrainerBasic(BaseTrainer):
         val_log = None
         if self.validate:
             val_log = self._valid_epoch(epoch)
-            # Pack the individual losses separatedly.
+            # Pack the individual losses separately.
             losses = dict(
                 filter(
                     lambda e: e[0] in self.val_loader.target_names,

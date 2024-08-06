@@ -26,7 +26,6 @@ from pypopsyn.learning.utils.request_device import request_device
 class BaseTrainer:
     """
     Base trainer.
-
     """
 
     def __init__(
@@ -123,7 +122,6 @@ class BaseTrainer:
         raise NotImplementedError
 
     def train(self, trial: int = None) -> typing.Tuple[dict, float]:
-
         """
         Main training procedure.
 
