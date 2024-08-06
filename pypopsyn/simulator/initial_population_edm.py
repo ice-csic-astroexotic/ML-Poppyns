@@ -1,7 +1,7 @@
 """
     Generating an initial population of neutron stars in the Milky Way with
     random parameters. For the initial positions, we assume that the distribution
-    of progenitors follows the free electron density model ymw16 from Yao et al. (2016).
+    of progenitors follows the free electron density model ymw16 from Yao et al. (2017).
 
     Authors:
 
@@ -78,7 +78,7 @@ class InitialNeutronStarPopulation:
         """
         Calculating the position at birth of each random neutron star in
         cylindrical reference frame according to the Galactic electron density
-        distribution ymw16 (see Yao et al. 2016).
+        distribution ymw16 (see Yao et al. 2017).
         Using the notebook ns_distribution_ne_model.ipynb we create a 2D numpy array containing the
         electron density distribution in polar coordinates (r, phi).
         This 2D array is used to sample the neutron star positions in the Galaxy.

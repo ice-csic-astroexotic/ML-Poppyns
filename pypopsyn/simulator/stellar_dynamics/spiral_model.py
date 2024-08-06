@@ -8,7 +8,7 @@
     Wainscoat et al. (1992).
 
     2) saYMW17: A galactic spiral structure according to eq. (12) of Faucher-Giguère & Kaspi (2006)
-    but with parameters re-adapted from Yau & Manchester (2017). Their model consists of four arms
+    but with parameters re-adapted from Yao et al. (2017). Their model consists of four arms
     plus a Local arm from Hou et al. (2014).
 
     Authors:
@@ -31,7 +31,7 @@ def initialize_spiral_model() -> None:
     Initializing the spiral model employed in the simulation. We have implemented two
     versions, i.e., the spiral structure of Faucher-Giguère & Kaspi (2006) (with
     the addition of the Local arm from Wainscoat et al. (1992)) and the spiral model from
-    Yau & Manchester (2017). The spiral_model variable is made available on a global level.
+    Yao et al. (2017). The spiral_model variable is made available on a global level.
     """
     global spiral_model
 
