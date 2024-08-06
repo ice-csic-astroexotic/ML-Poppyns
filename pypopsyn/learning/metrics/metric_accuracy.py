@@ -25,8 +25,7 @@ class MetricAccuracy(MetricBase):
 
         Returns:
             (torch.Tensor): Percentage / 100 of accurate or correct outputs (predictions that
-            match the labels or ground truth).
-
+                match the labels or ground truth).
         """
 
         with torch.no_grad():
@@ -51,12 +50,14 @@ class MetricAccuracy(MetricBase):
     def initial_value(self) -> float:
         """
         Starting value for the metric to start optimization.
+
+        Returns:
+            (float): Metric starting value set to minus infinity.
         """
 
         return -np.inf
 
     def improved(self, value_a: torch.Tensor, value_b: torch.Tensor) -> bool:
-
         """
         Check if a metric value is better than other.
 
