@@ -175,14 +175,14 @@ class SpiralModelFK06(SpiralModelBase):
 
 class SpiralModelYMW17(SpiralModelBase):
     """
-    Spiral structure of Yau & Manchester (2017), see also Hou et al. (2014).
-    Spiral arm parameters from table 1 in Yau & Manchester (2016) assuming a Sun
+    Spiral structure of Yao et al. (2017), see also Hou et al. (2014).
+    Spiral arm parameters from table 1 in Yao et al. (2017) assuming a Sun
     galactocentric distance R_sun = 8.3 kpc. The Local arm has a radial extension
     ~ 1.05 rad in the range [0.87, 1.92] rad (see Hou et al. 2014).
     """
 
     def __init__(self):
-        # Parameters of the model, values from Table 1 in Yau & Manchester (2017) re-adapted
+        # Parameters of the model, values from Table 1 in Yao et al. (2017) re-adapted
         # to match the same logarithmic functional form used in Faucher-Giguère & Kaspi (2006).
         # Respectively winding constant k [rad], the inner radius r0 [kpc] and the inner angle
         # phi0 [rad].
