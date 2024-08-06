@@ -30,7 +30,7 @@ class TensorboardWriter:
         timer: A datetime object to track the time between steps.
     """
 
-    def __init__(self, log_dir: str, logger: Logger, enabled: bool):
+    def __init__(self, log_dir: str, logger: Logger, enabled: bool) -> None:
         """
         Initializes the TensorboardWriter with the specified log directory, logger, and enable flag.
 
