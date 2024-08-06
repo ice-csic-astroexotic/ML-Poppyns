@@ -11,7 +11,6 @@
 
 import cProfile
 import io
-import os
 import pathlib
 import pstats
 import typing

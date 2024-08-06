@@ -9,10 +9,7 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
-import io
-import os
 import pathlib
-import pstats
 import typing
 
 import pyinstrument
