@@ -82,6 +82,7 @@ markdown_extensions:
   # Extension for rendering of mathematical expressions.
   - pymdownx.arithmatex
   - mdx_math
+  - admonition
 
 extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML
