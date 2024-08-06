@@ -20,22 +20,23 @@ The code has been tested on Ubuntu and macOS.
 
         For macOS users the `cudatoolkit` package has to be commented out in the environment file.
         Otherwise the environment will not be resolved.
+
+    To set up the environment on the PIC servers, we specify the full path where the environment will be saved:
+    ```commandline
+    conda env create --prefix /data/magnesia/scratch/conda/env/pop_syn --file  /data/magnesia/software/MAGNESIA_population_synthesis/environment.yaml
+    ```
    
-3. This environment can be activated using
+3. On your local machine, the environment can be activated using 
    ```commandline
    conda activate pop_syn
    ```
-   To set up the environment on the PIC servers, we specify the full path where the environment will be saved:
-   ```commandline
-   conda env create --prefix /data/magnesia/scratch/conda/env/pop_syn --file /data/magnesia/software/MAGNESIA_population_synthesis/environment.yaml
-   ```
-   In this case, the environment can be activated using
+   On the PIC, the environment can be activated using
    ```commandline
    conda activate /data/magnesia/scratch/conda/env/pop_syn
    ```
    We recommend working within this environment when using the code.
 
-3. To install the `pypopsyn` package locally and work with the code, navigate to the cloned software repository and run
+3. To install the `pypopsyn` package locally and use the code, navigate to the cloned software repository and run
    ```commandline
    python setup.py develop
    ```
@@ -47,7 +48,7 @@ The code has been tested on Ubuntu and macOS.
    `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively.
 
 5. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will
-   need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/>) library after activating the
+   need to install the [Simulation Based Inference (sbi)](https://sbi-dev.github.io/sbi/>) library after activating the
    environment by running:
    ```commandline
    pip install sbi==0.22.0
