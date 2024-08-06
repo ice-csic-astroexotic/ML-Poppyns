@@ -21,6 +21,7 @@ theme:
   features:
     # Add navigation buttons at the top.
     - navigation.tabs
+    - content.code.copy
 # Adding link to github repo.
 repo_url: https://github.com/csic-ice-magnesia/MAGNESIA_population_synthesis
 repo_name: MAGNESIA/population-synthesis
