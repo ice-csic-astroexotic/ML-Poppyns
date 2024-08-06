@@ -2,8 +2,8 @@
 
 ## Code setup
 
-These instructions will provide you with a copy of the project and help you to get it up and running on your local machine.
-For this you need conda to be installed on your machine.
+These instructions will provide you with a copy of the project and help you to get it up and running on your local 
+machine. For this you need `conda` to be installed on your machine.
 The code has been tested on Ubuntu and macOS.
 
 1. First, you need to clone the repository on your computer. To get the files from our GitHub repository, run
