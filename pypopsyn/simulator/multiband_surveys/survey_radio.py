@@ -3,9 +3,9 @@
 
     We consider the following surveys:
 
-    1) PMPS: the Parks Multibeam Pulsar Survey (see Manchester et al. 2001, Lorimer et al. 2006)
-    2) SMPS: the Swinburne Parkes Multibeam Pulsar Survey (see Edwards et al. 2001, Jacoby et al. 2009)
-    3) HTRU: the High Time Resolution Universe Survey (see Keith et al. 2018)
+    1. PMPS: the Parks Multibeam Pulsar Survey (see Manchester et al. 2001, Lorimer et al. 2006)
+    2. SMPS: the Swinburne Parkes Multibeam Pulsar Survey (see Edwards et al. 2001, Jacoby et al. 2009)
+    3. HTRU: the High Time Resolution Universe Survey (see Keith et al. 2018)
 
     Authors:
 
