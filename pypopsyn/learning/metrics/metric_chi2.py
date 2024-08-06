@@ -7,11 +7,8 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
-import typing
-
 import numpy as np
 import torch
-import torch.nn as nn
 
 from .metric_base import MetricBase
 
@@ -20,7 +17,7 @@ class MetricAccuracyCHI2(MetricBase):
     def __call__(self, output: torch.Tensor, target: torch.Tensor) -> float:
         """
         Computation of the accuracy metric defined as the reduced chi square value.
-        The value of the reduced chi square should be near 1 for a best accuracy.
+        The value of the reduced chi square should be near 1 for best accuracy.
 
         Args:
             output (torch.Tensor): Network output tensor (predictions).
@@ -60,7 +57,7 @@ class MetricAccuracyCHI2(MetricBase):
 
     def improved(self, value_a: torch.Tensor, value_b: torch.Tensor) -> bool:
         """
-        Check if a metric value is better than other.
+        Check if a metric value is better than the other.
 
         Args:
             value_a (torch.Tensor): First value to compare (current value).
