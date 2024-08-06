@@ -71,7 +71,6 @@ class TimeWith:
             (Tuple[float, float]): tuple that contains the cumulative time since the
                 start of the context and this call and the total time spent just on
                 that time window in seconds.
-
         """
 
         current = time.time()
@@ -148,8 +147,8 @@ class TimeWith:
 
         Args:
             type (Optional[Type[BaseException]]): The exception type if an exception occurred, else None.
-            value (Optional[BaseException]]): The exception instance if an exception occurred, else None.
-            traceback (Optional[BaseException]]): The traceback object if an exception occurred, else None.
+            value (Optional[BaseException]): The exception instance if an exception occurred, else None.
+            traceback (Optional[BaseException]): The traceback object if an exception occurred, else None.
         """
 
         cumulative, _ = self.elapsed()
