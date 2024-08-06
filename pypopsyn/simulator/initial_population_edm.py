@@ -1,7 +1,7 @@
 """
     Generating an initial population of neutron stars in the Milky Way with
     random parameters. For the initial positions, we assume that the distribution
-    of progenitors follows the free electron density model ymw16 from Ya0 et al. (2016).
+    of progenitors follows the free electron density model ymw16 from Yao et al. (2016).
 
     Authors:
 
