@@ -8,7 +8,6 @@
 
 import abc
 import enum
-import typing
 
 import numpy as np
 import torch

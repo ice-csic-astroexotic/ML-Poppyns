@@ -6,8 +6,6 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
-import typing
-
 import numpy as np
 import torch
 
