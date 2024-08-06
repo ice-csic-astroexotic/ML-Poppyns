@@ -1,4 +1,4 @@
-# Neural network architectures
+# Models
 
 ::: pypopsyn.learning.models.model_base
 
