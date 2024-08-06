@@ -18,7 +18,8 @@ The code has been tested on Ubuntu and macOS.
 
     !!! note
 
-        For OSX users the `cudatoolkit` package has to be commented out in the environment file.
+        For macOS users the `cudatoolkit` package has to be commented out in the environment file.
+        Otherwise the environment will not be resolved.
    
 3. This environment can be activated using
    ```commandline
