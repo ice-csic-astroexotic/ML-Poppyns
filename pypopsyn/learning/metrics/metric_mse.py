@@ -17,7 +17,6 @@ from .metric_base import MetricBase
 
 class MetricAccuracyMSE(MetricBase):
     def __call__(self, output: torch.Tensor, target: torch.Tensor) -> float:
-
         """
         Computation of the metric defined as mean square error.
         The value of the MSE should be 0 for the best accuracy.
@@ -38,7 +37,6 @@ class MetricAccuracyMSE(MetricBase):
         return mse
 
     def __str__(self) -> str:
-
         """
         String representation for the accuracy metric.
 
@@ -59,7 +57,6 @@ class MetricAccuracyMSE(MetricBase):
         return np.inf
 
     def improved(self, value_a: torch.Tensor, value_b: torch.Tensor) -> bool:
-
         """
         Check if a metric value is better than other.
 

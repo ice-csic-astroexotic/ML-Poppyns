@@ -17,7 +17,6 @@ from .metric_base import MetricBase
 
 class MetricAccuracyRMSE(MetricBase):
     def __call__(self, output: torch.Tensor, target: torch.Tensor) -> float:
-
         """
         Computation of the metric defined as root mean squared error.
         The value of the RMSE should be 0 for the best accuracy.
