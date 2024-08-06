@@ -229,9 +229,9 @@ cfg["detected_real_htru_high"]: int = 20
 
 # Numbers of objects associated with the three pulsars surveys as followed up with the TPA programme on Meerkat. For details see Posselt et al. (2023).
 # Note these numbers are used in the generate_atnf_merkat_catalogue_7prms.py script and differ from those given in the full ATNF catalogue.
-cfg["detected_meerkat_PMPS"]: int = 638
-cfg["detected_meerkat_SMPS"]: int = 170
-cfg["detected_meerkat_HTRU"]: int = 657
+cfg["detected_meerkat_PMPS"]: int = 618
+cfg["detected_meerkat_SMPS"]: int = 160
+cfg["detected_meerkat_HTRU"]: int = 667
 
 
 def update_configuration(new_configuration) -> None:
