@@ -21,7 +21,6 @@ class LossMAE(LossBase):
     def __call__(
         self, output: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
-
         """
         Computation of the MAE loss.
 
@@ -31,7 +30,6 @@ class LossMAE(LossBase):
 
         Returns:
             (torch.Tensor): Tensor with a MAE loss value for each input pair output-target.
-
         """
         self.mae = nn.L1Loss()
 

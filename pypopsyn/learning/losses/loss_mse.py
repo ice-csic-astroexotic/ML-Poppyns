@@ -21,7 +21,6 @@ class LossMSE(LossBase):
     def __call__(
         self, output: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
-
         """
         Computation of the MSE loss.
 
@@ -31,7 +30,6 @@ class LossMSE(LossBase):
 
         Returns:
             (torch.Tensor): Tensor with a MSE loss value for each input pair output-target.
-
         """
         self.mse = nn.MSELoss()
 
