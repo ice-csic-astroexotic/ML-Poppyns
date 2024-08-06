@@ -65,7 +65,7 @@ pre-commit install
 The steps with pre-commit are as follows: (i) modify code, (ii) stage changes with `git add`, (iii) running `git commit`
 will automatically execute the pre-commit framework. If the pre-commit checks are passed, the changes are commit. 
 If not files are modified and the steps (i) - (iii) have to be repeated. For more info see 
-[pre-commit documentation](https://pre-commit.com/#intro>) or [this Medium post](https://medium.com/staqu-dev-logs/keeping-python-code-clean-with-pre-commit-hooks-black-flake8-and-isort-cac8b01e0ea1>).
+[pre-commit documentation](https://pre-commit.com/#intro>).
 
 
 ## Documentation
