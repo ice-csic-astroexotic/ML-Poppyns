@@ -1,15 +1,15 @@
 # Logging
 
-For logging information to both console and file outputs we make use of Python's built-in `logging` module.
+To log information to both console and file outputs, we make use of Python's built-in `logging` module.
 
-In each module where the logger needs to be used, you must first import the logging module and get it using the `getLogger` function:
+In each module where the logger is used, we first import the logging module and get it using the `getLogger` function:
 ```commandline
 import logging
 [...]
 log = logging.getLogger(__name__)
 ```
 
-Then you can issue logging messages at the appropriate level:
+Then, we issue logging messages at the appropriate level as follows:
 ```commandline
 log.debug("add debug info")
 log.info("add info")
@@ -17,7 +17,8 @@ log.warning("add warning message")
 log.error("add error log message")
 ```
 
-As an example, if we run the script to simulate a population of 100 neutron stars using the standard configuration file, the following logging information is shown:
+As an example, if we run the script to simulate a population of 100 neutron stars using the standard configuration 
+file, the following logging information is shown:
 ```commandline
 (pop_syn) michele@michele-XPS-13-7390:~/Documents/Magnesia-PhD/MAGNESIA_population_synthesis$ python pypopsyn/simulator/simulate_population_full.py
 INFO:__main__:Seed: 1716554090
@@ -80,7 +81,9 @@ INFO:__main__:Output of the HTRU low and mid-latitude surveys generated in /home
 <prof>[TotalSimulation] finished took 2.2832 [s]
 ```
 
-If the `show_profiling` option in the `pyposyn/simulator/config_simulator.py` file is set to `True`, the timing profile for each section of the simulator is also shown in the terminal.
-In genera, the timing information is saved as a `profile.log` file in the same folder where the output of the simulation is saved.
+If the `show_profiling` option in the `pyposyn/simulator/config_simulator.py` file is set to `True`, the timing profile
+for each section of the simulator is also shown in the terminal. In addition to the terminal output, the timing 
+information is saved as a `profile.log` file in the same folder in which the output of the simulation is saved.
 Function-specific profiling can also be activated by setting `enable_profiles` and / or `show_profiles` to `True`.
-The detailed information will be saved in the folder specified under `profiles_dir`.
+The detailed information will be saved in the location specified under the flag `profiles_dir` in the configuration 
+file.
