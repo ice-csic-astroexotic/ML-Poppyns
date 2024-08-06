@@ -771,6 +771,7 @@ def sulfur(energy: np.ndarray) -> np.ndarray:
 
     Args:
         energy (np.ndarray): array of energies of the incoming photons in eV.
+
     Returns:
         mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
     """
@@ -824,7 +825,7 @@ def absorption_cross_section_tot(
 
     Returns:
         effective cross section (np.ndarray): effective cross section as a function of the energy
-        in cm^2/(eV hydrogen atom).
+            in cm^2/(eV hydrogen atom).
     """
 
     # Mass absorption cross sections for each element.
@@ -875,7 +876,7 @@ def absorption_cross_section_approx(energy: np.ndarray) -> np.ndarray:
 
     Returns:
         effective cross section (np.ndarray): effective cross section as a function of the energy
-        in cm^2/(eV hydrogen atom).
+            in cm^2/(eV hydrogen atom).
     """
 
     # Energy intervals in keV.
