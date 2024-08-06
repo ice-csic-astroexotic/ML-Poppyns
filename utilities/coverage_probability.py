@@ -1,4 +1,4 @@
-""""
+"""
     Computing the coverage probability.
 
     This module computes the coverage probability given the minimum highest density region for each of the test samples.
