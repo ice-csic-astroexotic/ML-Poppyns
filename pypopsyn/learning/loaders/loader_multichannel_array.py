@@ -66,7 +66,7 @@ class DatasetMultichannelArray:
         self.target_max = np.max(targets, axis=0)
         self.target_min = np.min(targets, axis=0)
 
-    def __fetch_target_names(self):
+    def __fetch_target_names(self) -> None:
         """
         Fetch the names of the targets/labels from the dataset file.
         """
