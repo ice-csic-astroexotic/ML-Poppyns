@@ -6,6 +6,8 @@
         Michele Ronchi (ronchi@ice.csic.es)
 """
 
+from typing import Tuple
+
 import numpy as np
 import scipy.special as scsp
 from scipy.integrate import trapz
@@ -242,7 +244,7 @@ def flux_xray_absorbed(
     RA: np.ndarray,
     DEC: np.ndarray,
     d: np.ndarray,
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compute the x-ray flux density assuming a black-body spectral shape for the thermal x-ray emission.
 
@@ -254,7 +256,7 @@ def flux_xray_absorbed(
         d (np.ndarray): array of distances in kpc.
 
     Returns:
-        (np.ndarray): absorbed x-ray fluxes in [erg s^-1 cm^-2].
+        (Tuple[np.ndarray, np.ndarray]): absorbed x-ray fluxes in [erg s^-1 cm^-2].
     """
     T_obs = T_from_Lx(Lx)
 
@@ -264,7 +266,7 @@ def flux_xray_absorbed(
 
     # Define the energy range between 0.01 keV and 20 keV (a larger energy range than the one where the absorption
     # cross-section is defined, is required in order to have a good approximation of the RCS spectrum).
-    E = np.logspace(1.0, np.log10(20000), 1000)
+    E = np.logspace(1.0, np.log10(20000), 200)
     I_bb = blackbody_intensity_spectrum(E, T_obs)
     # Compute the intensity in [ph cm^-2 s^-1 eV^-1 sterad^-1].
     I_ph_bb = I_bb / (E * const.EV_TO_ERG)
@@ -276,7 +278,7 @@ def flux_xray_absorbed(
 
     # Compute the RCS spectrum and convert it in [erg cm^-2 s^-1 eV^-1 sterad^-1].
     I_rcs = resonant_cyclotron_scat_spectrum(
-        E, E, tau_0, beta_T, I_ph_bb, n_reflections=6
+        E, E, tau_0, beta_T, I_ph_bb, n_reflections=4
     ) * (E * const.EV_TO_ERG)
 
     # Estimate the N_H column density.
@@ -296,4 +298,4 @@ def flux_xray_absorbed(
     I_absorbed_bolom = trapz(I_absorbed[:, E_mask], E[E_mask], axis=1)
     flux = (R_obs / d) ** 2 * np.pi * I_absorbed_bolom
 
-    return flux
+    return flux, N_H
