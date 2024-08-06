@@ -83,6 +83,8 @@ markdown_extensions:
   - pymdownx.arithmatex
   - mdx_math
   - admonition
+  - pymdownx.details
+  - pymdownx.superfences
 
 extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML
