@@ -33,7 +33,7 @@ def measure(
         output_dummy (torch.tensor): dummy tensor for output purposes.
 
     Returns:
-        (float, float): A tuple that contains the time spent in the forward pass
+        (Tuple[float, float]): A tuple that contains the time spent in the forward pass
             and the runtime of the backward pass, both in seconds.
     """
 
