@@ -82,6 +82,7 @@ def simulate_population(args) -> None:
     if os.path.exists(prof_log_path):
         os.remove(prof_log_path)
 
+    # Update the paths to profile.json and profile.log files in the configuration file.
     cfg["profile_json"] = str(prof_json_path)
     cfg["profile_log"] = str(prof_log_path)
 
@@ -342,6 +343,7 @@ def simulate_population(args) -> None:
             "S_x_obs": [],
         }
 
+        # Load the interpolator function to evaluate the x-ray luminosity.
         interpolator_Lx_path = pathlib.Path().joinpath(
             cfg["path_to_software"],
             "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/interpolator_Lx.pkl",
@@ -382,7 +384,7 @@ def simulate_population(args) -> None:
                     n_detected_sim_HTRU_high
                 ) / n_detected_real_HTRU_high
 
-                # If the percentage of both surveys is over 90% reduce the batch size.
+                # If the percentage of all surveys is over 90% reduce the batch size.
                 if (
                     (percentage_detected_PMPS > 0.9)
                     & (percentage_detected_SMPS > 0.9)
