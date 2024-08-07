@@ -51,9 +51,8 @@ The main commands when using HTCondor are the following:
 
 ### SSH sessions
 
-Using the JupyterHub online interface at [https://jupyter.pic.es/](https://jupyter.pic.es/) we are able to execute and 
-read files in the `/data/magnesia/software` folder. However, to have writing access to this directory we need to log in 
-via SSH. To do so, type the following command in a terminal:
+You can access PIC either via local terminal with SSH or via the JupyterHub interface at [https://jupyter.pic.es/](https://jupyter.pic.es/). 
+To log in via SSH, type the following command in a terminal:
 ```commandline
 ssh user@ui.pic.es
 ```
@@ -86,7 +85,7 @@ To establish GitHub access to the repository for the first time follow these ste
 
 In order to submit jobs with HTCondor, we need two different scripts: an HTCondor submit file and a wrapper (see below). 
 The former is the file needed to submit a job with HTCondor, while the latter takes care of executing python relevant 
-commands as well as running our python scripts. Relevant example scripts outlined in the following are saved in `/data/magnesia/common/test_htcondor`.
+commands as well as running our python scripts. 
 
 The HTCondor submit file looks as follows:
 
@@ -99,14 +98,11 @@ universe        = vanilla
 # Executable is the program your job will run.
 executable      = wrapper.sh
 
-# Location of error and output channels from your job
+# Location of standard output, standard error, and log files
 # that HTCondor returns from the remote host.
 output          = OUTPUT/hello.out.$(Cluster).$(Process).txt
 error           = OUTPUT/hello.error.$(Cluster).$(Process).txt
 log             = OUTPUT/hello.log.$(Cluster).$(Process).txt
-
-+WN_property="alma9"
-+SingularityImage = "/opt/apptainer-images/pic-centos7.sif"
 
 queue
 ```
@@ -133,15 +129,6 @@ folder as the submit file with the name `test.txt`.
 
 In the example above, `$(Cluster)` represents the cluster identifier and `$(Process)` the process identifier. 
 We use the cluster ID and process ID to differentiate between different runs and jobs. `Queue` is the start "button".
-
-Note that files saved in the scratch directory are removed after the execution. To transfer these files to a directory, 
-we need to specify this in the submit file. For example, if the output file is called `output1.txt` and we want to 
-keep that file, we need to add the following line to the submit file:
-```commandline
-transfer_output_files = output1.txt
-```
-
-Then `output1.txt` will be saved in the same directory as the submit file.
 
 ### Wrappers
 
@@ -243,13 +230,11 @@ Connection to condor-job.td820.pic.es closed.
 
 ### Running different jobs in parallel
 
-To take advantage of HTCondor, we show here how to submit and process multiple jobs in parallel. There is a specific 
-way to do this with HTCondor using the `parameter` argument in the .submit file. For example, if we want to run our 
-script `simulate_population_dyn.py` with two different values of `h_c` (in this example `h_c = 1.7` and `1.9`), we can 
-use the following three approaches:
+  To take advantage of HTCondor, we show how to submit and process multiple jobs in parallel. HTCondor allows 
+  you to do this using the arguments `parameter` in the `.submit` file. For instance, if we want to run our script 
+  `simulate_population_dyn.py` with two different values of `h_c` (e.g., `h_c = 1.7` and `1.9`), we can pass these values via JSON files.
 
-* We create two different json files (let us call them `test1.json` and `test2.json`) with the values of `h_c`.
-   `test1.json` would look like this:
+  First, we create two different JSON files, test1.json and test2.json, containing the respective values of h_c:
   ```commandline
   (base) [cpardoar@gpu05 ~]$  cat test1.json
   {"h_c":1.7}
@@ -309,23 +294,28 @@ submit file:
         It is important to open the bracket after `from` and jump to the next line and start the list of arguments in
         a new row. The last line should just contain the closed bracket.
 
-* We can also use a text file to pass the arguments. The submit file then reads
-      ```commandline
-      (base) [cpardoar@gpu05 ~]$ test_argument_txt.submit
-      universe        = vanilla
-      executable      = wrapper.sh
-      output          = OUTPUT_2/hello.out.$(Cluster).$(Process).txt
-      error           = OUTPUT_2/hello.error.$(Cluster).$(Process).txt
-      log             = OUTPUT_2/hello.log.$(Cluster).$(Process).txt
-      Queue arguments from arguments.txt
-      ```
-      where the `arguments.txt` file looks like this:
-      ```commandline
-      (base) [cpardoar@ui03 test_htcondor]$ cat arguments.txt
-      /data/magnesia/common/test_htcondor/OUTPUT_args_txt/output_repo_test1 /nfs/pic.es/user/c/cpardoar/test1.json
-      /data/magnesia/common/test_htcondor/OUTPUT_args_txt/output_repo_test2 /nfs/pic.es/user/c/cpardoar/test2.json
-      ```
+  * We can also use a text file to pass the arguments. The submit file then reads
+        ```commandline
+        (base) [cpardoar@gpu05 ~]$ test_argument_txt.submit
+        universe        = vanilla
+        executable      = wrapper.sh
+        output          = OUTPUT_2/hello.out.$(Cluster).$(Process).txt
+        error           = OUTPUT_2/hello.error.$(Cluster).$(Process).txt
+        log             = OUTPUT_2/hello.log.$(Cluster).$(Process).txt
+        Queue arguments from arguments.txt
+        ```
+        where the `arguments.txt` file looks like this:
+        ```commandline
+        (base) [cpardoar@ui03 test_htcondor]$ cat arguments.txt
+        /data/magnesia/common/test_htcondor/OUTPUT_args_txt/output_repo_test1 /nfs/pic.es/user/c/cpardoar/test1.json
+        /data/magnesia/common/test_htcondor/OUTPUT_args_txt/output_repo_test2 /nfs/pic.es/user/c/cpardoar/test2.json
+        ``` 
+  
+!!! warning
 
+    If the output folders do not have write permissions for all users, the job will be held. To avoid this, 
+    ensure that the output directories have the correct permissions by `chmod -R a+rwx <output_folder>`
+  
 ### Additional HTCondor examples
 
   * [How to submit a simple job with HTCondor](https://hcc.unl.edu/docs/osg/a_simple_example_of_submitting_an_htcondor_job/)
