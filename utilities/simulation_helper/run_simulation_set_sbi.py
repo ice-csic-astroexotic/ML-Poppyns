@@ -126,7 +126,6 @@ def simulator_dask(
     dataset: DatasetMultichannelArray,
     device: torch.device,
 ) -> None:
-
     """
     Execute simulations based on the provided prior distribution in a multithreaded manner using the Dask package.
 
