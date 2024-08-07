@@ -80,7 +80,6 @@ class ModelConvSBIdeep(ModelBase):
 
         Returns:
             (torch.Tensor): Output tensor of the network after forwarding all layers.
-
         """
 
         x = self.convs(x)
