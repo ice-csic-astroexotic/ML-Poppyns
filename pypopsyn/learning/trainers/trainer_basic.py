@@ -117,7 +117,7 @@ class TrainerBasic(BaseTrainer):
             epoch (int): Current epoch number.
 
         Returns:
-            (Tuple[dict, dict, dict): a Tuple containing the following dictionaries:
+            (Tuple[dict, dict, dict]): a Tuple containing the following dictionaries:
                 dictionary with the results for the epoch, i.e., the
                 average for the losses and for the tracked metric for the training set.
                 A dictionary with the same info but for the validation set (if available, None is
@@ -319,7 +319,6 @@ class TrainerBasic(BaseTrainer):
         Returns:
             (dict): A dictionary which contains the results of the validation over the
                 whole dataset for all the requested metrics and losses.
-
         """
 
         # Set the model to evaluation mode and reset validation metrics.
