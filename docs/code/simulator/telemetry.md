@@ -68,13 +68,13 @@ Timing profile for the `simulate_population_dyn.py` script with the default conf
 
 Timing profile for the `simulate_population_magrot_det.py` script with the default configuration in `config_simulator.py`.
 
-Here, we report the average time and standard deviation over seven loops when performing the
-magneto-rotational evolution of the sampled stars and applying the detection filters. We specifically load a 
-dynamical database with a total of 300,000 neutron stars and focus on sampling from these stars during the
-detection loop with a batch size of 100,000.
+Here, we report the full computation time for a magneto-rotational simulation including the application of 
+our detection filters when loading a dynamical database with 300,000 neutron stars. In addition, we also give 
+the average time and standard deviation over seven loops when sampling from the dynamical database with a 
+batch size of 100,000 stars and applying the observational filters accordingly.
 
 Note that in the final loops of the detection procedure, the time to perform these calculations is shorter
-due to the reduced batch size. We do not take into account these loops to compute the following timing statistics.
+due to the reduced batch size. We do not take into account these loops when computing the mean and standard deviations given below. However, the total time accounts for all loops.
 
 | Context                                  | Time [s]         |
 |------------------------------------------|------------------|
