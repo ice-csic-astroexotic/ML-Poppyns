@@ -60,8 +60,8 @@ def generate_position_map(
         x_resolution (int): resolution in the horizontal axis.
         y_resolution (int): resolution in the vertical axis.
         position_maps_dictionary (dict): partial dictionary of position maps.
-        x_limits Tuple[float, float]: limits of the horizontal axis.
-        y_limits Tuple[float, float]: limits of the vertical axis.
+        x_limits (Tuple[float, float]): limits of the horizontal axis.
+        y_limits (Tuple[float, float]): limits of the vertical axis.
     """
 
     # Compose the final filename with the dataset path, the name for the map,
