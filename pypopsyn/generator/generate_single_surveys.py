@@ -306,10 +306,10 @@ def generate_dataset(args: argparse.Namespace) -> None:
                 "P_initial_log10_mean": config_json["P_initial_log10_mean"],
                 "P_initial_log10_sigma": config_json["P_initial_log10_sigma"],
                 "a_late": config_json["a_late"],
-                "h_c": config_json["h_c"],
-                "sigma_k": config_json["sigma_k"],
                 "L_radio_log10_mean": config_json["L_radio_log10_mean"],
                 "epsilon_L": config_json["epsilon_L"],
+                "h_c": config_json["h_c"],
+                "sigma_k": config_json["sigma_k"],
             }
         )
     else:

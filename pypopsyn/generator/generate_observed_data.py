@@ -411,6 +411,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
             "a_late": [np.nan],
             "L_radio_log10_mean": [np.nan],
             "epsilon_L": [np.nan],
+            "h_c": [np.nan],
+            "sigma_k": [np.nan],
         }
     )
 
