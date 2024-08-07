@@ -91,6 +91,7 @@ def safe_copytree(
         delay (int): Delay between retry attempts in seconds. Default is 5 seconds.
     """
     attempts = 0
+
     while attempts < max_attempts:
         try:
             shutil.copytree(src, dst, dirs_exist_ok=True)
@@ -169,7 +170,6 @@ def run_simulation_dask(
         simulation_output_path (str): Path to the simulation output folder.
         simulation_override_json (dict): Dictionary with the parameter values for the override.json file.
         dyn_data_path (str): dynamical database path.
-
     """
 
     # Copy the dynamical database and the repository to the node if it is not already there.
@@ -219,6 +219,7 @@ def run_simulation_dask(
 def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     """
     Run simulation command.
+
     This is the main routine for running a particular simulation. It runs the
     provided simulation command (a Python call to the simulation script with a
     set of CLI arguments) and captures all the output of the process.
@@ -252,7 +253,6 @@ def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
 
 
 def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
-
     """
     Callback to log all the info returned from a simulation run.
 
@@ -271,7 +271,6 @@ def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
 
 
 def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
-
     """
     Set up the process pool for multiprocessing with a global pause/resume event.
 
@@ -280,7 +279,6 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
             processes to pause or resume execution.
         lock (mp.Lock): a reference to a master process lock that will coordinate the
             child process launching with waiting times.
-
     """
 
     global unpaused
