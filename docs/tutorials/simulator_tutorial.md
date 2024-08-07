@@ -1,142 +1,178 @@
 # Simulating neutron star populations
 
-The simulation of a Galactic population of neutron stars can be performed by using different ways.
+We can perform the simulation of a Galactic population of neutron stars in different ways.
 
-## Simulating a full population of neutron stars
+In the following, we outline four approaches.
 
-The first approach consists in simulating the entire population all together, which means initializing the entire population formed by N neutron stars from some initial conditions, evolve it in time and finally apply the survey models to select the detected neutron stars.
-For this approach you have to run the script `pypopsyn/simulator/simulate_population_full.py`.
-Detailed information about the arguments to pass to the script can be obtained by issue the `--h` argument, e.g., running:
+## End-to-end evolution
+
+The first approach consists of simulating the full population in one go. This means that we have to 
+initialize the entire population formed of N neutron stars from some initial conditions, evolve it in time 
+and finally apply the survey models to select those neutron stars that are detected.
+
+For this approach, we run the script `pypopsyn/simulator/simulate_population_full.py`.
+Detailed information about the arguments that we can pass to the script is obtained by issuing the `--help` argument, e.g., running:
 ```
-python pypopsyn/simulator/simulate_population_full.py --h
+python pypopsyn/simulator/simulate_population_full.py --help
 ```
-The default input parameters of the simulation are specified in the `pypopsyn/simulator/config_simulator.py` file.
-To simulate populations with different initial parameters, the user can directly modify the simulator configuration in `pypopsyn/simulator/config_simulator.py` or alternatively for a more programmatic way a JSON dictionary containing configuration overrides for the simulation parameters can be provided as a command line argument to this script:
+The default input parameters for the simulation are specified in the `pypopsyn/simulator/config_simulator.py` file.
+To simulate populations with different initial parameters, the user can directly modify the simulator configuration in `pypopsyn/simulator/config_simulator.py`.
+
+Alternatively, we can provide a JSON dictionary containing configuration overrides for the various simulation parameters. We specify this as a command line argument to the simulator script as follows:
 ```
 python pypopsyn/simulator/simulate_population_full.py --save_dir output/sim_full --parameter_override parameter_override.json
 ```
-For example you can set the number of neutron stars to simulate, the kick-velocity model the parameters of the initial distribution of spin periods and magnetic fields and several other parameters.
-This will generate a new directory `output/sim_full` if it does not exist, in which the simulation results will be saved.
-The output consists of the file `initial_population.pkl.gz`containing the initial conditions, the final population in the same format `final_population.pkl.gz`, a `.pkl.gz` file for each one of the modelled surveys containing the population detected by that survey, the profiles for the simulation if enabled and the dictionary containing the configuration parameters in `configuration.json` for reproducibility.
+For example, we can set the number of neutron stars to simulate, the kick-velocity model, the parameters of the initial distributions of spin periods and magnetic fields, and several other parameters.
+The above command will then generate a new directory `output/sim_full` if it does not exist, in which the simulation results will be saved. The output consists of the file `initial_population.pkl.gz` containing the initial neutron star properties, the final population in the same format, i.e., `final_population.pkl.gz`, a `.pkl.gz` file for each of the modelled surveys (containing the stars detected by that survey), the profiles for the simulation if enabled and a dictionary with the configuration parameters in `configuration.json` for reproducibility.
 
-This simulation is usually fast since the simulator is optimized to work with multi-dimensional data thanks to the `numpy` library.
-For example to simulate $10^5$ neutron stars with a maximum age of $10^7$ years the computational time is around 5 min.
-This approach is useful if you want to compare the simulated detected population with the entire simulated "unobservable" population and study the effect of the survey biases.
-This is possible since the information on the total simulated population, i.e., its initial conditions and the final evolved state is preserved and saved.
-The downside of this approach is that you need to assume a priori a neutron star birth rate, i.e. choose the maximum age and the total number of simulated neutron stars.
+!!! info
+
+    A single simulation in this simulation mode is usually fast as the simulator is optimized to work with multi-dimensional data thanks to the `numpy` library. For example, to simulate $10^5$ neutron stars with a maximum age of $10^7$ years, the computational time is around five minutes.
+
+Simulating the full population is useful if you want to compare the simulated detected population with the entire simulated "unobserved" population and study the effects of survey biases.
+This is possible as the information on the total simulated population, i.e., its initial conditions and the final evolved state is preserved and saved.
+However, the downside of this approach is that we need to assume a neutron star birth rate a priori, i.e., choose the maximum age and the total number of simulated neutron stars.
 
 If the user opts to save the full evolutionary output for the dynamical and/or the magneto-rotational evolution by setting `cfg["save_dyn_evolution"]` or `cfg["save_magrot_evolution"]` to `True` in the configuration file, a JSON file with the full time-stamped parameter evolution is also generated.
-Note that since evolving the full population and saving the entire output requires a big computational cost and storage space, this feature should be enabled only for testing purposes when running the simulation on a reduced number of stars.
+Note that since evolving the full population and saving the entire output requires large computational costs and storage space, this feature should be enabled only for testing purposes when running the simulation on a reduced number of stars.
 For example, to evolve and save both the full dynamical and magneto-rotational evolution for $10^4$ stars with a maximum age of $10^7$ years, the computation takes around 20 seconds and the JSON files containing the evolution outputs have a size of around 600 and 400 Mb each.
 
-To see a tutorial example for this simulator you can look at the notebook in `tutorials/tutorial_notebooks/simulator_full_tutorial.ipynb`. 
+!!! example
 
-## Simulating the dynamical evolution of a population of neutron stars
+    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/simulator_full_tutorial.ipynb`. 
 
-If you instead want to run only the dynamical evolution you can run the following script:
+## Dynamical evolution
+
+
+If we instead want to perform the dynamical evolution only, we run the following script:
 ```
 python pypopsyn/simulator/simulate_population_dyn.py --save_dir output/sim_dyn
 ```
-As for the case above, to change the initial parameters, the user can directly modify the simulator configuration in `pypopsyn/simulator/config_simulator.py` or alternatively parsing a JSON file containing custom parameters for the simulation.
-This will create a population of neutron stars according to the initial conditions specified in the :code:`pypopsyn/simulator/config_simulator.py` and evolve it in time dynamically.
-The output is saved in the specified output folder and it consists of a file `final_pop_dyn.csv` containing the information on the final positions and velocities of neutron stars in the Galaxy, the profiles for the simulation if enabled and the dictionary containing the configuration parameters in `configuration.json` for reproducibility.
+As for the case above, to change the initial parameters, the user can directly modify the simulator 
+configuration in `pypopsyn/simulator/config_simulator.py` or alternatively parse a JSON file containing 
+custom simulation parameters.
 
-This approach is useful if the user would like to create a database of dynamically evolved neutron stars and use it to run the other simulation steps afterwards, i.e., perform the magneto-rotational evolution and apply observational filters (see below).
-In this case the user should ensure that the number of neutron stars evolved in this way is high enough to allow a proper determination of the birth rate in the following steps.
-A safe number of neutron stars should be 30 per century, which is around 10 times the average core-collapse supernova rate in our Galaxy.
+The above command will create a population of neutron stars according to the initial conditions specified in
+`pypopsyn/simulator/config_simulator.py` and evolve it in time dynamically.
+The output is saved in the specified output folder and consists of a file `final_pop_dyn.csv` containing the 
+information on the final positions and velocities of neutron stars in the Galaxy, the profiles for the 
+simulation if enabled and a dictionary of configuration parameters in `configuration.json` for 
+reproducibility.
 
-To see a tutorial example for this simulator you can look at the notebook in `tutorials/tutorial_notebooks/simulator_dyn_tutorial.ipynb`. 
+This simulation approach is useful if the user wants to create a database of dynamically evolved neutron stars and use it to separately run subsequent simulation steps, i.e., perform the magneto-rotational evolution and apply observational filters (see below).
+In this case, we need to ensure that the number of neutron stars evolved dynamically is sufficiently large to allow for a proper determination of the birth rate in the subsequent steps.
+A safe assumption is 30 neutron stars are born per century, which is around 10 times the average core-collapse supernova rate in our Galaxy.
 
-## Simulating the magneto-rotational evolution and detection of a population of neutron stars
+!!! example
 
-After simulating the dynamical evolution of a huge number of neutron stars by using the script `pypopsyn/simulator/simulate_population_dyn.py` the output of the dynamical evolution can be then used as a database for running the other steps of the simulations.
-Through the script `pypopsyn/simulator/simulate_population_magrot_det.py` you can select stars from the dynamically evolved database according to the sky coverage of a given survey, evolve their properties in time and finally establish if they are detected or not by the surveys.
-New stars are selected and evolved until the desired number of detected sources is reached (for example to match the number of detected pulsars in a given survey in the ATNF catalog).
-This approach allows to find a posteriori the birth rate of the neutron stars by looking at the total number of neutron stars that have been created for a specified evolution time to reach the desired number of detections.
+    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/simulator_dyn_tutorial.ipynb`.
 
-After the creation of the dynamical database you can run the script:
+## Magneto-rotational evolution and detection filters
+
+After simulating the dynamical evolution of a large number of neutron stars by using the script 
+`pypopsyn/simulator/simulate_population_dyn.py`, the corresponding database can be used as a basis for the subsequent steps of pulsar population synthesis.
+
+Using the module `pypopsyn/simulator/simulate_population_magrot_det.py`, we can select stars from the 
+dynamically evolved database according to the sky coverage of a given survey, evolve their properties in 
+time and finally establish if these sources are detected by a given survey or not.
+
+To do so, we execute the command
 ```
 python pypopsyn/simulator/simulate_population_magrot_det.py --dyn_data dyn_database --save_dir output/sim_magrot_det
 ```
-As for the cases above, to change the initial parameters, the user can directly modify the simulator configuration in `pypopsyn/simulator/config_simulator.py` or alternatively parsing a JSON file containing custom parameters for the simulation.
+As for the cases above, to change the initial parameters, the user can directly modify the simulator 
+configuration in `pypopsyn/simulator/config_simulator.py` or alternatively parse a JSON file containing 
+custom parameters for the simulation.
 
-This script performs the following steps in a loop until the specified number of detections for each survey is reached:
+In this simulation mode, new stars are sampled from the database in batches and evolved until the desired 
+number of detected sources is reached. Note that we can specify the number of pulsars that we want to detect
+for each survey in the configuration file. For example, we might want to match the number of detected 
+pulsars in a given survey in the [ATNF Pulsar Catalogue](https://www.atnf.csiro.au/research/pulsar/psrcat/). 
+To this end, the script performs the following steps in a loop until a certain number of detections for each 
+survey is reached:
 
-1) It randomly samples batches of pulsars from the specified dynamical database.
-   At the moment the batch size is set to 100000 and has been optimized for matching the radio observations with the Parkes telescope.
-   This means that the dynamical database size should be bigger than this batch size, i.e., it should contain at least 100 times the neutron star number specified by the batch size.
-   Simulating neutron stars in batches helps to speed up the simulation by evolving simultaneously an array of pulsars.
+1. We first randomly sample batches of pulsars from our dynamical database. The batch size is set to 100,000 and has been optimized to match radio pulsar detections with Murriyang, the Parkes Radio Telescope. Note that the dynamical database should be significantly bigger than this batch size, i.e., it should contain at least 100 times the batch size. Simulating neutron stars in batches helps to speed up the simulation by evolving an array of pulsars simultaneously.
 
-2) It selects pulsars that fall into the sky coverage of the surveys and are not further away than 35 kpc from the Sun and evolves their magnetic field, spin period and inclination angle.
-   This pre-selection allows to not waste computational resources on pulsars that have no chance to be detected.
+2. Next, we select pulsars that fall into the sky coverage of the surveys and are not further away than 35 kpc from the Sun. For those objects, we then evolve the magnetic fields, spin periods and inclination angles. This pre-selection allows us to not waste computational resources on pulsars that have no chance to be detected.
 
-3) The emission geometry is modeled so that only pulsars emitting towards the Earth can be selected.
-   A luminosity is associated with these pulsars and their flux is computed.
+3. Then, we model the emission geometry and only select those pulsars that are beamed towards the Earth. A luminosity is associated with these pulsars and their flux is computed.
 
-4) It finally applies the modeled surveys to select the pulsars that are detected according to the limiting flux of each survey.
+4. Finally, we apply the surveys' sensitivity thresholds to select those pulsars that are detected according to the limiting flux of each survey.
 
-You can specify the number of pulsars you want to detect for each survey in the configuration file.
-The simulation keeps track of the total number of created pulsars so that an estimate of the birth rate can be made a posteriori by knowing the maximum neutron star age that has been used for the simulation.
-If the simulated birth rate exceeds a limiting value of 5 neutron stars per century, the simulation is stopped and a flag that warns about the excess in the birth rate is saved in the output configuration file.
-In this case the output of the simulation will consist of separate files containing the parameters of the detected pulsars for each survey, a `profile.json` file and a `configuration.json` file containing the entire set of parameters used to simulate the magneto-rotational evolution and the detection models.
+A posteriori, this simulation mode allows us to determine the birth rate of our synthetic neutron star population by looking at the total number of neutron stars created over a specified evolution time to reach the desired number of detections. To avoid wasting computational resources on unrealistic parameter regimes, we do not evolve populations whose birth rate exceeds a limiting value of 5 neutron stars per century. In these cases, the simulation is stopped and a flag that warns about the excess in the birth rate is saved into the output configuration file.
 
-To see a tutorial example for this simulator you can look at the notebook in `tutorials/tutorial_notebooks/simulator_magrot_det_tutorial.ipynb`. 
+Overall, in this mode, the output of the simulation consists of separate files containing the properties of the detected pulsars for each survey, a `profile.json` file and a `configuration.json` file containing the entire set of parameters used to simulate the magneto-rotational evolution and the detection models.
+
+!!! example
+
+    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/simulator_magrot_det_tutorial.ipynb`.
 
 ## Simulations with parameter sweep
 
-If you want to run simulations with a large parameter sweep, you can use the helper script `run_simulation_set.py` in the `utilities/simulation_helper` folder.
-This script allows to run multiple simulations with different input paramethers.
-You can choose the type of simulation you want to run (`simulate_population_dyn.py`, `simulate_population_magrot_det.py` or `simulate_population_full.py`) and to specify the relevant simulation parameters with two types of sampling, determined by the argument `--sampling_type`.
-You can also specify the number of cores to use in order to run the simulation in parallel via the argument `--processes`.
+If we want to run simulations for a large number of parameter combinations, we can use the helper script `run_simulation_set.py` in the `utilities/simulation_helper` folder. This script allows us to run multiple simulations with different input parameters in an automated manner.
 
-If `--sampling_type = grid`, a regular multi-dimensional grid is created, you should provide the parameters in a linear spacing format `--parameter [low] [high] [steps]`, for example:
-```
-python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 20 --sampling_type grid
-```
-This example will run the dynamical simulation only and generate a sweep of `20` uniformly spaced samples for the `vk_c` parameter in the range `[100.0, 200.0]`. 
-As this parameter is related to the `km_exp` kick model, the script will first check if this model is properly set in the `config_simulator.py` file. If not an error will be thrown.
-If `--sampling_type = random` the parameters are randomly uniformly sampled in the provided parameter ranges. In this case you should provide the parameter ranges in the format `--parameter [low] [high]` and specify the `--sampling_size` argument, which sets the number of values drawn from a uniform distribution for each parameter.
-```
-python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 --sampling_type random --sampling_size 20
-```
-This example will generate a sweep of `20` randomly drawn samples for the `vk_c` parameter in the range `[100.0, 200.0]`.
+In this mode, we can choose the type of simulation we want to run (i.e., `simulate_population_dyn.py`, 
+`simulate_population_magrot_det.py` or `simulate_population_full.py`) via the `--simulator_type` argument. 
+In addition, the number of cores used to run the simulation in parallel is specified through `--processes`.
+Finally, we can choose between two sampling approaches to determine the relevant simulation parameters through the argument `--sampling_type`. 
 
-In the following, we list the parameters that can be swept with the simulation helper.
+Specifically, if `--sampling_type = grid`, a regular multi-dimensional grid is created, and we need to 
+provide the parameters in a linear spacing format `--parameter [low] [high] [steps]`. For example,
+```
+python utilities/simulation_helper/run_simulation_set.py --simulator_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 20 --sampling_type grid
+```
+This command will run the dynamical simulation only and generate a sweep of `20` uniformly spaced samples 
+for the `vk_c` parameter in the range `[100.0, 200.0]`. As this parameter is related to the exponential 
+kick model `km_exp`, the script will first check if this model is properly set in the `config_simulator.py` 
+file. If not, an error will be thrown.
+
+On the other hand, if `--sampling_type = random`, the parameters are sampled uniformly at random within the 
+provided limits. In this case, we need to provide the parameter ranges in the format `--parameter 
+[low] [high]` and specify the `--sampling_size` argument, which sets the number of values drawn from a 
+uniform distribution for each parameter. For example,
+```
+python utilities/simulation_helper/run_simulation_set.py --simulator_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 --sampling_type random --sampling_size 20
+```
+This will generate a sweep of `20` randomly drawn samples for the `vk_c` parameter in the range `[100.0, 200.0]`.
+
+In the following, we list the parameters that can be swept with the `run_simulation_set.py` script.
 
 For the dynamical evolution:
 
 * `vk_c` for the exponential kick-velocity model `km_exp`;
 * `sigma_k` for the Maxwell kick-velocity model `km_maxwell`;
-* `h_c` for the Galactic scale-height-distribution model of birth places.
+* `h_c` for the Galactic scale height in the exponential model of birthplaces.
 
 For the magneto-rotational evolution:
 
-* `P_initial_mean` and `P_initial_sigma` for the birth spin-period `normal` distribution model;
-* `P_initial_log10_mean` and `P_initial_log10_sigma` for the birth spin-period `log-normal` distribution model;
-* `B_initial_log10_mean` and `B_initial_log10_sigma` for the birth magnetic-field lognormal distribution;
+* `P_initial_mean` and `P_initial_sigma` for the birth spin periods in the `normal` distribution model;
+* `P_initial_log10_mean` and `P_initial_log10_sigma` for the birth spin periods in the `log-normal` distribution model;
+* `B_initial_log10_mean` and `B_initial_log10_sigma` for the birth magnetic fields in the log-normal distribution model;
 * `a_late` for the power-law index describing the late-time decay of the magnetic field.
 
-You can also sweep over more than one parameter.
-For example if one wants to simulate 20 populations of neutron stars varying the parameters `P_initial_log10_mean` in the range -1.5 -0.3 and the parameter `B_initial_log10_mean` in the range 12 14 using the `simulate_population_magrot_det.py` and a previously simulated dynamical database saved in `data/example_simulation_dyn` you can run the above script as follows:
-```
-  python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_dyn --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 --B_initial_log10_mean 12 14 --sampling_type random --sampling_size 20
-```
-In this way, a population is simulated for each pair of random values of `P_initial_log10_mean` and `B_initial_log10_mean`.
+!!! note
 
-If instead `--sampling_type grid` is specified like in the following command:
+    It is important to distinguish between two types of arguments for the `run_simulation_set.py` script: options and parameters. Options are arguments which specify procedures for the simulation helper, and they cannot be swept across a range, e.g., the dynamical database or the simulator type. By definition, 
+     these are not outputs that we want to predict with our subsequent machine-learning framework. On the other hand, parameters are values that we expect to use as ground truths for the learning pipeline and want to predict. Hence, these can be swept in a range to generate a set of training simulations.
+
+    The script automatically checks for the compatibility of the given parameters and the selected options, e.g., `vk_c` cannot be specified if `km_maxwell` has been chosen as the kick model in the `config_simulator.py`. The dictionary `utilities/config_sweeper.json` specifies a list of required parameters for each option.
+
+Finally, we can also sweep over more than one parameter. For example, let us assume that we want to simulate 20 populations of neutron stars varying the parameters `P_initial_log10_mean` in the range -1.5 to -0.3 and the parameter `B_initial_log10_mean` in the range 12 to 14 using the `simulate_population_magrot_det.py` script and a previously simulated dynamical database saved in `data/example_simulation_dyn`. We can then run:
 ```
-  python utilities/simulation_helper/run_simulation_set.py --simulation_type simulate_population_magrot_det --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 10 --B_initial_log10_mean 12 14 10 --sampling_type grid
+  python utilities/simulation_helper/run_simulation_set.py --simulator_type simulate_population_magrot_det --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 --B_initial_log10_mean 12 14 --sampling_type random --sampling_size 20
 ```
-The scripts will simulate a population for each combination of values of `P_initial_log10_mean` and `B_initial_log10_mean`, i.e., the above case corresponds to `10 x 10 = 100` simulations.
-The sweeper will generate a directory `output/sim_helper`, which will contain a folder for each simulation (parameter combination) named with an identifier number, i.e, `000000`, `000001`, `000002` and so on.
+In this way, a population is simulated for each of the 20 pairs of random values of `P_initial_log10_mean` and `B_initial_log10_mean`. The sweep will generate a directory `output/sim_helper`, which will contain a folder for each simulation (parameter combination) named with an identifier, i.e., `000000`, `000001`, `000002` and so on.
 
-Note that it is important to distinguish between two types of arguments for the helper: options and parameters. Options are arguments which specify procedures for the simulation helper and they cannot be swept in a range, e.g., the dynamical data or the symulation type, because we assume these are not going to be outputs that will need to be predicted.
-Parameters are values that we expect to use as ground truth for the learning system and therefore are to be predicted. Hence, these can be swept in a range to generate a dataset.
+If instead `--sampling_type grid`, we need to specify the command as follows:
+```
+  python utilities/simulation_helper/run_simulation_set.py --simulator_type simulate_population_magrot_det --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 10 --B_initial_log10_mean 12 14 10 --sampling_type grid
+```
+This simulates a population for each combination of values of `P_initial_log10_mean` and `B_initial_log10_mean`, i.e., the above case corresponds to `10 x 10 = 100` simulations. Again, each simulation will be saved in a separate directory `000000`, `000001`, `000002` and so on.
 
-The script automatically checks the compatibility of the present parameters for the selected options, e.g., `vk_c` cannot be specified if `km_maxwell` has been chosen as kick model in the `config_simulator.py`.
-The dictionary `utilities/config_sweeper.json` also specifies a list of required parameters for each option.
 
-To see a tutorial example for this simulation helper script you can look at the notebook in `tutorials/tutorial_notebooks/simulation_helper_tutorial.ipynb`. 
+!!! example
+
+    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/simulation_helper_tutorial.ipynb`.
 
 
 
