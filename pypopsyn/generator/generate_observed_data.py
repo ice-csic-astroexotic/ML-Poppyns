@@ -3,9 +3,9 @@
 
     This module creates compressed representations for the observed population
     in the ATNF Pulsar Catalogue using the fluxes of the Meerkat TPA program
-     in Posselt, B. et al 2023.
+     in Posselt, B. et al. 2023.
 
-    We selected the fluxes from the ch6flux column in Posselt, B. et al. (2023),
+    We selected the fluxes from the ch6flux column in Posselt, B. et al. 2023,
     corresponding to measurements at 1429 MHz. These fluxes are used in Figure 7
     of the paper for comparison with those from the ATNF catalog.
 
@@ -13,7 +13,7 @@
 
     Display help message to run the code:
 
-    python generate_atnf_meerkat_catalogue_7prms.py --h
+    python generate_observed_data.py --h
 
     Displays all the relevant arguments that can be used.
 
@@ -462,7 +462,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default="data/observations/meerkat_tpa_posselt_2023.csv",
-        help="Path, with the name of the csv included, to where the Meerkat TPA program is located.",
+        help="Path, with the name of the csv included, to where the Meerkat TPA program data is located.",
     )
     parser.add_argument(
         "--save_dir",

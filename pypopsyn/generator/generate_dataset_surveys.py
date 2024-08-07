@@ -5,7 +5,7 @@
     simulated populations from the simulator `simulate_population_magrot_det.py`
     where the following initial parameters were modified: B_initial_log10_mean,
     B_initial_log10_sigma, P_initial_log10_mean, P_initial_log10_sigma, a_late,
-    L_radio_log10_mean, epsilon_L.
+    L_radio_log10_mean, epsilon_L, h_c, sigma_k.
 
     These compressed representations will encode both the dynamical properties,
     the magneto-rotational properties and the fluxes of detected synthetic pulsars.
@@ -22,7 +22,7 @@
 
     Display help message to run the code:
 
-    python generate_dataset_surveys_7prms.py --h
+    python generate_dataset_surveys.py --h
 
     Displays all the relevant arguments that can be used.
 
