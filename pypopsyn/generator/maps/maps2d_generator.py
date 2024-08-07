@@ -307,7 +307,7 @@ def generate_avg_fluxes_matrix(
     Average log10 fluxes matrix generator.
 
     Creates a matrix of the average weight w of a distribution of points given their
-    X/Y coordinates in a 2D space.
+    X/Y coordinates in a 2D space where w is the the log10 of the radio flux.
     The resulting matrix shows the average value of the weights in each bin.
 
     Args:
@@ -315,7 +315,7 @@ def generate_avg_fluxes_matrix(
         x_range (float, float): horizontal range of values for the points.
         y (np.ndarray): vertical coordinate values for the points.
         y_range (float, float): vertical range of values for the points.
-        w (np.ndarray): weight values for the points.
+        w (np.ndarray): weight values for the points, i.e., the log10 of the radio flux value.
         filename (str): file path to generate the density matrix.
         x_log_scale (bool): if True set the x-axis scale to log scale. Default False.
         y_log_scale (bool): if True set the y-axis scale to log scale. Default False.
@@ -377,7 +377,7 @@ def generate_avg_fluxes_map(
     Average fluxes map generator.
 
     Creates a map of the average weight w of a distribution of points given their
-    X/Y coordinates in a 2D space.
+    X/Y coordinates in a 2D space where w is the the log10 of the radio flux.
     The resulting map shows the average value of the weights in each bin.
 
     Args:
@@ -385,7 +385,7 @@ def generate_avg_fluxes_map(
         x_range (float, float): horizontal range of values for the points.
         y (np.ndarray): vertical coordinate values for the points.
         y_range (float, float): vertical range of values for the points.
-        w (np.ndarray): weight values for the points.
+        w (np.ndarray): weight values for the points, i.e., the log10 of the radio flux value.
         filename (str): file path to generate the heat map image.
         x_log_scale (bool): if True set the x-axis scale to log scale. Default False.
         y_log_scale (bool): if True set the y-axis scale to log scale. Default False.
