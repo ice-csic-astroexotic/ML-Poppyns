@@ -28,6 +28,7 @@
 import json
 import logging
 import pathlib
+from typing import Tuple
 
 import numpy as np
 
@@ -123,7 +124,7 @@ def expand_parameter(
     return expanded_parameter
 
 
-def check_expand_args(args_dict: dict) -> (list, list):
+def check_expand_args(args_dict: dict) -> Tuple[list, list]:
     """
     Check if the parsed input arguments are coherent and have the correct shape.
     If in grid mode: expand each simulation parameter in linear space in the specified ranges.
@@ -133,7 +134,7 @@ def check_expand_args(args_dict: dict) -> (list, list):
         args_dict (dict): dictionary of the parsed argument via CLI.
 
     Returns:
-        (list, list): a list containing the expanded ranges of the parameters and a list containing the names of the
+        (Tuple[list, list]): a list containing the expanded ranges of the parameters and a list containing the names of the
             expanded parameters.
     """
 
