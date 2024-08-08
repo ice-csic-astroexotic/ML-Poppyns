@@ -260,7 +260,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
         & (l_pmps_obs < 50.0)
         & (np.abs(b_pmps_obs) < 5.0)
     )
-    # Merge the Meerkat TPA program data with the Parkes ATNF catalog to obtain MeerKAT flux measurements for the Parkes pulsars.
+    # Merge the Meerkat TPA program data with the PMPS ATNF Pulsar Catalogue data to obtain MeerKAT flux measurements
+    # for the PMPS pulsars.
     df_meerkat_pmps = pd.merge(
         df_meerkat, df_atnf_pmps[cond], left_on="PSRJ", right_on="PSRJ"
     )
@@ -297,7 +298,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
     # See Edwards et al. (2001) and Jacoby et al. (2009) for details.
     cond = (l_smps_obs > -100.0) & (l_smps_obs < 50.0)
 
-    # Merge the Meerkat TPA program data with the Swinburne ATNF catalog to obtain MeerKAT flux measurements for the Swinburne pulsars.
+    # Merge the Meerkat TPA program data with the SMPS ATNF Pulsar Catalogue data to obtain MeerKAT flux measurements
+    # for the SMPS pulsars.
     df_meerkat_smps = pd.merge(
         df_meerkat, df_atnf_smps[cond], left_on="PSRJ", right_on="PSRJ"
     )
@@ -319,7 +321,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
     # measurements are from the low- and mid- latitude surveys only.
     df_atnf_htru = df_atnf[df_atnf["SURVEY"].str.contains("htru_pks")]
 
-    # Merge the Meerkat TPA program data with the HTRU ATNF catalog to obtain MeerKAT flux measurements for the HTRU pulsars.
+    # Merge the Meerkat TPA program data with the HTRU ATNF Pulsar Catalogue data to obtain MeerKAT flux measurements
+    # for the HTRU pulsars.
     df_meerkat_htru = pd.merge(
         df_meerkat, df_atnf_htru, left_on="PSRJ", right_on="PSRJ"
     )
