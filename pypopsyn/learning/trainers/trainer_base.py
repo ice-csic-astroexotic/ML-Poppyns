@@ -120,7 +120,19 @@ class BaseTrainer:
             )
 
     @abstractmethod
-    def _train_epoch(self, epoch: int):
+    def _train_epoch(self, epoch: int) -> typing.Any:
+        """
+        Trains the model for a single epoch.
+
+        This method trains the model for the specified epoch.
+
+        Args:
+            epoch (int): The current epoch number.
+
+        Returns:
+            (Any): the output of the training for a single epoch.
+        """
+
         raise NotImplementedError
 
     def train(self, trial: int = None) -> typing.Tuple[dict, float]:

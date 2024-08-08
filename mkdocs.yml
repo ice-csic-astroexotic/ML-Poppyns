@@ -82,6 +82,8 @@ plugins:
             show_root_heading: true
             show_root_full_path: true
             show_root_toc_entry: true
+            filters: None
+
   # Adding plugin to generate search bar.
   - search
 
