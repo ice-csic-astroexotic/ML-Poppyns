@@ -1,5 +1,5 @@
 """
-    Average fluxes ppdot map generation routines.
+    Average flux ppdot map generation routines.
 
     Authors:
 
