@@ -164,7 +164,7 @@ def run_simulation_dask(
     terminal output of the process. This function is necessary for running `train_tsnpe.py` using Dask and HTCondor.
 
     Args:
-        args (SimulationArgs): Arguments required for the simulation, including output directory, parameter overrides,
+        args (argparse.Namespace): Arguments required for the simulation, including output directory, parameter overrides,
             and optional dynamic data path.
         simulator_type (str): The type of simulator to use, determining the specific simulation script to run.
         simulation_output_path (str): Path to the simulation output folder.
@@ -288,7 +288,33 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
     starting = lock
 
 
-def main(args):
+def main(args) -> None:
+    """
+    Execute parameterized simulations using a multiprocessing pool.
+
+    This function initializes a multiprocessing pool to run simulations based on a set of parameters
+    defined by the user. It parses the command-line arguments, expands parameter ranges for sampling,
+    queues the simulations, and manages their execution in parallel. It also generates JSON files for
+    each simulation that contain the parameters used for that run.
+
+    Args:
+        args (argparse.Namespace): Command-line arguments parsed by argparse. Required parameters include:
+            - simulator_type (str): The name of the simulator script to run. Options include
+              'simulate_population_full', 'simulate_population_dyn', or 'simulate_population_magrot_det'.
+            - dyn_data (str): (Optional) Path to the dynamically evolved population database, required
+              if using 'simulate_population_magrot_det'.
+            - save_dir (str): Directory path where the output of the simulations will be saved.
+            - sampling_type (str): Method for sampling the parameter space. Choose between 'grid' and 'random'.
+            - sampling_size (int): Number of random values to draw for each simulation parameter (required
+              if sampling_type is 'random').
+            - processes (int): Number of simultaneous processes for the multiprocessing pool (default is 1).
+            - sigma_k, vk_c, h_c, P_initial_mean, P_initial_sigma, P_initial_log10_mean,
+              P_initial_log10_sigma, B_initial_log10_mean, B_initial_log10_sigma, a_late (list of float):
+              Each of these parameters can accept a range defined for grid or random sampling as follows:
+              - In grid mode: range specified as [low, high, n_values].
+              - In random mode: range specified as [low, high].
+
+    """
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.
     event = mp.Event()

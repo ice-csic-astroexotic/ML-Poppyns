@@ -119,7 +119,27 @@ def generate_wrapper(
         f.close()
 
 
-def submit_generator(args):
+def submit_generator(args: argparse.Namespace) -> None:
+    """
+    Generate HTCondor submit files for running simulations in batches.
+
+    This function takes command-line arguments and generates the necessary files
+    for submitting simulations to an HTCondor cluster. It creates a directory
+    structure with one folder per week, where each week's folder contains
+    argument files for individual jobs and a submit file.
+
+    Args:
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+            - output_dir_htcondor (str): Path to the directory where the
+            generated files will be saved.
+            - output_dir_simulation (str): Path to the directory containing the
+            simulation parameter files.
+            - n_sim_job (int): Number of simulations to run per job.
+            - n_sim_week (int): Number of simulations to run per week.
+            - dyn_data (str): Path to the dynamically evolved population database
+            file (if using the `simulate_population_magrot_det` simulator).
+            - type_simulation (str): Type of simulation to run, either 'dyn' or 'magrot'.
+    """
 
     common_path = cfg["path_to_output"]
 

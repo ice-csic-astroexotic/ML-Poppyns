@@ -126,7 +126,7 @@ class TimeWith:
         Enter method when a context is created.
 
         Returns:
-            Self: The instance of the class.
+            (Self): The instance of the class.
         """
 
         return self

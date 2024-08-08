@@ -48,6 +48,38 @@ log = logging.getLogger(__name__)
 
 
 def main(args):
+    """
+    Generate parameter sets for running simulations based on provided arguments.
+
+    This function takes command-line arguments, parses them, and generates
+    parameter sets for running simulations. It supports two types of sampling:
+    grid and random. The arguments to run the simulations are saved in a text file, and
+    override JSON files are created for each simulation containing the corresponding
+    generated parameter sets.
+
+    Args:
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+            - save_dir (str): Path to the directory where the multi-run output will be saved.
+            - sampling_type (str): Type of sampling for the parameter space, either 'grid' or 'random'.
+            - sampling_size (int): Number of random values to draw for each simulation parameter
+            (required only if sampling_type is 'random').
+            - sigma_k (list[float]): Range and number of values for the kick velocity sigma parameter.
+            - vk_c (list[float]): Range and number of values for the kick velocity vk_c parameter.
+            - h_c (list[float]): Range and number of values for the scale height h_c parameter.
+            - P_initial_mean (list[float]): Range and number of values for the mean initial spin period.
+            - P_initial_sigma (list[float]): Range and number of values for the dispersion of the initial
+            spin period.
+            - P_initial_log10_mean (list[float]): Range and number of values for the log10 mean initial
+            spin period.
+            - P_initial_log10_sigma (list[float]): Range and number of values for the log10 dispersion
+            of the initial spin period.
+            - B_initial_log10_mean (list[float]): Range and number of values for the mean of the log10
+            initial magnetic field strength.
+            - B_initial_log10_sigma (list[float]): Range and number of values for the dispersion of the
+            log10 initial magnetic field strength.
+            - a_late (list[float]): Range and number of values for the power-law slope of the late time
+            magnetic field evolution.
+    """
     # Parse arguments provided to the parameter-sweeper script.
     log.info("Parsing arguments...")
 
