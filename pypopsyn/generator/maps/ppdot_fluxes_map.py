@@ -43,7 +43,7 @@ def generate_ppdot_fluxes_map(
     y_limits: typing.Tuple[float, float] = (1e-21, 1e-9),
 ) -> None:
     """
-    This method generate a flux-averaged ppdot map. The dimensions of the map
+    This method generates a flux-averaged ppdot map. The dimensions of the map
     can be chosen, the type (image or array) can also be decided, and the limits
     and resolution for it can be specified. As a result, a map with the specified
     filename and an extension determined by the chosen type is created as output.
