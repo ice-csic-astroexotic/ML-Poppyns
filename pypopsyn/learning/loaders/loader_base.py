@@ -19,6 +19,9 @@ import torch.utils.data.sampler
 class LoaderBase(torch.utils.data.DataLoader):
     """
     Base loader abstract class.
+
+    This class serves as a blueprint for creating various dataset loaders.
+    It defines the essential methods that all loaders must implement, ensuring consistency.
     """
 
     def __init__(

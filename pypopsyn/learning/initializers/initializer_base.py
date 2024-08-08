@@ -16,9 +16,11 @@ import torch
 
 
 class InitializerBase:
-
     """
     Base abstract class for all weight initializers.
+
+    This class serves as a blueprint for creating various initialization methods.
+    It defines the essential methods that all weight initializers must implement, ensuring consistency.
     """
 
     @abc.abstractmethod
@@ -35,9 +37,12 @@ class InitializerBase:
     @abc.abstractmethod
     def __str__(self) -> str:
         """
-        Custom to string operator for the weight initializer.
+        String representation of the weight initializer.
+
+        This method should provide a human-readable description of the weight initializer,
+        including its name and any relevant parameters or characteristics.
 
         Returns:
-            (str): A string which describes the weight initializer for output purposes.
+            (str): String representation of the weight initializer.
         """
         raise NotImplementedError

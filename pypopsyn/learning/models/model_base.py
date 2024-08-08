@@ -16,12 +16,15 @@ import torch.nn as nn
 class ModelBase(nn.Module):
     """
     Base abstract class for all models.
+
+    This class serves as a blueprint for creating various neural-network architecture models.
+    It defines the essential methods that all models must implement, ensuring consistency.
     """
 
     @abc.abstractmethod
     def forward(self, *inputs: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass
+        Forward pass.
 
         Abstract method for the forward pass that must be implemented for each
         model that derives this class to implement its whole forward pass.
@@ -37,6 +40,9 @@ class ModelBase(nn.Module):
     def __str__(self) -> str:
         """
         String representation of the model.
+
+        This method should provide a human-readable description of the model,
+        including its name and any relevant parameters or characteristics.
 
         Returns:
             (str): String representation of the model.

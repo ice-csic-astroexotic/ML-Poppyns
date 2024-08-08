@@ -25,6 +25,9 @@ from pypopsyn.learning.utils.request_device import request_device
 class BaseTrainer:
     """
     Base trainer.
+
+    This class serves as a blueprint for creating various trainers.
+    It defines the essential methods that all trainers must implement, ensuring consistency.
     """
 
     def __init__(
