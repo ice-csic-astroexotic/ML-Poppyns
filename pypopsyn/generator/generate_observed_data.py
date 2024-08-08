@@ -2,12 +2,12 @@
     Generator for the observed population.
 
     This module creates compressed representations for the observed population
-    in the ATNF Pulsar Catalogue using the fluxes of the Meerkat TPA program
-     in Posselt, B. et al. 2023.
+    in the ATNF Pulsar Catalogue using the fluxes of the TPA program on MeerKat
+    presented in Posselt et al. (2023).
 
-    We selected the fluxes from the ch6flux column in Posselt, B. et al. 2023,
-    corresponding to measurements at 1429 MHz. These fluxes are used in Figure 7
-    of the paper for comparison with those from the ATNF catalog.
+    In the following, we work with the fluxes from the ch6flux column in Posselt et al. (2023),
+    which correspond to measurements at 1429 MHz. These fluxes are used in Figure 7
+    of the paper for comparison with those from the ATNF Pulsar Catalogue.
 
     The user can choose to generate either a dataset of images or of 2D arrays.
 
