@@ -49,7 +49,7 @@ def simulate_population(args: argparse.Namespace) -> None:
     population database.
 
     Args:
-        args (Namespace): An argparse.Namespace object containing the following attributes:
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
             dyn_data (str): Path to a dynamically evolved population database.
             save_dir (str): Output directory for the run.
             parameter_override (str): Path to JSON with parameter overrides.

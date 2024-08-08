@@ -57,7 +57,7 @@ def simulate_population(args: argparse.Namespace) -> None:
     conditions and dynamically evolving it forward in time.
 
     Args:
-        args (Namespace): An argparse.Namespace object containing the following attributes:
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
             save_dir (pathlib.Path): Output directory for the run.
             json_override_path (pathlib.Path): Path to JSON with parameter overrides.
     """

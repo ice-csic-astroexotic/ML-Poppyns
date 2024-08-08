@@ -82,7 +82,7 @@ def field_derivative(B: float, B_initial: float) -> float:
         B_initial (float): Pulsar's initial magnetic field magnitudes, measured in [G].
 
     Returns:
-        (np.ndarray): Magnetic field derivatives for a simulated pulsars in [G/yr].
+        (float): Magnetic field derivatives for a simulated pulsars in [G/yr].
     """
 
     tau_ohm = timescale_ohmic(L_cfg, sigma_cfg)

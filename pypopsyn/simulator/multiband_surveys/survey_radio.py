@@ -153,7 +153,7 @@ def sky_temperature_approx(
     Args:
         l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
-        f (np.ndarray): Central frequency at which the observation is performed [Hz].
+        f (float): Central frequency at which the observation is performed [Hz].
 
     Returns:
         (np.ndarray): Measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
@@ -182,7 +182,7 @@ def sky_temperature_H81(
     Args:
         l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
-        f (np.ndarray): Central frequency at which the observation is performed [Hz].
+        f (float): Central frequency at which the observation is performed [Hz].
 
     Returns:
         (np.ndarray): Measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
@@ -227,7 +227,7 @@ def sky_temperature_H81refined(
     Args:
         l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
-        f (np.ndarray): Central frequency at which the observation is performed [Hz].
+        f (float): Central frequency at which the observation is performed [Hz].
 
     Returns:
         (np.ndarray): Measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.

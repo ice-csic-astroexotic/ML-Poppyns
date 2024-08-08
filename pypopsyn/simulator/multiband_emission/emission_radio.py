@@ -224,7 +224,7 @@ def calculate_radio_emission(
     dist: np.ndarray,
     B: np.ndarray,
     chi: np.ndarray,
-    idx_det,
+    idx_det: np.ndarray,
 ) -> dict:
     """
     Compute the radio beam geometry, the intrinsic bolometric radio flux and the DM.

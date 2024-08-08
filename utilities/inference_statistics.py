@@ -23,7 +23,7 @@ def inference_running_stat(
         n_bins (int): Number of bins.
 
     Returns:
-        (np.array, np.array, np.array, np.array): Array of central values of each bin, running value of the RMSE
+        (np.ndarray, np.ndarray, np.ndarray, np.ndarray): Array of central values of each bin, running value of the RMSE
             corresponding to each bin, running value of the average residuals corresponding to each bin and running
             MRE corresponding to each bin.
     """

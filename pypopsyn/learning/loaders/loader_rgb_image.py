@@ -95,7 +95,7 @@ class LoaderRGBImage(LoaderBase):
         self.data_path = data_path
         # No possiblity to ignore inputs is given in this dataset. The parameter
         # is just kept for interface purposes.
-        self.ignored_inputs = []
+        self.ignored_inputs = ignored_inputs
         self.dataset = DatasetRGBImage(
             self.data_path, transform=transformation
         )

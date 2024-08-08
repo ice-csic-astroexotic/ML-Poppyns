@@ -36,7 +36,7 @@ def infer(
     Perform inference on the model using the specified configuration and command line arguments.
 
     Args:
-        args (Namespace): The command line arguments containing configuration options,
+        args (argparse.Namespace): The command line arguments containing configuration options,
             save directory, and sample indices. It includes:
             - configuration (str): Path to the configuration file.
             - trained_model (str): Path to the pretrained model.

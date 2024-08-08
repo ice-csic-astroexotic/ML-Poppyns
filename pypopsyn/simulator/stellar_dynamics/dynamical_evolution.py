@@ -42,9 +42,9 @@ def dynamical_eq_system(
     The differential equation are written in cylindrical galactocentric coordinates (r, phi, z).
 
     Args:
+        t (float): Unused time variable, required for the integration below.
         initial_cond (np.ndarray): Array of 6 components defining the initial conditions in cylindrical coordinates
             (r0, phi0, z0, v_r0, omega0, v_z0) with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
-        t (float): Unused time variable, required for the integration below.
         galactic_model (gm.GalaxyModelBase): A galactic model to calculate the needed potential.
 
     Returns:

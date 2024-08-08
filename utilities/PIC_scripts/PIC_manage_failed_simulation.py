@@ -27,7 +27,7 @@ def manage_failed_simulations(args: argparse.Namespace) -> None:
     Copying the successfully relaunched output back to the original folders.
 
     Args:
-        args (Namespace): An argparse.Namespace object containing the following attributes:
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
             simulation_dir (pathlib.Path): Output directory where the simulation outputs are.
             failed_simulation_dir (pathlib.Path): Output directory where the failed simulation outputs are.
     """
