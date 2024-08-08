@@ -200,11 +200,14 @@ cfg["B_millisec_sigma"] = 0.5
 # (see Johnston et al. 2020).
 cfg["r_em"]: float = 3.0e7
 
-# Mean and standard deviation for the log-normally distributed radio luminosity normalization factor.
-# We have implemented two different prescriptions for the luminosity: one following Faucher-Giguère & Kaspi (2006)
-# (pdf_luminosity_radio_ppdot), and another one that directly depends on the loss of rotational energy (pdf_luminosity_radio_edot).
-# If the luminosity is given by pdf_luminosity_radio_ppdot then the units of L_radio_log10_mean are [erg s^(3 * epsilon_L - 1)].
-# Otherwise, L_0 has units of [ergs/s]. Parameters were adjusted to match observed data.
+# Relevant parameters for the log-normally distributed luminosity, L.
+# We have implemented two different prescriptions for the luminosity in the module
+# pypopsyn/simulator/multiband_emission/emission_radio.py based on the luminosity depending on different parameters.
+# One prescription follows Faucher-Giguère & Kaspi (2006) (pdf_luminosity_radio_ppdot) and assumes that L depends on
+# the period and period derivative. The second one assumes that L depends directly on the loss of rotational energy
+# (pdf_luminosity_radio_edot). If the luminosity is given by pdf_luminosity_radio_ppdot, then the units of
+# L_radio_log10_mean are [erg s^(3 * epsilon_L - 1)]. Otherwise, L_0 has units of [ergs/s]. In both cases,
+# the following parameters were adjusted to match observed data.
 cfg[
     "L_radio_log10_mean"
 ]: float = 26.6  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
