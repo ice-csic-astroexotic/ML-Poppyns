@@ -65,10 +65,10 @@ def aluminium(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -107,10 +107,10 @@ def argon(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -153,10 +153,10 @@ def calcium(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -199,10 +199,10 @@ def carbon(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -235,10 +235,10 @@ def chlorine(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -282,10 +282,10 @@ def chromium(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -332,10 +332,10 @@ def fano_resonance_line(
         q (float): Q coefficient for resonance (Fernley et al. 1987).
         nu (float): nu coefficient for resonance (Oza 1986).
         gamma (float): gamma coefficient for resonance (Oza 1986).
-        wavelength (np.ndarray): array of wavelengths in angstroms.
+        wavelength (np.ndarray): Array of wavelengths in angstroms.
 
     Returns:
-        fano line profile (np.ndarray): fano line profile.
+        fano line profile (np.ndarray): Fano line profile.
     """
 
     # Convert wavelength in angstrom into energy in Rydberg.
@@ -361,10 +361,10 @@ def helium(energy: np.ndarray) -> np.ndarray:
     (see W. F. Chen, G. Cooper, and C. E. Brion, Phys. Rev. A, 44, 186 (1991)).
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     He_atomic_weight = atomic_weights[1]
@@ -429,10 +429,10 @@ def hydrogen(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -456,10 +456,10 @@ def iron(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -501,10 +501,10 @@ def magnesium(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -540,10 +540,10 @@ def neon(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -576,10 +576,10 @@ def nickel(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -614,10 +614,10 @@ def nitrogen(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -650,10 +650,10 @@ def oxygen(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -686,10 +686,10 @@ def silicon(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -729,10 +729,10 @@ def sodium(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -770,10 +770,10 @@ def sulfur(energy: np.ndarray) -> np.ndarray:
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        mass absorption coefficient (np.ndarray): mass absorption coefficient as a function of the energy in cm^2/g.
+        mass absorption coefficient (np.ndarray): Mass absorption coefficient as a function of the energy in cm^2/g.
     """
 
     elog = np.log(energy)
@@ -820,11 +820,11 @@ def absorption_cross_section_tot(
     This function is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
-        abundances (np.ndarray): array of abundances in log10 relative to hydrogen (= 12.00).
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
+        abundances (np.ndarray): Array of abundances in log10 relative to hydrogen (= 12.00).
 
     Returns:
-        effective cross section (np.ndarray): effective cross section as a function of the energy
+        effective cross section (np.ndarray): Effective cross section as a function of the energy
             in cm^2/(eV hydrogen atom).
     """
 
@@ -872,10 +872,10 @@ def absorption_cross_section_approx(energy: np.ndarray) -> np.ndarray:
     is valid only over the energy range 30 - 10,000 eV.
 
     Args:
-        energy (np.ndarray): array of energies of the incoming photons in eV.
+        energy (np.ndarray): Array of energies of the incoming photons in eV.
 
     Returns:
-        effective cross section (np.ndarray): effective cross section as a function of the energy
+        effective cross section (np.ndarray): Effective cross section as a function of the energy
             in cm^2/(eV hydrogen atom).
     """
 

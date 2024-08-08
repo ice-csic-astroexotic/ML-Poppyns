@@ -38,13 +38,13 @@ def magnetic_field_evolution_fit_numpy(
     magneto_rotational_evolution method.
 
     Args:
-        B_initial (float): initial magnetic field strength in [G].
-        t (np.ndarray): time in [s].
-        B_asymptotic (float): asymptotic magnetic field strength at late times in [G].
-        a_late (float): power-law index for the late-time evolution of the magnetic field strength.
+        B_initial (float): Initial magnetic field strength in [G].
+        t (np.ndarray): Time in [s].
+        B_asymptotic (float): Asymptotic magnetic field strength at late times in [G].
+        a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
-        (np.ndarray): magnetic field evolution in [G] as a function of time t.
+        (np.ndarray): Magnetic field evolution in [G] as a function of time t.
     """
     # We consider an evolution determined by three main timescales tau1, tau2 and tau_late.
     # At early times the curves are fixed to reproduce the simulated magnetic field evolution from the magneto-thermal
@@ -94,13 +94,13 @@ def magnetic_field_evolution_fit(
     magneto_rotational_evolution method.
 
     Args:
-        B_initial (float): initial magnetic field strength in [G].
-        t (float): time in [s].
-        B_asymptotic (float): asymptotic magnetic field strength at late times in [G].
-        a_late (float): power-law index for the late-time evolution of the magnetic field strength.
+        B_initial (float): Initial magnetic field strength in [G].
+        t (float): Time in [s].
+        B_asymptotic (float): Asymptotic magnetic field strength at late times in [G].
+        a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
-        (float): magnetic field value in [G] at time t.
+        (float): Magnetic field value in [G] at time t.
     """
     # We consider an evolution determined by three main timescales tau1, tau2 and tau_late.
     # At early times the curves are fixed to reproduce the simulated magnetic field evolution from the magneto-thermal
@@ -157,15 +157,15 @@ def combined_derivatives(
     function to allow combined integration.
 
     Args:
-        t (float): unused time variable, required for the integration below.
-        y (np.ndarray): two magneto-rotational parameters, i.e., chi in [rad]
+        t (float): Unused time variable, required for the integration below.
+        y (np.ndarray): Two magneto-rotational parameters, i.e., chi in [rad]
             and P in [s] for a single pulsar at a given time.
-        B_initial (float): initial magnetic field magnitude for one pulsar, measured in [G].
-        B_asymptotic (float): asymptotic magnetic field strength at late times in [G].
-        a_late (float): power-law index for the late-time evolution of the magnetic field strength.
+        B_initial (float): Initial magnetic field magnitude for one pulsar, measured in [G].
+        B_asymptotic (float): Asymptotic magnetic field strength at late times in [G].
+        a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
-        (np.ndarray): derivative of the two magneto-rotational parameters for one pulsar,
+        (np.ndarray): Derivative of the two magneto-rotational parameters for one pulsar,
         quantities are referred to in respective changes per [yr].
     """
 
@@ -198,11 +198,11 @@ def magneto_rotational_evolution(
     current time) do not agree for pulsars.
 
     Args:
-        B_initial (np.ndarray): pulsars' initial magnetic field magnitudes, measured in [G].
-        chi_initial (np.ndarray): pulsars' initial misalignment angles, measured in [rad].
-        P_initial (np.ndarray): pulsars' initial rotation periods, measured in [s].
-        t_age (np.ndarray): array of neutron star ages in [yr].
-        a_late (float): power-law index for the late-time evolution of the magnetic field strength.
+        B_initial (np.ndarray): Pulsars' initial magnetic field magnitudes, measured in [G].
+        chi_initial (np.ndarray): Pulsars' initial misalignment angles, measured in [rad].
+        P_initial (np.ndarray): Pulsars' initial rotation periods, measured in [s].
+        t_age (np.ndarray): Array of neutron star ages in [yr].
+        a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
         (Tuple[np.ndarray, np.ndarray, np.ndarray, dict]): Tuple consisting of three arrays defining the neutron stars'

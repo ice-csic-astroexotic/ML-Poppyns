@@ -53,7 +53,7 @@ class InitialNeutronStarPopulation:
         probability distribution in a given range of time.
 
         Returns:
-            (np.ndarray): array of ages in [yr].
+            (np.ndarray): Array of ages in [yr].
         """
 
         log.debug(
@@ -84,10 +84,10 @@ class InitialNeutronStarPopulation:
         This 2D array is used to sample the neutron star positions in the Galaxy.
 
         Args:
-            t_age (np.ndarray): array of neutron star ages in [yr].
+            t_age (np.ndarray): Array of neutron star ages in [yr].
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray, np.ndarray]): polar r, phi and z coordinates in [kpc], [rad] and [kpc]
+            (Tuple[np.ndarray, np.ndarray, np.ndarray]): Polar r, phi and z coordinates in [kpc], [rad] and [kpc]
                 respectively for each generated neutron star.
         """
 
@@ -194,12 +194,12 @@ class InitialNeutronStarPopulation:
         values, the phi component is negative.
 
         Args:
-            r (np.ndarray): distance in the galactic disk from the galactic center
+            r (np.ndarray): Distance in the galactic disk from the galactic center
                 in [kpc].
-            z (np.ndarray): height from the galactic disk in [kpc].
+            z (np.ndarray): Height from the galactic disk in [kpc].
 
         Returns:
-            (np.ndarray): array of orbital velocities in [kpc/yr].
+            (np.ndarray): Array of orbital velocities in [kpc/yr].
         """
         circular_velocity_vect = np.vectorize(iv.circular_velocity)
         v_orb = -circular_velocity_vect(r, z)
@@ -213,7 +213,7 @@ class InitialNeutronStarPopulation:
         parameters are defined in config_simulator.py.
 
         Returns:
-            (np.ndarray): initial spin periods of the pulsar sample in [s].
+            (np.ndarray): Initial spin periods of the pulsar sample in [s].
         """
 
         spin_period_model = cfg["spin_period_model"]
@@ -245,7 +245,7 @@ class InitialNeutronStarPopulation:
         themselves normally distributed. The characteristic parameters are defined in config_simulator.py.
 
         Returns:
-            (np.ndarray): initial magnetic field strengths of the pulsar sample in [G].
+            (np.ndarray): Initial magnetic field strengths of the pulsar sample in [G].
         """
 
         B_rand = 10 ** np.random.normal(
@@ -262,7 +262,7 @@ class InitialNeutronStarPopulation:
         range [0, np.pi / 2] according to the probability density distribution np.sin.
 
         Returns:
-            (np.ndarray): initial misalignment angles of the pulsar sample in [rad].
+            (np.ndarray): Initial misalignment angles of the pulsar sample in [rad].
         """
 
         chi_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])

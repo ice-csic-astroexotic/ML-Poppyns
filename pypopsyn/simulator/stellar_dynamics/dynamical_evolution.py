@@ -42,13 +42,13 @@ def dynamical_eq_system(
     The differential equation are written in cylindrical galactocentric coordinates (r, phi, z).
 
     Args:
-        initial_cond (np.ndarray): array of 6 components defining the initial conditions in cylindrical coordinates
+        initial_cond (np.ndarray): Array of 6 components defining the initial conditions in cylindrical coordinates
             (r0, phi0, z0, v_r0, omega0, v_z0) with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
-        t (float): unused time variable, required for the integration below.
-        galactic_model (gm.GalaxyModelBase): a galactic model to calculate the needed potential.
+        t (float): Unused time variable, required for the integration below.
+        galactic_model (gm.GalaxyModelBase): A galactic model to calculate the needed potential.
 
     Returns:
-         (np.ndarray): array of 6 values of the first order and second order derivatives at each time step.
+         (np.ndarray): Array of 6 values of the first order and second order derivatives at each time step.
 
     """
 
@@ -82,11 +82,10 @@ def dynamical_evolution(
     galactic potential, starting from a set of initial conditions.
 
     Args:
-        initial_cond (np.ndarray): array of 6 components defining the initial
+        initial_cond (np.ndarray): Array of 6 components defining the initial
             conditions in cylindrical coordinates (r0, phi0, z0, v_r0, omega0, v_z0)
             with the following units ([kpc], [rad], [kpc], [kpc/yr], [rad/yr], [kpc/yr]).
-
-        t_age (np.ndarray): array of neutron star ages in [yr].
+        t_age (np.ndarray): Array of neutron star ages in [yr].
 
     Returns:
         (Tuple[np.ndarray, dict]): Tuple consisting of a two-dimensional array of shape (NS_number, 6)

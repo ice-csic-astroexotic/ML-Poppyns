@@ -35,12 +35,12 @@ def compute_NH(RA: np.ndarray, DEC: np.ndarray, d: np.ndarray) -> np.ndarray:
     available for download at https://zenodo.org/records/10779060.
 
     Args:
-        RA (np.ndarray): array of right ascension coordinates in deg.
-        DEC (np.ndarray): array of declination coordinates in deg.
-        d (np.ndarray): array of distances in kpc.
+        RA (np.ndarray): Array of right ascension coordinates in deg.
+        DEC (np.ndarray): Array of declination coordinates in deg.
+        d (np.ndarray): Array of distances in kpc.
 
     Returns:
-        N_H (np.ndarray): array of hydrogen column densities in cm^(-2).
+        N_H (np.ndarray): Array of hydrogen column densities in cm^(-2).
     """
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -144,10 +144,10 @@ def compute_NH_from_DM(DM: np.ndarray) -> np.ndarray:
     estimate for large values of N_H (see He, Ng and Kaspi (2013) for more details).
 
     Args:
-        DM (np.ndarray): array of dispersion measures in pc cm^-3.
+        DM (np.ndarray): Array of dispersion measures in pc cm^-3.
 
     Returns:
-        N_H (np.ndarray): array of hydrogen column densities in cm^(-2).
+        N_H (np.ndarray): Array of hydrogen column densities in cm^(-2).
     """
 
     N_H = np.array([0.3 * DM * 10**20], dtype=float)

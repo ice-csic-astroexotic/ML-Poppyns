@@ -31,14 +31,14 @@ def misalignment_angle_derivative(B: float, chi: float, P: float) -> float:
     Note that all three input parameters are time-dependent.
 
     Args:
-        B (float): values of the dipolar component of the magnetic field at the
+        B (float): Values of the dipolar component of the magnetic field at the
             magnetic pole for the sample of simulated neutron stars, measured in [G].
-        chi (float): angles between the magnetic dipolar moment, i.e., the magnetic
+        chi (float): Angles between the magnetic dipolar moment, i.e., the magnetic
             field axis, and the rotation axis for all simulated pulsars, measured in [rad].
-        P (float): spin periods of simulated pulsars, measured in [s].
+        P (float): Spin periods of simulated pulsars, measured in [s].
 
     Returns:
-        (float): misalignment angle derivatives for all simulated pulsars in [rad/yr].
+        (float): Misalignment angle derivatives for all simulated pulsars in [rad/yr].
     """
 
     # Canonical neutron star moment of inertia in [g cm^2] assuming a perfect solid sphere.

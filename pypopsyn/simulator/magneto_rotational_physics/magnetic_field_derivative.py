@@ -29,11 +29,11 @@ def timescale_ohmic(L: float, sigma: float) -> float:
     that reflect the ohmic diffusion process. For our choices see the configuration file.
 
     Args:
-        L (float): characteristic length scale on which the magnetic field varies, measured in [cm].
-        sigma (float): conductivity of the dominating dissipative process, measure in [1/s].
+        L (float): Characteristic length scale on which the magnetic field varies, measured in [cm].
+        sigma (float): Conductivity of the dominating dissipative process, measure in [1/s].
 
     Returns:
-        (float): ohmic diffusion timescale in [yr].
+        (float): Ohmic diffusion timescale in [yr].
     """
 
     tau_ohm = 4 * np.pi * sigma * L**2 / (const.C**2 * const.YR_TO_S)
@@ -51,9 +51,9 @@ def timescale_Hall(B: float, L: float, n_e: float) -> float:
     B will be identified with the initial dipolar magnetic field components at the pulsars' pole.
 
     Args:
-        B (float): (local) magnetic field strength, measured in [G].
-        L (float): characteristic length scale on which the magnetic field varies, measured in [cm].
-        n_e (float): electron density, measured in [g/cm^3].
+        B (float): Local magnetic field strength, measured in [G].
+        L (float): Characteristic length scale on which the magnetic field varies, measured in [cm].
+        n_e (float): Electron density, measured in [g/cm^3].
 
     Returns:
         (float): Hall timescale in [yr].
@@ -78,11 +78,11 @@ def field_derivative(B: float, B_initial: float) -> float:
     field strength.
 
     Args:
-        B (float): pulsar's magnetic field magnitudes evolving with time, measured in [G].
-        B_initial (float): pulsar's initial magnetic field magnitudes, measured in [G].
+        B (float): Pulsar's magnetic field magnitudes evolving with time, measured in [G].
+        B_initial (float): Pulsar's initial magnetic field magnitudes, measured in [G].
 
     Returns:
-        (np.ndarray): magnetic field derivatives for a simulated pulsars in [G/yr].
+        (np.ndarray): Magnetic field derivatives for a simulated pulsars in [G/yr].
     """
 
     tau_ohm = timescale_ohmic(L_cfg, sigma_cfg)

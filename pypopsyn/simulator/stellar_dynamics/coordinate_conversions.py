@@ -22,7 +22,7 @@ def check_radial_coordinate(r: np.ndarray) -> None:
     Check that the distance from the origin is not negative.
 
     Args:
-        r (np.ndarray): distance from the origin in units of length.
+        r (np.ndarray): Distance from the origin in units of length.
     """
     if np.any(r < 0):
         raise ValueError("One of the radial coordinates is out of range.")
@@ -35,8 +35,8 @@ def polar_to_cartesian(
     Calculating the Cartesian x and y coordinates from plane polar r and phi.
 
     Args:
-        r (np.ndarray): radial component (magnitude of the vector) in plane polar coordinates, r>0.
-        phi (np.ndarray): angular coordinate, [0, 2*pi].
+        r (np.ndarray): Radial component (magnitude of the vector) in plane polar coordinates, r>0.
+        phi (np.ndarray): Angular coordinate, [0, 2*pi].
 
     Returns:
         (Tuple[np.ndarray, np.ndarray]): x and y coordinates in a Cartesian system.
@@ -56,9 +56,9 @@ def spherical_to_cartesian(
     r, theta and psi.
 
     Args:
-        r (np.ndarray): radial component (magnitude of the vector) in spherical coordinates, r>0.
-        theta (np.ndarray): polar angle, [0, pi].
-        psi (np.ndarray): azimuthal angle, [0, 2*pi].
+        r (np.ndarray): Radial component (magnitude of the vector) in spherical coordinates, r>0.
+        theta (np.ndarray): Polar angle, [0, pi].
+        psi (np.ndarray): Azimuthal angle, [0, 2*pi].
 
     Returns:
         (Tuple[np.ndarray, np.ndarray, np.ndarray]): x, y and z coordinates in a Cartesian system.
@@ -79,10 +79,10 @@ def speed_cylindrical_to_cartesian(
     from cylindrical galactocentric components v_r, v_phi and v_z.
 
     Args:
-        v_r (np.ndarray): radial velocity component in a cylindrical galactocentric frame.
-        v_phi (np.ndarray): azimuthal velocity component in a cylindrical galactocentric frame.
+        v_r (np.ndarray): Radial velocity component in a cylindrical galactocentric frame.
+        v_phi (np.ndarray): Azimuthal velocity component in a cylindrical galactocentric frame.
         v_z (np.ndarray): z velocity component in a cylindrical galactocentric frame.
-        phi (np.ndarray): azimuthal angle [0, 2*pi] in cylindrical coordinates.
+        phi (np.ndarray): Azimuthal angle [0, 2*pi] in cylindrical coordinates.
 
     Returns:
         (Tuple[np.ndarray, np.ndarray, np.ndarray]): v_x, v_y and v_z velocity components in a Cartesian
@@ -206,8 +206,8 @@ def galactocentric_to_galactic(
         v_z (np.ndarray): z component of the velocity in [km/s] in galactocentric reference frame.
 
     Returns:
-        (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): galactic longitude l,
-            galactic latitude b in [deg], distance in [kpc], pm_l, pm_b proper motion components in [mas/yr]
+        (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Galactic longitude l,
+            Galactic latitude b in [deg], distance in [kpc], pm_l, pm_b proper motion components in [mas/yr]
             and line of sight velocity v_ls in [km/s].
     """
 

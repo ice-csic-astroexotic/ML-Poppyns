@@ -27,10 +27,10 @@ def measure(
     the specified device.
 
     Args:
-        model (torch.module): model to benchmark.
-        device (torch.device): device in which the model will be executed.
-        input_dummy (torch.tensor): dummy tensor for input purposes.
-        output_dummy (torch.tensor): dummy tensor for output purposes.
+        model (torch.module): Model to benchmark.
+        device (torch.device): Device in which the model will be executed.
+        input_dummy (torch.tensor): Dummy tensor for input purposes.
+        output_dummy (torch.tensor): Dummy tensor for output purposes.
 
     Returns:
         (Tuple[float, float]): A tuple that contains the time spent in the forward pass
@@ -72,10 +72,10 @@ def benchmark(
     Measure median time for forward/backward passes of a model on a device.
 
     Args:
-        model (torch.module): model to benchmark.
-        device (torch.device): device in which the model will be executed.
-        input_dummy (torch.tensor): dummy tensor for input purposes.
-        output_dummy (torch.tensor): dummy tensor for output purposes.
+        model (torch.module): Model to benchmark.
+        device (torch.device): Device in which the model will be executed.
+        input_dummy (torch.tensor): Dummy tensor for input purposes.
+        output_dummy (torch.tensor): Dummy tensor for output purposes.
 
     Returns:
         (Tuple[float, float]): A tuple that contains the median time spent in the

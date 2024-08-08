@@ -25,12 +25,12 @@ def beam_aperture(P: np.ndarray, r_em: float) -> np.ndarray:
     for a derivation and discussion of this model.
 
     Args:
-        P (np.ndarray): array of spin periods of the pulsars in [s].
-        r_em (float): distance from the center of the star where the radio emission
+        P (np.ndarray): Array of spin periods of the pulsars in [s].
+        r_em (float): Distance from the center of the star where the radio emission
             is supposed to be generated [cm].
 
     Returns:
-        (np.ndarray): half angular aperture of the radio beam in [rad].
+        (np.ndarray): Half angular aperture of the radio beam in [rad].
     """
 
     rho_b = np.sqrt(9.0 * np.pi * r_em / (2.0 * const.C * P))
@@ -48,13 +48,13 @@ def pulse_width(
     aperture of the beam. See eq. (1) in Maciesiak et al. (2011a) and eq. (3.26) in Lorimer & Kramer (2004).
 
     Args:
-        chi (np.ndarray): array of inclination angles between the magnetic axis and the rotation axis [rad].
-        rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
-        los (np.ndarray): polar angles of the line of sight intercept computed with respect
+        chi (np.ndarray): Array of inclination angles between the magnetic axis and the rotation axis [rad].
+        rho_b (np.ndarray): Array of angular apertures of the radio beam of the pulsars in [rad].
+        los (np.ndarray): Polar angles of the line of sight intercept computed with respect
             to the rotation axis of the star [rad].
 
     Returns:
-        (np.ndarray): array of intrinsic pulse widths in [rad].
+        (np.ndarray): Array of intrinsic pulse widths in [rad].
     """
 
     # Compute the impact parameter, i.e., the angular distance between the LOS intercept and the center of the beam.
@@ -80,10 +80,10 @@ def solid_angle_radio_beams(rho_b: np.ndarray) -> np.ndarray:
     Total solid angle covered by the two radio beams as a function of the radio beam aperture.
 
     Args:
-        rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
+        rho_b (np.ndarray): Array of angular apertures of the radio beam of the pulsars in [rad].
 
     Returns:
-        (np.ndarray): total solid angle covered by the radio beams.
+        (np.ndarray): Total solid angle covered by the radio beams.
     """
 
     solid_angle = 4 * np.pi * (1 - np.cos(rho_b))
@@ -99,12 +99,12 @@ def beam_fraction(chi: np.ndarray, rho_b: np.ndarray) -> np.ndarray:
     See Appendix in Emmering and Chevalier (1989).
 
     Args:
-        chi (np.ndarray): array of inclination angles of the magnetic axis
+        chi (np.ndarray): Array of inclination angles of the magnetic axis
             with respect to the rotation axis of the pulsars in [rad].
-        rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
+        rho_b (np.ndarray): Array of angular apertures of the radio beam of the pulsars in [rad].
 
     Returns:
-        (np.ndarray): fraction of solid angle swept by the radio beam.
+        (np.ndarray): Fraction of solid angle swept by the radio beam.
     """
 
     beam_frac = np.cos(np.maximum(0, (chi - rho_b))) - np.cos(
@@ -122,13 +122,13 @@ def los_intercept(
     orientation of the LOS with respect to the rotation axis.
 
     Args:
-        chi (np.ndarray): array of inclination angles of the pulsars in [rad].
-        rho_b (np.ndarray): array of angular apertures of the radio beam of the pulsars in [rad].
-        los (np.ndarray): polar angle of the line of sight intercept computed with respect
+        chi (np.ndarray): Array of inclination angles of the pulsars in [rad].
+        rho_b (np.ndarray): Array of angular apertures of the radio beam of the pulsars in [rad].
+        los (np.ndarray): Polar angle of the line of sight intercept computed with respect
             to the rotation axis of the star [rad].
 
     Returns:
-        (np.ndarray): array of boolean variables: true if the radio beam intercepts the LOS and false if not.
+        (np.ndarray): Array of boolean variables: true if the radio beam intercepts the LOS and false if not.
     """
 
     condition = (los > chi - rho_b) & (los < chi + rho_b)
@@ -143,11 +143,11 @@ def pdf_luminosity_radio(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     and spin period derivative. We assume a random log-normal spread for the normalization constant L_0.
 
     Args:
-        P (np.ndarray): array of spin periods of the pulsars in [s].
-        P_dot (np.ndarray): array of spin period derivatives of the pulsars in [s/s].
+        P (np.ndarray): Array of spin periods of the pulsars in [s].
+        P_dot (np.ndarray): Array of spin period derivatives of the pulsars in [s/s].
 
     Returns:
-        (np.ndarray): pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.
+        (np.ndarray): Pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.
     """
 
     NS_number = len(P)
@@ -169,12 +169,12 @@ def flux_radio(
     Compute the intrinsic bolometric radio flux for each pulsars in [erg s^(-1) cm^(-2)].
 
     Args:
-        L_radio (np.ndarray): pulsar bolometric radio luminosity in [erg s^(-1)].
-        d (np.ndarray): distance to the pulsar in [kpc].
-        solid_angle (np.ndarray): solid angle covered by the radio beams in [sr].
+        L_radio (np.ndarray): Pulsar bolometric radio luminosity in [erg s^(-1)].
+        d (np.ndarray): Distance to the pulsar in [kpc].
+        solid_angle (np.ndarray): Solid angle covered by the radio beams in [sr].
 
     Returns:
-        (np.ndarray): intrinsic pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
+        (np.ndarray): Intrinsic pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
     """
 
     # Convert distance from [kpc] to [cm].
@@ -196,14 +196,14 @@ def flux_density_radio(
     Compute the radio flux density at a given frequency f assuming a power law spectral shape for the radio emission.
 
     Args:
-        S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
-        f (float): frequency in [Hz] at which the radio luminosity has to be computed.
-        spectral_index (float): spectral index of the radio emission, assuming a power-law spectrum.
-        f_min (float): frequency lower limit of the radio emission spectrum [Hz].
-        f_max (float): frequency upper limit of the radio emission spectrum [Hz].
+        S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
+        f (float): Frequency in [Hz] at which the radio luminosity has to be computed.
+        spectral_index (float): Spectral index of the radio emission, assuming a power-law spectrum.
+        f_min (float): Frequency lower limit of the radio emission spectrum [Hz].
+        f_max (float): Frequency upper limit of the radio emission spectrum [Hz].
 
     Returns:
-        (np.ndarray): intrinsic pulsar radio flux density in [Jy] at the frequency f.
+        (np.ndarray): Intrinsic pulsar radio flux density in [Jy] at the frequency f.
     """
 
     S_radio_f = (
@@ -232,17 +232,17 @@ def calculate_radio_emission(
     This function is used in the simulate_population_magrot_det.py script.
 
     Args:
-        P (np.ndarray): array of spin periods of the pulsars in [s].
-        age (np.ndarray): array of neutron star ages [yrs].
-        l_gal (np.ndarray): array of galactic longitudes in [deg] defined between [-180, 180] deg.
-        b_gal (np.ndarray): array of galactic latitudes in [deg] defined between [-90, 90] deg.
-        dist (np.ndarray): array of distances from the ICRS origin in [kpc].
-        B (np.ndarray): array of neutron stars' final magnetic field strengths in [G].
-        chi (np.ndarray): array of the misalignment angles in [rad].
-        idx_det (np.ndarray): array of the indexes of detected pulsars.
+        P (np.ndarray): Array of spin periods of the pulsars in [s].
+        age (np.ndarray): Array of neutron star ages [yrs].
+        l_gal (np.ndarray): Array of galactic longitudes in [deg] defined between [-180, 180] deg.
+        b_gal (np.ndarray): Array of galactic latitudes in [deg] defined between [-90, 90] deg.
+        dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
+        B (np.ndarray): Array of neutron stars' final magnetic field strengths in [G].
+        chi (np.ndarray): Array of the misalignment angles in [rad].
+        idx_det (np.ndarray): Array of the indexes of detected pulsars.
 
     Returns:
-        (Dict): dictionary with the intrinsic properties of the pulsars whose beam crosses our line of sight.
+        (Dict): Dictionary with the intrinsic properties of the pulsars whose beam crosses our line of sight.
     """
 
     # Determining the radio beam angular aperture.
@@ -347,16 +347,16 @@ def calculate_radio_emission_full(
     simulate_population_full.py script, where we perform the dynamical and magneto-rotational evolution together.
 
     Args:
-        P (np.ndarray): array of spin periods of the pulsars in [s].
-        P_dot (np.ndarray): array of spin period derivatives of the pulsars in [s/s].
-        dist (np.ndarray): array of distances from the ICRS origin in [kpc].
-        chi (np.ndarray): array of the misalignment angles in [rad].
+        P (np.ndarray): Array of spin periods of the pulsars in [s].
+        P_dot (np.ndarray): Array of spin period derivatives of the pulsars in [s/s].
+        dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
+        chi (np.ndarray): Array of the misalignment angles in [rad].
 
     Returns:
-        intercepted_radio (np.ndarray): array of Booleans with the pulsars whose beams cross our line of sight.
-        S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
-        w_int_s (np.ndarray): intrinsic pulse widths in [s].
-        L_radio_bol (np.ndarray): pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.
+        intercepted_radio (np.ndarray): Array of Booleans with the pulsars whose beams cross our line of sight.
+        S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
+        w_int_s (np.ndarray): Intrinsic pulse widths in [s].
+        L_radio_bol (np.ndarray): Pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.
     """
 
     # Determining the luminosity in different electromagnetic bands.

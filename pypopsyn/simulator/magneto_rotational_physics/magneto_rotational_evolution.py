@@ -29,13 +29,13 @@ def combined_derivatives(
     function to allow combined integration.
 
     Args:
-        t (float): unused time variable, required for the integration below.
-        y (np.ndarray): three magneto-rotational parameters, i.e., B in [G], chi in [rad]
+        t (float): Unused time variable, required for the integration below.
+        y (np.ndarray): Three magneto-rotational parameters, i.e., B in [G], chi in [rad]
             and P in [s] for a single pulsar at a given time.
-        B_initial (float): initial magnetic field magnitude for one pulsar, measured in [G].
+        B_initial (float): Initial magnetic field magnitude for one pulsar, measured in [G].
 
     Returns:
-        (np.ndarray): derivative of the three magneto-rotational parameters for one pulsar,
+        (np.ndarray): Derivative of the three magneto-rotational parameters for one pulsar,
             quantities are referred to in respective changes per [yr].
     """
 
@@ -66,10 +66,10 @@ def magneto_rotational_evolution(
     current time) do not agree for pulsars.
 
     Args:
-        B_initial (np.ndarray): pulsars' initial magnetic field magnitudes, measured in [G].
-        chi_initial (np.ndarray): pulsars' initial misalignment angles, measured in [rad].
-        P_initial (np.ndarray): pulsars' initial rotation periods, measured in [s].
-        t_age (np.ndarray): array of neutron star ages in [yr].
+        B_initial (np.ndarray): Pulsars' initial magnetic field magnitudes, measured in [G].
+        chi_initial (np.ndarray): Pulsars' initial misalignment angles, measured in [rad].
+        P_initial (np.ndarray): Pulsars' initial rotation periods, measured in [s].
+        t_age (np.ndarray): Array of neutron star ages in [yr].
 
     Returns:
         (Tuple[np.ndarray, np.ndarray, np.ndarray, dict]): Tuple consisting of three arrays defining the neutron stars'
