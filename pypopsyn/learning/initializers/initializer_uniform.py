@@ -33,7 +33,7 @@ class InitializerUniform(InitializerBase):
         constant zero value.
 
         Args:
-            m (torch.module): module with parameters to be initialized. Could
+            m (torch.module): Module with parameters to be initialized. Could
                 be anything from a linear layer to a convolutional one. Right now,
                 only initialization of Linear layers is performed.
         """

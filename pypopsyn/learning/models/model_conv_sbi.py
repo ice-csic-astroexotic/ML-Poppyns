@@ -16,7 +16,9 @@ from .model_base import ModelBase
 
 
 class ModelConvSBI(ModelBase):
-    """A convolutional neural network model with 2 convolutional filters."""
+    """
+    A convolutional neural network model with 2 convolutional filters.
+    """
 
     def __init__(
         self, input_shape: np.array, len_output_layer: int = 1

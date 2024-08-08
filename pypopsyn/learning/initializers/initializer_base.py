@@ -29,7 +29,7 @@ class InitializerBase:
         Custom call operator for initializing the parameters of a torch module.
 
         Args:
-            m (torch.module): module with parameters to be initialized. Could
+            m (torch.module): Module with parameters to be initialized. Could
                 be anything from a linear layer to a convolutional one.
         """
         raise NotImplementedError

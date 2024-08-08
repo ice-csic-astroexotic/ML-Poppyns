@@ -130,7 +130,7 @@ class BaseTrainer:
             epoch (int): The current epoch number.
 
         Returns:
-            (Any): the output of the training for a single epoch.
+            (Any): The output of the training for a single epoch.
         """
 
         raise NotImplementedError
@@ -150,13 +150,13 @@ class BaseTrainer:
         it also saves the most accurate model to `best_model.pth`.
 
         Args:
-            trial (int): the current trial to add suffixes to the saved models
+            trial (int): The current trial to add suffixes to the saved models
                 and checkpoints. Can be none if no trial is specified.
 
         Returns:
-            (dict): a dictionary with the best values for each individual loss for
+            (dict): A dictionary with the best values for each individual loss for
                 each one of the targets.
-            (float): the best result for the specified metric over the whole
+            (float): The best result for the specified metric over the whole
                 training process (validation accuracy according to the metric if
                 validation is performed and training accuracy otherwise).
         """
@@ -335,8 +335,8 @@ class BaseTrainer:
         configuration.
 
         Args:
-            epoch (int): current training epoch.
-            filename (str): filename to save the checkpoint to.
+            epoch (int): Current training epoch.
+            filename (str): Filename to save the checkpoint to.
         """
 
         arch = type(self.model).__name__

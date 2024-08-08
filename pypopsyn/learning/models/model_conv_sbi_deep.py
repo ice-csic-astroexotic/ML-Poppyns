@@ -16,7 +16,9 @@ from .model_base import ModelBase
 
 
 class ModelConvSBIdeep(ModelBase):
-    """A convolutional neural network model with 4 convolutional filters."""
+    """
+    A convolutional neural network model with 4 convolutional filters.
+    """
 
     def __init__(
         self, input_shape: np.array, len_output_layer: int = 1
@@ -28,7 +30,7 @@ class ModelConvSBIdeep(ModelBase):
 
         Args:
             input_shape (np.array): Shape of the input batch (C x H x W).
-            len_output_layer (int): length of the latent vector.
+            len_output_layer (int): Length of the latent vector.
         """
 
         super().__init__()

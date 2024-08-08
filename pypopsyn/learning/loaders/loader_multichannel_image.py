@@ -38,13 +38,13 @@ class DatasetMultichannelImage:
         Initialization or constructor function for the dataset.
 
         Args:
-            file_path (str): path to the dataset.csv file containing all the
+            file_path (str): Path to the dataset.csv file containing all the
                 information on the dataset.
-            ignore (list): indices of the columns of the dataset that
+            ignore (list): Indices of the columns of the dataset that
                 will be ignored by the loader.
-            ignore_labels (list): indices of the target/label columns in the dataset that
+            ignore_labels (list): Indices of the target/label columns in the dataset that
                 will be ignored by the loader.
-            transform (Optional[Callable]): transformations to apply to the images.
+            transform (Optional[Callable]): Transformations to apply to the images.
         """
         self.dataset = pd.read_csv(file_path)
         # Remove the input columns and labels that are to be ignored.
@@ -58,7 +58,7 @@ class DatasetMultichannelImage:
         Length of the dataset (number of samples).
 
         Returns:
-            (int): length of the dataset
+            (int): Length of the dataset
         """
         return len(self.dataset)
 
@@ -67,10 +67,10 @@ class DatasetMultichannelImage:
         Read the dataset and extract the images and the corresponding labels.
 
         Args:
-            index (int): index running along the rows of the dataset.csv file.
+            index (int): Index running along the rows of the dataset.csv file.
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray]): tuple consisting of a multi-channel 2D image
+            (Tuple[np.ndarray, np.ndarray]): Tuple consisting of a multi-channel 2D image
                 with shape N x N x channels (where N is the number of entries
                 along a row or column of the array in the .npy file) composed by stacking
                 all input images specified in the dataset for the requested sample
@@ -124,7 +124,7 @@ class LoaderMultichannelImage(LoaderBase):
         packed in dataset.csv file.
 
         Args:
-            data_path (string): path to the dataset.
+            data_path (string): Path to the dataset.
             batch_size (int): Number of samples per batch.
             ignored_inputs (list): Indices of columns in the dataset to ignore.
             ignored_labels (list): Indices of columns with labels to ignore.

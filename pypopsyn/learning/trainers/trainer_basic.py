@@ -43,14 +43,14 @@ class TrainerBasic(BaseTrainer):
         Basic trainer initialization.
 
         Args:
-            model (torch.nn.Module): network model to train.
-            criterion (pypopsyn.LossBase): criterion for the loss calculation.
-            metric (pypopsyn.MetricBase): accuracy metric to be computed.
-            optimizer (torch.optim.Optimizer): optimizer for training.
-            configuration (pypopsyn.learning.configuration_parser): config dict.
-            train_loader (pypopsyn.learning.loaders.loader_base): train loader.
-            val_loader (pypopsyn.learning.loaders.loader_base): validation loader.
-            lr_scheduler (torch.optim.lr_scheduler): learning rate scheduler.
+            model (torch.nn.Module): Network model to train.
+            criterion (pypopsyn.LossBase): Criterion for the loss calculation.
+            metric (pypopsyn.MetricBase): Accuracy metric to be computed.
+            optimizer (torch.optim.Optimizer): Optimizer for training.
+            configuration (pypopsyn.learning.configuration_parser): Configuration dictionary.
+            train_loader (pypopsyn.learning.loaders.loader_base): Train loader.
+            val_loader (pypopsyn.learning.loaders.loader_base): Validation loader.
+            lr_scheduler (torch.optim.lr_scheduler): Learning rate scheduler.
         """
 
         super().__init__(model, criterion, metric, optimizer, configuration)
@@ -117,7 +117,7 @@ class TrainerBasic(BaseTrainer):
             epoch (int): Current epoch number.
 
         Returns:
-            (Tuple[dict, dict, dict]): a Tuple containing the following dictionaries:
+            (Tuple[dict, dict, dict]): A Tuple containing the following dictionaries:
                 dictionary with the results for the epoch, i.e., the
                 average for the losses and for the tracked metric for the training set.
                 A dictionary with the same info but for the validation set (if available, None is

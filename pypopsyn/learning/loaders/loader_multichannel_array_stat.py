@@ -39,7 +39,7 @@ class DatasetMultichannelArray:
         deviation, minimum and maximum.
 
         Args:
-            statistic_path (str): path to the statistics.json file containing the statistics
+            statistic_path (str): Path to the statistics.json file containing the statistics
                 of the training dataset.
         """
 
@@ -101,19 +101,19 @@ class DatasetMultichannelArray:
         Initialization or constructor routine for the dataset.
 
         Args:
-            dataset_path (str): path to the dataset.csv file containing all the
+            dataset_path (str): Path to the dataset.csv file containing all the
                 information on the dataset.
-            statistic_path (str): path to the statistics.json file containing the statistics
+            statistic_path (str): Path to the statistics.json file containing the statistics
                 of the training dataset.
-            filter_channels (list): indices of the input columns of the dataset that
+            filter_channels (list): Indices of the input columns of the dataset that
                 will be considered by the loader.
-            filter_labels (list): indices of the target/labels columns in the
+            filter_labels (list): Indices of the target/labels columns in the
                 dataset that will be considered by the loader.
-            normalize (bool): whether to normalize inputs and targets or not on
+            normalize (bool): Whether to normalize inputs and targets or not on
                 the fly while loading samples.
-            standardize (bool): whether or not to standardize inputs and targets
+            standardize (bool): Whether or not to standardize inputs and targets
                 on the fly while loading samples.
-            transform (Optional[Callable]): transformations to apply to the arrays.
+            transform (Optional[Callable]): Transformations to apply to the arrays.
         """
 
         self.normalize = normalize
@@ -136,7 +136,7 @@ class DatasetMultichannelArray:
         Length of the dataset (number of samples).
 
         Returns:
-            (int): length of the dataset
+            (int): Length of the dataset
 
         """
         return len(self.dataset)
@@ -146,10 +146,10 @@ class DatasetMultichannelArray:
         Read the dataset and extract the arrays and the corresponding labels.
 
         Args:
-            index (int): index running along the rows of the dataset CSV file.
+            index (int): Index running along the rows of the dataset CSV file.
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray]): tuple consisting of a multi-channel 2D array
+            (Tuple[np.ndarray, np.ndarray]): Tuple consisting of a multi-channel 2D array
                 with shape N x N x channels (where N is the number of entries
                 along a row or column of the array in the .npy file) composed by stacking
                 all input arrays specified in the dataset for the requested sample
@@ -232,15 +232,15 @@ class LoaderMultichannelArray(LoaderBase):
         files to be loaded.
 
         Args:
-            dataset_path (string): path to the dataset.
-            statistic_path (string): path to the dataset.
+            dataset_path (string): Path to the dataset.
+            statistic_path (string): Path to the dataset.
             batch_size (int): Number of samples per batch.
             filter_inputs (list): Indices of columns in the dataset to consider.
             filter_labels (list): Indices of columns with labels to consider.
             num_workers (int): Workers to load the data.
             shuffle (bool): Shuffle the samples or not.
-            normalize (bool): whether to normalize inputs and targets or not.
-            standardize (bool): whether or not to standardize inputs and targets.
+            normalize (bool): Whether to normalize inputs and targets or not.
+            standardize (bool): Whether or not to standardize inputs and targets.
         """
 
         transformation = torchvision.transforms.ToTensor()

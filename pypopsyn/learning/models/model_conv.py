@@ -16,7 +16,9 @@ from .model_base import ModelBase
 
 
 class ModelConv(ModelBase):
-    """A convolutional neural network model"""
+    """
+    A convolutional neural network model
+    """
 
     def __init__(self, input_shape: np.array, num_parameters: int = 1) -> None:
         """
