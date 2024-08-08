@@ -124,11 +124,11 @@ def generate_dataset(args: argparse.Namespace) -> None:
 
     Args:
         args (Namespace): An argparse.Namespace object containing the following attributes:
-            data (str): Path to where the observed population is located.
-            save_dir (str): Path to where the generated dataset will be saved.
-            data_type (str): Type of dataset to generate: array or image.
-            resolution_ppdot (int): Resolution (number of bins per axis for the 2d
-            histograms) for the P-Pdot density maps to generate.
+            - data (str): Path to where the observed population is located.
+            - save_dir (str): Path to where the generated dataset will be saved.
+            - data_type (str): Type of dataset to generate: array or image.
+            - resolution_ppdot (int): Resolution (number of bins per axis for the 2d
+                histograms) for the P-Pdot density maps to generate.
     """
 
     # Create the dataset directory path.

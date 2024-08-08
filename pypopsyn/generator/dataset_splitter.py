@@ -74,7 +74,21 @@ def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
     return set1_dataset_dictionary, set2_dataset_dictionary
 
 
-def main(args) -> None:
+def main(args: argparse.Namespace) -> None:
+    """
+    This function reads a dataset from a specified path, splits it into training,
+    validation, and test sets based on the provided split fractions, and saves
+    the resulting datasets to CSV files. It also computes statistics for the
+    training dataset and saves them to a JSON file.
+
+    Args:
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+            - dataset_path (str): The path where the simulation dataset is stored.
+            - test_split (float or None): The fraction of the total dataset to
+              allocate for the test set. Must be in the range [0, 1].
+            - valid_split (float or None): The fraction of the training dataset
+              to allocate for the validation set. Must be in the range [0, 1].
+    """
 
     dataset_filename = f"{args.dataset_path}/dataset_full.csv"
     dataset_dictionary = pd.read_csv(dataset_filename, header=[0]).to_dict(

@@ -51,17 +51,17 @@ def generate_ppdot_map(
     generated example.
 
     Args:
-        dataset_path (str): path to the folder where the map will be created.
-        map_name (str): specific name for this map.
-        sample_number (int): number to suffix this map in the dataset.
-        map_type (str): type of map to generate (array or image).
-        periods (np.array): spin periods of the neutron stars (horizontal axis).
-        period_derivatives (np.array): spin period derivatives of the neutron stars (vertical axis).
-        p_resolution (int): resolution in the horizontal axis.
-        pdot_resolution (int): resolution in the vertical axis.
-        ppdot_maps_dictionary (dict): partial dictionary of P-Pdot maps.
-        p_limits (Tuple[float, float]): limits of the horizontal axis.
-        pdot_limits (Tuple[float, float]): limits of the vertical axis.
+        dataset_path (str): Path to the folder where the map will be created.
+        map_name (str): Specific name for this map.
+        sample_number (int): Number to suffix this map in the dataset.
+        map_type (str): Type of map to generate (array or image).
+        periods (np.array): Spin periods of the neutron stars (horizontal axis).
+        period_derivatives (np.array): Spin period derivatives of the neutron stars (vertical axis).
+        p_resolution (int): Resolution in the horizontal axis.
+        pdot_resolution (int): Resolution in the vertical axis.
+        ppdot_maps_dictionary (dict): Partial dictionary of P-Pdot maps.
+        p_limits (Tuple[float, float]): Limits of the horizontal axis.
+        pdot_limits (Tuple[float, float]): Limits of the vertical axis.
     """
 
     # Compose the final filename with the dataset path, the name for the map,

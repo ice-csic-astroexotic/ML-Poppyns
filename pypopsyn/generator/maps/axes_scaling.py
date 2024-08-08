@@ -18,8 +18,9 @@ def check_range_above_zero(r_range: typing.Tuple[float, float]) -> None:
     Check that a range larger than zero is provided.
 
     Args:
-        r_range (Tuple[float, float]): value range to be checked.
+        r_range (Tuple[float, float]): Range of values for the r coordinate to be checked.
     """
+
     if (r_range[0] <= 0) or (r_range[1] <= 0):
         raise ValueError("Value range has to be above zero.")
 
@@ -38,17 +39,16 @@ def log_scale_vs_linear_scale(
     in both directions.
 
     Args:
-        x_range (float, float): horizontal range of values for the points.
-        y_range (float, float): vertical range of values for the points.
-        x_log_scale (bool): if True set the x-axis scale to log scale.
-        y_log_scale (bool): if True set the y-axis scale to log scale.
-        n_x_bins (int): number of horizontal bins for the density map.
-        n_y_bins (int): number of vertical bins for the density map.
+        x_range (float, float): Horizontal range of values for the points.
+        y_range (float, float): Vertical range of values for the points.
+        x_log_scale (bool): If True set the x-axis scale to log scale.
+        y_log_scale (bool): If True set the y-axis scale to log scale.
+        n_x_bins (int): Number of horizontal bins for the density map.
+        n_y_bins (int): Number of vertical bins for the density map.
 
     Returns:
-        (Tuple[float, float]): edges of the bins in x and y direction according to
+        (Tuple[float, float]): Edges of the bins in x and y direction according to
         the chosen scale.
-
     """
 
     if x_log_scale and y_log_scale:
