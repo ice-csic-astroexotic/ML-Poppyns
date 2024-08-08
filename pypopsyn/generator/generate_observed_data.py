@@ -58,8 +58,9 @@ def create_survey_maps(
     Pdot_meerkat: np.ndarray,
 ) -> None:
     """
-    This method reads the observed population from the ATNF Pulsar Catalogue and the Meerkat TPA program (Posselt ,B et al 2023).
-    and generates a set of density maps in the specified format (images or arrays) and with a specified resolution.
+    This method reads the observed population from the ATNF Pulsar Catalogue and the Meerkat TPA program (Posselt et
+    al., 2023) and generates a set of density maps in the specified format (images or arrays) and with a specified
+    resolution.
 
     Args:
         dataset_path (str): Path to where the generated dataset will be saved.
@@ -151,7 +152,7 @@ def create_survey_maps(
 def generate_dataset(args: argparse.Namespace) -> None:
     """
     This method generates a dataset of density maps in the specified format (images or arrays) and with a specified
-    resolution from the ATNF Pulsar Catalogue and the Meerkat TPA program (Posselt ,B et al 2023).
+    resolution from the ATNF Pulsar Catalogue and the Meerkat TPA program (Posselt et al., 2023).
     All the information about the dataset is stored in a dataset.csv file containing the density-map file names
     and the set of parameter values for each simulated population.
 
