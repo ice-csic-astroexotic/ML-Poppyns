@@ -47,10 +47,10 @@ def calculate_selection_weights(d: np.ndarray) -> np.ndarray:
     and more likely to be detected.
 
     Args:
-        d (np.ndarray): array of distances from the Sun [kpc].
+        d (np.ndarray): Array of distances from the Sun [kpc].
 
     Returns:
-        (np.ndarray): array of selection weights.
+        (np.ndarray): Array of selection weights.
     """
 
     # This function has been fine-tuned to match the distribution of distances from the Sun of

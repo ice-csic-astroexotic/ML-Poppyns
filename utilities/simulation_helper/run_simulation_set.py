@@ -169,7 +169,7 @@ def run_simulation_dask(
         simulator_type (str): The type of simulator to use, determining the specific simulation script to run.
         simulation_output_path (str): Path to the simulation output folder.
         simulation_override_json (dict): Dictionary with the parameter values for the override.json file.
-        dyn_data_path (str): dynamical database path.
+        dyn_data_path (str): Dynamical database path.
     """
 
     # Copy the dynamical database and the repository to the node if it is not already there.
@@ -225,7 +225,7 @@ def run_simulation(command: str) -> typing.Tuple[pathlib.Path, str]:
     set of CLI arguments) and captures all the output of the process.
 
     Args:
-        command (str): full command to execute the simulation.
+        command (str): Full command to execute the simulation.
 
     Returns:
         (Tuple[pathlib.Path, str]): The simulation command and the output of the process.
@@ -257,7 +257,7 @@ def log_simulation(process_result: typing.Tuple[pathlib.Path, str]) -> None:
     Callback to log all the info returned from a simulation run.
 
     Args:
-        process_result (Tuple[pathlib.Path, str]): tuple containing the process simulation command and the
+        process_result (Tuple[pathlib.Path, str]): Tuple containing the process simulation command and the
             whole process output to console string.
     """
 
@@ -275,9 +275,9 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
     Set up the process pool for multiprocessing with a global pause/resume event.
 
     Args:
-        event (mp.Event): reference to a master process event that will signal the child
+        event (mp.Event): Reference to a master process event that will signal the child
             processes to pause or resume execution.
-        lock (mp.Lock): a reference to a master process lock that will coordinate the
+        lock (mp.Lock): A reference to a master process lock that will coordinate the
             child process launching with waiting times.
     """
 

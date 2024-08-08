@@ -42,7 +42,7 @@ def check_parameter_compatibility(args_dict: dict) -> None:
     Check if the parsed input arguments are coherent with the ones provided in the configuration file of the simulator.
 
     Args:
-        args_dict (dict): dictionary of the parsed argument via CLI.
+        args_dict (dict): Dictionary of the parsed argument via CLI.
     """
 
     if (
@@ -89,12 +89,12 @@ def expand_parameter(
     If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
 
     Args:
-        args_dict (dict): dictionary of the parsed argument via CLI.
-        parameter_name (str): name of the parameter to expand.
-        range_values (list): range of values where to expand the parameter.
+        args_dict (dict): Dictionary of the parsed argument via CLI.
+        parameter_name (str): Name of the parameter to expand.
+        range_values (list): Range of values where to expand the parameter.
 
     Returns:
-        (np.ndarray): a list containing the expanded range of the parameter.
+        (np.ndarray): A list containing the expanded range of the parameter.
     """
 
     expanded_parameter = []
@@ -131,10 +131,10 @@ def check_expand_args(args_dict: dict) -> Tuple[list, list]:
     If in random mode: draw random set of parameter values from uniform distributions in the specified ranges.
 
     Args:
-        args_dict (dict): dictionary of the parsed argument via CLI.
+        args_dict (dict): Dictionary of the parsed argument via CLI.
 
     Returns:
-        (Tuple[list, list]): a list containing the expanded ranges of the parameters and a list containing the names of the
+        (Tuple[list, list]): A list containing the expanded ranges of the parameters and a list containing the names of the
             expanded parameters.
     """
 

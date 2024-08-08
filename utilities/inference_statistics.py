@@ -18,12 +18,12 @@ def inference_running_stat(
     data.
 
     Args:
-        x (np.ndarray): predicted values.
-        targets (np.ndarray): target values.
-        n_bins (int): number of bins.
+        x (np.ndarray): Predicted values.
+        targets (np.ndarray): Target values.
+        n_bins (int): Number of bins.
 
     Returns:
-        (np.array, np.array, np.array, np.array): array of central values of each bin, running value of the RMSE
+        (np.array, np.array, np.array, np.array): Array of central values of each bin, running value of the RMSE
             corresponding to each bin, running value of the average residuals corresponding to each bin and running
             MRE corresponding to each bin.
     """

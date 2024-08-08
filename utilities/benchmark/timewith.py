@@ -68,7 +68,7 @@ class TimeWith:
         calls (i.e., time between checkpoints).
 
         Returns:
-            (Tuple[float, float]): tuple that contains the cumulative time since the
+            (Tuple[float, float]): Tuple that contains the cumulative time since the
                 start of the context and this call and the total time spent just on
                 that time window in seconds.
         """
