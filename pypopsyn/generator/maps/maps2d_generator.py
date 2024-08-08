@@ -307,7 +307,7 @@ def generate_avg_fluxes_matrix(
     Average log10 fluxes matrix generator.
 
     Creates a matrix of the average weight w of a distribution of points given their
-    X/Y coordinates in a 2D space where w is the the log10 of the radio flux.
+    X/Y coordinates in a 2D space, where w is the log10 of the radio flux.
     The resulting matrix shows the average value of the weights in each bin.
 
     Args:
