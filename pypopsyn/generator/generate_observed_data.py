@@ -273,7 +273,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
     P_pmps_obs = P_pmps_obs[cond]
     Pdot_pmps_obs = Pdot_pmps_obs[cond]
 
-    # We convert the Jy to mJy to compare with simulations.
+    # We convert the [Jy] to [mJy] to compare with simulations.
     S1400_pmps_meerkat = (
         df_meerkat_pmps["ch6flux"].to_numpy().astype(np.float64) / 1000
     )
@@ -311,7 +311,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
     P_smps_obs = P_smps_obs[cond]
     Pdot_smps_obs = Pdot_smps_obs[cond]
 
-    # We convert the Jy to mJy to compare with simulations.
+    # We convert the [Jy] to [mJy] to compare with simulations.
     S1400_smps_meerkat = (
         df_meerkat_smps["ch6flux"].to_numpy().astype(np.float64) / 1000
     )
@@ -334,7 +334,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
     P_htru_obs = df_atnf_htru["P0"].to_numpy().astype(np.float64)
     Pdot_htru_obs = df_atnf_htru["P1"].to_numpy().astype(np.float64)
 
-    # We convert the Jy to mJy to compare with simulations.
+    # We convert the [Jy] to [mJy] to compare with simulations.
     S1400_htru_meerkat = (
         df_meerkat_htru["ch6flux"].to_numpy().astype(np.float64) / 1000
     )
