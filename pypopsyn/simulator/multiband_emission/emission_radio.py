@@ -45,7 +45,7 @@ def pulse_width(
     Formula to evaluate the intrinsic pulse width in [rad] from the radio beam angular aperture.
     This assumes that the line of sight intercepts the radio beam with an angle beta with
     respect to the center of the beam, so that -rho_b < beta < rho_b, with rho_b the angular
-    aperture of the beam. See eq. (1) in Maciesiak et al. (2011a) and eq. (3.26) in Lorimer & Kramer (2004).
+    aperture of the beam. See eq. (1) in Maciesiak et al. (2011a) and eq. (3.26) in Lorimer and Kramer (2004).
 
     Args:
         chi (np.ndarray): array of inclination angles between the magnetic axis and the rotation axis [rad].
@@ -184,7 +184,8 @@ def pdf_luminosity_radio_edot(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
 
 def loss_rotational_energy(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     """
-    Compute the loss of the rotational energy given the period and period derivative (see, e.g., Equation (3.5) in Lorimer and Kramer, 2004).
+    Compute the loss of the rotational energy given the period and period derivative
+    (see, e.g., eq. (3.5) in Lorimer and Kramer, 2004).
 
     Args:
         P (np.ndarray): array of spin periods of the pulsars in [s].
