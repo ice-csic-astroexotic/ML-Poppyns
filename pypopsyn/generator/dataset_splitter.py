@@ -193,6 +193,47 @@ def main(args: argparse.Namespace) -> None:
 
         log.info("Files statistics_train.json generated")
 
+    elif args.test_split is not None and args.valid_split is None:
+
+        # Split the dataset into training and test sets only.
+        test_dataset_dictionary, train_dataset_dictionary = split_dataset(
+            dataset_dictionary, args.test_split
+        )
+
+        # Write the training and validation dataset dictionaries into .csv files.
+        train_dataset_filename = f"{args.dataset_path}/dataset_train.csv"
+
+        train_df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in train_dataset_dictionary.items()
+            }
+        )
+        train_df.to_csv(train_dataset_filename, encoding="utf-8", index=False)
+
+        test_dataset_filename = f"{args.dataset_path}/dataset_test.csv"
+        test_df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in test_dataset_dictionary.items()
+            }
+        )
+        test_df.to_csv(test_dataset_filename, encoding="utf-8", index=False)
+
+        log.info("Files dataset_train.csv and dataset_test.csv generated")
+
+        # Compute the statistics on the training dataset only.
+        statistics_dictionary = cs.compute_statistics(train_dataset_dictionary)
+
+        # Save dictionary containing statistical information to the dataset path in a .json file.
+        train_statistics_dump_path = pathlib.Path().joinpath(
+            args.dataset_path, "statistics_train.json"
+        )
+        with open(train_statistics_dump_path, "w") as f:
+            json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
+
+        log.info("Files statistics_train.json generated")
+
     else:
         raise ValueError("Please specify a split fraction.")
 
