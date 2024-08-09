@@ -245,11 +245,11 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
 
     monkeypatch.setattr(rs, "random_from_pdf", mock_los_rand)
 
-    def mock_pdf_luminosity_radio_ppdot(*args, **kwargs):
+    def mock_pdf_luminosity_radio_edot(*args, **kwargs):
         return test_case_2["dataset_dict"]["l_radio_bol"]
 
     monkeypatch.setattr(
-        er, "pdf_luminosity_radio_ppdot", mock_pdf_luminosity_radio_ppdot
+        er, "pdf_luminosity_radio_edot", mock_pdf_luminosity_radio_edot
     )
 
     emission_radio_dict_out = er.calculate_radio_emission(
@@ -285,11 +285,11 @@ def test_calculate_radio_emission_full(monkeypatch, test_case_2):
 
     monkeypatch.setattr(rs, "random_from_pdf", mock_los_rand)
 
-    def mock_pdf_luminosity_radio_ppdot(*args, **kwargs):
+    def mock_pdf_luminosity_radio_edot(*args, **kwargs):
         return test_case_2["dataset_dict"]["l_radio_bol"]
 
     monkeypatch.setattr(
-        er, "pdf_luminosity_radio_ppdot", mock_pdf_luminosity_radio_ppdot
+        er, "pdf_luminosity_radio_edot", mock_pdf_luminosity_radio_edot
     )
 
     (
