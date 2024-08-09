@@ -53,10 +53,10 @@
     "validation_fraction": 0.1,
     "batch_size": 8,
     "lr": 5e-4,
-    "save_dir": "output/example_training_sbi"
+    "save_dir": "output/learning_sbi"
   },
 
   "infer": {
-    "save_dir": "output/example_inference_sbi"
+    "save_dir": "output/inference_sbi"
   }
 }
