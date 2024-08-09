@@ -58,7 +58,9 @@
   },
       
   "observed_sample": {
-      "dataset_path": "/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/observed_ATNF_res32"
+      "dataset_path": "/data/magnesia/common/paper_graber_etal_2023/ml_experiments_param5/observed_ATNF_res32",
+      "filter_inputs": [9, 10, 11],
+      "filter_labels": [12, 13, 14, 15, 16]
   },
 
   "resume_training": {
