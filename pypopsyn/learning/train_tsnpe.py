@@ -62,7 +62,7 @@ import pypopsyn.learning.initializers.initializers as learning_initializers
 import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
 import pypopsyn.learning.models.models as learning_models
 import utilities.benchmark.timewith as timewith
-from pypopsyn.generator.generate_dataset_surveys import generate_dataset
+from pypopsyn.generator import generate_dataset_surveys
 from pypopsyn.learning.utils.request_device import request_device
 from utilities.coverage_probability import coverage_prob
 from utilities.simulation_helper.run_simulation_set_sbi import (
@@ -433,7 +433,7 @@ def wrapper_pypopsyn(
     else:
         simulator_multiprocess(args_dict, proposal, dataset, device)
 
-    generate_dataset(args_gen)
+    generate_dataset_surveys.generate_dataset(args_gen)
 
     return dataset_path
 
@@ -443,6 +443,7 @@ def corner_plot(
     dataset: dl.DatasetMultichannelArray,
     save_dir: str,
 ) -> None:
+
     """
     Plotting the corner plot for the posterior distribution.
 
@@ -568,9 +569,16 @@ def prepare_dataset_sbi(
         if atnf
         else dataset_folder + "/dataset_full.csv"
     )
+
     dataset_stat_path = config["training_data_loader"]["statistic_path"]
-    filter_inputs = config["training_data_loader"]["filter_inputs"]
-    filter_labels = config["training_data_loader"]["filter_labels"]
+
+    if atnf:
+        filter_inputs = config["observed_sample"]["filter_inputs"]
+        filter_labels = config["observed_sample"]["filter_labels"]
+    else:
+        filter_inputs = config["training_data_loader"]["filter_inputs"]
+        filter_labels = config["training_data_loader"]["filter_labels"]
+
     normalize = config["training_data_loader"]["normalize"]
     standardize = config["training_data_loader"]["standardize"]
     input_shape = config["arch"]["args"]["input_shape"]
