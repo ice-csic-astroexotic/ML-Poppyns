@@ -39,7 +39,7 @@ For example, to evolve and save both the full dynamical and magneto-rotational e
 
 !!! example
 
-    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/simulator_full_tutorial.ipynb`. 
+    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/01_simulator_full_tutorial.ipynb`. 
 
 ## Dynamical evolution
 
@@ -65,7 +65,7 @@ A safe assumption is 30 neutron stars are born per century, which is around 10 t
 
 !!! example
 
-    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/simulator_dyn_tutorial.ipynb`.
+    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/02_simulator_dyn_tutorial.ipynb`.
 
 ## Magneto-rotational evolution and detection filters
 
@@ -105,7 +105,7 @@ Overall, in this mode, the output of the simulation consists of separate files c
 
 !!! example
 
-    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/simulator_magrot_det_tutorial.ipynb`.
+    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/03_simulator_magrot_det_tutorial.ipynb`.
 
 ## Simulations with parameter sweep
 
@@ -172,7 +172,7 @@ This simulates a population for each combination of values of `P_initial_log10_m
 
 !!! example
 
-    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/simulation_helper_tutorial.ipynb`.
+    An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/04_simulation_helper_tutorial.ipynb`.
 
 
 

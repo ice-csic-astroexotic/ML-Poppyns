@@ -173,7 +173,9 @@ Each subfolder in the `logs` directory will contain the following information:
 * `coverage_plot.pdf` and `coverage_probability.npy` files will contain the results of the coverage probability diagnostic test.
 You could also specify the argument `--corner_plot True` while launching the script in order to produce and save the posterior corner plots in `.pdf` format and the posterior samples in `.pt` format for each of the test samples.
 
-To see a tutorial example for how to use these training and inference scripts you can look at the notebook in `tutorials/tutorial_notebooks/learning_sbi_tutorial.ipynb`.
+!!! example
+
+    To see a tutorial example for how to use these training and inference scripts you can look at the notebook in `tutorials/tutorial_notebooks/08_learning_sbi_tutorial.ipynb`.
 
 
 ## Infer on a Data Set with an Ensemble

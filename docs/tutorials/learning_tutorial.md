@@ -258,4 +258,6 @@ target:B_initial_log10_mean,target:P_initial_log10_mean,predicted:B_initial_log1
 13.581913948059082,-1.2630716562271118,13.486227989196777,-1.055734395980835
 ```
 
-To see a tutorial example for how to use these training and inference scripts you can look at the notebook in `tutorials/tutorial_notebooks/learning_tutorial.ipynb`.
+!!! example
+
+    To see a tutorial example for how to use these training and inference scripts you can look at the notebook in `tutorials/tutorial_notebooks/07_learning_tutorial.ipynb`.
