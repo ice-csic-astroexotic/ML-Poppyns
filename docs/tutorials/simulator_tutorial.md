@@ -149,6 +149,7 @@ For the magneto-rotational evolution:
 * `P_initial_log10_mean` and `P_initial_log10_sigma` for the birth spin periods in the `log-normal` distribution model;
 * `B_initial_log10_mean` and `B_initial_log10_sigma` for the birth magnetic fields in the log-normal distribution model;
 * `a_late` for the power-law index describing the late-time decay of the magnetic field.
+* `L_radio_log10_mean` and `epsilon_L` for the power-law model describing the pulsars' radio luminosity.
 
 !!! note
 

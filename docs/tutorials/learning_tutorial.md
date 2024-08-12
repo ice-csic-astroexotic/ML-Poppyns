@@ -25,7 +25,9 @@ If convergence is not reached in the number of trials indicated the best trained
         "B_initial_log10_sigma_threshold": 0.5,
         "P_initial_log10_mean_threshold": 0.5,
         "P_initial_log10_sigma_threshold": 0.5,
-        "a_late_threshold": 0.5
+        "a_late_threshold": 0.5,
+        "L_radio_log10_mean_threshold": 0.5,
+        "epsilon_L": 0.5
     },
     "n_gpu": 0,
 }
@@ -76,7 +78,7 @@ If standardized the input channels have values centred around 0 and ranging appr
             "batch_size": 8,
             "num_workers": 1,
             "filter_inputs": [9, 10, 11],
-            "filter_labels": [12, 13],
+            "filter_labels": [15, 16],
             "shuffle": true,
             "normalize": false,
             "standardize": false
@@ -99,7 +101,7 @@ Moreover, the test dataset has to be normalized or standardized if normalization
             "batch_size": 8,
             "num_workers": 1,
             "filter_inputs": [9, 10, 11],
-            "filter_labels": [12, 13],
+            "filter_labels": [15, 16],
             "shuffle": false,
             "normalize": false,
             "standardize": false
@@ -211,7 +213,7 @@ Moreover, the test dataset has to be normalized or standardized if normalization
             "batch_size": 1,
             "num_workers": 1,
             "filter_inputs": [9, 10, 11],
-            "filter_labels": [12, 13],
+            "filter_labels": [15, 16],
             "shuffle": false,
             "normalize": false,
             "standardize": false

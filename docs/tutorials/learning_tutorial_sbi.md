@@ -86,7 +86,7 @@ If standardized the input channels have values centred around 0 and ranging appr
         "dataset_path": "data/example_generator_magrot/dataset_train.csv",
         "statistic_path": "data/example_generator_magrot/statistics_train.json",
         "filter_inputs": [9, 10, 11],
-        "filter_labels": [12, 13],
+        "filter_labels": [15, 16],
         "normalize": false,
         "standardize": true
     },
@@ -102,7 +102,7 @@ In fact, what matters is that both of them are compatible with the network's inp
         "dataset_path": "data/example_generator_magrot/dataset_test.csv",
         "statistic_path": "data/example_generator_magrot/statistics_train.json",
         "filter_inputs": [9, 10, 11],
-        "filter_labels": [12, 13],
+        "filter_labels": [15, 16],
         "normalize": false,
         "standardize": true
     },
