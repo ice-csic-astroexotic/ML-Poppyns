@@ -9,7 +9,9 @@
     "B_initial_log10_sigma_threshold": 0.5,
     "P_initial_log10_mean_threshold": 0.5,
     "P_initial_log10_sigma_threshold": 0.5,
-    "a_late_threshold": 0.5
+    "a_late_threshold": 0.5,
+    "L_radio_log10_mean_threshold": 0.5,
+    "epsilon_L": 0.5
   },
   "n_gpu": 0,
 
@@ -74,7 +76,7 @@
   "optimizer": {
     "type": "Adam",
     "args":{
-      "lr": 1e-5,
+      "lr": 1e-4,
       "weight_decay": 0.0
     }
   },
