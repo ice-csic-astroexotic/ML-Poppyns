@@ -1,7 +1,8 @@
 # HTCondor
 
-This page is primarily for MAGNESIA developers. We focus on explaining the file structure and main commands needed to submit simulations using the HTCondor infrastructure at PIC. 
-The documentation provided by PIC about HTCondor can be found [here](https://pwiki.pic.es/index.php?title=HTCondor_User_Guide).
+This page is primarily for MAGNESIA developers. We focus on explaining the file structure and main commands needed to
+submit simulations using the HTCondor infrastructure at PIC. The documentation provided by PIC about HTCondor can be 
+found [here](https://pwiki.pic.es/index.php?title=HTCondor_User_Guide).
 
 ## File locations
 
@@ -17,7 +18,8 @@ space.
     `config_simulator.py` file should be set to `True` to ensure that the correct path to the software modules is 
     set.
 
-The scripts to create the necessary files to submit a job and to manage the simulations with HTCondor are found in the `utilities` folder in the subdirectory `PIC_scripts` in our repo. These are:
+The scripts to create the necessary files to submit a job and to manage the simulations with HTCondor are found in the
+`utilities` folder in the subdirectory `PIC_scripts` in our repo. These are:
 
 * `PIC_generate_htcondor_submit.py` generates the necessary HTCondor files to launch jobs.
 * `PIC_check_simulations.py` checks which simulations have failed from a previous HTCondor run.
@@ -74,7 +76,8 @@ To establish GitHub access to the repository for the first time follow these ste
   2. When you are prompted to "Enter a file in which to save the key," enter 
     `/data/magnesia/software/ssh_keys/your_lastname` substituting in your last name.
   3. Start the SSH-agent in the background by entering `eval "$(ssh-agent -s)"`.
-  4. Add your SSH private key to the SSH-agent by entering `ssh-add /data/magnesia/software/ssh_keys/your_lastname` substituting in your last name.
+  4. Add your SSH private key to the SSH-agent by entering 
+     `ssh-add /data/magnesia/software/ssh_keys/your_lastname` substituting in your last name.
   5. Then follow [these instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) to add your new SSH-key to GitHub. 
 
 !!! note
@@ -189,7 +192,8 @@ Total for cpardoar: 2 jobs; 0 completed, 0 removed, 0 idle, 2 running, 0 held, 0
 Total for all users: 1081 jobs; 0 completed, 0 removed, 256 idle, 818 running, 7 held, 0 suspended
 ```
 
-In this example, we have 2 jobs running. Note that if you have initiated a session at [https://jupyter.pic.es/](https://jupyter.pic.es/), this session will appear as a running job (typically the first one submitted). 
+In this example, we have 2 jobs running. Note that if you have initiated a session at [https://jupyter.pic.es/](https://jupyter.pic.es/), 
+this session will appear as a running job (typically the first one submitted). 
 If we see that some jobs are IDLE, these are currently in HTCondor's queue and are waiting to be launched. 
 If you see a job that is on HOLD, this might indicate that something went wrong.
 
@@ -230,47 +234,48 @@ Connection to condor-job.td820.pic.es closed.
 
 ### Running different jobs in parallel
 
-  To take advantage of HTCondor, we show how to submit and process multiple jobs in parallel. HTCondor allows 
-  you to do this using the arguments `parameter` in the `.submit` file. For instance, if we want to run our script 
-  `simulate_population_dyn.py` with two different values of `h_c` (e.g., `h_c = 1.7` and `1.9`), we can pass these values via JSON files.
+To take advantage of HTCondor, we show how to submit and process multiple jobs in parallel. HTCondor allows 
+you to do this using the arguments `parameter` in the `.submit` file. For instance, if we want to run our script
+`simulate_population_dyn.py` with two different values of `h_c` (e.g., `h_c = 1.7` and `1.9`), we can pass these values via
+JSON files.
 
-  First, we create two different JSON files, test1.json and test2.json, containing the respective values of h_c:
-  ```commandline
-  (base) [cpardoar@gpu05 ~]$  cat test1.json
-  {"h_c":1.7}
-  ```
-  and `test2.json` reads
-  ```commandline
-  (base) [cpardoar@gpu05 ~]$  cat test2.json
-  {"h_c":1.9}
-  ```
-  Next, we have to specify in the submit file that the json files will be taken as two choices for the 
-  `parameter_override` argument in our .py script. We also have to specify two different directories for our 
-  `output_dir` argument to not mix up the outputs from both simulation. Adjusting the submit file accordingly, 
-  we thus arrive at:
-  ```commandline
-  universe        = vanilla
-  executable      = wrapper.sh
-  output          = OUTPUT_2/hello.out.$(Cluster).$(Process).txt
-  error           = OUTPUT_2/hello.error.$(Cluster).$(Process).txt
-  log             = OUTPUT_2/hello.log.$(Cluster).$(Process).txt
-  arguments =  /data/magnesia/common/test_htcondor/OUTPUT_args/output_repo_test1 /nfs/pic.es/user/c/cpardoar/test1.json
-  queue
-  arguments =  /data/magnesia/common/test_htcondor/OUTPUT_args/output_repo_test2 /nfs/pic.es/user/c/cpardoar/test2.json
-  queue
-  ```
-  Note that the order of the arguments matters. In particular, in the wrapper, we have to specify that the
-  `parameter_override` and `output` arguments will take the values passed via the submit file. To do so, we again
-  change the last line of our wrapper file:
-  ```commandline
-  #!/bin/bash
+First, we create two different JSON files, test1.json and test2.json, containing the respective values of h_c:
+```commandline
+(base) [cpardoar@gpu05 ~]$  cat test1.json
+{"h_c":1.7}
+```
+and `test2.json` reads
+```commandline
+(base) [cpardoar@gpu05 ~]$  cat test2.json
+{"h_c":1.9}
+```
+Next, we have to specify in the submit file that the json files will be taken as two choices for the 
+`parameter_override` argument in our .py script. We also have to specify two different directories for our 
+`output_dir` argument to not mix up the outputs from both simulation. Adjusting the submit file accordingly, 
+we thus arrive at:
+```commandline
+universe        = vanilla
+executable      = wrapper.sh
+output          = OUTPUT_2/hello.out.$(Cluster).$(Process).txt
+error           = OUTPUT_2/hello.error.$(Cluster).$(Process).txt
+log             = OUTPUT_2/hello.log.$(Cluster).$(Process).txt
+arguments =  /data/magnesia/common/test_htcondor/OUTPUT_args/output_repo_test1 /nfs/pic.es/user/c/cpardoar/test1.json
+queue
+arguments =  /data/magnesia/common/test_htcondor/OUTPUT_args/output_repo_test2 /nfs/pic.es/user/c/cpardoar/test2.json
+queue
+```
+Note that the order of the arguments matters. In particular, in the wrapper, we have to specify that the
+`parameter_override` and `output` arguments will take the values passed via the submit file. To do so, we again 
+change the last line of our wrapper file:
+```commandline
+#!/bin/bash
 
-  export PATH=/data/magnesia/software/anaconda3/bin:$PATH
-  conda init bash
-  source /data/magnesia/software/anaconda3/etc/profile.d/conda.sh
-  conda activate /data/magnesia/software/anaconda3/envs/pop_syn
-  python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn.py --output $1 --parameter_override $
-  ```
+export PATH=/data/magnesia/software/anaconda3/bin:$PATH
+conda init bash
+source /data/magnesia/software/anaconda3/etc/profile.d/conda.sh
+conda activate /data/magnesia/software/anaconda3/envs/pop_syn
+python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn.py --output $1 --parameter_override $
+```
 
 Although this above approach works, there are two more optimal ways to pass arguments to the wrapper using the
 submit file:
