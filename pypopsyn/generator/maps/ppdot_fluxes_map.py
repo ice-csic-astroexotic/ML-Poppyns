@@ -62,8 +62,8 @@ def generate_ppdot_fluxes_map(
         x_resolution (int): resolution in the horizontal axis.
         y_resolution (int): resolution in the vertical axis.
         ppdot_fluxes_maps_dictionary (dict): dictionary of fluxes in the ppdot maps.
-        x_limits (float, float): limits of the horizontal axis.
-        y_limits (float, float): limits of the vertical axis.
+        x_limits (Tuple[float, float]): limits of the horizontal axis.
+        y_limits (Tuple[float, float]): limits of the vertical axis.
     """
 
     # Compose the final filename with the dataset path, the name for the map,

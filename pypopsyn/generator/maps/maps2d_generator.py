@@ -34,14 +34,14 @@ def generate_density_map(
     Density map generator.
 
     Creates a density or heat map of a distribution of points given their
-    X/Y coordinates in a 2D space. The resulting image is is generated in
+    X/Y coordinates in a 2D space. The resulting image is generated in
     the specified file path.
 
     Args:
         x (np.ndarray): Horizontal coordinate values for the points.
-        x_range Tuple[float, float]: Horizontal range of values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
         y (np.ndarray): Vertical coordinate values for the points.
-        y_range Tuple[float, float]: Vertical range of values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
         filename (str): File path to generate the density map image.
         x_log_scale (bool): If True set the x-axis scale to log scale.
         y_log_scale (bool): If True set the y-axis scale to log scale.
@@ -113,9 +113,9 @@ def generate_avg_weight_map(
 
     Args:
         x (np.ndarray): Horizontal coordinate values for the points.
-        x_range Tuple[float, float]: Horizontal range of values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
         y (np.ndarray): Vertical coordinate values for the points.
-        y_range Tuple[float, float]: Vertical range of values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
         w (np.ndarray): Weight values for the points.
         filename (str): File path to generate the heat map image.
         x_log_scale (bool): If True set the x-axis scale to log scale.
@@ -195,9 +195,9 @@ def generate_density_matrix(
 
     Args:
         x (np.ndarray): Horizontal coordinate values for the points.
-        x_range Tuple[float, float]: Horizontal range of values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
         y (np.ndarray): Vertical coordinate values for the points.
-        y_range Tuple[float, float]: Vertical range of values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
         filename (str): File path to generate the density matrix.
         x_log_scale (bool): If True set the x-axis scale to log scale.
         y_log_scale (bool): If True set the y-axis scale to log scale.
@@ -244,9 +244,9 @@ def generate_avg_weight_matrix(
 
     Args:
         x (np.ndarray): Horizontal coordinate values for the points.
-        x_range Tuple[float, float]: Horizontal range of values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
         y (np.ndarray): Vertical coordinate values for the points.
-        y_range Tuple[float, float]: Vertical range of values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
         w (np.ndarray): Weight values for the points.
         filename (str): File path to generate the density matrix.
         x_log_scale (bool): If True set the x-axis scale to log scale.
@@ -305,9 +305,9 @@ def generate_avg_fluxes_matrix(
 
     Args:
         x (np.ndarray): Horizontal coordinate values for the points.
-        x_range Tuple(float, float): Horizontal range of values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
         y (np.ndarray): Vertical coordinate values for the points.
-        y_range Tuple(float, float): Vertical range of values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
         w (np.ndarray): Weight values for the points, i.e., the log10 of the radio flux value.
         filename (str): File path to generate the density matrix.
         x_log_scale (bool): If True set the x-axis scale to log scale. Default False.
@@ -366,14 +366,14 @@ def generate_avg_fluxes_map(
     Average fluxes map generator.
 
     Creates a map of the average weight w of a distribution of points given their
-    X/Y coordinates in a 2D space where w is the the log10 of the radio flux.
+    X/Y coordinates in a 2D space where w is the log10 of the radio flux.
     The resulting map shows the average value of the weights in each bin.
 
     Args:
         x (np.ndarray): Horizontal coordinate values for the points.
-        x_range Tuple(float, float): Horizontal range of values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
         y (np.ndarray): Vertical coordinate values for the points.
-        y_range Tuple(float, float): Vertical range of values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
         w (np.ndarray): Weight values for the points, i.e., the log10 of the radio flux value.
         filename (str): File path to generate the heat map image.
         x_log_scale (bool): If True set the x-axis scale to log scale. Default False.

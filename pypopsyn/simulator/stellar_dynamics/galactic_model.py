@@ -179,7 +179,7 @@ class GalaxyModelM19(GalaxyModelBase):
             z (float): Height from the galactic disk in [kpc].
 
         Returns:
-            (float, float): Value of the shape parameter and its derivative with
+            (Tuple[float, float]): Value of the shape parameter and its derivative with
                 respect to z.
         """
 
