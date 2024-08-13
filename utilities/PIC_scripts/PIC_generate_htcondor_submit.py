@@ -131,13 +131,13 @@ def submit_generator(args: argparse.Namespace) -> None:
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
             - output_dir_htcondor (str): Path to the directory where the
-            generated files will be saved.
+                generated files will be saved.
             - output_dir_simulation (str): Path to the directory containing the
-            simulation parameter files.
+                 simulation parameter files.
             - n_sim_job (int): Number of simulations to run per job.
             - n_sim_week (int): Number of simulations to run per week.
             - dyn_data (str): Path to the dynamically evolved population database
-            file (if using the `simulate_population_magrot_det` simulator).
+                 file (if using the `simulate_population_magrot_det` simulator).
             - type_simulation (str): Type of simulation to run, either 'dyn' or 'magrot'.
     """
 
