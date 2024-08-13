@@ -226,6 +226,3 @@ above case corresponds to `10 x 10 = 100` simulations. Again, each simulation wi
 !!! example
 
     An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/04_simulation_helper_tutorial.ipynb`.
-
-
-
