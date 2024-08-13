@@ -47,8 +47,7 @@ def log_scale_vs_linear_scale(
         n_y_bins (int): Number of vertical bins for the density map.
 
     Returns:
-        (Tuple[float, float]): Edges of the bins in x and y direction according to
-        the chosen scale.
+        (Tuple[float, float]): Edges of the bins in x and y direction according to the chosen scale.
     """
 
     if x_log_scale and y_log_scale:
