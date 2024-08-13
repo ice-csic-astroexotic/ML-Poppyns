@@ -73,11 +73,11 @@ def data_sampler(args: argparse.Namespace) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
-            data (str): Path to where the simulated populations are located.
-            save_dir (str): Path to where to save the resampled population files.
-            size (int): Number of stars to randomly sample from the population files.
-            distance_cut (float): Maximum distance from the Sun cut-off.
-            uniform (bool): If True stars are selected uniformly in distance from the simulated population.
+            - data (str): Path to where the simulated populations are located.
+            - save_dir (str): Path to where to save the resampled population files.
+            - size (int): Number of stars to randomly sample from the population files.
+            - distance_cut (float): Maximum distance from the Sun cut-off.
+            - uniform (bool): If True stars are selected uniformly in distance from the simulated population.
     """
 
     # Check if the parsed simulated populations' directory exists.
