@@ -200,7 +200,7 @@ def main(args: argparse.Namespace) -> None:
             dataset_dictionary, args.test_split
         )
 
-        # Write the training and validation dataset dictionaries into .csv files.
+        # Write the training and test dataset dictionaries into .csv files.
         train_dataset_filename = f"{args.dataset_path}/dataset_train.csv"
 
         train_df = pd.DataFrame(
