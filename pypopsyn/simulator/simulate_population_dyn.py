@@ -48,8 +48,8 @@ def simulate_population(args: argparse.Namespace) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
-            save_dir (pathlib.Path): Output directory for the run.
-            json_override_path (pathlib.Path): Path to JSON with parameter overrides.
+            - save_dir (pathlib.Path): Output directory for the run.
+            - json_override_path (pathlib.Path): Path to JSON with parameter overrides.
     """
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
