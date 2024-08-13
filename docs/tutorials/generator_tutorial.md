@@ -1,24 +1,50 @@
 # Generating density maps
 
-Once a set of simulated populations is created by running one of the simulator scripts (see the simulator tutorial), it is possible to generate a dataset of synthetic representations of the simulations that is readable by a machine-learning pipeline.
-Depending on the type of simulations that have been performed, two types of generator scripts can be used, the `pypopsyn/generator/generate_dataset_full.py` or the `pypopsyn/generator/generate_dataset_survey.py`.
+## Maps of synthetic populations
 
-The first script `pypopsyn/generator/generate_dataset_full.py` can be used if simulations have been run using the `simulate_population_full` script, since it will read the corresponding `final_population.pkl.gz` output files.
-For each simulated population, this script can generate a set of density maps in the form of either `.png` images or 2D numpy `.npy` arrays.
-These maps store the spatial density and velocity information in galactocentric or equatorial (ICRS) reference frames and the density in a $P-\dot{P}$ diagram of all the evolved neutron stars.
+Once a simulated population (or a set of synthetic populations) has been created by running one of the simulator scripts (see [Simulating neutron star 
+populations](simulator_tutorial.md)), we can generate a synthetic representation of this simulation that is 
+readable by a machine-learning pipeline. Depending on the type of simulations that has been performed, two types 
+of generator scripts
 
-The second script `pypopsyn/generator/generate_dataset_surveys.py` can be used if simulations have been run using the `simulate_population_magrot_det` script, since it will read the corresponding `.pkl.gz` output files that are produced for each of the simulated surveys.
-For each simulated population, this script can generate a set of density maps in the form of either `.png` images or 2D numpy `.npy` arrays.
-These maps store the spatial density and proper motion information in equatorial (ICRS) reference frames and the density in a $P-\dot{P}$ diagram of the simulated neutron stars that have been detected by the modelled surveys only.
+* `pypopsyn/generator/generate_dataset_full.py`
+* `pypopsyn/generator/generate_dataset_survey.py` 
 
-Suppose that you have created a set of simulated populations stored in `data/example_simulation_helper_magrot` using the `simulate_population_magrot_det.py` script.
-If you want to create a dataset of 2D arrays storing the spatial density and the velocity information of the simulated neutron stars with a resolution of $32 \times 32$ and the density and radio flux information in the $P-\dot{P}$ diagram with a resolution of $32 \times 32$ you can run the following command:
+can be used to produce two-dimensional density maps of our population.
+
+We use the first script `pypopsyn/generator/generate_dataset_full.py` for end-to-end simulations that were obtained
+using the `simulate_population_full.py` module. The script will read the corresponding `final_population.pkl.gz` 
+output files for each simulated population and generate a density maps in the form of either a `.png` image or 2D 
+NumPy array. These maps store the spatial density and velocity information in galactocentric or equatorial 
+(ICRS) reference frames for all evolved neutron stars as well as their distribution and corresponding radio fluxes 
+in the $P-\dot{P}$ plane.
+
+The second script `pypopsyn/generator/generate_dataset_surveys.py` is used for simulations that have been run using 
+the `simulate_population_magrot_det.py` module. The script will read the corresponding `.pkl.gz` output files that are
+produced for each of our simulated surveys. It then generates a set of density map in the form of either `.png` 
+images or 2D NumPy arrays for those simulated neutron stars that are detected by the modelled surveys only. The
+corresponding density maps store their spatial density and proper motion information in the equatorial (ICRS) reference
+frame and their distribution and corresponding fluxes in the $P-\dot{P}$ plane, respectively.
+
+Suppose that we have created a dataset of simulated populations that is stored in `data/example_simulation_helper_magrot` 
+using the `simulate_population_magrot_det.py` script. Let us assume that we want to create a map dataset of 2D arrays 
+for the spatial and velocity information with a resolution of $32 \times 32$ and the density and radio flux maps in 
+the $P-\dot{P}$ plane with a resolution of $32 \times 32$. To obtain these maps, we run the following command:
 ```commandline
 python pypopsyn/generator/generate_dataset_surveys.py --data data/example_simulation_helper_magrot --save_dir data/example_generator_magrot --data_type array --resolution_dyn 32 --resolution_ppdot 32
 ```
-You need to provide the path to the location where the simulated populations data are stored, the path where to save the dataset that you are going to create, the type of the representations (you can choose `array` or `image`) and the resolution.
-By running the script, the folder `data/example_generator_magrot` is created where a set of 2D arrays are stored for each simulated population (sample) along with a `dataset_full.csv` file containing all the information about the dataset and a `statistics_full.json` file containing the statistical information on each label.
-The CSV file provides one line for each sample in the dataset in which we indicate the file path for its 2D arrays (potential input channels for the machine learning pipeline) and the values for its parameters (labels) like this:
+We need to provide the path to the location where the simulated population data are stored, the path where the new maps
+will be saved, the type of our representations (we can choose either `array` or `image`) and the corresponding 
+resolutions. By running the script, we create a folder `data/example_generator_magrot` where a set of 2D arrays are 
+stored for each simulated population (sample). In addition, this produces a single `dataset_full.csv` and 
+`statistics_full.json` file containing information about the dataset and statistical information for each label,
+respectively. 
+
+The CSV file provides one line for each synthetic simulation sample in the dataset indicating the file path for its 
+2D arrays (these are potential input channels for the machine learning pipeline) and the numerical values used to 
+generate the underlying population (these will serve as labels for the machine learning). 
+
+A `dataset_full.csv` file for a set of five synthetic simulations could, for example, look like this:
 ```commandline
 input:survey_PMPS_position_map_radec,input:survey_SMPS_position_map_radec,input:survey_HTRU_position_map_radec,input:survey_PMPS_velocity_map_vra,input:survey_SMPS_velocity_map_vra,input:survey_HTRU_velocity_map_vra,input:survey_PMPS_velocity_map_vdec,input:survey_SMPS_velocity_map_vdec,input:survey_HTRU_velocity_map_vdec,input:survey_PMPS_ppdot_map,input:survey_SMPS_ppdot_map,input:survey_HTRU_ppdot_map,input:survey_PMPS_ppdot_map_fluxes,input:survey_SMPS_ppdot_map_fluxes,input:survey_HTRU_ppdot_map_fluxes,B_initial_log10_mean,P_initial_log10_mean
 data/example_generator_magrot/survey_PMPS_position_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_0.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_0.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_0.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_0.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_0.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_0.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_0.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_0.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_0.npy,12.586280501149703,-1.3096012845994798
@@ -29,61 +55,87 @@ data/example_generator_magrot/survey_PMPS_position_map_radec_4.npy,data/example_
 ...
 ```
 
-In this way the format is easily compatible with our machine-learning pipeline.
+!!! note
 
-The JSON file contains information about the mean, standard deviation, minimum and maximum values for each of the dataset labels.
-This statistical information will be used during the training process if one wants to normalize or standardize the label values.
+    The format of the `dataset_full.csv` file ensures direct compatible with our machine learning pipeline.
 
-You can also choose to split the dataset into training/validation, training/test or into training/validation/test sets.
-To do this you can run the `dataset_splitter.py` script in the `pypopsyn/generator` folder.
-To generate a dataset split into two subsets, one specifically for training and the other for validation, you can specify a fraction of the total dataset that will form the validation subset by passing the argument `valid_split` in the `dataset_splitter` script. For example:
-```commandline
-python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --valid_split 0.2
-```
-This will create two files `dataset_train.csv` and `dataset_valid.csv` that will specify the samples belonging to the train dataset (80 % of the total dataset in this case) and the ones belonging to the validation dataset  (20 % of the total dataset).
-The split is performed by randomly sampling the validation subset from the total dataset according to the specified split fraction.
-In this case, the `statistics_train.json` file will contain the statistics computed on the labels of the training set only.
-
-Analogously, if you want to split the dataset into two subsets, one specifically for training and the other for testing, you can specify a fraction of the total dataset that will form the test subset by passing the argument `test_split` in the `dataset_splitter` script. For example:
-```commandline
-python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --test_split 0.2
-```
-This will create two files `dataset_train.csv` and `dataset_test.csv` that will specify the samples belonging to the train dataset (80 % of the total dataset in this case) and the ones belonging to the test dataset  (20 % of the total dataset).
-The split is performed by randomly sampling the test subset from the total dataset according to the specified split fraction.
-In this case, the `statistics_train.json` file will contain the statistics computed on the labels of the training set only.
-
-If you also want to create a test set in addition to the training and validation sets, you can specify the argument `test_split`, which sets the fraction of the total dataset to be dedicated for testing purposes.
-In this case, the `valid_split` argument will specify the fraction of the dataset not used for testing but instead dedicated for validation.
-```commandline
-python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --test_split 0.1 --valid_split 0.2
-```
-
-This will create three files `dataset_train.csv`, `dataset_valid.csv` and `dataset_test.csv` that will specify the samples belonging to the train dataset (80 % of the dataset not used for testing in this case), the ones belonging to the validation dataset  (20 % of the dataset not used for testing) and the ones belonging to the test set (10 % of the total dataset), respectively.
-Again the split is performed by randomly sampling the test and validation subsets from the dataset according to the specified split fractions.
-In this case, the `statistics_train.json` file will also contain the statistics computed on the labels of the training set only.
+The JSON file contains information about the mean, standard deviation, minimum and maximum values for each of the 
+dataset labels. We use this statistical information during the training process if one wants to normalize or 
+standardize the label values.
 
 !!! example
 
-    To see a tutorial example for the generator you can look at the notebook in `tutorials/tutorial_notebooks/05_generator_tutorial.ipynb`.
+    An example of this generator is presented in detail in the tutorial `tutorials/tutorial_notebooks/05_generator_tutorial.ipynb`.
+
+## Training, validation and test splits
+
+We can also split the dataset into training/validation, training/test or into training/validation/test sets. To do this,
+we use the `dataset_splitter.py` script in the `pypopsyn/generator` folder.
+
+To split a dataset into two subsets, one for training and the other for validation, we specify a fraction of the total 
+dataset that will form the validation subset by passing the argument `valid_split` in the `dataset_splitter.py` script. 
+For example:
+```commandline
+python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --valid_split 0.2
+```
+This will create two files `dataset_train.csv` and `dataset_valid.csv` in the location of the `dataset_full.csv` file
+that will specify the specific simulation samples belonging to the train dataset (80% of the total dataset in this case)
+and those belonging to the validation dataset (20% of the total dataset). This split is performed by randomly sampling 
+the validation subset from the total dataset according to the specified split. We also produce a file
+`statistics_train.json` (saved in the same location) that contains the statistics computed on the training labels only.
+
+Analogously, if we want to split the dataset into two subsets, one for training and the other for testing, we specify 
+a fraction of the total dataset that will form the test subset by passing the argument `test_split` in the `dataset_splitter.py` script. For example:
+```commandline
+python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --test_split 0.2
+```
+The situation is identical to above apart from the fact that we now produce a `dataset_test.csv` file that contains 
+information on 20% randomly sampled test simulations.
+
+Finally, to create a test set in addition to the training and validation sets, we specify both split 
+arguments. In this case, the argument `test_split` sets the fraction of the total dataset to be dedicated for testing 
+purposes. The `valid_split` argument will then separate the remaining fraction of the dataset into validation and
+training sets. For example
+```commandline
+python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --test_split 0.1 --valid_split 0.2
+```
+generates a 10% test dataset. The remaining 90% will be split into 20% validation and 80% training, which equates to
+a validation dataset size of 18% and training dataset size of 72% of the entire initial dataset. The corresponding 
+simulation samples are saved in the `dataset_test.csv`, `dataset_valid.csv` and `dataset_train.csv`, respectively.
+As above, the splits are performed by randomly sampling the test and validation subsets, while the 
+`statistics_train.json` file contains the statistics computed on the labels of the training set only.
 
 
-# Generate ATNF maps
+## Maps of the observed population
 
-In order to perform inference on the observed data in the [ATNF catalog](https://www.atnf.csiro.au/research/pulsar/psrcat/) we need to produce the same maps used to train the network but for the observed sample.
-To do this, one can use the following command:
+To perform inference on the observed data in the [ATNF Pulsar Catalogue](https://www.atnf.csiro.au/research/pulsar/psrcat/) with an optimized neural network, we need 
+to convert the corresponding data into the same representation that is used to optimize our machine learning pipeline. 
+That is, we need to produce the same kind of density maps as outlined above for the observed pulsar population.
+
+To do this, we use the `pypopsyn/generator/generate_observed_data.py` script. We can, for example, run:
 ```commandline
 python pypopsyn/generator/generate_observed_data.py --path_atnf data/observations/atnf_full_nobinary_06-08-2024.csv --path_meerkat data/observations/meerkat_tpa_posselt_2023.csv --save_dir data/example_generator_observed --resolution_dyn 32 --resolution_ppdot 32
 ```
 This will read the files `atnf_full_nobinary_06-08-2024.csv` and `meerkat_tpa_posselt_2023.csv` in the directory `data/observations` and generate the maps.
-As for the scripts above, you can specify the type of the maps (either `array` or `image`) with the argument `--data_type` and the resolution with the arguments `--resolution_dyn` and `resolution_ppdot`.
-Note that in order for the inference to work with a specific trained model the type and resolution of the maps generated from the ATNF catalog has to match the type and resolution of the simulated maps used to train the model neural network.
 
-This script will generate 9 maps in total:
-* Three position density maps in ICRS frame (one for each of the three radio surveys modeled by the simulator).
-* Three $P-\dot{P}$ density maps (one for each of the three radio surveys modeled by the simulator).
-* Three $P-\dot{P}$ density maps weighted with the logarithm of the radio flux (one for each of the three radio surveys modeled by the simulator).
+As for the scripts above, we can specify the map type (either `array` or `image`) with the argument `--data_type` and 
+the resolution with the arguments `--resolution_dyn` and `resolution_ppdot`. 
 
-* Moreover a `dataset_atnf.csv` will be created containing summary information of the dataset generated by this method.
+!!! note
+    
+    To sucessfully apply a trained model to our observed population, the type and resolution of the maps generated 
+    from the observational data have to match the type and resolution of the simulated maps used to train the neural
+    network.
+
+In the above example, we then generate the following nine maps:
+
+* Three position density maps in ICRS coordinates: one for each of the three radio surveys modeled by the simulator.
+* Three $P-\dot{P}$ density maps: one for each of the three simulated radio surveys.
+* Three $P-\dot{P}$ density maps weighted by the logarithm of the radio flux (one for each of the three simulated radio surveys.
+
+Moreover, the above command also produces a `dataset_atnf.csv` file containing summary information of the different
+maps. Note that the underlying ground truths are, of course, unknown here. The corresponding entries in the CSV file,
+required for compatibility purposes, are therefore left empty.
 
 !!! example
 
