@@ -2,10 +2,10 @@
 
 ## Maps of synthetic populations
 
-Once a simulated population (or a set of synthetic populations) has been created by running one of the simulator scripts (see [Simulating neutron star 
-populations](simulator_tutorial.md)), we can generate a synthetic representation of this simulation that is 
-readable by a machine-learning pipeline. Depending on the type of simulations that has been performed, two types 
-of generator scripts
+Once a simulated population (or a set of synthetic populations) has been created by running one of the simulator 
+scripts (see [Simulating neutron star populations](simulator_tutorial.md)), we can generate a synthetic representation 
+of this simulation that is readable by a machine-learning pipeline. Depending on the type of simulations that has 
+been performed, two types of generator scripts
 
 * `pypopsyn/generator/generate_dataset_full.py`
 * `pypopsyn/generator/generate_dataset_survey.py` 
@@ -85,7 +85,8 @@ the validation subset from the total dataset according to the specified split. W
 `statistics_train.json` (saved in the same location) that contains the statistics computed on the training labels only.
 
 Analogously, if we want to split the dataset into two subsets, one for training and the other for testing, we specify 
-a fraction of the total dataset that will form the test subset by passing the argument `test_split` in the `dataset_splitter.py` script. For example:
+a fraction of the total dataset that will form the test subset by passing the argument `test_split` in the 
+`dataset_splitter.py` script. For example:
 ```commandline
 python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --test_split 0.2
 ```
@@ -108,15 +109,17 @@ As above, the splits are performed by randomly sampling the test and validation 
 
 ## Maps of the observed population
 
-To perform inference on the observed data in the [ATNF Pulsar Catalogue](https://www.atnf.csiro.au/research/pulsar/psrcat/) with an optimized neural network, we need 
-to convert the corresponding data into the same representation that is used to optimize our machine learning pipeline. 
-That is, we need to produce the same kind of density maps as outlined above for the observed pulsar population.
+To perform inference on the observed data in the [ATNF Pulsar Catalogue](https://www.atnf.csiro.au/research/pulsar/psrcat/)
+with an optimized neural network, we need to convert the corresponding data into the same representation that is used 
+to optimize our machine learning pipeline. That is, we need to produce the same kind of density maps as outlined above 
+for the observed pulsar population.
 
 To do this, we use the `pypopsyn/generator/generate_observed_data.py` script. We can, for example, run:
 ```commandline
 python pypopsyn/generator/generate_observed_data.py --path_atnf data/observations/atnf_full_nobinary_06-08-2024.csv --path_meerkat data/observations/meerkat_tpa_posselt_2023.csv --save_dir data/example_generator_observed --data_type image --resolution_dyn 32 --resolution_ppdot 32
 ```
-This will read the files `atnf_full_nobinary_06-08-2024.csv` and `meerkat_tpa_posselt_2023.csv` in the directory `data/observations` and generate the maps.
+This will read the files `atnf_full_nobinary_06-08-2024.csv` and `meerkat_tpa_posselt_2023.csv` in the directory 
+`data/observations` and generate the maps.
 
 As for the scripts above, we can specify the map type (either `array` or `image`) with the argument `--data_type` and 
 the resolution with the arguments `--resolution_dyn` and `resolution_ppdot`. 
