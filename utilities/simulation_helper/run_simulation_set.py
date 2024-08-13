@@ -313,7 +313,6 @@ def main(args) -> None:
               Each of these parameters can accept a range defined for grid or random sampling as follows:
               - In grid mode: range specified as [low, high, n_values].
               - In random mode: range specified as [low, high].
-
     """
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.
