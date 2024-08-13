@@ -1,6 +1,6 @@
 # Generator ATNF example
 
-This is an example of dataset generation from the ATNF catalog.
+This is an example of dataset generation from the ATNF Pulsar Catalogue.
 
 To run this example, we use the following command:
 ```commandline
