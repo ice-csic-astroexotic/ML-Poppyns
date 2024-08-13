@@ -30,7 +30,7 @@ class ModelConvSBI(ModelBase):
 
         Args:
             input_shape (np.array): Shape of the input batch (C x H x W).
-            len_output_layer (int): length of the latent vector.
+            len_output_layer (int): Length of the latent vector.
         """
 
         super().__init__()
