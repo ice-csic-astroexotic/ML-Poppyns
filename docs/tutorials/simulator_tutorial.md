@@ -75,9 +75,11 @@ information on the final positions and velocities of neutron stars in the Galaxy
 simulation if enabled and a dictionary of configuration parameters in `configuration.json` for 
 reproducibility.
 
-This simulation approach is useful if the user wants to create a database of dynamically evolved neutron stars and use it to separately run subsequent simulation steps, i.e., perform the magneto-rotational evolution and apply observational filters (see below).
-In this case, we need to ensure that the number of neutron stars evolved dynamically is sufficiently large to allow for a proper determination of the birth rate in the subsequent steps.
-A safe assumption is 30 neutron stars are born per century, which is around 10 times the average core-collapse supernova rate in our Galaxy.
+This simulation approach is useful if the user wants to create a database of dynamically evolved neutron stars and use 
+it to separately run subsequent simulation steps, i.e., perform the magneto-rotational evolution and apply observational 
+filters (see below). In this case, we need to ensure that the number of neutron stars evolved dynamically is 
+sufficiently large to allow for a proper determination of the birth rate in the subsequent steps. A safe assumption is 
+30 neutron stars are born per century, which is around 10 times the average core-collapse supernova rate in our Galaxy.
 
 !!! example
 
@@ -190,13 +192,19 @@ For the radio emission:
 
 !!! note
 
-    It is important to distinguish between two types of arguments for the `run_simulation_set.py` script: options and parameters. Options are arguments which specify procedures for the simulation helper, and they cannot be swept across a range, e.g., the dynamical database or the simulator type. By definition, 
-     these are not outputs that we want to predict with our subsequent machine-learning framework. On the other hand, parameters are values that we expect to use as ground truths for the learning pipeline and want to predict. Hence, these can be swept in a range to generate a set of training simulations.
+    It is important to distinguish between two types of arguments for the `run_simulation_set.py` script: options 
+    and parameters. Options are arguments which specify procedures for the simulation helper, and they cannot be 
+    swept across a range, e.g., the dynamical database or the simulator type. By definition, these are not outputs 
+    that we want to predict with our subsequent machine-learning framework. On the other hand, parameters are values
+    that we expect to use as ground truths for the learning pipeline and want to predict. Hence, these can be swept 
+    in a range to generate a set of training simulations.
 
-    The script automatically checks for the compatibility of the given parameters and the selected options, e.g., `vk_c` cannot be specified if `km_maxwell` has been chosen as the kick model in the `config_simulator.py`. The dictionary `utilities/config_sweeper.json` specifies a list of required parameters for each option.
+    The script automatically checks for the compatibility of the given parameters and the selected options, e.g., 
+    `vk_c` cannot be specified if `km_maxwell` has been chosen as the kick model in the `config_simulator.py`. 
+    The dictionary `utilities/config_sweeper.json` specifies a list of required parameters for each option.
 
-Finally, we can also sweep over more than one parameter. For example, let us assume that we want to simulate 20 populations
-of neutron stars varying the parameters `P_initial_log10_mean` in the range -1.5 to -0.3 and the parameter 
+Finally, we can also sweep over more than one parameter. For example, let us assume that we want to simulate 20 
+populations of neutron stars varying the parameters `P_initial_log10_mean` in the range -1.5 to -0.3 and the parameter 
 `B_initial_log10_mean` in the range 12 to 14 using the `simulate_population_magrot_det.py` script and a previously 
 simulated dynamical database saved in `data/example_simulation_dyn`. We can then run:
 ```
