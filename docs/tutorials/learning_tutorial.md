@@ -26,22 +26,14 @@ argument is left empty, the script will take the default `pypopsyn/learning/conf
 
 ### Training configuration options
 
-We now discuss the various options in this training configuration file, which include the network architecture, 
-the input shape of the dataset, or the number of output parameters to predict.
+We now discuss the various options in the `config.json` training configuration file, which include the network
+architecture, the input shape of the dataset, or the number of output parameters to predict.
 
 #### General info
 
 We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, the number
 of trials performed for each execution of `pypopsyn/learning/train.py` in case convergence is not reached, and the 
 specific convergence thresholds for each of the possible output parameters. 
-
-!!! note
-    
-    Trials and convergence thresholds are relevant because random initialization of network weights and biases can lead 
-    to different training behaviour across repeated training runs. To mitigate the possibility of getting trapped in a
-    local (but not global) minimum during the optimization, we implement individual thresholds for our parameters and
-    perform several training trials until all convergence thresholds are met, or the pre-defined number of trials is 
-    reached. In the latter case, the best trained model is saved although not all convergence criteria have been met.
 
 ```commandline
 {
@@ -63,11 +55,20 @@ specific convergence thresholds for each of the possible output parameters.
 }
 ```
 
+!!! note
+    
+    Trials and convergence thresholds are relevant because random initialization of network weights and biases can lead 
+    to different training behaviour across repeated training runs. To mitigate the possibility of getting trapped in a
+    local (but not global) minimum during the optimization, we implement individual thresholds for our parameters and
+    perform several training trials until all convergence thresholds are met, or the pre-defined number of trials is 
+    reached. In the latter case, the best trained model is saved although not all convergence criteria have been met.
+
+
 #### Model architecture
 
 Next, we specify the network architecture. In the following example, we use predefined convolutional neural network 
 (CNN) denoted by `ModelConv`. This CNN receives an array of shape $32 \times 32$ with `3` different input channels 
-(three of our density maps) and outputs `2` values (corresponding to two of our pulsar parameters):
+(three of our density maps) and outputs `2` values (corresponding to two of our pulsar population parameters):
 ```commandline
 {
     "arch": {
@@ -130,10 +131,10 @@ data/example_generator_magrot/survey_PMPS_position_map_radec_3.npy,data/example_
 data/example_generator_magrot/survey_PMPS_position_map_radec_4.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_4.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_4.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_4.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_4.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_4.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_4.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_4.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_4.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_4.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_4.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_4.npy,13.286135700678276,-1.1544136490794008
 ```
 To select certain input channels, we specify a list containing the indices corresponding to 
-the input channels we would like to consider. In the dataloader example above, we opt for the input channels 
+the input channels we would like to consider. In the data loader example above, we opt for the input channels 
 `survey_PMPS_ppdot_map`, `survey_SMPS_ppdot_map`, `survey_HTRU_ppdot_map` (indices 9, 10, 11) and the labels `B_initial_log10_mean` and `P_initial_log10_mean` (indices 15, 16).
 
-!!! note
+!!! warning
     
     The length of the two lists for `filter_inputs` and `filter_labels` in the dataset loader configuration have to 
     match the channel input dimension and number of output dimension of the neural network.
@@ -147,10 +148,8 @@ If standardized, the input channels have values centred around 0 and range appro
 
 #### Validation data loader
 
-We need to provide a loader for the validation set using the `validation_data_loader`.
-Such loader must have the same `filter_inputs` and `filter_labels` and be of the same `type` as the training data loader.
-In fact, what matters is that both of them are compatible with the network's input shape.
-Moreover, the test dataset has to be normalized or standardized if normalization or standardization was applied to the training dataset.
+In addition to the training data loader, we also require a loader for the validation set. An example would look like 
+this
 ```commandline
 {
     "validation_data_loader": {
@@ -170,6 +169,13 @@ Moreover, the test dataset has to be normalized or standardized if normalization
 }
 ```
 
+!!! warning
+
+    The validation loader requires the same set-up as the training data loader. That means that the `filter_inputs` 
+    `filter_labels`, `normalize` and `standardize` options have to be indentical. and be of the same `type` as the training data loader.
+
+#### Optimizer
+
 We can set the optimizer type, which regulates the training process (see `here <https://pytorch.org/docs/stable/optim.html>`_ for the different type of PyTorch optimizers). 
 Each specific optimizer has a set of extra parameters that can be provided (such as `lr` or `weight_decay` for ADAM).
 ```commandline
@@ -186,7 +192,7 @@ Each specific optimizer has a set of extra parameters that can be provided (such
 
 We have to specify the loss function to minimize and the metric to monitor the predictive accuracy of the neural network model over the validation set during training. 
 The implemented loss function `LossMSE` evaluates the mean square error (MSE) between the output of the network and the target labels over every training epoch. 
-For the accuracy metric a similiar `MSE` metric is implemented called `MetriAccuracyMSE`. An optimal value of the `MSE` should be around 0 for a well-trained network:
+For the accuracy metric a similar `MSE` metric is implemented called `MetriAccuracyMSE`. An optimal value of the `MSE` should be around 0 for a well-trained network:
 ```commandline
 {
     "loss": {
@@ -205,7 +211,7 @@ We can also set up a scheduler for the learning rate, which can update the value
 In this example after `128` training epochs the learning rate is multiplied by a factor `0.1`.
 Note that scheduling has different effects depending on the optimizer.
 For example for an adaptive optimizer like ADAM the learning rate is automatically adjusted during training, depending on the values of the loss gradients with respect to the network weights.
-Therefore the learning scheduler could not be effective in this case.
+Therefore, the learning scheduler could not be effective in this case.
 On the other hand, for optimizer where the learning rate is fixed, rescheduling its value after some training epochs could help to converge faster towards a minimum of the loss landscape.
 ```commandline
 {
@@ -239,7 +245,7 @@ Instead of passing a `config.json` file to the training module, we can also ...
 
 When launching the training script you can also provide some of the parameters contained in the configuration file directly via `CLI`.
 For example one can provide the paths to the training and validation dataset, the input channels and the labels to select, the input shape, the number of parameters to predict, either to apply normalization or standardization to the input, the batch size, the learning rate value and the path where to save the trained model.
-For example you can run a script like the following:
+For example, you can run a script like the following:
 ```commandline
 python pypopsyn/learning/train.py --configuration config.json --dataset_training generated_dataset/dataset_train.csv --dataset_validation generated_dataset/dataset_valid.csv --dataset_statistics generated_dataset/statistics_train.json --filter_inputs 0 3 4 5 --filter_labels 14 --input_shape 4 64 64 --num_parameters 1 --normalize 1 --batch_size 1 --lr 1e-5 --save_dir training_results
 ```
@@ -248,8 +254,8 @@ The results of the training will be saved in the directory specified under the k
 In this directory path two folders will be created, a `logs` folder and a `models` folder that will contain subfolders for each specific training experiment with the structure of the form `name/YYYYMMDD_HHMMSS` where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was performed with a particular `name` specified in the configuration file.
 Each subfolder in the `logs` directory will contain three `json` files:
 * `train_results.json` containing the training loss evolution. if the labels where normalized or standardized the training loss here will be also normalized or standardized i.e. it will not have physical units.
-* `train_eval_results.json` containing the training loss evolution in physical units (i.e. with normalization or standardization removed if they where applied).
-* `valid_results.json` containing the validation loss evolution in physical units (i.e. with normalization or standardization removed if they where applied).
+* `train_eval_results.json` containing the training loss evolution in physical units (i.e. with normalization or standardization removed if they were applied).
+* `valid_results.json` containing the validation loss evolution in physical units (i.e. with normalization or standardization removed if they were applied).
 Each subfolder in the `models` directory will contain the saved best trained model in `.pth` format.
 
 
@@ -258,7 +264,7 @@ Each subfolder in the `models` directory will contain the saved best trained mod
 Once a network has been trained, it can be used to infer on an existing dataset of generated maps.
 To do so the script `pypopsyn/learning/infer.py` allows you to take an experiment configuration file, a pretrained model, and a data set to run inference on selected samples for that dataset.
 
-You can setup the loader for the test dataset over which you would like to perform inference in the configuration file.
+You can set up the loader for the test dataset over which you would like to perform inference in the configuration file.
 Such loader must have the same `filter_inputs` and `filter_labels` and be of the same `type` as the training data loader.
 In fact, what matters is that both of them are compatible with the network's input shape.
 Moreover, the test dataset has to be normalized or standardized if normalization or standardization was applied to the training dataset.
@@ -296,7 +302,7 @@ python pypopsyn/learning/infer.py --configuration config.json --trained_model ou
 ```
 
 You can use the `--samples` argument to provide a list of samples you would like to infer (their indices in the dataset) or just leave it blank to infer over all.
-Make sure that the data set used for inference has the same input configuration as the data set used for training the model, i.e., same input shape, number of labels to predict, normalization etc..
+Make sure that the data set used for inference has the same input configuration as the data set used for training the model, i.e., same input shape, number of labels to predict, normalization, etc.
 If the inference dataset does not match an error is raised automatically by pytorch.
 For example if you put the wrong resolution for the input maps the error raised is similar to:
 ```commandline
