@@ -195,7 +195,7 @@ def run_simulation_dask(
         output_dir_path.mkdir(parents=True, exist_ok=True)
 
         with open(args.parameter_override, "w") as f:
-            json.dump(simulation_override_json, f, indent=4, sort_keys=True)
+            json.dump(simulation_override_json, f, indent=4)
 
         # Call either the simulate_population_magrot or simulate_population_dyn module depending on the case.
         if simulator_type == "simulate_population_magrot_det":

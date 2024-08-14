@@ -358,7 +358,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         dataset_path, "statistics_full.json"
     )
     with open(statistics_dump_path, "w") as f:
-        json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
+        json.dump(statistics_dictionary, f, indent=4)
 
     log.info("Files statistics_full.json generated")
 
