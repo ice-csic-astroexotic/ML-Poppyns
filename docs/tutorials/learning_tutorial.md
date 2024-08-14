@@ -24,7 +24,7 @@ python pypopsyn/learning/train.py --configuration config.json
 Here, the `config.json` file contains all the information required to optimize the neural network. If this `CLI` 
 argument is left empty, the script will take the default `pypopsyn/learning/config_multiparameter_MLP.json`.
 
-### Training configuration options
+### Configuration options
 
 We now discuss the various options in the `config.json` training configuration file, which include the network
 architecture, the input shape of the dataset, or the number of output parameters to predict.
@@ -259,7 +259,7 @@ overfitting.
 }
 ```
 
-### Varying training parameters via `CLI`
+### Varying parameters via `CLI`
 
 Instead of passing a `config.json` file to the training module, we can also provide some (but not all) of the 
 parameters in the configuration file directly via `CLI` when launching the training script.
@@ -292,17 +292,24 @@ Moreover, each subfolder in the `logs` directory contains the following three `.
 * `valid_results.json` contains the validation loss evolution in physical units, i.e., we have corrected for
      normalization or standardization if they were applied.
 
-Finally, each subfolder in the `models` directory contains the saved best trained model in `.pth` format.
+Finally, each subfolder in the `models` directory contains the saved best trained model in `.pth` format. This model
+will be used for the inferring on an unseen dataset as outlined below.
 
 ## Inferring on a dataset
 
-Once a network has been trained, it can be used to infer on an existing dataset of generated maps.
-To do so the script `pypopsyn/learning/infer.py` allows you to take an experiment configuration file, a pretrained model, and a data set to run inference on selected samples for that dataset.
+Once a network has been trained, it can be used to infer on an unseen dataset of generated maps and extract the 
+relevant pulsar population parameters. The script `pypopsyn/learning/infer.py` allows us to take an experiment
+configuration file, a pre-trained model, and a dataset, and run inference on selected samples from that dataset.
 
-You can set up the loader for the test dataset over which you would like to perform inference in the configuration file.
-Such loader must have the same `filter_inputs` and `filter_labels` and be of the same `type` as the training data loader.
-In fact, what matters is that both of them are compatible with the network's input shape.
-Moreover, the test dataset has to be normalized or standardized if normalization or standardization was applied to the training dataset.
+### Configuration options
+
+We again set up the loader for the test dataset over which we want to perform inference in the configuration file.
+As noted above for the validation data loader the test data loader must have the same `type`, `filter_inputs` and 
+`filter_labels` as the training data loader. Again, both have to be compatible with the network's input and output 
+shape. Moreover, the test dataset has to be normalized or standardized if normalization or standardization was 
+applied to the training dataset.
+
+The test data loader in the `config.json` file could look as follows:
 ```commandline
 {
     "test_data_loader": {
@@ -321,8 +328,10 @@ Moreover, the test dataset has to be normalized or standardized if normalization
     },
 }
 ```
+Note that we set the `batch_size` to `1` here as we want to infer on individual samples not batches. As for the 
+validation data, we do not require our samples to be shuffled.
 
-The directory where to save the inference results is specified in the field `infer`.
+We specify the directory for saving the inference results in the field `infer`.
 ```commandline
 {
     "infer": {
@@ -331,15 +340,25 @@ The directory where to save the inference results is specified in the field `inf
  }
 ```
 
-To use this inference script you will need to provide a checkpoint with a pretrained model (`--trained_model`) and the configuration file of the experiment that generated such model (`--configuration`). For instance:
+### Inference output
+
+To use the inference script, we need to provide a pretrained model (`--trained_model`) and the configuration file of 
+the experiment that generated the corresponding model (`--configuration`). For instance, we could run the following
+command:
 ```commandline
 python pypopsyn/learning/infer.py --configuration config.json --trained_model output/learning/models/Convolution/20240725_175854/best_model_trial1.pth
 ```
 
-You can use the `--samples` argument to provide a list of samples you would like to infer (their indices in the dataset) or just leave it blank to infer over all.
-Make sure that the data set used for inference has the same input configuration as the data set used for training the model, i.e., same input shape, number of labels to predict, normalization, etc.
-If the inference dataset does not match an error is raised automatically by pytorch.
-For example if you put the wrong resolution for the input maps the error raised is similar to:
+We can also use the `--samples` argument to provide a list of specific samples we would like to infer on (their indices 
+in the dataset). Leaving this option blank implies that we are inferring over all test data samples. As for the 
+training script, we can also specify several other parameters directly via `CLI`. To see relevant options run
+```commandline
+python pypopsyn/learning/infer.py --help
+```
+
+As noted above, the dataset used for inference has to have the same configuration as the training dataset used during
+the network optimization process. If the inference dataset does not match, PyTorch automatically raises an error.
+For example, using the wrong resolution for the input maps raises an error similar to:
 ```commandline
 RuntimeError: Error(s) in loading state_dict for ModelConv:
 size mismatch for fc1.weight: copying a param with shape torch.Size([64, 26880]) from checkpoint, the shape in current model is torch.Size([64, 12544]).
@@ -348,10 +367,16 @@ If the input channels do not match, an error like the following is raised:
 ```commandline
 ValueError: all the input array dimensions for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 128 and the array at index 1 has size 64
 ```
-The output of the inference script will be saved in the directory specified under the key `["infer"]["save_dir"]` in the configuration file.
-In this directory path a folder `logs` will be created that will contain subfolders for each specific training experiment with the structure of the form `name/YYYYMMDD_HHMMSS` where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was performed with a particular `name` specified in the configuration file.
-Each subfolder in the `logs` directory will contain a `inference_results.csv` containing the labels (ground truth) for each sample and the corresponding predictions from the trained model.
-For example, in case of inference over the two parameters `P_initial_log10_mean` and `B_initial_log10_mean` for four test samples the output file would be like this:
+
+If the inference is successful, the output `pypopsyn/learning/infer.py` will be saved in the directory specified in the 
+`save_dir` option. Specifically, inference will create two folders in this directory, namely a `logs` folder and a 
+`models` folder containing subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes 
+the date and time when the inference was launched.
+
+Each subfolder in the `logs` directory will contain an `inference_results.csv` file containing the labels (ground 
+truths) for each sample and the corresponding predictions from the trained model. For example, in case of inference for 
+the two parameters `P_initial_log10_mean` and `B_initial_log10_mean` for four test samples, the output file could 
+look like this:
 ```commandline
 target:B_initial_log10_mean,target:P_initial_log10_mean,predicted:B_initial_log10_mean,predicted:P_initial_log10_mean
 12.187267303466797,-1.3277602195739746,12.33946418762207,-1.3803331851959229
