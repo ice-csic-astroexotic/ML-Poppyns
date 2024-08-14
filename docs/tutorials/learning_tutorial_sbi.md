@@ -163,33 +163,11 @@ If standardized, the input channels have values centred around 0 and range appro
     not require a separate validation data loader. We can specify the corresponding validation fraction as outlined 
     below.
 
-#### Test data loader
-
-In addition to the training data loader, we also require a loader for the test set. An example would look like 
-this
-```commandline
-{
-    "test_data_loader": {
-        "dataset_path": "data/example_generator_magrot/dataset_test.csv",
-        "statistic_path": "data/example_generator_magrot/statistics_train.json",
-        "filter_inputs": [9, 10, 11],
-        "filter_labels": [15, 16],
-        "normalize": false,
-        "standardize": true
-    },
-
-}
-```
-
-!!! warning
-
-    The test loader requires the same set-up as the training data loader. That means that the `filter_inputs`,
-    `filter_labels`, `normalize` and `standardize` options have to be indentical to those in the training data loader.
-
 #### Training parameters
 
 Finally, we specify some general options for our machine learning experiment. In particular, we can set the fraction 
-of the training dataset that we want to use for validation, the training batch size, the initial learning rate for the `Adam` optimizer (the default in the sbi library) and the directory path where the trained model is saved.
+of the training dataset that we want to use for validation, the training batch size, the initial learning rate for the
+`Adam` optimizer (the default in the sbi library) and the directory path where the trained model is saved.
 ```commandline
 {
     "trainer": {
@@ -233,10 +211,39 @@ Moreover, each subfolder in the `logs` directory contains the following files:
 Finally, each subfolder in the `models` directory contains the saved best trained model in `.pickle` format. This 
 model will be used for the inferring on an unseen dataset as outlined below.
 
-## Infer on a Data Set
+## Inferring on a dataset
 
-Moreover, we can set up the directory path to where the inference results on the test set will be saved.
-This is not used during the training process but will be necessary when doing inference (see next section).
+Once our SBI pipeline (composed of an embedding net and a neural density estimator) has been trained, it can be used 
+to infer on an unseen dataset of generated maps and extract posterior distributions of the corresponding pulsar
+population parameters. The script `pypopsyn/learning/infer_sbi.py` allows us to take an experiment configuration file, 
+a pre-trained model, and a dataset, and run the inference.
+
+### Configuration options
+
+In addition to the training data loader specified above, we also require a loader for the test set to perform 
+inference. We again need to set the path for the test dataset and the corresponding statistics (note that we use the 
+same file as for training here to make sure we capture the full range of training dataset properties), the input 
+channels, labels and preprocessing steps. An example would look like this:
+```commandline
+{
+    "test_data_loader": {
+        "dataset_path": "data/example_generator_magrot/dataset_test.csv",
+        "statistic_path": "data/example_generator_magrot/statistics_train.json",
+        "filter_inputs": [9, 10, 11],
+        "filter_labels": [15, 16],
+        "normalize": false,
+        "standardize": true
+    },
+
+}
+```
+
+!!! warning
+
+    The test data loader requires the same set-up as the training data loader. That means that the `filter_inputs`,
+    `filter_labels`, `normalize` and `standardize` options have to be indentical to those in the training data loader.
+
+We also specify the directory for saving the inference results in the field `infer`.
 ```commandline
 {
     "infer": {
@@ -245,23 +252,41 @@ This is not used during the training process but will be necessary when doing in
 }
 ```
 
-Once a network has been trained, it can be used to infer on an existing dataset of maps.
-To do so the script `pypopsyn/learning/infer_sbi.py` allows you to take an experiment configuration file, a pretrained model, and a data set to run inference.
+### Inference output
 
-Once the configuration file is properly set up with the path to the test dataset, to run the inference script you can use a command similar to the following one:
+Once the inference configuration is set up, we run the inference script by providing the configuration file 
+(`--configuration`) and a pretrained model (`--trained_model`) as follows:
 ```commandline
 python pypopsyn/learning/infer_sbi.py --configuration config_sbi.json --trained_model data/learning_sbi/models/SBI_ConvolutionMDN/20240606_180938/trained_model.pickle
 ```
 
 As for the training script you could provide some arguments via `CLI`, for example the path to the test dataset, the input channels and the labels to select, the input shape, either to apply normalization or standardization to the input and so on.
 
-The output of the inference script will be saved in the directory specified under the key `["infer"]["save_dir"]` in the configuration file.
-In this directory path a folder `logs` will be created that will contain subfolders for each specific training experiment with the structure of the form `name/YYYYMMDD_HHMMSS` where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was performed with a particular `name` specified in the configuration file.
-Each subfolder in the `logs` directory will contain the following information:
-* `profile.json` and `profile.log` files containing the timing profiling of the inference script.
-* `coeff_gaussians.csv` file will contain the Gaussian coefficients for the components of the Gaussian mixture for each of the test sample.
-* `coverage_plot.pdf` and `coverage_probability.npy` files will contain the results of the coverage probability diagnostic test.
-You could also specify the argument `--corner_plot True` while launching the script in order to produce and save the posterior corner plots in `.pdf` format and the posterior samples in `.pt` format for each of the test samples.
+As for the training script, we can also specify several other parameters, such as the path to the test dataset,
+the input channels and the labels directly via `CLI`. To see all available options run
+```commandline
+python pypopsyn/learning/infer.py --help
+```
+One additional option that is particularly useful for assessing the quality of the inference is setting the 
+the argument `--corner_plot` to `True`. This produces and saves a corner plot of the two- and one-dimensional 
+marginalised posteriors for each of the test samples in `.pdf` format and the corresponding posterior samples in 
+`.pt` format.
+
+!!! warning
+
+    Producing corner plots for a large test dataset is computationally expensive due to the computational cost
+    of sampling from the posterior and should be avoided.
+
+
+If the inference is successful, the output `pypopsyn/learning/infer.py` will be saved in the directory specified in the 
+`save_dir` option. Specifically, inference will create a `logs` folder in this directory containing subfolders of the 
+form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the inference was launched.
+
+Each subfolder in the `logs` directory contains the following information:
+
+* `profile.json` and `profile.log` files with the timing profiling of the inference script.
+* `coeff_gaussians.csv` file with the coefficients for the Gaussian mixture components for each test sample.
+* `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic test.
 
 
 ## Infer on a Data Set with an Ensemble
