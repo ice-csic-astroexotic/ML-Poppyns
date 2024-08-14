@@ -68,7 +68,7 @@ specific convergence thresholds for each of the possible output parameters.
 
 Next, we specify the network architecture. In the following example, we use predefined convolutional neural network 
 (CNN) denoted by `ModelConv`. This CNN receives an array of shape $32 \times 32$ with `3` different input channels 
-(three of our density maps) and outputs `2` values (corresponding to two of our pulsar population parameters):
+(three of our density maps) and outputs `2` values (corresponding to two of our pulsar population parameters).
 ```commandline
 {
     "arch": {
@@ -261,23 +261,38 @@ overfitting.
 
 ### Varying training parameters via `CLI`
 
-Instead of passing a `config.json` file to the training module, we can also ...
+Instead of passing a `config.json` file to the training module, we can also provide some (but not all) of the 
+parameters in the configuration file directly via `CLI` when launching the training script.
 
-When launching the training script you can also provide some of the parameters contained in the configuration file directly via `CLI`.
-For example one can provide the paths to the training and validation dataset, the input channels and the labels to select, the input shape, the number of parameters to predict, either to apply normalization or standardization to the input, the batch size, the learning rate value and the path where to save the trained model.
-For example, you can run a script like the following:
+In particular, we can provide the paths to the training and validation datasets, the statistics JSON file, 
+the input channels and the labels to select, the input shape, the number of parameters to predict, the option to 
+apply normalization or standardization (where `0` equals `False` and `1` equals `True`), the batch size, the learning 
+rate value and the path to where the trained model is saved.
+
+For example, we can train a neural network as follows:
 ```commandline
 python pypopsyn/learning/train.py --configuration config.json --dataset_training generated_dataset/dataset_train.csv --dataset_validation generated_dataset/dataset_valid.csv --dataset_statistics generated_dataset/statistics_train.json --filter_inputs 0 3 4 5 --filter_labels 14 --input_shape 4 64 64 --num_parameters 1 --normalize 1 --batch_size 1 --lr 1e-5 --save_dir training_results
 ```
 
-The results of the training will be saved in the directory specified under the key `["trainer"]["save_dir"]` in the configuration file.
-In this directory path two folders will be created, a `logs` folder and a `models` folder that will contain subfolders for each specific training experiment with the structure of the form `name/YYYYMMDD_HHMMSS` where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was performed with a particular `name` specified in the configuration file.
-Each subfolder in the `logs` directory will contain three `json` files:
-* `train_results.json` containing the training loss evolution. if the labels where normalized or standardized the training loss here will be also normalized or standardized i.e. it will not have physical units.
-* `train_eval_results.json` containing the training loss evolution in physical units (i.e. with normalization or standardization removed if they were applied).
-* `valid_results.json` containing the validation loss evolution in physical units (i.e. with normalization or standardization removed if they were applied).
-Each subfolder in the `models` directory will contain the saved best trained model in `.pth` format.
+### Training output
 
+No matter which of the two ways are used to launch a training experiment, the results of the training experiment are 
+saved in the directory specified by the `save_dir` option (either in the configuration file or via `CLI`). Specifically, 
+training will create two folders in this directory, namely a `logs` folder and a `models` folder. Both contain 
+subfolders for each specific training experiment of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes 
+the date and time when the experiment was launched.
+
+Moreover, each subfolder in the `logs` directory contains the following three `.json` files:
+
+* `train_results.json` contains the training loss evolution as a function of training epochs. 
+    If the labels where normalized or standardized, this training loss is also normalized or standardized
+    and will not have physical units.
+* `train_eval_results.json` contains the training loss evolution in physical units, i.e., we have corrected for
+     normalization or standardization if they were applied.
+* `valid_results.json` contains the validation loss evolution in physical units, i.e., we have corrected for
+     normalization or standardization if they were applied.
+
+Finally, each subfolder in the `models` directory contains the saved best trained model in `.pth` format.
 
 ## Inferring on a dataset
 
