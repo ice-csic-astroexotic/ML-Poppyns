@@ -284,12 +284,12 @@ the date and time when the experiment was launched.
 
 Moreover, each subfolder in the `logs` directory contains the following three `.json` files:
 
-* `train_results.json` contains the training loss evolution as a function of training epochs. 
+* `train_results.json` with the training loss evolution as a function of training epochs. 
     If the labels where normalized or standardized, this training loss is also normalized or standardized
     and will not have physical units.
-* `train_eval_results.json` contains the training loss evolution in physical units, i.e., we have corrected for
+* `train_eval_results.json` with the training loss evolution in physical units, i.e., we have corrected for
      normalization or standardization if they were applied.
-* `valid_results.json` contains the validation loss evolution in physical units, i.e., we have corrected for
+* `valid_results.json` with the validation loss evolution in physical units, i.e., we have corrected for
      normalization or standardization if they were applied.
 
 Finally, each subfolder in the `models` directory contains the saved best trained model in `.pth` format. This model
