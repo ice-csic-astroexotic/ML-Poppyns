@@ -1,32 +1,44 @@
 # Parameter inference with SBI
 
-In the following, we describe several scenarios of simulation-based inference (SBI) with neural networks. This 
-framework allows us to perform robust statistical inference and derive credibility intervals for parameter estimation 
-with complex simulators like those developed for pulsar population synthesis. Our implementation builds on the 
-[sbi](https://sbi-dev.github.io/sbi/) library ([Tejero-Cantero et al., 2020](https://arxiv.org/abs/2007.09114)). 
+In the following, we describe several scenarios of simulation-based inference (SBI) with neural networks. This is a 
+supervised learning approach where a network is trained to learn the mapping between simulated data and the posterior 
+distribution of the underlying model parameters. 
+
+The framework thus allows us to perform robust statistical inference and derive credibility intervals for parameter 
+estimation with complex simulators like those developed for pulsar population synthesis. Our implementation builds on 
+the [sbi](https://sbi-dev.github.io/sbi/) library ([Tejero-Cantero et al., 2020](https://arxiv.org/abs/2007.09114)).
+
 For a discussion of how neural networks can be used to infer point estimates (without quantifying uncertainties) see
 [Learning pulsar parameters with NNs](learning_tutorial.md).
 
-## Neural Posterior Estimation (amortized)
+## Amortized NPE
 
-We use here a simulation-based inference framework that uses the library [sbi](https://sbi-dev.github.io/sbi/ ).
-This is a supervised learning approach where a network is trained to learn the mapping between simulated data and the posterior distribution of the model parameters used to simulate them.
+The `pypopsyn/learning/train_sbi.py` script employs an SBI method called Neural Posterior Estimation (NPE) that allows 
+us to train a neural density estimator on a dataset of samples of simulated neutron star populations to directly 
+approximate the posterior distributions of the input parameters. In this case, the inference is amortized, which 
+implies that the trained model is able to predict a posterior distribution for any synthetic population of neutron 
+stars. This computation is very fast, because inference corresponds to a simple forward pass through the network.
 
-The `pypopsyn/learning/train_sbi.py` script employs a sbi method called Neural Posterior Estimation (NPE) that allows to train a neural density estimator over a dataset of samples of simulated neutron star populations to directly approximate the posterior distributions of the input parameters.
-In this case the inference is amortized, meaning that the trained model is able to predict a posterior distribution for any input simulated population of neutron stars.
-
-Once the dataset containing the heatmaps or 2D arrays has been created, to train the network over the dataset one can run the script:
+To perform our NPE using a dataset composed of heatmaps or 2D arrays of our synthetic pulsar populations (see 
+[Generating density maps](generator_tutorial.md) for details) we use the script `pypopsyn/learning/train_sbi.py` as 
+follows:
 ```commandline
 python pypopsyn/learning/train_sbi.py --configuration config_sbi.json
 ```
+Here, the `config_sbi.json` file contains all the information required to optimize the neural network. If this `CLI` 
+argument is left empty, the script will take the default `pypopsyn/learning/config_sbi.json`.
 
-where the `config_sbi.json` file contains all the information needed by the network to train.
-This `CLI` can be left unspecified and the script will take the default `pypopsyn/learning/config_sbi.json`.
+### Configuration options
 
-In this file we can specify various options to configure the training process, e.g., the network model architecture to use as an embedding net, the density estimator type, the input shape of the dataset, and some training hyperparameters.
+We now discuss the various options in the `config_sbi.json` training configuration file, which include the network
+architecture for our embedding net (see below), the type of density estimator, the input shape of the dataset, and 
+other relevant training hyperparameters.
 
-First of all, we can specify some general settings such as the name of the experiment, the amount of :term:`GPU`\s needed for it, a manual seed for the initialization of the network weights and some profiling options.
+#### General info
 
+We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, 
+a manual seed for the initialization of the network weights (assuming that `set_manual_seed` is set to true) 
+and some additional profiling options.
 ```commandline
 {
     "name": "SBI_ConvolutionMDN",
@@ -39,9 +51,17 @@ First of all, we can specify some general settings such as the name of the exper
 }
 ```
 
-The first section we need to specify is the architecture of the embedding neural network.
-The embedding network is used to extract features from the input data and to compress them into a latent vector that will be passed to the density estimator.
-Since in this example we are using 2D maps as input for the sake of the example, we are using a convolutional neural network (CNN) which is receiving an array with shape $32 \times 32$ with 3 different input channels and is giving a latent vector of size 32 containing a compressed representation of the input feature maps:
+#### Model architecture
+
+Next, we specify the architecture for the so-called embedding neural network. This embedding net is used to extract
+features from the input data and compress the input into a latent vector that is then passed to the density estimator.
+
+In the following example, we will be using 2D maps as input and, hence, opt for a convolutional neural network (CNN) 
+as the embedding net. This CNN receives an array of shape $32 \times 32$ with `3` different input channels 
+(three of our density maps with a 32 resolution) as input and outputs a latent vector of size 32, which contains 
+a compressed representation of the input feature maps.
+
+The configuration file then looks as follows:
 ```commandline
 {
     "arch": {
@@ -54,7 +74,10 @@ Since in this example we are using 2D maps as input for the sake of the example,
 }
 ```
 
-We also need to specify a scheme to initialize the weights and biases of the network. In this case, we show an example using the `InitializerKaiming`.
+#### Initialization
+
+We also specify a scheme to initialize the weights and biases of the network. 
+Here, we show an example using the Kaiming initializer denoted by `InitializerKaiming`.
 ```commandline
 {
     "weights_initializer": {
@@ -64,8 +87,14 @@ We also need to specify a scheme to initialize the weights and biases of the net
 }
 ```
 
-We can also specify the type of density estimator used to approximate the posterior distribution.
-In this example we are setting a mixture density network (mdn) with 10 Gaussian components.
+#### Density estimator
+
+Next, we decide on the type of density estimator used to approximate the posterior distribution. For NPE, the 
+preconfigured options in the sbi library include so-called masked autoregressive flows `maf` or Gaussian mixture 
+density networks `mdn`. For more details on these methods and relevant hyperparameters as well as custom density 
+estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorial/04_density_estimators/).
+
+In the following example, we are setting a mixture density network with `10` Gaussian components.
 ```commandline
 {
     "density_estimator": {
@@ -77,16 +106,14 @@ In this example we are setting a mixture density network (mdn) with 10 Gaussian 
 }
 ```
 
-Next, we need a training loader, responsible for loading the dataset for the training in a representation readable by the network.
-Here you have to specify the path to the folder containing the training dataset, the eventual input channels to use in building a multichannel input.
-Additionally, we can choose the list of labels from the dataset that we want to consider.
-The available input channels and labels are specified in the `train_dataset.csv` file and here they are identified with an index starting from 0.
-To select some input channels you need to specify a list containing the indices corresponding to the input channels you would like to consider.
-In the example below we are selecting the input channels `survey_PMPS_ppdot_map`, `survey_SMPS_ppdot_map`, `survey_HTRU_ppdot_map` and the labels `B_initial_log10_mean` and `P_initial_log10_mean`.
-Furthermore, we can enable on-the-fly normalization or standardization (mutually excluding) for both inputs and labels.
-This will use the statistical information contained in the `statistics_train.json` file.
-If normalized the input channels will have values in the range between 0 and 1.
-If standardized the input channels have values centred around 0 and ranging approximately between -1 and 1.
+#### Training data loader
+
+We also require a training data loader, which is responsible for loading the dataset in a representation readable 
+by the network. We specify the path to the directory containing the training dataset (specifically the 
+`dataset_train.csv` file) and the JSON file characterizing the statistics of the training dataset, and the input 
+channels used in building our (multichannel) input. Additionally, we set the ground truth labels that we want to 
+predict.
+
 ```commandline
 {
     "training_data_loader": {
@@ -99,6 +126,33 @@ If standardized the input channels have values centred around 0 and ranging appr
     },
 }
 ```
+The available input channels and labels are specified in the `dataset_train.csv` file, where they are identified with 
+an index starting from 0. Let us assume that our `dataset_train.csv` file looks as follows:
+```commandline
+input:survey_PMPS_position_map_radec,input:survey_SMPS_position_map_radec,input:survey_HTRU_position_map_radec,input:survey_PMPS_velocity_map_vra,input:survey_SMPS_velocity_map_vra,input:survey_HTRU_velocity_map_vra,input:survey_PMPS_velocity_map_vdec,input:survey_SMPS_velocity_map_vdec,input:survey_HTRU_velocity_map_vdec,input:survey_PMPS_ppdot_map,input:survey_SMPS_ppdot_map,input:survey_HTRU_ppdot_map,input:survey_PMPS_ppdot_map_fluxes,input:survey_SMPS_ppdot_map_fluxes,input:survey_HTRU_ppdot_map_fluxes,B_initial_log10_mean,P_initial_log10_mean
+data/example_generator_magrot/survey_PMPS_position_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_0.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_0.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_0.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_0.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_0.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_0.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_0.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_0.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_0.npy,12.586280501149703,-1.3096012845994798
+data/example_generator_magrot/survey_PMPS_position_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_1.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_1.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_1.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_1.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_1.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_1.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_1.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_1.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_1.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_1.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_1.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_1.npy,12.217080081747753,-0.5284096562094787
+data/example_generator_magrot/survey_PMPS_position_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_2.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_2.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_2.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_2.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_2.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_2.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_2.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_2.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_2.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_2.npy,13.05641491693826,-0.6189372458073498
+data/example_generator_magrot/survey_PMPS_position_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_3.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_3.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_3.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_3.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_3.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_3.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_3.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_3.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_3.npy,12.299076654328934,-1.4327208843495762
+data/example_generator_magrot/survey_PMPS_position_map_radec_4.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_4.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_4.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_4.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_4.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_4.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_4.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_4.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_4.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_4.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_4.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_4.npy,13.286135700678276,-1.1544136490794008
+```
+To select certain input channels, we specify a list containing the indices corresponding to 
+the input channels we would like to consider. In the data loader example above, we opt for the input channels 
+`survey_PMPS_ppdot_map`, `survey_SMPS_ppdot_map`, `survey_HTRU_ppdot_map` (indices 9, 10, 11) and the labels `B_initial_log10_mean` and `P_initial_log10_mean` (indices 15, 16).
+
+!!! warning
+    
+    The length of the two lists for `filter_inputs` and `filter_labels` in the dataset loader configuration have to 
+    match the channel input dimension and number of output dimension of the neural network.
+    Otherwise an error is produced.
+
+Finally, our training data loader enables us to specify if we want to shuffle our training data before passing it
+through the neural network and whether we activate on-the-fly normalization or standardization (both are mutually 
+exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information contained 
+in the `statistics_train.json` file. For normalization, the input channels will have values in the range between 0 and 1.
+If standardized, the input channels have values centred around 0 and range approximately between -1 and 1.
+
+#### Test data loader
 
 We need to provide a loader for the test set using the `test_data_loader`.
 Such loader must have the same `filter_inputs` and `filter_labels` and the same `normalize` or `standardize`.
