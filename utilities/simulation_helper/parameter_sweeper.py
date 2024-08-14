@@ -110,9 +110,7 @@ def main(args):
             )
 
             with open(simulation_override_json_path, "w") as f:
-                json.dump(
-                    simulation_override_json, f, indent=4, sort_keys=True
-                )
+                json.dump(simulation_override_json, f, indent=4)
 
             f_sa.write(
                 f"{simulation_output_path} {simulation_override_json_path}"
@@ -204,26 +202,6 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--P_initial_log10_mean",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range of the log10 mean initial spin period with number of values "
-        "[low, high, n_values]."
-        "In random mode: range of the log10 mean initial spin period [low, high].",
-    )
-
-    args.add_argument(
-        "--P_initial_log10_sigma",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range of the log10 dispersion of the initial spin period with number of values "
-        "[low, high, n_values]."
-        "In random mode: range of the log10 dispersion of the initial spin period [low, high].",
-    )
-
-    args.add_argument(
         "--B_initial_log10_mean",
         nargs="*",
         type=float,
@@ -244,6 +222,26 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
+        "--P_initial_log10_mean",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range of the log10 mean initial spin period with number of values "
+        "[low, high, n_values]."
+        "In random mode: range of the log10 mean initial spin period [low, high].",
+    )
+
+    args.add_argument(
+        "--P_initial_log10_sigma",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range of the log10 dispersion of the initial spin period with number of values "
+        "[low, high, n_values]."
+        "In random mode: range of the log10 dispersion of the initial spin period [low, high].",
+    )
+
+    args.add_argument(
         "--a_late",
         nargs="*",
         type=float,
@@ -252,7 +250,24 @@ if __name__ == "__main__":
         "with number of values [low, high, n_values]."
         "In random mode: range of the power-law slope of the late time magnetic field evolution [low, high].",
     )
-
+    args.add_argument(
+        "--L_radio_log10_mean",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the mean of the log-normally distributed radio luminosity normalization factor."
+        "with number of values [low, high, n_values]."
+        "In random mode: range of the mean of the log-normally distributed radio luminosity normalization factor [low, high].",
+    )
+    args.add_argument(
+        "--epsilon_L",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the power-law slope of the intrinsic luminosity "
+        "with number of values [low, high, n_values]."
+        "In random mode: range of the power-law slope of the intrinsic luminosity [low, high].",
+    )
     args = args.parse_args()
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)

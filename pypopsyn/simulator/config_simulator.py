@@ -200,11 +200,21 @@ cfg["B_millisec_sigma"] = 0.5
 # (see Johnston et al. 2020).
 cfg["r_em"]: float = 3.0e7
 
-# Mean and standard deviation for the log-normally distributed radio luminosity normalization factor
-# Given in [erg s^(3 * epsilon_L - 1) ]. Parameters were adjusted to match observed data.
-cfg["L_radio_log10_mean"]: float = 35.5
+# Relevant parameters for the log-normally distributed luminosity, L.
+# We have implemented two different prescriptions for the luminosity in the module
+# pypopsyn/simulator/multiband_emission/emission_radio.py based on the luminosity depending on different parameters.
+# One prescription follows Faucher-Giguère & Kaspi (2006) (pdf_luminosity_radio_ppdot) and assumes that L depends on
+# the period and period derivative. The second one assumes that L depends directly on the loss of rotational energy
+# (pdf_luminosity_radio_edot). If the luminosity is given by pdf_luminosity_radio_ppdot, then the units of
+# L_radio_log10_mean are [erg s^(3 * epsilon_L - 1)]. Otherwise, L_0 has units of [ergs/s]. In both cases,
+# the following parameters were adjusted to match observed data.
+cfg[
+    "L_radio_log10_mean"
+]: float = 26.6  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
+# cfg["L_radio_log10_mean"]: float = 35.5 [erg s^(3 * epsilon_L - 1) ] if pdf_luminosity_radio_ppdot is used.
 cfg["L_radio_log10_sigma"]: float = 0.8
 cfg["epsilon_L"]: float = 0.5
+cfg["Erot_dot_0"]: float = 1e29
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["ed_model"]: str = "ymw16"
@@ -219,6 +229,13 @@ cfg["detected_real_PMPS"]: int = 1009
 cfg["detected_real_SMPS"]: int = 218
 cfg["detected_real_htru_low_mid"]: int = 1023
 cfg["detected_real_htru_high"]: int = 20
+
+# Numbers of objects associated with the three pulsars surveys as followed up with the TPA programme on Meerkat.
+# For details see Posselt et al. (2023). Note these numbers are used in the pypopsyn/generator/generate_observed_data.py
+# script and differ from those given in the full ATNF catalogue.
+cfg["detected_meerkat_PMPS"]: int = 618
+cfg["detected_meerkat_SMPS"]: int = 160
+cfg["detected_meerkat_HTRU"]: int = 667
 
 
 # ===================== X-RAY EMISSION-MODEL PARAMETERS ========================
