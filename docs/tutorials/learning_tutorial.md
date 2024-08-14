@@ -95,8 +95,8 @@ Here, we show an example using the Kaiming initializer denoted by `InitializerKa
 
 #### Training data loader
 
-Next, we define our training data loader, which is responsible for loading the dataset in a representation readable by the
-network. Depending on whether our maps were generated as `.png` images or `.npy` arrays, we set the type to 
+Next, we define our training data loader, which is responsible for loading the dataset in a representation readable 
+by the network. Depending on whether our maps were generated as `.png` images or `.npy` arrays, we set the type to 
 `LoaderMultichannelImage` or `LoaderMultichannelArray`, respectively. We also specify the path to the directory 
 containing the training dataset (specifically the `dataset_train.csv` file) and the JSON file characterizing the 
 statistics of the training dataset, the batch size, and the input channels used in building our (multichannel) 
