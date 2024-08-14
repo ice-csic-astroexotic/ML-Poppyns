@@ -1012,6 +1012,18 @@ def simulate_population(args) -> None:
 
                 L_x = Lx_interpolator.ev(age_det_x, B_det_x)
 
+                # Select only the stars that have sufficiently high luminosity.
+                idx_det_x = idx_det_x[L_x > 1.0e25]
+                age_det_x = age_det_x[L_x > 1.0e25]
+                P_det_x = P_det_x[L_x > 1.0e25]
+                ra_det_x = ra_det_x[L_x > 1.0e25]
+                dec_det_x = dec_det_x[L_x > 1.0e25]
+                dist_det_x = dist_det_x[L_x > 1.0e25]
+                B_det_x = B_det_x[L_x > 1.0e25]
+                chi_det_x = chi_det_x[L_x > 1.0e25]
+                P_dot_det_x = P_dot_det_x[L_x > 1.0e25]
+                L_x = L_x[L_x > 1.0e25]
+
                 S_x, N_H = ex.flux_xray_absorbed(
                     L_x, B_det_x, ra_det_x, dec_det_x, dist_det_x
                 )
