@@ -19,6 +19,11 @@ approximate the posterior distributions of the input parameters. In this case, t
 implies that the trained model is able to predict a posterior distribution for any synthetic population of neutron 
 stars. This computation is very fast, because inference corresponds to a simple forward pass through the network.
 
+!!! example
+
+    An example of the following training and inference scripts is presented in
+    `tutorials/tutorial_notebooks/08_learning_sbi_tutorial.ipynb`.
+
 To perform our NPE using a dataset composed of heatmaps or 2D arrays of our synthetic pulsar populations (see 
 [Generating density maps](generator_tutorial.md) for details) we use the script `pypopsyn/learning/train_sbi.py` as 
 follows:
@@ -138,7 +143,8 @@ data/example_generator_magrot/survey_PMPS_position_map_radec_4.npy,data/example_
 ```
 To select certain input channels, we specify a list containing the indices corresponding to 
 the input channels we would like to consider. In the data loader example above, we opt for the input channels 
-`survey_PMPS_ppdot_map`, `survey_SMPS_ppdot_map`, `survey_HTRU_ppdot_map` (indices 9, 10, 11) and the labels `B_initial_log10_mean` and `P_initial_log10_mean` (indices 15, 16).
+`survey_PMPS_ppdot_map`, `survey_SMPS_ppdot_map`, `survey_HTRU_ppdot_map` (indices 9, 10, 11) and the labels 
+`B_initial_log10_mean` and `P_initial_log10_mean` (indices 15, 16).
 
 !!! warning
     
@@ -146,17 +152,21 @@ the input channels we would like to consider. In the data loader example above, 
     match the channel input dimension and number of output dimension of the neural network.
     Otherwise an error is produced.
 
-Finally, our training data loader enables us to specify if we want to shuffle our training data before passing it
-through the neural network and whether we activate on-the-fly normalization or standardization (both are mutually 
+Finally, our training data loader enables us to activate on-the-fly normalization or standardization (both are mutually 
 exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information contained 
 in the `statistics_train.json` file. For normalization, the input channels will have values in the range between 0 and 1.
 If standardized, the input channels have values centred around 0 and range approximately between -1 and 1.
 
+!!! note
+
+    The training dataset is also used for validation. This is automatically handled through sbi. We therefore do
+    not require a separate validation data loader. We can specify the corresponding validation fraction as outlined 
+    below.
+
 #### Test data loader
 
-We need to provide a loader for the test set using the `test_data_loader`.
-Such loader must have the same `filter_inputs` and `filter_labels` and the same `normalize` or `standardize`.
-In fact, what matters is that both of them are compatible with the network's input shape.
+In addition to the training data loader, we also require a loader for the test set. An example would look like 
+this
 ```commandline
 {
     "test_data_loader": {
@@ -171,7 +181,15 @@ In fact, what matters is that both of them are compatible with the network's inp
 }
 ```
 
-We can set some hyperparameters related to the trainer, i.e. the fraction of the training dataset to use for validation, the training batch size, the initial learning rate for the `Adam` optimizer and the directory path where to save the trained model.
+!!! warning
+
+    The test loader requires the same set-up as the training data loader. That means that the `filter_inputs`,
+    `filter_labels`, `normalize` and `standardize` options have to be indentical to those in the training data loader.
+
+#### Training parameters
+
+Finally, we specify some general options for our machine learning experiment. In particular, we can set the fraction 
+of the training dataset that we want to use for validation, the training batch size, the initial learning rate for the `Adam` optimizer (the default in the sbi library) and the directory path where the trained model is saved.
 ```commandline
 {
     "trainer": {
@@ -183,7 +201,41 @@ We can set some hyperparameters related to the trainer, i.e. the fraction of the
 }
 ```
 
-Finally, we can set up the directory path where the inference results on the test set will be saved.
+### Varying parameters via `CLI`
+
+Instead of passing a `config.json` file to the training module, we can also provide some (but not all) of the 
+parameters in the configuration file directly via `CLI` when launching the training script.
+
+In particular, we can provide the path to the training datasets and the statistics JSON file, 
+the input channels and the labels to select, the input shape, the length of the latent vector, the option to 
+apply normalization or standardization (where `0` equals `false` and `1` equals `true`), the batch size, the learning 
+rate value and the path to where the trained model is saved.
+
+For example, we can train a neural network as follows:
+```commandline
+python pypopsyn/learning/train_sbi.py --configuration config_sbi.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 9 10 11 --filter_labels 12 13 --input_shape 3 32 32 --len_output_layer 32 --standardize 1 --batch_size 1 --lr 1e-5 --save_dir data/example_learning_sbi
+```
+
+### Training output
+
+No matter which of the two ways are used to launch a training experiment, the results of the training experiment are 
+saved in the directory specified by the `save_dir` option (either in the configuration file or via `CLI`). Specifically, 
+training will create two folders in this directory, namely a `logs` folder and a `models` folder. Both contain 
+subfolders for each specific training experiment of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes 
+the date and time when the experiment was launched.
+
+Moreover, each subfolder in the `logs` directory contains the following files:
+
+* `profile.json` and `profile.log` files with profiling information of the training experiment.
+* `training_statistics.json` with the training and validation loss evolution.
+* `training_stats.pdf` with a plot showing the training and validation loss evolution.
+
+Finally, each subfolder in the `models` directory contains the saved best trained model in `.pickle` format. This 
+model will be used for the inferring on an unseen dataset as outlined below.
+
+## Infer on a Data Set
+
+Moreover, we can set up the directory path to where the inference results on the test set will be saved.
 This is not used during the training process but will be necessary when doing inference (see next section).
 ```commandline
 {
@@ -192,29 +244,6 @@ This is not used during the training process but will be necessary when doing in
     }
 }
 ```
-
-Once you have set up the configuration file, to launch the training script you can simply run the script:
-```commandline
-python pypopsyn/learning/train_sbi.py --configuration config_sbi.json
-```
-
-When launching the training script you can also provide some of the parameters contained in the configuration file directly via `CLI`.
-For example one can provide the paths to the training, the input channels and the labels to select, the input shape, either to apply normalization or standardization to the input, the batch size, the learning rate value and the path where to save the trained model.
-For example, you can run a script like the following:
-```commandline
-python pypopsyn/learning/train_sbi.py --configuration config_sbi.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 9 10 11 --filter_labels 12 13 --input_shape 3 32 32 --len_output_layer 32 --standardize 1 --batch_size 1 --lr 1e-5 --save_dir data/example_learning_sbi
-```
-
-The results of the training will be saved in the directory specified under the key `["trainer"]["save_dir"]` in the configuration file.
-In this directory path two folders will be created, a `logs` folder and a `models` folder that will contain subfolders for each specific training experiment with the structure of the form `name/YYYYMMDD_HHMMSS` where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was performed with a particular `name` specified in the configuration file.
-Each subfolder in the `logs` directory will contain the following files:
-* `profile.json` and `profile.log` files containing the timing profiling of the training script.
-* `training_statistics.json` containing the training and validation loss evolution.
-* `training_stats.pdf` containing a plot showing the training and validation loss evolution.
-Each subfolder in the `models` directory will contain the saved best trained model in `.pickle` format.
-
-
-## Infer on a Data Set
 
 Once a network has been trained, it can be used to infer on an existing dataset of maps.
 To do so the script `pypopsyn/learning/infer_sbi.py` allows you to take an experiment configuration file, a pretrained model, and a data set to run inference.
@@ -233,10 +262,6 @@ Each subfolder in the `logs` directory will contain the following information:
 * `coeff_gaussians.csv` file will contain the Gaussian coefficients for the components of the Gaussian mixture for each of the test sample.
 * `coverage_plot.pdf` and `coverage_probability.npy` files will contain the results of the coverage probability diagnostic test.
 You could also specify the argument `--corner_plot True` while launching the script in order to produce and save the posterior corner plots in `.pdf` format and the posterior samples in `.pt` format for each of the test samples.
-
-!!! example
-
-    To see a tutorial example for how to use these training and inference scripts you can look at the notebook in `tutorials/tutorial_notebooks/08_learning_sbi_tutorial.ipynb`.
 
 
 ## Infer on a Data Set with an Ensemble
