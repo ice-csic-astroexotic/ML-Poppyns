@@ -1,5 +1,12 @@
 # Parameter inference with SBI
 
+In the following, we describe several scenarios of simulation-based inference (SBI) with neural networks. This 
+framework allows us to perform robust statistical inference and derive credibility intervals for parameter estimation 
+with complex simulators like those developed for pulsar population synthesis. Our implementation builds on the 
+[sbi](https://sbi-dev.github.io/sbi/) library ([Tejero-Cantero et al., 2020](https://arxiv.org/abs/2007.09114)). 
+For a discussion of how neural networks can be used to infer point estimates (without quantifying uncertainties) see
+[Learning pulsar parameters with NNs](learning_tutorial.md).
+
 ## Neural Posterior Estimation (amortized)
 
 We use here a simulation-based inference framework that uses the library [sbi](https://sbi-dev.github.io/sbi/ ).
@@ -34,7 +41,7 @@ First of all, we can specify some general settings such as the name of the exper
 
 The first section we need to specify is the architecture of the embedding neural network.
 The embedding network is used to extract features from the input data and to compress them into a latent vector that will be passed to the density estimator.
-Since in this example we are using 2D maps as input for the sake of the example, we are using a convolutional nerual network (CNN) which is receiving an array with shape $32 \times 32$ with 3 different input channels and is giving a latent vector of size 32 containing a compressed representation of the input feature maps:
+Since in this example we are using 2D maps as input for the sake of the example, we are using a convolutional neural network (CNN) which is receiving an array with shape $32 \times 32$ with 3 different input channels and is giving a latent vector of size 32 containing a compressed representation of the input feature maps:
 ```commandline
 {
     "arch": {
@@ -122,7 +129,7 @@ We can set some hyperparameters related to the trainer, i.e. the fraction of the
 }
 ```
 
-Finally we can set up the directory path where the inference results on the test set will be saved.
+Finally, we can set up the directory path where the inference results on the test set will be saved.
 This is not used during the training process but will be necessary when doing inference (see next section).
 ```commandline
 {
@@ -139,7 +146,7 @@ python pypopsyn/learning/train_sbi.py --configuration config_sbi.json
 
 When launching the training script you can also provide some of the parameters contained in the configuration file directly via `CLI`.
 For example one can provide the paths to the training, the input channels and the labels to select, the input shape, either to apply normalization or standardization to the input, the batch size, the learning rate value and the path where to save the trained model.
-For example you can run a script like the following:
+For example, you can run a script like the following:
 ```commandline
 python pypopsyn/learning/train_sbi.py --configuration config_sbi.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 9 10 11 --filter_labels 12 13 --input_shape 3 32 32 --len_output_layer 32 --standardize 1 --batch_size 1 --lr 1e-5 --save_dir data/example_learning_sbi
 ```
@@ -169,7 +176,7 @@ The output of the inference script will be saved in the directory specified unde
 In this directory path a folder `logs` will be created that will contain subfolders for each specific training experiment with the structure of the form `name/YYYYMMDD_HHMMSS` where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was performed with a particular `name` specified in the configuration file.
 Each subfolder in the `logs` directory will contain the following information:
 * `profile.json` and `profile.log` files containing the timing profiling of the inference script.
-* `coeff_gaussians.csv` file will contain the Gaussian coeffiecients for the components of the Gaussian mixture for each of the test sample.
+* `coeff_gaussians.csv` file will contain the Gaussian coefficients for the components of the Gaussian mixture for each of the test sample.
 * `coverage_plot.pdf` and `coverage_probability.npy` files will contain the results of the coverage probability diagnostic test.
 You could also specify the argument `--corner_plot True` while launching the script in order to produce and save the posterior corner plots in `.pdf` format and the posterior samples in `.pt` format for each of the test samples.
 
