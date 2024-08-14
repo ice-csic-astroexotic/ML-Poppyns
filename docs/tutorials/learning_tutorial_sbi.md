@@ -260,15 +260,13 @@ Once the inference configuration is set up, we run the inference script by provi
 python pypopsyn/learning/infer_sbi.py --configuration config_sbi.json --trained_model data/learning_sbi/models/SBI_ConvolutionMDN/20240606_180938/trained_model.pickle
 ```
 
-As for the training script you could provide some arguments via `CLI`, for example the path to the test dataset, the input channels and the labels to select, the input shape, either to apply normalization or standardization to the input and so on.
-
 As for the training script, we can also specify several other parameters, such as the path to the test dataset,
 the input channels and the labels directly via `CLI`. To see all available options run
 ```commandline
 python pypopsyn/learning/infer.py --help
 ```
 One additional option that is particularly useful for assessing the quality of the inference is setting the 
-the argument `--corner_plot` to `True`. This produces and saves a corner plot of the two- and one-dimensional 
+argument `--corner_plot` to `True`. This produces and saves a corner plot of the two- and one-dimensional 
 marginalised posteriors for each of the test samples in `.pdf` format and the corresponding posterior samples in 
 `.pt` format.
 
@@ -278,9 +276,10 @@ marginalised posteriors for each of the test samples in `.pdf` format and the co
     of sampling from the posterior and should be avoided.
 
 
-If the inference is successful, the output `pypopsyn/learning/infer.py` will be saved in the directory specified in the 
-`save_dir` option. Specifically, inference will create a `logs` folder in this directory containing subfolders of the 
-form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the inference was launched.
+If the inference is successful, the output of `pypopsyn/learning/infer_sbi.py` will be saved in the directory 
+specified in the `save_dir` option. Specifically, inference will create a `logs` folder in this directory containing
+subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the inference
+was launched.
 
 Each subfolder in the `logs` directory contains the following information:
 
