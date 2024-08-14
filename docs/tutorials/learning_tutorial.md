@@ -1,18 +1,46 @@
-# Training a CNN for pulsar population synthesis
+# Learning pulsar parameters with NNs
 
-We use here a supervised learning approach where training data are suitably labeled and the network has to learn to predict the target value of the label associated to the data samples.
-The `pypopsyn/learning/train.py` script allows to train a neural network over a dataset of samples of simulated neutron star populations.
-Once the dataset containing the heatmaps or 2D arrays has been created, to train the network over the dataset one can run the script:
+In the following, we describe how neural networks can be used to estimate the characteristic parameters that describe
+the birth properties of a population of neutron stars. Here, we focus on obtaining point estimates of our parameters.
+I.e., we do not derive credible intervals for our estimates. For a presentation of statistical parameter inference 
+with simulation-based inference (SBI) see [Parameter interference with SBI](learning_tutorial_sbi.md).
+
+!!! example
+
+    An example of the following training and inference scripts is presented in
+    `tutorials/tutorial_notebooks/07_learning_tutorial.ipynb`.
+
+## Training a NN
+
+In the following, we discuss a supervised learning approach where training data are suitably labeled and the network 
+learns to predict the ground truths associated with individual data samples.
+
+The `pypopsyn/learning/train.py` script allows us to train a neural network on a dataset of simulated 
+neutron star populations. Once the corresponding heatmaps or 2D arrays have been created (see [Generating density 
+maps](generator_tutorial.md) for details), we train the network by running the following command:
 ```commandline
 python pypopsyn/learning/train.py --configuration config.json
 ```
-where the `config.json` file contains all the information needed by the network to train. This `CLI` can be left unspecified and the script will take the default `pypopsyn/learning/config_multiparameter_MLP.json`.
+Here, the `config.json` file contains all the information required to optimize the neural network. If this `CLI` 
+argument is left empty, the script will take the default `pypopsyn/learning/config_multiparameter_MLP.json`.
 
-In this file we can specify various options to configure the training process, e.g., the network model architecture to use, the input shape of the dataset, or the number of output parameters to predict.
+### Training configuration options
 
-First of all, we can specify some general settings such as the name of the experiment, the amount of GPUs needed for it, the amount of trials to perform if convergence is not reached, and the specific thresholds for convergence for each one of the predicted or output parameters.
-The script will try to perform several training trials until all convergence thresholds are met or the number of trials is reached.
-If convergence is not reached in the number of trials indicated the best trained model is saved anyway.
+We now discuss the various options in this training configuration file, which include the network architecture, 
+the input shape of the dataset, or the number of output parameters to predict.
+
+We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, the number
+of trials performed for each execution of `pypopsyn/learning/train.py` in case convergence is not reached, and the 
+specific convergence thresholds for each of the possible output parameters. 
+
+!!! note
+    
+    Trials and convergence thresholds are relevant because random initialization of network weights and biases can lead 
+    to different training behaviour across repeated training runs. To mitigate the possibility of getting trapped in a
+    local (but not global) minimum during the optimization, we implement individual thresholds for our parameters and
+    perform several training trials until all convergence thresholds are met, or the pre-defined number of trials is 
+    reached. In the latter case, the best trained model is saved although not all convergence criteria have been met.
+
 ```commandline
 {
     "name": "Linear",
@@ -33,8 +61,9 @@ If convergence is not reached in the number of trials indicated the best trained
 }
 ```
 
-The first section we need to specify is the architecture. 
-For the sake of the example, we are using a convolutional neural network (CNN) which is receiving an array with shape $32 \times 32$ with `3` different input channels and is giving as output the predicted value of one parameter for each sample:
+Next, we specify the network architecture. In the following example, we use predefined convolutional neural network 
+(CNN) denoted by `ModelConv`. This CNN receives an array of shape $32 \times 32$ with `3` different input channels 
+(three of our density maps) and outputs `2` values (corresponding to two of our pulsar parameters):
 ```commandline
 {
     "arch": {
@@ -47,8 +76,8 @@ For the sake of the example, we are using a convolutional neural network (CNN) w
 }
 ```
 
-We also need to specify a scheme to initialize the weights and biases of the network. 
-In this case, we show an example using the `InitializerKaiming`.
+We also specify a scheme to initialize the weights and biases of the network. 
+Here, we show an example using the Kaiming initializer denoted by `InitializerKaiming`.
 ```commandline
 {
     "weights_initializer": {
@@ -173,10 +202,9 @@ Some parameters for the training routine such as the total number of epochs, the
 }
 ```
 
-Once you have set up the configuration file, to launch the training script you can simply run the script:
-```commandline
-python pypopsyn/learning/train.py --configuration config.json
-```
+### Varying training parameters via `CLI`
+
+Instead of passing a `config.json` file to the training module, we can also ...
 
 When launching the training script you can also provide some of the parameters contained in the configuration file directly via `CLI`.
 For example one can provide the paths to the training and validation dataset, the input channels and the labels to select, the input shape, the number of parameters to predict, either to apply normalization or standardization to the input, the batch size, the learning rate value and the path where to save the trained model.
@@ -194,7 +222,7 @@ Each subfolder in the `logs` directory will contain three `json` files:
 Each subfolder in the `models` directory will contain the saved best trained model in `.pth` format.
 
 
-## Infer on a Data Set
+## Inferring on a dataset
 
 Once a network has been trained, it can be used to infer on an existing dataset of generated maps.
 To do so the script `pypopsyn/learning/infer.py` allows you to take an experiment configuration file, a pretrained model, and a data set to run inference on selected samples for that dataset.
@@ -259,7 +287,3 @@ target:B_initial_log10_mean,target:P_initial_log10_mean,predicted:B_initial_log1
 12.566689491271973,-0.331459105014801,12.784342765808105,-0.3929998278617859
 13.581913948059082,-1.2630716562271118,13.486227989196777,-1.055734395980835
 ```
-
-!!! example
-
-    To see a tutorial example for how to use these training and inference scripts you can look at the notebook in `tutorials/tutorial_notebooks/07_learning_tutorial.ipynb`.
