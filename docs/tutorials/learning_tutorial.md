@@ -266,7 +266,7 @@ parameters in the configuration file directly via `CLI` when launching the train
 
 In particular, we can provide the paths to the training and validation datasets, the statistics JSON file, 
 the input channels and the labels to select, the input shape, the number of parameters to predict, the option to 
-apply normalization or standardization (where `0` equals `False` and `1` equals `True`), the batch size, the learning 
+apply normalization or standardization (where `0` equals `false` and `1` equals `true`), the batch size, the learning 
 rate value and the path to where the trained model is saved.
 
 For example, we can train a neural network as follows:
