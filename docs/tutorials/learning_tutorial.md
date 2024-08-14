@@ -369,9 +369,8 @@ ValueError: all the input array dimensions for the concatenation axis must match
 ```
 
 If the inference is successful, the output `pypopsyn/learning/infer.py` will be saved in the directory specified in the 
-`save_dir` option. Specifically, inference will create two folders in this directory, namely a `logs` folder and a 
-`models` folder containing subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes 
-the date and time when the inference was launched.
+`save_dir` option. Specifically, inference will create a `logs` folder in this directory containing subfolders of the 
+form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the inference was launched.
 
 Each subfolder in the `logs` directory will contain an `inference_results.csv` file containing the labels (ground 
 truths) for each sample and the corresponding predictions from the trained model. For example, in case of inference for 
