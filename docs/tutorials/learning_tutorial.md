@@ -171,13 +171,16 @@ this
 
 !!! warning
 
-    The validation loader requires the same set-up as the training data loader. That means that the `filter_inputs` 
-    `filter_labels`, `normalize` and `standardize` options have to be indentical. and be of the same `type` as the training data loader.
+    The validation loader requires the same set-up as the training data loader. That means that the `type`, 
+    `filter_inputs`, `filter_labels`, `normalize` and `standardize` options have to be indentical to those in the
+    training data loader.
 
 #### Optimizer
 
-We can set the optimizer type, which regulates the training process (see `here <https://pytorch.org/docs/stable/optim.html>`_ for the different type of PyTorch optimizers). 
-Each specific optimizer has a set of extra parameters that can be provided (such as `lr` or `weight_decay` for ADAM).
+We can also set the optimization scheme that regulates the neural network training process (see 
+[here](https://pytorch.org/docs/stable/optim.html) for the different types of PyTorch optimizers). Each specific 
+optimizer has a set of extra parameters that can be added. For example for the `Adam` optimizer in the example below,
+we specify the learning rate `lr` and `weight_decay` rate.
 ```commandline
 {
     "optimizer": {
@@ -190,9 +193,13 @@ Each specific optimizer has a set of extra parameters that can be provided (such
 }
 ```
 
-We have to specify the loss function to minimize and the metric to monitor the predictive accuracy of the neural network model over the validation set during training. 
-The implemented loss function `LossMSE` evaluates the mean square error (MSE) between the output of the network and the target labels over every training epoch. 
-For the accuracy metric a similar `MSE` metric is implemented called `MetriAccuracyMSE`. An optimal value of the `MSE` should be around 0 for a well-trained network:
+#### Loss and accuracy
+
+The `config.json` file also allows us to choose the loss function minimized during the optimization process and the 
+metric used to monitor the predictive accuracy of the neural network over the unseen validation set. In the example 
+below, the loss function `LossMSE` evaluates the mean square error (MSE) between the output of the network and the 
+target labels at every training epoch. To determine the accuracy, a similar metric is implemented through the option 
+`MetricAccuracyMSE`. An optimal value of the `MSE` should be around 0 for a well-trained network.
 ```commandline
 {
     "loss": {
@@ -207,12 +214,12 @@ For the accuracy metric a similar `MSE` metric is implemented called `MetriAccur
 }
 ```
 
-We can also set up a scheduler for the learning rate, which can update the value of the learning rate after a number of epochs specified by the `step_size` parameter, by multiplying it by a factor `gamma`.
-In this example after `128` training epochs the learning rate is multiplied by a factor `0.1`.
-Note that scheduling has different effects depending on the optimizer.
-For example for an adaptive optimizer like ADAM the learning rate is automatically adjusted during training, depending on the values of the loss gradients with respect to the network weights.
-Therefore, the learning scheduler could not be effective in this case.
-On the other hand, for optimizer where the learning rate is fixed, rescheduling its value after some training epochs could help to converge faster towards a minimum of the loss landscape.
+#### Learning rate scheduler
+
+We can also set up a scheduler for the learning rate. This updates the value of the learning rate after a certain 
+number of epochs specified by the `step_size` parameter by multiplying the initial learning rate by a factor `gamma`.
+
+In this example, the learning rate is multiplied by `0.1` after `128` training epochs.
 ```commandline
 {
     "lr_scheduler": {
@@ -225,7 +232,20 @@ On the other hand, for optimizer where the learning rate is fixed, rescheduling 
 }
 ```
 
-Some parameters for the training routine such as the total number of epochs, the directory path where to save the best model network and some checkpoints during the training process.
+!!! note
+
+    Scheduling the learning rate has different effects depending on the optimizer used. For example, for an adaptive
+    optimizer like `Adam` the learning rate is automatically adjusted during training based on the values of the loss
+    gradients with respect to the network weights. Therefore, the learning scheduler might have little effect in this 
+    case. On the other hand, for optimizers with fixed learning rates, rescheduling adjustments could help the 
+    network converge faster to a minimum of the loss landscape.
+
+#### Training parameters
+
+Finally, we specify some general options for our machine learning experiment. `Epochs` controls the total number of 
+epochs we set for our optimization, `save_dir` the directory path to where we save the best model and relevant 
+logging information (activated by setting the `verbosity` option to `1`) . We can also set an `early_stop` to avoid 
+overfitting.
 ```commandline
 {
     "trainer": {
