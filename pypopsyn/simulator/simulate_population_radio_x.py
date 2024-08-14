@@ -997,6 +997,7 @@ def simulate_population(args) -> None:
                 dec_det_x = dec_det[coverage_x]
                 dist_det_x = dist_det[coverage_x]
                 B_det_x = B_det[coverage_x]
+                B_initial_det_x = B_initial[coverage_x]
                 chi_det_x = chi_det[coverage_x]
 
                 # Determining the final period derivative.
@@ -1010,7 +1011,7 @@ def simulate_population(args) -> None:
                     / const.YR_TO_S
                 )
 
-                L_x = Lx_interpolator.ev(age_det_x, B_det_x)
+                L_x = Lx_interpolator.ev(age_det_x, B_initial_det_x)
 
                 # Select only the stars that have sufficiently high luminosity.
                 idx_det_x = idx_det_x[L_x > 1.0e25]
