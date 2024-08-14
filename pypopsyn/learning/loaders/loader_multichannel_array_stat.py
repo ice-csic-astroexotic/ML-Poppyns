@@ -206,10 +206,10 @@ class DatasetMultichannelArray:
             per_channel_max = np.max(matrix, axis=(0, 1), keepdims=True)
 
             # Identify channels where per_channel_max equals per_channel_min, indicating that all pixels in the matrix have the
-            # same value, meaning there are no stars.
+            # same value. This implies that no stars were detected in these simulations.
             zero_norm_mask = (per_channel_max == per_channel_min).squeeze()
             if np.count_nonzero(zero_norm_mask) != 0:
-                # Set the entire matrix to 0 for channels where per_channel_max == per_channel_min,to avoid dividing by zero.
+                # Set the entire matrix to 0 for channels where per_channel_max == per_channel_min to avoid dividing by zero.
                 matrix[:, :, zero_norm_mask] = 0
 
             else:
@@ -228,7 +228,7 @@ class DatasetMultichannelArray:
             per_channel_std = np.std(matrix, axis=(0, 1), keepdims=True)
             per_channel_mean = np.mean(matrix, axis=(0, 1), keepdims=True)
             # Check if per_channel_std equal to 0, indicating that all pixels in the matrix have the
-            # same value, meaning there are no stars.
+            # same value. This implies that no stars were detected in these simulations.
             zero_std_mask = (per_channel_std == 0).squeeze()
             if np.count_nonzero(zero_std_mask) != 0:
                 # Set the entire matrix to -1 for channels where per_channel_std = 0, to avoid dividing by zero.

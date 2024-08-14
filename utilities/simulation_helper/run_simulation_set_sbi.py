@@ -200,7 +200,6 @@ def simulator_dask(
             args_dict["save_dir"], folder_name
         )
         # Save the set of parameter values into a dictionary.
-
         simulation_override_json = {}
         for i in range(len(s)):
             simulation_override_json[var_names[i]] = s[i]
