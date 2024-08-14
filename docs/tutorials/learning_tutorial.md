@@ -29,6 +29,8 @@ argument is left empty, the script will take the default `pypopsyn/learning/conf
 We now discuss the various options in this training configuration file, which include the network architecture, 
 the input shape of the dataset, or the number of output parameters to predict.
 
+#### General info
+
 We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, the number
 of trials performed for each execution of `pypopsyn/learning/train.py` in case convergence is not reached, and the 
 specific convergence thresholds for each of the possible output parameters. 
@@ -61,6 +63,8 @@ specific convergence thresholds for each of the possible output parameters.
 }
 ```
 
+#### Model architecture
+
 Next, we specify the network architecture. In the following example, we use predefined convolutional neural network 
 (CNN) denoted by `ModelConv`. This CNN receives an array of shape $32 \times 32$ with `3` different input channels 
 (three of our density maps) and outputs `2` values (corresponding to two of our pulsar parameters):
@@ -76,6 +80,8 @@ Next, we specify the network architecture. In the following example, we use pred
 }
 ```
 
+#### Initialization
+
 We also specify a scheme to initialize the weights and biases of the network. 
 Here, we show an example using the Kaiming initializer denoted by `InitializerKaiming`.
 ```commandline
@@ -87,16 +93,14 @@ Here, we show an example using the Kaiming initializer denoted by `InitializerKa
 }
 ```
 
-Next, we need a training loader, responsible for loading the dataset for the training in a representation readable by the network.
-Here you have to specify the path to the folder containing the training dataset, the batch size, and the eventual input channels to use in building a multichannel input.
-Additionally, we can choose the list of labels from the dataset that we want to consider.
-The available input channels and labels are specified in the `train_dataset.csv` file and here they are identified with an index starting from 0.
-To select some input channels you need to specify a list containing the indices corresponding to the input channels you would like to consider.
-In the example below we are selecting the input channels `survey_PMPS_ppdot_map`, `survey_SMPS_ppdot_map`, `survey_HTRU_ppdot_map` and the labels `B_initial_log10_mean` and `P_initial_log10_mean`.
-Furthermore, we can enable on-the-fly normalization or standardization (mutually excluding) for both inputs and labels.
-This will use the statistical information contained in the `statistics_train.json` file.
-If normalized the input channels will have values in the range between 0 and 1.
-If standardized the input channels have values centred around 0 and ranging approximately between -1 and 1.
+#### Training data loader
+
+Next, we define our training data loader, which is responsible for loading the dataset in a representation readable by the
+network. Depending on whether our maps were generated as `.png` images or `.npy` arrays, we set the type to 
+`LoaderMultichannelImage` or `LoaderMultichannelArray`, respectively. We also specify the path to the directory 
+containing the training dataset (specifically the `dataset_train.csv` file) and the JSON file characterizing the 
+statistics of the training dataset, the batch size, and the input channels used in building our (multichannel) 
+input. Additionally, we set the ground truth labels that we want to predict.
 ```commandline
 {
     "training_data_loader": {
@@ -115,6 +119,33 @@ If standardized the input channels have values centred around 0 and ranging appr
     },
 }
 ```
+The available input channels and labels are specified in the `dataset_train.csv` file, where they are identified with 
+an index starting from 0. Let us assume that our `dataset_train.csv` file looks as follows:
+```commandline
+input:survey_PMPS_position_map_radec,input:survey_SMPS_position_map_radec,input:survey_HTRU_position_map_radec,input:survey_PMPS_velocity_map_vra,input:survey_SMPS_velocity_map_vra,input:survey_HTRU_velocity_map_vra,input:survey_PMPS_velocity_map_vdec,input:survey_SMPS_velocity_map_vdec,input:survey_HTRU_velocity_map_vdec,input:survey_PMPS_ppdot_map,input:survey_SMPS_ppdot_map,input:survey_HTRU_ppdot_map,input:survey_PMPS_ppdot_map_fluxes,input:survey_SMPS_ppdot_map_fluxes,input:survey_HTRU_ppdot_map_fluxes,B_initial_log10_mean,P_initial_log10_mean
+data/example_generator_magrot/survey_PMPS_position_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_0.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_0.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_0.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_0.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_0.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_0.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_0.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_0.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_0.npy,12.586280501149703,-1.3096012845994798
+data/example_generator_magrot/survey_PMPS_position_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_1.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_1.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_1.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_1.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_1.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_1.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_1.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_1.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_1.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_1.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_1.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_1.npy,12.217080081747753,-0.5284096562094787
+data/example_generator_magrot/survey_PMPS_position_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_2.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_2.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_2.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_2.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_2.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_2.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_2.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_2.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_2.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_2.npy,13.05641491693826,-0.6189372458073498
+data/example_generator_magrot/survey_PMPS_position_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_3.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_3.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_3.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_3.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_3.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_3.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_3.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_3.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_3.npy,12.299076654328934,-1.4327208843495762
+data/example_generator_magrot/survey_PMPS_position_map_radec_4.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_4.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_4.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_4.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_4.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_4.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_4.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_4.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_4.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_4.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_4.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_4.npy,13.286135700678276,-1.1544136490794008
+```
+To select certain input channels, we specify a list containing the indices corresponding to 
+the input channels we would like to consider. In the dataloader example above, we opt for the input channels 
+`survey_PMPS_ppdot_map`, `survey_SMPS_ppdot_map`, `survey_HTRU_ppdot_map` (indices 9, 10, 11) and the labels `B_initial_log10_mean` and `P_initial_log10_mean` (indices 15, 16).
+
+!!! note
+    
+    The length of the two lists for `filter_inputs` and `filter_labels` in the dataset loader configuration have to 
+    match the channel input dimension and number of output dimension of the neural network.
+    Otherwise an error is produced.
+
+Finally, our training data loader enables us to specify if we want to shuffle our training data before passing it
+through the neural network and whether we activate on-the-fly normalization or standardization (both are mutually 
+exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information contained 
+in the `statistics_train.json` file. For normalization, the input channels will have values in the range between 0 and 1.
+If standardized, the input channels have values centred around 0 and range approximately between -1 and 1.
+
+#### Validation data loader
 
 We need to provide a loader for the validation set using the `validation_data_loader`.
 Such loader must have the same `filter_inputs` and `filter_labels` and be of the same `type` as the training data loader.
