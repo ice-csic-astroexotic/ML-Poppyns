@@ -8,7 +8,7 @@ of this simulation that is readable by a machine-learning pipeline. Depending on
 been performed, two types of generator scripts
 
 * `pypopsyn/generator/generate_dataset_full.py`
-* `pypopsyn/generator/generate_dataset_survey.py` 
+* `pypopsyn/generator/generate_dataset_surveys.py` 
 
 can be used to produce two-dimensional density maps of our population.
 
@@ -106,6 +106,10 @@ simulation samples are saved in the `dataset_test.csv`, `dataset_valid.csv` and 
 As above, the splits are performed by randomly sampling the test and validation subsets, while the 
 `statistics_train.json` file contains the statistics computed on the labels of the training set only.
 
+!!! example
+
+    An example of this dataset splitter is also presented in detail in the tutorial `tutorials/tutorial_notebooks/05_generator_tutorial.ipynb`.
+
 
 ## Maps of the observed population
 
@@ -134,7 +138,7 @@ In the above example, we then generate the following nine maps:
 
 * Three position density maps in ICRS coordinates: one for each of the three radio surveys modeled by the simulator.
 * Three $P-\dot{P}$ density maps: one for each of the three simulated radio surveys.
-* Three $P-\dot{P}$ density maps weighted by the logarithm of the radio flux (one for each of the three simulated radio surveys.
+* Three $P-\dot{P}$ density maps weighted by the logarithm of the radio flux: one for each of the three simulated radio surveys.
 
 Moreover, the above command also produces a `dataset_atnf.csv` file containing summary information of the different
 maps. Note that the underlying ground truths are, of course, unknown here. The corresponding entries in the CSV file,
