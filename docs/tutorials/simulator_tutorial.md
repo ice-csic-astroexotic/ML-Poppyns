@@ -28,10 +28,15 @@ python pypopsyn/simulator/simulate_population_full.py --save_dir output/sim_full
 For example, we can set the number of neutron stars to simulate, the kick-velocity model, the parameters of the initial 
 distributions of spin periods and magnetic fields, and several other parameters.
 The above command will then generate a new directory `output/sim_full` if it does not exist, in which the simulation 
-results will be saved. The output consists of the file `initial_population.pkl.gz` containing the initial neutron star 
-properties, the final population in the same format, i.e., `final_population.pkl.gz`, a `.pkl.gz` file for each of the 
-modelled surveys (containing the stars detected by that survey), the profiles for the simulation if enabled and a 
-dictionary with the configuration parameters in `configuration.json` for reproducibility.
+results will be saved.
+
+The output consists of the following files:
+
+* `initial_population.pkl.gz` containing the initial neutron star properties.
+* `final_population.pkl.gz` containing the final population properties.
+* `.pkl.gz` files for each of the modelled surveys (containing the stars detected by that survey).
+* `.json` and `.log` files containing the timing profiles for the simulation, if enabled.
+* `configuration.json` containing the configuration parameters for reproducibility.
 
 !!! info
 
