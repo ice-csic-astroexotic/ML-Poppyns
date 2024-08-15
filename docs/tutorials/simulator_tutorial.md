@@ -134,9 +134,14 @@ survey is reached:
 
 A posteriori, this simulation mode allows us to determine the birth rate of our synthetic neutron star population by 
 looking at the total number of neutron stars created over a specified evolution time to reach the desired number of 
-detections. To avoid wasting computational resources on unrealistic parameter regimes, we do not evolve populations 
-whose birth rate exceeds a limiting value of 5 neutron stars per century. In these cases, the simulation is stopped 
-and a flag that warns about the excess in the birth rate is saved into the output configuration file.
+detections.
+
+!!! note 
+
+    To avoid wasting computational resources on unrealistic parameter regimes, we do not evolve populations 
+    whose birth rate exceeds a limiting value of 5 neutron stars per century, which is unrealistic given our current
+    understanding of neutron star formation. In these cases, the simulation is stopped and a flag that warns about 
+    the excess in the birth rate is saved into the output configuration file.
 
 Overall, in this mode, the output of the simulation consists of separate files containing the properties of the 
 detected pulsars for each survey, a `profile.json` file and a `configuration.json` file containing the entire set of 
