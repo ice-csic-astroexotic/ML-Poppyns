@@ -92,7 +92,8 @@ class InitialNeutronStarPopulation:
         """
 
         # Load the neutron star density model table.
-        # The model table has been generated through the Jupyter notebook ns_distributio_ne_model.ipynb.
+        # The model table has been generated through the Jupyter notebook located in
+        # tutorials/analysis_notebooks/ns_distribution_ne_model.ipynb.
         # It contains an 2D array of density rho in cylindrical coordinates (r, phi).
         # The density in the table is already multiplied by the galactocentric distance r
         # to take into account the element of area correction.
