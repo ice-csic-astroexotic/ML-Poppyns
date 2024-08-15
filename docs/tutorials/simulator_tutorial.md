@@ -65,7 +65,7 @@ size of around 600 and 400 Mb each.
 ## Dynamical evolution
 
 
-If we instead want to perform the dynamical evolution only, we run the following script:
+If we instead want to perform the dynamical evolution only, we run the following command:
 ```
 python pypopsyn/simulator/simulate_population_dyn.py --save_dir output/sim_dyn
 ```
@@ -75,10 +75,11 @@ custom simulation parameters.
 
 The above command will create a population of neutron stars according to the initial conditions specified in
 `pypopsyn/simulator/config_simulator.py` and evolve it in time dynamically.
-The output is saved in the specified output folder and consists of a file `final_pop_dyn.csv` containing the 
-information on the final positions and velocities of neutron stars in the Galaxy, the profiles for the 
-simulation if enabled and a dictionary of configuration parameters in `configuration.json` for 
-reproducibility.
+The output is saved in the specified output folder and consists of the following files:
+
+* `final_pop_dyn.csv` containing the information on the final positions and velocities of neutron stars in the Galaxy.
+* `.json` and `.log` files containing the timing profiles for the simulation, if enabled.
+* `configuration.json` file containing the configuration parameters for reproducibility.
 
 This simulation approach is useful if the user wants to create a database of dynamically evolved neutron stars and use 
 it to separately run subsequent simulation steps, i.e., perform the magneto-rotational evolution and apply observational 
