@@ -114,9 +114,9 @@ As above, the splits are performed by randomly sampling the test and validation 
 ## Maps of the observed population
 
 To perform inference on the observed data in the [ATNF Pulsar Catalogue](https://www.atnf.csiro.au/research/pulsar/psrcat/)
-with an optimized neural network, we need to convert the corresponding data into the same representation that is used 
-to optimize our machine learning pipeline. That is, we need to produce the same kind of density maps as outlined above 
-for the observed pulsar population.
+combined with the radio fluxes from the TPA program on MeerKat [(Posselt et al., 2023)](https://ui.adsabs.harvard.edu/abs/2023MNRAS.520.4582P/abstract) with an optimized neural network, we need to convert the corresponding data into 
+the same representation that is used to optimize our machine learning pipeline. That is, we need to produce the same 
+kind of density maps as outlined above for the observed pulsar population.
 
 To do this, we use the `pypopsyn/generator/generate_observed_data.py` script. We can, for example, run:
 ```commandline
