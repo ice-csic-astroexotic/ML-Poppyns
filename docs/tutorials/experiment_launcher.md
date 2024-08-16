@@ -1,7 +1,8 @@
 # Experiment launcher
 
 The `utilities/experiment_helper/experiment_launcher.py` script allows us to execute a list of experiment commands 
-specified in a text file. For example, to launch the generator script with different arguments this text file could contain the following content:
+specified in a text file. For example, to launch the generator script with different arguments, this text file could 
+contain the following content:
 ```commandline
 python  pypopsyn/generator/generate_dataset_full.py --data simulated_data --save_dir generated_dataset/array_64 --type array --resolution_dyn 64 --resolution_ppdot 32
 python  pypopsyn/generator/generate_dataset_full.py --data simulated_data --save_dir generated_dataset/array_128 --type array --resolution_dyn 128 --resolution_ppdot 32
@@ -9,7 +10,7 @@ python  pypopsyn/generator/generate_dataset_full.py --data simulated_data --save
 python  pypopsyn/generator/generate_dataset_full.py --data simulated_data --save_dir generated_dataset/array_512 --type array --resolution_dyn 512 --resolution_ppdot 32
 ```
   
-You can also use it to launch different training experiments. In this case the text file could look like this:
+We can also use it to launch different training experiments. In this case, the text file could look like this:
 ```commandline
 python pypopsyn/learning/train.py --dataset_training generated_dataset/array_64/train_dataset.csv --dataset_validation generated_dataset/array_64/dataset_valid.csv --dataset_statistics generated_dataset/array_64/statistics_train.json --input_shape 4 64 64 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r64_gc_position_velocity
 python pypopsyn/learning/train.py --dataset_training generated_dataset/array_128/train_dataset.csv --dataset_validation generated_dataset/array_128/dataset_valid.csv --dataset_statistics generated_dataset/array_128/statistics_train.json --input_shape 4 128 128 --lr 1e-8 --filter_inputs 1 2 6 7 --batch_size 1 --save_dir learning_results/s8_r128_gc_position_velocity
