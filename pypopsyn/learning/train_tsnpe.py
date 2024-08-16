@@ -22,13 +22,13 @@
 
     Display help message to run the code:
 
-    python train_tsnpe.py --h
+    python train_tsnpe.py --help
 
     Displays all the relevant arguments that can be used.
 
     Authors:
 
-        Celsa Pardo Araujo (pardo @ ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import argparse

@@ -10,7 +10,7 @@
 
     Display help message to run the code:
 
-    python simulate_population_full.py --h
+    python simulate_population_full.py --help
 
     Displays all the relevant arguments that can be used.
 

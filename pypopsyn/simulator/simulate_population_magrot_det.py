@@ -3,7 +3,7 @@
 
     Display help message to run the code:
 
-    python simulate_population_magrot_det.py --h
+    python simulate_population_magrot_det.py --help
 
     Displays all the relevant arguments that can be used.
 

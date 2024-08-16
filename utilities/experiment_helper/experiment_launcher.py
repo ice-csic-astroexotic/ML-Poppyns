@@ -7,7 +7,7 @@
 
     Display help message to run the code:
 
-    python experiment_launcher.py --h
+    python experiment_launcher.py --help
 
     Displays all the relevant arguments that can be used.
 

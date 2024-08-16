@@ -6,7 +6,7 @@
 
     Display help message to run the code:
 
-    python PIC_manage_failed_simulation.py --h
+    python PIC_manage_failed_simulation.py --help
 
     Displays all the relevant arguments that can be used.
 

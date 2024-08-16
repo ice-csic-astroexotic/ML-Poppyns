@@ -11,7 +11,7 @@
 
     Display help message to run the code:
 
-    python PIC_generate_htcondor_failed.py --h
+    python PIC_generate_htcondor_failed.py --help
 
     Displays all the relevant arguments that can be used.
 

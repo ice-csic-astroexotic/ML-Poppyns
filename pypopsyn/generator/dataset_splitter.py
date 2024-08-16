@@ -6,7 +6,7 @@
 
     Display help message to run the code:
 
-    python dataset_splitter.py --h
+    python dataset_splitter.py --help
 
     Displays all the relevant arguments that can be used.
 

@@ -9,7 +9,7 @@
 
      Display help message to run the code:
 
-    python infer_sbi.py --h
+    python infer_sbi.py --help
 
     Displays all the relevant arguments that can be used.
 

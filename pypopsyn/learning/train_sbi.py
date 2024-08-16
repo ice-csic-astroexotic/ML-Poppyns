@@ -10,7 +10,7 @@
 
     Display help message to run the code:
 
-    python train_sbi.py --h
+    python train_sbi.py --help
 
     Displays all the relevant arguments that can be used.
 

@@ -7,13 +7,13 @@
 
     Display help message to run the code:
 
-    python infer_tsnpe.py --h
+    python infer_tsnpe.py --help
 
     Displays all the relevant arguments that can be used.
 
     Authors:
 
-        Celsa Pardo Araujo (pardo @ ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import argparse

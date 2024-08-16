@@ -6,7 +6,7 @@
 
     Display help message to run the code:
 
-    python json_profile_to_rst_table.py --h
+    python json_profile_to_rst_table.py --help
 
     Displays all the relevant arguments that can be used.
 

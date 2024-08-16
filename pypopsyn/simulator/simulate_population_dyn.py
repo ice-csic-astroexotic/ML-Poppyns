@@ -6,7 +6,7 @@
 
     Display help message to run the code:
 
-    python simulate_population_dyn.py --h
+    python simulate_population_dyn.py --help
 
     Displays all the relevant arguments that can be used.
 

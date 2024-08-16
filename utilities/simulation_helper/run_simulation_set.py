@@ -26,7 +26,7 @@
 
     Display help message to run the code:
 
-    python run_simulation_set.py --h
+    python run_simulation_set.py --help
 
     Displays all the relevant arguments that can be used.
 

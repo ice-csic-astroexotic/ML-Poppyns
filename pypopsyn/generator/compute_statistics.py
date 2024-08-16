@@ -6,7 +6,7 @@
 
     Display help message to run the code:
 
-    python compute_statistics.py --h
+    python compute_statistics.py --help
 
     Displays all the relevant arguments that can be used.
 

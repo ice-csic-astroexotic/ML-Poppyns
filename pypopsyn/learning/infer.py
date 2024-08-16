@@ -6,7 +6,7 @@
 
     Display help message to run the code:
 
-    python infer.py --h
+    python infer.py --help
 
     Displays all the relevant arguments that can be used.
 

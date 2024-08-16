@@ -10,7 +10,7 @@
 
     Display help message to run the code:
 
-    python infer_sbi_ensemble.py --h
+    python infer_sbi_ensemble.py --help
 
     Displays all the relevant arguments that can be used.
 

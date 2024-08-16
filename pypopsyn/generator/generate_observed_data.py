@@ -13,7 +13,7 @@
 
     Display help message to run the code:
 
-    python generate_observed_data.py --h
+    python generate_observed_data.py --help
 
     Displays all the relevant arguments that can be used.
 

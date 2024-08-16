@@ -18,7 +18,7 @@
 
     Display help message to run the code:
 
-    python generate_single_surveys.py --h
+    python generate_single_surveys.py --help
 
     Displays all the relevant arguments that can be used.
 

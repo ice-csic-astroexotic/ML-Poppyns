@@ -23,7 +23,7 @@
 
     Display help message to run the code:
 
-    python parameter_sweeper.py --h
+    python parameter_sweeper.py --help
 
     Displays all the relevant arguments that can be used.
 
