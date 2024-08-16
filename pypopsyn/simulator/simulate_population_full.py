@@ -50,6 +50,9 @@ from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
 
+# Suppressing healpy related logging output.
+logging.getLogger("healpy").setLevel(logging.WARNING)
+
 
 def simulate_population(args: argparse.Namespace) -> None:
     """
