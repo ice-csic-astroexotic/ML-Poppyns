@@ -4,7 +4,7 @@
 
 Once a set of synthetic populations has been created by running the `run_simulation_set.py` script with one of the simulator 
 types described in the section [Simulating neutron star populations](simulator_tutorial.md), we can generate a synthetic representation 
-of this simulations that is readable by a machine-learning pipeline. Depending on the type of simulations that has 
+of these simulations that is readable by a machine-learning pipeline. Depending on the type of simulations that has 
 been performed, two types of generator scripts
 
 * `pypopsyn/generator/generate_dataset_full.py`
@@ -21,10 +21,10 @@ in the $P-\dot{P}$ plane.
 
 The second script `pypopsyn/generator/generate_dataset_surveys.py` is used for simulations that have been run using 
 the `simulate_population_magrot_det.py` module. The script will read the corresponding `.pkl.gz` output files that are
-produced for each of our simulated surveys of each simulated population. It then generates a set of density map in the form of either `.png` 
-images or 2D NumPy arrays for those simulated neutron stars that are detected by the modelled surveys only. The
-corresponding density maps store their spatial density and proper motion information in the equatorial (ICRS) reference
-frame and their distribution and corresponding fluxes in the $P-\dot{P}$ plane, respectively.
+produced for each of our simulated surveys for each synthetic population. It then generates a set of density maps in 
+the form of either `.png` images or 2D NumPy arrays for those simulated neutron stars that are detected by the modelled 
+surveys only. The corresponding density maps store their spatial density and proper motion information in the equatorial 
+(ICRS) reference frame and their distribution and corresponding fluxes in the $P-\dot{P}$ plane, respectively.
 
 If you have simulated a single population you can use the script `pypopsyn/generator/generate_single_surveys.py`. 
 The script will read the corresponding `.pkl.gz` output files that are produced for each of our simulated surveys. It then generates a set of density map in the form of either `.png` 
