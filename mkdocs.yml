@@ -35,11 +35,11 @@ nav:
       - basics/HTCondor.md
       - basics/dask.md
   - Tutorials:
-      - tutorials/experiment_launcher.md
       - tutorials/simulator_tutorial.md
       - tutorials/generator_tutorial.md
       - tutorials/learning_tutorial.md
       - tutorials/learning_tutorial_sbi.md
+      - tutorials/experiment_launcher.md
   - Code:
       - Simulator:
           - code/simulator/simulator.md

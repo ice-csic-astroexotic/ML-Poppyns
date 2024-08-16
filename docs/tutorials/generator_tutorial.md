@@ -2,9 +2,9 @@
 
 ## Maps of synthetic populations
 
-Once a simulated population (or a set of synthetic populations) has been created by running one of the simulator 
-scripts (see [Simulating neutron star populations](simulator_tutorial.md)), we can generate a synthetic representation 
-of this simulation that is readable by a machine-learning pipeline. Depending on the type of simulations that has 
+Once a set of synthetic populations has been created by running the `run_simulation_set.py` script with one of the simulator 
+types described in the section [Simulating neutron star populations](simulator_tutorial.md), we can generate a synthetic representation 
+of this simulations that is readable by a machine-learning pipeline. Depending on the type of simulations that has 
 been performed, two types of generator scripts
 
 * `pypopsyn/generator/generate_dataset_full.py`
@@ -21,17 +21,31 @@ in the $P-\dot{P}$ plane.
 
 The second script `pypopsyn/generator/generate_dataset_surveys.py` is used for simulations that have been run using 
 the `simulate_population_magrot_det.py` module. The script will read the corresponding `.pkl.gz` output files that are
-produced for each of our simulated surveys. It then generates a set of density map in the form of either `.png` 
+produced for each of our simulated surveys of each simulated population. It then generates a set of density map in the form of either `.png` 
 images or 2D NumPy arrays for those simulated neutron stars that are detected by the modelled surveys only. The
 corresponding density maps store their spatial density and proper motion information in the equatorial (ICRS) reference
 frame and their distribution and corresponding fluxes in the $P-\dot{P}$ plane, respectively.
 
+If you have simulated a single population you can use the script `pypopsyn/generator/generate_single_surveys.py`. 
+The script will read the corresponding `.pkl.gz` output files that are produced for each of our simulated surveys. It then generates a set of density map in the form of either `.png` 
+images or 2D NumPy arrays for those simulated neutron stars that are detected by the modelled surveys only. The
+corresponding density maps store their spatial density and proper motion information in the equatorial (ICRS) reference
+frame and their distribution and corresponding fluxes in the $P-\dot{P}$ plane, respectively.
+
+To run a generator script you have to specify the following parameters:
+
+* `data`: the path where the simulated populations are.
+* `save_dir`: the path to the folder where the dataset of maps will be saved.
+* `data_type`: the type of maps to produce either `array` or `image`. If `array` it will produce the density maps in the form of 2D NumPy arrays, if `image` it will produce them in the form of `.png` images.
+* `resolution_dyn`: the resolution in bin or pixels of the maps containing the dynamical information.
+* `resolution_ppdot`: the resolution in bin or pixels of the maps containing the $P-\dot{P}$ information.
+
 Suppose that we have created a dataset of simulated populations that is stored in `data/example_simulation_helper_magrot` 
 using the `simulate_population_magrot_det.py` script. Let us assume that we want to create a map dataset of 2D arrays 
-for the spatial and velocity information with a resolution of $32 \times 32$ and the density and radio flux maps in 
+for the spatial and velocity information with a resolution of $32 \times 16$ and the density and radio flux maps in 
 the $P-\dot{P}$ plane with a resolution of $32 \times 32$. To obtain these maps, we run the following command:
 ```commandline
-python pypopsyn/generator/generate_dataset_surveys.py --data data/example_simulation_helper_magrot --save_dir data/example_generator_magrot --data_type array --resolution_dyn 32 --resolution_ppdot 32
+python pypopsyn/generator/generate_dataset_surveys.py --data data/example_simulation_helper_magrot --save_dir output/example_generator_magrot --data_type array --resolution_dyn 32 --resolution_ppdot 32
 ```
 We need to provide the path to the location where the simulated population data are stored, the path where the new maps
 will be saved, the type of our representations (we can choose either `array` or `image`) and the corresponding 
@@ -60,7 +74,25 @@ data/example_generator_magrot/survey_PMPS_position_map_radec_4.npy,data/example_
     The format of the `dataset_full.csv` file ensures direct compatible with our machine learning pipeline.
 
 The JSON file contains information about the mean, standard deviation, minimum and maximum values for each of the 
-dataset labels. We use this statistical information during the training process if one wants to normalize or 
+dataset labels computed across the entire dataset of simulations, and could look like the following:
+```commandline
+{
+    "B_initial_log10_mean": {
+        "max": 13.968959556720801,
+        "mean": 12.766555558229868,
+        "min": 12.187267435646975,
+        "std": 0.5176380894348778
+    },
+    "P_initial_log10_mean": {
+        "max": -0.331459108143384,
+        "mean": -0.8783193891550154,
+        "min": -1.4647713639094808,
+        "std": 0.3379764548527923
+    }
+}
+```
+
+We use this statistical information during the training process if one wants to normalize or 
 standardize the label values.
 
 !!! example
@@ -120,7 +152,7 @@ kind of density maps as outlined above for the observed pulsar population.
 
 To do this, we use the `pypopsyn/generator/generate_observed_data.py` script. We can, for example, run:
 ```commandline
-python pypopsyn/generator/generate_observed_data.py --path_atnf data/observations/atnf_full_nobinary_06-08-2024.csv --path_meerkat data/observations/meerkat_tpa_posselt_2023.csv --save_dir data/example_generator_observed --data_type image --resolution_dyn 32 --resolution_ppdot 32
+python pypopsyn/generator/generate_observed_data.py --path_atnf data/observations/atnf_full_nobinary_06-08-2024.csv --path_meerkat data/observations/meerkat_tpa_posselt_2023.csv --save_dir output/example_generator_observed --data_type array --resolution_dyn 32 --resolution_ppdot 32
 ```
 This will read the files `atnf_full_nobinary_06-08-2024.csv` and `meerkat_tpa_posselt_2023.csv` in the directory 
 `data/observations` and generate the maps.
