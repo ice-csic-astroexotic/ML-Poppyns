@@ -20,6 +20,8 @@ jobs:
       contents: read
     # Specific steps to be executed for `Run tests` job.
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
       # Check out the full code given in the repo.
       - name: Checkout code
         uses: actions/checkout@v4
