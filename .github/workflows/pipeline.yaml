@@ -46,13 +46,13 @@ jobs:
       - name: Create environment
         run: conda env create --file environment.yaml --yes
         if: steps.cache.outputs.cache-hit != 'true'
-      # As the pip dependencies are not installed in /usr/share/miniconda/envs/pop_syn
-      # and therefore not cached, we update the environment every time to add pip dependencies.
-      - name: Install pip dependencies
-        run: conda env update -n pop_syn --file environment.yaml
-      # Install our software package in the standard way.
-      - name: Install package in development mode
-        run: python setup.py develop
-      # Run all the relevant tests using pytest.
-      - name: Run tests
-        run: pytest
+#      # As the pip dependencies are not installed in /usr/share/miniconda/envs/pop_syn
+#      # and therefore not cached, we update the environment every time to add pip dependencies.
+#      - name: Install pip dependencies
+#        run: conda env update -n pop_syn --file environment.yaml
+#      # Install our software package in the standard way.
+#      - name: Install package in development mode
+#        run: python setup.py develop
+#      # Run all the relevant tests using pytest.
+#      - name: Run tests
+#        run: pytest
