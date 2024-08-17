@@ -23,8 +23,6 @@ jobs:
       # Check out the full code given in the repo.
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       # Setup miniconda and create the (empty) environment.
       # Note: this does not install any packages yet but activates the environment.
       - name: Setup miniconda
