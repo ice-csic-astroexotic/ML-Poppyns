@@ -154,7 +154,7 @@ parameters used to simulate the magneto-rotational evolution and the detection m
 ## Simulations with parameter sweep
 
 If we want to run simulations for a large number of parameter combinations, we can use the helper script 
-`run_simulation_set.py` in the `utilities/simulation_helper` folder. This script allows us to run multiple simulations 
+`run_simulation_set.py` in the `utilities/experiment_helpers` folder. This script allows us to run multiple simulations 
 with different input parameters in an automated manner.
 
 In this mode, we can choose the type of simulation we want to run (i.e., `simulate_population_dyn.py`, 
@@ -166,7 +166,7 @@ argument `--sampling_type`.
 Specifically, if `--sampling_type = grid`, a regular multi-dimensional grid is created, and we need to 
 provide the parameters in a linear spacing format `--parameter [low] [high] [steps]`. For example,
 ```
-python utilities/simulation_helper/run_simulation_set.py --simulator_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 20 --sampling_type grid
+python utilities/experiment_helpers/run_simulation_set.py --simulator_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 20 --sampling_type grid
 ```
 This command will run the dynamical simulation only and generate a sweep of `20` uniformly spaced samples 
 for the `vk_c` parameter in the range `[100.0, 200.0]`. As this parameter is related to the exponential 
@@ -178,7 +178,7 @@ provided limits. In this case, we need to provide the parameter ranges in the fo
 [low] [high]` and specify the `--sampling_size` argument, which sets the number of values drawn from a 
 uniform distribution for each parameter. For example,
 ```
-python utilities/simulation_helper/run_simulation_set.py --simulator_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 --sampling_type random --sampling_size 20
+python utilities/experiment_helpers/run_simulation_set.py --simulator_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 --sampling_type random --sampling_size 20
 ```
 This will generate a sweep of `20` randomly drawn samples for the `vk_c` parameter in the range `[100.0, 200.0]`.
 
@@ -219,7 +219,7 @@ populations of neutron stars varying the parameters `P_initial_log10_mean` in th
 `B_initial_log10_mean` in the range 12 to 14 using the `simulate_population_magrot_det.py` script and a previously 
 simulated dynamical database saved in `data/example_simulation_dyn`. We can then run:
 ```
-python utilities/simulation_helper/run_simulation_set.py --simulator_type simulate_population_magrot_det --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 --B_initial_log10_mean 12 14 --sampling_type random --sampling_size 20
+python utilities/experiment_helpers/run_simulation_set.py --simulator_type simulate_population_magrot_det --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 --B_initial_log10_mean 12 14 --sampling_type random --sampling_size 20
 ```
 In this way, a population is simulated for each of the 20 pairs of random values of `P_initial_log10_mean` and 
 `B_initial_log10_mean`. The sweep will generate a directory `output/sim_helper`, which will contain a folder for each 
@@ -227,7 +227,7 @@ simulation (parameter combination) named with an identifier, i.e., `000000`, `00
 
 If instead `--sampling_type grid`, we need to specify the command as follows:
 ```
-python utilities/simulation_helper/run_simulation_set.py --simulator_type simulate_population_magrot_det --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 10 --B_initial_log10_mean 12 14 10 --sampling_type grid
+python utilities/experiment_helpers/run_simulation_set.py --simulator_type simulate_population_magrot_det --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 10 --B_initial_log10_mean 12 14 10 --sampling_type grid
 ```
 This simulates a population for each combination of values of `P_initial_log10_mean` and `B_initial_log10_mean`, i.e., the 
 above case corresponds to `10 x 10 = 100` simulations. Again, each simulation will be saved in a separate directory 

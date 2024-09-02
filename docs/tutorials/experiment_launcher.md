@@ -1,6 +1,6 @@
 # Experiment launcher
 
-The `utilities/experiment_helper/experiment_launcher.py` script allows us to execute a list of experiment commands 
+The `utilities/experiment_helpers/experiment_launcher.py` script allows us to execute a list of experiment commands 
 specified in a text file. For example, to launch the generator script with different arguments this text file could contain the following content:
 ```commandline
 python  pypopsyn/generator/generate_dataset_full.py --data simulated_data --save_dir generated_dataset/array_64 --type array --resolution_dyn 64 --resolution_ppdot 32
@@ -21,7 +21,7 @@ Each line should contain one full command (including the `python` program call) 
 default, the command list will be stored in a file called `command_list.txt`. However, a custom experiments file can 
 also be specified with the `--command_list` parameter as follows:
 ```commandline
-python utilities/experiment_helper/experiment_launcher.py --command_list pypopsyn/generator/experiment_list.txt --processes 2
+python utilities/experiment_helpers/experiment_launcher.py --command_list pypopsyn/generator/experiment_list.txt --processes 2
 ```
 The script will then execute all experiments outlined in the text file automatically. In the above example, we have 
 set the `--processes` argument to two, which allows us to have a maximum of two processes running in parallel. 

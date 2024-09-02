@@ -57,7 +57,7 @@ import numpy as np
 
 import pypopsyn.simulator.simulate_population_dyn as dyn
 import pypopsyn.simulator.simulate_population_magrot_det as magrot
-import utilities.simulation_helper.parameter_set_generator as psg
+import utilities.experiment_helpers.parameter_set_generator as psg
 from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)

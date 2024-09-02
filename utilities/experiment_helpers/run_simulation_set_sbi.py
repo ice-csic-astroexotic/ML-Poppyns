@@ -48,7 +48,7 @@ from pypopsyn.learning.loaders.loader_multichannel_array_stat import (
     DatasetMultichannelArray,
 )
 from pypopsyn.simulator.config_simulator import cfg
-from utilities.simulation_helper.run_simulation_set import (
+from utilities.experiment_helpers.run_simulation_set import (
     log_simulation,
     robust_run_simulation_dask,
     run_simulation,

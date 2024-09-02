@@ -66,7 +66,7 @@ import utilities.benchmark.timewith as timewith
 from pypopsyn.generator import generate_dataset_surveys
 from pypopsyn.learning.utils.request_device import request_device
 from utilities.coverage_probability import coverage_prob
-from utilities.simulation_helper.run_simulation_set_sbi import (
+from utilities.experiment_helpers.run_simulation_set_sbi import (
     initialize_dask_cluster,
     simulator_dask,
     simulator_multiprocess,

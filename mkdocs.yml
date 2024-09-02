@@ -66,10 +66,9 @@ nav:
       - Utilities:
           - code/utilities/utilities.md
           - code/utilities/benchmark.md
-          - code/utilities/experiment_helper.md
+          - code/utilities/experiment_helpers.md
           - code/utilities/PIC_scripts.md
           - code/utilities/samplers.md
-          - code/utilities/simulation_helper.md
 plugins:
   # Adding plugin to autogenerate documentation.
   - mkdocstrings:

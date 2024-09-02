@@ -155,7 +155,7 @@ if __name__ == "__main__":
         "--command_list",
         nargs="?",
         type=str,
-        default="utilities/experiment_helper/command_list.txt",
+        default="utilities/experiment_helpers/command_list.txt",
         help="List of commands to execute.",
     )
     args.add_argument(

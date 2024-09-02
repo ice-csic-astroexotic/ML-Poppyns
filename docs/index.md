@@ -42,7 +42,7 @@ All the simulation examples provided here have been run by using the default par
 
 * The `example_simulation_full_sam` sub-folder contains the results of a full simulation (dynamical + magneto-rotational evolution + detection) of a population of neutron stars obtained by running the script `pypopsyn/simulator/simulate_population_full.py` and by using the `pypopsyn/simulator/initial_population_sam.py` module to setup the initial conditions.
 
-* The `example_simulation_helper_magrot` sub-folder contains the results of 20 simulations obtained by running the script `utilities/simulation_helper/run_simulation_set.py` and using the `pypopsyn/simulator/simulate_population_magrot_det.py` simulator.
+* The `example_simulation_helper_magrot` sub-folder contains the results of 20 simulations obtained by running the script `utilities/experiment_helpers/run_simulation_set.py` and using the `pypopsyn/simulator/simulate_population_magrot_det.py` simulator.
 
 * The `example_simulation_magrot_det` sub-folder contains the results of a simulation of magneto-rotational evolution and detection of a population of neutron stars obtained by running the script `pypopsyn/simulator/simulate_population_magrot_det.py`.
 

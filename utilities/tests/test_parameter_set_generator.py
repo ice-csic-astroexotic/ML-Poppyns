@@ -3,7 +3,7 @@
 
     Authors:
 
-        Michele Ronchi (ronchi @ ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import logging
@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 from pypopsyn.simulator.config_simulator import cfg
-from utilities.simulation_helper import parameter_set_generator as psg
+from utilities.experiment_helpers import parameter_set_generator as psg
 
 
 @pytest.fixture()
