@@ -4,13 +4,14 @@
 
 Once a set of synthetic populations has been created by running the `run_simulation_set.py` script with one of the simulator 
 types described in the section [Simulating neutron star populations](simulator_tutorial.md), we can generate a synthetic representation 
-of this simulations that is readable by a machine-learning pipeline. Depending on the type of simulations that has 
-been performed, two types of generator scripts
+of these simulations that is readable by a machine-learning pipeline. Depending on the type of simulation that has 
+been performed, three types of generator scripts
 
 * `pypopsyn/generator/generate_dataset_full.py`
-* `pypopsyn/generator/generate_dataset_surveys.py` 
+* `pypopsyn/generator/generate_dataset_surveys.py`
+* `pypopsyn/generator/generate_single_surveys.py`
 
-can be used to produce two-dimensional density maps of our population.
+can be used to produce two-dimensional density maps of our population(s).
 
 We use the first script `pypopsyn/generator/generate_dataset_full.py` for end-to-end simulations that were obtained
 using the `simulate_population_full.py` module. The script will read the corresponding `final_population.pkl.gz` 
@@ -21,24 +22,27 @@ in the $P-\dot{P}$ plane.
 
 The second script `pypopsyn/generator/generate_dataset_surveys.py` is used for simulations that have been run using 
 the `simulate_population_magrot_det.py` module. The script will read the corresponding `.pkl.gz` output files that are
-produced for each of our simulated surveys of each simulated population. It then generates a set of density map in the form of either `.png` 
-images or 2D NumPy arrays for those simulated neutron stars that are detected by the modelled surveys only. The
-corresponding density maps store their spatial density and proper motion information in the equatorial (ICRS) reference
-frame and their distribution and corresponding fluxes in the $P-\dot{P}$ plane, respectively.
+produced for each of our simulated surveys for each synthetic population. It then generates a set of density maps in 
+the form of either `.png` images or 2D NumPy arrays for those simulated neutron stars that are detected by the modelled 
+surveys only. The corresponding density maps store their spatial density and proper motion information in the equatorial 
+(ICRS) reference frame and their distribution and corresponding fluxes in the $P-\dot{P}$ plane, respectively.
 
-If you have simulated a single population you can use the script `pypopsyn/generator/generate_single_surveys.py`. 
-The script will read the corresponding `.pkl.gz` output files that are produced for each of our simulated surveys. It then generates a set of density map in the form of either `.png` 
-images or 2D NumPy arrays for those simulated neutron stars that are detected by the modelled surveys only. The
-corresponding density maps store their spatial density and proper motion information in the equatorial (ICRS) reference
-frame and their distribution and corresponding fluxes in the $P-\dot{P}$ plane, respectively.
+If we have simulated a single population, we can use the script `pypopsyn/generator/generate_single_surveys.py`. 
+The script will read the corresponding `.pkl.gz` output files that are produced for each of our simulated surveys. 
+It then generates a set of density maps in the form of either `.png` images or 2D NumPy arrays for those simulated 
+neutron stars that are detected by the modelled surveys only. The corresponding density maps store their spatial 
+density and proper motion information in the equatorial (ICRS) reference frame and their distribution and corresponding 
+fluxes in the $P-\dot{P}$ plane, respectively.
 
-To run a generator script you have to specify the following parameters:
+To run each of these generator scripts, we have to specify the following parameters:
 
-* `data`: the path where the simulated populations are.
-* `save_dir`: the path to the folder where the dataset of maps will be saved.
-* `data_type`: the type of maps to produce either `array` or `image`. If `array` it will produce the density maps in the form of 2D NumPy arrays, if `image` it will produce them in the form of `.png` images.
-* `resolution_dyn`: the resolution in bin or pixels of the maps containing the dynamical information.
-* `resolution_ppdot`: the resolution in bin or pixels of the maps containing the $P-\dot{P}$ information.
+* `data`: the path where the simulated populations are located.
+* `save_dir`: the path to the folder where the dataset of maps are saved.
+* `data_type`: the type of maps to produce either `array` or `image`. 
+    If `array`, the generator will produce the density maps in the form of 2D `.npy` arrays; 
+    if `image`, it will produce them in the form of `.png` images.
+* `resolution_dyn`: the resolution in bins or pixels of the maps containing the dynamical information.
+* `resolution_ppdot`: the resolution in bins or pixels of the maps containing the $P-\dot{P}$ information.
 
 Suppose that we have created a dataset of simulated populations that is stored in `data/example_simulation_helper_magrot` 
 using the `simulate_population_magrot_det.py` script. Let us assume that we want to create a map dataset of 2D arrays 
@@ -47,9 +51,7 @@ the $P-\dot{P}$ plane with a resolution of $32 \times 32$. To obtain these maps,
 ```commandline
 python pypopsyn/generator/generate_dataset_surveys.py --data data/example_simulation_helper_magrot --save_dir output/example_generator_magrot --data_type array --resolution_dyn 32 --resolution_ppdot 32
 ```
-We need to provide the path to the location where the simulated population data are stored, the path where the new maps
-will be saved, the type of our representations (we can choose either `array` or `image`) and the corresponding 
-resolutions. By running the script, we create a folder `data/example_generator_magrot` where a set of 2D arrays are 
+By running the script, we create a folder `data/example_generator_magrot` where a set of 2D arrays are 
 stored for each simulated population (sample). In addition, this produces a single `dataset_full.csv` and 
 `statistics_full.json` file containing information about the dataset and statistical information for each label,
 respectively. 
