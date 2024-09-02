@@ -299,6 +299,7 @@ def main(args) -> None:
 
     Args:
         args (argparse.Namespace): Command-line arguments parsed by argparse. Required parameters include:
+
             - simulator_type (str): The name of the simulator script to run. Options include
               'simulate_population_full', 'simulate_population_dyn', or 'simulate_population_magrot_det'.
             - dyn_data (str): (Optional) Path to the dynamically evolved population database, required
@@ -311,8 +312,8 @@ def main(args) -> None:
             - sigma_k, vk_c, h_c, P_initial_mean, P_initial_sigma, P_initial_log10_mean,
               P_initial_log10_sigma, B_initial_log10_mean, B_initial_log10_sigma, a_late (list of float):
               Each of these parameters can accept a range defined for grid or random sampling as follows:
-              - In grid mode: range specified as [low, high, n_values].
-              - In random mode: range specified as [low, high].
+                - In grid mode: range specified as [low, high, n_values].
+                - In random mode: range specified as [low, high].
     """
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.

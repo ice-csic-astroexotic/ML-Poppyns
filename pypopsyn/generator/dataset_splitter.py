@@ -83,6 +83,7 @@ def main(args: argparse.Namespace) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+
             - dataset_path (str): The path where the simulation dataset is stored.
             - test_split (float or None): The fraction of the total dataset to
               allocate for the test set. Must be in the range [0, 1].

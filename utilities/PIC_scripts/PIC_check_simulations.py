@@ -30,7 +30,10 @@ def check_simulations(args: argparse.Namespace) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+
             - output_dir_simulation (pathlib.Path): Output directory where the simulation outputs are.
+            - dir_failed_folder_csv (str): Path to the directory where the csv file containing the list of failed
+                folders is saved.
     """
 
     output_simulations_path = args.output_dir_simulation

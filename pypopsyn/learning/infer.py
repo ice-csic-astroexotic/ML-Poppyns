@@ -38,10 +38,12 @@ def infer(
     Args:
         args (argparse.Namespace): The command line arguments containing configuration options,
             save directory, and sample indices. It includes:
+
             - configuration (str): Path to the configuration file.
             - trained_model (str): Path to the pretrained model.
             - samples (List[int]): Sample indices in the dataset.
             - infer (bool): Flag to set up the inference saving path.
+
         config (ConfigurationParser): The configuration object containing settings for data loading,
             model architecture, and other parameters.
     """

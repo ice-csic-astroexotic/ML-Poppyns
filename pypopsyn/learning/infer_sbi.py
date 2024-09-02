@@ -90,10 +90,12 @@ def infer(
 
     Args:
         args (argparse.Namespace): Command line arguments containing configuration options:
+
             - configuration (str): Path to the configuration file.
             - corner_plot (bool): If set to True, generates posterior corner plots for each test sample.
             - trained_model (str): Path to the pretrained model.
             - infer (str): Flag to set up the inference saving path (default is True).
+
         config (configuration_parser.ConfigurationParser): Configuration object with settings
             for data loading, model architecture, profiling options, and other parameters.
     """

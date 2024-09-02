@@ -59,6 +59,7 @@ def main(args):
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+
             - save_dir (str): Path to the directory where the multi-run output will be saved.
             - sampling_type (str): Type of sampling for the parameter space, either 'grid' or 'random'.
             - sampling_size (int): Number of random values to draw for each simulation parameter

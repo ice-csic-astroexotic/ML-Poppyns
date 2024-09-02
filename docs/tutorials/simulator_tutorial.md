@@ -21,6 +21,19 @@ To simulate populations with different initial parameters, the user can directly
 `pypopsyn/simulator/config_simulator.py`.
 
 Alternatively, we can provide a JSON dictionary containing configuration overrides for the various simulation parameters. 
+Here is an example of JSON file specifying the parameter overrides: 
+```commandline
+{
+  "kick_model": "km_maxwell",
+  "sigma_k": 265,
+  "h_c": 0.18,
+  "P_initial_mean": 0.22,
+  "P_initial_sigma": 0.42,
+  "B_initial_log10_mean": 13.20,
+  "B_initial_log10_sigma": 0.62
+}
+```
+
 We specify this as a command line argument to the simulator script as follows:
 ```
 python pypopsyn/simulator/simulate_population_full.py --save_dir output/sim_full --parameter_override parameter_override.json

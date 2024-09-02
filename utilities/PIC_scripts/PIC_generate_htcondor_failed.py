@@ -34,6 +34,7 @@ def generate_htcondor_failed(args: argparse.Namespace) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+
             - output_dir_simulation (pathlib.Path): Output directory where the simulation outputs are.
             - number_sim_job (int): Number of simulations per job were chosen when running the original set of
                 simulations with HTCondor.

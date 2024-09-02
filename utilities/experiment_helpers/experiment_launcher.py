@@ -100,6 +100,18 @@ def setup_process_pool(event: mp.Event, lock: mp.Lock) -> None:
 
 
 def main(args) -> None:
+    """
+    Execute different experiments using a multiprocessing pool.
+
+    This function initializes a multiprocessing pool to run several scripts
+    defined by the user. It queues the different jobs, and manages their execution in parallel.
+
+    Args:
+        args (argparse.Namespace): Command-line arguments parsed by argparse. Required parameters include:
+
+            - command_list (str): Path to a `.txt` file containing a list of commands to execute.
+            - processes (int): Number of simultaneous processes for the pool.
+    """
 
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.

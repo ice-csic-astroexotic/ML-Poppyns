@@ -130,6 +130,7 @@ def submit_generator(args: argparse.Namespace) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+
             - output_dir_htcondor (str): Path to the directory where the
                 generated files will be saved.
             - output_dir_simulation (str): Path to the directory containing the
