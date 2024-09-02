@@ -98,6 +98,14 @@ def generate_dataset(args: argparse.Namespace) -> None:
     # Number of samples in the parsed directory.
     sample_number = len(next(os.walk(root_path))[1])
 
+    if sample_number == 0:
+        log.error(
+            f"The number of simulated samples in {root_path} is insufficient and equal to {sample_number}. "
+            f"The {root_path} folder has to contain several simulated samples in folders named 000000, 000001, "
+            f"... ."
+        )
+        sys.exit()
+
     log.info(f"Generating {sample_number} samples...")
 
     # Main generator loop.
