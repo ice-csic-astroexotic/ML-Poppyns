@@ -9,7 +9,7 @@ estimation with complex simulators like those developed for pulsar population sy
 the [sbi](https://sbi-dev.github.io/sbi/) library ([Tejero-Cantero et al., 2020](https://arxiv.org/abs/2007.09114)).
 
 For a discussion of how neural networks can be used to infer point estimates (without quantifying uncertainties) see
-[Learning pulsar parameters with NNs](learning_tutorial.md).
+[Learning pulsar parameters with NNs](learning_tutorial_cnn.md).
 
 ## Amortized NPE
 
@@ -62,7 +62,8 @@ Next, we specify the architecture for the so-called embedding neural network. Th
 features from the input data and compress the input into a latent vector that is then passed to the density estimator.
 
 In the following example, we will be using 2D maps as input and, hence, opt for a convolutional neural network (CNN) 
-as the embedding net. This CNN receives an array of shape $32 \times 32$ with `3` different input channels 
+as the embedding net. This CNN is designed to adapt to any input size specified by the `input_shape` parameter and produce an output with a length specified by `len_output_layer`.
+In this specific example the CNN receives an array of shape $32 \times 32$ with `3` different input channels 
 (three of our density maps with a 32 resolution) as input and outputs a latent vector of size 32, which contains 
 a compressed representation of the input feature maps.
 
@@ -78,6 +79,7 @@ The configuration file then looks as follows:
     },
 }
 ```
+If you would like to design your own model architecture for the embedding network you need to implement a new model class in `pypopsyn/learning/models` and import it in the file `models.py`.
 
 #### Initialization
 
@@ -91,6 +93,13 @@ Here, we show an example using the Kaiming initializer denoted by `InitializerKa
     },
 }
 ```
+Here is a list with the different initialization procedure you could adopt:
+
+* `InitializerKaiming` uses the Kaiming initialization approach introduced in [He et al. (2015)](https://arxiv.org/abs/1502.01852).
+* `InitializerNormal` samples the weights from a Normal distribution $N(0, \sigma^2)$ whilst biases are just filled with a constant zero value. In this case, $\sigma = 1 / \sqrt{n}$ where $n$ is the number of input features.
+* `InitializerUniform` samples the weights from a uniform distribution $U(0,1)$ whilst biases are just filled with a constant zero value.
+* `InitializerUniformRule` samples the weights from a uniform distribution $U(-y, y)$ where $y = 1 / \sqrt{n}$ being $n$ the number of input features and biases are just filled with a constant zero value.
+* `InitializerXavier` uses the Xavier initialization approach introduced in [Xavier et al. (2010)](https://proceedings.mlr.press/v9/glorot10a.html).
 
 #### Density estimator
 

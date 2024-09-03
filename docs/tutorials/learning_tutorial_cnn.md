@@ -3,12 +3,12 @@
 In the following, we describe how neural networks can be used to estimate the characteristic parameters that describe
 the birth properties of a population of neutron stars. Here, we focus on obtaining point estimates of our parameters.
 I.e., we do not derive credible intervals for our estimates. For a presentation of statistical parameter inference 
-with simulation-based inference (SBI) see [Parameter interference with SBI](learning_tutorial_sbi.md).
+with simulation-based inference (SBI) see [Parameter inference with SBI](learning_tutorial_sbi.md).
 
 !!! example
 
     An example of the following training and inference scripts is presented in
-    `tutorials/tutorial_notebooks/07_learning_tutorial.ipynb`.
+    `tutorials/tutorial_notebooks/07_learning_cnn_tutorial.ipynb`.
 
 ## Training a NN
 
@@ -67,7 +67,9 @@ specific convergence thresholds for each of the possible output parameters.
 #### Model architecture
 
 Next, we specify the network architecture. In the following example, we use predefined convolutional neural network 
-(CNN) denoted by `ModelConv`. This CNN receives an array of shape $32 \times 32$ with `3` different input channels 
+(CNN) denoted by `ModelConv` defined in `pypopsyn/learning/models/model_conv.py`. 
+This CNN is designed to adapt to any input size specified by the `input_shape` parameter and produce an output with a length specified by `num_parameters`.
+In this specific example we are setting it to receive an input array of shape $32 \times 32$ with `3` different input channels 
 (three of our density maps) and outputs `2` values (corresponding to two of our pulsar population parameters).
 ```commandline
 {
@@ -80,6 +82,7 @@ Next, we specify the network architecture. In the following example, we use pred
     },
 }
 ```
+If you would like to design your own network architecture you need to implement a new model class in `pypopsyn/learning/models` and import it in the file `models.py`.
 
 #### Initialization
 
@@ -93,6 +96,13 @@ Here, we show an example using the Kaiming initializer denoted by `InitializerKa
     },
 }
 ```
+Here is a list with the different initialization procedure you could adopt:
+
+* `InitializerKaiming` uses the Kaiming initialization approach introduced in [He et al. (2015)](https://arxiv.org/abs/1502.01852).
+* `InitializerNormal` samples the weights from a Normal distribution $N(0, \sigma^2)$ whilst biases are just filled with a constant zero value. In this case, $\sigma = 1 / \sqrt{n}$ where $n$ is the number of input features.
+* `InitializerUniform` samples the weights from a uniform distribution $U(0,1)$ whilst biases are just filled with a constant zero value.
+* `InitializerUniformRule` samples the weights from a uniform distribution $U(-y, y)$ where $y = 1 / \sqrt{n}$ being $n$ the number of input features and biases are just filled with a constant zero value.
+* `InitializerXavier` uses the Xavier initialization approach introduced in [Xavier et al. (2010)](https://proceedings.mlr.press/v9/glorot10a.html).
 
 #### Training data loader
 
