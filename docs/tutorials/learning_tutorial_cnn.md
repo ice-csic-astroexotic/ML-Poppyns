@@ -19,14 +19,14 @@ The `pypopsyn/learning/train.py` script allows us to train a neural network on a
 neutron star populations. Once the corresponding heatmaps or 2D arrays have been created (see [Generating density 
 maps](generator_tutorial.md) for details), we train the network by running the following command:
 ```commandline
-python pypopsyn/learning/train.py --configuration config.json
+python pypopsyn/learning/train.py --configuration tutorials/tutorial_notebooks/config_train.json
 ```
-Here, the `config.json` file contains all the information required to optimize the neural network. If this `CLI` 
+Here, the `config_train.json` file contains all the information required to optimize the neural network. If this `CLI` 
 argument is left empty, the script will take the default `pypopsyn/learning/config_multiparameter_MLP.json`.
 
 ### Configuration options
 
-We now discuss the various options in the `config.json` training configuration file, which include the network
+We now discuss the various options in the `config_train.json` training configuration file, which include the network
 architecture, the input shape of the dataset, or the number of output parameters to predict.
 
 #### General info
@@ -37,7 +37,7 @@ specific convergence thresholds for each of the possible output parameters.
 
 ```commandline
 {
-    "name": "Linear",
+    "name": "Convolution",
     "trials": 8,
     "convergence": {
         "h_c_threshold": 0.5,
@@ -153,8 +153,8 @@ the input channels we would like to consider. In the data loader example above, 
 Finally, our training data loader enables us to specify if we want to shuffle our training data before passing it
 through the neural network and whether we activate on-the-fly normalization or standardization (both are mutually 
 exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information contained 
-in the `statistics_train.json` file. For normalization, the input channels will have values in the range between 0 and 1.
-If standardized, the input channels have values centred around 0 and range approximately between -1 and 1.
+in the `statistics_train.json` file. For normalization, the input channels and labels will have values in the range between 0 and 1.
+If standardized, the input channels and labels have values centred around 0 and range approximately between -1 and 1.
 
 #### Validation data loader
 
@@ -223,6 +223,14 @@ target labels at every training epoch. To determine the accuracy, a similar metr
     },
 }
 ```
+Here is a list with the different losses and accuracy metrics available:
+
+* `LossMAE` and `MetricAccuracyMAE` use the mean absolute error (MAE).
+* `LossMSE` and `MetricAccuracyMSE` use the mean square error (MSE).
+* `LossNLL` uses the negative log-likelihood loss (see [here](https://pytorch.org/docs/stable/generated/torch.nn.functional.nll_loss.html) for more details).
+* `LossRMSE` and `MetricAccuracyRMSE` use the root mean square error (RMSE).
+* `MetricAccuracy`uses an accuracy metric computing the percentage of correctly predicted labels.
+* `MetricAccuracyCHI2` uses a reduced $\chi^2$ value.
 
 #### Learning rate scheduler
 
@@ -281,7 +289,7 @@ rate value and the path to where the trained model is saved.
 
 For example, we can train a neural network as follows:
 ```commandline
-python pypopsyn/learning/train.py --configuration config.json --dataset_training generated_dataset/dataset_train.csv --dataset_validation generated_dataset/dataset_valid.csv --dataset_statistics generated_dataset/statistics_train.json --filter_inputs 0 3 4 5 --filter_labels 14 --input_shape 4 64 64 --num_parameters 1 --normalize 1 --batch_size 1 --lr 1e-5 --save_dir training_results
+python pypopsyn/learning/train.py --configuration tutorials/tutorial_notebooks/config_train.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_validation data/example_generator_magrot/dataset_valid.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 9 10 11 --filter_labels 15 16 --input_shape 3 32 32 --num_parameters 2 --normalize 1 --batch_size 1 --lr 1e-5 --save_dir learning_results
 ```
 
 ### Training output
@@ -356,7 +364,7 @@ To use the inference script, we need to provide a pretrained model (`--trained_m
 the experiment that generated the corresponding model (`--configuration`). For instance, we could run the following
 command:
 ```commandline
-python pypopsyn/learning/infer.py --configuration config.json --trained_model output/learning/models/Convolution/20240725_175854/best_model_trial1.pth
+python pypopsyn/learning/infer.py --configuration tutorials/tutorial_notebooks/config_train.json --trained_model output/learning/models/Convolution/20240725_175854/best_model_trial1.pth
 ```
 
 We can also use the `--samples` argument to provide a list of specific samples we would like to infer on (their indices 

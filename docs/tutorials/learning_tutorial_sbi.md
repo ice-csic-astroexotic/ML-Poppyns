@@ -28,7 +28,7 @@ To perform our NPE using a dataset composed of heatmaps or 2D arrays of our synt
 [Generating density maps](generator_tutorial.md) for details) we use the script `pypopsyn/learning/train_sbi.py` as 
 follows:
 ```commandline
-python pypopsyn/learning/train_sbi.py --configuration config_sbi.json
+python pypopsyn/learning/train_sbi.py --configuration tutorials/tutorial_notebooks/config_sbi.json
 ```
 Here, the `config_sbi.json` file contains all the information required to optimize the neural network. If this `CLI` 
 argument is left empty, the script will take the default `pypopsyn/learning/config_sbi.json`.
@@ -163,8 +163,8 @@ the input channels we would like to consider. In the data loader example above, 
 
 Finally, our training data loader enables us to activate on-the-fly normalization or standardization (both are mutually 
 exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information contained 
-in the `statistics_train.json` file. For normalization, the input channels will have values in the range between 0 and 1.
-If standardized, the input channels have values centred around 0 and range approximately between -1 and 1.
+in the `statistics_train.json` file. For normalization, the input channels and labels will have values in the range between 0 and 1.
+If standardized, the input channels and labels have values centred around 0 and range approximately between -1 and 1.
 
 !!! note
 
@@ -200,7 +200,7 @@ rate value and the path to where the trained model is saved.
 
 For example, we can train a neural network as follows:
 ```commandline
-python pypopsyn/learning/train_sbi.py --configuration config_sbi.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 9 10 11 --filter_labels 12 13 --input_shape 3 32 32 --len_output_layer 32 --standardize 1 --batch_size 1 --lr 1e-5 --save_dir data/example_learning_sbi
+python pypopsyn/learning/train_sbi.py --configuration tutorials/tutorial_notebooks/config_sbi.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 9 10 11 --filter_labels 15 16 --input_shape 3 32 32 --len_output_layer 32 --standardize 1 --batch_size 1 --lr 1e-5 --save_dir learning_sbi_results
 ```
 
 ### Training output
@@ -266,7 +266,7 @@ We also specify the directory for saving the inference results in the field `inf
 Once the inference configuration is set up, we run the inference script by providing the configuration file 
 (`--configuration`) and a pretrained model (`--trained_model`) as follows:
 ```commandline
-python pypopsyn/learning/infer_sbi.py --configuration config_sbi.json --trained_model data/learning_sbi/models/SBI_ConvolutionMDN/20240606_180938/trained_model.pickle
+python pypopsyn/learning/infer_sbi.py --configuration config_sbi.json --trained_model data/example_training_sbi/models/SBI_ConvolutionMDN/20240626_105721/trained_model.pickle
 ```
 
 As for the training script, we can also specify several other parameters, such as the path to the test dataset,
@@ -295,6 +295,7 @@ Each subfolder in the `logs` directory contains the following information:
 * `profile.json` and `profile.log` files with the timing profiling of the inference script.
 * `coeff_gaussians.csv` file with the coefficients for the Gaussian mixture components for each test sample.
 * `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic test.
+* the corner plots in `.pdf` format for each of the test samples if the option `--corner_plot` is set to `True`.
 
 
 ## Infer on a Data Set with an Ensemble
