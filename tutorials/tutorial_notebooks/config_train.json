@@ -104,7 +104,7 @@
   },
 
   "trainer": {
-    "epochs": 1024,
+    "epochs": 256,
     "save_dir": "output/learning",
     "save_period": 1000,
     "verbosity": 1,
