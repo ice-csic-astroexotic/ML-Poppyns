@@ -79,6 +79,11 @@ The configuration file then looks as follows:
     },
 }
 ```
+The models that are readily available to be used as embedding nets are:
+
+* `ModelConvSBI` using a CNN.
+* `ModelConvSBIdeep` using a CNN featuring more convolutional filters.
+
 If you would like to design your own model architecture for the embedding network you need to implement a new model class in `pypopsyn/learning/models` and import it in the file `models.py`.
 
 #### Initialization
@@ -266,7 +271,7 @@ We also specify the directory for saving the inference results in the field `inf
 Once the inference configuration is set up, we run the inference script by providing the configuration file 
 (`--configuration`) and a pretrained model (`--trained_model`) as follows:
 ```commandline
-python pypopsyn/learning/infer_sbi.py --configuration config_sbi.json --trained_model data/example_training_sbi/models/SBI_ConvolutionMDN/20240626_105721/trained_model.pickle
+python pypopsyn/learning/infer_sbi.py --configuration tutorials/tutorial_notebooks/config_sbi.json --trained_model data/example_training_sbi/models/SBI_ConvolutionMDN/20240626_105721/trained_model.pickle
 ```
 
 As for the training script, we can also specify several other parameters, such as the path to the test dataset,
