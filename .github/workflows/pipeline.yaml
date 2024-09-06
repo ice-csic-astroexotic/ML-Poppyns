@@ -47,6 +47,8 @@ jobs:
         run: conda env create --file environment.yaml --yes
         if: steps.cache.outputs.cache-hit != 'true'
       # Additional step to install pygedm after environment creation
+      - name: Install setuptools and wheel
+        run: pip install -U setuptools wheel
       - name: Install pygedm with PEP 517
         run: pip install pygedm --use-pep517 --config-settings="build_ext.include_dirs=${CONDA_PREFIX}/include:/usr/local/include"
       # As the pip dependencies are not installed in /usr/share/miniconda/envs/pop_syn
