@@ -46,6 +46,9 @@ jobs:
       - name: Create environment
         run: conda env create --file environment.yaml --yes
         if: steps.cache.outputs.cache-hit != 'true'
+      # Additional step to install pygedm after environment creation
+      - name: Install pygedm with PEP 517
+        run: pip install pygedm --use-pep517 --config-settings="build_ext.include_dirs=${CONDA_PREFIX}/include:/usr/local/include"
       # As the pip dependencies are not installed in /usr/share/miniconda/envs/pop_syn
       # and therefore not cached, we update the environment every time to add pip dependencies.
       - name: Install pip dependencies
