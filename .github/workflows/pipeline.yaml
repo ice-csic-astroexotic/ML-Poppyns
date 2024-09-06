@@ -53,6 +53,8 @@ jobs:
       - name: Print environment details
         run: |
           python --version
+          gcc --version
+          g++ --version
           pip list
           lsb_release -a
           uname -a
