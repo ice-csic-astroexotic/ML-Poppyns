@@ -37,4 +37,4 @@ dependencies:
   - torchvision=0.16.0
   - pip:
       - pydeps
-      - pygedm --use-pep517 --global-option=build_ext --global-option="-I${CONDA_PREFIX}/include:/usr/local/include"
+      - pygedm --use-pep517 --config-settings="build_ext.include_dirs=${CONDA_PREFIX}/include:/usr/local/include"
