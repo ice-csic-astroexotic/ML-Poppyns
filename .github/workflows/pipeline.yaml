@@ -46,6 +46,10 @@ jobs:
       - name: Create environment
         run: conda env create --file environment.yaml --yes
         if: steps.cache.outputs.cache-hit != 'true'
+      - name: Upgrade pip, setuptools, and wheel to specific versions
+        run: |
+          pip install --upgrade pip==23.2.1
+          pip install setuptools==72.1.0 wheel==0.43.0
       - name: Print environment details
         run: |
           python --version
