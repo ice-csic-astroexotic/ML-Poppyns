@@ -346,7 +346,7 @@ def simulator_multiprocess(
         )
 
         with open(simulation_override_json_path, "w") as f:
-            json.dump(simulation_override_json, f, indent=4, sort_keys=True)
+            json.dump(simulation_override_json, f, indent=4)
 
         # Generate a list for the command (cmd), including the Python interpreter, the script path specified with
         # 'simulator_type', and the path for the JSON override.

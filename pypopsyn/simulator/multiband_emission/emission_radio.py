@@ -45,7 +45,7 @@ def pulse_width(
     Formula to evaluate the intrinsic pulse width in [rad] from the radio beam angular aperture.
     This assumes that the line of sight intercepts the radio beam with an angle beta with
     respect to the center of the beam, so that -rho_b < beta < rho_b, with rho_b the angular
-    aperture of the beam. See eq. (1) in Maciesiak et al. (2011a) and eq. (3.26) in Lorimer & Kramer (2004).
+    aperture of the beam. See eq. (1) in Maciesiak et al. (2011a) and eq. (3.26) in Lorimer and Kramer (2004).
 
     Args:
         chi (np.ndarray): array of inclination angles between the magnetic axis and the rotation axis [rad].
@@ -137,7 +137,7 @@ def los_intercept(
     return intercepted
 
 
-def pdf_luminosity_radio(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
+def pdf_luminosity_radio_ppdot(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     """
     Draw random bolometric radio luminosities from a distribution that depends on the spin period
     and spin period derivative. We assume a random log-normal spread for the normalization constant L_0.
@@ -158,6 +158,46 @@ def pdf_luminosity_radio(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     L_radio = L_0 * (P ** (-3) * P_dot) ** cfg["epsilon_L"]
 
     return L_radio
+
+
+def pdf_luminosity_radio_edot(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
+    """
+    Draw random bolometric radio luminosities from a distribution that depends on the loss of the rotational energy.
+    We assume a random log-normal spread for the normalization constant L_0.
+
+    Args:
+        P (np.ndarray): array of spin periods of the pulsars in [s].
+        P_dot (np.ndarray): array of spin period derivatives of the pulsars in [s/s].
+
+    Returns:
+        (np.ndarray): pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.
+    """
+    NS_number = len(P)
+    L_0 = 10 ** np.random.normal(
+        cfg["L_radio_log10_mean"], cfg["L_radio_log10_sigma"], NS_number
+    )
+    Erot_dot = loss_rotational_energy(P, P_dot)
+    L_radio = L_0 * (Erot_dot / cfg["Erot_dot_0"]) ** cfg["epsilon_L"]
+
+    return L_radio
+
+
+def loss_rotational_energy(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
+    """
+    Compute the loss of the rotational energy given the period and period derivative
+    (see, e.g., eq. (3.5) in Lorimer and Kramer, 2004).
+
+    Args:
+        P (np.ndarray): array of spin periods of the pulsars in [s].
+        P_dot (np.ndarray): array of spin period derivatives of the pulsars in [s/s].
+
+    Returns:
+        (np.ndarray): Loss of the rotational energy [erg s^(-1)].
+    """
+    NS_inertia = 2.0 / 5.0 * cfg["NS_mass"] * cfg["NS_radius"] ** 2
+    Erot_dot = NS_inertia * (2.0 * np.pi) ** 2 * (P_dot / (P**3))
+
+    return Erot_dot
 
 
 def flux_radio(
@@ -290,7 +330,11 @@ def calculate_radio_emission(
     )
 
     # Determining the bolometric radio luminosity.
-    L_radio_bol = pdf_luminosity_radio(P_det, P_dot_det)
+    # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
+    # NOTE: If the luminosity law is changed, the normalisation constant (L_radio_log10_sigma) has to be adjusted in
+    # the simulator configuration file pypopsyn/simulator/config_simulator.
+    # L_radio_bol = pdf_luminosity_radio_ppdot(P_det, P_dot_det)
+    L_radio_bol = pdf_luminosity_radio_edot(P_det, P_dot_det)
 
     # Computing the intrinsic bolometric radio flux.
     S_radio_bol = flux_radio(
@@ -359,11 +403,12 @@ def calculate_radio_emission_full(
         L_radio_bol (np.ndarray): pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.
     """
 
-    # Determining the luminosity in different electromagnetic bands.
-    L_radio_bol = pdf_luminosity_radio(
-        P,
-        P_dot,
-    )
+    # Determining the bolometric radio luminosity.
+    # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
+    # NOTE: If the luminosity law is changed, the normalisation constant (L_radio_log10_sigma) has to be adjusted in
+    # the simulator configuration file pypopsyn/simulator/config_simulator.
+    # L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
+    L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
 
     # Determining the radio beam angular aperture.
     rho_beam = beam_aperture(P, cfg["r_em"])

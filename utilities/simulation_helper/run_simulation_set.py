@@ -195,7 +195,7 @@ def run_simulation_dask(
         output_dir_path.mkdir(parents=True, exist_ok=True)
 
         with open(args.parameter_override, "w") as f:
-            json.dump(simulation_override_json, f, indent=4, sort_keys=True)
+            json.dump(simulation_override_json, f, indent=4)
 
         # Call either the simulate_population_magrot or simulate_population_dyn module depending on the case.
         if simulator_type == "simulate_population_magrot_det":
@@ -564,6 +564,24 @@ if __name__ == "__main__":
         help="In grid mode: range for the power-law slope of the late time magnetic field evolution "
         "with number of values [low, high, n_values]."
         "In random mode: range of the power-law slope of the late time magnetic field evolution [low, high].",
+    )
+    args.add_argument(
+        "--epsilon_L",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the power-law slope of the intrinsic luminosity "
+        "with number of values [low, high, n_values]."
+        "In random mode: range of the power-law slope of the intrinsic luminosity [low, high].",
+    )
+    args.add_argument(
+        "--L_radio_log10_mean",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the mean of the log-normally distributed radio luminosity normalization factor."
+        "with number of values [low, high, n_values]."
+        "In random mode: range of the mean of the log-normally distributed radio luminosity normalization factor [low, high].",
     )
 
     args = args.parse_args()
