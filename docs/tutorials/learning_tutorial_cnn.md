@@ -33,8 +33,9 @@ architecture, the input shape of the dataset, or the number of output parameters
 
 We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, the number
 of trials performed for each execution of `pypopsyn/learning/train.py` in case convergence is not reached, and the 
-specific convergence thresholds for each of the possible output parameters. The convergence thresholds represent the threshold loss value
-for the individual parameters below which we consider the network to have reached a good accuracy in predicting the parameters.
+specific convergence thresholds for each of the possible output parameters. 
+These thresholds represent limiting values for the losses of the individual parameters below which 
+we consider the network to have reached sufficient performance in predicting our parameters.
 
 ```commandline
 {
