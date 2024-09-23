@@ -43,7 +43,8 @@ other relevant training hyperparameters.
 
 We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, 
 a manual seed for the initialization of the network weights (assuming that `set_manual_seed` is set to true) 
-and some additional profiling options, i.e., the files where to save the timing profile and if displaying it on terminal.
+and some additional profiling options. The latter specify the names of the files containing run time information
+for the code and whether this timing information is displayed in the terminal or not.
 ```commandline
 {
     "name": "SBI_ConvolutionMDN",
