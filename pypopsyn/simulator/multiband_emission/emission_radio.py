@@ -228,7 +228,7 @@ def flux_radio(
 def flux_density_radio(
     S_radio_bol: np.ndarray,
     f: float,
-    mean_spectral_index: float = -1.6,
+    mean_spectral_index: float = -1.8,
     f_min: float = 1.0e7,
     f_max: float = 1.0e11,
 ) -> np.ndarray:
