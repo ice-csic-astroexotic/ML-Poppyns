@@ -140,12 +140,12 @@ cfg["P_initial_mean"]: float = 0.3
 cfg["P_initial_sigma"]: float = 0.2
 
 # Mean and standard deviation for the log-normal distributed initial periods in [s].
-cfg["P_initial_log10_mean"]: float = -0.6
-cfg["P_initial_log10_sigma"]: float = 0.3
+cfg["P_initial_log10_mean"]: float = -0.62
+cfg["P_initial_log10_sigma"]: float = 0.48
 
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
-cfg["B_initial_log10_mean"]: float = 13.25
-cfg["B_initial_log10_sigma"]: float = 0.75
+cfg["B_initial_log10_mean"]: float = 13.04
+cfg["B_initial_log10_sigma"]: float = 0.53
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
@@ -187,7 +187,7 @@ cfg["b2"]: float = -0.2
 cfg["tau_late"]: float = 2.0e6
 
 # Late time power-law index.
-cfg["a_late"]: float = -2.0
+cfg["a_late"]: float = -0.77
 
 # Parameters for a log-normal distribution of the magnetic fields of the old millisecond pulsars.
 cfg["B_millisec_mean"] = 8.5
@@ -210,10 +210,10 @@ cfg["r_em"]: float = 3.0e7
 # the following parameters were adjusted to match observed data.
 cfg[
     "L_radio_log10_mean"
-]: float = 26.6  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
+]: float = 25.82  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
 # cfg["L_radio_log10_mean"]: float = 35.5 [erg s^(3 * epsilon_L - 1) ] if pdf_luminosity_radio_ppdot is used.
 cfg["L_radio_log10_sigma"]: float = 0.8
-cfg["epsilon_L"]: float = 0.5
+cfg["epsilon_L"]: float = 0.64
 cfg["Erot_dot_0"]: float = 1e29
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
@@ -225,17 +225,17 @@ cfg["ed_model"]: str = "ymw16"
 # we also use a cut-off in period of P > 0.01s and period derivative of Pdot > 10^-19s/s.
 # The latter however only applies to those objects with measured Pdot values,
 # i.e., the counts below also include those pulsars with P > 0.01s that have no Pdot measurement.
-cfg["detected_real_PMPS"]: int = 1009
-cfg["detected_real_SMPS"]: int = 218
-cfg["detected_real_htru_low_mid"]: int = 1023
+cfg["detected_real_PMPS"]: int = 1024
+cfg["detected_real_SMPS"]: int = 208
+cfg["detected_real_htru_low_mid"]: int = 1037
 cfg["detected_real_htru_high"]: int = 20
 
 # Numbers of objects associated with the three pulsars surveys as followed up with the TPA programme on Meerkat.
 # For details see Posselt et al. (2023). Note these numbers are used in the pypopsyn/generator/generate_observed_data.py
 # script and differ from those given in the full ATNF catalogue.
-cfg["detected_meerkat_PMPS"]: int = 618
+cfg["detected_meerkat_PMPS"]: int = 619
 cfg["detected_meerkat_SMPS"]: int = 160
-cfg["detected_meerkat_HTRU"]: int = 667
+cfg["detected_meerkat_HTRU"]: int = 668
 
 
 def update_configuration(new_configuration) -> None:

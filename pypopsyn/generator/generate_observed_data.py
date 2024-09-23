@@ -235,8 +235,9 @@ def generate_dataset(args: argparse.Namespace) -> None:
     df_atnf = df_atnf[~df_atnf["P1"].isin(["NAN"])]
     df_atnf = df_atnf[~df_atnf["ASSOC"].str.match("|".join(discard))]
 
-    # Select only isolated, non-recycled neutron stars, i.e., those with Pdot > 1e-19.
+    # Select only isolated, non-recycled neutron stars, i.e., those with Pdot > 1e-19 and P> 0.01 s.
     df_atnf = df_atnf[df_atnf["P1"].to_numpy().astype(np.float64) > 1.0e-19]
+    df_atnf = df_atnf[df_atnf["P0"].to_numpy().astype(np.float64) > 0.01]
 
     # Parkes multibeam pulsar survey database.
     df_atnf_pmps = df_atnf[df_atnf["SURVEY"].str.contains("pksmb")]
