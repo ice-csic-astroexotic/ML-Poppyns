@@ -46,7 +46,9 @@ if cfg["server_run"]:
 else:
     # Change the following parameters to your local path, e.g., something like
     # /home/michele/Documents/MAGNESIA_population_synthesis. Otherwise, some notebooks might not work!
-    cfg["path_to_software"] = ""
+    cfg[
+        "path_to_software"
+    ] = "/home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis"
     cfg["path_to_output"] = ""
 
 if cfg["path_to_software"] == "":
@@ -140,12 +142,23 @@ cfg["P_initial_mean"]: float = 0.3
 cfg["P_initial_sigma"]: float = 0.2
 
 # Mean and standard deviation for the log-normal distributed initial periods in [s].
-cfg["P_initial_log10_mean"]: float = -0.6
-cfg["P_initial_log10_sigma"]: float = 0.3
+cfg["P_initial_log10_mean"]: float = -0.63
+cfg["P_initial_log10_sigma"]: float = 0.47
 
-# Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
-cfg["B_initial_log10_mean"]: float = 13.25
-cfg["B_initial_log10_sigma"]: float = 0.75
+# Model pdf for the initial spin period. Choose between "log-normal", "double_log-normal".
+cfg["magnetic_field_model"]: str = "double_log-normal"
+
+# Mean and standard deviation for the log-normally distributed initial magnetic fields in [G].
+cfg["B_initial_log10_mean"]: float = 13.04
+cfg["B_initial_log10_sigma"]: float = 0.53
+
+# Means and standard deviations and relative weight for the double log-normally distributed
+# initial magnetic fields in [G].
+cfg["B_initial_log10_mean1"]: float = 13.04
+cfg["B_initial_log10_sigma1"]: float = 0.53
+cfg["B_initial_log10_mean2"]: float = 14.5
+cfg["B_initial_log10_sigma2"]: float = 0.5
+cfg["B_initial_weight"]: float = 0.8
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
@@ -180,14 +193,14 @@ cfg["a2"]: float = -3.0
 # Timescale parameters, normalizations and power-law indices.
 cfg["A1"]: float = 1.0e14
 cfg["b1"]: float = -0.8
-cfg["A2"]: float = 6.0e8
-cfg["b2"]: float = -0.2
+cfg["A2"]: float = 3.0e9
+cfg["b2"]: float = -0.25
 
 # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
-cfg["tau_late"]: float = 2.0e6
+cfg["tau_late"]: float = 3.0e6
 
 # Late time power-law index.
-cfg["a_late"]: float = -2.0
+cfg["a_late"]: float = -0.8
 
 # Parameters for a log-normal distribution of the magnetic fields of the old millisecond pulsars.
 cfg["B_millisec_mean"] = 8.5
@@ -210,10 +223,10 @@ cfg["r_em"]: float = 3.0e7
 # the following parameters were adjusted to match observed data.
 cfg[
     "L_radio_log10_mean"
-]: float = 26.6  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
+]: float = 25.82  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
 # cfg["L_radio_log10_mean"]: float = 35.5 [erg s^(3 * epsilon_L - 1) ] if pdf_luminosity_radio_ppdot is used.
 cfg["L_radio_log10_sigma"]: float = 0.8
-cfg["epsilon_L"]: float = 0.5
+cfg["epsilon_L"]: float = 0.64
 cfg["Erot_dot_0"]: float = 1e29
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".

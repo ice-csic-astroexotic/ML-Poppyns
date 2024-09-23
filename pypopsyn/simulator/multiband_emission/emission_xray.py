@@ -35,6 +35,9 @@ def T_from_Lx(Lx: np.ndarray) -> np.ndarray:
     Returns:
         (np.ndarray): array of temperature seen by a distant observer in [K].
     """
+    # Consider a hot-spot radius that is a fraction of the neutron star radius.
+    # R_hot_spot = np.random.uniform(0.01, 1, len(Lx)) * cfg["NS_radius"]
+    # R_obs = R_hot_spot / gr_correction
     R_obs = cfg["NS_radius"] / gr_correction
     T_obs = (Lx / (4 * np.pi * R_obs**2 * const.SIGMA_SB)) ** (1.0 / 4.0)
 

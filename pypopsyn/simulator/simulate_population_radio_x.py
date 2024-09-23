@@ -36,6 +36,7 @@ import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_emission.emission_xray as ex
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
+import pypopsyn.simulator.multiband_surveys.survey_x as sx
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import utilities.benchmark.timewith as timewith
 from pypopsyn.simulator.config_simulator import cfg
@@ -512,6 +513,7 @@ def simulate_population(args) -> None:
                     | coverage_HTRU_high
                 ) & dist_cutoff
 
+                # For the x-ray surveys we only consider an age and distance cutoff.
                 coverage_x = age_cutoff & dist_cutoff
 
                 coverage_tot = coverage_radio | coverage_x
@@ -1014,22 +1016,24 @@ def simulate_population(args) -> None:
                 L_x = Lx_interpolator.ev(age_det_x, B_initial_det_x)
 
                 # Select only the stars that have sufficiently high luminosity.
-                idx_det_x = idx_det_x[L_x > 1.0e25]
-                age_det_x = age_det_x[L_x > 1.0e25]
-                P_det_x = P_det_x[L_x > 1.0e25]
-                ra_det_x = ra_det_x[L_x > 1.0e25]
-                dec_det_x = dec_det_x[L_x > 1.0e25]
-                dist_det_x = dist_det_x[L_x > 1.0e25]
-                B_det_x = B_det_x[L_x > 1.0e25]
-                chi_det_x = chi_det_x[L_x > 1.0e25]
-                P_dot_det_x = P_dot_det_x[L_x > 1.0e25]
-                L_x = L_x[L_x > 1.0e25]
+                L_x_threshold = 1.0e25
+                idx_det_x = idx_det_x[L_x > L_x_threshold]
+                age_det_x = age_det_x[L_x > L_x_threshold]
+                P_det_x = P_det_x[L_x > L_x_threshold]
+                ra_det_x = ra_det_x[L_x > L_x_threshold]
+                dec_det_x = dec_det_x[L_x > L_x_threshold]
+                dist_det_x = dist_det_x[L_x > L_x_threshold]
+                B_det_x = B_det_x[L_x > L_x_threshold]
+                chi_det_x = chi_det_x[L_x > L_x_threshold]
+                P_dot_det_x = P_dot_det_x[L_x > L_x_threshold]
+                L_x = L_x[L_x > L_x_threshold]
 
                 S_x, N_H = ex.flux_xray_absorbed(
                     L_x, B_det_x, ra_det_x, dec_det_x, dist_det_x
                 )
 
-                detected_x = S_x > 1.0e-15
+                # detected_x = S_x > 1.0e-15
+                detected_x = sx.obs_bias_filter(S_x, eta=4.0)
 
                 n_detected_sim_x += np.count_nonzero(detected_x)
                 log.info(

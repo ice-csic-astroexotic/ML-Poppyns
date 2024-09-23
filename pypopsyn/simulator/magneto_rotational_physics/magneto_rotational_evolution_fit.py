@@ -56,7 +56,7 @@ def magnetic_field_evolution_fit_numpy(
     tau1 = A1_cfg * B_initial**b1_cfg
     tau2 = A2_cfg * B_initial**b2_cfg
 
-    if tau2 < tau_late_cfg:
+    if tau2 <= tau_late_cfg:
         B = (
             B_initial
             * (1 + t / tau1) ** a1_cfg
@@ -64,13 +64,13 @@ def magnetic_field_evolution_fit_numpy(
             * (1 + t / tau_late_cfg) ** (a_late - a2_cfg)
         )
 
-    elif (tau1 < tau_late_cfg) & (tau_late_cfg < tau2):
+    elif (tau1 < tau_late_cfg) & (tau_late_cfg <= tau2):
         B = (
             B_initial
             * (1 + t / tau1) ** a1_cfg
             * (1 + t / tau_late_cfg) ** (a_late - a1_cfg)
         )
-    elif tau_late_cfg < tau1:
+    elif tau_late_cfg <= tau1:
         B = B_initial * (1 + t / tau_late_cfg) ** a_late
 
     # If the magnetic field becomes lower than an asymptotic value derived from the old millisecond pulsar population,
@@ -112,7 +112,7 @@ def magnetic_field_evolution_fit(
     tau1 = A1_cfg * B_initial**b1_cfg
     tau2 = A2_cfg * B_initial**b2_cfg
 
-    if tau2 < tau_late_cfg:
+    if tau2 <= tau_late_cfg:
         B = (
             B_initial
             * (1 + t / tau1) ** a1_cfg
@@ -120,13 +120,13 @@ def magnetic_field_evolution_fit(
             * (1 + t / tau_late_cfg) ** (a_late - a2_cfg)
         )
 
-    elif (tau1 < tau_late_cfg) & (tau_late_cfg < tau2):
+    elif (tau1 < tau_late_cfg) & (tau_late_cfg <= tau2):
         B = (
             B_initial
             * (1 + t / tau1) ** a1_cfg
             * (1 + t / tau_late_cfg) ** (a_late - a1_cfg)
         )
-    elif tau_late_cfg < tau1:
+    elif tau_late_cfg <= tau1:
         B = B_initial * (1 + t / tau_late_cfg) ** a_late
 
     # If the magnetic field becomes lower than an asymptotic value derived from the old millisecond pulsar population,

@@ -16,6 +16,7 @@ from typing import Tuple
 import numpy as np
 
 import pypopsyn.simulator.basics.constants as const
+import pypopsyn.simulator.magneto_rotational_physics.initial_magnetic_field as imf
 import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.initial_position as ip
@@ -257,12 +258,24 @@ class InitialNeutronStarPopulation:
             (np.ndarray): initial magnetic field strengths of the pulsar sample in [G].
 
         """
+        magnetic_field_model = cfg["magnetic_field_model"]
 
-        B_rand = 10 ** np.random.normal(
-            cfg["B_initial_log10_mean"],
-            cfg["B_initial_log10_sigma"],
-            self.NS_number,
-        )
+        if magnetic_field_model == "log-normal":
+            B_rand = imf.initial_magnetic_field_lognormal(
+                cfg["B_initial_log10_mean"],
+                cfg["B_initial_log10_sigma"],
+                self.NS_number,
+            )
+        elif magnetic_field_model == "double_log-normal":
+            B_rand = imf.initial_magnetic_field_double_lognormal(
+                8.0,
+                16.0,
+                self.NS_number,
+            )
+        else:
+            raise ValueError(
+                "The initial magnetic-field model pdf does not exist. Choose between log-normal or double_log-normal."
+            )
 
         return B_rand
 
