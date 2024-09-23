@@ -99,12 +99,15 @@ Here, we show an example using the Kaiming initializer denoted by `InitializerKa
     },
 }
 ```
-Here is a list with the different initialization procedure you could adopt:
+Here is a list with the different initialization procedures available:
 
 * `InitializerKaiming` uses the Kaiming initialization approach introduced in [He et al. (2015)](https://arxiv.org/abs/1502.01852).
-* `InitializerNormal` samples the weights from a Normal distribution $N(0, \sigma^2)$ whilst biases are just filled with a constant zero value. In this case, $\sigma = 1 / \sqrt{n}$ where $n$ is the number of input features.
-* `InitializerUniform` samples the weights from a uniform distribution $U(0,1)$ whilst biases are just filled with a constant zero value.
-* `InitializerUniformRule` samples the weights from a uniform distribution $U(-y, y)$ where $y = 1 / \sqrt{n}$ being $n$ the number of input features and biases are just filled with a constant zero value.
+* `InitializerNormal` samples the weights from a Normal distribution $N(0, \sigma^2)$ whilst biases are filled 
+ with a constant zero value. In this case, $\sigma = 1 / \sqrt{n}$ where $n$ is the number of input features.
+* `InitializerUniform` samples the weights from a uniform distribution $U(0,1)$ whilst biases are filled with 
+ a constant zero value.
+* `InitializerUniformRule` samples the weights from a uniform distribution $U(-y, y)$. Here, $y = 1 / \sqrt{n}$ 
+ with $n$ being the number of input features and biases are filled with a constant zero value.
 * `InitializerXavier` uses the Xavier initialization approach introduced in [Xavier et al. (2010)](https://proceedings.mlr.press/v9/glorot10a.html).
 
 #### Density estimator

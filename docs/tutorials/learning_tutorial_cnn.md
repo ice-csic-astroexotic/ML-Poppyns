@@ -68,11 +68,12 @@ we consider the network to have reached sufficient performance in predicting our
 
 #### Model architecture
 
-Next, we specify the network architecture. In the following example, we use predefined convolutional neural network 
-(CNN) denoted by `ModelConv` defined in `pypopsyn/learning/models/model_conv.py`. 
-This CNN is designed to adapt to any input size specified by the `input_shape` parameter and produce an output with a length specified by `num_parameters`.
-In this specific example we are setting it to receive an input array of shape $32 \times 32$ with `3` different input channels 
-(three of our density maps) and outputs `2` values (corresponding to two of our pulsar population parameters).
+Next, we specify the network architecture. In the following example, we use a predefined convolutional neural network 
+(CNN) denoted by `ModelConv` defined in `pypopsyn/learning/models/model_conv.py`. This CNN is designed to adapt to 
+any input size specified by the `input_shape` parameter and produce an output with a length specified by
+`num_parameters`. However, the individual CNN filters and hidden layers are fixed. Below, we specify an input array 
+of shape $32 \times 32$ with `3` different input channels (three of our density maps) and an output of `2` values
+(corresponding to two of our pulsar population parameters).
 ```commandline
 {
     "arch": {
@@ -84,12 +85,12 @@ In this specific example we are setting it to receive an input array of shape $3
     },
 }
 ```
-The models that are readily available to be used are:
+The models that have been predefined are the following ones:
 
-* `ModelConv` using a CNN.
-* `ModelLinear` using a multi-layer perceptron (MPL) type architecture.
+* `ModelConv` based on a CNN.
+* `ModelLinear` based on a multi-layer perceptron (MPL) architecture.
 
-If you would like to design your own network architecture you need to implement a new model class in `pypopsyn/learning/models` and import it in the file `models.py`.
+If you would like to design your own network architecture, you need to implement a new model class in `pypopsyn/learning/models` and import this model in the file `models.py`.
 
 #### Initialization
 
@@ -103,12 +104,15 @@ Here, we show an example using the Kaiming initializer denoted by `InitializerKa
     },
 }
 ```
-Here is a list with the different initialization procedure you could adopt:
+Here is a list with the different initialization procedures available:
 
 * `InitializerKaiming` uses the Kaiming initialization approach introduced in [He et al. (2015)](https://arxiv.org/abs/1502.01852).
-* `InitializerNormal` samples the weights from a Normal distribution $N(0, \sigma^2)$ whilst biases are just filled with a constant zero value. In this case, $\sigma = 1 / \sqrt{n}$ where $n$ is the number of input features.
-* `InitializerUniform` samples the weights from a uniform distribution $U(0,1)$ whilst biases are just filled with a constant zero value.
-* `InitializerUniformRule` samples the weights from a uniform distribution $U(-y, y)$ where $y = 1 / \sqrt{n}$ being $n$ the number of input features and biases are just filled with a constant zero value.
+* `InitializerNormal` samples the weights from a Normal distribution $N(0, \sigma^2)$ whilst biases are filled 
+ with a constant zero value. In this case, $\sigma = 1 / \sqrt{n}$ where $n$ is the number of input features.
+* `InitializerUniform` samples the weights from a uniform distribution $U(0,1)$ whilst biases are filled with 
+ a constant zero value.
+* `InitializerUniformRule` samples the weights from a uniform distribution $U(-y, y)$. Here, $y = 1 / \sqrt{n}$ 
+ with $n$ being the number of input features and biases are filled with a constant zero value.
 * `InitializerXavier` uses the Xavier initialization approach introduced in [Xavier et al. (2010)](https://proceedings.mlr.press/v9/glorot10a.html).
 
 #### Training data loader
