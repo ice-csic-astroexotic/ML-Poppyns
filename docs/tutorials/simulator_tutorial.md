@@ -20,8 +20,8 @@ The default input parameters for the simulation are specified in the `pypopsyn/s
 To simulate populations with different initial parameters, the user can directly modify the simulator configuration in 
 `pypopsyn/simulator/config_simulator.py`.
 
-Alternatively, we can provide a JSON dictionary containing configuration overrides for the various simulation parameters. 
-Here is an example of JSON file specifying the parameter overrides: 
+Alternatively, we can provide a JSON dictionary containing configuration overrides for the various simulation
+parameters. An example of such a JSON file could look as follows: 
 ```commandline
 {
   "kick_model": "km_maxwell",
