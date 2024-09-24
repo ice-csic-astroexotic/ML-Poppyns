@@ -240,7 +240,7 @@ Here is a list with the different losses and accuracy metrics available:
 * `LossMSE` and `MetricAccuracyMSE` use the mean square error (MSE).
 * `LossNLL` uses the negative log-likelihood loss (see [here](https://pytorch.org/docs/stable/generated/torch.nn.functional.nll_loss.html) for more details).
 * `LossRMSE` and `MetricAccuracyRMSE` use the root mean square error (RMSE).
-* `MetricAccuracy`uses an accuracy metric computing the percentage of correctly predicted labels.
+* `MetricAccuracy` computes the percentage of correctly predicted labels.
 * `MetricAccuracyCHI2` uses a reduced $\chi^2$ value.
 
 #### Learning rate scheduler
