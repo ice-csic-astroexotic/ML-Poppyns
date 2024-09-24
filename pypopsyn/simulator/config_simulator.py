@@ -230,9 +230,9 @@ cfg["detected_real_SMPS"]: int = 208
 cfg["detected_real_htru_low_mid"]: int = 1037
 cfg["detected_real_htru_high"]: int = 20
 
-# Numbers of objects associated with the three pulsars surveys as followed up with the TPA programme on Meerkat.
+# Numbers of objects associated with the three pulsar surveys as followed up with the TPA programme on MeerKAT.
 # For details see Posselt et al. (2023). Note these numbers are used in the pypopsyn/generator/generate_observed_data.py
-# script and differ from those given in the full ATNF catalogue.
+# script and differ from those given in the full ATNF Pulsar Catalogue.
 cfg["detected_meerkat_PMPS"]: int = 619
 cfg["detected_meerkat_SMPS"]: int = 160
 cfg["detected_meerkat_HTRU"]: int = 668
