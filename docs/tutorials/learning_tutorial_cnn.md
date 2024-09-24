@@ -265,7 +265,7 @@ In this example, the learning rate is multiplied by `0.1` after `128` training e
 
     Scheduling the learning rate has different effects depending on the optimizer used. For example, for an adaptive
     optimizer like `Adam` the learning rate is automatically adjusted during training based on the values of the loss
-    gradients with respect to the network weights. Therefore, the learning scheduler might have little effect in this 
+    gradients with respect to the network weights. Therefore, the learning scheduler will have little effect in this 
     case. On the other hand, for optimizers with fixed learning rates, rescheduling adjustments could help the 
     network converge faster to a minimum of the loss landscape.
 
