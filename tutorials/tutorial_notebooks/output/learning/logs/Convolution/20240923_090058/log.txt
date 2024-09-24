@@ -1,0 +1,15 @@
+2024-09-23 09:00:58,705 - train - INFO - Logger initialized...
+2024-09-23 09:00:58,705 - train - INFO - =========================================================
+2024-09-23 09:00:58,705 - train - INFO - Trial 1 out of 8...
+2024-09-23 09:00:58,705 - train - INFO - Convergence thresholds:
+2024-09-23 09:00:58,705 - train - INFO - h_c_threshold:0.5
+2024-09-23 09:00:58,705 - train - INFO - vk_c_threshold:10.0
+2024-09-23 09:00:58,705 - train - INFO - sigma_k_threshold:10.0
+2024-09-23 09:00:58,705 - train - INFO - B_initial_log10_mean_threshold:0.5
+2024-09-23 09:00:58,705 - train - INFO - B_initial_log10_sigma_threshold:0.5
+2024-09-23 09:00:58,705 - train - INFO - P_initial_log10_mean_threshold:0.5
+2024-09-23 09:00:58,705 - train - INFO - P_initial_log10_sigma_threshold:0.5
+2024-09-23 09:00:58,705 - train - INFO - a_late_threshold:0.5
+2024-09-23 09:00:58,705 - train - INFO - L_radio_log10_mean_threshold:0.5
+2024-09-23 09:00:58,705 - train - INFO - epsilon_L:0.5
+2024-09-23 09:00:58,706 - train - INFO - Creating data loaders...
