@@ -80,12 +80,12 @@ The configuration file then looks as follows:
     },
 }
 ```
-The models that are readily available to be used as embedding nets are:
+The models that have been predefined are the following ones:
 
-* `ModelConvSBI` using a CNN.
-* `ModelConvSBIdeep` using a CNN featuring more convolutional filters.
+* `ModelConv` based on a CNN.
+* `ModelLinear` based on a multi-layer perceptron (MPL) architecture.
 
-If you would like to design your own model architecture for the embedding network you need to implement a new model class in `pypopsyn/learning/models` and import it in the file `models.py`.
+If you would like to design your own network architecture, you need to implement a new model class in `pypopsyn/learning/models` and import this model in the file `models.py`.
 
 #### Initialization
 
