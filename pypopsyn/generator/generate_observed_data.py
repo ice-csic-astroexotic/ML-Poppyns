@@ -459,7 +459,7 @@ if __name__ == "__main__":
         "--path_atnf",
         nargs="?",
         type=str,
-        default="data/observations/atnf_full_nobinary_25-04-2023.csv",
+        default="data/observations/atnf_full_nobinary_24-09-2024_with_errors.csv",
         help="Path, with the name of the csv included, to where the ATNF Pulsar Catalogue is located.",
     )
     parser.add_argument(
