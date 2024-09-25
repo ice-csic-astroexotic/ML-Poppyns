@@ -221,7 +221,7 @@ def simulate_population(args) -> None:
             "Pdot": [],
             "L_radio_bol": [],
             "S_radio_obs_mean": [],
-            "S1400": [],
+            "S_radio_obs_mean_1400": [],
             "w_int": [],
             "w_eff": [],
         }
@@ -243,7 +243,7 @@ def simulate_population(args) -> None:
             "Pdot": [],
             "L_radio_bol": [],
             "S_radio_obs_mean": [],
-            "S1400": [],
+            "S_radio_obs_mean_1400": [],
             "w_int": [],
             "w_eff": [],
         }
@@ -265,7 +265,7 @@ def simulate_population(args) -> None:
             "Pdot": [],
             "L_radio_bol": [],
             "S_radio_obs_mean": [],
-            "S1400": [],
+            "S_radio_obs_mean_1400": [],
             "w_int": [],
             "w_eff": [],
             "HTRU_low": [],
@@ -290,7 +290,7 @@ def simulate_population(args) -> None:
             "Pdot": [],
             "L_radio_bol": [],
             "S_radio_obs_mean": [],
-            "S1400": [],
+            "S_radio_obs_mean_1400": [],
             "w_int": [],
             "w_eff": [],
             "HTRU_low": [],
@@ -315,7 +315,7 @@ def simulate_population(args) -> None:
             "Pdot": [],
             "L_radio_bol": [],
             "S_radio_obs_mean": [],
-            "S1400": [],
+            "S_radio_obs_mean_1400": [],
             "w_int": [],
             "w_eff": [],
             "HTRU_low": [],
@@ -586,7 +586,7 @@ def simulate_population(args) -> None:
                     detected_radio_PMPS,
                     w_eff_PMPS,
                     S_radio_obs_mean_PMPS,
-                    S1400_PMPS,
+                    S_radio_obs_mean_1400_PMPS,
                 ) = survey_PMPS.detected_radio_population(
                     w_int_s,
                     DM,
@@ -617,7 +617,7 @@ def simulate_population(args) -> None:
                     detected_radio_SMPS,
                     w_eff_SMPS,
                     S_radio_obs_mean_SMPS,
-                    S1400_SMPS,
+                    S_radio_obs_mean_1400_SMPS,
                 ) = survey_SMPS.detected_radio_population(
                     w_int_s,
                     DM,
@@ -648,7 +648,7 @@ def simulate_population(args) -> None:
                     detected_radio_HTRU_low,
                     w_eff_HTRU_low,
                     S_radio_obs_mean_HTRU_low,
-                    S1400_HTRU_low,
+                    S_radio_obs_mean_1400_HTRU_low,
                 ) = survey_HTRU_low.detected_radio_population(
                     w_int_s,
                     DM,
@@ -670,7 +670,7 @@ def simulate_population(args) -> None:
                     detected_radio_HTRU_mid,
                     w_eff_HTRU_mid,
                     S_radio_obs_mean_HTRU_mid,
-                    S1400_HTRU_mid,
+                    S_radio_obs_mean_1400_HTRU_mid,
                 ) = survey_HTRU_mid.detected_radio_population(
                     w_int_s,
                     DM,
@@ -722,7 +722,7 @@ def simulate_population(args) -> None:
                     detected_radio_HTRU_high,
                     w_eff_HTRU_high,
                     S_radio_obs_mean_HTRU_high,
-                    S1400_HTRU_high,
+                    S_radio_obs_mean_1400_HTRU_high,
                 ) = survey_HTRU_high.detected_radio_population(
                     w_int_s,
                     DM,
@@ -792,7 +792,9 @@ def simulate_population(args) -> None:
                     "S_radio_obs_mean": S_radio_obs_mean_PMPS[
                         detected_radio_PMPS
                     ].tolist(),
-                    "S1400": S1400_PMPS[detected_radio_PMPS].tolist(),
+                    "S_radio_obs_mean_1400": S_radio_obs_mean_1400_PMPS[
+                        detected_radio_PMPS
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_PMPS].tolist(),
                     "w_eff": w_eff_PMPS[detected_radio_PMPS].tolist(),
                 }
@@ -822,7 +824,9 @@ def simulate_population(args) -> None:
                     "S_radio_obs_mean": S_radio_obs_mean_SMPS[
                         detected_radio_SMPS
                     ].tolist(),
-                    "S1400": S1400_SMPS[detected_radio_SMPS].tolist(),
+                    "S_radio_obs_mean_1400": S_radio_obs_mean_1400_SMPS[
+                        detected_radio_SMPS
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_SMPS].tolist(),
                     "w_eff": w_eff_SMPS[detected_radio_SMPS].tolist(),
                 }
@@ -857,7 +861,9 @@ def simulate_population(args) -> None:
                     "S_radio_obs_mean": S_radio_obs_mean_HTRU_low[
                         detected_radio_HTRU_low
                     ].tolist(),
-                    "S1400": S1400_HTRU_low[detected_radio_HTRU_low].tolist(),
+                    "S_radio_obs_mean_1400": S_radio_obs_mean_1400_HTRU_low[
+                        detected_radio_HTRU_low
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_HTRU_low].tolist(),
                     "w_eff": w_eff_HTRU_low[detected_radio_HTRU_low].tolist(),
                     "HTRU_low": np.ones(len(idx_det_HTRU_low)).tolist(),
@@ -894,7 +900,9 @@ def simulate_population(args) -> None:
                     "S_radio_obs_mean": S_radio_obs_mean_HTRU_mid[
                         detected_radio_HTRU_mid
                     ].tolist(),
-                    "S1400": S1400_HTRU_mid[detected_radio_HTRU_mid].tolist(),
+                    "S_radio_obs_mean_1400": S_radio_obs_mean_1400_HTRU_mid[
+                        detected_radio_HTRU_mid
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_HTRU_mid].tolist(),
                     "w_eff": w_eff_HTRU_mid[detected_radio_HTRU_mid].tolist(),
                     "HTRU_low": np.zeros(len(idx_det_HTRU_mid)).tolist(),
@@ -929,7 +937,7 @@ def simulate_population(args) -> None:
                     "S_radio_obs_mean": S_radio_obs_mean_HTRU_high[
                         detected_radio_HTRU_high
                     ].tolist(),
-                    "S1400": S1400_HTRU_high[
+                    "S_radio_obs_mean_1400": S_radio_obs_mean_1400_HTRU_high[
                         detected_radio_HTRU_high
                     ].tolist(),
                     "w_int": w_int_s[detected_radio_HTRU_high].tolist(),
@@ -1069,7 +1077,7 @@ def simulate_population(args) -> None:
                 "P_dot",
                 "L_radio_bol",
                 "S_radio_obs_mean",
-                "S1400",
+                "S_radio_obs_mean_1400",
                 "w_int",
                 "w_eff",
             ]
@@ -1112,7 +1120,7 @@ def simulate_population(args) -> None:
                 "P_dot",
                 "L_radio_bol",
                 "S_radio_obs_mean",
-                "S1400",
+                "S_radio_obs_mean_1400",
                 "w_int",
                 "w_eff",
                 "HTRU_low",

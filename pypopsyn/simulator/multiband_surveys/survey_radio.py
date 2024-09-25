@@ -545,7 +545,7 @@ class SurveyRadio:
             S_radio_bol,
             f=self.f_central,
         )
-        # Computing the intrinsic radio flux density in [Jy] at frequency 1.4 GHz to compare with MeerKAT fluxes.
+        # Computing the intrinsic radio flux density in [Jy] at frequency of 1.4 GHz to compare with MeerKAT fluxes.
         S_radio_f_1_4GHz = er.flux_density_radio(
             S_radio_bol,
             f=1.429e9,

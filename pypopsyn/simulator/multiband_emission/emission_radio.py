@@ -229,6 +229,7 @@ def flux_density_radio(
     S_radio_bol: np.ndarray,
     f: float,
     mean_spectral_index: float = -1.8,
+    std_spectral_index: float = 0.8,
     f_min: float = 1.0e7,
     f_max: float = 1.0e11,
 ) -> np.ndarray:
@@ -240,7 +241,9 @@ def flux_density_radio(
         S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
         f (float): frequency in [Hz] at which the radio luminosity has to be computed.
         mean_spectral_index (float): mean of the normal distribution of the spectral index of the radio emission,
-        assuming a power-law spectrum.
+            assuming a power-law spectrum.
+        std_spectral_index (float): standard deviation of the normal distribution of the spectral index of the radio emission,
+            assuming a power-law spectrum.
         f_min (float): frequency lower limit of the radio emission spectrum [Hz].
         f_max (float): frequency upper limit of the radio emission spectrum [Hz].
 
@@ -248,7 +251,7 @@ def flux_density_radio(
         (np.ndarray): intrinsic pulsar radio flux density in [Jy] at the frequency f.
     """
     spectral_index = np.random.normal(
-        mean_spectral_index, 0.8, len(S_radio_bol)
+        mean_spectral_index, std_spectral_index, len(S_radio_bol)
     )
 
     S_radio_f = (

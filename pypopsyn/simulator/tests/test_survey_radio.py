@@ -222,7 +222,7 @@ def test_detect_radio_population(test_case_1):
             detected_out,
             w_eff,
             S_radio_obs_mean,
-            S1400,
+            S_radio_obs_mean_1400,
         ) = PMPS.detected_radio_population(
             test_case_1["w_int_s"],
             test_case_1["DM"],

@@ -188,7 +188,7 @@ def create_survey_maps(
         data_type,
         df_survey["P"],
         df_survey["P_dot"],
-        np.log10(df_survey["S1400"]),
+        np.log10(df_survey["S_radio_obs_mean_1400"]),
         resolution_ppdot,
         resolution_ppdot,
         dictionary_ppdot_flux_map,
