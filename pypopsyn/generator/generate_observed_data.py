@@ -323,6 +323,26 @@ def generate_dataset(args: argparse.Namespace) -> None:
     # measurements are from the low- and mid- latitude surveys only.
     df_atnf_htru = df_atnf[df_atnf["SURVEY"].str.contains("htru_pks")]
 
+    # Extracting Galactic longitude, latitude, right ascension and declination, period and period derivative.
+    RA_htru_obs = df_atnf_htru["RAJD"].to_numpy().astype(np.float64)
+    DEC_htru_obs = df_atnf_htru["DECJD"].to_numpy().astype(np.float64)
+    b_htru_obs = df_atnf_htru["Gb"].to_numpy().astype(np.float64)
+    l_htru_obs = df_atnf_htru["Gl"].to_numpy().astype(np.float64)
+    P_htru_obs = df_atnf_htru["P0"].to_numpy().astype(np.float64)
+    Pdot_htru_obs = df_atnf_htru["P1"].to_numpy().astype(np.float64)
+
+    # Convert galactic latitude in the range [-180., 180].
+    l_htru_obs[(l_htru_obs > 180.0) & (l_htru_obs < 360.0)] = (
+        l_htru_obs[(l_htru_obs > 180.0) & (l_htru_obs < 360.0)] - 360.0
+    )
+
+    # Selection only pulsars falling in the HTRU sky coverage where completness is above 90%.
+    cond = (
+        (l_htru_obs > -120.0)
+        & (l_htru_obs < 30.0)
+        & (np.abs(b_htru_obs) < 15.0)
+    )
+
     # Merge the Meerkat TPA program data with the HTRU ATNF Pulsar Catalogue data to obtain MeerKAT flux measurements
     # for the HTRU pulsars.
     df_meerkat_htru = pd.merge(
@@ -330,10 +350,10 @@ def generate_dataset(args: argparse.Namespace) -> None:
     )
     df_meerkat_htru = df_meerkat_htru.dropna(subset=["ch6flux"])
 
-    RA_htru_obs = df_atnf_htru["RAJD"].to_numpy().astype(np.float64)
-    DEC_htru_obs = df_atnf_htru["DECJD"].to_numpy().astype(np.float64)
-    P_htru_obs = df_atnf_htru["P0"].to_numpy().astype(np.float64)
-    Pdot_htru_obs = df_atnf_htru["P1"].to_numpy().astype(np.float64)
+    RA_htru_obs = RA_htru_obs[cond]
+    DEC_htru_obs = DEC_htru_obs[cond]
+    P_htru_obs = P_htru_obs[cond]
+    Pdot_htru_obs = Pdot_htru_obs[cond]
 
     # We convert the [Jy] to [mJy] to compare with simulations.
     S1400_htru_meerkat = (
