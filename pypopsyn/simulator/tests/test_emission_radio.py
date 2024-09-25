@@ -7,6 +7,8 @@
             Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
+from unittest import mock
+
 import numpy as np
 import pytest
 
@@ -217,14 +219,17 @@ def test_flux_density_radio(test_case_1):
     """
     Verifying that the radio flux density at a given frequency f is correctly evaluated.
     """
+    with mock.patch(
+        "numpy.random.normal", return_value=np.array([-1.6, -1.6])
+    ):
 
-    S_radio_f_out = er.flux_density_radio(
-        test_case_1["S_radio_expected"],
-        test_case_1["f_survey"],
-        spectral_index=-1.6,
-        f_min=1.0e7,
-        f_max=1.0e11,
-    )
+        S_radio_f_out = er.flux_density_radio(
+            test_case_1["S_radio_expected"],
+            test_case_1["f_survey"],
+            mean_spectral_index=-1.6,
+            f_min=1.0e7,
+            f_max=1.0e11,
+        )
 
     assert np.isclose(
         test_case_1["S_radio_f_expected"],
