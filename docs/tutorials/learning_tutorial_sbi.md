@@ -149,6 +149,13 @@ predict.
     },
 }
 ```
+
+!!! note 
+
+     In the dataset loader for sbi we don't need to specify the batch size and the shuffle parameter.
+     The sbi library deals internally with shuffling the input dataset and the batch size is specified during the training procedure (see below).
+     If we were to use the data loader as in the other training script it would load the dataset in a format that is not compatible with sbi.
+
 The available input channels and labels are specified in the `dataset_train.csv` file, where they are identified with 
 an index starting from 0. Let us assume that our `dataset_train.csv` file looks as follows:
 ```commandline
