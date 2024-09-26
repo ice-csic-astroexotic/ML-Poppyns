@@ -110,7 +110,7 @@ To split a dataset into two subsets, one for training and the other for validati
 dataset that will form the validation subset by passing the argument `valid_split` in the `dataset_splitter.py` script. 
 For example:
 ```commandline
-python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --valid_split 0.2
+python pypopsyn/generator/dataset_splitter.py --dataset_path output/generator --valid_split 0.2
 ```
 This will create two files `dataset_train.csv` and `dataset_valid.csv` in the location of the `dataset_full.csv` file
 that will specify the specific simulation samples belonging to the train dataset (80% of the total dataset in this case)
@@ -122,7 +122,7 @@ Analogously, if we want to split the dataset into two subsets, one for training 
 a fraction of the total dataset that will form the test subset by passing the argument `test_split` in the 
 `dataset_splitter.py` script. For example:
 ```commandline
-python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --test_split 0.2
+python pypopsyn/generator/dataset_splitter.py --dataset_path output/generator --test_split 0.2
 ```
 The situation is identical to above apart from the fact that we now produce a `dataset_test.csv` file that contains 
 information on 20% randomly sampled test simulations.
@@ -132,7 +132,7 @@ arguments. In this case, the argument `test_split` sets the fraction of the tota
 purposes. The `valid_split` argument will then separate the remaining fraction of the dataset into validation and
 training sets. For example
 ```commandline
-python pypopsyn/generator/dataset_splitter.py --dataset_path generated_dataset --test_split 0.1 --valid_split 0.2
+python pypopsyn/generator/dataset_splitter.py --dataset_path output/generator --test_split 0.1 --valid_split 0.2
 ```
 generates a 10% test dataset. The remaining 90% will be split into 20% validation and 80% training, which equates to
 a validation dataset size of 18% and training dataset size of 72% of the entire initial dataset. The corresponding 
@@ -154,13 +154,13 @@ kind of density maps as outlined above for the observed pulsar population.
 
 To do this, we use the `pypopsyn/generator/generate_observed_data.py` script. We can, for example, run:
 ```commandline
-python pypopsyn/generator/generate_observed_data.py --path_atnf data/observations/atnf_full_nobinary_06-08-2024.csv --path_meerkat data/observations/meerkat_tpa_posselt_2023.csv --save_dir output/example_generator_observed --data_type array --resolution_dyn 32 --resolution_ppdot 32
+python pypopsyn/generator/generate_observed_data.py --path_atnf data/observations/atnf_full_nobinary_06-08-2024.csv --path_meerkat data/observations/meerkat_tpa_posselt_2023.csv --save_dir output/generator_observed --data_type array --resolution_dyn 32 --resolution_ppdot 32
 ```
 This will read the files `atnf_full_nobinary_06-08-2024.csv` and `meerkat_tpa_posselt_2023.csv` in the directory 
 `data/observations` and generate the maps.
 
 As for the scripts above, we can specify the map type (either `array` or `image`) with the argument `--data_type` and 
-the resolution with the arguments `--resolution_dyn` and `resolution_ppdot`. 
+the resolution with the arguments `--resolution_dyn` and `--resolution_ppdot`. 
 
 !!! note
     
