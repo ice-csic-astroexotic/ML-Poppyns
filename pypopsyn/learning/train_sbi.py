@@ -38,7 +38,7 @@ from sbi.inference import SNPE
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.initializers.initializers as learning_initializers
-import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
+import pypopsyn.learning.loaders.loader_multichannel_array as dl
 import pypopsyn.learning.models.models as learning_models
 import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
