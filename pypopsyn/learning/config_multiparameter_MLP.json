@@ -46,7 +46,7 @@
   "validation_data_loader": {
     "type": "LoaderMultichannelArray",
     "args": {
-      "dataset_path": "data/example_generator_magrot/dataset_train.csv",
+      "dataset_path": "data/example_generator_magrot/dataset_test.csv",
       "statistic_path": "data/example_generator_magrot/statistics_train.json",
       "batch_size": 8,
       "num_workers": 1,
@@ -105,7 +105,7 @@
 
   "trainer": {
     "epochs": 1024,
-    "save_dir": "data/example_learning",
+    "save_dir": "data/example_learning_nn",
     "save_period": 1000,
     "verbosity": 1,
     "early_stop": 128,
@@ -113,6 +113,6 @@
   },
 
   "infer": {
-    "save_dir": "data/example_inference"
+    "save_dir": "data/example_inference_nn"
   }
 }

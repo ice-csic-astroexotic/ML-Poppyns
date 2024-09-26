@@ -37,7 +37,7 @@ nav:
   - Tutorials:
       - tutorials/simulator_tutorial.md
       - tutorials/generator_tutorial.md
-      - tutorials/learning_tutorial_cnn.md
+      - tutorials/learning_tutorial_nn.md
       - tutorials/learning_tutorial_sbi.md
       - tutorials/experiment_launcher.md
   - Code:

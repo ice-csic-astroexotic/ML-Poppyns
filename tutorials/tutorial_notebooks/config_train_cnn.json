@@ -105,7 +105,7 @@
 
   "trainer": {
     "epochs": 256,
-    "save_dir": "output/learning",
+    "save_dir": "output/learning_nn",
     "save_period": 1000,
     "verbosity": 1,
     "early_stop": 128,
@@ -113,6 +113,6 @@
   },
 
   "infer": {
-    "save_dir": "output/inference"
+    "save_dir": "output/inference_nn"
   }
 }

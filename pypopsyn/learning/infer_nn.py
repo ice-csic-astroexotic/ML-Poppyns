@@ -6,7 +6,7 @@
 
     Display help message to run the code:
 
-    python infer.py --help
+    python infer_nn.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -168,7 +168,7 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="pypopsyn/learning/config_multiparameter_MLP.json",
+        default="pypopsyn/learning/config_multiparameter_CNN.json",
         help="Configuration file path.",
     )
 

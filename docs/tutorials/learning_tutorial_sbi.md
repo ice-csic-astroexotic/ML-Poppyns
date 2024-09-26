@@ -9,7 +9,7 @@ estimation with complex simulators like those developed for pulsar population sy
 the [sbi](https://sbi-dev.github.io/sbi/) library ([Tejero-Cantero et al., 2020](https://arxiv.org/abs/2007.09114)).
 
 For a discussion of how neural networks can be used to infer point estimates (without quantifying uncertainties) see
-[Learning pulsar parameters with NNs](learning_tutorial_cnn.md).
+[Learning pulsar parameters with NNs](learning_tutorial_nn).
 
 ## Amortized NPE
 
