@@ -326,6 +326,10 @@ Moreover, each subfolder in the `logs` directory contains the following three `.
 * `valid_results.json` with the validation loss evolution in physical units, i.e., we have corrected for
      normalization or standardization if they were applied.
 
+In this files the loss for each label is reported together with a total loss, named `loss`, which is the sum 
+of the losses of the labels, and an accuracy metric which in the case of `MetricAccuracyMAE`, `MetricAccuracyMSE` 
+and `MetricAccuracyRMSE` is the average of the losses of the individual labels.
+
 Finally, each subfolder in the `models` directory contains the saved best trained model in `.pth` format. This model
 will be used for the inferring on an unseen dataset as outlined below.
 
