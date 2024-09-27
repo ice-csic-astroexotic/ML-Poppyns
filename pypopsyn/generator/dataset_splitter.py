@@ -149,7 +149,7 @@ def main(args: argparse.Namespace) -> None:
             args.dataset_path, "statistics_train.json"
         )
         with open(train_statistics_dump_path, "w") as f:
-            json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
+            json.dump(statistics_dictionary, f, indent=4)
 
         log.info("Files statistics_train.json generated")
 
@@ -190,7 +190,7 @@ def main(args: argparse.Namespace) -> None:
             args.dataset_path, "statistics_train.json"
         )
         with open(train_statistics_dump_path, "w") as f:
-            json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
+            json.dump(statistics_dictionary, f, indent=4)
 
         log.info("Files statistics_train.json generated")
 

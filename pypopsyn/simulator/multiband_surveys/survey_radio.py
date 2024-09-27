@@ -3,9 +3,9 @@
 
     We consider the following surveys:
 
-    1. PMPS: the Parks Multibeam Pulsar Survey (see Manchester et al. 2001, Lorimer et al. 2006)
-    2. SMPS: the Swinburne Parkes Multibeam Pulsar Survey (see Edwards et al. 2001, Jacoby et al. 2009)
-    3. HTRU: the High Time Resolution Universe Survey (see Keith et al. 2018)
+    1) PMPS: the Parks Multibeam Pulsar Survey (see Manchester et al. 2001, Lorimer et al. 2006)
+    2) SMPS: the Swinburne Parkes Multibeam Pulsar Survey (see Edwards et al. 2001, Jacoby et al. 2009)
+    3) HTRU: the High Time Resolution Universe Survey (see Keith et al. 2010)
 
     Authors:
 
@@ -511,7 +511,7 @@ class SurveyRadio:
         l_gal: np.ndarray,
         b_gal: np.ndarray,
         S_radio_bol,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
         """
         Compute the pulsars detected by a survey.
@@ -528,8 +528,9 @@ class SurveyRadio:
             S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of three arrays defining the indexes of the
-                pulsars detected by the survey, the effective pulse width and period-averaged flux.
+            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of four arrays defining the
+                indexes of the pulsars detected by the survey, the effective pulse width and period-averaged fluxes at
+                the central frequency of the survey and at 1.429 GHz.
         """
 
         # Computing the intrinsic radio flux density in [Jy].
@@ -537,7 +538,11 @@ class SurveyRadio:
             S_radio_bol,
             f=self.f_central,
         )
-
+        # Computing the intrinsic radio flux density in [Jy] at a frequency of 1.4 GHz to compare with MeerKAT fluxes.
+        S_radio_f_1_4GHz = er.flux_density_radio(
+            S_radio_bol,
+            f=1.429e9,
+        )
         # Compute the effective pulse width in [s].
         w_eff = effective_pulse_width(
             w_int_s,
@@ -549,9 +554,13 @@ class SurveyRadio:
 
         # Compute the observed radio flux in [Jy].
         S_radio_obs = flux_radio_obs(S_radio_f, w_int_s, w_eff)
+        S_radio_obs_1_4GHz = flux_radio_obs(S_radio_f_1_4GHz, w_int_s, w_eff)
 
         # Compute the period-averaged flux in [Jy].
         S_radio_obs_mean = flux_radio_obs_period_average(S_radio_obs, P, w_eff)
+        S_radio_obs_mean_1_4GHz = flux_radio_obs_period_average(
+            S_radio_obs_1_4GHz, P, w_eff
+        )
 
         detected_radio = np.zeros(len(age), dtype=bool)
 
@@ -563,7 +572,7 @@ class SurveyRadio:
             P[coverage],
         )
 
-        return detected_radio, w_eff, S_radio_obs_mean
+        return detected_radio, w_eff, S_radio_obs_mean, S_radio_obs_mean_1_4GHz
 
     def detected_radio_population_full(
         self,

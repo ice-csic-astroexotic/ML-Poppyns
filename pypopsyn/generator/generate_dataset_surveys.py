@@ -188,7 +188,7 @@ def create_survey_maps(
         data_type,
         df_survey["P"],
         df_survey["P_dot"],
-        np.log10(df_survey["S_radio_obs_mean"]),
+        np.log10(df_survey["S_radio_obs_mean_1400"]),
         resolution_ppdot,
         resolution_ppdot,
         dictionary_ppdot_flux_map,
@@ -367,7 +367,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         dataset_path, "statistics_full.json"
     )
     with open(statistics_dump_path, "w") as f:
-        json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
+        json.dump(statistics_dictionary, f, indent=4)
 
     log.info("Files statistics_full.json generated")
 

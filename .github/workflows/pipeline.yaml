@@ -23,7 +23,7 @@ jobs:
       # Free up disk space to avoid action failing.
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
-      # Check out the code given in the repo.
+      # Check out the full code given in the repo.
       - name: Checkout code
         uses: actions/checkout@v4
       # Setup miniconda and create the (empty) environment.
