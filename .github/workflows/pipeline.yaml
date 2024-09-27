@@ -46,10 +46,10 @@ jobs:
       - name: Create environment
         run: conda env create --file environment.yaml --yes
         if: steps.cache.outputs.cache-hit != 'true'
-      - name: Verify f2c installation
-        run: |
-          conda activate pop_syn
-          ls -l /usr/lib | grep f2c
+      - name: Activate environment
+        run: conda activate pop_syn
+      - name: Check f2c libraries
+        run: find $CONDA_PREFIX -name "libf2c.*"
       - name: Install pygedm
         run: python -m pip install git+https://github.com/MicheleRonchi/pygedm.git@numpy-array-issue21 --verbose
       # As the pip dependencies are not installed in /usr/share/miniconda/envs/pop_syn
