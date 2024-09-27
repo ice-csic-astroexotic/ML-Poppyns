@@ -316,7 +316,7 @@ training will create two folders in this directory, namely a `logs` folder and a
 subfolders for each specific training experiment of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes 
 the date and time when the experiment was launched.
 
-Moreover, each subfolder in the `logs` directory contains the following three `.json` files:
+Each subfolder in the `logs` directory contains a `log.txt` file with the terminal output and the following three `.json` files:
 
 * `train_results.json` with the training loss evolution as a function of training epochs. 
     If the labels where normalized or standardized, this training loss is also normalized or standardized
@@ -326,12 +326,13 @@ Moreover, each subfolder in the `logs` directory contains the following three `.
 * `valid_results.json` with the validation loss evolution in physical units, i.e., we have corrected for
      normalization or standardization if they were applied.
 
-In this files the loss for each label is reported together with a total loss, named `loss`, which is the sum 
-of the losses of the labels, and an accuracy metric which in the case of `MetricAccuracyMAE`, `MetricAccuracyMSE` 
-and `MetricAccuracyRMSE` is the average of the losses of the individual labels.
+In these files, for each training epoch, we report the loss for each parameter that our network learns plus the total 
+loss, simply named `loss`, which is the sum of the losses of all trainable parameters. In addition, these files also 
+quote an accuracy metric for each epoch, which in the case of `MetricAccuracyMAE`, `MetricAccuracyMSE` and 
+`MetricAccuracyRMSE` is the average of the losses of the individual parameters.
 
-Finally, each subfolder in the `models` directory contains the saved best trained model in `.pth` format. This model
-will be used for the inferring on an unseen dataset as outlined below.
+Finally, each subfolder in the `models` directory contains the saved best-trained model in `.pth` format. This model
+will be used when inferring on an unseen dataset as outlined below.
 
 ## Inferring on a dataset
 
