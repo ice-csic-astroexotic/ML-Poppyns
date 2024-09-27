@@ -121,8 +121,8 @@ Next, we define our training data loader, which is responsible for loading the d
 by the network. Depending on whether our maps were generated as `.png` images or `.npy` arrays, we set the type to 
 `LoaderMultichannelImage` or `LoaderMultichannelArray`, respectively. We also specify the path to the directory 
 containing the training dataset (specifically the `dataset_train.csv` file) and the JSON file characterizing the 
-statistics of the training dataset, the batch size, the number of workers, i.e., the number of cores to use in case 
-one wants to load the dataset in parallel, the input channels used in building our (multichannel) 
+statistics of the training dataset, the batch size, the number of workers, i.e., the number of cores used when 
+loading the dataset in parallel, the input channels used in building our (multichannel) 
 input and the ground truth labels that we want to predict. 
 ```commandline
 {
@@ -193,10 +193,10 @@ this
 
 !!! warning
 
-    The `batch_size` and the `shuffle` parameters can differ from the training data loader. 
-    However the validation loader requires the same set-up as the training data loader. That means that the `type`, 
-    `filter_inputs`, `filter_labels`, `normalize` and `standardize` options have to be indentical to those in the
-    training data loader.
+    Several of the validation loader fields have to be identical to those in the training data loader. In particular,
+    the `type`, `filter_inputs`, `filter_labels`, `normalize` and `standardize` options have to be the same, while
+    the `batch_size`, `num_workers` and `shuffle` parameters can differ from the training data loader. If the former
+    do not match, an error will be raised.
 
 #### Optimizer
 
