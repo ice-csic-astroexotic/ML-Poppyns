@@ -34,7 +34,7 @@ class DatasetMultichannelImage:
         Import dataset statistics for normalization and standardization.
 
         This routine import the training dataset statistics that might be needed for
-        input/targets normalization and standardization like mean, standard
+        targets normalization and standardization like mean, standard
         deviation, minimum and maximum.
 
         Args:
@@ -108,9 +108,9 @@ class DatasetMultichannelImage:
                 will be considered by the loader.
             filter_labels (list): Indices of the target/labels columns in the
                 dataset that will be considered by the loader.
-            normalize (bool): Whether to normalize inputs and targets or not on
+            normalize (bool): Whether to normalize targets or not on
                 the fly while loading samples.
-            standardize (bool): Whether or not to standardize inputs and targets
+            standardize (bool): Whether or not to standardize targets
                 on the fly while loading samples.
             transform (Optional[Callable]): Transformations to apply to the images.
         """
@@ -227,8 +227,8 @@ class LoaderMultichannelImage(LoaderBase):
                 dataset that will be considered by the loader.
             num_workers (int): Workers to load the data.
             shuffle (bool): Shuffle the samples or not.
-            normalize (bool): Whether to normalize inputs and targets or not.
-            standardize (bool): Whether or not to standardize inputs and targets.
+            normalize (bool): Whether to normalize targets or not.
+            standardize (bool): Whether or not to standardize targets.
         """
 
         transformation = torchvision.transforms.ToTensor()

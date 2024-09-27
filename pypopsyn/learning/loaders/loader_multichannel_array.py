@@ -8,9 +8,11 @@
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import json
+from typing import Callable, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -29,21 +31,17 @@ class DatasetMultichannelArray:
     tensor for the loader. Labels will be generated as a vector.
     """
 
-    def __import_statistics(self, statistic_path):
+    def __import_statistics(self, statistic_path: str) -> None:
         """
         Import dataset statistics for normalization and standardization.
 
         This routine import the training dataset statistics that might be needed for
         input/targets normalization and standardization like mean, standard
-        deviation, minimum, maximum...
+        deviation, minimum and maximum.
 
         Args:
-            statistic_path (str): path to the statistics.json file containing the statistics
+            statistic_path (str): Path to the statistics.json file containing the statistics
                 of the training dataset.
-
-        Returns:
-            Nothing.
-
         """
 
         # Load statistics from JSON file.
@@ -77,16 +75,9 @@ class DatasetMultichannelArray:
             dtype=np.float32,
         )
 
-    def __fetch_target_names(self):
+    def __fetch_target_names(self) -> None:
         """
         Fetch the names of the targets/labels from the dataset file.
-
-        Args:
-            None.
-
-        Returns:
-            Nothing.
-
         """
 
         self.target_names = []
@@ -99,35 +90,31 @@ class DatasetMultichannelArray:
 
     def __init__(
         self,
-        dataset_path,
-        statistic_path,
-        filter_channels=[],
-        filter_labels=[],
-        normalize=False,
-        standardize=False,
-        transform=None,
+        dataset_path: str,
+        statistic_path: str,
+        filter_channels: list = [],
+        filter_labels: list = [],
+        normalize: bool = False,
+        standardize: bool = False,
+        transform: Optional[Callable] = None,
     ) -> None:
         """
         Initialization or constructor routine for the dataset.
 
         Args:
-            dataset_path (str): path to the dataset.csv file containing all the
+            dataset_path (str): Path to the dataset.csv file containing all the
                 information on the dataset.
-            statistic_path (str): path to the statistics.json file containing the statistics
+            statistic_path (str): Path to the statistics.json file containing the statistics
                 of the training dataset.
-            filter_channels (list): indices of the input columns of the dataset that
+            filter_channels (list): Indices of the input columns of the dataset that
                 will be considered by the loader.
-            filter_labels (list): indices of the target/labels columns in the
+            filter_labels (list): Indices of the target/labels columns in the
                 dataset that will be considered by the loader.
-            normalize (bool): whether to normalize inputs and targets or not on
+            normalize (bool): Whether to normalize inputs and targets or not on
                 the fly while loading samples.
-            standardize (bool): whether or not to standardize inputs and targets
+            standardize (bool): Whether or not to standardize inputs and targets
                 on the fly while loading samples.
-            transform: transformations to apply to the arrays.
-
-        Returns:
-            Nothing.
-
+            transform (Optional[Callable]): Transformations to apply to the arrays.
         """
 
         self.normalize = normalize
@@ -145,31 +132,28 @@ class DatasetMultichannelArray:
         self.__import_statistics(statistic_path)
         self.__fetch_target_names()
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Length of the dataset (number of samples).
 
         Returns:
-            int: length of the dataset
-
+            (int): Length of the dataset
         """
         return len(self.dataset)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Tuple[np.ndarray, np.ndarray]:
         """
         Read the dataset and extract the arrays and the corresponding labels.
 
         Args:
-            index (int): index running along the rows of the dataset CSV file.
+            index (int): Index running along the rows of the dataset CSV file.
 
         Returns:
-            np.ndarray: multi-channel 2D array composed by stacking all input
-            arrays specified in the dataset for the requested sample with
-            shape N x N x channels where N is the number of entries along a
-            row or column of the array in the .npy file.
-
-            np.ndarray: labels for the requested sample.
-
+            (Tuple[np.ndarray, np.ndarray]): Tuple consisting of a multi-channel 2D array
+                with shape N x N x channels (where N is the number of entries
+                along a row or column of the array in the .npy file) composed by stacking
+                all input arrays specified in the dataset for the requested sample
+                and the corresponding labels for the requested sample.
         """
 
         channels = []
@@ -257,26 +241,22 @@ class LoaderMultichannelArray(LoaderBase):
         shuffle: bool = False,
         normalize: bool = False,
         standardize: bool = False,
-    ):
+    ) -> None:
         """
         Data loader for a multi-channel array-based dataset. The dataset is
         expected to be packed in a dataset.csv file and contain paths to .npy
         files to be loaded.
 
         Args:
-            dataset_path (string): path to the dataset.
-            statistic_path (string): path to the dataset.
+            dataset_path (string): Path to the dataset.
+            statistic_path (string): Path to the dataset.
             batch_size (int): Number of samples per batch.
             filter_inputs (list): Indices of columns in the dataset to consider.
             filter_labels (list): Indices of columns with labels to consider.
             num_workers (int): Workers to load the data.
             shuffle (bool): Shuffle the samples or not.
-            normalize (bool): whether to normalize inputs and targets or not.
-            standardize (bool): whether or not to standardize inputs and targets.
-
-        Returns:
-            Nothing.
-
+            normalize (bool): Whether to normalize inputs and targets or not.
+            standardize (bool): Whether or not to standardize inputs and targets.
         """
 
         transformation = torchvision.transforms.ToTensor()
