@@ -383,7 +383,7 @@ To use the inference script, we need to provide a pretrained model (`--trained_m
 the experiment that generated the corresponding model (`--configuration`). For instance, we could run the following
 command:
 ```commandline
-python pypopsyn/learning/infer_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json --trained_model output/learning/models/Convolution/20240725_175854/best_model_trial1.pth
+python pypopsyn/learning/infer_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json --trained_model data/example_learning_nn/models/Convolution/20240926_113426/best_model_trial1.pth
 ```
 
 We can also use the `--samples` argument to provide a list of specific samples we would like to infer on (their indices 
