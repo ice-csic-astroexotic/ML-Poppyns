@@ -274,12 +274,11 @@ In this example, the learning rate is multiplied by `0.1` after `128` training e
 #### Training parameters
 
 Finally, we specify some general options for our machine learning experiment. `Epochs` controls the total number of 
-epochs we set for our optimization, `save_dir` the directory path to where we save the best model and relevant 
-logging information. The `verbosity` parameter sets the logging level, `0` for `WARNING`, `1` for `INFO` and `2` for `DEBUG`) . 
-The `save_period` parameter sets the number of epochs after which saving a checkpoint of the current status of the network 
-that is being trained even if it has not converged yet. We can also set an `early_stop`, i.e., the number of epochs 
-after which stop training if the validation loss is not improving, in order to avoid overfitting.
-Finally the `tensorboard` option controls if the training info will be saved into a tensorboard log file.
+epochs we set for our optimization, and `save_dir` the directory path to where we save the best model and relevant 
+logging information. The `verbosity` parameter sets the logging level, with `0` for `WARNING`, `1` for `INFO` and `2` for `DEBUG`. Moreover, the `save_period` parameter sets the number of epochs after which the network status is 
+saved during training even if convergence has not been reached yet. We can also set an `early_stop`, i.e., the 
+number of epochs after which stop training if the validation loss is not improving, in order to avoid overfitting.
+Finally, the `tensorboard` option controls if the training info will be saved into a tensorboard log file.
 ```commandline
 {
     "trainer": {
