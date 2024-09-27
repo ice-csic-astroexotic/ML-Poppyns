@@ -46,20 +46,6 @@ jobs:
       - name: Create environment
         run: conda env create --file environment.yaml --yes
         if: steps.cache.outputs.cache-hit != 'true'
-      - name: Upgrade pip, setuptools, and wheel to specific versions
-        run: |
-          pip install --upgrade pip==23.2.1
-          pip install setuptools==72.1.0 wheel==0.43.0 pybind11==2.13.1
-      - name: Print environment details
-        run: |
-          python --version
-          gcc --version
-          g++ --version
-          pip list
-          lsb_release -a
-          uname -a
-      - name: Install pygedm with PEP 517
-        run: pip install pygedm --use-pep517 --config-settings="build_ext.include_dirs=${CONDA_PREFIX}/include:/usr/local/include"
       # As the pip dependencies are not installed in /usr/share/miniconda/envs/pop_syn
       # and therefore not cached, we update the environment every time to add pip dependencies.
       - name: Install pip dependencies
