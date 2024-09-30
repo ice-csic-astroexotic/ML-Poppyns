@@ -10,5 +10,5 @@ python pypopsyn/generator/generate_dataset_surveys.py --data data/example_simula
 
 In order to split the dataset and use 80% for training/validation and 20% for testing, we use the following command:
 ```commandline
-python pypopsyn/generator/dataset_splitter.py --dataset_path data/example_generator_magrot --valid_split 0.2
+python pypopsyn/generator/dataset_splitter.py --dataset_path data/example_generator_magrot --test_split 0.2
 ```
