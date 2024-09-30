@@ -71,7 +71,8 @@ class TrainerBasic(BaseTrainer):
 
         if self.train_loader.normalize and self.train_loader.standardize:
             self.logger.error(
-                "Standardization and normalization enabled for train loader..."
+                "Error: Both standardization and normalization enabled for the train loader. "
+                "You should choose only one of the two options."
             )
             exit()
 
@@ -92,7 +93,8 @@ class TrainerBasic(BaseTrainer):
 
             if self.val_loader.normalize and self.val_loader.standardize:
                 self.logger.error(
-                    "Standardization and normalization enabled for validation loader..."
+                    "Error: Both standardization and normalization enabled for the validation loader. "
+                    "You should choose only one of the two options."
                 )
                 exit()
 
