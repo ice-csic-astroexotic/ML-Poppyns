@@ -50,6 +50,7 @@ jobs:
         run: conda activate pop_syn
       - name: Check f2c libraries
         run: find $CONDA_PREFIX -name "libf2c.*"
+      - name: Check f2c libraries part 2
         run: conda list | grep f2c
       # As the pip dependencies are not installed in /usr/share/miniconda/envs/pop_syn
       # and therefore not cached, we update the environment every time to add pip dependencies.
