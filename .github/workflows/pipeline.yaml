@@ -25,6 +25,9 @@ jobs:
       # Check out the full code given in the repo.
       - name: Checkout code
         uses: actions/checkout@v4
+      # Install libf2c library that is needed to build the package pygedm.
+      - name: Install libf2c library
+        run: sudo apt install libf2c2-dev
       # Setup miniconda and create the (empty) environment.
       # Note: this does not install any packages yet but activates the environment.
       - name: Setup miniconda
@@ -43,13 +46,9 @@ jobs:
       # Create full environment if key from previous step does not match a key stored in the cache.
       # E.g., if environment.yaml has been modified, keys won't match and the full environment is recreated.
       # We use the --yes attribute to recreate the environment with the same name.
-      - name: Install libf2c libraries
-        run: sudo apt install libf2c2-dev
       - name: Create environment
         run: conda env create --file environment.yaml --yes
         if: steps.cache.outputs.cache-hit != 'true'
-      - name: Activate environment
-        run: conda activate pop_syn
       # As the pip dependencies are not installed in /usr/share/miniconda/envs/pop_syn
       # and therefore not cached, we update the environment every time to add pip dependencies.
       - name: Install pip dependencies
