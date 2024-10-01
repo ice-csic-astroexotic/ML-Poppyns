@@ -43,21 +43,17 @@ jobs:
       # Create full environment if key from previous step does not match a key stored in the cache.
       # E.g., if environment.yaml has been modified, keys won't match and the full environment is recreated.
       # We use the --yes attribute to recreate the environment with the same name.
+      - name: Install libf2c libraries
+        run: sudo apt install libf2c2-dev
       - name: Create environment
         run: conda env create --file environment.yaml --yes
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Activate environment
         run: conda activate pop_syn
-      - name: Check f2c libraries
-        run: find $CONDA_PREFIX -name "libf2c.*"
-      - name: Check f2c libraries part 2
-        run: conda list | grep f2c
       # As the pip dependencies are not installed in /usr/share/miniconda/envs/pop_syn
       # and therefore not cached, we update the environment every time to add pip dependencies.
       - name: Install pip dependencies
         run: conda env update -n pop_syn --file environment.yaml
-      - name: Install pygedm
-        run: pip install git+https://github.com/MicheleRonchi/pygedm.git@numpy-array-issue21 --verbose
       # Install our software package in the standard way.
       - name: Install package in development mode
         run: python setup.py develop

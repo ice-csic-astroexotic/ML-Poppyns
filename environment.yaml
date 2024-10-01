@@ -38,4 +38,4 @@ dependencies:
   - pip:
       - pydeps
       #- pygedm --use-pep517 --config-settings="build_ext.include_dirs=${CONDA_PREFIX}/include:/usr/local/include"
-      #- git+https://github.com/MicheleRonchi/pygedm.git@numpy-array-issue21#egg=pygedm --verbose
+      - git+https://github.com/MicheleRonchi/pygedm.git@numpy-array-issue21#egg=pygedm
