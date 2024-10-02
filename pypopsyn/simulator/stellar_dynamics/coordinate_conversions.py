@@ -22,11 +22,7 @@ def check_radial_coordinate(r: np.ndarray) -> None:
     Check that the distance from the origin is not negative.
 
     Args:
-        r (np.ndarray): distance from the origin in units of length.
-
-    Returns:
-        Returns None if r greater than or equal to 0,
-        otherwise raises ValueError.
+        r (np.ndarray): Distance from the origin in units of length.
     """
     if np.any(r < 0):
         raise ValueError("One of the radial coordinates is out of range.")
@@ -39,12 +35,11 @@ def polar_to_cartesian(
     Calculating the Cartesian x and y coordinates from plane polar r and phi.
 
     Args:
-        r (np.ndarray): radial component (magnitude of the vector) in plane polar
-        coordinates, r>0.
-        phi (np.ndarray): angular coordinate, [0, 2*pi].
+        r (np.ndarray): Radial component (magnitude of the vector) in plane polar coordinates, r>0.
+        phi (np.ndarray): Angular coordinate, [0, 2*pi].
 
     Returns:
-        (np.ndarray, np.ndarray): x and y coordinates in a Cartesian system.
+        (Tuple[np.ndarray, np.ndarray]): x and y coordinates in a Cartesian system.
     """
 
     x = r * np.cos(phi)
@@ -61,13 +56,12 @@ def spherical_to_cartesian(
     r, theta and psi.
 
     Args:
-        r (np.ndarray): radial component (magnitude of the vector) in spherical
-        coordinates, r>0.
-        theta (np.ndarray): polar angle, [0, pi].
-        psi (np.ndarray): azimuthal angle, [0, 2*pi].
+        r (np.ndarray): Radial component (magnitude of the vector) in spherical coordinates, r>0.
+        theta (np.ndarray): Polar angle, [0, pi].
+        psi (np.ndarray): Azimuthal angle, [0, 2*pi].
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray): x, y and z coordinates in a Cartesian system.
+        (Tuple[np.ndarray, np.ndarray, np.ndarray]): x, y and z coordinates in a Cartesian system.
     """
 
     x = r * np.sin(theta) * np.cos(psi)
@@ -85,15 +79,14 @@ def speed_cylindrical_to_cartesian(
     from cylindrical galactocentric components v_r, v_phi and v_z.
 
     Args:
-        v_r (np.ndarray): radial velocity component in a cylindrical galactocentric frame.
-        v_phi (np.ndarray): azimuthal velocity component in a cylindrical
-        galactocentric frame.
+        v_r (np.ndarray): Radial velocity component in a cylindrical galactocentric frame.
+        v_phi (np.ndarray): Azimuthal velocity component in a cylindrical galactocentric frame.
         v_z (np.ndarray): z velocity component in a cylindrical galactocentric frame.
-        phi (np.ndarray): azimuthal angle [0, 2*pi] in cylindrical coordinates.
+        phi (np.ndarray): Azimuthal angle [0, 2*pi] in cylindrical coordinates.
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray): v_x, v_y and v_z velocity components in a Cartesian
-        galactocentric frame.
+        (Tuple[np.ndarray, np.ndarray, np.ndarray]): v_x, v_y and v_z velocity components in a Cartesian
+            galactocentric frame.
     """
 
     v_x = v_r * np.cos(phi) - v_phi * np.sin(phi)
@@ -113,14 +106,11 @@ def galactocentric_to_icrs(
     np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray
 ]:
     """
-    Calculating the ICRS (International Celestial Reference Frame) coordinates RA,
-    DEC, distance and proper velocities v_RA, v_DEC, v_ls from galactocentric
-    spatial coordinates and velocities x, y, z, v_x, v_y and v_z. This
-    galactocentric coordinates refers to the galactocentric reference frame used in
-    the simulation defined as a right-handed reference frame with the Sun located
-    at the coordinate point (x = 0 kpc, y = 8.5 kpc, z = 0.02 kpc).
-    We use the astropy.coordinates package that allows automatic conversions
-    between coordinate systems.
+    Calculating the ICRS (International Celestial Reference Frame) coordinates RA, DEC, distance and proper velocities
+    v_RA, v_DEC, v_ls from galactocentric spatial coordinates and velocities x, y, z, v_x, v_y and v_z. This
+    galactocentric coordinates refers to the galactocentric reference frame used in the simulation defined as a
+    right-handed reference frame with the Sun located at the coordinate point (x = 0 kpc, y = 8.5 kpc, z = 0.02 kpc).
+    We use the astropy.coordinates package that allows automatic conversions between coordinate systems.
 
     Args:
         x (np.ndarray): x coordinate in [kpc] in galactocentric reference frame.
@@ -131,9 +121,9 @@ def galactocentric_to_icrs(
         v_z (np.ndarray): z velocity component in [km/s] in galactocentric reference frame.
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray): RA, DEC coordinates in [deg],
-        distance from the ICRS origin in [kpc], proper motion pm_RA, pm_DEC components
-        in [mas/yr] in the ICRS reference frame and the line of sight velocity in [km/s].
+        (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): RA, DEC coordinates in [deg],
+            distance from the ICRS origin in [kpc], proper motion pm_RA, pm_DEC components
+            in [mas/yr] in the ICRS reference frame and the line of sight velocity in [km/s].
     """
 
     # Set the astropy galactocentric frame with the parameter
@@ -198,16 +188,14 @@ def galactocentric_to_galactic(
     np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray
 ]:
     """
-    Calculating the galactic longitude l, galactic latitude b, distance,
-    pm_l, pm_b proper motion components and line of sight velocity v_ls from the
-    galactocentric coordinates x, y, z and velocity v_x, v_y, v_z.
-    The galactocentric coordinates refer to the galactocentric reference frame
-    defined as a right-handed reference frame with the Sun located at the coordinate
-    point (x = 0 kpc, y = 8.3 kpc, z = 0.02 kpc).
-    We use the astropy.coordinates package that allows automatic conversions
-    between coordinate systems. l = 0 deg, b = 0 deg corresponds to the location of the Galactic
-    center, l increase anticlockwise (in the direction of galactic rotation as seen from the Sun)
-    and ranges in the interval [-180, 180] deg while b is in the range [-90, 90] deg.
+    Calculating the galactic longitude l, galactic latitude b, distance, pm_l, pm_b proper motion components and line
+    of sight velocity v_ls from the galactocentric coordinates x, y, z and velocity v_x, v_y, v_z.
+    The galactocentric coordinates refer to the galactocentric reference frame defined as a right-handed reference
+    frame with the Sun located at the coordinate point (x = 0 kpc, y = 8.3 kpc, z = 0.02 kpc).
+    We use the astropy.coordinates package that allows automatic conversions between coordinate systems. l = 0 deg,
+    b = 0 deg corresponds to the location of the Galactic center, l increase anticlockwise (in the direction of
+    galactic rotation as seen from the Sun) and ranges in the interval [-180, 180] deg while b is in the range
+    [-90, 90] deg.
 
     Args:
         x (np.ndarray): x coordinate in [kpc] in the galactocentric reference frame.
@@ -218,9 +206,9 @@ def galactocentric_to_galactic(
         v_z (np.ndarray): z component of the velocity in [km/s] in galactocentric reference frame.
 
     Returns:
-        (np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray): galactic longitude l,
-        galactic latitude b in [deg], distance in [kpc], pm_l, pm_b proper motion components in [mas/yr]
-        and line of sight velocity v_ls in [km/s].
+        (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Galactic longitude l,
+            Galactic latitude b in [deg], distance in [kpc], pm_l, pm_b proper motion components in [mas/yr]
+            and line of sight velocity v_ls in [km/s].
     """
 
     # The galactocentric reference frame used for the input is a right-handed

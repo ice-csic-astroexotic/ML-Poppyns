@@ -5,12 +5,12 @@
     and the respective objects evolved in time according to their age.
     We simulate both the dynamical evolution in the Galaxy and the magneto-rotational
     evolution.
-    Finally we model the radio emission and simulate the detection from two radio surveys,
+    Finally, we model the radio emission and simulate the detection from two radio surveys,
     Parkes multibeam (PMPS) and Swinburne (SMPS).
 
     Display help message to run the code:
 
-    python simulate_population_full.py --h
+    python simulate_population_full.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -50,21 +50,20 @@ from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
 
+# Suppressing healpy related logging output.
+logging.getLogger("healpy").setLevel(logging.WARNING)
 
-def simulate_population(args) -> None:
+
+def simulate_population(args: argparse.Namespace) -> None:
     """
     Generating a neutron star population starting from some initial
     conditions and dynamically evolving it forward in time.
 
     Args:
-        args:
-            save_dir (pathlib.Path): Output directory for the run.
-            json_override_path (pathlib.Path): Path to JSON with parameter overrides.
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
 
-    Returns:
-
-        Nothing.
-
+            - save_dir (pathlib.Path): Output directory for the run.
+            - json_override_path (pathlib.Path): Path to JSON with parameter overrides.
     """
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)

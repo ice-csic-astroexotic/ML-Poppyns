@@ -23,11 +23,11 @@ def cdf_calculator(
     function evaluated at the points x using the trapezoidal rule.
 
     Args:
-        x (np.ndarray): discrete set of values at which the pdf is evaluated.
-        pdf (Callable): probability density function.
+        x (np.ndarray): Discrete set of values at which the pdf is evaluated.
+        pdf (Callable): Probability density function.
 
     Returns:
-        np.ndarray: normalized cumulative distribution function.
+        (np.ndarray): Normalized cumulative distribution function.
     """
 
     cdf = integrate.cumulative_trapezoid(pdf(x), x, initial=0)
@@ -43,12 +43,12 @@ def random_from_cdf(
     Drawing random values from a given normalized cumulative distribution function.
 
     Args:
-        x (np.ndarray): discrete set of values at which the cdf is evaluated.
-        cdf (np.ndarray): normalized cumulative probability density function.
-        num_draw (int): number of values to draw.
+        x (np.ndarray): Discrete set of values at which the cdf is evaluated.
+        cdf (np.ndarray): Normalized cumulative probability density function.
+        num_draw (int): Number of values to draw.
 
     Returns:
-        np.ndarray: random values drawn from the cdf.
+        (np.ndarray): Random values drawn from the cdf.
     """
 
     cdf_rand = np.random.uniform(0, 1, num_draw)
@@ -66,12 +66,12 @@ def random_from_pdf(
     Drawing random values from a given probability density function.
 
     Args:
-        x (np.ndarray): discrete set of values at which the pdf is evaluated.
-        pdf (Callable): probability density function.
-        num_draw (int): number of values to draw.
+        x (np.ndarray): Discrete set of values at which the pdf is evaluated.
+        pdf (Callable): Probability density function.
+        num_draw (int): Number of values to draw.
 
     Returns:
-        np.ndarray: random values drawn from the pdf.
+        (np.ndarray): Random values drawn from the pdf.
     """
 
     cdf = cdf_calculator(x, pdf)
@@ -92,13 +92,13 @@ def random_from_pdf_2d(
     the columns (axis=1) of the 2D array defining the pdf.
 
     Args:
-        x1 (np.ndarray): discrete set of values for coordinate x1 at which the pdf is evaluated.
-        x2 (np.ndarray): discrete set of values for coordinate x2 at which the pdf is evaluated.
+        x1 (np.ndarray): Discrete set of values for coordinate x1 at which the pdf is evaluated.
+        x2 (np.ndarray): Discrete set of values for coordinate x2 at which the pdf is evaluated.
         pdf_2d (np.ndarray): 2D probability density function.
-        num_draw (int): number of values to draw.
+        num_draw (int): Number of values to draw.
 
     Returns:
-        (np.ndarray, np.ndarray): random points of coordinates (x1, x2) drawn from the pdf.
+        (Tuple[np.ndarray, np.ndarray]): Random points of coordinates (x1, x2) drawn from the pdf.
     """
 
     # Build the cumulative function grid by computing a cumulative function

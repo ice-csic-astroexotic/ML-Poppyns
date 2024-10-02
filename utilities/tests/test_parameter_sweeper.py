@@ -3,14 +3,14 @@
 
     Authors:
 
-        Celsa Pardo Araujo (pardo @ ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 import argparse
 import os
 
 import pytest
 
-import utilities.simulation_helper.parameter_sweeper as param_sweeper
+import utilities.experiment_helpers.parameter_sweeper as param_sweeper
 
 
 @pytest.fixture

@@ -11,13 +11,12 @@
 
 import cProfile
 import io
-import os
 import pathlib
 import pstats
 import typing
 
 
-def do_cprofile(enabled: bool, output_dir: str):
+def do_cprofile(enabled: bool, output_dir: str) -> typing.Callable:
     """
     Function to be used as decorator to perform a deep cProfile of another
     routine. It will call such function with the provided arguments with
@@ -26,20 +25,17 @@ def do_cprofile(enabled: bool, output_dir: str):
     file in the specified folder with the name of the function as file name.
 
     Args:
-
         enabled (bool): Whether or not profiling is toggled.
-
         output_dir (str): Output directory for the profile text file.
 
     Returns:
-
-        If profiling is disabled, it just returns the result of the function
-        without profiling and generating any text file (seamless execution). If
-        profiling is enabled, it also returns the result of executing the
-        function seamlessly but generates the text output as specified above.
+        (typing.Callable): If profiling is disabled, it just returns the result of the function
+            without profiling and generating any text file (seamless execution). If
+            profiling is enabled, it also returns the result of executing the
+            function seamlessly but generates the text output as specified above.
     """
 
-    def inner(func: typing.Callable):
+    def inner(func: typing.Callable) -> typing.Callable:
 
         if not enabled:
             return func

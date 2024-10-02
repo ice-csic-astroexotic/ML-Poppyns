@@ -6,11 +6,11 @@
     deal with different training experiments. Note that the ensemble method in the sbi package has limitations
     on the types of experiments it can support (e.g., different input shapes).
     Simulation-based Calibration is also performed to check if the ensemble posterior is well behaved.
-    See https://www.mackelab.org/sbi/ for more details.
+    See [https://www.mackelab.org/sbi/](https://www.mackelab.org/sbi/) for more details.
 
     Display help message to run the code:
 
-    python infer_sbi_ensemble.py --h
+    python infer_sbi_ensemble.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -35,7 +35,7 @@ from sbi import utils
 from sbi.inference import SNPE
 
 import pypopsyn.learning.configuration_parser as configuration_parser
-import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
+import pypopsyn.learning.loaders.loader_multichannel_array as dl
 import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
 from utilities.coverage_probability import coverage_prob
@@ -56,14 +56,14 @@ def calculate_smallest_hdr_ensemble(
 
     Args:
         experiments (Dictionary): Dictionary containing the parameters, matrix, posterior and type of scaling
-        (std or norm) for each experiment.
+            (std or norm) for each experiment.
         posterior_ensemble (Callable): Ensemble posterior distribution function.
         true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
-        population in simulation_output.
+            population in simulation_output.
         posterior_samples_std (torch.tensor): Tensor containing the samples standardized from the inferred ensemble
-        posterior distribution for simulation_output.
+            posterior distribution for simulation_output.
         posterior_samples_norm (torch.tensor): Tensor containing the samples normalized from the inferred ensemble
-        posterior distribution for simulation_output.
+            posterior distribution for simulation_output.
         simulation_output (torch.tensor): Tensor containing the maps of the simulated population.
         device (str): String specifying the type of the device used to run the script.
 
@@ -129,7 +129,23 @@ def calculate_smallest_hdr_ensemble(
     return hdr
 
 
-def infer(args, config):
+def infer(
+    args: argparse.Namespace, config: configuration_parser.ConfigurationParser
+) -> None:
+    """
+    Perform simulation-based inference using an ensemble method on different trained models on the provided dataset.
+
+    Args:
+        args (argparse.Namespace): Command line arguments containing configuration options:
+
+            - configuration (str): Path to the configuration file.
+            - corner_plot (bool): If set to True, generates posterior corner plots for each test sample.
+            - trained_model (str): Path to a `.txt` file containing the paths to the pretrained models.
+            - infer (str): Flag to set up the inference saving path (default is True).
+
+        config (configuration_parser.ConfigurationParser): Configuration object with settings
+            for data loading, model architecture, profiling options, and other parameters.
+    """
 
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("Inference")

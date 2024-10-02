@@ -19,12 +19,12 @@ def pdf_period_normal(mean: float, sigma: float, NS_number: int) -> np.ndarray:
     again from the Gaussian distribution.
 
     Args:
-        mean (float): mean of the Gaussian initial period distribution, in [s].
-        sigma (float): standard deviation of the initial period distribution, in [s].
-        NS_number (int): total number of neutron stars created in the simulation.
+        mean (float): Mean of the Gaussian initial period distribution, in [s].
+        sigma (float): Standard deviation of the initial period distribution, in [s].
+        NS_number (int): Total number of neutron stars created in the simulation.
 
     Returns:
-        (np.ndarray): initial pulsar period in [s] drawn from a Gaussian distribution.
+        (np.ndarray): Initial pulsar period in [s] drawn from a Gaussian distribution.
     """
 
     P_initial = np.zeros(NS_number)
@@ -45,12 +45,12 @@ def pdf_period_lognormal(
     The mean and standard deviation are defined in the configuration file.
 
     Args:
-        mean (float): mean of the Gaussian initial period distribution, in [s].
-        sigma (float): standard deviation of the initial period distribution, in [s].
-        NS_number (int): total number of neutron stars created in the simulation.
+        mean (float): Mean of the Gaussian initial period distribution, in [s].
+        sigma (float): Standard deviation of the initial period distribution, in [s].
+        NS_number (int): Total number of neutron stars created in the simulation.
 
     Returns:
-        (np.ndarray): initial pulsar period in [s] drawn from a Log-normal distribution.
+        (np.ndarray): Initial pulsar period in [s] drawn from a Log-normal distribution.
     """
 
     P_initial = 10 ** np.random.normal(mean, sigma, NS_number)

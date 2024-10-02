@@ -30,11 +30,13 @@ dependencies:
   - pytorch=2.1.0
   - pytorch-cuda=12.1  # Comment this out if you are a macOS user.
   - scipy=1.11.1
-  - sphinx=7.1.1
   - tensorboard=2.11.0
   - tensorboardx=2.6.2
   - termcolor=2.1.1
   - torchvision=0.16.0
   - pip:
       - pydeps
-      - pygedm --global-option=build_ext --global-option="-I${CONDA_PREFIX}/include:/usr/local/include"
+      - pygedm --config-settings="build_ext.include_dirs=${CONDA_PREFIX}/include:/usr/local/include"
+      - mkdocs-material
+      - mkdocstrings-python
+      - python-markdown-math

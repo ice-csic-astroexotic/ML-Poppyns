@@ -13,7 +13,7 @@
 
     Display help message to run the code:
 
-    python generate_observed_data.py --h
+    python generate_observed_data.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -90,7 +90,6 @@ def create_survey_maps(
             in seconds [s].
         Pdot_meerkat (np.ndarray): Array of spin period derivatives from the ATNF catalog for the pulsars in the TPA
             MeerKAT program, in seconds per second [s/s].
-
     """
 
     # Create position density maps projected onto the RA DEC plane.
@@ -158,13 +157,14 @@ def generate_dataset(args: argparse.Namespace) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
-            data (str): Path to where the observed population is located.
-            save_dir (str): Path to where the generated dataset will be saved.
-            data_type (str): Type of dataset to generate: array or image.
-            resolution_ppdot (int): Resolution (number of bins per axis for the 2d
+
+            - data (str): Path to where the observed population is located.
+            - save_dir (str): Path to where the generated dataset will be saved.
+            - data_type (str): Type of dataset to generate: array or image.
+            - resolution_ppdot (int): Resolution (number of bins per axis for the 2d
                 histograms) for the P-Pdot density maps to generate.
-            path_atnf (str): Path to the ATNF catalogue.
-            path_meerkat (str): Path to the Meerkat catalogue.
+            - path_atnf (str): Path to the ATNF catalogue.
+            - path_meerkat (str): Path to the Meerkat catalogue.
     """
 
     # Create the dataset directory path.

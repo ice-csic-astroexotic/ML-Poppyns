@@ -7,13 +7,13 @@
 
     Display help message to run the code:
 
-    python infer_tsnpe.py --h
+    python infer_tsnpe.py --help
 
     Displays all the relevant arguments that can be used.
 
     Authors:
 
-        Celsa Pardo Araujo (pardo @ ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import argparse
@@ -112,7 +112,13 @@ def infer(
     and a trained_model.pkl was generated.
 
     Args:
-        args (argparse.Namespace): Command-line arguments parsed by argparse.
+        args (argparse.Namespace): Command-line arguments parsed by argparse. It includes:
+
+            - configuration (str): Path to the configuration file.
+            - plot_proposal (bool): If set to True, generates proposal corner plots for each round.
+            - trained_model (str): Path to the pretrained model (this argument is not used here).
+            - infer (str): Flag to set up the inference saving path (default is True).
+
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
     """
     # Get handle for the logger --------------------------------------------

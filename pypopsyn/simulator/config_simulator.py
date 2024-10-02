@@ -238,7 +238,7 @@ cfg["detected_meerkat_SMPS"]: int = 170
 cfg["detected_meerkat_HTRU"]: int = 668
 
 
-def update_configuration(new_configuration) -> None:
+def update_configuration(new_configuration: dict) -> None:
     """
     Update current configuration with custom one.
 
@@ -246,13 +246,7 @@ def update_configuration(new_configuration) -> None:
     configuration dictionary and output each updated key-value pair.
 
     Args:
-
-        new_configuration: dictionary with custom configuration.
-
-    Returns:
-
-        Nothing.
-
+        new_configuration (dict): dictionary with custom configuration.
     """
 
     for key, value in new_configuration.items():

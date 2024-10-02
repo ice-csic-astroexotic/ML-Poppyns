@@ -1,15 +1,16 @@
 """
     Training script for truncated sequential neural posterior estimation following Deistler et al. (2022).
-    (https://arxiv.org/abs/2210.04815).
+    [https://arxiv.org/abs/2210.04815](https://arxiv.org/abs/2210.04815).
 
     This script implements the truncated sequential neural posterior estimator using the sbi package. It iteratively
     trains a density estimator for `num_rounds`, where each iteration involves generating training and testing datasets
     based on the previously approximated posterior distribution at the observed sample. This approach focuses on
     the region of the parameter space that matches the observed population to save computational resources.
 
-    To create the training and test datasets, we use either the `multiprocessing` or `Dask` (https://www.dask.org/)
-    package to run the simulations simultaneously in a multithreaded manner. To use Dask change the variable
-    `enable_dask` in the configuration file to True. Otherwise, change it to False to use multiprocessing.
+    To create the training and test datasets, we use either the `multiprocessing` or `Dask`
+    [https://www.dask.org/](https://www.dask.org/) package to run the simulations simultaneously in a multithreaded
+    manner. To use Dask change the variable `enable_dask` in the configuration file to True. Otherwise, change it to
+    False to use multiprocessing.
 
     Note that there is an option to resume training from a previous run. This allows for training over multiple rounds
     on a server. If the maximum wall time is reached or if any interruptions occur, the training can be resumed from
@@ -17,17 +18,17 @@
     file. It is also necessary to specify where the logs and models were saved in the first run and indicate the last
     completed round.
 
-    For further details, visit https://www.mackelab.org/sbi/.
+    For further details, visit [https://www.mackelab.org/sbi/](https://www.mackelab.org/sbi/).
 
     Display help message to run the code:
 
-    python train_tsnpe.py --h
+    python train_tsnpe.py --help
 
     Displays all the relevant arguments that can be used.
 
     Authors:
 
-        Celsa Pardo Araujo (pardo @ ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import argparse
@@ -59,13 +60,13 @@ from tqdm import tqdm
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.initializers.initializers as learning_initializers
-import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
+import pypopsyn.learning.loaders.loader_multichannel_array as dl
 import pypopsyn.learning.models.models as learning_models
 import utilities.benchmark.timewith as timewith
 from pypopsyn.generator import generate_dataset_surveys
 from pypopsyn.learning.utils.request_device import request_device
 from utilities.coverage_probability import coverage_prob
-from utilities.simulation_helper.run_simulation_set_sbi import (
+from utilities.experiment_helpers.run_simulation_set_sbi import (
     initialize_dask_cluster,
     simulator_dask,
     simulator_multiprocess,
@@ -980,7 +981,13 @@ def train(
     sequential neural posterior estimator approach in Deistler et al. (2022) using the sbi package.
 
     Args:
-        args (argparse.Namespace): Command-line arguments parsed by argparse.
+        args (argparse.Namespace): Command-line arguments parsed by argparse. It includes:
+
+            - configuration (str): Path to the configuration file.
+            - plot_proposal (bool): If set to True, generates proposal corner plots for each round.
+            - trained_model (str): Path to the pretrained model (this argument is not used here).
+            - infer (str): Flag to set up the inference saving path (default is True).
+
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
     """
     # Get handle for the logger --------------------------------------------

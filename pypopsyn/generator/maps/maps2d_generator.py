@@ -34,19 +34,20 @@ def generate_density_map(
     Density map generator.
 
     Creates a density or heat map of a distribution of points given their
-    X/Y coordinates in a 2D space. The resulting image is written to disk.
+    X/Y coordinates in a 2D space. The resulting image is generated in
+    the specified file path.
 
     Args:
-        x (np.ndarray): horizontal coordinate values for the points.
-        x_range (float, float): horizontal range of values for the points.
-        y (np.ndarray): vertical coordinate values for the points.
-        y_range (float, float): vertical range of values for the points.
-        filename (str): file path to generate the density map image.
-        x_log_scale (bool): if True set the x-axis scale to log scale.
-        y_log_scale (bool): if True set the y-axis scale to log scale.
-        n_x_bins (int): number of horizontal bins for the density map.
-        n_y_bins (int): number of vertical bins for the density map.
-        colormap (str): colormap to use for the image.
+        x (np.ndarray): Horizontal coordinate values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
+        y (np.ndarray): Vertical coordinate values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
+        filename (str): File path to generate the density map image.
+        x_log_scale (bool): If True set the x-axis scale to log scale.
+        y_log_scale (bool): If True set the y-axis scale to log scale.
+        n_x_bins (int): Number of horizontal bins for the density map.
+        n_y_bins (int): Number of vertical bins for the density map.
+        colormap (str): Colormap to use for the image.
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(
@@ -111,17 +112,17 @@ def generate_avg_weight_map(
     The resulting map shows the average value of the weights in each bin.
 
     Args:
-        x (np.ndarray): horizontal coordinate values for the points.
-        x_range (float, float): horizontal range of values for the points.
-        y (np.ndarray): vertical coordinate values for the points.
-        y_range (float, float): vertical range of values for the points.
-        w (np.ndarray): weight values for the points.
-        filename (str): file path to generate the heat map image.
-        x_log_scale (bool): if True set the x-axis scale to log scale.
-        y_log_scale (bool): if True set the y-axis scale to log scale.
-        n_x_bins (int): number of horizontal bins for the weight map.
-        n_y_bins (int): number of vertical bins for the weight map.
-        colormap (str): colormap to use for the image.
+        x (np.ndarray): Horizontal coordinate values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
+        y (np.ndarray): Vertical coordinate values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
+        w (np.ndarray): Weight values for the points.
+        filename (str): File path to generate the heat map image.
+        x_log_scale (bool): If True set the x-axis scale to log scale.
+        y_log_scale (bool): If True set the y-axis scale to log scale.
+        n_x_bins (int): Number of horizontal bins for the weight map.
+        n_y_bins (int): Number of vertical bins for the weight map.
+        colormap (str): Colormap to use for the image.
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(
@@ -193,19 +194,15 @@ def generate_density_matrix(
     X/Y coordinates in a 2D space. The resulting matrix is saved as .npy file.
 
     Args:
-        x (np.ndarray): horizontal coordinate values for the points.
-        x_range (float, float): horizontal range of values for the points.
-        y (np.ndarray): vertical coordinate values for the points.
-        y_range (float, float): vertical range of values for the points.
-        filename (str): file path to generate the density matrix.
-        x_log_scale (bool): if True set the x-axis scale to log scale.
-        y_log_scale (bool): if True set the y-axis scale to log scale.
-        n_x_bins (int): number of horizontal bins for the density matrix.
-        n_y_bins (int): number of vertical bins for the density matrix.
-
-    Returns:
-        Nothing. A NumPy 2D array is generated in the specified file path.
-
+        x (np.ndarray): Horizontal coordinate values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
+        y (np.ndarray): Vertical coordinate values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
+        filename (str): File path to generate the density matrix.
+        x_log_scale (bool): If True set the x-axis scale to log scale.
+        y_log_scale (bool): If True set the y-axis scale to log scale.
+        n_x_bins (int): Number of horizontal bins for the density matrix.
+        n_y_bins (int): Number of vertical bins for the density matrix.
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(
@@ -246,20 +243,16 @@ def generate_avg_weight_matrix(
     The resulting matrix shows the average value of the weights in each bin.
 
     Args:
-        x (np.ndarray): horizontal coordinate values for the points.
-        x_range (float, float): horizontal range of values for the points.
-        y (np.ndarray): vertical coordinate values for the points.
-        y_range (float, float): vertical range of values for the points.
-        w (np.ndarray): weight values for the points.
-        filename (str): file path to generate the density matrix.
-        x_log_scale (bool): if True set the x-axis scale to log scale.
-        y_log_scale (bool): if True set the y-axis scale to log scale.
-        n_x_bins (int): number of horizontal bins for the density matrix.
-        n_y_bins (int): number of vertical bins for the density matrix.
-
-    Returns:
-        Nothing. A NumPy 2D array is generated in the specified file path.
-
+        x (np.ndarray): Horizontal coordinate values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
+        y (np.ndarray): Vertical coordinate values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
+        w (np.ndarray): Weight values for the points.
+        filename (str): File path to generate the density matrix.
+        x_log_scale (bool): If True set the x-axis scale to log scale.
+        y_log_scale (bool): If True set the y-axis scale to log scale.
+        n_x_bins (int): Number of horizontal bins for the density matrix.
+        n_y_bins (int): Number of vertical bins for the density matrix.
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(
@@ -311,20 +304,16 @@ def generate_avg_fluxes_matrix(
     The resulting matrix shows the average value of the weights in each bin.
 
     Args:
-        x (np.ndarray): horizontal coordinate values for the points.
-        x_range (float, float): horizontal range of values for the points.
-        y (np.ndarray): vertical coordinate values for the points.
-        y_range (float, float): vertical range of values for the points.
-        w (np.ndarray): weight values for the points, i.e., the log10 of the radio flux value.
-        filename (str): file path to generate the density matrix.
-        x_log_scale (bool): if True set the x-axis scale to log scale. Default False.
-        y_log_scale (bool): if True set the y-axis scale to log scale. Default False.
-        n_x_bins (int): number of horizontal bins for the density matrix. Default 32 bins.
-        n_y_bins (int): number of vertical bins for the density matrix. Default 32 bins.
-
-    Returns:
-        Nothing. A NumPy 2D array is generated in the specified file path.
-
+        x (np.ndarray): Horizontal coordinate values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
+        y (np.ndarray): Vertical coordinate values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
+        w (np.ndarray): Weight values for the points, i.e., the log10 of the radio flux value.
+        filename (str): File path to generate the density matrix.
+        x_log_scale (bool): If True set the x-axis scale to log scale. Default False.
+        y_log_scale (bool): If True set the y-axis scale to log scale. Default False.
+        n_x_bins (int): Number of horizontal bins for the density matrix. Default 32 bins.
+        n_y_bins (int): Number of vertical bins for the density matrix. Default 32 bins.
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(
@@ -377,25 +366,21 @@ def generate_avg_fluxes_map(
     Average fluxes map generator.
 
     Creates a map of the average weight w of a distribution of points given their
-    X/Y coordinates in a 2D space where w is the the log10 of the radio flux.
+    X/Y coordinates in a 2D space where w is the log10 of the radio flux.
     The resulting map shows the average value of the weights in each bin.
 
     Args:
-        x (np.ndarray): horizontal coordinate values for the points.
-        x_range (float, float): horizontal range of values for the points.
-        y (np.ndarray): vertical coordinate values for the points.
-        y_range (float, float): vertical range of values for the points.
-        w (np.ndarray): weight values for the points, i.e., the log10 of the radio flux value.
-        filename (str): file path to generate the heat map image.
-        x_log_scale (bool): if True set the x-axis scale to log scale. Default False.
-        y_log_scale (bool): if True set the y-axis scale to log scale. Default False.
-        n_x_bins (int): number of horizontal bins for the weight map. Default 32 bins.
-        n_y_bins (int): number of vertical bins for the weight map. Default 32 bins.
-        colormap (str): colormap to use for the image. Default Greys.
-
-    Returns:
-        Nothing. An image is generated in the specified file path.
-
+        x (np.ndarray): Horizontal coordinate values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
+        y (np.ndarray): Vertical coordinate values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
+        w (np.ndarray): Weight values for the points, i.e., the log10 of the radio flux value.
+        filename (str): File path to generate the heat map image.
+        x_log_scale (bool): If True set the x-axis scale to log scale. Default False.
+        y_log_scale (bool): If True set the y-axis scale to log scale. Default False.
+        n_x_bins (int): Number of horizontal bins for the weight map. Default 32 bins.
+        n_y_bins (int): Number of vertical bins for the weight map. Default 32 bins.
+        colormap (str): Colormap to use for the image. Default Greys.
     """
 
     x_edges, y_edges = axs.log_scale_vs_linear_scale(

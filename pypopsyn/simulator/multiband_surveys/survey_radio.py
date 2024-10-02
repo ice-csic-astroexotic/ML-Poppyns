@@ -37,12 +37,12 @@ def smearing_in_channel(
     and appendix A2.4 of Handbook of pulsar astronomy by Lorimer and Kramer (2004).
 
     Args:
-        DM (np.ndarray): dispersion measure in [pc cm^-3].
-        channel_width (float): width in frequency of a single frequency channel of the receiver in [Hz].
-        nu (float): central frequency at which the observation is performed [Hz].
+        DM (np.ndarray): Dispersion measure in [pc cm^-3].
+        channel_width (float): Width in frequency of a single frequency channel of the receiver in [Hz].
+        nu (float): Central frequency at which the observation is performed [Hz].
 
     Returns:
-        (np.ndarray): intra-channel dispersive smearing in [s].
+        (np.ndarray): Intra-channel dispersive smearing in [s].
     """
 
     dt = (
@@ -70,14 +70,14 @@ def effective_pulse_width(
     with the interstellar medium and by the instrumental sampling time (see eq. (2) in Cordes & McLaughlin 2003).
 
     Args:
-        w_int (np.ndarray): intrinsic pulse width in [s].
-        DM (np.ndarray): dispersion measure in [pc cm^-3].
-        channel_width (float): width in frequency of a single frequency channel of the receiver in [Hz].
-        f (float): central frequency at which the observation is performed [Hz].
-        t_samp (float): sampling time for the radio survey [s].
+        w_int (np.ndarray): Intrinsic pulse width in [s].
+        DM (np.ndarray): Dispersion measure in [pc cm^-3].
+        channel_width (float): Width in frequency of a single frequency channel of the receiver in [Hz].
+        f (float): Central frequency at which the observation is performed [Hz].
+        t_samp (float): Sampling time for the radio survey [s].
 
     Returns:
-        (np.ndarray): measured effective pulse width in [s].
+        (np.ndarray): Measured effective pulse width in [s].
     """
 
     tau_DM = smearing_in_channel(DM, channel_width, f)
@@ -101,12 +101,12 @@ def flux_radio_obs(
     to the peak flux density.
 
     Args:
-        S_radio_f (np.ndarray): intrinsic pulsar radio flux in [Jy].
-        w_int (np.ndarray): intrinsic pulse width in [rad].
-        w_eff (np.ndarray): effective pulse width in [rad].
+        S_radio_f (np.ndarray): Intrinsic pulsar radio flux in [Jy].
+        w_int (np.ndarray): Intrinsic pulse width in [rad].
+        w_eff (np.ndarray): Effective pulse width in [rad].
 
     Returns:
-        (np.ndarray): observed pulsar radio flux in [Jy].
+        (np.ndarray): Observed pulsar radio flux in [Jy].
     """
 
     # Compute the total fluence.
@@ -128,12 +128,12 @@ def flux_radio_obs_period_average(
     We are assuming a simple squared pulse shape.
 
     Args:
-        S_radio_f_obs (np.ndarray): observed pulsar radio flux in [Jy].
-        P (np.ndarray): spin period of the pulsar in [s].
-        w_eff (np.ndarray): effective pulse width in [s].
+        S_radio_f_obs (np.ndarray): Observed pulsar radio flux in [Jy].
+        P (np.ndarray): Spin period of the pulsar in [s].
+        w_eff (np.ndarray): Effective pulse width in [s].
 
     Returns:
-        (np.ndarray): observed pulsar radio flux averaged over a period in [Jy].
+        (np.ndarray): Observed pulsar radio flux averaged over a period in [Jy].
     """
 
     # Compute the observed radio flux in [Jy].
@@ -153,10 +153,10 @@ def sky_temperature_approx(
     Args:
         l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
-        f (np.ndarray): central frequency at which the observation is performed [Hz].
+        f (float): Central frequency at which the observation is performed [Hz].
 
     Returns:
-        (np.ndarray): measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
+        (np.ndarray): Measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
     """
 
     # Sky temperature at 408 MHz from Narayan (1987).
@@ -182,10 +182,10 @@ def sky_temperature_H81(
     Args:
         l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
-        f (np.ndarray): central frequency at which the observation is performed [Hz].
+        f (float): Central frequency at which the observation is performed [Hz].
 
     Returns:
-        (np.ndarray): measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
+        (np.ndarray): Measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
     """
 
     # Read the sky temperature map.
@@ -227,10 +227,10 @@ def sky_temperature_H81refined(
     Args:
         l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
-        f (np.ndarray): central frequency at which the observation is performed [Hz].
+        f (float): Central frequency at which the observation is performed [Hz].
 
     Returns:
-        (np.ndarray): measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
+        (np.ndarray): Measured sky temperature in [K] as a function of the Galactic coordinates at frequency f.
     """
 
     # Read the sky temperature map.
@@ -266,17 +266,13 @@ class SurveyRadio:
     The parameters for the survey are imported from a JSON file.
     """
 
-    def __import_parameters(self, parameters_path):
+    def __import_parameters(self, parameters_path: str) -> None:
         """
         This routine imports the parameters of a radio survey.
 
         Args:
-            parameters_path (str): path to the survey_parameter.json file
+            parameters_path (str): Path to the survey_parameter.json file
                 containing the parameters of the radio survey.
-
-        Returns:
-            Nothing.
-
         """
 
         # Load parameters from JSON file.
@@ -319,18 +315,14 @@ class SurveyRadio:
 
     def __init__(
         self,
-        parameters_path,
-    ):
+        parameters_path: str,
+    ) -> None:
         """
         Radio survey initialization.
 
         Args:
-            parameters_path (str): path to the survey_parameter.json file
+            parameters_path (str): Path to the survey_parameter.json file
                 containing the parameters of the radio survey.
-
-        Returns:
-            Nothing.
-
         """
 
         self.__import_parameters(parameters_path)
@@ -346,13 +338,13 @@ class SurveyRadio:
         Determine which neutron stars are in the sky region covered by the survey.
 
         Args:
-            RA (np.ndarray): right ascension in [deg] defined between [0, 360] deg in ICRS frame.
-            DEC (np.ndarray): declination in [deg] defined between [-90, 90] deg in ICRS frame.
+            RA (np.ndarray): Right ascension in [deg] defined between [0, 360] deg in ICRS frame.
+            DEC (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
 
         Returns:
-            (np.ndarray): array of boolean variables: true if the pulsar is in the covered sky region, false if not.
+            (np.ndarray): Array of boolean variables: true if the pulsar is in the covered sky region, false if not.
         """
         if self.name == "HTRU high":
 
@@ -401,10 +393,10 @@ class SurveyRadio:
         See Lorimer et al. (1993) and the paragraph following eq. (29) in Bates et al. (2014).
 
         Args:
-            n_detection (int): number of detections to simulate.
+            n_detection (int): Number of detections to simulate.
 
         Returns:
-            (np.ndarray): square of the offset from the beam center for each detection in [arcmin^2] .
+            (np.ndarray): Square of the offset from the beam center for each detection in [arcmin^2] .
         """
         offset2 = np.random.uniform(0.0, self.FWHM**2 / 4.0, n_detection)
         return offset2
@@ -416,10 +408,10 @@ class SurveyRadio:
         See Lorimer et al. (1993) and the paragraph following eq. (29) in Bates et al. (2014).
 
         Args:
-            offset2 (np.ndarray): squared offset from the beam center in [arcmin^2].
+            offset2 (np.ndarray): Squared offset from the beam center in [arcmin^2].
 
         Returns:
-            (np.ndarray): gain of the telescope for the given offset in [K Jy^(-1)].
+            (np.ndarray): Gain of the telescope for the given offset in [K Jy^(-1)].
         """
         G = self.G0 * np.exp(-2.77 * offset2 / self.FWHM**2)
 
@@ -440,14 +432,14 @@ class SurveyRadio:
         shape for simplicity with height equal to the observed flux and width equal to the effective width.
 
         Args:
-            S_radio_obs_mean (np.ndarray): observed period-averaged radio flux density in [Jy].
-            G (np.ndarray): gain of the telescope for the given detection in [K Jy^(-1)].
-            w_eff (np.ndarray): effective pulse width in [s].
-            P (np.ndarray): spin period in [s].
-            T_sky (np.ndarray): sky temperature for every detection in [K].
+            S_radio_obs_mean (np.ndarray): Observed period-averaged radio flux density in [Jy].
+            G (np.ndarray): Gain of the telescope for the given detection in [K Jy^(-1)].
+            w_eff (np.ndarray): Effective pulse width in [s].
+            P (np.ndarray): Spin period in [s].
+            T_sky (np.ndarray): Sky temperature for every detection in [K].
 
         Returns:
-            (np.ndarray): signal-to-noise ratio of the detection.
+            (np.ndarray): Signal-to-noise ratio of the detection.
         """
         SNR = np.zeros(len(S_radio_obs_mean))
 
@@ -479,14 +471,14 @@ class SurveyRadio:
         then the pulsar is detected.
 
         Args:
-            S_radio_obs_mean (np.ndarray): observed period-averaged radio flux density in [Jy].
+            S_radio_obs_mean (np.ndarray): Observed period-averaged radio flux density in [Jy].
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
-            w_eff (np.ndarray): effective pulse width in [s].
-            P (np.ndarray): spin period in [s].
+            w_eff (np.ndarray): Effective pulse width in [s].
+            P (np.ndarray): Spin period in [s].
 
         Returns:
-            (np.ndarray): array of boolean variables: true if the pulsar is detected,
+            (np.ndarray): Array of boolean variables: true if the pulsar is detected,
                 false if not.
         """
 
@@ -526,18 +518,19 @@ class SurveyRadio:
         This function is used in the simulate_population_magrot_det.py script.
 
         Args:
-            w_int_s (np.ndarray) intrinsic pulse widths in [s]
-            DM (np.ndarray): dispersion measure in [pc cm^-3].
-            P (np.ndarray): array of spin periods of the pulsars in [s].
-            age (np.ndarray): array of neutron star ages [yrs].
-            coverage (np.ndarray): array of indexes of the pulsar within the sky coverage.
-            l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
-            b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
-            S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
+            w_int_s (np.ndarray): Intrinsic pulse widths in [s]
+            DM (np.ndarray): Dispersion measure in [pc cm^-3].
+            P (np.ndarray): Array of spin periods of the pulsars in [s].
+            age (np.ndarray): Array of neutron star ages [yrs].
+            coverage (np.ndarray): Array of indexes of the pulsar within the sky coverage.
+            l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
+            b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+            S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
 
         Returns:
-            (np.ndarray, np.ndarray, np.ndarray): Tuple consisting of three arrays defining the indexes of the
-            pulsars detected by the survey, the effective pulse width and period-averaged flux.
+            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of four arrays defining the
+                indexes of the pulsars detected by the survey, the effective pulse width and period-averaged fluxes at
+                the central frequency of the survey and at 1.429 GHz.
         """
 
         # Computing the intrinsic radio flux density in [Jy].
@@ -599,22 +592,22 @@ class SurveyRadio:
         This function is used in the simulate_population_full.py script.
 
         Args:
-            w_int_s (np.ndarray) intrinsic pulse widths in [s]
-            DM (np.ndarray): dispersion measure in [pc cm^-3].
-            P (np.ndarray): array of spin periods of the pulsars in [s].
-            l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] deg.
-            b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] deg.
-            S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
-            intercepted_radio: (np.ndarray) array of boolean variables where true values represent stars that its
-            beam crosses our line of sight.
-            coverage_survey: (np.ndarray) array of boolean variables where true values represent stars within the
-            sky coverage of each survey.
-            dist_cutoff: (np.ndarray) array of boolean variables where true values represent stars within 35 kpc.
+            w_int_s (np.ndarray): Intrinsic pulse widths in [s]
+            DM (np.ndarray): Dispersion measure in [pc cm^-3].
+            P (np.ndarray): Array of spin periods of the pulsars in [s].
+            l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
+            b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+            S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
+            intercepted_radio: (np.ndarray) Array of boolean variables where true values represent stars that its
+                beam crosses our line of sight.
+            coverage_survey: (np.ndarray) Array of boolean variables where true values represent stars within the
+                sky coverage of each survey.
+            dist_cutoff: (np.ndarray) Array of boolean variables where true values represent stars within 35 kpc.
 
         Returns:
-            (np.ndarray, np.ndarray, np.ndarray, np.ndarray): Tuple consisting of four arrays defining
-            the indexes of the pulsars detected by the survey, the observed period-averaged radio flux density,the
-            effective pulse width and the observed radio flux density.
+            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of four arrays defining
+                the indexes of the pulsars detected by the survey, the observed period-averaged radio flux density,the
+                effective pulse width and the observed radio flux density.
         """
 
         detectable_radio_survey = (

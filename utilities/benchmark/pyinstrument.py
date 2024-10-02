@@ -9,16 +9,15 @@
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
 """
 
-import io
-import os
 import pathlib
-import pstats
 import typing
 
 import pyinstrument
 
 
-def profile(enabled: bool = True, show: bool = True, output_dir: str = None):
+def profile(
+    enabled: bool = True, show: bool = True, output_dir: str = None
+) -> typing.Callable:
     """
     Function to be used as decorator to perform a deep PyInstrument of another
     routine. It will call such function with the provided arguments with
@@ -27,22 +26,18 @@ def profile(enabled: bool = True, show: bool = True, output_dir: str = None):
     text file in the specified folder with the name of the function as file name.
 
     Args:
-
         enabled (bool): Whether or not profiling is toggled.
-
         show (bool): Whether or not to print info to terminal.
-
         output_dir (str): Output directory for the profile text file.
 
     Returns:
-
-        If profiling is disabled, it just returns the result of the function
-        without profiling and generating any text file (seamless execution). If
-        profiling is enabled, it also returns the result of executing the
-        function seamlessly but generates the text output as specified above.
+        (typing.Callable): If profiling is disabled, it just returns the result of the function
+            without profiling and generating any text file (seamless execution). If
+            profiling is enabled, it also returns the result of executing the
+            function seamlessly but generates the text output as specified above.
     """
 
-    def inner(func: typing.Callable):
+    def inner(func: typing.Callable) -> typing.Callable:
 
         if not enabled:
             return func

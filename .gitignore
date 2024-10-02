@@ -68,9 +68,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/_build/
-
 # PyBuilder
 target/
 
@@ -131,10 +128,10 @@ dmypy.json
 # Additional
 .idea/
 outputs/
+tutorials/tutorial_notebooks/output
 multirun/
 .DS_Store/
 tutorials/.DS_Store/
+sbi-logs/
+tutorials/tutorial_notebooks/sbi-logs
 pypopsyn/simulator/interstellar_medium/ebv_map.npz
-
-# Sphinx documentation
-docs/_build

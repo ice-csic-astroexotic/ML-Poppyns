@@ -1,20 +1,22 @@
 """
     Loader for multichannel 2D arrays datasets.
 
-    This loader computes the statistics to perform normalization or standardization on the targets
-    directly on the loaded dataset.
+    This loader imports the statistics to perform normalization or standardization on the targets
+    from an already existent statistics.json file.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
+
+import json
+from typing import Callable, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-import torch
 import torchvision.transforms
-from PIL import Image
 
 from .loader_base import LoaderBase
 
@@ -29,58 +31,53 @@ class DatasetMultichannelArray:
     tensor for the loader. Labels will be generated as a vector.
     """
 
-    def __compute_statistics(self):
+    def __import_statistics(self, statistic_path: str) -> None:
         """
-        Compute dataset statistics for normalization and standardization.
+        Import dataset statistics for normalization and standardization.
 
-        This routine computes dataset-wide statistics that might be needed for
+        This routine import the training dataset statistics that might be needed for
         input/targets normalization and standardization like mean, standard
-        deviation, minimum, maximum...
+        deviation, minimum and maximum.
 
         Args:
-            None.
-
-        Returns:
-            Nothing.
-
+            statistic_path (str): Path to the statistics.json file containing the statistics
+                of the training dataset.
         """
 
-        i = 0
+        # Load statistics from JSON file.
+        with open(statistic_path) as read_file:
+            self.statistics = json.load(read_file)
+
+        label_name = []
 
         # Loop over every input column of the dataset to collect all outputs.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in
-            # the dataset CSV file. Find them and skip them to find the targets.
-            if "input:" in col:
-                i += 1
-            # If an input prefix is not found, it is a label (ground truth) then
-            # skip to directly stack them later based on the last index in which
-            # we found the input prefix.
-            else:
-                break
+            # the dataset CSV file. Find them and skip them to find the targets names.
+            if "input:" not in col:
+                label_name.append(col)
 
-        # Fetch all the targets from the last input channel column.
-        targets = np.array(self.dataset.iloc[:, i:], dtype=np.float32)
+        # Save the statistics for the filtered labels.
+        self.target_mean = np.array(
+            [self.statistics[key]["mean"] for key in label_name],
+            dtype=np.float32,
+        )
+        self.target_std = np.array(
+            [self.statistics[key]["std"] for key in label_name],
+            dtype=np.float32,
+        )
+        self.target_max = np.array(
+            [self.statistics[key]["max"] for key in label_name],
+            dtype=np.float32,
+        )
+        self.target_min = np.array(
+            [self.statistics[key]["min"] for key in label_name],
+            dtype=np.float32,
+        )
 
-        # Compute statistics for targets. Note that they are computed on a
-        # per-position/channel basis over the whole dataset so if we have
-        # multiple labels for each sample, we compute the statistics for each
-        # one of the labels across the whole set of samples (hence axis=0).
-        self.target_std = np.std(targets, axis=0)
-        self.target_mean = np.mean(targets, axis=0)
-        self.target_max = np.max(targets, axis=0)
-        self.target_min = np.min(targets, axis=0)
-
-    def __fetch_target_names(self):
+    def __fetch_target_names(self) -> None:
         """
         Fetch the names of the targets/labels from the dataset file.
-
-        Args:
-            None.
-
-        Returns:
-            Nothing.
-
         """
 
         self.target_names = []
@@ -93,32 +90,31 @@ class DatasetMultichannelArray:
 
     def __init__(
         self,
-        file_path,
-        ignore=[],
-        ignore_labels=[],
-        normalize=False,
-        standardize=False,
-        transform=None,
+        dataset_path: str,
+        statistic_path: str,
+        filter_channels: list = [],
+        filter_labels: list = [],
+        normalize: bool = False,
+        standardize: bool = False,
+        transform: Optional[Callable] = None,
     ) -> None:
         """
         Initialization or constructor routine for the dataset.
 
         Args:
-            file_path (str): path to the dataset.csv file containing all the
+            dataset_path (str): Path to the dataset.csv file containing all the
                 information on the dataset.
-            ignore (list): indices of the input columns of the dataset that
-                will be ignored by the loader.
-            ignore_labels (list): indices of the target/labels columns in the
-                dataset that will be ignored by the loader.
-            normalize (bool): whether to normalize inputs and targets or not on
+            statistic_path (str): Path to the statistics.json file containing the statistics
+                of the training dataset.
+            filter_channels (list): Indices of the input columns of the dataset that
+                will be considered by the loader.
+            filter_labels (list): Indices of the target/labels columns in the
+                dataset that will be considered by the loader.
+            normalize (bool): Whether to normalize inputs and targets or not on
                 the fly while loading samples.
-            standardize (bool): whether or not to standardize inputs and targets
+            standardize (bool): Whether or not to standardize inputs and targets
                 on the fly while loading samples.
-            transform: transformations to apply to the arrays.
-
-        Returns:
-            Nothing.
-
+            transform (Optional[Callable]): Transformations to apply to the arrays.
         """
 
         self.normalize = normalize
@@ -126,50 +122,45 @@ class DatasetMultichannelArray:
         self.transform = transform
 
         # Load dataset from CSV file.
-        self.dataset = pd.read_csv(file_path)
+        self.dataset = pd.read_csv(dataset_path)
 
         # Remove the input columns and labels that are to be ignored.
-        self.dataset.drop(
-            self.dataset.columns[ignore + ignore_labels], axis=1, inplace=True
-        )
+        self.dataset = self.dataset.iloc[:, filter_channels + filter_labels]
 
-        # Compute dataset statistics needed for standardization or normalization
+        # Import dataset statistics needed for standardization or normalization
         # like mean, standard deviation, minimum, maximum...
-        self.__compute_statistics()
+        self.__import_statistics(statistic_path)
         self.__fetch_target_names()
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Length of the dataset (number of samples).
 
         Returns:
-            int: length of the dataset
-
+            (int): Length of the dataset
         """
         return len(self.dataset)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Tuple[np.ndarray, np.ndarray]:
         """
         Read the dataset and extract the arrays and the corresponding labels.
 
         Args:
-            index (int): index running along the rows of the dataset CSV file.
+            index (int): Index running along the rows of the dataset CSV file.
 
         Returns:
-            np.ndarray: multi-channel 2D array composed by stacking all input
-            arrays specified in the dataset for the requested sample with
-            shape N x N x channels where N is the number of entries along a
-            row or column of the array in the .npy file.
-
-            np.ndarray: labels for the requested sample.
-
+            (Tuple[np.ndarray, np.ndarray]): Tuple consisting of a multi-channel 2D array
+                with shape N x N x channels (where N is the number of entries
+                along a row or column of the array in the .npy file) composed by stacking
+                all input arrays specified in the dataset for the requested sample
+                and the corresponding labels for the requested sample.
         """
 
         channels = []
         i = 0
 
         # Loop over the input column of the dataset to get all input channels in
-        # a list so we can stack them later. We assume that all columns must be
+        # a list, so we can stack them later. We assume that all columns must be
         # ordered so "input:" columns go first then all the labels.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in
@@ -197,9 +188,18 @@ class DatasetMultichannelArray:
         if self.normalize:
             per_channel_min = np.min(matrix, axis=(0, 1), keepdims=True)
             per_channel_max = np.max(matrix, axis=(0, 1), keepdims=True)
-            matrix = (matrix - per_channel_min) / (
-                per_channel_max - per_channel_min
-            )
+
+            # Identify channels where per_channel_max equals per_channel_min, indicating that all pixels in the matrix have the
+            # same value. This implies that no stars were detected in these simulations.
+            zero_norm_mask = (per_channel_max == per_channel_min).squeeze()
+            if np.count_nonzero(zero_norm_mask) != 0:
+                # Set the entire matrix to 0 for channels where per_channel_max == per_channel_min to avoid dividing by zero.
+                matrix[:, :, zero_norm_mask] = 0
+
+            else:
+                matrix = (matrix - per_channel_min) / (
+                    per_channel_max - per_channel_min
+                )
 
             targets = (targets - self.target_min) / (
                 self.target_max - self.target_min
@@ -211,7 +211,14 @@ class DatasetMultichannelArray:
         elif self.standardize:
             per_channel_std = np.std(matrix, axis=(0, 1), keepdims=True)
             per_channel_mean = np.mean(matrix, axis=(0, 1), keepdims=True)
-            matrix = (matrix - per_channel_mean) / per_channel_std
+            # Check if per_channel_std equal to 0, indicating that all pixels in the matrix have the
+            # same value. This implies that no stars were detected in these simulations.
+            zero_std_mask = (per_channel_std == 0).squeeze()
+            if np.count_nonzero(zero_std_mask) != 0:
+                # Set the entire matrix to -1 for channels where per_channel_std = 0, to avoid dividing by zero.
+                matrix[:, :, zero_std_mask] = -1
+            else:
+                matrix = (matrix - per_channel_mean) / per_channel_std
 
             targets = (targets - self.target_mean) / self.target_std
 
@@ -225,47 +232,47 @@ class DatasetMultichannelArray:
 class LoaderMultichannelArray(LoaderBase):
     def __init__(
         self,
-        data_path: str,
+        dataset_path: str,
+        statistic_path: str,
         batch_size: int,
-        ignored_inputs: list,
-        ignored_labels: list,
+        filter_inputs: list,
+        filter_labels: list,
         num_workers: int = 1,
         shuffle: bool = False,
         normalize: bool = False,
         standardize: bool = False,
-    ):
+    ) -> None:
         """
         Data loader for a multi-channel array-based dataset. The dataset is
         expected to be packed in a dataset.csv file and contain paths to .npy
         files to be loaded.
 
         Args:
-            data_path (string): path to the dataset.
+            dataset_path (string): Path to the dataset.
+            statistic_path (string): Path to the dataset.
             batch_size (int): Number of samples per batch.
-            ignored_inputs (list): Indices of columns in the dataset to ignore.
-            ignored_labels (list): Indices of columns with labels to ignore.
+            filter_inputs (list): Indices of columns in the dataset to consider.
+            filter_labels (list): Indices of columns with labels to consider.
             num_workers (int): Workers to load the data.
             shuffle (bool): Shuffle the samples or not.
-            normalize (bool): whether to normalize inputs and targets or not.
-            standardize (bool): whether or not to standardize inputs and targets.
-
-        Returns:
-            Nothing.
-
+            normalize (bool): Whether to normalize inputs and targets or not.
+            standardize (bool): Whether or not to standardize inputs and targets.
         """
 
         transformation = torchvision.transforms.ToTensor()
 
-        self.data_path = data_path
-        self.ignored_inputs = ignored_inputs
-        self.ignored_labels = ignored_labels
+        self.dataset_path = dataset_path
+        self.statistic_path = statistic_path
+        self.filter_inputs = filter_inputs
+        self.filter_labels = filter_labels
         self.normalize = normalize
         self.standardize = standardize
 
         self.dataset = DatasetMultichannelArray(
-            self.data_path,
-            self.ignored_inputs,
-            self.ignored_labels,
+            self.dataset_path,
+            self.statistic_path,
+            self.filter_inputs,
+            self.filter_labels,
             self.normalize,
             self.standardize,
             transform=transformation,
