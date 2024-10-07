@@ -29,6 +29,7 @@ def test_case_1():
         "DM": np.array([100, 1000]),
         "age": np.array([1.0, 1.2]),
         "tau_sc": np.array([1.0e-4, 1.0e-2]),
+        "spectral_index": np.array([-1.6, -1.6]),
         "f": 1.4e9,
         "channel_width": 3.0e6,
         "t_samp": 250e-6,
@@ -85,6 +86,7 @@ def test_effective_pulse_width(monkeypatch, test_case_1):
         test_case_1["channel_width"],
         test_case_1["f"],
         test_case_1["t_samp"],
+        test_case_1["tau_sc"],
     )
 
     assert np.isclose(
@@ -215,23 +217,23 @@ def test_detect_radio_population(test_case_1):
     """
     Verifying that a population of pulsars is correctly detected by the survey.
     """
-    with mock.patch(
-        "numpy.random.normal", return_value=np.array([-1.6, -1.6])
-    ):
-        (
-            detected_out,
-            w_eff,
-            S_radio_obs_mean,
-            S_radio_obs_mean_1400,
-        ) = PMPS.detected_radio_population(
-            test_case_1["w_int_s"],
-            test_case_1["DM"],
-            test_case_1["P"],
-            test_case_1["age"],
-            test_case_1["coverage_expected"],
-            test_case_1["l_gal"],
-            test_case_1["b_gal"],
-            test_case_1["S_radio_bol"],
-        )
-    print("test_case", detected_out.all())
+
+    (
+        detected_out,
+        w_eff,
+        S_radio_obs_mean,
+        S_radio_obs_mean_1400,
+    ) = PMPS.detected_radio_population(
+        test_case_1["w_int_s"],
+        test_case_1["DM"],
+        test_case_1["P"],
+        test_case_1["age"],
+        test_case_1["coverage_expected"],
+        test_case_1["l_gal"],
+        test_case_1["b_gal"],
+        test_case_1["S_radio_bol"],
+        test_case_1["spectral_index"],
+        test_case_1["tau_sc"],
+    )
+
     assert test_case_1["detected_expected"].all() == detected_out.all()
