@@ -49,19 +49,24 @@ def compute_DM(
     return DM
 
 
-def compute_tau_sc(tau_sc: np.ndarray, f: float) -> np.ndarray:
+def compute_tau_sc(DM: np.ndarray) -> np.ndarray:
     """
-    Rescale the value of tau_sc to any frequency we assume a Kolmogorov spectrum tau(f) ~ f^-4.4.
+    Given a value of DM compute the scattering timescale.
+    We use the empirical fit performed by Krishnakumar et al. (2015) who fitted the scattering times
+    obtained at a frequency of 327 MHz (see section 3, pag. 5, right column).
 
     Args:
-        tau_sc (np.ndarray): Scattering timescales in [s].
-        f (np.ndarray): Frequency at which the scattering timescale is computed [Hz].
+        DM (np.ndarray): Dispersion measure in [pc cm^-3].
 
     Returns:
-        (np.ndarray): Values of the scattering timescale at the frequency f in [s].
+        (np.ndarray): Values of the scattering timescale in [s].
     """
+    # Compute the average tau scattering in [s] at 327 MHz from the empirical formula in Krishnakumar et al. (2015).
+    tau_sc_mean = 3.6e-9 * DM**2.2 * (1.0 + 1.94e-3 * DM**2.0)
 
-    # Convert the scattering time to a given observation frequency f assuming a Kolmogorov spectrum.
-    tau_sc_f = tau_sc * (f / 327.0e6) ** (-4.4)
+    # We pick the values of tau_sc from a Gaussian distribution centered on np.log10(tau_sc_mean)
+    # with a fiducial sigma of 0.5 in log10 to roughly reproduce the scatter in the data as in Fig. 3 in
+    # Krishnakumar et al. (2015).
+    tau_sc = 10 ** np.random.normal(np.log10(tau_sc_mean), 0.5)
 
-    return tau_sc_f
+    return tau_sc

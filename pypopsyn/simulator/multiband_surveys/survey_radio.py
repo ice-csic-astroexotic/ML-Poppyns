@@ -82,10 +82,11 @@ def effective_pulse_width(
     """
 
     tau_DM = smearing_in_channel(DM, channel_width, f)
-    tau_sc_central_f = edm.compute_tau_sc(tau_sc, f)
-    w_eff = np.sqrt(
-        w_int**2 + tau_sc_central_f**2 + tau_DM**2 + t_samp**2
-    )
+
+    # Convert the scattering time to a given observation frequency f assuming a Kolmogorov spectrum.
+    tau_sc_f = tau_sc * (f / 327.0e6) ** (-4.4)
+
+    w_eff = np.sqrt(w_int**2 + tau_sc_f**2 + tau_DM**2 + t_samp**2)
 
     return w_eff
 

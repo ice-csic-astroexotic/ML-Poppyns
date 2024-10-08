@@ -29,6 +29,7 @@ import pandas as pd
 
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
+import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
@@ -579,13 +580,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                 if np.count_nonzero(intercepted_radio) == 0:
                     break
 
-                # We pick the values of the scattering timescale (tau_sc) from a Gaussian distribution centered on
-                # np.log10(tau_sc_mean) with a fiducial sigma of 0.5 in log10 to roughly reproduce the scatter in the
-                # data as in Fig. 3 in Krishnakumar et al. (2015).
-                tau_sc_mean = 3.6e-9 * DM**2.2 * (1.0 + 1.94e-3 * DM**2.0)
-                tau_sc = 10 ** np.random.normal(np.log10(tau_sc_mean), 0.5)
-
-                # Computing the spectral index of each star.
+                # Computing the spectral index and the scatering timescale of each star.
+                tau_sc = edm.compute_tau_sc(DM)
                 spectral_index = np.random.normal(
                     cfg["mean_spectral_index"],
                     cfg["std_spectral_index"],

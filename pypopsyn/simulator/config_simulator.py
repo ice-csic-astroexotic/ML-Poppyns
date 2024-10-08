@@ -218,7 +218,7 @@ cfg["Erot_dot_0"]: float = 1e29
 
 # Spectral index following a normal distribution as in Posselt et al. (2023).
 cfg["mean_spectral_index"] = -1.8
-cfg["std_spectral_index"] = 0.8
+cfg["std_spectral_index"] = 0
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["ed_model"]: str = "ymw16"

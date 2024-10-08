@@ -604,18 +604,13 @@ def simulate_population(args: argparse.Namespace) -> None:
 
             timer.checkpoint("[DM computation]")
 
-            # We pick the values of the scattering timescale (tau_sc) from a Gaussian distribution centered on
-            # np.log10(tau_sc_mean) with a fiducial sigma of 0.5 in log10 to roughly reproduce the scatter in the
-            # data as in Fig. 3 in Krishnakumar et al. (2015).
-            tau_sc_mean = 3.6e-9 * DM**2.2 * (1.0 + 1.94e-3 * DM**2.0)
-            tau_sc = 10 ** np.random.normal(np.log10(tau_sc_mean), 0.5)
-
-            # Computing the spectral index of each star.
+            # Computing the spectral index and scattering timescale of each star.
             spectral_index = np.random.normal(
                 cfg["mean_spectral_index"],
                 cfg["std_spectral_index"],
                 len(S_radio_bol),
             )
+            tau_sc = edm.compute_tau_sc(DM)
 
             # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
