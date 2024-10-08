@@ -52,8 +52,8 @@ def compute_DM(
 def compute_tau_sc(DM: np.ndarray) -> np.ndarray:
     """
     Given a value of DM compute the scattering timescale.
-    We use the empirical fit performed by Krishnakumar et al. (2015) who fitted the scattering times
-    obtained at a frequency of 327 MHz (see section 3, pag. 5, right column).
+    We use the empirical fit performed by Krishnakumar et al. (2015), who fitted the scattering times
+    obtained at a frequency of 327 MHz (see Section 3, p. 5, right column).
 
     Args:
         DM (np.ndarray): Dispersion measure in [pc cm^-3].
