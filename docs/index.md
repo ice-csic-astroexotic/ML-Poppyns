@@ -1,19 +1,12 @@
 # Neutron Star Population Synthesis
 
-This will become the main landing page for the documentation!!
+Neutron star population synthesis code for the ERC project MAGNESIA - The Magnetar Census
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
-
-## Commands
-
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+The population synthesis framework in this repository integrates population synthesis to model the birth and evolution 
+of the population of Galactic neutron stars with deep learning techniques to perform parameter inference and constrain 
+their physical properties.
 
 ## Repository structure
-
-<span style="color:red">EVERYTHING BELOW STILL NEEDS TO BE UPDATED!!!!!</span>
 
 The repository is structured in a modular way to allow for easy adjustments and additions as we continue to improve our software package.
 The main folder is `pypopsyn` which contains three sub-folders: `simulator`, `generator`, and `learning`.
@@ -27,14 +20,20 @@ The main folder is `pypopsyn` which contains three sub-folders: `simulator`, `ge
 
 * The `learning` sub-folder contains all the modules and scripts necessary for the machine-learning pipeline, including model architectures, initialization techniques, loss function definitions, training schemes and so on.
 
-The `data` folder contains ten main sub-folders: eight sub-folders containing example data created by running different simulator scripts, the generator script and the training and inference scripts, an `observations` sub-folder and a `paper_results` sub-folder.
+The `data` folder contains various sub-folders containing example data created by running different simulator scripts, the generator script and the training and inference scripts, an `observations` sub-folder and a `paper_results` sub-folder.
 All the simulation examples provided here have been run by using the default parameters specified in `pypopsyn/simulator/config_simulator.py`.
 
 * The `example_generator_magrot` sub-folder contains an example dataset of feature maps from simulated populations.
 
 * The `example_generator_observed` sub-folder contains an example dataset of feature maps from the observed pulsar population in the [ATNF catalog](https://www.atnf.csiro.au/research/pulsar/psrcat/) and [Meerkat TPA program](https://ui.adsabs.harvard.edu/abs/2023MNRAS.520.4582P/abstract).
 
+* The `example_inference_nn` sub-folder contains the results of an inference run with a convolutional neural network (CNN) on some test simulated data.
+
 * The `example_inference_sbi` sub-folder contains the results of an inference run with sbi on some test simulated data.
+
+* The `example_learning_nn` sub-folder contains the results of a training run with a CNN on some training simulated data.
+
+* The `example_learning_sbi` sub-folder contains the results of a training run with sbi on some training simulated data.
 
 * The `example_simulation_dyn` sub-folder contains the results of the dynamical evolution of a population of neutron stars obtained by running the script `pypopsyn/simulator/simulate_population_dyn.py`.
 
@@ -45,8 +44,6 @@ All the simulation examples provided here have been run by using the default par
 * The `example_simulation_helper_magrot` sub-folder contains the results of 20 simulations obtained by running the script `utilities/experiment_helpers/run_simulation_set.py` and using the `pypopsyn/simulator/simulate_population_magrot_det.py` simulator.
 
 * The `example_simulation_magrot_det` sub-folder contains the results of a simulation of magneto-rotational evolution and detection of a population of neutron stars obtained by running the script `pypopsyn/simulator/simulate_population_magrot_det.py`.
-
-* The `example_training_sbi` sub-folder contains the results of a training run with sbi on some test simulated data.
 
 * The `observations` sub-folder contains catalogs with observed data.
 
