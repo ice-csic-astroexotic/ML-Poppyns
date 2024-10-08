@@ -26,12 +26,12 @@ def test_case_1():
     return data
 
 
-def test_compute_tau_sc(monkeypatch, test_case_1):
+def test_compute_tau_sc_f(monkeypatch, test_case_1):
     """
     Verifying that for a given choice of the DM and survey frequency the scattering timescale is computed correctly.
     """
 
-    tau_sc_out = edm.compute_tau_sc(
+    tau_sc_out = edm.compute_tau_sc_f(
         test_case_1["tau_sc"],
         test_case_1["nu"],
     )

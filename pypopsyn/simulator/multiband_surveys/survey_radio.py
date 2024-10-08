@@ -84,7 +84,7 @@ def effective_pulse_width(
     tau_DM = smearing_in_channel(DM, channel_width, f)
 
     # Convert the scattering time to a given observation frequency f assuming a Kolmogorov spectrum.
-    tau_sc_f = tau_sc * (f / 327.0e6) ** (-4.4)
+    tau_sc_f = edm.compute_tau_sc_f(tau_sc, f)
 
     w_eff = np.sqrt(w_int**2 + tau_sc_f**2 + tau_DM**2 + t_samp**2)
 
@@ -534,6 +534,7 @@ class SurveyRadio:
             S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
             spectral_index (np.ndarray): Spectral indexes.
             tau_sc (np.ndarray): Scattering timescale in [s].
+
         Returns:
             (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of four arrays defining the
                 indexes of the pulsars detected by the survey, the effective pulse width and period-averaged fluxes at
@@ -552,7 +553,7 @@ class SurveyRadio:
             spectral_index,
             f=1.429e9,
         )
-        # Compute the effective pulse width in [s] at the survey's central frequency and at 1.4 Ghz.
+        # Compute the effective pulse width in [s] at the survey's central frequency and at 1.4 GHz.
         w_eff = effective_pulse_width(
             w_int_s,
             DM,
@@ -565,13 +566,13 @@ class SurveyRadio:
             w_int_s, DM, self.channel_width, 1.429e9, self.t_samp, tau_sc
         )
 
-        # Compute the observed radio flux in [Jy] at the survey's central frequency and at 1.4 Ghz.
+        # Compute the observed radio flux in [Jy] at the survey's central frequency and at 1.4 GHz.
         S_radio_obs = flux_radio_obs(S_radio_f, w_int_s, w_eff)
         S_radio_obs_1_4GHz = flux_radio_obs(
             S_radio_f_1_4GHz, w_int_s, w_eff_1_4_Ghz
         )
 
-        # Compute the period-averaged flux in [Jy] at the survey's central frequency and at 1.4 Ghz.
+        # Compute the period-averaged flux in [Jy] at the survey's central frequency and at 1.4 GHz.
         S_radio_obs_mean = flux_radio_obs_period_average(S_radio_obs, P, w_eff)
         S_radio_obs_mean_1_4GHz = flux_radio_obs_period_average(
             S_radio_obs_1_4GHz, P, w_eff_1_4_Ghz

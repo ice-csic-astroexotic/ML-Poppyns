@@ -216,7 +216,8 @@ cfg["L_radio_log10_sigma"]: float = 0.8
 cfg["epsilon_L"]: float = 0.5
 cfg["Erot_dot_0"]: float = 1e29
 
-# Spectral index following a normal distribution as in Posselt et al. (2023).
+# Spectral index following a normal distribution as in Posselt et al. (2023). We set the standard deviation to 0 to
+# efficiently produce a fixed spectral index.
 cfg["mean_spectral_index"] = -1.8
 cfg["std_spectral_index"] = 0
 

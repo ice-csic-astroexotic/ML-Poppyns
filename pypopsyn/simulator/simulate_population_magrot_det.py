@@ -580,13 +580,13 @@ def simulate_population(args: argparse.Namespace) -> None:
                 if np.count_nonzero(intercepted_radio) == 0:
                     break
 
-                # Computing the spectral index and the scatering timescale of each star.
-                tau_sc = edm.compute_tau_sc(DM)
+                # Computing the spectral index and the scattering timescale at 327 MHz of each star.
                 spectral_index = np.random.normal(
                     cfg["mean_spectral_index"],
                     cfg["std_spectral_index"],
                     len(S_radio_bol),
                 )
+                tau_sc = edm.compute_tau_sc_327(DM)
 
                 # ===================== RADIO DETECTION ========================
 

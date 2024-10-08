@@ -604,13 +604,13 @@ def simulate_population(args: argparse.Namespace) -> None:
 
             timer.checkpoint("[DM computation]")
 
-            # Computing the spectral index and scattering timescale of each star.
+            # Computing the spectral index and scattering timescale at 327 Mhz of each star.
             spectral_index = np.random.normal(
                 cfg["mean_spectral_index"],
                 cfg["std_spectral_index"],
                 len(S_radio_bol),
             )
-            tau_sc = edm.compute_tau_sc(DM)
+            tau_sc = edm.compute_tau_sc_327(DM)
 
             # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
