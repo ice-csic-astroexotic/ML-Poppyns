@@ -604,6 +604,14 @@ def simulate_population(args: argparse.Namespace) -> None:
 
             timer.checkpoint("[DM computation]")
 
+            # Computing the spectral index and scattering timescale at 327 MHz of each star.
+            spectral_index = np.random.normal(
+                cfg["mean_spectral_index"],
+                cfg["std_spectral_index"],
+                len(S_radio_bol),
+            )
+            tau_sc = edm.compute_tau_sc_327(DM)
+
             # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
 
@@ -622,6 +630,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                 intercepted_radio,
                 coverage_PMPS,
                 dist_cutoff,
+                spectral_index,
+                tau_sc,
             )
 
             fraction_detected_radio_PMPS = len(
@@ -649,6 +659,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                 intercepted_radio,
                 coverage_SMPS,
                 dist_cutoff,
+                spectral_index,
+                tau_sc,
             )
 
             fraction_detected_radio_SMPS = len(
@@ -676,6 +688,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                 intercepted_radio,
                 coverage_HTRU_low,
                 dist_cutoff,
+                spectral_index,
+                tau_sc,
             )
 
             fraction_detected_radio_HTRU_low = len(
@@ -704,6 +718,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                 intercepted_radio,
                 coverage_HTRU_mid,
                 dist_cutoff,
+                spectral_index,
+                tau_sc,
             )
 
             fraction_detected_radio_HTRU_mid = len(
@@ -732,6 +748,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                 intercepted_radio,
                 coverage_HTRU_high,
                 dist_cutoff,
+                spectral_index,
+                tau_sc,
             )
 
             fraction_detected_radio_HTRU_high = len(
@@ -788,6 +806,7 @@ def simulate_population(args: argparse.Namespace) -> None:
             "S_radio_bol",
             "w_int",
             "intercepted_radio",
+            "spectral_index",
         ]
         units_final = [
             "[yr]",
@@ -812,6 +831,7 @@ def simulate_population(args: argparse.Namespace) -> None:
             "[erg s^-1]",
             "[erg s^-1 cm^(-2)]",
             "[s]",
+            " ",
             " ",
         ]
         header_final = pd.MultiIndex.from_arrays(
@@ -844,6 +864,7 @@ def simulate_population(args: argparse.Namespace) -> None:
                     S_radio_bol,
                     w_int_s,
                     intercepted_radio,
+                    spectral_index,
                 ]
             ).T,
             columns=header_final,

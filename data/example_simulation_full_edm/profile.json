@@ -1,84 +1,84 @@
 {
   "[TotalSimulation]": {
-    "time": 361.1944160461426
+    "time": 339.5851848125458
   },
   "[InitialPopulation]": {
-    "time": 5.769026279449463,
+    "time": 5.6718058586120605,
     "[Initial position and velocity]": {
-      "elapsed_time": 2.5658254623413086,
-      "cumulative_time": 2.5658254623413086
+      "elapsed_time": 2.470757007598877,
+      "cumulative_time": 2.470757007598877
     },
     "[Initial energy]": {
-      "elapsed_time": 1.6668663024902344,
-      "cumulative_time": 4.232691764831543
+      "elapsed_time": 1.7780778408050537,
+      "cumulative_time": 4.248834848403931
     },
     "[Initial angular momentum]": {
-      "elapsed_time": 0.4089016914367676,
-      "cumulative_time": 4.6415934562683105
+      "elapsed_time": 0.29038333892822266,
+      "cumulative_time": 4.539218187332153
     },
     "[Initial field strengths, misalignment angles and periods]": {
-      "elapsed_time": 0.07358264923095703,
-      "cumulative_time": 4.715176105499268
+      "elapsed_time": 0.0490567684173584,
+      "cumulative_time": 4.588274955749512
     },
     "[Initial period derivatives]": {
-      "elapsed_time": 0.08271145820617676,
-      "cumulative_time": 4.797887563705444
+      "elapsed_time": 0.0838320255279541,
+      "cumulative_time": 4.672106981277466
     },
     "[Export]": {
-      "elapsed_time": 0.9705770015716553,
-      "cumulative_time": 5.7684645652771
+      "elapsed_time": 0.9993088245391846,
+      "cumulative_time": 5.67141580581665
     }
   },
   "[DynamicalEvolution]": {
-    "time": 105.25035500526428,
+    "time": 121.4217472076416,
     "[Dynamical evolution]": {
-      "elapsed_time": 105.23353934288025,
-      "cumulative_time": 105.23353934288025
+      "elapsed_time": 121.40418696403503,
+      "cumulative_time": 121.40418696403503
     },
     "[Final energy]": {
-      "elapsed_time": 0.014745235443115234,
-      "cumulative_time": 105.24828457832336
+      "elapsed_time": 0.014382362365722656,
+      "cumulative_time": 121.41856932640076
     },
     "[Final angular momentum]": {
-      "elapsed_time": 0.0017974376678466797,
-      "cumulative_time": 105.25008201599121
+      "elapsed_time": 0.0026040077209472656,
+      "cumulative_time": 121.4211733341217
     }
   },
   "[MagnetoRotationalEvolution]": {
-    "time": 209.6340069770813,
+    "time": 186.66500544548035,
     "[Final field strengths, misalignment angles and periods]": {
-      "elapsed_time": 209.5308346748352,
-      "cumulative_time": 209.5308346748352
+      "elapsed_time": 186.5779378414154,
+      "cumulative_time": 186.5779378414154
     },
     "[Final period derivatives]": {
-      "elapsed_time": 0.10276651382446289,
-      "cumulative_time": 209.63360118865967
+      "elapsed_time": 0.0866856575012207,
+      "cumulative_time": 186.66462349891663
     }
   },
   "[RadioEmission]": {
-    "time": 0.09808826446533203,
+    "time": 0.062122344970703125,
     "[Radio emission]": {
-      "elapsed_time": 0.09767937660217285,
-      "cumulative_time": 0.09767937660217285
+      "elapsed_time": 0.06175351142883301,
+      "cumulative_time": 0.06175351142883301
     }
   },
   "[RadioDetection]": {
-    "time": 38.04924440383911,
+    "time": 23.292346715927124,
     "[Total sky coverage]": {
-      "elapsed_time": 0.01079869270324707,
-      "cumulative_time": 0.01079869270324707
+      "elapsed_time": 0.01047372817993164,
+      "cumulative_time": 0.01047372817993164
     },
     "[DM computation]": {
-      "elapsed_time": 37.75044775009155,
-      "cumulative_time": 37.7612464427948
+      "elapsed_time": 23.020251035690308,
+      "cumulative_time": 23.03072476387024
     },
     "[Radio surveys detection]": {
-      "elapsed_time": 0.28713202476501465,
-      "cumulative_time": 38.048378467559814
+      "elapsed_time": 0.2607402801513672,
+      "cumulative_time": 23.291465044021606
     },
     "[Export]": {
-      "elapsed_time": 2.386646032333374,
-      "cumulative_time": 40.435890436172485
+      "elapsed_time": 2.4578731060028076,
+      "cumulative_time": 25.75021982192993
     }
   }
 }

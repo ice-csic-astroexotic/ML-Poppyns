@@ -64,6 +64,7 @@ def effective_pulse_width(
     channel_width: float,
     f: float,
     t_samp: float,
+    tau_sc: np.ndarray,
 ) -> np.ndarray:
     """
     Measured effective pulse width which is smeared out by the inter-channel dispersion, the scattering
@@ -75,14 +76,17 @@ def effective_pulse_width(
         channel_width (float): Width in frequency of a single frequency channel of the receiver in [Hz].
         f (float): Central frequency at which the observation is performed [Hz].
         t_samp (float): Sampling time for the radio survey [s].
-
+        tau_sc (np.ndarray): Scattering timescales in [s].
     Returns:
         (np.ndarray): Measured effective pulse width in [s].
     """
 
     tau_DM = smearing_in_channel(DM, channel_width, f)
-    tau_sc = edm.compute_tau_sc(DM, f)
-    w_eff = np.sqrt(w_int**2 + tau_sc**2 + tau_DM**2 + t_samp**2)
+
+    # Convert the scattering time to a given observation frequency f assuming a Kolmogorov spectrum.
+    tau_sc_f = edm.compute_tau_sc_f(tau_sc, f)
+
+    w_eff = np.sqrt(w_int**2 + tau_sc_f**2 + tau_DM**2 + t_samp**2)
 
     return w_eff
 
@@ -510,7 +514,9 @@ class SurveyRadio:
         coverage: np.ndarray,
         l_gal: np.ndarray,
         b_gal: np.ndarray,
-        S_radio_bol,
+        S_radio_bol: np.ndarray,
+        spectral_index: np.ndarray,
+        tau_sc: np.ndarray,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
         """
@@ -526,6 +532,8 @@ class SurveyRadio:
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
             S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
+            spectral_index (np.ndarray): Spectral indexes.
+            tau_sc (np.ndarray): Scattering timescale in [s].
 
         Returns:
             (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of four arrays defining the
@@ -536,30 +544,38 @@ class SurveyRadio:
         # Computing the intrinsic radio flux density in [Jy].
         S_radio_f = er.flux_density_radio(
             S_radio_bol,
+            spectral_index,
             f=self.f_central,
         )
         # Computing the intrinsic radio flux density in [Jy] at a frequency of 1.4 GHz to compare with MeerKAT fluxes.
         S_radio_f_1_4GHz = er.flux_density_radio(
             S_radio_bol,
+            spectral_index,
             f=1.429e9,
         )
-        # Compute the effective pulse width in [s].
+        # Compute the effective pulse width in [s] at the survey's central frequency and at 1.4 GHz.
         w_eff = effective_pulse_width(
             w_int_s,
             DM,
             self.channel_width,
             self.f_central,
             self.t_samp,
+            tau_sc,
+        )
+        w_eff_1_4_GHz = effective_pulse_width(
+            w_int_s, DM, self.channel_width, 1.429e9, self.t_samp, tau_sc
         )
 
-        # Compute the observed radio flux in [Jy].
+        # Compute the observed radio flux in [Jy] at the survey's central frequency and at 1.4 GHz.
         S_radio_obs = flux_radio_obs(S_radio_f, w_int_s, w_eff)
-        S_radio_obs_1_4GHz = flux_radio_obs(S_radio_f_1_4GHz, w_int_s, w_eff)
+        S_radio_obs_1_4GHz = flux_radio_obs(
+            S_radio_f_1_4GHz, w_int_s, w_eff_1_4_GHz
+        )
 
-        # Compute the period-averaged flux in [Jy].
+        # Compute the period-averaged flux in [Jy] at the survey's central frequency and at 1.4 GHz.
         S_radio_obs_mean = flux_radio_obs_period_average(S_radio_obs, P, w_eff)
         S_radio_obs_mean_1_4GHz = flux_radio_obs_period_average(
-            S_radio_obs_1_4GHz, P, w_eff
+            S_radio_obs_1_4GHz, P, w_eff_1_4_GHz
         )
 
         detected_radio = np.zeros(len(age), dtype=bool)
@@ -585,6 +601,8 @@ class SurveyRadio:
         intercepted_radio: np.ndarray,
         coverage_survey: np.ndarray,
         dist_cutoff: np.array,
+        spectral_index: np.ndarray,
+        tau_sc: np.ndarray,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
         """
@@ -603,6 +621,8 @@ class SurveyRadio:
             coverage_survey: (np.ndarray) Array of boolean variables where true values represent stars within the
                 sky coverage of each survey.
             dist_cutoff: (np.ndarray) Array of boolean variables where true values represent stars within 35 kpc.
+            spectral_index (np.ndarray): Spectral indexes.
+            tau_sc (np.ndarray): Scattering timescale in [s].
 
         Returns:
             (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of four arrays defining
@@ -618,6 +638,7 @@ class SurveyRadio:
         S_radio_f = np.zeros(cfg["NS_number"])
         S_radio_f[detectable_radio_survey] = er.flux_density_radio(
             S_radio_bol[detectable_radio_survey],
+            spectral_index[detectable_radio_survey],
             f=self.f_central,
         )
 
@@ -629,6 +650,7 @@ class SurveyRadio:
             self.channel_width,
             self.f_central,
             self.t_samp,
+            tau_sc[detectable_radio_survey],
         )
 
         # Compute the observed radio flux in [Jy].
