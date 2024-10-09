@@ -237,9 +237,9 @@ def flux_density_radio(
 
     Args:
         S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
-        f (float): frequency in [Hz] at which the radio luminosity has to be computed.
         spectral_index (float): spectral index of the radio emission,
             assuming a power-law spectrum.
+        f (float): frequency in [Hz] at which the radio luminosity has to be computed.
         f_min (float): frequency lower limit of the radio emission spectrum [Hz].
         f_max (float): frequency upper limit of the radio emission spectrum [Hz].
 

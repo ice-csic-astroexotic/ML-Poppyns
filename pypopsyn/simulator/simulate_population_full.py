@@ -604,7 +604,7 @@ def simulate_population(args: argparse.Namespace) -> None:
 
             timer.checkpoint("[DM computation]")
 
-            # Computing the spectral index and scattering timescale at 327 Mhz of each star.
+            # Computing the spectral index and scattering timescale at 327 MHz of each star.
             spectral_index = np.random.normal(
                 cfg["mean_spectral_index"],
                 cfg["std_spectral_index"],

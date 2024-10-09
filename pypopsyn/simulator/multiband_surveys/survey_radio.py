@@ -562,20 +562,20 @@ class SurveyRadio:
             self.t_samp,
             tau_sc,
         )
-        w_eff_1_4_Ghz = effective_pulse_width(
+        w_eff_1_4_GHz = effective_pulse_width(
             w_int_s, DM, self.channel_width, 1.429e9, self.t_samp, tau_sc
         )
 
         # Compute the observed radio flux in [Jy] at the survey's central frequency and at 1.4 GHz.
         S_radio_obs = flux_radio_obs(S_radio_f, w_int_s, w_eff)
         S_radio_obs_1_4GHz = flux_radio_obs(
-            S_radio_f_1_4GHz, w_int_s, w_eff_1_4_Ghz
+            S_radio_f_1_4GHz, w_int_s, w_eff_1_4_GHz
         )
 
         # Compute the period-averaged flux in [Jy] at the survey's central frequency and at 1.4 GHz.
         S_radio_obs_mean = flux_radio_obs_period_average(S_radio_obs, P, w_eff)
         S_radio_obs_mean_1_4GHz = flux_radio_obs_period_average(
-            S_radio_obs_1_4GHz, P, w_eff_1_4_Ghz
+            S_radio_obs_1_4GHz, P, w_eff_1_4_GHz
         )
 
         detected_radio = np.zeros(len(age), dtype=bool)
