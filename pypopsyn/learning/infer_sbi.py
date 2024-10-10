@@ -5,11 +5,11 @@
     It loads a density estimator trained to approximate the posterior distribution for a dataset of simulated data
     and checks its performance on a test dataset.
     Simulation-based Calibration is also performed to check if the posterior is well-behaved.
-    See https://www.mackelab.org/sbi/ for more details.
+    See [https://www.mackelab.org/sbi/](https://www.mackelab.org/sbi/) for more details.
 
      Display help message to run the code:
 
-    python infer_sbi.py --h
+    python infer_sbi.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -37,7 +37,7 @@ from sbi.analysis import check_sbc, run_sbc, sbc_rank_plot
 from sbi.inference import SNPE
 
 import pypopsyn.learning.configuration_parser as configuration_parser
-import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
+import pypopsyn.learning.loaders.loader_multichannel_array as dl
 import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
 from utilities.coverage_probability import coverage_prob
@@ -50,16 +50,15 @@ def calculate_smallest_hdr(
     simulation_output: torch.tensor,
     device: str,
 ) -> float:
-
     """
     Calculating the smallest highest density region of the posterior, that contains the true value.
 
     Args:
         posterior (Callable): Posterior distribution function.
         true_value (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
-        population in simulation_output.
+            population in simulation_output.
         posterior_samples (torch.tensor): Tensor containing the samples from the inferred posterior distribution
-        for simulation_output.
+            for simulation_output.
         simulation_output (torch.tensor): Tensor containing the maps of the simulated population.
         device (str): String specifying the type of the device used to run the script.
 
@@ -83,7 +82,23 @@ def calculate_smallest_hdr(
     return hdr
 
 
-def infer(args, config):
+def infer(
+    args: argparse.Namespace, config: configuration_parser.ConfigurationParser
+) -> None:
+    """
+    Perform simulation-based inference using a trained model on the provided dataset.
+
+    Args:
+        args (argparse.Namespace): Command line arguments containing configuration options:
+
+            - configuration (str): Path to the configuration file.
+            - corner_plot (bool): If set to True, generates posterior corner plots for each test sample.
+            - trained_model (str): Path to the pretrained model.
+            - infer (str): Flag to set up the inference saving path (default is True).
+
+        config (configuration_parser.ConfigurationParser): Configuration object with settings
+            for data loading, model architecture, profiling options, and other parameters.
+    """
 
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("Inference")
@@ -379,7 +394,7 @@ def infer(args, config):
                     )
 
                     logger.info(
-                        "Estimated parameter values (we consider the median as the best value"
+                        "Estimated parameter values (we consider the median as the best value "
                         "and the 95 % credibility interval):"
                     )
 

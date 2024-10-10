@@ -14,18 +14,22 @@ from .loss_base import LossBase
 
 
 class LossRMSE(LossBase):
-    """Root mean square error (RMSE) loss."""
+    """
+    Root mean square error (RMSE) loss.
+    """
 
-    def __call__(self, output, target):
-
-        """Computation of the RMSE loss.
+    def __call__(
+        self, output: torch.Tensor, target: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Computation of the RMSE loss.
 
         Args:
-            output: Network output tensor (predictions).
-            target: Ground truth tensor (labels).
+            output (torch.Tensor): Network output tensor (predictions).
+            target (torch.Tensor): Ground truth tensor (labels).
 
         Returns:
-            Tensor with a RMS loss value for each input pair output-target.
+            (torch.Tensor): Tensor with a RMS loss value for each input pair output-target.
 
         """
         self.mse = nn.MSELoss()
@@ -33,8 +37,12 @@ class LossRMSE(LossBase):
         loss = torch.sqrt(self.mse(output, target))
         return loss
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        String representation for the RMSE loss.
 
-        """String representation for the RMSE loss."""
+        Returns:
+            (str): String representation for the RMSE loss.
+        """
 
         return "RMSE Loss"

@@ -6,7 +6,7 @@
 
     Display help message to run the code:
 
-    python compute_statistics.py --h
+    python compute_statistics.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -26,9 +26,8 @@ def compute_statistics(dataset_dict: dict) -> dict:
     Args:
         dataset_dict (dict): Dictionary containing the information on the dataset.
 
-    Return:
-        dict: Dictionary providing the statistical information of each label.
-
+    Returns:
+        (dict): Dictionary providing the statistical information of each label.
     """
 
     statistics_dictionary = {}

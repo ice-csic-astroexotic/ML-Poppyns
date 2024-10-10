@@ -1,12 +1,12 @@
 """
     Generating an initial population of neutron stars in the Milky Way with
-    random parameters. For the initial positions we assume that the distribution
-    of progenitors follows the free electron density model ymw16 from Yau et al. (2016).
+    random parameters. For the initial positions, we assume that the distribution
+    of progenitors follows the free electron density model ymw16 from Yao et al. (2017).
 
-        Authors:
+    Authors:
 
-            Vanessa Graber (graber@ice.csic.es)
-            Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import logging
@@ -36,6 +36,9 @@ class InitialNeutronStarPopulation:
     def __init__(self, NS_number: int) -> None:
         """
         Initialization for the initial population synthesis.
+
+        Args:
+            NS_number (int): Number of neutron stars to simulate.
         """
 
         # Number of neutron stars to generate in a single call of the InitialNeutronStarPopulation class.
@@ -51,9 +54,7 @@ class InitialNeutronStarPopulation:
         probability distribution in a given range of time.
 
         Returns:
-
-            np.ndarray: array of ages in [yr].
-
+            (np.ndarray): Array of ages in [yr].
         """
 
         log.debug(
@@ -78,24 +79,22 @@ class InitialNeutronStarPopulation:
         """
         Calculating the position at birth of each random neutron star in
         cylindrical reference frame according to the Galactic electron density
-        distribution ymw16 (see Yau et al. 2016).
+        distribution ymw16 (see Yao et al. 2017).
         Using the notebook ns_distribution_ne_model.ipynb we create a 2D numpy array containing the
         electron density distribution in polar coordinates (r, phi).
         This 2D array is used to sample the neutron star positions in the Galaxy.
 
         Args:
-
-            t_age (np.ndarray): array of neutron star ages in [yr].
+            t_age (np.ndarray): Array of neutron star ages in [yr].
 
         Returns:
-
-            (np.ndarray, np.ndarray, np.ndarray):
-            polar r, phi and z coordinates in [kpc], [rad] and [kpc] respectively
-            for each generated neutron star.
+            (Tuple[np.ndarray, np.ndarray, np.ndarray]): Polar r, phi and z coordinates in [kpc], [rad] and [kpc]
+                respectively for each generated neutron star.
         """
 
         # Load the neutron star density model table.
-        # The model table has been generated through the Jupyter notebook ns_distributio_ne_model.ipynb.
+        # The model table has been generated through the Jupyter notebook located in
+        # tutorials/analysis_notebooks/ns_distribution_ne_model.ipynb.
         # It contains an 2D array of density rho in cylindrical coordinates (r, phi).
         # The density in the table is already multiplied by the galactocentric distance r
         # to take into account the element of area correction.
@@ -141,12 +140,11 @@ class InitialNeutronStarPopulation:
         galactocentric coordinate system.
 
         Returns:
-
-            (np.ndarray, np.ndarray, np.ndarray): vk_r, vk_phi and vk_z kick
-            velocities in [kpc/yr] for each generated neutron stars. In particular
-            vk_r is the component of the kick velocity along the galactocentric
-            radial direction, vk_phi is the component along the azimuthal phi
-            direction and vk_z is the component along the z direction.
+            (Tuple[np.ndarray, np.ndarray, np.ndarray]): vk_r, vk_phi and vk_z kick
+                velocities in [kpc/yr] for each generated neutron stars. In particular
+                vk_r is the component of the kick velocity along the galactocentric
+                radial direction, vk_phi is the component along the azimuthal phi
+                direction and vk_z is the component along the z direction.
 
         """
 
@@ -198,15 +196,12 @@ class InitialNeutronStarPopulation:
         values, the phi component is negative.
 
         Args:
-
-            r (np.ndarray): distance in the galactic disk from the galactic center
-            in [kpc].
-            z (np.ndarray): height from the galactic disk in [kpc].
+            r (np.ndarray): Distance in the galactic disk from the galactic center
+                in [kpc].
+            z (np.ndarray): Height from the galactic disk in [kpc].
 
         Returns:
-
-            (np.ndarray): array of orbital velocities in [kpc/yr].
-
+            (np.ndarray): Array of orbital velocities in [kpc/yr].
         """
         circular_velocity_vect = np.vectorize(iv.circular_velocity)
         v_orb = -circular_velocity_vect(r, z)
@@ -220,9 +215,7 @@ class InitialNeutronStarPopulation:
         parameters are defined in config_simulator.py.
 
         Returns:
-
-            (np.ndarray): initial spin periods of the pulsar sample in [s].
-
+            (np.ndarray): Initial spin periods of the pulsar sample in [s].
         """
 
         spin_period_model = cfg["spin_period_model"]
@@ -254,9 +247,7 @@ class InitialNeutronStarPopulation:
         themselves normally distributed. The characteristic parameters are defined in config_simulator.py.
 
         Returns:
-
-            (np.ndarray): initial magnetic field strengths of the pulsar sample in [G].
-
+            (np.ndarray): Initial magnetic field strengths of the pulsar sample in [G].
         """
         magnetic_field_model = cfg["magnetic_field_model"]
 
@@ -285,9 +276,7 @@ class InitialNeutronStarPopulation:
         range [0, np.pi / 2] according to the probability density distribution np.sin.
 
         Returns:
-
-            (np.ndarray): initial misalignment angles of the pulsar sample in [rad].
-
+            (np.ndarray): Initial misalignment angles of the pulsar sample in [rad].
         """
 
         chi_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])

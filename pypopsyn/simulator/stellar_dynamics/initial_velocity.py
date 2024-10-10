@@ -7,8 +7,8 @@
 
     Authors:
 
-            Vanessa Graber (graber@ice.csic.es)
-            Michele Ronchi (ronchi@ice.csic.es)
+        Vanessa Graber (graber@ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import numpy as np
@@ -23,10 +23,10 @@ def pdf_kick_velocity_exp(v: np.ndarray) -> np.ndarray:
     kick velocity magnitude following eq. (5) in Ofek (2009).
 
     Args:
-        v (np.ndarray): initial kick velocity magnitude in [km/s].
+        v (np.ndarray): Initial kick velocity magnitude in [km/s].
 
     Returns:
-        np.ndarray: stellar kick velocity distribution in [1/(km/s)].
+        (np.ndarray): Stellar kick velocity distribution in [1/(km/s)].
     """
     vk_mean = cfg["vk_c"]
     pdf_vk = v / vk_mean**2 * np.exp(-v / vk_mean)
@@ -40,10 +40,10 @@ def pdf_kick_velocity_maxwell(v: np.ndarray) -> np.ndarray:
     velocity magnitude following section 6.2 in Hobbs et al. (2005).
 
     Args:
-        v (np.ndarray): initial kick velocity magnitude in [km/s].
+        v (np.ndarray): Initial kick velocity magnitude in [km/s].
 
     Returns:
-        np.ndarray: stellar kick velocity distribution in [1/(km/s)].
+        (np.ndarray): Stellar kick velocity distribution in [1/(km/s)].
     """
     sigma = cfg["sigma_k"]
     pdf_vk = (
@@ -62,10 +62,10 @@ def pdf_kick_velocity_2maxwell(v: np.ndarray) -> np.ndarray:
     velocity magnitude following eq. (5) and section 4.2 in Igoshev (2020).
 
     Args:
-        v (np.ndarray): initial kick velocity magnitude in [km/s].
+        v (np.ndarray): Initial kick velocity magnitude in [km/s].
 
     Returns:
-        np.ndarray: stellar kick velocity distribution in [1/(km/s)].
+        (np.ndarray): Stellar kick velocity distribution in [1/(km/s)].
     """
 
     # Define the dispersions of the two Maxwellian components.
@@ -102,11 +102,11 @@ def circular_velocity(r: float, z: float) -> float:
     to rotation.
 
     Args:
-        r (float): distance in the galactic disk from the galactic center in [kpc].
-        z (float): height from the galactic disk in [kpc].
+        r (float): Distance in the galactic disk from the galactic center in [kpc].
+        z (float): Height from the galactic disk in [kpc].
 
     Returns:
-        (float): value of the circular velocity in [kpc/yr].
+        (float): Value of the circular velocity in [kpc/yr].
     """
 
     pot_mw_gradient = gm.galactic_model.cylind_coord_gradient_mw_potential(

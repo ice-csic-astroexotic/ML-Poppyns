@@ -15,7 +15,7 @@ import typing
 import termcolor
 
 
-def time_function(filename: str = None, show: bool = True):
+def time_function(filename: str = None, show: bool = True) -> typing.Callable:
     """
     Function to use as a decorator to time another function for each call
     seamlessly. It sets up a timer, calls the specified function with the
@@ -26,17 +26,14 @@ def time_function(filename: str = None, show: bool = True):
     if a filename is specified.
 
     Args:
-
         filename (str): Name of the file to dump profiling information.
-
         show (bool): Whether or not to print info to terminal.
 
     Returns:
-
-        The result of calling the specified function.
+        (typing.Callable): The result of calling the specified function.
     """
 
-    def inner(func: typing.Callable):
+    def inner(func: typing.Callable) -> typing.Callable:
         def f_timer(*args, **kwargs):
 
             start = time.time()

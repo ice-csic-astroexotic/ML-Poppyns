@@ -3,8 +3,8 @@
 
     Authors:
 
-        Michele Ronchi (ronchi @ ice.csic.es)
-        Celsa Pardo Araujo (pardo @ ice.csic.es)
+        Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import logging
@@ -16,7 +16,7 @@ from unittest import mock
 
 import pytest
 
-import utilities.simulation_helper.run_simulation_set as rss
+import utilities.experiment_helpers.run_simulation_set as rss
 
 
 @pytest.fixture

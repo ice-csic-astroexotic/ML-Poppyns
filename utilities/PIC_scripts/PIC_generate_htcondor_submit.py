@@ -11,13 +11,13 @@
 
     Display help message to run the code:
 
-    python PIC_generate_htcondor_submit.py --h
+    python PIC_generate_htcondor_submit.py --help
 
     Displays all the relevant arguments that can be used.
 
     Authors:
 
-        Celsa Pardo (pardo @ csic.es)
+        Celsa Pardo Araujo (pardo@csic.es)
 """
 
 import argparse
@@ -30,16 +30,13 @@ from pypopsyn.simulator.config_simulator import cfg
 
 def generate_job_submit(
     path_output: pathlib.Path, path_arguments: pathlib.Path
-):
+) -> None:
     """
     Create all the submit files.
 
     Args:
         path_output (pathlib.Path): Output directory for the submit file.
         path_arguments (pathlib.Path): Path for the simulation arguments.
-
-    Returns:
-        Nothing.
     """
     # Path where each submit file will be saved.
     path_submit = pathlib.Path().joinpath(path_output, "job.submit")
@@ -62,7 +59,7 @@ def generate_wrapper(
     type_simulation: str,
     dyn_path: pathlib.Path,
     path_wrapper: pathlib.Path,
-):
+) -> None:
     """
     Create all the wrapper files.
 
@@ -70,9 +67,6 @@ def generate_wrapper(
         type_simulation (str): String with the type of simulation we want to run.
         path_wrapper (pathlib.Path): Output directory for the wrapper file.
         dyn_path (pathlib.Path): Path to where the dynamically evolved population database is stored.
-
-    Returns:
-        Nothing.
     """
 
     # Writing the `wrapper.sh` file where we loop over the lines of the `"/arguments_job" + str(j + 1) + ".txt"` file.
@@ -125,7 +119,28 @@ def generate_wrapper(
         f.close()
 
 
-def submit_generator(args):
+def submit_generator(args: argparse.Namespace) -> None:
+    """
+    Generate HTCondor submit files for running simulations in batches.
+
+    This function takes command-line arguments and generates the necessary files
+    for submitting simulations to an HTCondor cluster. It creates a directory
+    structure with one folder per week, where each week's folder contains
+    argument files for individual jobs and a submit file.
+
+    Args:
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+
+            - output_dir_htcondor (str): Path to the directory where the
+                generated files will be saved.
+            - output_dir_simulation (str): Path to the directory containing the
+                 simulation parameter files.
+            - n_sim_job (int): Number of simulations to run per job.
+            - n_sim_week (int): Number of simulations to run per week.
+            - dyn_data (str): Path to the dynamically evolved population database
+                 file (if using the `simulate_population_magrot_det` simulator).
+            - type_simulation (str): Type of simulation to run, either 'dyn' or 'magrot'.
+    """
 
     common_path = cfg["path_to_output"]
 

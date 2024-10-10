@@ -8,7 +8,7 @@
     Wainscoat et al. (1992).
 
     2) saYMW17: A galactic spiral structure according to eq. (12) of Faucher-Giguère & Kaspi (2006)
-    but with parameters re-adapted from Yau & Manchester (2017). Their model consists of four arms
+    but with parameters re-adapted from Yao et al. (2017). Their model consists of four arms
     plus a Local arm from Hou et al. (2014).
 
     Authors:
@@ -31,7 +31,7 @@ def initialize_spiral_model() -> None:
     Initializing the spiral model employed in the simulation. We have implemented two
     versions, i.e., the spiral structure of Faucher-Giguère & Kaspi (2006) (with
     the addition of the Local arm from Wainscoat et al. (1992)) and the spiral model from
-    Yau & Manchester (2017). The spiral_model variable is made available on a global level.
+    Yao et al. (2017). The spiral_model variable is made available on a global level.
     """
     global spiral_model
 
@@ -68,13 +68,11 @@ class SpiralModelBase:
         and the limited extension of the Local arm with respect to the other arms.
 
         Args:
-
-            arm_number (int): number of arms to simulate.
-            NS_number (int): number of stars to simulate.
+            arm_number (int): Number of arms to simulate.
+            NS_number (int): Number of stars to simulate.
 
         Returns:
-
-            (np.ndarray) array of random indices for the spiral arm associated to each star.
+            (np.ndarray): Array of random indices for the spiral arm associated to each star.
 
         """
 
@@ -102,14 +100,7 @@ class SpiralModelBase:
         Check that the index for the spiral galaxy arms is not <1 or >5.
 
         Args:
-
-            arm_index (np.ndarray): index for the respective spiral arms.
-
-        Returns:
-
-            Returns None if arm_index between or equal to 1 and 5,
-            otherwise raises ValueError.
-
+            arm_index (np.ndarray): Index for the respective spiral arms.
         """
         if np.any(arm_index < 1) or np.any(arm_index > 5):
             raise ValueError("One of arm indices is out of range.")
@@ -123,14 +114,12 @@ class SpiralModelBase:
         to eq. (12) of Faucher-Giguère & Kaspi (2006) (see also Wainscoat et al. 1992).
 
         Args:
-
-            r (np.ndarray): distances from the galactic center in [kpc].
+            r (np.ndarray): Distances from the galactic center in [kpc].
             arm_index (np.ndarray): indices for the respective spiral arms,
-            0 < arm_index < 6.
+                0 < arm_index < 6.
 
         Returns:
-
-            np.ndarray: galactocentric phi coordinates in [rad].
+            (np.ndarray): Galactocentric phi coordinates in [rad].
 
         """
 
@@ -186,14 +175,14 @@ class SpiralModelFK06(SpiralModelBase):
 
 class SpiralModelYMW17(SpiralModelBase):
     """
-    Spiral structure of Yau & Manchester (2017), see also Hou et al. (2014).
-    Spiral arm parameters from table 1 in Yau & Manchester (2016) assuming a Sun
+    Spiral structure of Yao et al. (2017), see also Hou et al. (2014).
+    Spiral arm parameters from table 1 in Yao et al. (2017) assuming a Sun
     galactocentric distance R_sun = 8.3 kpc. The Local arm has a radial extension
     ~ 1.05 rad in the range [0.87, 1.92] rad (see Hou et al. 2014).
     """
 
     def __init__(self):
-        # Parameters of the model, values from Table 1 in Yau & Manchester (2017) re-adapted
+        # Parameters of the model, values from Table 1 in Yao et al. (2017) re-adapted
         # to match the same logarithmic functional form used in Faucher-Giguère & Kaspi (2006).
         # Respectively winding constant k [rad], the inner radius r0 [kpc] and the inner angle
         # phi0 [rad].

@@ -18,11 +18,8 @@ def download_file(download_url: str, destination_path: str) -> None:
     Download a file from a given URL into the specified directory path.
 
     Args:
-        download_url (str): download URL for the file.
-        destination_path (str): path where to save the downloaded file; the file name has to be included.
-
-    Return:
-        None
+        download_url (str): Download URL for the file.
+        destination_path (str): Path where to save the downloaded file; the file name has to be included.
     """
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     log = logging.getLogger(__name__)

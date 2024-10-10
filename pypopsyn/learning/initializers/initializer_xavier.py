@@ -35,12 +35,9 @@ class InitializerXavier(InitializerBase):
         Biases are just filled with a constant close-to-zero value (0.01).
 
         Args:
-            m (torch.module): module with parameters to be initialized. Could
-              be anything from a linear layer to a convolutional one. Right now,
-              only initialization of Linear layers is performed.
-
-        Returns:
-            Nothing.
+            m (torch.module): Module with parameters to be initialized. Could
+                be anything from a linear layer to a convolutional one. Right now,
+                only initialization of Linear layers is performed.
         """
 
         if type(m) is torch.nn.Linear:
@@ -51,10 +48,7 @@ class InitializerXavier(InitializerBase):
         """
         Custom to string operator for the weight initializer.
 
-        Args:
-            None.
-
         Returns:
-            A string which describes the weight initializer for output purposes.
+            (str): A string which describes the weight initializer for output purposes.
         """
         return "Xavier Uniform weight initializer"

@@ -202,6 +202,7 @@ cfg["tau_late"]: float = 3.0e6
 # Late time power-law index.
 cfg["a_late"]: float = -0.8
 
+
 # Parameters for a log-normal distribution of the magnetic fields of the old millisecond pulsars.
 cfg["B_millisec_mean"] = 8.5
 cfg["B_millisec_sigma"] = 0.5
@@ -238,18 +239,17 @@ cfg["ed_model"]: str = "ymw16"
 # we also use a cut-off in period of P > 0.01s and period derivative of Pdot > 10^-19s/s.
 # The latter however only applies to those objects with measured Pdot values,
 # i.e., the counts below also include those pulsars with P > 0.01s that have no Pdot measurement.
-cfg["detected_real_PMPS"]: int = 1009
+cfg["detected_real_PMPS"]: int = 1045
 cfg["detected_real_SMPS"]: int = 218
-cfg["detected_real_htru_low_mid"]: int = 1023
+cfg["detected_real_htru_low_mid"]: int = 1037
 cfg["detected_real_htru_high"]: int = 20
 
-# Numbers of objects associated with the three pulsars surveys as followed up with the TPA programme on Meerkat.
+# Numbers of objects associated with the three pulsar surveys as followed up with the TPA programme on MeerKAT.
 # For details see Posselt et al. (2023). Note these numbers are used in the pypopsyn/generator/generate_observed_data.py
-# script and differ from those given in the full ATNF catalogue.
-cfg["detected_meerkat_PMPS"]: int = 618
-cfg["detected_meerkat_SMPS"]: int = 160
-cfg["detected_meerkat_HTRU"]: int = 667
-
+# script and differ from those given in the full ATNF Pulsar Catalogue.
+cfg["detected_meerkat_PMPS"]: int = 640
+cfg["detected_meerkat_SMPS"]: int = 170
+cfg["detected_meerkat_HTRU"]: int = 668
 
 # ===================== X-RAY EMISSION-MODEL PARAMETERS ========================
 
@@ -275,7 +275,7 @@ cfg["ISM_abundances"]: List[float] = [
 ]
 
 
-def update_configuration(new_configuration) -> None:
+def update_configuration(new_configuration: dict) -> None:
     """
     Update current configuration with custom one.
 
@@ -283,13 +283,7 @@ def update_configuration(new_configuration) -> None:
     configuration dictionary and output each updated key-value pair.
 
     Args:
-
-        new_configuration: dictionary with custom configuration.
-
-    Returns:
-
-        Nothing.
-
+        new_configuration (dict): dictionary with custom configuration.
     """
 
     for key, value in new_configuration.items():

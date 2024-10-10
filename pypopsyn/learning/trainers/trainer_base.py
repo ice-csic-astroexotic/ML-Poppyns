@@ -11,12 +11,14 @@ import pathlib
 import typing
 from abc import abstractmethod
 
-import numpy as np
 import torch
 from numpy import inf
 
 from pypopsyn.learning.configuration_parser import ConfigurationParser
+from pypopsyn.learning.loaders.loader_base import LoaderBase
 from pypopsyn.learning.logger.tensorboard_writer import TensorboardWriter
+from pypopsyn.learning.losses.loss_base import LossBase
+from pypopsyn.learning.metrics.metric_base import MetricBase
 from pypopsyn.learning.utils.request_device import request_device
 
 
@@ -24,29 +26,27 @@ class BaseTrainer:
     """
     Base trainer.
 
+    This class serves as a blueprint for creating various trainers.
+    It defines the essential methods that all trainers must implement, ensuring consistency.
     """
 
     def __init__(
         self,
         model: torch.nn.Module,
-        criterion,
-        metric,
-        optimizer,
+        criterion: LossBase,
+        metric: MetricBase,
+        optimizer: torch.optim.Optimizer,
         configuration: ConfigurationParser,
-    ):
+    ) -> None:
         """
         Trainer initialization.
 
         Args:
-            model: Network to train.
-            criterion: Loss criterion.
-            metric: Metric to validate.
-            optimizer: Optimizer for training.
-            configuration: Current experiment configuration.
-
-        Returns:
-            Nothing.
-
+            model (torch.nn.Module): Network to train.
+            criterion (LossBase): Loss criterion.
+            metric (MetricBase): Metric to validate.
+            optimizer (torch.optim.Optimizer): Optimizer for training.
+            configuration (ConfigurationParser): Current experiment configuration.
         """
 
         self.configuration = configuration
@@ -114,15 +114,28 @@ class BaseTrainer:
             trainer_configuration["tensorboard"],
         )
 
-        if configuration.resume is not None:
-            self._resume_checkpoint(configuration.resume)
+        if configuration.resume:
+            self._resume_checkpoint(
+                configuration["resume_training"]["save_dir"]
+            )
 
     @abstractmethod
-    def _train_epoch(self, epoch):
+    def _train_epoch(self, epoch: int) -> typing.Any:
+        """
+        Trains the model for a single epoch.
+
+        This method trains the model for the specified epoch.
+
+        Args:
+            epoch (int): The current epoch number.
+
+        Returns:
+            (Any): The output of the training for a single epoch.
+        """
+
         raise NotImplementedError
 
     def train(self, trial: int = None) -> typing.Tuple[dict, float]:
-
         """
         Main training procedure.
 
@@ -137,16 +150,15 @@ class BaseTrainer:
         it also saves the most accurate model to `best_model.pth`.
 
         Args:
-            trial (int): the current trial to add suffixes to the saved models
+            trial (int): The current trial to add suffixes to the saved models
                 and checkpoints. Can be none if no trial is specified.
 
         Returns:
-            dict: a dictionary with the best values for each individual loss for
-            each one of the targets.
-            float: the best result for the specified metric over the whole
-            training process (validation accuracy according to the metric if
-            validation is performed and training accuracy otherwise).
-
+            (dict): A dictionary with the best values for each individual loss for
+                each one of the targets.
+            (float): The best result for the specified metric over the whole
+                training process (validation accuracy according to the metric if
+                validation is performed and training accuracy otherwise).
         """
 
         best_losses = {}
@@ -285,18 +297,19 @@ class BaseTrainer:
 
         return best_losses, self.monitor_best
 
-    def _progress(self, batch_idx: int, data_loader, len_epoch: int) -> str:
+    def _progress(
+        self, batch_idx: int, data_loader: LoaderBase, len_epoch: int
+    ) -> str:
         """
         Epoch progress tracker.
 
         Args:
-            batch_idx: Current batch index.
-            data_loader: Data loader in use.
-            len_epoch: Length of a whole epoch.
+            batch_idx (int): Current batch index.
+            data_loader (LoaderBase): Data loader in use.
+            len_epoch (int): Length of a whole epoch.
 
         Returns:
-            A string representation of the progress in the current epoch.
-
+            (str): A string representation of the progress in the current epoch.
         """
 
         base = "[{}/{} ({:.0f}%)]"
@@ -322,13 +335,8 @@ class BaseTrainer:
         configuration.
 
         Args:
-            epoch: current training epoch.
-            filename: filename to save the checkpoint to.
-
-        Returns:
-            Nothing. Saves the checkpoint in the checkpoint folder with
-            the specified filename.
-
+            epoch (int): Current training epoch.
+            filename (str): Filename to save the checkpoint to.
         """
 
         arch = type(self.model).__name__
@@ -345,7 +353,7 @@ class BaseTrainer:
         filename = str(self.checkpoint_dir / filename)
         torch.save(state, filename)
 
-    def _resume_checkpoint(self, checkpoint_path) -> None:
+    def _resume_checkpoint(self, checkpoint_path: pathlib.Path) -> None:
         """
         Resumes a checkpoint to continue training.
 
@@ -354,11 +362,7 @@ class BaseTrainer:
         the optimizer state.
 
         Args:
-            checkpoint_path: Path to checkpoint to resume.
-
-        Returns:
-            Nothing.
-
+            checkpoint_path (pathlib.Path): Path to checkpoint to resume.
         """
 
         checkpoint_path = str(checkpoint_path)

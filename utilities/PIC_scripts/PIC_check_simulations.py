@@ -7,13 +7,13 @@
 
     Display help message to run the code:
 
-    python PIC_check_simulations.py --h
+    python PIC_check_simulations.py --help
 
     Displays all the relevant arguments that can be used.
 
     Authors:
 
-        Celsa Pardo (pardo @ csic.es)
+        Celsa Pardo Araujo (pardo@csic.es)
 """
 
 import argparse
@@ -23,17 +23,17 @@ import pathlib
 import pandas as pd
 
 
-def check_simulations(args):
+def check_simulations(args: argparse.Namespace) -> None:
     """
     Checking how many simulations run using HTCondor have failed.
     We save the name of the output folder for each of the failed simulations in the failed_folders.csv file.
 
     Args:
-        args:
-            output_dir_simulation (pathlib.Path): Output directory where the simulation outputs are.
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
 
-    Returns:
-        Nothing.
+            - output_dir_simulation (pathlib.Path): Output directory where the simulation outputs are.
+            - dir_failed_folder_csv (str): Path to the directory where the csv file containing the list of failed
+                folders is saved.
     """
 
     output_simulations_path = args.output_dir_simulation

@@ -6,7 +6,7 @@
 
     Authors:
 
-            Michele Ronchi (ronchi@ice.csic.es)
+         Michele Ronchi (ronchi@ice.csic.es)
 """
 
 import numpy as np
@@ -24,13 +24,13 @@ def compute_DM(
     the dispersion measures DMs related to the given heliocentric distances.
 
     Args:
-        l_gal (np.ndarray): galactic longitude in [deg] defined between [-180, 180] [deg].
-        b_gal (np.ndarray): galactic latitude in [deg] defined between [-90, 90] [deg].
-        d (np.ndarray): heliocentric distance in [kpc].
-        ed_model (str): free electron density model, either 'ymw16' or 'ne2001'.
+        l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
+        b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+        d (np.ndarray): Heliocentric distance in [kpc].
+        ed_model (str): Free electron density model, either 'ymw16' or 'ne2001'.
 
     Returns:
-        (np.ndarray): values of the DM in [pc cm^-3].
+        (np.ndarray): Values of the DM in [pc cm^-3].
     """
     # Store the number of objects that need computation of DM.
     n = len(l_gal)
@@ -57,11 +57,11 @@ def compute_tau_sc(DM: np.ndarray, f: float) -> np.ndarray:
     we assume a Kolmogorov spectrum tau(f) ~ f^-4.4.
 
     Args:
-        DM (np.ndarray): dispersion measure in [pc cm^-3].
-        f (np.ndarray): frequency at which the scattering timescale is computed [Hz].
+        DM (np.ndarray): Dispersion measure in [pc cm^-3].
+        f (np.ndarray): Frequency at which the scattering timescale is computed [Hz].
 
     Returns:
-        (np.ndarray): values of the scattering timescale at the frequency nu in [s].
+        (np.ndarray): Values of the scattering timescale at the frequency nu in [s].
     """
     # Compute the average tau scattering in [s] at 327 MHz from the empirical formula in Krishnakumar et al. (2015).
     tau_sc_mean = 3.6e-9 * DM**2.2 * (1.0 + 1.94e-3 * DM**2.0)
