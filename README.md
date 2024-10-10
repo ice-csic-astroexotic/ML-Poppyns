@@ -42,15 +42,14 @@ environment by running:
    
 ## How to use the code?
 
-Navigate to the `tutorials` directory, where three Jupyter Notebooks introduce the three parts of our code. You can 
-also check out our webpage for further details.
+Navigate to the `tutorials/tutorial_notebook` directory, where eight Jupyter Notebooks introduce the different parts of our code. You can 
+also check the full documentation for further details (see below).
 
 
 ## Documentation
 
-Documentation is held in `docs` and can be compiled into an HTML webpage or to a PDF LaTeX file using `make html` or 
-`make latexpdf` respectively inside the `docs` folder with the environment activated. Both
-commands will generate their output in `docs/_build`.
+Documentation is held in `docs` and can be compiled into an HTML webpage using `mkdocs serve` with the environment activated. 
+This command will create an URL where to access the full documentation.
 
 
 ## For Developers
