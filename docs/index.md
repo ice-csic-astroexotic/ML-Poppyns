@@ -88,7 +88,11 @@ The folder `docs` contains all the necessary files to produce the documentation.
 
 ### Plots from related publications
 
-The `paper_plots` folder contains the notebooks to generate the plots and figures in our papers.
+The `paper_plots` folder contains the notebooks to generate the plots and figures in our papers:
+
+* Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
+
+* Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
 
 ### Tutorials
 
