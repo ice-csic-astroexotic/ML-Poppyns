@@ -22,14 +22,15 @@ import pypopsyn.learning.utils.json as learning_utils_json
 
 
 class ConfigurationParser:
-
-    """ConfigurationParser"""
+    """
+    ConfigurationParser
+    """
 
     def __init__(
         self,
         configuration: OrderedDict,
         infer: bool,
-        options: Optional[list] = None,
+        options: Optional[dict] = None,
         run_id: Optional[str] = None,
     ) -> None:
         """
@@ -38,7 +39,7 @@ class ConfigurationParser:
         Args:
             configuration (OrderedDict): The configuration dictionary.
             infer (bool): Boolean indicating if inference mode is on.
-            options (Optional[list]): Optional dictionary with additional options. Default None.
+            options (Optional[dict]): Optional dictionary with additional options. Default None.
             run_id (Optional[str]): Optional string identifier for the run. Default None.
         """
 
@@ -99,30 +100,32 @@ class ConfigurationParser:
             (ConfigurationParser): An instance of the ConfigurationParser class.
         """
 
-        # Add custom CLI options to arguments.
-        for opt in options:
-            args.add_argument(
-                *opt.flags, default=None, type=opt.type, nargs=opt.nargs
-            )
-
-        # Parse arguments if they are not already parsed.
-        if not isinstance(args, tuple):
-            args = args.parse_args()
+        if isinstance(args, argparse.ArgumentParser):
+            # Add custom CLI options to arguments.
+            for opt in options:
+                args.add_argument(
+                    *opt.flags, default=None, type=opt.type, nargs=opt.nargs
+                )
+            parsed_args = args.parse_args()
+        else:
+            # args is already a Namespace.
+            parsed_args = args
 
         # Load configuration from JSON file.
         configuration = learning_utils_json.read_json(
-            pathlib.Path(args.configuration)
+            parsed_args.configuration
         )
 
         # Parse custom CLI arguments.
         modification = {
-            o.target: getattr(args, _get_opt_name(o.flags)) for o in options
+            o.target: getattr(parsed_args, _get_opt_name(o.flags))
+            for o in options
         }
 
-        return cls(configuration, args.infer, modification, args.trained_model)
+        return cls(configuration, parsed_args.infer, modification)
 
     def init_object(
-        self, name: str, module: Any, *args, **kwargs
+        self, name: str, module: Any, *args: Any, **kwargs: Any
     ) -> Union[Any, None]:
         """
         Object handler finder.
@@ -132,9 +135,9 @@ class ConfigurationParser:
 
         Args:
             name (str): Name of the object to find.
-            module: The Python module where the object class resides.
-            args: Extra arguments for creating the instance.
-            kwargs: Extra arguments for creating the instance.
+            module (Any): The Python module where the object class resides.
+            args (Any): Extra arguments for creating the instance.
+            kwargs (Any): Extra arguments for creating the instance.
 
         Returns:
             (Union[Any, None]): The object instance initialized with the provided arguments if the name of the requested
@@ -173,13 +176,14 @@ class ConfigurationParser:
             name (str): Name of the configuration key.
 
         Returns:
-            Any: The value associated with the given key in the configuration.
+            (Any): The value associated with the given key in the configuration.
         """
         return self._configuration[name]
 
     def _update_configuration(
         self, configuration: OrderedDict, modifications: dict
     ) -> OrderedDict:
+
         """
         Helper function to update configuration dictionary.
 
@@ -230,7 +234,7 @@ def _get_opt_name(flags: list) -> str:
         flags (list): List of command line flags.
 
     Returns:
-        str: The option name extracted from the flags.
+        (str): The option name extracted from the flags.
     """
     for flg in flags:
         if flg.startswith("--"):

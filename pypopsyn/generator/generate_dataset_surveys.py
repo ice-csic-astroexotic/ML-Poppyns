@@ -22,7 +22,7 @@
 
     Display help message to run the code:
 
-    python generate_dataset_surveys.py --h
+    python generate_dataset_surveys.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -188,7 +188,7 @@ def create_survey_maps(
         data_type,
         df_survey["P"],
         df_survey["P_dot"],
-        np.log10(df_survey["S_radio_obs_mean"]),
+        np.log10(df_survey["S_radio_obs_mean_1400"]),
         resolution_ppdot,
         resolution_ppdot,
         dictionary_ppdot_flux_map,
@@ -206,13 +206,14 @@ def generate_dataset(args: argparse.Namespace) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
-            data (str): Path to where the simulated populations are located.
-            save_dir (str): Path to where the generated dataset will be saved.
-            data_type (str): Type of dataset to generate: array or image.
-            resolution_dyn (int): Resolution (number of bins per axis for the 2d
+
+            - data (str): Path to where the simulated populations are located.
+            - save_dir (str): Path to where the generated dataset will be saved.
+            - data_type (str): Type of dataset to generate: array or image.
+            - resolution_dyn (int): Resolution (number of bins per axis for the 2d
                 histograms) for the position and velocity maps to generate. In case of RA DEC maps the
                 DEC axis has half the number of bins with respect to the RA axis.
-            resolution_ppdot (int): Resolution (number of bins per axis for the 2d
+            - resolution_ppdot (int): Resolution (number of bins per axis for the 2d
                 histograms) for the P-Pdot density maps to generate.
     """
 
@@ -250,6 +251,14 @@ def generate_dataset(args: argparse.Namespace) -> None:
 
     # Number of samples in the parsed directory.
     sample_number = len(next(os.walk(root_path))[1])
+
+    if sample_number == 0:
+        log.error(
+            f"The number of simulated samples in {root_path} is insufficient and equal to {sample_number}. "
+            f"The {root_path} folder has to contain several simulated samples in folders named 000000, 000001, "
+            f"... ."
+        )
+        sys.exit()
 
     log.info(f"Generating {sample_number} samples...")
 
@@ -358,7 +367,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         dataset_path, "statistics_full.json"
     )
     with open(statistics_dump_path, "w") as f:
-        json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
+        json.dump(statistics_dictionary, f, indent=4)
 
     log.info("Files statistics_full.json generated")
 

@@ -1,0 +1,20 @@
+{
+  "[TotalInference]": {
+    "time": 2.357131004333496
+  },
+  "[Initialization]": {
+    "time": 0.001035928726196289
+  },
+  "[TestDatasetLoader]": {
+    "time": 0.008422136306762695
+  },
+  "[InferenceSetup]": {
+    "time": 0.01258087158203125
+  },
+  "[Inference]": {
+    "time": 2.3332502841949463
+  },
+  "[SimulationBasedCalibration]": {
+    "time": 0.0002808570861816406
+  }
+}

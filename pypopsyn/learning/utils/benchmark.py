@@ -2,7 +2,7 @@
     Network benchmarking.
 
     Utility functions for benchmarking model performance.
-    https://gist.github.com/iacolippo/9611c6d9c7dfc469314baeb5a69e7e1b
+    For more details see [here](https://gist.github.com/iacolippo/9611c6d9c7dfc469314baeb5a69e7e1b).
 
     Authors:
 
@@ -22,21 +22,19 @@ def measure(
     input_dummy: torch.tensor,
     output_dummy: torch.tensor,
 ) -> typing.Tuple[float, float]:
-
     """
     Measure timing for one single forward and backward pass with the model and
     the specified device.
 
     Args:
-        model (torch.module): model to benchmark.
-        device (torch.device): device in which the model will be executed.
-        intput_dummy (torch.tensor): dummy tensor for input purposes.
-        output_dummy (torch.tensor): dummy tensor for output purposes.
+        model (torch.module): Model to benchmark.
+        device (torch.device): Device in which the model will be executed.
+        input_dummy (torch.tensor): Dummy tensor for input purposes.
+        output_dummy (torch.tensor): Dummy tensor for output purposes.
 
     Returns:
-        A tuple (float, float) that contains the time spent in the forward pass
-        and the runtime of the backward pass, both in seconds.
-
+        (Tuple[float, float]): A tuple that contains the time spent in the forward pass
+            and the runtime of the backward pass, both in seconds.
     """
 
     # Synchronize gpu time and measure forward pass.
@@ -70,20 +68,18 @@ def benchmark(
     input_dummy: torch.tensor,
     output_dummy: torch.tensor,
 ) -> typing.Tuple[float, float]:
-
     """
     Measure median time for forward/backward passes of a model on a device.
 
     Args:
-        model (torch.module): model to benchmark.
-        device (torch.device): device in which the model will be executed.
-        intput_dummy (torch.tensor): dummy tensor for input purposes.
-        output_dummy (torch.tensor): dummy tensor for output purposes.
+        model (torch.module): Model to benchmark.
+        device (torch.device): Device in which the model will be executed.
+        input_dummy (torch.tensor): Dummy tensor for input purposes.
+        output_dummy (torch.tensor): Dummy tensor for output purposes.
 
     Returns:
-        A tuple (float, float) that contains the median time spent in the
-        forward pass and the backward pass, both in milliseconds.
-
+        (Tuple[float, float]): A tuple that contains the median time spent in the
+            forward pass and the backward pass, both in milliseconds.
     """
 
     # Move dummies to the required device (CPU or GPU).

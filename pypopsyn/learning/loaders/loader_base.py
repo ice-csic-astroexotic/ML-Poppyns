@@ -20,6 +20,8 @@ class LoaderBase(torch.utils.data.DataLoader):
     """
     Base loader abstract class.
 
+    This class serves as a blueprint for creating various dataset loaders.
+    It defines the essential methods that all loaders must implement, ensuring consistency.
     """
 
     def __init__(
@@ -29,20 +31,17 @@ class LoaderBase(torch.utils.data.DataLoader):
         num_workers: int,
         shuffle: bool = False,
         collate_fn=torch.utils.data.dataloader.default_collate,
-    ):
+    ) -> None:
         """
         Initialization of base loader.
 
         Args:
-            dataset: dataset of images and labels to load.
+            dataset (torch.utils.data.Dataset): Dataset of images and labels to load.
             batch_size (int): Batch size for the samplers.
             num_workers (int): Number of workers (threads) to read data.
             shuffle (bool): Random shuffle samples or not.
-            collate_fn: Function to process the list of samples to pack a batch.
-
-        Returns:
-            Nothing.
-
+            collate_fn (torch.utils.data.dataloader.default_collate): Function to process the list of samples
+                to pack a batch.
         """
 
         self.n_samples = len(dataset)

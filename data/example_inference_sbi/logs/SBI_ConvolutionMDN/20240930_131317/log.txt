@@ -1,0 +1,27 @@
+2024-09-30 13:13:17,835 - Inference - INFO - Logger initialized...
+2024-09-30 13:13:17,835 - Inference - INFO - =========================================================
+2024-09-30 13:13:17,836 - Inference - INFO - Seed: 1727694797
+2024-09-30 13:13:17,836 - Inference - INFO - Requesting 1 GPUs...
+2024-09-30 13:13:17,836 - Inference - WARNING - Warning: There's no GPU available on this machine,training will be performed on CPU.
+2024-09-30 13:13:17,836 - Inference - INFO - Devices obtained: []
+2024-09-30 13:13:17,836 - Inference - INFO - Loading the test dataset and applying either norm or std based on the experiment...
+2024-09-30 13:13:17,845 - Inference - INFO - Set prior distribution...
+2024-09-30 13:13:17,846 - Inference - INFO - Loading the amortized trained posterior...
+2024-09-30 13:13:17,847 - Inference - INFO - Loading the trained model...
+2024-09-30 13:13:17,847 - Inference - INFO - Inference is performed with the trained model: data/example_learning_sbi/models/SBI_ConvolutionMDN/20240930_131157/trained_model.pickle
+2024-09-30 13:13:17,858 - Inference - INFO - Computing the average loss over the test dataset, extracting Gaussian mixture coefficients,estimating the hdr for the coverage probability and generating corner plots....
+2024-09-30 13:13:18,089 - Inference - INFO - Estimated parameter values (we consider the median as the best value and the 95 % credibility interval):
+2024-09-30 13:13:18,089 - Inference - INFO - B_initial_log10_mean = 12.721804141998291 + 0.23505442142486643 - 0.23178768157958984
+2024-09-30 13:13:18,090 - Inference - INFO - P_initial_log10_mean = -0.7924808263778687 + 0.17334094941616063 - 0.1811696156859398
+2024-09-30 13:13:18,979 - Inference - INFO - Estimated parameter values (we consider the median as the best value and the 95 % credibility interval):
+2024-09-30 13:13:18,979 - Inference - INFO - B_initial_log10_mean = 13.395271301269531 + 0.22183024883270264 - 0.1918985128402717
+2024-09-30 13:13:18,980 - Inference - INFO - P_initial_log10_mean = -0.7397776246070862 + 0.14758530557155614 - 0.15931947678327563
+2024-09-30 13:13:19,433 - Inference - INFO - Estimated parameter values (we consider the median as the best value and the 95 % credibility interval):
+2024-09-30 13:13:19,433 - Inference - INFO - B_initial_log10_mean = 13.136693477630615 + 0.1399590492248528 - 0.1394539117813114
+2024-09-30 13:13:19,433 - Inference - INFO - P_initial_log10_mean = -1.3923527598381042 + 0.1133880615234375 - 0.12719213962554932
+2024-09-30 13:13:19,872 - Inference - INFO - Estimated parameter values (we consider the median as the best value and the 95 % credibility interval):
+2024-09-30 13:13:19,873 - Inference - INFO - B_initial_log10_mean = 13.033280372619629 + 0.24925835132598806 - 0.20382151603698695
+2024-09-30 13:13:19,873 - Inference - INFO - P_initial_log10_mean = -0.5885145962238312 + 0.14023784399032613 - 0.1415944308042526
+2024-09-30 13:13:20,103 - Inference - INFO - Computing the coverage probability...
+2024-09-30 13:13:20,191 - Inference - INFO - Average loss over the test dataset: tensor([0.0892])
+2024-09-30 13:13:20,192 - Inference - WARNING - WARNING: Simulation-based Calibration cannot be performed due to the limited number of test samples.For SBC, the number of test samples should be on the order of 1000s to give reliable results. We recommend using 10000.

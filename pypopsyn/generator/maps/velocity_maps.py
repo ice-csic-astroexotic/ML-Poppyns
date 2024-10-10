@@ -52,22 +52,18 @@ def generate_velocity_map(
     generated example.
 
     Args:
-        dataset_path (str): path to the folder where the map will be created.
-        map_name (str): specific name for this map.
-        sample_number (int): number to suffix this map in the dataset.
-        map_type (str): type of map to generate (array or image).
-        x_positions (np.array): positions in the first axis (horizontal).
-        y_positions (np.array): positions in the second axis (vertical).
-        velocities (np.array): array of velocities to put in the map.
-        x_resolution (int): resolution in the horizontal axis.
-        y_resolution (int): resolution in the vertical axis.
-        velocity_maps_dictionary (dict): dictionary of velocity maps.
-        x_limits (float, float): limits of the horizontal axis.
-        y_limits (float, float): limits of the vertical axis.
-
-    Returns:
-        Nothing.
-
+        dataset_path (str): Path to the folder where the map will be created.
+        map_name (str): Specific name for this map.
+        sample_number (int): Number to suffix this map in the dataset.
+        map_type (str): Type of map to generate (array or image).
+        x_positions (np.array): Positions in the first axis (horizontal).
+        y_positions (np.array): Positions in the second axis (vertical).
+        velocities (np.array): Array of velocities to put in the map.
+        x_resolution (int): Resolution in the horizontal axis.
+        y_resolution (int): Resolution in the vertical axis.
+        velocity_maps_dictionary (dict): Dictionary of velocity maps.
+        x_limits (Tuple[float, float]): Limits of the horizontal axis.
+        y_limits (Tuple[float, float]): Limits of the vertical axis.
     """
 
     # Compose the final filename with the dataset path, the name for the map,

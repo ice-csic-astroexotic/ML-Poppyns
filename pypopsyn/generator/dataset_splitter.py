@@ -6,7 +6,7 @@
 
     Display help message to run the code:
 
-    python dataset_splitter.py --h
+    python dataset_splitter.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -39,8 +39,8 @@ def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
         dataset_dict (dict): Dictionary containing the information on the dataset.
         split (float): Fraction of set_1 size with respect to the provided dataset size.
 
-    Return:
-        (dict, dict): Two dictionaries providing the information on the two sub-datasets created from the split.
+    Returns:
+        (Tuple[dict, dict]): Two dictionaries providing the information on the two sub-datasets created from the split.
     """
 
     # Check if the split argument falls in the range (0, 1).
@@ -74,7 +74,22 @@ def split_dataset(dataset_dict: dict, split: float) -> Tuple[dict, dict]:
     return set1_dataset_dictionary, set2_dataset_dictionary
 
 
-def main(args) -> None:
+def main(args: argparse.Namespace) -> None:
+    """
+    This function reads a dataset from a specified path, splits it into training,
+    validation, and test sets based on the provided split fractions, and saves
+    the resulting datasets to CSV files. It also computes statistics for the
+    training dataset and saves them to a JSON file.
+
+    Args:
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+
+            - dataset_path (str): The path where the simulation dataset is stored.
+            - test_split (float or None): The fraction of the total dataset to
+              allocate for the test set. Must be in the range [0, 1].
+            - valid_split (float or None): The fraction of the training dataset
+              to allocate for the validation set. Must be in the range [0, 1].
+    """
 
     dataset_filename = f"{args.dataset_path}/dataset_full.csv"
     dataset_dictionary = pd.read_csv(dataset_filename, header=[0]).to_dict(
@@ -134,7 +149,7 @@ def main(args) -> None:
             args.dataset_path, "statistics_train.json"
         )
         with open(train_statistics_dump_path, "w") as f:
-            json.dump(statistics_dictionary, f, indent=4, sort_keys=True)
+            json.dump(statistics_dictionary, f, indent=4)
 
         log.info("Files statistics_train.json generated")
 
@@ -166,6 +181,47 @@ def main(args) -> None:
         valid_df.to_csv(valid_dataset_filename, encoding="utf-8", index=False)
 
         log.info("Files dataset_train.csv and dataset_valid.csv generated")
+
+        # Compute the statistics on the training dataset only.
+        statistics_dictionary = cs.compute_statistics(train_dataset_dictionary)
+
+        # Save dictionary containing statistical information to the dataset path in a .json file.
+        train_statistics_dump_path = pathlib.Path().joinpath(
+            args.dataset_path, "statistics_train.json"
+        )
+        with open(train_statistics_dump_path, "w") as f:
+            json.dump(statistics_dictionary, f, indent=4)
+
+        log.info("Files statistics_train.json generated")
+
+    elif args.test_split is not None and args.valid_split is None:
+
+        # Split the dataset into training and test sets only.
+        test_dataset_dictionary, train_dataset_dictionary = split_dataset(
+            dataset_dictionary, args.test_split
+        )
+
+        # Write the training and test dataset dictionaries into .csv files.
+        train_dataset_filename = f"{args.dataset_path}/dataset_train.csv"
+
+        train_df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in train_dataset_dictionary.items()
+            }
+        )
+        train_df.to_csv(train_dataset_filename, encoding="utf-8", index=False)
+
+        test_dataset_filename = f"{args.dataset_path}/dataset_test.csv"
+        test_df = pd.DataFrame(
+            {
+                key: pd.Series(value)
+                for key, value in test_dataset_dictionary.items()
+            }
+        )
+        test_df.to_csv(test_dataset_filename, encoding="utf-8", index=False)
+
+        log.info("Files dataset_train.csv and dataset_test.csv generated")
 
         # Compute the statistics on the training dataset only.
         statistics_dictionary = cs.compute_statistics(train_dataset_dictionary)

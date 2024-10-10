@@ -7,6 +7,8 @@
         Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
+from unittest import mock
+
 import numpy as np
 import pytest
 
@@ -213,15 +215,23 @@ def test_detect_radio_population(test_case_1):
     """
     Verifying that a population of pulsars is correctly detected by the survey.
     """
-
-    detected_out, w_eff, S_radio_obs_mean = PMPS.detected_radio_population(
-        test_case_1["w_int_s"],
-        test_case_1["DM"],
-        test_case_1["P"],
-        test_case_1["age"],
-        test_case_1["coverage_expected"],
-        test_case_1["l_gal"],
-        test_case_1["b_gal"],
-        test_case_1["S_radio_bol"],
-    )
+    with mock.patch(
+        "numpy.random.normal", return_value=np.array([-1.6, -1.6])
+    ):
+        (
+            detected_out,
+            w_eff,
+            S_radio_obs_mean,
+            S_radio_obs_mean_1400,
+        ) = PMPS.detected_radio_population(
+            test_case_1["w_int_s"],
+            test_case_1["DM"],
+            test_case_1["P"],
+            test_case_1["age"],
+            test_case_1["coverage_expected"],
+            test_case_1["l_gal"],
+            test_case_1["b_gal"],
+            test_case_1["S_radio_bol"],
+        )
+    print("test_case", detected_out.all())
     assert test_case_1["detected_expected"].all() == detected_out.all()

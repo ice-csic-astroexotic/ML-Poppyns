@@ -20,6 +20,7 @@ jobs:
       contents: read
     # Specific steps to be executed for `Run tests` job.
     steps:
+      # Free up disk space to avoid action failing.
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
       # Check out the full code given in the repo.

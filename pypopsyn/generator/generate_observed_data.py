@@ -13,7 +13,7 @@
 
     Display help message to run the code:
 
-    python generate_observed_data.py --h
+    python generate_observed_data.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -90,7 +90,6 @@ def create_survey_maps(
             in seconds [s].
         Pdot_meerkat (np.ndarray): Array of spin period derivatives from the ATNF catalog for the pulsars in the TPA
             MeerKAT program, in seconds per second [s/s].
-
     """
 
     # Create position density maps projected onto the RA DEC plane.
@@ -158,13 +157,14 @@ def generate_dataset(args: argparse.Namespace) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
-            data (str): Path to where the observed population is located.
-            save_dir (str): Path to where the generated dataset will be saved.
-            data_type (str): Type of dataset to generate: array or image.
-            resolution_ppdot (int): Resolution (number of bins per axis for the 2d
+
+            - data (str): Path to where the observed population is located.
+            - save_dir (str): Path to where the generated dataset will be saved.
+            - data_type (str): Type of dataset to generate: array or image.
+            - resolution_ppdot (int): Resolution (number of bins per axis for the 2d
                 histograms) for the P-Pdot density maps to generate.
-            path_atnf (str): Path to the ATNF catalogue.
-            path_meerkat (str): Path to the Meerkat catalogue.
+            - path_atnf (str): Path to the ATNF catalogue.
+            - path_meerkat (str): Path to the Meerkat catalogue.
     """
 
     # Create the dataset directory path.
@@ -235,8 +235,9 @@ def generate_dataset(args: argparse.Namespace) -> None:
     df_atnf = df_atnf[~df_atnf["P1"].isin(["NAN"])]
     df_atnf = df_atnf[~df_atnf["ASSOC"].str.match("|".join(discard))]
 
-    # Select only isolated, non-recycled neutron stars, i.e., those with Pdot > 1e-19.
+    # Select only isolated, non-recycled neutron stars, i.e., those with Pdot > 1e-19 and P > 0.01 s.
     df_atnf = df_atnf[df_atnf["P1"].to_numpy().astype(np.float64) > 1.0e-19]
+    df_atnf = df_atnf[df_atnf["P0"].to_numpy().astype(np.float64) > 0.01]
 
     # Parkes multibeam pulsar survey database.
     df_atnf_pmps = df_atnf[df_atnf["SURVEY"].str.contains("pksmb")]
@@ -322,6 +323,26 @@ def generate_dataset(args: argparse.Namespace) -> None:
     # measurements are from the low- and mid- latitude surveys only.
     df_atnf_htru = df_atnf[df_atnf["SURVEY"].str.contains("htru_pks")]
 
+    # Extracting Galactic longitude, latitude, right ascension and declination, period and period derivative.
+    RA_htru_obs = df_atnf_htru["RAJD"].to_numpy().astype(np.float64)
+    DEC_htru_obs = df_atnf_htru["DECJD"].to_numpy().astype(np.float64)
+    b_htru_obs = df_atnf_htru["Gb"].to_numpy().astype(np.float64)
+    l_htru_obs = df_atnf_htru["Gl"].to_numpy().astype(np.float64)
+    P_htru_obs = df_atnf_htru["P0"].to_numpy().astype(np.float64)
+    Pdot_htru_obs = df_atnf_htru["P1"].to_numpy().astype(np.float64)
+
+    # Convert galactic latitude in the range [-180., 180].
+    l_htru_obs[(l_htru_obs > 180.0) & (l_htru_obs < 360.0)] = (
+        l_htru_obs[(l_htru_obs > 180.0) & (l_htru_obs < 360.0)] - 360.0
+    )
+
+    # Selection only pulsars falling in the HTRU sky coverage where completness is above 90%.
+    cond = (
+        (l_htru_obs > -120.0)
+        & (l_htru_obs < 30.0)
+        & (np.abs(b_htru_obs) < 15.0)
+    )
+
     # Merge the Meerkat TPA program data with the HTRU ATNF Pulsar Catalogue data to obtain MeerKAT flux measurements
     # for the HTRU pulsars.
     df_meerkat_htru = pd.merge(
@@ -329,10 +350,10 @@ def generate_dataset(args: argparse.Namespace) -> None:
     )
     df_meerkat_htru = df_meerkat_htru.dropna(subset=["ch6flux"])
 
-    RA_htru_obs = df_atnf_htru["RAJD"].to_numpy().astype(np.float64)
-    DEC_htru_obs = df_atnf_htru["DECJD"].to_numpy().astype(np.float64)
-    P_htru_obs = df_atnf_htru["P0"].to_numpy().astype(np.float64)
-    Pdot_htru_obs = df_atnf_htru["P1"].to_numpy().astype(np.float64)
+    RA_htru_obs = RA_htru_obs[cond]
+    DEC_htru_obs = DEC_htru_obs[cond]
+    P_htru_obs = P_htru_obs[cond]
+    Pdot_htru_obs = Pdot_htru_obs[cond]
 
     # We convert the [Jy] to [mJy] to compare with simulations.
     S1400_htru_meerkat = (
@@ -458,7 +479,7 @@ if __name__ == "__main__":
         "--path_atnf",
         nargs="?",
         type=str,
-        default="data/observations/atnf_full_nobinary_25-04-2023.csv",
+        default="data/observations/atnf_full_nobinary_24-09-2024_with_errors.csv",
         help="Path, with the name of the csv included, to where the ATNF Pulsar Catalogue is located.",
     )
     parser.add_argument(

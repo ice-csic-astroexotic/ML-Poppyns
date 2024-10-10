@@ -16,21 +16,21 @@ from .model_base import ModelBase
 
 
 class ModelConvSBI(ModelBase):
-
-    """A convolutional neural network model with 2 convolutional filters."""
+    """
+    A convolutional neural network model with 2 convolutional filters.
+    """
 
     def __init__(
         self, input_shape: np.array, len_output_layer: int = 1
     ) -> None:
-
         """
         CNN model initialization.
+
         This CNN automatically adapts to the shape of the initial input features.
 
         Args:
-            input_shape: Shape of the input batch (C x H x W).
-            len_output_layer: length of the latent vector.
-
+            input_shape (np.array): Shape of the input batch (C x H x W).
+            len_output_layer (int): Length of the latent vector.
         """
 
         super().__init__()
@@ -49,15 +49,15 @@ class ModelConvSBI(ModelBase):
 
         self.fc1 = nn.Linear(self._to_linear, len_output_layer)
 
-    def convs(self, x):
+    def convs(self, x: torch.Tensor) -> torch.Tensor:
         """
         Convolution and pooling layers forward pass.
 
         Args:
-            x: Input tensor for the convolution layers.
+            x (torch.Tensor): Input tensor for the convolution layers.
 
         Returns:
-            Output tensor of the convolution and pooling layers.
+            (torch.Tensor): Output tensor of the convolution and pooling layers.
         """
 
         x = self.pool(F.relu(self.conv1(x)))
@@ -69,17 +69,15 @@ class ModelConvSBI(ModelBase):
 
         return x
 
-    def forward(self, x):
-
+    def forward(self, x: torch.Tensor):
         """
         Forward pass.
 
         Args:
-            x: Input tensor for the network.
+            x (torch.Tensor): Input tensor for the network.
 
         Returns:
-            Output tensor of the network after forwarding all layers.
-
+            (torch.Tensor): Output tensor of the network after forwarding all layers.
         """
 
         x = self.convs(x)

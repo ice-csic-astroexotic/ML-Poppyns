@@ -18,7 +18,7 @@
 
     Display help message to run the code:
 
-    python pop_sampler.py --h
+    python pop_sampler.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -47,10 +47,10 @@ def calculate_selection_weights(d: np.ndarray) -> np.ndarray:
     and more likely to be detected.
 
     Args:
-        d (np.ndarray): array of distances from the Sun [kpc].
+        d (np.ndarray): Array of distances from the Sun [kpc].
 
     Returns:
-        (np.ndarray): array of selection weights.
+        (np.ndarray): Array of selection weights.
     """
 
     # This function has been fine-tuned to match the distribution of distances from the Sun of
@@ -65,19 +65,19 @@ def calculate_selection_weights(d: np.ndarray) -> np.ndarray:
     return w
 
 
-def data_sampler(args) -> None:
+def data_sampler(args: argparse.Namespace) -> None:
     """
     This function reads the simulated population files (usually by the simulation
     helper) folder and creates simulated population files with a reduced number
     of stars by randomly sampling the original evolved population file.
 
     Args:
-        args:
-            data (str): Path to where the simulated populations are located.
-            save_dir (str): Path to where to save the resampled population files.
-            size (int): Number of stars to randomly sample from the population files.
-            distance_cut (float): Maximum distance from the Sun cut-off.
-            uniform (bool): If True stars are selected uniformly in distance from the simulated population.
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+            - data (str): Path to where the simulated populations are located.
+            - save_dir (str): Path to where to save the resampled population files.
+            - size (int): Number of stars to randomly sample from the population files.
+            - distance_cut (float): Maximum distance from the Sun cut-off.
+            - uniform (bool): If True stars are selected uniformly in distance from the simulated population.
     """
 
     # Check if the parsed simulated populations' directory exists.

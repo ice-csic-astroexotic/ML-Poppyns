@@ -5,11 +5,12 @@
     It trains a density estimator to approximate the posterior distribution for a dataset of simulated data.
     Note that with this method we can evaluate the posterior for different simulated populations without
     having to re-train the model. This is called amortization. An amortized posterior is one that is not
-    focused on any particular observation. See https://www.mackelab.org/sbi/ for more details.
+    focused on any particular observation. See [https://www.mackelab.org/sbi/](https://www.mackelab.org/sbi/)
+    for more details.
 
     Display help message to run the code:
 
-    python train_sbi.py --h
+    python train_sbi.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -37,13 +38,20 @@ from sbi.inference import SNPE
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.initializers.initializers as learning_initializers
-import pypopsyn.learning.loaders.loader_multichannel_array_stat as dl
+import pypopsyn.learning.loaders.loader_multichannel_array as dl
 import pypopsyn.learning.models.models as learning_models
 import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
 
 
-def train(config):
+def train(config: configuration_parser.ConfigurationParser) -> None:
+    """
+    Main training loop for the model with simulation-based inference approach.
+
+    Args:
+        config (ConfigurationParser): A configuration object containing parameters for data loaders,
+            model architecture, training criteria, and other training settings.
+    """
 
     # Get handle for the logger --------------------------------------------
     logger = config.get_logger("train")
