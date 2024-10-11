@@ -231,11 +231,16 @@ cfg["r_em"]: float = 3.0e7
 # the following parameters were adjusted to match observed data.
 cfg[
     "L_radio_log10_mean"
-]: float = 25.82  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
+]: float = 26.7  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
 # cfg["L_radio_log10_mean"]: float = 35.5 [erg s^(3 * epsilon_L - 1) ] if pdf_luminosity_radio_ppdot is used.
 cfg["L_radio_log10_sigma"]: float = 0.8
 cfg["epsilon_L"]: float = 0.64
 cfg["Erot_dot_0"]: float = 1e29
+
+# Spectral index following a normal distribution as in Posselt et al. (2023). We set the standard deviation to 0 to
+# efficiently produce a fixed spectral index.
+cfg["mean_spectral_index"] = -1.8
+cfg["std_spectral_index"] = 0
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["ed_model"]: str = "ymw16"
