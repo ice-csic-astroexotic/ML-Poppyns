@@ -45,6 +45,7 @@ def test_case_1():
         "f_survey": 1.4e9,
         "S_radio_expected": np.array([1.871269e-25, 2.116123e-25]),
         "S_radio_f_expected": np.array([4.151595e-13, 4.694829e-13]),
+        "spectral_index": np.array([-1.6, -1.6]),
     }
 
     return data
@@ -225,8 +226,8 @@ def test_flux_density_radio(test_case_1):
 
         S_radio_f_out = er.flux_density_radio(
             test_case_1["S_radio_expected"],
+            test_case_1["spectral_index"],
             test_case_1["f_survey"],
-            mean_spectral_index=-1.6,
             f_min=1.0e7,
             f_max=1.0e11,
         )

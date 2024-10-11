@@ -54,6 +54,12 @@ The code has been tested on Ubuntu and macOS.
    pip install sbi==0.22.0
    ```
 
+!!! tip
+
+    Now that you are ready to work with the code, we recommend taking a look at the different tutorials
+    starting with how to simulate a pulsar population (see the 
+    [simulator tutorial](../tutorials/simulator_tutorial.md)).
+
 ## For developers
 
 To automate the workflow and improve as well as maintain code quality standards, we have set up pre-commit hooks. 

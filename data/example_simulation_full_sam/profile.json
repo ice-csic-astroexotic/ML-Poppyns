@@ -1,84 +1,84 @@
 {
   "[TotalSimulation]": {
-    "time": 511.44583344459534
+    "time": 289.15076422691345
   },
   "[InitialPopulation]": {
-    "time": 5.557007074356079,
+    "time": 6.628106594085693,
     "[Initial position and velocity]": {
-      "elapsed_time": 1.4026103019714355,
-      "cumulative_time": 1.4026103019714355
+      "elapsed_time": 2.0061123371124268,
+      "cumulative_time": 2.0061123371124268
     },
     "[Initial energy]": {
-      "elapsed_time": 2.250990629196167,
-      "cumulative_time": 3.6536009311676025
+      "elapsed_time": 2.3360238075256348,
+      "cumulative_time": 4.3421361446380615
     },
     "[Initial angular momentum]": {
-      "elapsed_time": 0.48618292808532715,
-      "cumulative_time": 4.13978385925293
+      "elapsed_time": 0.9577252864837646,
+      "cumulative_time": 5.299861431121826
     },
     "[Initial field strengths, misalignment angles and periods]": {
-      "elapsed_time": 0.08641242980957031,
-      "cumulative_time": 4.2261962890625
+      "elapsed_time": 0.06147050857543945,
+      "cumulative_time": 5.361331939697266
     },
     "[Initial period derivatives]": {
-      "elapsed_time": 0.10024166107177734,
-      "cumulative_time": 4.326437950134277
+      "elapsed_time": 0.11855530738830566,
+      "cumulative_time": 5.479887247085571
     },
     "[Export]": {
-      "elapsed_time": 1.22963547706604,
-      "cumulative_time": 5.556073427200317
+      "elapsed_time": 1.1478168964385986,
+      "cumulative_time": 6.62770414352417
     }
   },
   "[DynamicalEvolution]": {
-    "time": 142.219313621521,
+    "time": 84.3694007396698,
     "[Dynamical evolution]": {
-      "elapsed_time": 142.18902039527893,
-      "cumulative_time": 142.18902039527893
+      "elapsed_time": 84.35739946365356,
+      "cumulative_time": 84.35739946365356
     },
     "[Final energy]": {
-      "elapsed_time": 0.02765679359436035,
-      "cumulative_time": 142.2166771888733
+      "elapsed_time": 0.009437322616577148,
+      "cumulative_time": 84.36683678627014
     },
     "[Final angular momentum]": {
-      "elapsed_time": 0.002124309539794922,
-      "cumulative_time": 142.2188014984131
+      "elapsed_time": 0.0022003650665283203,
+      "cumulative_time": 84.36903715133667
     }
   },
   "[MagnetoRotationalEvolution]": {
-    "time": 318.01822805404663,
+    "time": 167.3401222229004,
     "[Final field strengths, misalignment angles and periods]": {
-      "elapsed_time": 317.90468406677246,
-      "cumulative_time": 317.90468406677246
+      "elapsed_time": 167.22718048095703,
+      "cumulative_time": 167.22718048095703
     },
     "[Final period derivatives]": {
-      "elapsed_time": 0.11308169364929199,
-      "cumulative_time": 318.01776576042175
+      "elapsed_time": 0.11245894432067871,
+      "cumulative_time": 167.3396394252777
     }
   },
   "[RadioEmission]": {
-    "time": 0.1047205924987793,
+    "time": 0.08739137649536133,
     "[Radio emission]": {
-      "elapsed_time": 0.10428380966186523,
-      "cumulative_time": 0.10428380966186523
+      "elapsed_time": 0.08669710159301758,
+      "cumulative_time": 0.08669710159301758
     }
   },
   "[RadioDetection]": {
-    "time": 41.94608688354492,
+    "time": 27.8472318649292,
     "[Total sky coverage]": {
-      "elapsed_time": 0.009675025939941406,
-      "cumulative_time": 0.009675025939941406
+      "elapsed_time": 0.023396015167236328,
+      "cumulative_time": 0.023396015167236328
     },
     "[DM computation]": {
-      "elapsed_time": 41.561194896698,
-      "cumulative_time": 41.57086992263794
+      "elapsed_time": 27.55623173713684,
+      "cumulative_time": 27.579627752304077
     },
     "[Radio surveys detection]": {
-      "elapsed_time": 0.37384605407714844,
-      "cumulative_time": 41.94471597671509
+      "elapsed_time": 0.2665708065032959,
+      "cumulative_time": 27.846198558807373
     },
     "[Export]": {
-      "elapsed_time": 3.5974245071411133,
-      "cumulative_time": 45.543511390686035
+      "elapsed_time": 2.8529551029205322,
+      "cumulative_time": 30.70018696784973
     }
   }
 }
