@@ -263,9 +263,16 @@ class InitialNeutronStarPopulation:
                 16.0,
                 self.NS_number,
             )
+        elif magnetic_field_model == "smooth_tophat":
+            B_rand = imf.initial_magnetic_field_double_lognormal(
+                8.0,
+                16.0,
+                self.NS_number,
+            )
         else:
             raise ValueError(
-                "The initial magnetic-field model pdf does not exist. Choose between log-normal or double_log-normal."
+                "The initial magnetic-field model pdf does not exist. Choose between log-normal, double_log-normal or "
+                "smooth_tophat."
             )
 
         return B_rand

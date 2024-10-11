@@ -145,8 +145,8 @@ cfg["P_initial_sigma"]: float = 0.2
 cfg["P_initial_log10_mean"]: float = -0.63
 cfg["P_initial_log10_sigma"]: float = 0.47
 
-# Model pdf for the initial spin period. Choose between "log-normal", "double_log-normal".
-cfg["magnetic_field_model"]: str = "double_log-normal"
+# Model pdf for the initial spin period. Choose between "log-normal", "double_log-normal", "smooth_tophat".
+cfg["magnetic_field_model"]: str = "smooth_tophat"
 
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [G].
 cfg["B_initial_log10_mean"]: float = 13.04
@@ -159,6 +159,13 @@ cfg["B_initial_log10_sigma1"]: float = 0.53
 cfg["B_initial_log10_mean2"]: float = 14.5
 cfg["B_initial_log10_sigma2"]: float = 0.5
 cfg["B_initial_weight"]: float = 0.8
+
+# Parameters for the smooth top-hat distributed initial magnetic fields in [G].
+cfg["B_initial_log10_center"]: float = 14.0
+cfg["B_initial_log10_left_trans"]: float = 0.5
+cfg["B_initial_log10_central_width"]: float = 5
+cfg["B_initial_log10_right_trans"]: float = 0.2
+cfg["B_initial_log10_slope"]: float = -0.2
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
