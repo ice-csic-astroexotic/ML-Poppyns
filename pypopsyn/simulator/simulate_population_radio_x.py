@@ -1093,7 +1093,7 @@ def simulate_population(args) -> None:
                 )
 
                 # detected_x = S_x > 1.0e-15
-                detected_x = sx.obs_bias_filter(S_x, eta=5)
+                detected_x = sx.obs_bias_filter(S_x, eta=4)
 
                 n_detected_sim_x += np.count_nonzero(detected_x)
                 log.info(

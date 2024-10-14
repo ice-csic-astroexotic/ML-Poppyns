@@ -70,47 +70,65 @@ def pdf_log10_magnetic_field_2normal(log10B: np.ndarray) -> np.ndarray:
     return pdf
 
 
+def gaussian(x: np.ndarray, mean: float, sigma: float, norm: float):
+    """
+    A Gaussian function with custom normalization.
+
+    Args:
+        x (np.ndarray): array of values where to compute the function.
+        mean (float): Mean of the Gaussian distribution.
+        sigma (float): Standard deviation of the Gaussian distribution.
+        norm (float): Normalization of the Gaussian distribution.
+    """
+    gauss_func = norm * np.exp(-0.5 * ((x - mean) / sigma) ** 2)
+
+    return gauss_func
+
+
 def pdf_log10_magnetic_field_smooth_tophat(
     log10B: np.ndarray,
 ) -> np.ndarray:
     """
-    A smooth top-hat function with a sloped central region and independent left and right transition widths.
+    A smooth top-hat function with a sloped central region and gaussian rise and decay.
 
     Args:
         log10B (np.ndarray): log10 of the magnetic field Strength in [G].
-        center: The center of the sloped top-hat.
-        central_width: The width of the central region.
-        left_transition: The width of the left-side transition region.
-        right_transition: The width of the right-side transition region.
-        slope: The slope of the central region.
 
     Returns:
         (np.ndarray): value of the pdf for each log10B.
     """
     # Define the parameters of the distribution.
-    center = cfg["B_initial_log10_center"]
-    left_transition = cfg["B_initial_log10_left_trans"]
-    central_width = cfg["B_initial_log10_central_width"]
-    right_transition = cfg["B_initial_log10_right_trans"]
+    rise_mean = cfg["B_initial_log10_rise_mean"]
+    rise_sigma = cfg["B_initial_log10_rise_sigma"]
+    decay_mean = cfg["B_initial_log10_decay_mean"]
+    decay_sigma = cfg["B_initial_log10_decay_sigma"]
     slope = cfg["B_initial_log10_slope"]
 
-    left_edge = center - central_width / 2
-    right_edge = center + central_width / 2
+    center = (rise_mean + decay_mean) / 2
 
-    # Smooth transition for the left side
-    smooth_left = 0.5 * (1 + np.tanh((log10B - left_edge) / left_transition))
-    # Smooth transition for the right side
-    smooth_right = 0.5 * (
-        1 - np.tanh((log10B - right_edge) / right_transition)
+    norm_rise_gaussian = slope * (rise_mean - center) + 1
+    norm_decay_gaussian = slope * (decay_mean - center) + 1
+
+    # Gaussian rise on the left side
+    rise_gaussian = gaussian(log10B, rise_mean, rise_sigma, norm_rise_gaussian)
+
+    # Gaussian decay on the right side
+    decay_gaussian = gaussian(
+        log10B, decay_mean, decay_sigma, norm_decay_gaussian
     )
 
-    # Linear slope in the central region
-    linear_slope = slope * (log10B - center)
+    # Central sloped region.
+    central_region = np.where(
+        (log10B >= rise_mean) & (log10B <= decay_mean),
+        slope * (log10B - center) + 1,
+        0,
+    )
 
-    # Flat region, modulated by the slope
-    tophat = (smooth_left * smooth_right) * (1 + linear_slope)
+    # Combine the Gaussian rise, flat region, and Gaussian decay
+    smooth_top_hat = np.maximum(rise_gaussian, central_region)
+    smooth_top_hat = np.maximum(smooth_top_hat, decay_gaussian)
 
-    return tophat
+    return smooth_top_hat
 
 
 def initial_magnetic_field_double_lognormal(
