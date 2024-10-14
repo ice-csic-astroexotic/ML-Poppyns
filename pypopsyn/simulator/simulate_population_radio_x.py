@@ -31,6 +31,7 @@ import pandas as pd
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
+import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
@@ -54,15 +55,11 @@ def simulate_population(args) -> None:
     population database.
 
     Args:
-        args:
-            dyn_data (str): Path to a dynamically evolved population database.
-            save_dir (str): Output directory for the run.
-            parameter_override (str): Path to JSON with parameter overrides.
+        args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
 
-    Returns:
-
-        Nothing.
-
+            - dyn_data (str): Path to a dynamically evolved population database.
+            - save_dir (str): Output directory for the run.
+            - parameter_override (str): Path to JSON with parameter overrides.
     """
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -228,8 +225,10 @@ def simulate_population(args) -> None:
             "Pdot": [],
             "L_radio_bol": [],
             "S_radio_obs_mean": [],
+            "S_radio_obs_mean_1400": [],
             "w_int": [],
             "w_eff": [],
+            "spectral_index": [],
         }
 
         dictionary_detected_SMPS = {
@@ -249,8 +248,10 @@ def simulate_population(args) -> None:
             "Pdot": [],
             "L_radio_bol": [],
             "S_radio_obs_mean": [],
+            "S_radio_obs_mean_1400": [],
             "w_int": [],
             "w_eff": [],
+            "spectral_index": [],
         }
 
         dictionary_detected_HTRU_low = {
@@ -270,8 +271,10 @@ def simulate_population(args) -> None:
             "Pdot": [],
             "L_radio_bol": [],
             "S_radio_obs_mean": [],
+            "S_radio_obs_mean_1400": [],
             "w_int": [],
             "w_eff": [],
+            "spectral_index": [],
             "HTRU_low": [],
             "HTRU_mid": [],
             "HTRU_high": [],
@@ -294,8 +297,10 @@ def simulate_population(args) -> None:
             "Pdot": [],
             "L_radio_bol": [],
             "S_radio_obs_mean": [],
+            "S_radio_obs_mean_1400": [],
             "w_int": [],
             "w_eff": [],
+            "spectral_index": [],
             "HTRU_low": [],
             "HTRU_mid": [],
             "HTRU_high": [],
@@ -318,8 +323,10 @@ def simulate_population(args) -> None:
             "Pdot": [],
             "L_radio_bol": [],
             "S_radio_obs_mean": [],
+            "S_radio_obs_mean_1400": [],
             "w_int": [],
             "w_eff": [],
+            "spectral_index": [],
             "HTRU_low": [],
             "HTRU_mid": [],
             "HTRU_high": [],
@@ -633,6 +640,14 @@ def simulate_population(args) -> None:
                 if np.count_nonzero(intercepted_radio) == 0:
                     break
 
+                # Computing the spectral index and the scattering timescale at 327 MHz of each star.
+                spectral_index = np.random.normal(
+                    cfg["mean_spectral_index"],
+                    cfg["std_spectral_index"],
+                    len(S_radio_bol),
+                )
+                tau_sc = edm.compute_tau_sc_327(DM)
+
                 # ===================== RADIO DETECTION ========================
 
                 # ======== Simulating PMPS. ========
@@ -641,6 +656,7 @@ def simulate_population(args) -> None:
                     detected_radio_PMPS,
                     w_eff_PMPS,
                     S_radio_obs_mean_PMPS,
+                    S_radio_obs_mean_1400_PMPS,
                 ) = survey_PMPS.detected_radio_population(
                     w_int_s,
                     DM,
@@ -650,6 +666,8 @@ def simulate_population(args) -> None:
                     l_det_radio,
                     b_det_radio,
                     S_radio_bol,
+                    spectral_index,
+                    tau_sc,
                 )
 
                 n_detected_sim_PMPS += np.count_nonzero(detected_radio_PMPS)
@@ -671,6 +689,7 @@ def simulate_population(args) -> None:
                     detected_radio_SMPS,
                     w_eff_SMPS,
                     S_radio_obs_mean_SMPS,
+                    S_radio_obs_mean_1400_SMPS,
                 ) = survey_SMPS.detected_radio_population(
                     w_int_s,
                     DM,
@@ -680,6 +699,8 @@ def simulate_population(args) -> None:
                     l_det_radio,
                     b_det_radio,
                     S_radio_bol,
+                    spectral_index,
+                    tau_sc,
                 )
 
                 n_detected_sim_SMPS += np.count_nonzero(detected_radio_SMPS)
@@ -701,6 +722,7 @@ def simulate_population(args) -> None:
                     detected_radio_HTRU_low,
                     w_eff_HTRU_low,
                     S_radio_obs_mean_HTRU_low,
+                    S_radio_obs_mean_1400_HTRU_low,
                 ) = survey_HTRU_low.detected_radio_population(
                     w_int_s,
                     DM,
@@ -710,6 +732,8 @@ def simulate_population(args) -> None:
                     l_det_radio,
                     b_det_radio,
                     S_radio_bol,
+                    spectral_index,
+                    tau_sc,
                 )
 
                 n_detected_sim_HTRU_low += np.count_nonzero(
@@ -722,6 +746,7 @@ def simulate_population(args) -> None:
                     detected_radio_HTRU_mid,
                     w_eff_HTRU_mid,
                     S_radio_obs_mean_HTRU_mid,
+                    S_radio_obs_mean_1400_HTRU_mid,
                 ) = survey_HTRU_mid.detected_radio_population(
                     w_int_s,
                     DM,
@@ -731,6 +756,8 @@ def simulate_population(args) -> None:
                     l_det_radio,
                     b_det_radio,
                     S_radio_bol,
+                    spectral_index,
+                    tau_sc,
                 )
 
                 # Since the sky coverage of the HTRU mid and low surveys overlap, we remove those stars from the mid
@@ -773,6 +800,7 @@ def simulate_population(args) -> None:
                     detected_radio_HTRU_high,
                     w_eff_HTRU_high,
                     S_radio_obs_mean_HTRU_high,
+                    S_radio_obs_mean_1400_HTRU_high,
                 ) = survey_HTRU_high.detected_radio_population(
                     w_int_s,
                     DM,
@@ -782,6 +810,8 @@ def simulate_population(args) -> None:
                     l_det_radio,
                     b_det_radio,
                     S_radio_bol,
+                    spectral_index,
+                    tau_sc,
                 )
 
                 n_detected_sim_HTRU_high += np.count_nonzero(
@@ -842,8 +872,14 @@ def simulate_population(args) -> None:
                     "S_radio_obs_mean": S_radio_obs_mean_PMPS[
                         detected_radio_PMPS
                     ].tolist(),
+                    "S_radio_obs_mean_1400": S_radio_obs_mean_1400_PMPS[
+                        detected_radio_PMPS
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_PMPS].tolist(),
                     "w_eff": w_eff_PMPS[detected_radio_PMPS].tolist(),
+                    "spectral_index": spectral_index[
+                        detected_radio_PMPS
+                    ].tolist(),
                 }
 
                 # Update the dictionary containing the detection information.
@@ -871,8 +907,14 @@ def simulate_population(args) -> None:
                     "S_radio_obs_mean": S_radio_obs_mean_SMPS[
                         detected_radio_SMPS
                     ].tolist(),
+                    "S_radio_obs_mean_1400": S_radio_obs_mean_1400_SMPS[
+                        detected_radio_SMPS
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_SMPS].tolist(),
                     "w_eff": w_eff_SMPS[detected_radio_SMPS].tolist(),
+                    "spectral_index": spectral_index[
+                        detected_radio_SMPS
+                    ].tolist(),
                 }
 
                 # Update the dictionary containing the detection information.
@@ -905,8 +947,14 @@ def simulate_population(args) -> None:
                     "S_radio_obs_mean": S_radio_obs_mean_HTRU_low[
                         detected_radio_HTRU_low
                     ].tolist(),
+                    "S_radio_obs_mean_1400": S_radio_obs_mean_1400_HTRU_low[
+                        detected_radio_HTRU_low
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_HTRU_low].tolist(),
                     "w_eff": w_eff_HTRU_low[detected_radio_HTRU_low].tolist(),
+                    "spectral_index": spectral_index[
+                        detected_radio_HTRU_low
+                    ].tolist(),
                     "HTRU_low": np.ones(len(idx_det_HTRU_low)).tolist(),
                     "HTRU_mid": type_survey_list[
                         detected_radio_HTRU_low
@@ -941,8 +989,14 @@ def simulate_population(args) -> None:
                     "S_radio_obs_mean": S_radio_obs_mean_HTRU_mid[
                         detected_radio_HTRU_mid
                     ].tolist(),
+                    "S_radio_obs_mean_1400": S_radio_obs_mean_1400_HTRU_mid[
+                        detected_radio_HTRU_mid
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_HTRU_mid].tolist(),
                     "w_eff": w_eff_HTRU_mid[detected_radio_HTRU_mid].tolist(),
+                    "spectral_index": spectral_index[
+                        detected_radio_HTRU_mid
+                    ].tolist(),
                     "HTRU_low": np.zeros(len(idx_det_HTRU_mid)).tolist(),
                     "HTRU_mid": np.ones(len(idx_det_HTRU_mid)).tolist(),
                     "HTRU_high": np.zeros(len(idx_det_HTRU_mid)).tolist(),
@@ -975,8 +1029,14 @@ def simulate_population(args) -> None:
                     "S_radio_obs_mean": S_radio_obs_mean_HTRU_high[
                         detected_radio_HTRU_high
                     ].tolist(),
+                    "S_radio_obs_mean_1400": S_radio_obs_mean_1400_HTRU_high[
+                        detected_radio_HTRU_high
+                    ].tolist(),
                     "w_int": w_int_s[detected_radio_HTRU_high].tolist(),
                     "w_eff": w_eff_HTRU_high[
+                        detected_radio_HTRU_high
+                    ].tolist(),
+                    "spectral_index": spectral_index[
                         detected_radio_HTRU_high
                     ].tolist(),
                     "HTRU_low": np.zeros(len(idx_det_HTRU_high)).tolist(),
@@ -1033,7 +1093,7 @@ def simulate_population(args) -> None:
                 )
 
                 # detected_x = S_x > 1.0e-15
-                detected_x = sx.obs_bias_filter(S_x, eta=4.0)
+                detected_x = sx.obs_bias_filter(S_x, eta=5)
 
                 n_detected_sim_x += np.count_nonzero(detected_x)
                 log.info(
@@ -1200,8 +1260,10 @@ def simulate_population(args) -> None:
                 "P_dot",
                 "L_radio_bol",
                 "S_radio_obs_mean",
+                "S_radio_obs_mean_1400",
                 "w_int",
                 "w_eff",
+                "spectral_index",
             ]
             units_final = [
                 "[yr]",
@@ -1220,8 +1282,10 @@ def simulate_population(args) -> None:
                 "[s s^-1]",
                 "[erg s^-1]",
                 "[Jy]",
+                "[Jy]",
                 "[s]",
                 "[s]",
+                "",
             ]
 
             parameters_final_HTRU = [
@@ -1241,8 +1305,10 @@ def simulate_population(args) -> None:
                 "P_dot",
                 "L_radio_bol",
                 "S_radio_obs_mean",
+                "S_radio_obs_mean_1400",
                 "w_int",
                 "w_eff",
+                "spectral_index",
                 "HTRU_low",
                 "HTRU_mid",
                 "HTRU_high",
@@ -1264,8 +1330,10 @@ def simulate_population(args) -> None:
                 "[s s^-1]",
                 "[erg s^-1]",
                 "[Jy]",
+                "[Jy]",
                 "[s]",
                 "[s]",
+                "",
                 "",
                 "",
                 "",

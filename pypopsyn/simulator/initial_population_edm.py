@@ -259,13 +259,13 @@ class InitialNeutronStarPopulation:
             )
         elif magnetic_field_model == "double_log-normal":
             B_rand = imf.initial_magnetic_field_double_lognormal(
-                8.0,
+                10.0,
                 16.0,
                 self.NS_number,
             )
         elif magnetic_field_model == "smooth_tophat":
-            B_rand = imf.initial_magnetic_field_double_lognormal(
-                8.0,
+            B_rand = imf.initial_magnetic_field_smooth_tophat(
+                10.0,
                 16.0,
                 self.NS_number,
             )

@@ -163,9 +163,9 @@ cfg["B_initial_weight"]: float = 0.8
 # Parameters for the smooth top-hat distributed initial magnetic fields in [G].
 cfg["B_initial_log10_center"]: float = 14.0
 cfg["B_initial_log10_left_trans"]: float = 0.5
-cfg["B_initial_log10_central_width"]: float = 5
+cfg["B_initial_log10_central_width"]: float = 4
 cfg["B_initial_log10_right_trans"]: float = 0.2
-cfg["B_initial_log10_slope"]: float = -0.2
+cfg["B_initial_log10_slope"]: float = -0.3
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
