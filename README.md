@@ -27,15 +27,22 @@ The code has been tested on Ubuntu and macOS.
    ```commandline
    python setup.py develop
    ```
+   
+4. To install the python kernel of the new environment `pop_syn` and use it in the jupyter notebooks run:
+   ```commandline
+   python -m ipykernel install --user --name pop_syn --display-name "pop_syn"
+   ```
 
-4. Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local 
-machine. To this end, open the configuration file `pypopsyn/simulator/config_simulator.py`, scroll to the section
+5. Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local 
+   machine. To this end, open the configuration file `pypopsyn/simulator/config_simulator.py`, scroll to the section
    titled "GENERAL SIMULATION PARAMETERS" (specifically lines 49 and 50) and add the absolute path to the repository
-   folder and to the folder where you would like to save any subsequent simulation output by modifying the variables `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively.
+   folder and to the folder where you would like to save any subsequent simulation output 
+   (for example "/home/michele/Documents/MAGNESIA_population_synthesis") by modifying the variables 
+   `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively.
 
-5. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will 
-need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/) library after activating the 
-environment by running:
+6. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will 
+   need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/) library after activating the 
+   environment by running:
    ```commandline
    pip install sbi==0.22.0
    ```
@@ -48,8 +55,12 @@ also check the full documentation for further details (see below).
 
 ## Documentation
 
-Documentation is held in `docs` and can be compiled into an HTML webpage using `mkdocs serve` with the environment activated. 
-This command will create an URL where to access the full documentation.
+Documentation can be compiled into an HTML webpage by running:
+```commandline
+mkdocs serve
+```
+with the environment activated. 
+This command will create an URL that will be shown on terminal where to access the full documentation.
 
 
 ## For Developers
