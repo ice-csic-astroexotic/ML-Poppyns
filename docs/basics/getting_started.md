@@ -54,7 +54,8 @@ The code has been tested on Ubuntu and macOS.
 5. Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local
    machine. To this end, open the configuration file `pypopsyn/simulator/config_simulator.py`, scroll to the section
    titled "GENERAL SIMULATION PARAMETERS" (specifically lines 49 and 50) and add the absolute path to the repository
-   folder and to the folder where you would like to save any subsequent simulation output by modifying the variables 
+   folder and to the folder where you would like to save any subsequent simulation output (for example 
+   `/home/michele/Documents/MAGNESIA_population_synthesis`) by modifying the variables 
    `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively.
 
 6. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will
