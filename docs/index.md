@@ -3,11 +3,38 @@
 Neutron star population synthesis code for isolated pulsars developed as part of the ERC project MAGNESIA - 
 The Magnetar Census.
 
-!!! note
+The population synthesis framework in this repository integrates population synthesis to model the birth properties 
+and evolution of the population of Galactic neutron stars with deep learning techniques to perform parameter 
+inference and constrain their physical properties.
 
-    The population synthesis framework in this repository integrates population synthesis to model the birth properties 
-    and evolution of the population of Galactic neutron stars with deep learning techniques to perform parameter 
-    inference and constrain their physical properties.
+You can simulate a population of neutron stars and model the detection from three different surveys performed with the 
+Murriyang Parkes telescope with just a few steps:
+```python
+import argparse
+from pypopsyn.simulator.config_simulator import cfg
+from pypopsyn.simulator.simulate_population_full import simulate_population
+
+# Setup some simulation parameters.
+cfg["NS_number"] = 300000
+cfg["t_age_max"] = 3.0e7
+cfg["B_initial_log10_mean"] = 13.1
+cfg["B_initial_log10_sigma"] = 0.45
+cfg["P_initial_log10_mean"] = -1.0
+cfg["P_initial_log10_sigma"] = 0.38
+
+simulation_args = argparse.Namespace(
+    save_dir="output_dir",
+    parameter_override=None,
+)
+simulate_population(simulation_args)
+```
+Here we show the result of the distribution in the sky and in the $P-\dot{P}$ diagram of the simulated population.
+![Sky distribution in Galactic coordinates of the simulated neutron stars.](./images/simulated_sky.png)
+![Distribution in the $P-\dot{P}$ dyagram of the simulated neutron stars.](./images/simulated_ppdot.png)
+
+!!! example
+
+    An example of this simulation is presented in detail in the tutorial `tutorials/tutorial_notebooks/00_getting_started.ipynb`.
 
 ## Repository structure
 
