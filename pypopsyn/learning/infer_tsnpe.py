@@ -232,6 +232,10 @@ def infer(
             inference_list = initialize_inference(
                 config, device, prior, ensemble
             )
+
+        # Lists to store parameters and matrices from each round.
+        parameter_list = []
+        matrix_list = []
         for i in range(num_rounds):
 
             save_dir_round = config.log_dir / f"round_{i}"
@@ -269,14 +273,19 @@ def infer(
                         _, parameter_test, matrix_test = prepare_dataset_sbi(
                             test_dataset_path, config, logger
                         )
+                        # Saving the training data to reuse it in the next rounds.
+                        parameter_list.append(parameter_test)
+                        matrix_list.append(matrix_test)
+                        parameter_round = torch.cat(parameter_list, dim=0)
+                        matrix_round = torch.cat(matrix_list, dim=0)
                         logger.info(
                             f"Computing the ranks and the coverage probability for round_{i}"
                         )
 
                         compute_rank_coverage(
                             save_dir=save_dir_round,
-                            parameter=parameter_test,
-                            matrix=matrix_test,
+                            parameter=parameter_round,
+                            matrix=matrix_round,
                             posterior=posterior,
                             device=device,
                             parameter_labels=parameter_labels,
