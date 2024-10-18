@@ -35,9 +35,7 @@ def T_from_Lx(Lx: np.ndarray) -> np.ndarray:
     Returns:
         (np.ndarray): array of temperature seen by a distant observer in [K].
     """
-    # Consider a hot-spot radius that is a fraction of the neutron star radius.
-    # R_hot_spot = np.random.uniform(0.01, 1, len(Lx)) * cfg["NS_radius"]
-    # R_obs = R_hot_spot / gr_correction
+
     R_obs = cfg["NS_radius"] / gr_correction
     T_obs = (Lx / (4 * np.pi * R_obs**2 * const.SIGMA_SB)) ** (1.0 / 4.0)
 
@@ -60,11 +58,14 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
     T = T[:, np.newaxis]
 
     E_erg = E * const.EV_TO_ERG
+    exponent = E_erg / (const.K_B * T)
+    # Clip the maximum reachable value of the exponent to 709 to avoid RuntimeWarning: overflow encountered in exp
+    exponent_clipped = np.clip(exponent, None, 709)
     I_bb = (
         2.0
         / (const.H**3 * const.C**2)
         * E_erg**3
-        / (np.exp(E_erg / (const.K_B * T)) - 1)
+        / (np.exp(exponent_clipped) - 1)
     ) * const.EV_TO_ERG
 
     return I_bb
@@ -100,11 +101,23 @@ def n_plus_no_delta(
 
     x = (E - E_0) / E_0
 
-    term_1 = tau_0 / (8.0 * beta_T) * ((4.0 * beta_T - x) / x) ** 0.5
-    I1 = scsp.i1(tau_0 / (4.0 * beta_T) * (x * (4.0 * beta_T - x)) ** 0.5)
+    # Calculate term_1 safely, Replace x=0 with NaN for safety and set sqrt_arg_1 to np.inf when x was 0.
+    x_safe = np.where(x == 0, np.nan, x)
+    sqrt_arg_1 = (4.0 * beta_T - x_safe) / x_safe
+    sqrt_arg_1 = np.where(x == 0, np.inf, sqrt_arg_1)
+    # Replace the argument of the sqrt with NaN when it is less than 0 for safety and compute term 1.
+    sqrt_arg_1_safe = np.where(sqrt_arg_1 < 0, np.nan, sqrt_arg_1)
+    term_1 = tau_0 / (8.0 * beta_T) * sqrt_arg_1_safe**0.5
+    # Replace the NaN values in term_1 with 0.
+    term_1 = np.nan_to_num(term_1, nan=0)
+
+    # Replace the argument of the sqrt with NaN when it is less than 0 for safety and compute I1.
+    sqrt_arg_2 = x * (4.0 * beta_T - x)
+    sqrt_arg_2_safe = np.where(sqrt_arg_2 < 0, np.nan, sqrt_arg_2)
+    I1 = scsp.i1(tau_0 / (4.0 * beta_T) * sqrt_arg_2_safe**0.5)
+    I1 = np.nan_to_num(I1, nan=0)
 
     term_2 = term_1 * I1
-    term_2 = np.nan_to_num(term_2, nan=0)
 
     n_p = np.exp(-tau_0 / 2.0) / E_0 * term_2
 
@@ -140,14 +153,12 @@ def n_minus(
 
     x = (E - E_0) / E_0
 
-    I0 = scsp.i0(
-        tau_0
-        / (4.0 * beta_T)
-        * ((2.0 * beta_T - x) * (x + 2.0 * beta_T)) ** 0.5
-    )
+    sqrt_arg = (2.0 * beta_T - x) * (x + 2.0 * beta_T)
+    sqrt_arg_safe = np.where(sqrt_arg < 0, np.nan, sqrt_arg)
+    I0 = scsp.i0(tau_0 / (4.0 * beta_T) * sqrt_arg_safe**0.5)
+    I0 = np.nan_to_num(I0, nan=0)
 
     n_m = tau_0 / (8.0 * beta_T * E_0) * np.exp(-tau_0 / 2.0) * I0
-    n_m = np.nan_to_num(n_m, nan=0)
 
     return n_m
 
@@ -263,6 +274,9 @@ def flux_xray_absorbed(
     """
     T_obs = T_from_Lx(Lx)
 
+    # Consider a hot-spot radius that is a fraction of the neutron star radius.
+    # R_hot_spot = np.random.uniform(0.01, 1, len(Lx)) * cfg["NS_radius"]
+    # R_obs = R_hot_spot / gr_correction
     R_obs = cfg["NS_radius"] / gr_correction
 
     d = d * const.KPC_TO_CM
