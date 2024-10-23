@@ -347,8 +347,8 @@ def simulate_population(args) -> None:
             "chi": [],
             "P": [],
             "Pdot": [],
-            "L_x": [],
-            "S_x_obs": [],
+            "L_x_therm": [],
+            "S_x_abs": [],
         }
 
         # Load the interpolator function to evaluate the x-ray luminosity.
@@ -1073,27 +1073,27 @@ def simulate_population(args) -> None:
                     / const.YR_TO_S
                 )
 
-                L_x = Lx_interpolator.ev(age_det_x, B_initial_det_x)
+                L_x_therm = Lx_interpolator.ev(age_det_x, B_initial_det_x)
 
                 # Select only the stars that have sufficiently high luminosity.
                 L_x_threshold = 1.0e25
-                idx_det_x = idx_det_x[L_x > L_x_threshold]
-                age_det_x = age_det_x[L_x > L_x_threshold]
-                P_det_x = P_det_x[L_x > L_x_threshold]
-                ra_det_x = ra_det_x[L_x > L_x_threshold]
-                dec_det_x = dec_det_x[L_x > L_x_threshold]
-                dist_det_x = dist_det_x[L_x > L_x_threshold]
-                B_det_x = B_det_x[L_x > L_x_threshold]
-                chi_det_x = chi_det_x[L_x > L_x_threshold]
-                P_dot_det_x = P_dot_det_x[L_x > L_x_threshold]
-                L_x = L_x[L_x > L_x_threshold]
+                idx_det_x = idx_det_x[L_x_therm > L_x_threshold]
+                age_det_x = age_det_x[L_x_therm > L_x_threshold]
+                P_det_x = P_det_x[L_x_therm > L_x_threshold]
+                ra_det_x = ra_det_x[L_x_therm > L_x_threshold]
+                dec_det_x = dec_det_x[L_x_therm > L_x_threshold]
+                dist_det_x = dist_det_x[L_x_therm > L_x_threshold]
+                B_det_x = B_det_x[L_x_therm > L_x_threshold]
+                chi_det_x = chi_det_x[L_x_therm > L_x_threshold]
+                P_dot_det_x = P_dot_det_x[L_x_therm > L_x_threshold]
+                L_x_therm = L_x_therm[L_x_therm > L_x_threshold]
 
-                S_x, N_H = ex.flux_xray_absorbed(
-                    L_x, B_det_x, ra_det_x, dec_det_x, dist_det_x
+                S_x_abs, N_H = ex.flux_xray_absorbed(
+                    L_x_therm, B_det_x, ra_det_x, dec_det_x, dist_det_x
                 )
 
-                # detected_x = S_x > 1.0e-15
-                detected_x = sx.obs_bias_filter(S_x, eta=4)
+                detected_x = S_x_abs > 1.0e-15
+                # detected_x = sx.obs_bias_filter(S_x_abs, eta=6)
 
                 n_detected_sim_x += np.count_nonzero(detected_x)
                 log.info(
@@ -1119,8 +1119,8 @@ def simulate_population(args) -> None:
                     "chi": chi_det_x[detected_x].tolist(),
                     "P": P_det_x[detected_x].tolist(),
                     "Pdot": P_dot_det_x[detected_x].tolist(),
-                    "L_x": L_x[detected_x].tolist(),
-                    "S_x_obs": S_x[detected_x].tolist(),
+                    "L_x_therm": L_x_therm[detected_x].tolist(),
+                    "S_x_abs": S_x_abs[detected_x].tolist(),
                 }
 
                 # Update the dictionary containing the detection information.
@@ -1354,8 +1354,8 @@ def simulate_population(args) -> None:
                 "chi",
                 "P",
                 "P_dot",
-                "L_x",
-                "S_x_obs",
+                "L_x_therm",
+                "S_x_abs",
             ]
             units_final_x = [
                 "[yr]",

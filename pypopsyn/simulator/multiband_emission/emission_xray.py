@@ -230,7 +230,7 @@ def beta_plasma(B: np.ndarray) -> np.ndarray:
         (np.ndarray): average plasma thermal velocity in units of the speed of light.
     """
     beta = 0.001 * np.ones(len(B))
-    beta[B > 1.0e13] = 0.3
+    beta[B > 1.0e13] = np.random.uniform(0.1, 0.5, len(B[B > 1.0e13]))
 
     return beta
 
@@ -248,6 +248,8 @@ def resonant_optical_depth(B: np.ndarray) -> np.ndarray:
     """
     tau_res = 0.001 * np.ones(len(B))
     tau_res[B > 1.0e13] = B[B > 1.0e13] / 1.0e14
+    # tau_res[B > 1.0e13] = np.random.uniform(0.1, 8, len(B[B > 1.0e13])) #np.random.normal(tau_res_mean, 0.5, len(B[B > 1.0e13]))
+    # tau_res = np.where(tau_res < 0, 0.001, tau_res)
 
     return tau_res
 
@@ -313,6 +315,6 @@ def flux_xray_absorbed(
     # Compute the total observed flux in the energy range [0.01, 10] keV.
     E_mask = E <= 10000
     I_absorbed_bolom = trapz(I_absorbed[:, E_mask], E[E_mask], axis=1)
-    flux = (R_obs / d) ** 2 * np.pi * I_absorbed_bolom
+    flux_abs = (R_obs / d) ** 2 * np.pi * I_absorbed_bolom
 
-    return flux, N_H
+    return flux_abs, N_H
