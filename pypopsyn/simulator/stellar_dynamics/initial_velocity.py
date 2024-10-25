@@ -69,10 +69,10 @@ def pdf_kick_velocity_2maxwell(v: np.ndarray) -> np.ndarray:
     """
 
     # Define the dispersions of the two Maxwellian components.
-    sigma_1 = 55
-    sigma_2 = 334
+    sigma_1 = cfg["sigma_k_1"]
+    sigma_2 = cfg["sigma_k_2"]
     # Define the fractional contribution of the first Maxwellian.
-    w = 0.19
+    w = cfg["kick_weight"]
 
     pdf_maxwell_1 = (
         np.sqrt(2 / np.pi)

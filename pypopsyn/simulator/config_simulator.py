@@ -117,6 +117,11 @@ cfg["vk_c"]: float = 180.0
 # Sigma in [km/s] for the Maxwell kick velocity pdf.
 cfg["sigma_k"]: float = 265.0
 
+# Parameters for the double Maxwell kick velocity pdf.
+cfg["sigma_k_1"]: float = 55.0
+cfg["sigma_k_2"]: float = 334.0
+cfg["kick_weight"]: float = 0.19
+
 # Characteristic height in [kpc] from the galactic plane.
 cfg["h_c"]: float = 0.18
 
@@ -196,9 +201,19 @@ cfg["B_millisec_sigma"] = 0.5
 
 # ===================== RADIO EMISSION-MODEL PARAMETERS ========================
 
+# Model for the radio beam aperture. Choose between "standard_period_cone" and "power-law_period_cone".
+cfg["radio_beam_model"] = "standard_period_cone"
+
 # Distance from the center of the star where the radio emission is supposed to be generated in [cm]
-# (see Johnston et al. 2020).
+# (see Johnston et al. 2020). This parameter is active only if the radio_beam_model is set to "standard_period_cone".
 cfg["r_em"]: float = 3.0e7
+
+# Parameters for the power-law_period_cone model.
+cfg[
+    "rho_b_0"
+] = 5.0  # Half opening angle of the radio beam in [deg] corresponding to a spin period of 1 s.
+cfg["a_beam"] = -0.5  # Power-law exponent.
+
 
 # Relevant parameters for the log-normally distributed luminosity, L.
 # We have implemented two different prescriptions for the luminosity in the module

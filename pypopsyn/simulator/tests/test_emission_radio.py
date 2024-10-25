@@ -28,14 +28,14 @@ cfg["epsilon_L"] = 0.5
 @pytest.fixture()
 def test_case_1():
     data = {
-        "r_em": cfg["r_em"],
         "P": np.array([0.1, 1.0]),
         "P_dot": np.array([1.0e-15, 1.0e-13]),
         "chi": np.array([np.pi / 3.0, np.pi / 4.0]),
         "rho_b": np.array([0.3, 0.1]),
         "los": np.array([0.3, 0.8]),
         "solid_angle_expected": np.array([0.56126, 0.062780]),
-        "beam_aperture_expected": np.array([0.37612, 0.11894]),
+        "beam_aperture_expected_standard": np.array([0.37612, 0.11894]),
+        "beam_aperture_expected_powerlaw": np.array([0.27596079, 0.08726646]),
         "w_expected": np.array([0.277910]),
         "beam_fraction_expected": np.array([0.51186, 0.14119]),
         "intercepted_expected": np.array([False, True]),
@@ -89,19 +89,43 @@ def test_case_2():
     return data
 
 
-def test_beam_aperture(test_case_1):
+def test_beam_aperture_standard(test_case_1):
     """
     Verifying that for a given choice of spin period and emission radius the
     angular beam aperture is correctly calculated.
     """
+    # Set the values of the configuration file for testing purposes.
+    cfg["radio_beam_model"] = "standard_period_cone"
+    cfg["r_em"]: float = 3.0e7
 
     beam_aperture_out = er.beam_aperture(
         test_case_1["P"],
-        test_case_1["r_em"],
     )
 
     assert np.isclose(
-        test_case_1["beam_aperture_expected"],
+        test_case_1["beam_aperture_expected_standard"],
+        beam_aperture_out,
+        rtol=TOL,
+        atol=1.0e-5,
+    ).all()
+
+
+def test_beam_aperture_powerlaw(test_case_1):
+    """
+    Verifying that for a given choice of spin period and emission radius the
+    angular beam aperture is correctly calculated.
+    """
+    # Set the values of the configuration file for testing purposes.
+    cfg["radio_beam_model"] = "power-law_period_cone"
+    cfg["rho_b_0"] = 5.0
+    cfg["a_beam"] = -0.5
+
+    beam_aperture_out = er.beam_aperture(
+        test_case_1["P"],
+    )
+
+    assert np.isclose(
+        test_case_1["beam_aperture_expected_powerlaw"],
         beam_aperture_out,
         rtol=TOL,
         atol=1.0e-5,
@@ -241,10 +265,12 @@ def test_flux_density_radio(test_case_1):
 
 
 def test_calculate_radio_emission(monkeypatch, test_case_2):
-
     """
     Verifying that the radio emission is computed correctly.
     """
+    # Set the values of the configuration file for testing purposes.
+    cfg["radio_beam_model"] = "standard_period_cone"
+    cfg["r_em"]: float = 3.0e7
 
     def mock_los_rand(*args, **kwargs):
         return test_case_2["dataset_dict"]["los_rand"]
@@ -280,11 +306,13 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
 
 
 def test_calculate_radio_emission_full(monkeypatch, test_case_2):
-
     """
     Verifying that the radio emission is computed correctly.
     """
+    # Set the values of the configuration file for testing purposes.
     cfg["NS_number"] = 2
+    cfg["radio_beam_model"] = "standard_period_cone"
+    cfg["r_em"]: float = 3.0e7
 
     def mock_los_rand(*args, **kwargs):
         return test_case_2["dataset_dict"]["los_rand"]

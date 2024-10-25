@@ -16,24 +16,34 @@ import utilities.samplers.random_sampler as rs
 from pypopsyn.simulator.config_simulator import cfg
 
 
-def beam_aperture(P: np.ndarray, r_em: float) -> np.ndarray:
+def beam_aperture(P: np.ndarray) -> np.ndarray:
     """
     Half angular aperture in [rad] of the radio beam as a function of the spin period.
-    It can be derived by assuming that the radio beam width extends in the open
+    For the standard_period_cone it can be derived by assuming that the radio beam width extends in the open
     field line region around the magnetic poles of the star.
     See eq. (3.29) in Lorimer and Kramer (2005) and eq. (2) in Johnston et al. (2020)
     for a derivation and discussion of this model.
+    For the power-law_period_cone model we adopted a generic power-law of the spin period.
 
     Args:
         P (np.ndarray): Array of spin periods of the pulsars in [s].
-        r_em (float): Distance from the center of the star where the radio emission
-            is supposed to be generated [cm].
 
     Returns:
         (np.ndarray): Half angular aperture of the radio beam in [rad].
     """
 
-    rho_b = np.sqrt(9.0 * np.pi * r_em / (2.0 * const.C * P))
+    beam_model = cfg["radio_beam_model"]
+
+    if beam_model == "standard_period_cone":
+        rho_b = np.sqrt(9.0 * np.pi * cfg["r_em"] / (2.0 * const.C * P))
+    elif beam_model == "power-law_period_cone":
+        rho_b = cfg["rho_b_0"] * P ** cfg["a_beam"]
+        # Convert the half angular aperture from deg to rad.
+        rho_b = rho_b * np.pi / 180.0
+    else:
+        raise ValueError(
+            "The radio beam model does not exist. Choose between standard_period_cone or power-law_period_cone."
+        )
 
     return rho_b
 
@@ -287,7 +297,7 @@ def calculate_radio_emission(
     """
 
     # Determining the radio beam angular aperture.
-    rho_beam = beam_aperture(P, cfg["r_em"])
+    rho_beam = beam_aperture(P)
 
     # Determining the solid angle covered by the two radio beams.
     solid_angle_beam = solid_angle_radio_beams(rho_beam)
@@ -412,7 +422,7 @@ def calculate_radio_emission_full(
     L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
 
     # Determining the radio beam angular aperture.
-    rho_beam = beam_aperture(P, cfg["r_em"])
+    rho_beam = beam_aperture(P)
 
     # Determining the solid angle covered by the two radio beams.
     solid_angle_beam = solid_angle_radio_beams(rho_beam)
