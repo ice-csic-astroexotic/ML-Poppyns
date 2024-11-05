@@ -58,6 +58,9 @@ jobs:
       # and therefore not cached, we update the environment every time to add pip dependencies.
       - name: Install pip dependencies
         run: conda env update -n pop_syn --file environment.yaml
+      # Install pygedm
+      - name: Install pygedm
+        run: pip install --global-option=build_ext --global-option=“-I/opt/local/include” --global-option=“-L/opt/local/lib” pygedm
       # Install our software package in the standard way.
       - name: Install package in development mode
         run: python setup.py develop
