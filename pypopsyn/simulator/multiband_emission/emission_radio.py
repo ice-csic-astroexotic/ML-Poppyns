@@ -19,11 +19,12 @@ from pypopsyn.simulator.config_simulator import cfg
 def beam_aperture(P: np.ndarray) -> np.ndarray:
     """
     Half angular aperture in [rad] of the radio beam as a function of the spin period.
-    For the standard_period_cone it can be derived by assuming that the radio beam width extends in the open
-    field line region around the magnetic poles of the star.
+
+    For the "standard_period_cone" model, the aperture is derived by assuming that the radio beam width extends
+    into the open field line region around the magnetic poles of the star.
     See eq. (3.29) in Lorimer and Kramer (2005) and eq. (2) in Johnston et al. (2020)
     for a derivation and discussion of this model.
-    For the power-law_period_cone model we adopted a generic power-law of the spin period.
+    For the "power-law_period_cone" model, we adopted a generic power-law of the spin period.
 
     Args:
         P (np.ndarray): Array of spin periods of the pulsars in [s].
