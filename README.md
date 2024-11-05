@@ -28,7 +28,7 @@ The code has been tested on Ubuntu and macOS.
    python setup.py develop
    ```
    
-4. To install the new conda environment `pop_syn` as an IPython kernel and use it in a Jupyter Notebooks, activate
+4. To install the new conda environment `pop_syn` as an IPython kernel and use it in a Jupyter Notebook, activate
    the environment as shown in step 2 and then run
    ```commandline
    python -m ipykernel install --user --name pop_syn --display-name "pop_syn"
