@@ -39,7 +39,7 @@ def beam_aperture(P: np.ndarray) -> np.ndarray:
         rho_b = np.sqrt(9.0 * np.pi * cfg["r_em"] / (2.0 * const.C * P))
     elif beam_model == "power-law_period_cone":
         rho_b = cfg["rho_b_0"] * P ** cfg["a_beam"]
-        # Convert the half angular aperture from deg to rad.
+        # Convert the half angular aperture from [deg] to [rad].
         rho_b = rho_b * np.pi / 180.0
     else:
         raise ValueError(
