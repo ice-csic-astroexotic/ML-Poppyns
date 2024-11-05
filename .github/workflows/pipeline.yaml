@@ -26,7 +26,7 @@ jobs:
       # Check out the full code given in the repo.
       - name: Checkout code
         uses: actions/checkout@v4
-      # Install libf2c library that is needed to build the package pygedm.
+      # Install f2c library that is needed to build the package pygedm via MacPorts.
       - name: Install MacPorts
         run: |
           wget https://github.com/macports/macports-base/releases/download/v2.10.4/MacPorts-2.10.4-14-Sonoma.pkg
