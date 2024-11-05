@@ -29,13 +29,8 @@ jobs:
       # Install libf2c library that is needed to build the package pygedm.
       - name: Install MacPorts
         run: |
-          curl -O https://distfiles.macports.org/MacPorts/MacPorts-2.10.4.tar.bz2
-          tar xf MacPorts-2.10.4.tar.bz2
-          cd MacPorts-2.10.4/
-          ./configure
-          make
-          sudo make install
-          export PATH=/opt/local/bin:/opt/local/sbin:$PATH
+          wget https://github.com/macports/macports-base/releases/download/v2.10.4/MacPorts-2.10.4-14-Sonoma.pkg
+          sudo installer -pkg MacPorts-2.10.4-14-Sonoma.pkg -target /
       - name: Install f2c library
         run: port install f2c
       # Setup miniconda and create the (empty) environment.
