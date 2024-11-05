@@ -1,4 +1,4 @@
-name: pop_syn
+name: pop_syn  # comment for testing
 channels:
   - pytorch
   - nvidia
