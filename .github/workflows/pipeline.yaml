@@ -26,6 +26,9 @@ jobs:
       # Check out the full code given in the repo.
       - name: Checkout code
         uses: actions/checkout@v4
+      # Install libf2c library that is needed to build the package pygedm.
+      - name: Install libf2c library
+        run: sudo apt install libf2c2-dev
       # Setup miniconda and create the (empty) environment.
       # Note: this does not install any packages yet but activates the environment.
       - name: Setup miniconda
