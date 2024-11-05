@@ -142,11 +142,11 @@ cfg["P_initial_mean"]: float = 0.3
 cfg["P_initial_sigma"]: float = 0.2
 
 # Mean and standard deviation for the log-normal distributed initial periods in [s].
-cfg["P_initial_log10_mean"]: float = -0.6
-cfg["P_initial_log10_sigma"]: float = 0.62
+cfg["P_initial_log10_mean"]: float = -0.67
+cfg["P_initial_log10_sigma"]: float = 0.55
 
 # Model pdf for the initial spin period. Choose between "log-normal", "double_log-normal", "smooth_tophat".
-cfg["magnetic_field_model"]: str = "smooth_tophat"
+cfg["magnetic_field_model"]: str = "double_log-normal"
 
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [G].
 cfg["B_initial_log10_mean"]: float = 13.04
@@ -154,18 +154,18 @@ cfg["B_initial_log10_sigma"]: float = 0.53
 
 # Means and standard deviations and relative weight for the double log-normally distributed
 # initial magnetic fields in [G].
-cfg["B_initial_log10_mean1"]: float = 13.02
-cfg["B_initial_log10_sigma1"]: float = 0.49
-cfg["B_initial_log10_mean2"]: float = 14.5
+cfg["B_initial_log10_mean1"]: float = 13.09
+cfg["B_initial_log10_sigma1"]: float = 0.5
+cfg["B_initial_log10_mean2"]: float = 14.1
 cfg["B_initial_log10_sigma2"]: float = 0.5
-cfg["B_initial_weight"]: float = 0.8
+cfg["B_initial_weight"]: float = 0.7
 
 # Parameters for the smooth top-hat with gaussian rise and decay for the initial magnetic fields in [G].
-cfg["B_initial_log10_rise_mean"]: float = 13.02
-cfg["B_initial_log10_rise_sigma"]: float = 0.49
-cfg["B_initial_log10_decay_mean"]: float = 14.8
+cfg["B_initial_log10_rise_mean"]: float = 12.8
+cfg["B_initial_log10_rise_sigma"]: float = 0.3
+cfg["B_initial_log10_decay_mean"]: float = 15.5
 cfg["B_initial_log10_decay_sigma"]: float = 0.2
-cfg["B_initial_log10_slope"]: float = -10.0
+cfg["B_initial_log10_slope"]: float = -1.0
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
@@ -207,7 +207,7 @@ cfg["b2"]: float = -0.25
 cfg["tau_late"]: float = 3.0e6
 
 # Late time power-law index.
-cfg["a_late"]: float = -0.94
+cfg["a_late"]: float = -0.88
 
 
 # Parameters for a log-normal distribution of the magnetic fields of the old millisecond pulsars.
@@ -231,10 +231,10 @@ cfg["r_em"]: float = 3.0e7
 # the following parameters were adjusted to match observed data.
 cfg[
     "L_radio_log10_mean"
-]: float = 26.2  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
+]: float = 26.17  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
 # cfg["L_radio_log10_mean"]: float = 35.5 [erg s^(3 * epsilon_L - 1) ] if pdf_luminosity_radio_ppdot is used.
 cfg["L_radio_log10_sigma"]: float = 0.8
-cfg["epsilon_L"]: float = 0.66
+cfg["epsilon_L"]: float = 0.68
 cfg["Erot_dot_0"]: float = 1e29
 
 # Spectral index following a normal distribution as in Posselt et al. (2023). We set the standard deviation to 0 to

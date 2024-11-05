@@ -229,8 +229,10 @@ def beta_plasma(B: np.ndarray) -> np.ndarray:
     Returns:
         (np.ndarray): average plasma thermal velocity in units of the speed of light.
     """
-    beta = 0.001 * np.ones(len(B))
-    beta[B > 1.0e13] = np.random.uniform(0.1, 0.5, len(B[B > 1.0e13]))
+    # beta = 0.001 * np.ones(len(B))
+    # beta[B > 1.0e13] = 0.3
+    beta = np.random.normal(0.3, 0.1, len(B))
+    beta = np.where((beta < 0) | (beta > 1), 0.3, beta)
 
     return beta
 
@@ -246,9 +248,14 @@ def resonant_optical_depth(B: np.ndarray) -> np.ndarray:
     Returns:
         (np.ndarray): resonant optical depth values.
     """
-    tau_res = 0.001 * np.ones(len(B))
-    tau_res[B > 1.0e13] = B[B > 1.0e13] / 1.0e14
-    # tau_res[B > 1.0e13] = np.random.uniform(0.1, 8, len(B[B > 1.0e13])) #np.random.normal(tau_res_mean, 0.5, len(B[B > 1.0e13]))
+    tau_res_sigma = B / 1.0e14
+    tau_res = np.random.normal(0.001, tau_res_sigma, len(B))
+    tau_res = np.where(tau_res < 0, -tau_res, tau_res)
+
+    # tau_res = 0.001 * np.ones(len(B))
+    # tau_res[B > 1.0e13] = B[B > 1.0e13] / 1.0e14
+    # tau_res_mean = B[B > 1.0e13] / 1.0e14
+    # tau_res[B > 1.0e13] = np.random.uniform(0.001, 8, len(B[B > 1.0e13])) #np.random.normal(tau_res_mean, 1.0, len(B[B > 1.0e13])) #np.random.uniform(0.1, 8, len(B[B > 1.0e13]))
     # tau_res = np.where(tau_res < 0, 0.001, tau_res)
 
     return tau_res
