@@ -3,8 +3,8 @@ Population synthesis code for the ERC project MAGNESIA - The Magnetar Census
 
 ## Getting Started
 
-These instructions will provide you with a copy of the project and help you get it up and running on your local machine. 
-The code has been tested on Ubuntu and macOS.
+These instructions will provide you with a copy of the project and help you get it up and running on your local machine.
+For this, you need `conda` to be installed on your machine. The code has been tested on Ubuntu and macOS.
 
 1. First, you need to clone the repository on your computer. To get the files from our GitHub repository, run
    ```commandline
@@ -15,7 +15,14 @@ The code has been tested on Ubuntu and macOS.
    ```commandline
    conda env create -f environment.yaml
    ```
-   NOTE: For macOS users the `cudatoolkit` package has to be commented out in the environment file.
+   
+    !!! warning "macOS users"
+
+        For macOS users the `cudatoolkit` package has to be commented out in the environment file.
+        Otherwise the environment will not be resolved.   
+
+   NOTE: For macOS users the `cudatoolkit` package has to be commented out in the environment file. Otherwise the 
+   environment will not be resolved.
 
    This environment can be activated using
    ```commandline
