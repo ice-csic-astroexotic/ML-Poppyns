@@ -15,12 +15,6 @@ For this, you need `conda` to be installed on your machine. The code has been te
    ```commandline
    conda env create -f environment.yaml
    ```
-   
-    !!! warning "macOS users"
-
-        For macOS users the `cudatoolkit` package has to be commented out in the environment file.
-        Otherwise the environment will not be resolved.   
-
    NOTE: For macOS users the `cudatoolkit` package has to be commented out in the environment file. Otherwise the 
    environment will not be resolved.
 
