@@ -18,7 +18,7 @@ For this, you need `conda` to be installed on your machine. The code has been te
    NOTE: For macOS users the `cudatoolkit` package has to be commented out in the environment file. Otherwise the 
    environment will not be resolved.
 
-   This environment can be activated using
+   On your local machine, this environment can be activated using
    ```commandline
    conda activate pop_syn
    ```
@@ -51,18 +51,19 @@ For this, you need `conda` to be installed on your machine. The code has been te
    
 ## How to use the code?
 
-Navigate to the `tutorials/tutorial_notebook` directory, where eight Jupyter Notebooks introduce the different parts of our code. You can 
-also check the full documentation for further details (see below).
+Navigate to the `tutorials/tutorial_notebook` directory, where several Jupyter Notebooks introduce the different
+parts of our code. You can also check out the full documentation for further details (see below).
 
 
 ## Documentation
 
-Documentation can be compiled into an HTML webpage by running:
+The documentation for this project is located in the `docs` directory and can be compiled into an HTML webpage by 
+running 
 ```commandline
 mkdocs serve
 ```
 with the environment activated. 
-This command will create an URL that will be shown on terminal where to access the full documentation.
+This command creates a URL that will be shown in the terminal. Click on it to access the full documentation.
 
 
 ## For Developers
