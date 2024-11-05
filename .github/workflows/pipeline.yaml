@@ -35,6 +35,7 @@ jobs:
           ./configure
           make
           sudo make install
+          export PATH=/opt/local/bin:/opt/local/sbin:$PATH
       - name: Install f2c library
         run: port install f2c
       # Setup miniconda and create the (empty) environment.
