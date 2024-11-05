@@ -27,7 +27,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       # Install libf2c library that is needed to build the package pygedm.
-      - name: Install libf2c library
+      - name: Install MacPorts
         run: |
           curl -O https://distfiles.macports.org/MacPorts/MacPorts-2.10.4.tar.bz2
           tar xf MacPorts-2.10.4.tar.bz2
@@ -35,6 +35,8 @@ jobs:
           ./configure
           make
           sudo make install
+      - name: Install f2c library
+        run: port install f2c
       # Setup miniconda and create the (empty) environment.
       # Note: this does not install any packages yet but activates the environment.
       - name: Setup miniconda
