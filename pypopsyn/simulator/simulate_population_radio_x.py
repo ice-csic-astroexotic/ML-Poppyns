@@ -615,18 +615,18 @@ def simulate_population(args) -> None:
                     idx_det_radio,
                 )
 
-                age_det_radio = dictionary_intercepted_radio["age_det"]
-                l_det_radio = dictionary_intercepted_radio["l_det"]
-                b_det_radio = dictionary_intercepted_radio["b_det"]
-                B_det_radio = dictionary_intercepted_radio["B_det"]
-                chi_det_radio = dictionary_intercepted_radio["chi_det"]
-                P_det_radio = dictionary_intercepted_radio["P_det"]
+                age_det_radio = dictionary_intercepted_radio["age"]
+                l_det_radio = dictionary_intercepted_radio["l"]
+                b_det_radio = dictionary_intercepted_radio["b"]
+                B_det_radio = dictionary_intercepted_radio["B"]
+                chi_det_radio = dictionary_intercepted_radio["chi"]
+                P_det_radio = dictionary_intercepted_radio["P"]
                 w_int_s = dictionary_intercepted_radio["w_int_s"]
                 DM = dictionary_intercepted_radio["DM"]
-                idx_det_radio = dictionary_intercepted_radio["idx_det"]
+                idx_det_radio = dictionary_intercepted_radio["idx"]
                 L_radio_bol = dictionary_intercepted_radio["L_radio_bol"]
                 S_radio_bol = dictionary_intercepted_radio["S_radio_bol"]
-                P_dot_det_radio = dictionary_intercepted_radio["P_dot_det"]
+                P_dot_det_radio = dictionary_intercepted_radio["P_dot"]
                 intercepted_radio = dictionary_intercepted_radio[
                     "intercepted_radio"
                 ]
@@ -1076,7 +1076,7 @@ def simulate_population(args) -> None:
                 L_x_therm = Lx_interpolator.ev(age_det_x, B_initial_det_x)
 
                 # Select only the stars that have sufficiently high luminosity.
-                L_x_threshold = 1.0e25
+                L_x_threshold = 1.0e30
                 idx_det_x = idx_det_x[L_x_therm > L_x_threshold]
                 age_det_x = age_det_x[L_x_therm > L_x_threshold]
                 P_det_x = P_det_x[L_x_therm > L_x_threshold]

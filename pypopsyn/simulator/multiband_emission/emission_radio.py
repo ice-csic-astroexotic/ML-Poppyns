@@ -362,19 +362,29 @@ def calculate_radio_emission(
         cfg["ed_model"],
     )
 
+    # Computing the spectral index and the scattering timescale at 327 MHz of each star.
+    spectral_index = np.random.normal(
+        cfg["mean_spectral_index"],
+        cfg["std_spectral_index"],
+        len(S_radio_bol),
+    )
+    tau_sc = edm.compute_tau_sc_327(DM)
+
     dictionary_intercepted_radio = {
-        "age_det": age_det,
-        "l_det": l_det,
-        "b_det": b_det,
-        "B_det": B_det,
-        "chi_det": chi_det,
-        "P_det": P_det,
-        "P_dot_det": P_dot_det,
+        "age": age_det,
+        "l": l_det,
+        "b": b_det,
+        "B": B_det,
+        "chi": chi_det,
+        "P": P_det,
+        "P_dot": P_dot_det,
         "w_int_s": w_int_s,
         "L_radio_bol": L_radio_bol,
         "S_radio_bol": S_radio_bol,
+        "spectral_index": spectral_index,
         "DM": DM,
-        "idx_det": idx_det,
+        "tau_sc": tau_sc,
+        "idx": idx_det,
         "intercepted_radio": intercepted_radio,
     }
 
