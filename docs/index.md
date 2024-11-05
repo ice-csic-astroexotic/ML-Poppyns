@@ -3,18 +3,20 @@
 Neutron star population synthesis code for isolated pulsars developed as part of the ERC project MAGNESIA - 
 The Magnetar Census.
 
-The population synthesis framework in this repository models the birth properties and evolution of the population of 
-Galactic neutron stars. It is also integrated with a deep learning framework to perform parameter 
-inference and constrain its physical properties.
+## Overview
 
-You can simulate a population of neutron stars and model the detection from three different surveys performed with the 
-Murriyang Parkes telescope, with just a few steps:
+Our population synthesis framework models the birth properties and evolution of the population of isolated Galactic 
+neutron stars. The population synthesis is integrated with a deep learning pipeline to perform parameter 
+inference and constrain the neutron stars' physical properties.
+
+We can simulate a population of neutron stars and model their detection across three different surveys performed with 
+Murriyang, the Parkes Radio Telescope, with just a few steps:
 ```python
 import argparse
 from pypopsyn.simulator.config_simulator import cfg
 from pypopsyn.simulator.simulate_population_full import simulate_population
 
-# Setup some simulation parameters.
+# Setting up some simulation parameters.
 cfg["NS_number"] = 300000
 cfg["t_age_max"] = 3.0e7
 cfg["B_initial_log10_mean"] = 13.1
@@ -28,19 +30,21 @@ simulation_args = argparse.Namespace(
 )
 simulate_population(simulation_args)
 ```
-The surveys considered are the following:
+These few lines of code will output synthetic pulsars detected with the following surveys:
 
-1. PMPS: the Parks Multibeam Pulsar Survey (see [Manchester et al. 2001](https://ui.adsabs.harvard.edu/abs/2001MNRAS.328...17M/abstract), [Lorimer et al. 2006](https://ui.adsabs.harvard.edu/abs/2006MNRAS.372..777L/abstract))
-2. SMPS: the Swinburne Parkes Multibeam Pulsar Survey (see [Edwards et al. 2001](https://ui.adsabs.harvard.edu/abs/2001MNRAS.326..358E/abstract), [Jacoby et al. 2009](https://ui.adsabs.harvard.edu/abs/2009ApJ...699.2009J/abstract))
-3. HTRU: the High Time Resolution Universe Survey (see [Keith et al. 2010](https://ui.adsabs.harvard.edu/abs/2010MNRAS.409..619K/abstract))
+1. the Parks Multibeam Pulsar Survey (PMPS; [Manchester et al. 2001](https://ui.adsabs.harvard.edu/abs/2001MNRAS.328...17M/abstract), [Lorimer et al. 2006](https://ui.adsabs.harvard.edu/abs/2006MNRAS.372..777L/abstract)),
+2. the Swinburne Parkes Multibeam Pulsar Survey (SMPS; [Edwards et al. 2001](https://ui.adsabs.harvard.edu/abs/2001MNRAS.326..358E/abstract), [Jacoby et al. 2009](https://ui.adsabs.harvard.edu/abs/2009ApJ...699.2009J/abstract)),
+3. the mid- and low-latitude High Time Resolution Universe survey (HTRU; [Keith et al. 2010](https://ui.adsabs.harvard.edu/abs/2010MNRAS.409..619K/abstract)).
 
-Here we show the result of the distribution in the sky and in the $P-\dot{P}$ diagram of the simulated population.
+The distributions of these pulsars in the sky and in the $P-\dot{P}$ plane are as follows:
+
 ![Sky distribution in Galactic coordinates of the simulated neutron stars.](./images/simulated_sky.png)
 ![Distribution in the $P-\dot{P}$ dyagram of the simulated neutron stars.](./images/simulated_ppdot.png)
 
 !!! example
 
-    An example of this simulation is presented in detail in the tutorial `tutorials/tutorial_notebooks/00_getting_started.ipynb`.
+    More details on this simulation can be found in the tutorial 
+    `tutorials/tutorial_notebooks/00_getting_started.ipynb`.
 
 ## Repository structure
 
