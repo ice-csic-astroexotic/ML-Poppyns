@@ -32,7 +32,7 @@ jobs:
           wget https://github.com/macports/macports-base/releases/download/v2.10.4/MacPorts-2.10.4-14-Sonoma.pkg
           sudo installer -pkg MacPorts-2.10.4-14-Sonoma.pkg -target /
       - name: Install f2c library
-        run: port install f2c
+        run: sudo port install f2c
       # Setup miniconda and create the (empty) environment.
       # Note: this does not install any packages yet but activates the environment.
       - name: Setup miniconda
