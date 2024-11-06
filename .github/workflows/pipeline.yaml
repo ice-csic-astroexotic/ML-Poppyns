@@ -61,8 +61,8 @@ jobs:
       - name: Install pip dependencies
         run: conda env update -n pop_syn --file environment.yaml
 #      # Install pygedm
-#      - name: Install pygedm
-#        run: pip install pygedm --config-settings=build_ext.include_dirs="/opt/local/include" --config-settings=build_ext.library_dirs="/opt/local/lib"
+      - name: Install pygedm
+        run: pip install --global-option=build_ext --global-option="-I/opt/local/include" pygedm
       # Install our software package in the standard way.
       - name: Install package in development mode
         run: python setup.py develop
