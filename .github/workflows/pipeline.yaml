@@ -32,9 +32,7 @@ jobs:
           wget https://github.com/macports/macports-base/releases/download/v2.10.4/MacPorts-2.10.4-14-Sonoma.pkg
           sudo installer -pkg MacPorts-2.10.4-14-Sonoma.pkg -target /
       - name: Install f2c library
-        run: |
-          sudo port install f2c
-          which f2c
+        run: sudo port install f2c
       # Setup miniconda and create the (empty) environment.
       # Note: this does not install any packages yet but activates the environment.
       - name: Setup miniconda
@@ -61,8 +59,13 @@ jobs:
       - name: Install pip dependencies
         run: conda env update -n pop_syn --file environment.yaml
 #      # Install pygedm
+      - name: print f2c version
+        run: which f2c
+        id: print_f2c_v
       - name: Install pygedm
-        run: pip install --global-option=build_ext --global-option="-I/opt/local/include" pygedm
+        run: |
+           echo "print_f2c_v"
+           pip install --global-option=build_ext --global-option="-I/opt/local/include" pygedm
       # Install our software package in the standard way.
       - name: Install package in development mode
         run: python setup.py develop
