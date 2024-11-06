@@ -36,7 +36,7 @@ dependencies:
   - torchvision=0.16.0
   - pip:
       - pydeps
-      - pygedm
+      - git+https://github.com/MicheleRonchi/pygedm.git@numpy-array-issue21
 #      - mkdocs-material
 #      - mkdocstrings-python
 #      - python-markdown-math
