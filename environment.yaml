@@ -36,6 +36,7 @@ dependencies:
   - torchvision=0.16.0
   - pip:
       - pydeps
+      - pygedm --config-settings="build_ext.include_dirs=${CONDA_PREFIX}/include:/usr/local/include"
       - mkdocs-material
       - mkdocstrings-python
       - python-markdown-math
