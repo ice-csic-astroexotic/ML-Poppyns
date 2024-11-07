@@ -246,28 +246,22 @@ def str_to_bool(value: str | None) -> bool:
     """
     Convert a string value to a boolean.
 
-    This function is intended for parsing command-line arguments that accept "True" or "False" as strings.
-    It also handles the case where no value is passed (None) by returning True (mimicking the behavior
-    of --argument without a value defaulting to True).
+    This function is intended for parsing command-line boolean arguments that accept "True" or "False" as strings.
 
     Args:
         value (str | None): The string to be converted to a boolean.
-            Accepts 'True', 'False', '1', '0' (case-insensitive) or None.
+            Accepts "True", "False", "1", "0" (case-insensitive) or None.
 
     Returns:
-        (bool): The corresponding boolean value. If 'True' or '1' is passed,
-              returns True. If 'False' or '0' is passed, returns False. If
-              None is passed (no value), defaults to True.
+        (bool): The corresponding boolean value. If "True" or "1" is passed,
+              returns True. If "False" or "0" is passed, returns False.
     """
-    # Handle the case where the argument is passed without a value. In this case it is set to True.
-    if value is None:
-        return True
 
     if isinstance(value, str):
-        # Handle True or 1.
+        # Handle "True" or "1".
         if value.lower() in ("true", "1"):
             return True
-        # Handle False or 0.
+        # Handle "False" or "0".
         elif value.lower() in ("false", "0"):
             return False
 
