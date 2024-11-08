@@ -65,7 +65,7 @@ jobs:
 #          ls /Users/runner/miniconda3/envs/pop_syn/lib
 #        id: print_f2c_v
       - name: Install pygedm
-        run: pip install --config-settings="build_ext.include_dirs=/Users/runner/miniconda3/envs/pop_syn/include" --config-settings="build_ext.library_dirs=/Users/runner/miniconda3/envs/pop_syn/lib" git+https://github.com/MicheleRonchi/pygedm.git@numpy-array-issue21
+        run: pip install --global-option=build_ext --global-option="-I/Users/runner/miniconda3/envs/pop_syn/include" --global-option="-L/Users/runner/miniconda3/envs/pop_syn/lib" pygedm
       # Install our software package in the standard way.
       - name: Install package in development mode
         run: python setup.py develop
