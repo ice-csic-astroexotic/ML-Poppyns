@@ -60,12 +60,13 @@ jobs:
         run: conda env update -n pop_syn --file environment.yaml
 #      # Install pygedm
       - name: print f2c version
-        run: which f2c
+        run: |
+          which f2c
+          ls /Users/runner/miniconda3/envs/pop_syn/lib
         id: print_f2c_v
       - name: Install pygedm
         run: |
-           echo "print_f2c_v"
-           pip install --global-option=build_ext --global-option="-I/opt/local/include" pygedm
+           pip install --global-option=build_ext --global-option="-I/Users/runner/miniconda3/envs/pop_syn/include" --global-option="-L/Users/runner/miniconda3/envs/pop_syn/lib" pygedm
       # Install our software package in the standard way.
       - name: Install package in development mode
         run: python setup.py develop
