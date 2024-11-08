@@ -24,7 +24,7 @@ def beam_aperture(P: np.ndarray) -> np.ndarray:
     into the open field line region around the magnetic poles of the star.
     See eq. (3.29) in Lorimer and Kramer (2005) and eq. (2) in Johnston et al. (2020)
     for a derivation and discussion of this model.
-    For the "power-law_period_cone" model, we adopted a generic power-law of the spin period.
+    For the "power-law_period_cone" model, we adopted a generic power-law of the spin period (see Maciesiak et al. 2012).
 
     Args:
         P (np.ndarray): Array of spin periods of the pulsars in [s].

@@ -111,13 +111,13 @@ cfg["radial_model"]: str = "rmYK04"
 # Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_2maxwell".
 cfg["kick_model"]: str = "km_maxwell"
 
-# Characteristic kick velocity in [km/s] for the exponential kick velocity pdf.
+# Characteristic kick velocity in [km/s] for the exponential kick velocity pdf (Faucher-Giguere, Kaspi 2006).
 cfg["vk_c"]: float = 180.0
 
-# Sigma in [km/s] for the Maxwell kick velocity pdf.
+# Sigma in [km/s] for the Maxwell kick velocity pdf (Hobbs et al. 2005).
 cfg["sigma_k"]: float = 265.0
 
-# Parameters for the double Maxwell kick velocity pdf.
+# Parameters for the double Maxwell kick velocity pdf (eq. (5) and section 4.2 in Igoshev 2020).
 cfg["sigma_k_1"]: float = 55.0
 cfg["sigma_k_2"]: float = 334.0
 cfg["kick_weight"]: float = 0.19
@@ -208,10 +208,10 @@ cfg["radio_beam_model"] = "standard_period_cone"
 # This parameter is required only if the cfg["radio_beam_model"] is set to "standard_period_cone".
 cfg["r_em"]: float = 3.0e7
 
-# Parameters for the "power-law_period_cone" model.
+# Parameters for the "power-law_period_cone" model (Maciesiak et al. 2012).
 cfg[
     "rho_b_0"
-] = 5.0  # Half opening angle of the radio beam in [deg] corresponding to a spin period of 1 s.
+] = 2.5  # Half opening angle of the radio beam in [deg] corresponding to a spin period of 1 s.
 cfg["a_beam"] = -0.5  # Power-law exponent.
 
 
