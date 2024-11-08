@@ -36,7 +36,8 @@ dependencies:
   - torchvision=0.16.0
   - pip:
       - pydeps
-      - pip install --global-option=build_ext --global-option="-I/Users/runner/miniconda3/envs/pop_syn/include" --global-option="-L/Users/runner/miniconda3/envs/pop_syn/lib" git+https://github.com/MicheleRonchi/pygedm.git@numpy-array-issue21
+      - --global-option=build_ext --global-option="-I/Users/runner/miniconda3/envs/pop_syn/include" --global-option="-L/Users/runner/miniconda3/envs/pop_syn/lib" pygedm
+#      - git+https://github.com/MicheleRonchi/pygedm.git@numpy-array-issue21
 #      - mkdocs-material
 #      - mkdocstrings-python
 #      - python-markdown-math
