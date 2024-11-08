@@ -111,13 +111,13 @@ cfg["radial_model"]: str = "rmYK04"
 # Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_2maxwell".
 cfg["kick_model"]: str = "km_maxwell"
 
-# Characteristic kick velocity in [km/s] for the exponential kick velocity pdf (Faucher-Giguere, Kaspi 2006).
+# Characteristic kick velocity in [km/s] for the exponential kick velocity pdf (Faucher-Giguère amd Kaspi 2006).
 cfg["vk_c"]: float = 180.0
 
 # Sigma in [km/s] for the Maxwell kick velocity pdf (Hobbs et al. 2005).
 cfg["sigma_k"]: float = 265.0
 
-# Parameters for the double Maxwell kick velocity pdf (eq. (5) and section 4.2 in Igoshev 2020).
+# Parameters for the double Maxwell kick velocity pdf (see Eq. (5) and Section 4.2 in Igoshev 2020).
 cfg["sigma_k_1"]: float = 55.0
 cfg["sigma_k_2"]: float = 334.0
 cfg["kick_weight"]: float = 0.19
@@ -204,7 +204,7 @@ cfg["B_millisec_sigma"] = 0.5
 # Model for the radio beam aperture. Choose between "standard_period_cone" and "power-law_period_cone".
 cfg["radio_beam_model"] = "standard_period_cone"
 
-# Distance in [cm] from the center of the star to where the radio emission is generated (see Johnston et al. 2020).
+# Distance in [cm] from the center of the star to where the radio emission is generated (Johnston et al. 2020).
 # This parameter is required only if the cfg["radio_beam_model"] is set to "standard_period_cone".
 cfg["r_em"]: float = 3.0e7
 
