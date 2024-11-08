@@ -3,8 +3,8 @@ Population synthesis code for the ERC project MAGNESIA - The Magnetar Census
 
 ## Getting Started
 
-These instructions will provide you with a copy of the project and help you get it up and running on your local machine. 
-The code has been tested on Ubuntu and macOS.
+These instructions will provide you with a copy of the project and help you get it up and running on your local machine.
+For this, you need `conda` to be installed on your machine. The code has been tested on Ubuntu and macOS.
 
 1. First, you need to clone the repository on your computer. To get the files from our GitHub repository, run
    ```commandline
@@ -15,9 +15,10 @@ The code has been tested on Ubuntu and macOS.
    ```commandline
    conda env create -f environment.yaml
    ```
-   NOTE: For macOS users the `cudatoolkit` package has to be commented out in the environment file.
+   NOTE: For macOS users the `cudatoolkit` package has to be commented out in the environment file. Otherwise, the 
+   environment will not be resolved.
 
-   This environment can be activated using
+   On your local machine, this environment can be activated using
    ```commandline
    conda activate pop_syn
    ```
@@ -27,29 +28,42 @@ The code has been tested on Ubuntu and macOS.
    ```commandline
    python setup.py develop
    ```
+   
+4. To install the new conda environment `pop_syn` as an IPython kernel and use it in a Jupyter Notebook, activate
+   the environment as shown in step 2 and then run
+   ```commandline
+   python -m ipykernel install --user --name pop_syn --display-name "pop_syn"
+   ```
 
-4. Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local 
-machine. To this end, open the configuration file `pypopsyn/simulator/config_simulator.py`, scroll to the section
+5. Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local 
+   machine. To this end, open the configuration file `pypopsyn/simulator/config_simulator.py`, scroll to the section
    titled "GENERAL SIMULATION PARAMETERS" (specifically lines 49 and 50) and add the absolute path to the repository
-   folder and to the folder where you would like to save any subsequent simulation output by modifying the variables `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively.
+   folder and the path to the folder where you would like to save any subsequent simulation output by modifying the 
+   variables `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively. Both paths could, for example, read
+   `/home/user/Documents/MAGNESIA_population_synthesis`.
 
-5. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will 
-need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/) library after activating the 
-environment by running:
+6. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will 
+   need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/) library after activating the 
+   environment by running:
    ```commandline
    pip install sbi==0.22.0
    ```
    
 ## How to use the code?
 
-Navigate to the `tutorials/tutorial_notebook` directory, where eight Jupyter Notebooks introduce the different parts of our code. You can 
-also check the full documentation for further details (see below).
+Navigate to the `tutorials/tutorial_notebook` directory, where several Jupyter Notebooks introduce the different
+parts of our code. You can also check out the full documentation for further details (see below).
 
 
 ## Documentation
 
-Documentation is held in `docs` and can be compiled into an HTML webpage using `mkdocs serve` with the environment activated. 
-This command will create an URL where to access the full documentation.
+The documentation for this project is located in the `docs` directory and can be compiled into an HTML webpage by 
+running 
+```commandline
+mkdocs serve
+```
+with the environment activated. 
+This command creates a URL that will be shown in the terminal. Click on it to access the full documentation.
 
 
 ## For Developers

@@ -567,7 +567,7 @@ if __name__ == "__main__":
     )
     args.add_argument(
         "--corner_plot",
-        type=bool,
+        type=configuration_parser.str_to_bool,
         default=False,
         help="If a posterior corner plot for each test sample is required, this argument should be set to True.",
     )
@@ -630,13 +630,13 @@ if __name__ == "__main__":
         ),
         CustomArgs(
             ["--normalize"],
-            type=bool,
+            type=configuration_parser.str_to_bool,
             nargs="?",
             target="test_data_loader;normalize",
         ),
         CustomArgs(
             ["--standardize"],
-            type=bool,
+            type=configuration_parser.str_to_bool,
             nargs="?",
             target="test_data_loader;standardize",
         ),

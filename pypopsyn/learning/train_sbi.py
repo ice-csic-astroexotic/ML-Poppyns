@@ -399,13 +399,13 @@ if __name__ == "__main__":
         ),
         CustomArgs(
             ["--normalize"],
-            type=bool,
+            type=configuration_parser.str_to_bool,
             nargs="?",
             target="training_data_loader;normalize",
         ),
         CustomArgs(
             ["--standardize"],
-            type=bool,
+            type=configuration_parser.str_to_bool,
             nargs="?",
             target="training_data_loader;standardize",
         ),
