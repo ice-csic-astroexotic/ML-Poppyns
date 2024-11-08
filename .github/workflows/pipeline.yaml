@@ -45,7 +45,7 @@ jobs:
       - name: Caching environment
         uses: actions/cache@v4
         with:
-          path: /usr/share/miniconda/envs/pop_syn
+          path: /Users/runner/miniconda3/envs/pop_syn/
           key: conda-${{ hashFiles('environment.yaml') }}
         id: cache
       # Create full environment if key from previous step does not match a key stored in the cache.
