@@ -28,7 +28,7 @@ def T_from_Lx(Lx: np.ndarray) -> np.ndarray:
     neutron star surface corrected for the space-time curvature.
 
     Args:
-        Lx (np.ndarray): X-ray luminosity in [erg/s].
+        Lx (np.ndarray): X-ray thermal luminosity in [erg/s].
 
     Returns:
         (np.ndarray): array of temperature seen by a distant observer in [K].
@@ -44,23 +44,22 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
     Calculating the black-body intensity for a given temperature in [K].
 
     Args:
-        E (np.ndarray): array of energies in [eV] where to compute the intensity.
+        E (np.ndarray): array of energies in [erg] where to compute the intensity.
         T (np.ndarray): array of temperatures in [K].
 
     Returns:
-        (np.ndarray): Intensity of the black-body spectrum in [erg cm^-2 s^-1 eV^-1 sterad^-1] for every temperature.
+        (np.ndarray): Intensity of the black-body spectrum in [erg cm^-2 s^-1 erg^-1 sterad^-1] for every temperature.
                       This will have shape (len(T), len(E)).
     """
     # Reshape T to make it compatible for broadcasting.
     T = T[:, np.newaxis]
 
-    E_erg = E * const.EV_TO_ERG
     I_bb = (
         2.0
         / (const.H**3 * const.C**2)
-        * E_erg**3
-        / (np.exp(E_erg / (const.K_B * T)) - 1)
-    ) * const.EV_TO_ERG
+        * E**3
+        / (np.exp(E / (const.K_B * T)) - 1)
+    )
 
     return I_bb
 
@@ -77,14 +76,14 @@ def n_plus_no_delta(
     it numerically.
 
     Args:
-        E (np.ndarray): array of energies of the transimitted photons in [eV].
-        E_0 (np.ndarray): array of energies of the source photons in [eV].
+        E (np.ndarray): array of energies of the transimitted photons in [erg].
+        E_0 (np.ndarray): array of energies of the source photons in [erg].
         tau_0 (np.ndarray): array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavrill 2006).
         beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
 
     Returns:
         (np.ndarray): Value of the transmission function n+ without the Dirac delta term.
-                      This will have shape (NS_number, len(E), len(E_0)).
+            This will have shape (NS_number, len(E), len(E_0)).
     """
 
     # Reshape the input arrays to make it compatible for broadcasting.
@@ -117,8 +116,8 @@ def n_minus(
     Note that in the original paper this equation misses a factor 1/2 inside the modified Bessel function.
 
     Args:
-        E (np.ndarray): array of energies of the transimitted photons in [eV].
-        E_0 (np.ndarray): array of energies of the source photons in [eV].
+        E (np.ndarray): array of energies of the transimitted photons in [erg].
+        E_0 (np.ndarray): array of energies of the source photons in [erg].
         tau_0 (np.ndarray): array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavrill 2006).
         beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
 
@@ -160,16 +159,16 @@ def resonant_cyclotron_scat_spectrum(
     considering multiple reflections and transmissions (see eq. (42) in Lyutikov and Gavrill 2006).
 
     Args:
-        E (np.ndarray): array of energies in [eV] of the transmitted intensity.
-        E_0 (np.ndarray): array of energies in [eV] of the source intensity.
+        E (np.ndarray): array of energies in [erg] of the transmitted intensity.
+        E_0 (np.ndarray): array of energies in [erg] of the source intensity.
         tau_0 (np.ndarray): array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavrill 2006).
         beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
-        I_ph_source (np.ndarray): intensity of the source in [ph cm^-2 s^-1 eV^-1 sterad^-1].
+        I_ph_source (np.ndarray): intensity of the source in [ph cm^-2 s^-1 erg^-1 sterad^-1].
         n_reflections (int): number of reflections (6 reflections guarantees convergence of the final spectrum,
                              see Lyutikov and Gavrill 2006).
 
     Returns:
-        (np.ndarray): resonant cyclotron scattering spectrum intensity in [ph cm^-2 s^-1 eV^-1 sterad^-1].
+        (np.ndarray): resonant cyclotron scattering spectrum intensity in [ph cm^-2 s^-1 erg^-1 sterad^-1].
     """
     rcs_spectrum = np.zeros((len(tau_0), len(E)))
 
@@ -265,19 +264,27 @@ def flux_xray_absorbed(
     # Define the energy range between 0.01 keV and 20 keV (a larger energy range than the one where the absorption
     # cross-section is defined, is required in order to have a good approximation of the RCS spectrum).
     E = np.logspace(1.0, np.log10(20000), 1000)
-    I_bb = blackbody_intensity_spectrum(E, T_obs)
-    # Compute the intensity in [ph cm^-2 s^-1 eV^-1 sterad^-1].
-    I_ph_bb = I_bb / (E * const.EV_TO_ERG)
+    # Convert the energy array from [eV] to [erg].
+    E_erg = E * const.EV_TO_ERG
+
+    # Compute the black-body intensity in [erg cm^-2 s^-1 erg^-1 sterad^-1].
+    I_bb = blackbody_intensity_spectrum(E_erg, T_obs)
+    # Convert the intensity from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [ph cm^-2 s^-1 erg^-1 sterad^-1].
+    I_ph_bb = I_bb / E_erg
 
     # Estimate the parameters to compute the RCS spectrum.
     tau_res = resonant_optical_depth(B)
     tau_0 = tau_res / 2.0
     beta_T = beta_plasma(B)
 
-    # Compute the RCS spectrum and convert it in [erg cm^-2 s^-1 eV^-1 sterad^-1].
+    # Compute the RCS intensity spectrum and convert it in [ph cm^-2 s^-1 erg^-1 sterad^-1].
     I_rcs = resonant_cyclotron_scat_spectrum(
-        E, E, tau_0, beta_T, I_ph_bb, n_reflections=6
-    ) * (E * const.EV_TO_ERG)
+        E_erg, E_erg, tau_0, beta_T, I_ph_bb, n_reflections=6
+    )
+    # Convert the intensity from [ph cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 erg^-1 sterad^-1].
+    I_rcs = I_rcs * E_erg
+    # Convert the intensity from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 eV^-1 sterad^-1].
+    I_rcs = I_rcs * const.EV_TO_ERG
 
     # Estimate the N_H column density.
     N_H = nhm.compute_NH(RA, DEC, d)
