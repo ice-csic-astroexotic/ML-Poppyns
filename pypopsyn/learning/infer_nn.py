@@ -237,13 +237,13 @@ if __name__ == "__main__":
         ),
         CustomArgs(
             ["--normalize"],
-            type=bool,
+            type=configuration_parser.str_to_bool,
             nargs="?",
             target="test_data_loader;args;normalize",
         ),
         CustomArgs(
             ["--standardize"],
-            type=bool,
+            type=configuration_parser.str_to_bool,
             nargs="?",
             target="test_data_loader;args;standardize",
         ),

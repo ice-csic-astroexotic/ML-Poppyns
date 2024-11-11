@@ -610,7 +610,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                 cfg["std_spectral_index"],
                 len(S_radio_bol),
             )
-            tau_sc = edm.compute_tau_sc_327(DM)
+            tau_sc = np.zeros(cfg["NS_number"])
+            tau_sc[DM != 0] = edm.compute_tau_sc_327(DM[DM != 0])
 
             # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")

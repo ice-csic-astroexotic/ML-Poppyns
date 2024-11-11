@@ -240,3 +240,30 @@ def _get_opt_name(flags: list) -> str:
         if flg.startswith("--"):
             return flg.replace("--", "")
     return flags[0].replace("--", "")
+
+
+def str_to_bool(value: str | None) -> bool:
+    """
+    Convert a string value to a boolean.
+
+    This function is intended for parsing command-line boolean arguments that accept "True" or "False" as strings.
+
+    Args:
+        value (str | None): The string to be converted to a boolean.
+            Accepts "True", "False", "1", "0" (case-insensitive) or None.
+
+    Returns:
+        (bool): The corresponding boolean value. If "True" or "1" is passed,
+              returns True. If "False" or "0" is passed, returns False.
+    """
+
+    if isinstance(value, str):
+        # Handle "True" or "1".
+        if value.lower() in ("true", "1"):
+            return True
+        # Handle "False" or "0".
+        elif value.lower() in ("false", "0"):
+            return False
+
+    # Raise an error if the input is invalid.
+    raise argparse.ArgumentTypeError(f"Boolean value expected. Got '{value}'")
