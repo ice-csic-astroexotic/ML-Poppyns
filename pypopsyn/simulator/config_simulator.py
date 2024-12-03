@@ -55,8 +55,6 @@ if cfg["path_to_software"] == "":
         "pypopsyn/simulator/config_simulator.py file."
     )
 
-# ===================== INITIAL POPULATION CLASS PARAMETERS ========================
-
 # Seed for the random number generation for simulate_population_full.py.
 cfg["seed_full"]: int = None
 # Seed for the random number generation for simulate_population_dyn.py.
@@ -66,38 +64,25 @@ cfg["seed_magrot"]: int = None
 # Seed for the random number generation for memory_efficient_sampling.py
 cfg["seed_sampling"] = None
 
-# Resolution for the spatial grid in the initial population.
+# Resolution for the parameter grid when performing random sampling.
 cfg["resolution"]: int = 10000
 
-# Integer number of neutron stars for the population.
+# Total number of neutron stars to simulate (used only when running simulate_population_full and simulate_population_dyn).
 cfg["NS_number"]: int = 300000
 
-# Sun's distance from the galactocentric axis in [kpc].
-cfg["R_sun"]: float = 8.3
-
-# Sun's distance from the galactic plane in [kpc].
-cfg["z_sun"]: float = 0.02
-
-# Total radial extent of our simulation from the galactic center in [kpc].
-cfg["r_extent"]: float = 20.0
-
-# Total vertical extent of our simulation from the galactic plane in [kpc].
-cfg["z_extent"]: float = 5.0
-
-# Maximum kick velocity magnitude in [km/s].
-cfg["vk_extent"]: float = 2500.0
-
-# Number of spiral arms in the Galaxy. If set to 5 the Local arm is included.
-cfg["arm_number"]: int = 5
-
-# Minimum age for the neutron stars in [yr].
+# Minimum and maximum ages for the neutron stars in [yr].
 cfg["t_age_min"]: float = 1.0
-
-# Maximum age for the neutron stars in [yr].
 cfg["t_age_max"]: float = 3e7
 
-# Time step for the dynamical evolution [yr].
-cfg["dyn_time_step"]: float = 1e4
+# ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
+
+# Characteristic neutron star radius in [cm].
+cfg["NS_radius"]: float = 1.1e6
+
+# Characteristic neutron star mass in [g].
+cfg["NS_mass"]: float = 1.4 * const.M_SUN
+
+# ===================== DYNAMICAL PARAMETERS ========================
 
 # Galactic potential model used in the simulation. Choose between gmM19 or gmFK06.
 cfg["galactic_model"]: str = "gmM19"
@@ -105,11 +90,32 @@ cfg["galactic_model"]: str = "gmM19"
 # Spiral arms model used in the simulation. Choose between saYMW17 or saFK06.
 cfg["spiral_arms"]: str = "saYMW17"
 
+# Number of spiral arms in the Galaxy. If set to 5 the Local arm is included.
+cfg["arm_number"]: int = 5
+
+# Sun's distance from the galactocentric axis in [kpc].
+cfg["R_sun"]: float = 8.3
+
+# Sun's distance from the galactic plane in [kpc].
+cfg["z_sun"]: float = 0.02
+
 # Model pdf for the radial density distribution of neutron star progenitors. Choose between "rmYK04" or "rmVV21".
 cfg["radial_model"]: str = "rmYK04"
 
+# Total radial extent of the initial distribution of neutron star progenitors from the galactic center in [kpc].
+cfg["r_extent"]: float = 20.0
+
+# Characteristic height in [kpc] from the galactic plane for the exponential disk model.
+cfg["h_c"]: float = 0.18
+
+# Total vertical extent of the initial distribution of neutron star progenitors from the galactic plane in [kpc].
+cfg["z_extent"]: float = 5.0
+
 # Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_2maxwell".
 cfg["kick_model"]: str = "km_maxwell"
+
+# Maximum kick velocity magnitude in [km/s].
+cfg["vk_extent"]: float = 2500.0
 
 # Characteristic kick velocity in [km/s] for the exponential kick velocity pdf (Faucher-Giguère amd Kaspi 2006).
 cfg["vk_c"]: float = 180.0
@@ -122,18 +128,8 @@ cfg["sigma_k_1"]: float = 55.0
 cfg["sigma_k_2"]: float = 334.0
 cfg["kick_weight"]: float = 0.19
 
-# Characteristic height in [kpc] from the galactic plane.
-cfg["h_c"]: float = 0.18
-
-
-# ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
-
-# Characteristic neutron star radius in [cm].
-cfg["NS_radius"]: float = 1.1e6
-
-# Characteristic neutron star mass in [g].
-cfg["NS_mass"]: float = 1.4 * const.M_SUN
-
+# Time step for the dynamical evolution [yr].
+cfg["dyn_time_step"]: float = 1e4
 
 # ===================== MAGNETO-ROTATIONAL PARAMETERS FOR A CRUST-BASED MODEL ========================
 
@@ -148,9 +144,31 @@ cfg["P_initial_sigma"]: float = 0.2
 cfg["P_initial_log10_mean"]: float = -0.6
 cfg["P_initial_log10_sigma"]: float = 0.3
 
-# Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
-cfg["B_initial_log10_mean"]: float = 13.25
-cfg["B_initial_log10_sigma"]: float = 0.75
+# Model pdf for the initial spin period. Choose between "log-normal", "double_log-normal", "smooth_tophat".
+cfg["magnetic_field_model"]: str = "smooth_tophat"
+
+# Minimum and maximum initial magnetic field strength in [G] to simulate.
+cfg["B_initial_log10_min"]: float = 10.0
+cfg["B_initial_log10_max"]: float = 16.0
+
+# Mean and standard deviation for the log-normally distributed initial magnetic fields in [G].
+cfg["B_initial_log10_mean"]: float = 13.04
+cfg["B_initial_log10_sigma"]: float = 0.53
+
+# Means and standard deviations and relative weight for the double log-normally distributed
+# initial magnetic fields in [G].
+cfg["B_initial_log10_mean1"]: float = 13.02
+cfg["B_initial_log10_sigma1"]: float = 0.49
+cfg["B_initial_log10_mean2"]: float = 14.5
+cfg["B_initial_log10_sigma2"]: float = 0.5
+cfg["B_initial_weight"]: float = 0.8
+
+# Parameters for the smooth top-hat with gaussian rise and decay for the initial magnetic fields in [G].
+cfg["B_initial_log10_rise_mean"]: float = 13.02
+cfg["B_initial_log10_rise_sigma"]: float = 0.49
+cfg["B_initial_log10_decay_mean"]: float = 14.8
+cfg["B_initial_log10_decay_sigma"]: float = 0.2
+cfg["B_initial_log10_slope"]: float = -2.0
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
