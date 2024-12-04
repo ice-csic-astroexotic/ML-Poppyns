@@ -145,7 +145,7 @@ cfg["P_initial_log10_mean"]: float = -0.6
 cfg["P_initial_log10_sigma"]: float = 0.3
 
 # Model pdf for the initial spin period. Choose between "log-normal", "double_log-normal", "smooth_tophat".
-cfg["magnetic_field_model"]: str = "smooth_tophat"
+cfg["magnetic_field_model"]: str = "log-normal"
 
 # Minimum and maximum initial magnetic field strength in [G] to simulate.
 cfg["B_initial_log10_min"]: float = 10.0
