@@ -22,7 +22,7 @@ import os
 import pathlib
 import sys
 import time
-from typing import Any, Dict, List, Tuple
+from typing import List, Tuple
 
 import numpy as np
 import orjson
@@ -35,8 +35,8 @@ import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import utilities.benchmark.timewith as timewith
+import utilities.samplers.memory_efficient_sampling as mes
 from pypopsyn.simulator.config_simulator import cfg
-from utilities.samplers.memory_efficient_sampling import select
 
 log = logging.getLogger(__name__)
 
@@ -212,7 +212,7 @@ def load_database_dyn(
     """
 
     # Load the chunk of the file containing the dynamically evolved population parameters.
-    df_dyn = select(
+    df_dyn = mes.select(
         dyn_path_pop,
         n_batchsize,
         NS_number,
@@ -1179,8 +1179,7 @@ def simulate_population(args) -> None:
                     radio_surveys,
                     database_dyn_chunk,
                     idx_remove,
-                    dist_cutoff=35.0,
-                    age_cutoff=1.0e6,
+                    dist_cutoff=30.0,
                 )
 
                 # Initialize neutron star population properties.
