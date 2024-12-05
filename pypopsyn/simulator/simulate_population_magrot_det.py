@@ -555,18 +555,20 @@ def simulate_population(args: argparse.Namespace) -> None:
                     idx_det,
                 )
 
-                age_det = dictionary_intercepted_radio["age_det"]
-                l_det = dictionary_intercepted_radio["l_det"]
-                b_det = dictionary_intercepted_radio["b_det"]
-                B_det = dictionary_intercepted_radio["B_det"]
-                chi_det = dictionary_intercepted_radio["chi_det"]
-                P_det = dictionary_intercepted_radio["P_det"]
+                age_det = dictionary_intercepted_radio["age"]
+                l_det = dictionary_intercepted_radio["l"]
+                b_det = dictionary_intercepted_radio["b"]
+                B_det = dictionary_intercepted_radio["B"]
+                chi_det = dictionary_intercepted_radio["chi"]
+                P_det = dictionary_intercepted_radio["P"]
                 w_int_s = dictionary_intercepted_radio["w_int_s"]
                 DM = dictionary_intercepted_radio["DM"]
-                idx_det = dictionary_intercepted_radio["idx_det"]
+                idx_det = dictionary_intercepted_radio["idx"]
                 L_radio_bol = dictionary_intercepted_radio["L_radio_bol"]
                 S_radio_bol = dictionary_intercepted_radio["S_radio_bol"]
-                P_dot_det = dictionary_intercepted_radio["P_dot_det"]
+                spectral_index = dictionary_intercepted_radio["spectral_index"]
+                tau_sc = dictionary_intercepted_radio["tau_sc"]
+                P_dot_det = dictionary_intercepted_radio["P_dot"]
                 intercepted_radio = dictionary_intercepted_radio[
                     "intercepted_radio"
                 ]
@@ -579,14 +581,6 @@ def simulate_population(args: argparse.Namespace) -> None:
 
                 if np.count_nonzero(intercepted_radio) == 0:
                     break
-
-                # Computing the spectral index and the scattering timescale at 327 MHz of each star.
-                spectral_index = np.random.normal(
-                    cfg["mean_spectral_index"],
-                    cfg["std_spectral_index"],
-                    len(S_radio_bol),
-                )
-                tau_sc = edm.compute_tau_sc_327(DM)
 
                 # ===================== RADIO DETECTION ========================
 
