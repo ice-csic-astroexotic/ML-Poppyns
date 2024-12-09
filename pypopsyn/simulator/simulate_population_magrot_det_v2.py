@@ -99,14 +99,14 @@ def initialize_radio_surveys(cfg: dict) -> Tuple[dict, dict, dict, dict, dict]:
         "B": [],
         "chi": [],
         "P": [],
-        "Pdot": [],
+        "P_dot": [],
         "L_radio_bol": [],
         "S_radio_obs_mean": [],
         "S_radio_obs_mean_1400": [],
         "w_int": [],
         "w_eff": [],
         "spectral_index": [],
-        "idx_det_PMPS": [],
+        "idx_det": [],
     }
 
     dictionary_detected_SMPS = {
@@ -123,14 +123,14 @@ def initialize_radio_surveys(cfg: dict) -> Tuple[dict, dict, dict, dict, dict]:
         "B": [],
         "chi": [],
         "P": [],
-        "Pdot": [],
+        "P_dot": [],
         "L_radio_bol": [],
         "S_radio_obs_mean": [],
         "S_radio_obs_mean_1400": [],
         "w_int": [],
         "w_eff": [],
         "spectral_index": [],
-        "idx_det_SMPS": [],
+        "idx_det": [],
     }
 
     dictionary_detected_HTRU_low_mid = {
@@ -147,7 +147,7 @@ def initialize_radio_surveys(cfg: dict) -> Tuple[dict, dict, dict, dict, dict]:
         "B": [],
         "chi": [],
         "P": [],
-        "Pdot": [],
+        "P_dot": [],
         "L_radio_bol": [],
         "S_radio_obs_mean": [],
         "S_radio_obs_mean_1400": [],
@@ -156,7 +156,7 @@ def initialize_radio_surveys(cfg: dict) -> Tuple[dict, dict, dict, dict, dict]:
         "spectral_index": [],
         "HTRU_low": [],
         "HTRU_mid": [],
-        "idx_det_HTRU_low_mid": [],
+        "idx_det": [],
     }
 
     dictionary_detected_HTRU_high = {
@@ -173,14 +173,14 @@ def initialize_radio_surveys(cfg: dict) -> Tuple[dict, dict, dict, dict, dict]:
         "B": [],
         "chi": [],
         "P": [],
-        "Pdot": [],
+        "P_dot": [],
         "L_radio_bol": [],
         "S_radio_obs_mean": [],
         "S_radio_obs_mean_1400": [],
         "w_int": [],
         "w_eff": [],
         "spectral_index": [],
-        "idx_det_HTRU_high": [],
+        "idx_det": [],
     }
     return (
         radio_surveys,
@@ -628,7 +628,7 @@ def radio_detection(
         "B": B[detected_radio_PMPS].tolist(),
         "chi": chi[detected_radio_PMPS].tolist(),
         "P": P[detected_radio_PMPS].tolist(),
-        "Pdot": P_dot[detected_radio_PMPS].tolist(),
+        "P_dot": P_dot[detected_radio_PMPS].tolist(),
         "L_radio_bol": L_radio_bol[detected_radio_PMPS].tolist(),
         "S_radio_obs_mean": S_radio_obs_mean_PMPS[
             detected_radio_PMPS
@@ -639,7 +639,7 @@ def radio_detection(
         "w_int": w_int_s[detected_radio_PMPS].tolist(),
         "w_eff": w_eff_PMPS[detected_radio_PMPS].tolist(),
         "spectral_index": spectral_index[detected_radio_PMPS].tolist(),
-        "idx_det_PMPS": idx_radio[detected_radio_PMPS].tolist(),
+        "idx_det": idx_radio[detected_radio_PMPS].tolist(),
     }
 
     # ======== Simulating SMPS. ========
@@ -677,7 +677,7 @@ def radio_detection(
         "B": B[detected_radio_SMPS].tolist(),
         "chi": chi[detected_radio_SMPS].tolist(),
         "P": P[detected_radio_SMPS].tolist(),
-        "Pdot": P_dot[detected_radio_SMPS].tolist(),
+        "P_dot": P_dot[detected_radio_SMPS].tolist(),
         "L_radio_bol": L_radio_bol[detected_radio_SMPS].tolist(),
         "S_radio_obs_mean": S_radio_obs_mean_SMPS[
             detected_radio_SMPS
@@ -688,7 +688,7 @@ def radio_detection(
         "w_int": w_int_s[detected_radio_SMPS].tolist(),
         "w_eff": w_eff_SMPS[detected_radio_SMPS].tolist(),
         "spectral_index": spectral_index[detected_radio_SMPS].tolist(),
-        "idx_det_SMPS": idx_radio[detected_radio_SMPS].tolist(),
+        "idx_det": idx_radio[detected_radio_SMPS].tolist(),
     }
 
     # ======== Simulating the HTRU low and mid surveys. ========
@@ -762,7 +762,7 @@ def radio_detection(
         "B": B[detected_radio_HTRU_low_mid].tolist(),
         "chi": chi[detected_radio_HTRU_low_mid].tolist(),
         "P": P[detected_radio_HTRU_low_mid].tolist(),
-        "Pdot": P_dot[detected_radio_HTRU_low_mid].tolist(),
+        "P_dot": P_dot[detected_radio_HTRU_low_mid].tolist(),
         "L_radio_bol": L_radio_bol[detected_radio_HTRU_low_mid].tolist(),
         "S_radio_obs_mean": S_radio_obs_mean_HTRU_low_mid[
             detected_radio_HTRU_low_mid
@@ -779,9 +779,7 @@ def radio_detection(
         "HTRU_mid": detected_radio_HTRU_mid[
             detected_radio_HTRU_low_mid
         ].tolist(),
-        "idx_det_HTRU_low_mid": idx_radio[
-            detected_radio_HTRU_low_mid
-        ].tolist(),
+        "idx_det": idx_radio[detected_radio_HTRU_low_mid].tolist(),
     }
 
     # ======== Simulating the HTRU high survey. ========
@@ -818,7 +816,7 @@ def radio_detection(
         "B": B[detected_radio_HTRU_high].tolist(),
         "chi": chi[detected_radio_HTRU_high].tolist(),
         "P": P[detected_radio_HTRU_high].tolist(),
-        "Pdot": P_dot[detected_radio_HTRU_high].tolist(),
+        "P_dot": P_dot[detected_radio_HTRU_high].tolist(),
         "L_radio_bol": L_radio_bol[detected_radio_HTRU_high].tolist(),
         "S_radio_obs_mean": S_radio_obs_mean_HTRU_high[
             detected_radio_HTRU_high
@@ -829,7 +827,7 @@ def radio_detection(
         "w_int": w_int_s[detected_radio_HTRU_high].tolist(),
         "w_eff": w_eff_HTRU_high[detected_radio_HTRU_high].tolist(),
         "spectral_index": spectral_index[detected_radio_HTRU_high].tolist(),
-        "idx_det_HTRU_high": idx_radio[detected_radio_HTRU_high].tolist(),
+        "idx_det": idx_radio[detected_radio_HTRU_high].tolist(),
     }
 
     return (
@@ -859,10 +857,10 @@ def create_output_dataframe(
         Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]: DataFrames for
             detected neutron stars from PMPS, SMPS, HTRU low/mid and HTRU high.
     """
-    del dictionary_detected_PMPS["idx_det_PMPS"]
-    del dictionary_detected_SMPS["idx_det_SMPS"]
-    del dictionary_detected_HTRU_low_mid["idx_det_HTRU_low_mid"]
-    del dictionary_detected_HTRU_high["idx_det_HTRU_high"]
+    del dictionary_detected_PMPS["idx_det"]
+    del dictionary_detected_SMPS["idx_det"]
+    del dictionary_detected_HTRU_low_mid["idx_det"]
+    del dictionary_detected_HTRU_high["idx_det"]
 
     # Generating two header lines and merging them using MultiIndex.
     parameters_final = [
@@ -1311,13 +1309,13 @@ def simulate_population(args) -> None:
 
                 # Remove from the dynamical database the stars that have been detected or
                 # that are outside the sky coverage of the surveys.
-                idx_det_PMPS = update_dictionary_detected_PMPS["idx_det_PMPS"]
-                idx_det_SMPS = update_dictionary_detected_SMPS["idx_det_SMPS"]
+                idx_det_PMPS = update_dictionary_detected_PMPS["idx_det"]
+                idx_det_SMPS = update_dictionary_detected_SMPS["idx_det"]
                 idx_det_HTRU_low_mid = update_dictionary_detected_HTRU_low_mid[
-                    "idx_det_HTRU_low_mid"
+                    "idx_det"
                 ]
                 idx_det_HTRU_high = update_dictionary_detected_HTRU_high[
-                    "idx_det_HTRU_high"
+                    "idx_det"
                 ]
 
                 idx_det_tot = list(

@@ -14,6 +14,7 @@ import pandas as pd
 import pytest
 
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
+import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.simulate_population_magrot_det_v2 as sim
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import utilities.samplers.memory_efficient_sampling as mes
@@ -93,6 +94,28 @@ class MockRadioSurvey:
             [True if i % 2 == 0 else False for i in range(len(ra))]
         )
 
+    def detected_radio_population(
+        self,
+        w_int_s,
+        DM,
+        P,
+        age,
+        coverage,
+        l_gal,
+        b_gal,
+        S_radio_bol,
+        spectral_index,
+        tau_sc,
+    ):
+        """Mock implementation of sky_coverage."""
+        # For simplicity, return the same output for all the surveys.
+        return (
+            np.array([True, False]),  # detected_radio
+            np.array([0.1, 0.2]),  # w_eff
+            np.array([0.001, 0.002]),  # S_radio_obs_mean
+            np.array([0.003, 0.004]),  # S_radio_obs_mean_1400
+        )
+
 
 @pytest.fixture()
 def test_case_2():
@@ -167,6 +190,269 @@ def test_case_4():
             "P_final",
             "chi_final",
         },
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_5():
+    data = {
+        "dict_final_pop": {
+            "age": np.array([1e6, 2e6]),
+            "l": np.array([-50.0, 50.0]),
+            "b": np.array([-20.0, 10.0]),
+            "ra": np.array([50.0, 250.0]),
+            "dec": np.array([-50.0, 50.0]),
+            "dist": np.array([2.0, 10.0]),
+            "pm_ra": np.array([-50.0, 50.0]),
+            "pm_dec": np.array([-50.0, 50.0]),
+            "v_ls": np.array([-50.0, 50.0]),
+            "P_final": np.array([0.01, 0.5]),
+            "B_final": np.array([1e12, 1e14]),
+            "chi_final": np.array([1.0, 2.0]),
+            "idx": np.array([0, 1]),
+            "coverage_PMPS": np.array([True, False]),
+            "coverage_SMPS": np.array([True, False]),
+            "coverage_HTRU_low": np.array([True, False]),
+            "coverage_HTRU_mid": np.array([True, False]),
+            "coverage_HTRU_high": np.array([True, False]),
+            "coverage_radio": np.array([True, False]),
+        },
+        "mock_dictionary_intercepted_radio": {
+            "age": np.array([1e6]),
+            "l": np.array([-50.0]),
+            "b": np.array([-20.0]),
+            "B": np.array([1e12]),
+            "chi": np.array([1.0]),
+            "P": np.array([0.01]),
+            "P_dot": np.array([1.0e-14]),
+            "w_int_s": np.array([0.001]),
+            "L_radio_bol": np.array([1.0e26]),
+            "S_radio_bol": np.array([1.0e-6]),
+            "spectral_index": np.array([-1.8]),
+            "DM": np.array([100]),
+            "tau_sc": np.array([0.001]),
+            "idx": np.array([0]),
+            "intercepted_radio": np.array([True]),
+        },
+        "expected_keys": [
+            "age",
+            "l",
+            "b",
+            "ra",
+            "dec",
+            "dist",
+            "pm_ra",
+            "pm_dec",
+            "v_ls",
+            "B",
+            "chi",
+            "P",
+            "P_dot",
+            "w_int_s",
+            "DM",
+            "idx_radio",
+            "L_radio_bol",
+            "S_radio_bol",
+            "spectral_index",
+            "tau_sc",
+            "coverage_PMPS",
+            "coverage_SMPS",
+            "coverage_HTRU_low",
+            "coverage_HTRU_mid",
+            "coverage_HTRU_high",
+        ],
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_6():
+    data = {
+        "radio_surveys": {
+            "PMPS": MockRadioSurvey("PMPS"),
+            "SMPS": MockRadioSurvey("SMPS"),
+            "HTRU_low": MockRadioSurvey("HTRU_low"),
+            "HTRU_mid": MockRadioSurvey("HTRU_mid"),
+            "HTRU_high": MockRadioSurvey("HTRU_high"),
+        },
+        "dictionary_intercepted_radio": {
+            "age": np.array([1e6, 2e6]),
+            "ra": np.array([180.0, 190.0]),
+            "dec": np.array([-45.0, -50.0]),
+            "l": np.array([120.0, 130.0]),
+            "b": np.array([10.0, 15.0]),
+            "dist": np.array([2.0, 3.0]),
+            "pm_ra": np.array([10.0, 20.0]),
+            "pm_dec": np.array([-5.0, -10.0]),
+            "v_ls": np.array([50.0, 60.0]),
+            "B": np.array([1e12, 2e12]),
+            "chi": np.array([30.0, 40.0]),
+            "P": np.array([0.5, 1.0]),
+            "P_dot": np.array([1e-15, 2e-15]),
+            "w_int_s": np.array([0.05, 0.1]),
+            "DM": np.array([100.0, 200.0]),
+            "idx_radio": np.array([0, 1]),
+            "L_radio_bol": np.array([1e30, 1e31]),
+            "S_radio_bol": np.array([0.01, 0.02]),
+            "spectral_index": np.array([-1.8, -1.8]),
+            "tau_sc": np.array([0.001, 0.002]),
+            "coverage_PMPS": np.array([True, False]),
+            "coverage_SMPS": np.array([True, False]),
+            "coverage_HTRU_low": np.array([True, False]),
+            "coverage_HTRU_mid": np.array([True, False]),
+            "coverage_HTRU_high": np.array([True, False]),
+        },
+        "expected_update_dictionary_detected": {
+            "age": np.array([1e6]),
+            "ra": np.array([180.0]),
+            "dec": np.array([-45.0]),
+            "l": np.array([120.0]),
+            "b": np.array([10.0]),
+            "DM": np.array([100.0]),
+            "dist": np.array([2.0]),
+            "pm_ra": np.array([10.0]),
+            "pm_dec": np.array([-5.0]),
+            "v_ls": np.array([50.0]),
+            "B": np.array([1e12]),
+            "chi": np.array([30.0]),
+            "P": np.array([0.5]),
+            "P_dot": np.array([1e-15]),
+            "L_radio_bol": np.array([1e30]),
+            "S_radio_obs_mean": np.array([0.001]),
+            "S_radio_obs_mean_1400": np.array([0.003]),
+            "w_int": np.array([0.05]),
+            "w_eff": np.array([0.1]),
+            "spectral_index": np.array([-1.8]),
+            "idx_det": np.array([0]),
+        },
+        "expected_update_dictionary_detected_HTRU_low_mid": {
+            "age": np.array([1e6]),
+            "ra": np.array([180.0]),
+            "dec": np.array([-45.0]),
+            "l": np.array([120.0]),
+            "b": np.array([10.0]),
+            "DM": np.array([100.0]),
+            "dist": np.array([2.0]),
+            "pm_ra": np.array([10.0]),
+            "pm_dec": np.array([-5.0]),
+            "v_ls": np.array([50.0]),
+            "B": np.array([1e12]),
+            "chi": np.array([30.0]),
+            "P": np.array([0.5]),
+            "P_dot": np.array([1e-15]),
+            "L_radio_bol": np.array([1e30]),
+            "S_radio_obs_mean": np.array([0.001]),
+            "S_radio_obs_mean_1400": np.array([0.003]),
+            "w_int": np.array([0.05]),
+            "w_eff": np.array([0.1]),
+            "spectral_index": np.array([-1.8]),
+            "idx_det": np.array([0]),
+            "HTRU_low": np.array([True]),
+            "HTRU_mid": np.array([True]),
+        },
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_7():
+    data = {
+        "expected_header": [
+            "age",
+            "RA",
+            "DEC",
+            "l",
+            "b",
+            "DM",
+            "d",
+            "pm_RA",
+            "pm_DEC",
+            "v_ls",
+            "B",
+            "chi",
+            "P",
+            "P_dot",
+            "L_radio_bol",
+            "S_radio_obs_mean",
+            "S_radio_obs_mean_1400",
+            "w_int",
+            "w_eff",
+            "spectral_index",
+        ],
+        "expected_units": [
+            "[yr]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[pc cm^-3]",
+            "[kpc]",
+            "[mas yr^-1]",
+            "[mas yr^-1]",
+            "[km s^-1]",
+            "[G]",
+            "[rad]",
+            "[s]",
+            "[s s^-1]",
+            "[erg s^-1]",
+            "[Jy]",
+            "[Jy]",
+            "[s]",
+            "[s]",
+            "",
+        ],
+        "expected_header_HTRU_low_mid": [
+            "age",
+            "RA",
+            "DEC",
+            "l",
+            "b",
+            "DM",
+            "d",
+            "pm_RA",
+            "pm_DEC",
+            "v_ls",
+            "B",
+            "chi",
+            "P",
+            "P_dot",
+            "L_radio_bol",
+            "S_radio_obs_mean",
+            "S_radio_obs_mean_1400",
+            "w_int",
+            "w_eff",
+            "spectral_index",
+            "HTRU_low",
+            "HTRU_mid",
+        ],
+        "expected_units_HTRU_low_mid": [
+            "[yr]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[pc cm^-3]",
+            "[kpc]",
+            "[mas yr^-1]",
+            "[mas yr^-1]",
+            "[km s^-1]",
+            "[G]",
+            "[rad]",
+            "[s]",
+            "[s s^-1]",
+            "[erg s^-1]",
+            "[Jy]",
+            "[Jy]",
+            "[s]",
+            "[s]",
+            "",
+            "",
+            "",
+        ],
     }
 
     return data
@@ -313,3 +599,115 @@ def test_evolve_population_magrot(monkeypatch, test_case_4, tmp_path):
     if cfg["save_magrot_evolution"]:
         magrot_file = output_path / "magrot_evolution.json"
         assert magrot_file.exists()
+
+
+def test_radio_intercepted(monkeypatch, test_case_5):
+    def mock_calculate_radio_emission(*args, **kwargs):
+        return test_case_5["mock_dictionary_intercepted_radio"]
+
+    monkeypatch.setattr(
+        er, "calculate_radio_emission", mock_calculate_radio_emission
+    )
+    out_dict = sim.radio_intercepted(test_case_5["dict_final_pop"])
+
+    # Verify that the keys are correct.
+    assert set(out_dict.keys()) == set(test_case_5["expected_keys"])
+    # Verify that the output dictionary contains at most the same number of stars as the input one.
+    assert len(out_dict["age"]) <= len(
+        test_case_5["mock_dictionary_intercepted_radio"]["age"]
+    )
+
+
+def test_radio_detection(test_case_6):
+    (
+        dict_PMPS,
+        dict_SMPS,
+        dict_HTRU_low_mid,
+        dict_HTRU_high,
+    ) = sim.radio_detection(
+        test_case_6["radio_surveys"],
+        test_case_6["dictionary_intercepted_radio"],
+    )
+    # Verify that the keys are correct.
+    assert set(dict_PMPS.keys()) == set(
+        test_case_6["expected_update_dictionary_detected"].keys()
+    )
+    assert set(dict_SMPS.keys()) == set(
+        test_case_6["expected_update_dictionary_detected"].keys()
+    )
+    assert set(dict_HTRU_low_mid.keys()) == set(
+        test_case_6["expected_update_dictionary_detected_HTRU_low_mid"].keys()
+    )
+    assert set(dict_HTRU_high.keys()) == set(
+        test_case_6["expected_update_dictionary_detected"].keys()
+    )
+
+    # Validate overlapping logic for HTRU_low and HTRU_mid.
+    assert len(dict_HTRU_low_mid["age"]) == 1
+    assert (
+        dict_HTRU_low_mid["HTRU_low"]
+        == test_case_6["expected_update_dictionary_detected_HTRU_low_mid"][
+            "HTRU_low"
+        ]
+    )
+    assert (
+        dict_HTRU_low_mid["HTRU_mid"]
+        == test_case_6["expected_update_dictionary_detected_HTRU_low_mid"][
+            "HTRU_mid"
+        ]
+    )
+
+
+def test_create_output_dataframe(test_case_6, test_case_7):
+    dictionary_detected_PMPS = test_case_6[
+        "expected_update_dictionary_detected"
+    ].copy()
+    dictionary_detected_SMPS = test_case_6[
+        "expected_update_dictionary_detected"
+    ].copy()
+    dictionary_detected_HTRU_low_mid = test_case_6[
+        "expected_update_dictionary_detected_HTRU_low_mid"
+    ].copy()
+    dictionary_detected_HTRU_high = test_case_6[
+        "expected_update_dictionary_detected"
+    ].copy()
+
+    (
+        df_PMPS,
+        df_SMPS,
+        df_HTRU_low_mid,
+        df_HTRU_high,
+    ) = sim.create_output_dataframe(
+        dictionary_detected_PMPS,
+        dictionary_detected_SMPS,
+        dictionary_detected_HTRU_low_mid,
+        dictionary_detected_HTRU_high,
+    )
+    # Check MultiIndex columns.
+    assert isinstance(df_PMPS.columns, pd.MultiIndex)
+    assert isinstance(df_HTRU_low_mid.columns, pd.MultiIndex)
+
+    assert set(df_PMPS.columns.get_level_values(0)) == set(
+        test_case_7["expected_header"]
+    )
+    assert set(df_SMPS.columns.get_level_values(0)) == set(
+        test_case_7["expected_header"]
+    )
+    assert set(df_HTRU_low_mid.columns.get_level_values(0)) == set(
+        test_case_7["expected_header_HTRU_low_mid"]
+    )
+    assert set(df_HTRU_high.columns.get_level_values(0)) == set(
+        test_case_7["expected_header"]
+    )
+    assert set(df_PMPS.columns.get_level_values(1)) == set(
+        test_case_7["expected_units"]
+    )
+    assert set(df_SMPS.columns.get_level_values(1)) == set(
+        test_case_7["expected_units"]
+    )
+    assert set(df_HTRU_low_mid.columns.get_level_values(1)) == set(
+        test_case_7["expected_units_HTRU_low_mid"]
+    )
+    assert set(df_HTRU_high.columns.get_level_values(1)) == set(
+        test_case_7["expected_units"]
+    )
