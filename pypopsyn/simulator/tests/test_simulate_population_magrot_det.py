@@ -602,6 +602,11 @@ def test_evolve_population_magrot(monkeypatch, test_case_4, tmp_path):
 
 
 def test_radio_intercepted(monkeypatch, test_case_5):
+    """
+    Check that the dictionary with the properties of the neutron stars that intercept our line of sight with their
+    radio beams is properly returned.
+    """
+
     def mock_calculate_radio_emission(*args, **kwargs):
         return test_case_5["mock_dictionary_intercepted_radio"]
 
@@ -619,6 +624,9 @@ def test_radio_intercepted(monkeypatch, test_case_5):
 
 
 def test_radio_detection(test_case_6):
+    """
+    Check that the dictionary with the properties of the neutron stars that are detected in radio is properly returned.
+    """
     (
         dict_PMPS,
         dict_SMPS,
@@ -659,6 +667,9 @@ def test_radio_detection(test_case_6):
 
 
 def test_create_output_dataframe(test_case_6, test_case_7):
+    """
+    Check that the dataframe with the output of the survey detection are correct.
+    """
     dictionary_detected_PMPS = test_case_6[
         "expected_update_dictionary_detected"
     ].copy()
