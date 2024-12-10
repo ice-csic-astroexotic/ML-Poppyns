@@ -31,6 +31,11 @@ def pdf_log10_magnetic_field_2normal(log10B: np.ndarray) -> np.ndarray:
     sigma_2 = cfg["B_initial_log10_sigma2"]
     # Define the fractional contribution of the first Gaussian.
     w = cfg["B_initial_weight"]
+    if (w < 0) or (w > 1):
+        raise ValueError(
+            "The relative weight parameter of the double_log-normal initial magnetic field model "
+            "must be in the range between 0 and 1."
+        )
 
     pdf_gaussian_1 = (
         1.0
@@ -54,6 +59,8 @@ def pdf_gaussian_custom_norm(
 ) -> np.ndarray:
     """
     A Gaussian function with custom normalization.
+    This function is needed in the pdf_log10_magnetic_field_smooth_tophat as in that function
+    the normalization of the two Gaussian components will be regulated by the slope of the central region.
 
     Args:
         x (np.ndarray): array of values where to compute the function.
@@ -73,7 +80,8 @@ def pdf_log10_magnetic_field_smooth_tophat(
     log10B: np.ndarray,
 ) -> np.ndarray:
     """
-    A smooth top-hat function with a sloped central region and gaussian rise and decay.
+    A smooth top-hat function with a Gaussian rise until the peak of the first Gaussian, a straight sloped central
+    region going from the first Gaussian peak to the second and a Gaussian decay.
     The parameters of this distribution are defined in the configuration file.
 
     Args:
@@ -92,7 +100,10 @@ def pdf_log10_magnetic_field_smooth_tophat(
     # Calculate the x coordinate of the center of the sloped part.
     center = (rise_mean + decay_mean) / 2
 
-    # Evaluate the heights of the two Gaussians assuming that the slope pass through the point with coordinates (center, 1).
+    # Evaluate the heights of the two Gaussians assuming that the straight slope pass through the point with
+    # coordinates (center, 1). In other words the slope is defined by a line with a given slope passing through
+    # the point with coordinates (center, 1) beginning at the peak of the first Gaussian component and ending at
+    # the peak of the second Gaussian component.
     norm_rise_gaussian = slope * (rise_mean - center) + 1
     norm_decay_gaussian = slope * (decay_mean - center) + 1
 
@@ -113,7 +124,7 @@ def pdf_log10_magnetic_field_smooth_tophat(
         0,
     )
 
-    # Combine the Gaussian rise, sloped region, and Gaussian decay
+    # Combine the Gaussian rise, sloped region, and Gaussian decay.
     smooth_top_hat = np.maximum(rise_gaussian, central_region)
     smooth_top_hat = np.maximum(smooth_top_hat, decay_gaussian)
 

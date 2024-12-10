@@ -124,6 +124,7 @@ cfg["vk_c"]: float = 180.0
 cfg["sigma_k"]: float = 265.0
 
 # Parameters for the double Maxwell kick velocity pdf (see Eq. (5) and Section 4.2 in Igoshev 2020).
+# The weight is relative to the first Maxwell component and its value has to be in the range between 0 and 1.
 cfg["sigma_k_1"]: float = 55.0
 cfg["sigma_k_2"]: float = 334.0
 cfg["kick_weight"]: float = 0.19
@@ -156,7 +157,7 @@ cfg["B_initial_log10_mean"]: float = 13.04
 cfg["B_initial_log10_sigma"]: float = 0.53
 
 # Means and standard deviations and relative weight for the double log-normally distributed
-# initial magnetic fields in [G].
+# initial magnetic fields in [G]. The relative weight refers to the first component and has to be a number between 0 and 1.
 cfg["B_initial_log10_mean1"]: float = 13.02
 cfg["B_initial_log10_sigma1"]: float = 0.49
 cfg["B_initial_log10_mean2"]: float = 14.5
