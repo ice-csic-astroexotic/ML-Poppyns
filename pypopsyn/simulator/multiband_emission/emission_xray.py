@@ -75,7 +75,8 @@ def n_plus_no_delta(
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    Transmission function n+ without the Dirac delta term in eq. (36) in Lyutikov and Gavrill (2006).
+    Transmission function p+ in eq. (11) in overleaf without the Dirac delta term (see also the function n+ in eq. (36)
+    in Lyutikov and Gavrill 2006).
     When computing the transmitted flux the Dirac delta term will be added analytically in order to avoid computing
     it numerically.
 
@@ -128,7 +129,7 @@ def n_minus(
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    Reflection function n- in eq. (36) in Lyutikov and Gavrill (2006).
+    Reflection function p- in eq. (12) in overleaf (see also the function n- in eq. (36) in Lyutikov and Gavrill 2006).
     Note that in the original paper this equation misses a factor 1/2 inside the modified Bessel function.
 
     Args:
@@ -167,7 +168,7 @@ def resonant_cyclotron_scat_spectrum(
     tau_0: np.ndarray,
     beta_T: np.ndarray,
     I_ph_source: np.ndarray,
-    n_reflections: int,
+    n_reflections: int = 6,
 ) -> np.ndarray:
     """
     Compute the spectrum resulting from resonant cyclotron scattering (RCS) given a source photon intensity spectrum
@@ -179,7 +180,7 @@ def resonant_cyclotron_scat_spectrum(
         tau_0 (np.ndarray): array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavrill 2006).
         beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
         I_ph_source (np.ndarray): intensity of the source in [ph cm^-2 s^-1 erg^-1 sterad^-1].
-        n_reflections (int): number of reflections (6 reflections guarantees convergence of the final spectrum,
+        n_reflections (int): number of reflections (6 reflections guarantee good convergence of the final spectrum,
                              see Lyutikov and Gavrill 2006).
 
     Returns:
@@ -293,11 +294,13 @@ def flux_xray_absorbed(
     beta_T = beta_plasma(B)
 
     # Compute the RCS intensity spectrum and convert it in [ph cm^-2 s^-1 erg^-1 sterad^-1].
-    I_rcs = resonant_cyclotron_scat_spectrum(
+    # 6 reflections guarantee good convergence of the final spectrum see Lyutikov and Gavrill 2006.
+    I_ph_rcs = resonant_cyclotron_scat_spectrum(
         E_erg, E_erg, tau_0, beta_T, I_ph_bb, n_reflections=6
     )
-    # Convert the intensity from [ph cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 erg^-1 sterad^-1].
-    I_rcs = I_rcs * E_erg
+    # Convert the intensity from [ph cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 erg^-1 sterad^-1] in order
+    # to obtain the spectrum in energy.
+    I_rcs = I_ph_rcs * E_erg
     # Convert the intensity from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 eV^-1 sterad^-1].
     I_rcs = I_rcs * const.EV_TO_ERG
 
@@ -313,7 +316,7 @@ def flux_xray_absorbed(
     absorb_factor = np.exp(-sigma_ISM * N_H)
     I_absorbed = absorb_factor * I_rcs
 
-    # Compute the total observed flux in the energy range [0.01, 10] keV.
+    # Compute the total observed flux in the energy range [0.01, 10] keV (see eq. (17) in overleaf).
     E_mask = E <= 10000
     I_absorbed_bolom = trapz(I_absorbed[:, E_mask], E[E_mask], axis=1)
     flux = (R_obs / d) ** 2 * np.pi * I_absorbed_bolom
