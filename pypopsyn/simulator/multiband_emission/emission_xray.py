@@ -17,6 +17,7 @@ from scipy.integrate import trapz
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.interstellar_medium.nh_model as nhm
 import pypopsyn.simulator.interstellar_medium.xray_abs_cross_section as xabs
+import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.config_simulator import cfg
 
 # General relativity correction factor that accounts for space-time curvature around a neutron star.
@@ -331,6 +332,8 @@ def calculate_xray_emission(
     age: np.ndarray,
     B_initial: np.ndarray,
     B: np.ndarray,
+    P: np.ndarray,
+    chi: np.ndarray,
     RA: np.ndarray,
     DEC: np.ndarray,
     d: np.ndarray,
@@ -344,6 +347,8 @@ def calculate_xray_emission(
         age (np.ndarray): Array of neutron star ages in [yr].
         B (np.ndarray): Array of initial magnetic field strength in [G].
         B (np.ndarray): Array of evolved magnetic field strength in [G].
+        P (np.ndarray): Array of spin periods of the pulsars in [s].
+        chi (np.ndarray): Array of the misalignment angles in [rad].
         RA (np.ndarray): Array of right ascension in [deg] defined between [-90, 90] deg.
         DEC (np.ndarray): Array of right ascension in [deg] defined between [0, 360] deg.
         d (np.ndarray): Array of distances in kpc.
@@ -373,9 +378,23 @@ def calculate_xray_emission(
     dec = DEC[L_x_mask]
     d = d[L_x_mask]
     B = B[L_x_mask]
+    P = P[L_x_mask]
+    chi = chi[L_x_mask]
     L_x_therm = L_x_therm[L_x_mask]
 
+    # Compute the observed absorbed fluxes and N_H.
     S_x_abs, N_H = flux_xray_absorbed(L_x_therm, B, RA, DEC, d)
+
+    # Determining the final period derivative.
+    period_derivative_vect = np.vectorize(pdv.period_derivative)
+    P_dot = (
+        period_derivative_vect(
+            B,
+            chi,
+            P,
+        )
+        / const.YR_TO_S
+    )
 
     dictionary_x = {
         "age": age,
@@ -383,6 +402,9 @@ def calculate_xray_emission(
         "dec": dec,
         "dist": d,
         "B": B,
+        "P": P,
+        "P_dot": P_dot,
+        "chi": chi,
         "L_x_therm": L_x_therm,
         "S_x_abs": S_x_abs,
         "N_H": N_H,
