@@ -6,6 +6,10 @@
         Michele Ronchi (ronchi@ice.csic.es)
 """
 
+import pathlib
+import pickle
+from typing import Optional, Tuple
+
 import numpy as np
 import scipy.special as scsp
 from scipy.integrate import trapz
@@ -256,9 +260,9 @@ def flux_xray_absorbed(
     RA: np.ndarray,
     DEC: np.ndarray,
     d: np.ndarray,
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute the x-ray flux density assuming a black-body spectral shape for the thermal x-ray emission.
+    Compute the x-ray observed absorbed flux assuming a black-body spectral shape for the thermal x-ray emission.
 
     Args:
         Lx (np.ndarray): X-ray luminosity in [erg/s].
@@ -268,7 +272,9 @@ def flux_xray_absorbed(
         d (np.ndarray): array of distances in kpc.
 
     Returns:
-        (np.ndarray): absorbed x-ray fluxes in [erg s^-1 cm^-2].
+        (np.ndarray, np.ndarray): A tuple containing the following arrays:
+            - absorbed x-ray fluxes in [erg s^-1 cm^-2].
+            - value of the hydrogen column density in [cm^-2].
     """
     T_obs = T_from_Lx(Lx)
 
@@ -318,4 +324,69 @@ def flux_xray_absorbed(
     I_absorbed_bolom = trapz(I_absorbed[:, E_mask], E[E_mask], axis=1)
     flux = (R_obs / d) ** 2 * np.pi * I_absorbed_bolom
 
-    return flux
+    return flux, N_H
+
+
+def calculate_xray_emission(
+    age: np.ndarray,
+    B_initial: np.ndarray,
+    B: np.ndarray,
+    RA: np.ndarray,
+    DEC: np.ndarray,
+    d: np.ndarray,
+    L_x_threshold: Optional[float] = 1.0e30,
+) -> dict:
+    """
+    Compute the x-ray observed absorbed flux density and the N_H column density from interpolated thermal x-ray
+    luminosities.
+
+    Args:
+        age (np.ndarray): Array of neutron star ages in [yr].
+        B (np.ndarray): Array of initial magnetic field strength in [G].
+        B (np.ndarray): Array of evolved magnetic field strength in [G].
+        RA (np.ndarray): Array of right ascension in [deg] defined between [-90, 90] deg.
+        DEC (np.ndarray): Array of right ascension in [deg] defined between [0, 360] deg.
+        d (np.ndarray): Array of distances in kpc.
+        L_x_threshold (float): A luminosity lower limit in [erg s^-1].
+
+    Returns:
+        (dict): A dictionary containing the properties of the neutron star emitting in X-rays.
+    """
+
+    # Load the interpolator function to evaluate the x-ray luminosity.
+    interpolator_Lx_path = pathlib.Path().joinpath(
+        cfg["path_to_software"],
+        "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/interpolator_Lx.pkl",
+    )
+    with open(interpolator_Lx_path, "rb") as f:
+        L_x_interpolator = pickle.load(f)
+
+    L_x_therm = L_x_interpolator.ev(age, B_initial)
+
+    # Select only the stars that have sufficiently high luminosity.
+    # This is required since the interpolation could give too low or negative luminosities especially for older stars
+    # with weak magnetic fields.
+    L_x_mask = L_x_therm > L_x_threshold
+
+    age = age[L_x_mask]
+    ra = RA[L_x_mask]
+    dec = DEC[L_x_mask]
+    d = d[L_x_mask]
+    B = B[L_x_mask]
+    L_x_therm = L_x_therm[L_x_mask]
+
+    S_x_abs, N_H = flux_xray_absorbed(L_x_therm, B, RA, DEC, d)
+
+    dictionary_x = {
+        "age": age,
+        "ra": ra,
+        "dec": dec,
+        "dist": d,
+        "B": B,
+        "L_x_therm": L_x_therm,
+        "S_x_abs": S_x_abs,
+        "N_H": N_H,
+        "L_x_mask": L_x_mask,
+    }
+
+    return dictionary_x
