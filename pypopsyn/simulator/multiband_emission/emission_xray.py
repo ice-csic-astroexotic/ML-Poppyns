@@ -6,6 +6,8 @@
         Michele Ronchi (ronchi@ice.csic.es)
 """
 
+from typing import Optional
+
 import numpy as np
 import scipy.special as scsp
 from scipy.integrate import trapz
@@ -55,7 +57,7 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
     T = T[:, np.newaxis]
 
     exponent = E / (const.K_B * T)
-    # Clip the maximum reachable value of the exponent to 709 to avoid RuntimeWarning: overflow encountered in exp
+    # Fix the maximum reachable value of the exponent to 709 to avoid RuntimeWarning: overflow encountered in exp
     exponent_clipped = np.clip(exponent, None, 709)
 
     I_bb = (
@@ -168,11 +170,11 @@ def resonant_cyclotron_scat_spectrum(
     tau_0: np.ndarray,
     beta_T: np.ndarray,
     I_ph_source: np.ndarray,
-    n_reflections: int = 6,
+    n_reflections: Optional[int] = 6,
 ) -> np.ndarray:
     """
     Compute the spectrum resulting from resonant cyclotron scattering (RCS) given a source photon intensity spectrum
-    considering multiple reflections and transmissions (see eq. (42) in Lyutikov and Gavrill 2006).
+    considering multiple reflections and transmissions (see eq. (15) in overleaf and eq. (42) in Lyutikov and Gavrill 2006).
 
     Args:
         E (np.ndarray): array of energies in [erg] of the transmitted intensity.
