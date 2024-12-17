@@ -13,6 +13,7 @@ from typing import Optional, Tuple
 import numpy as np
 import scipy.special as scsp
 from scipy.integrate import trapz
+from scipy.interpolate import RectBivariateSpline
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.interstellar_medium.nh_model as nhm
@@ -337,6 +338,7 @@ def calculate_xray_emission(
     RA: np.ndarray,
     DEC: np.ndarray,
     d: np.ndarray,
+    L_x_interpolator: RectBivariateSpline,
     L_x_threshold: Optional[float] = 1.0e30,
 ) -> dict:
     """
@@ -352,19 +354,12 @@ def calculate_xray_emission(
         RA (np.ndarray): Array of right ascension in [deg] defined between [-90, 90] deg.
         DEC (np.ndarray): Array of right ascension in [deg] defined between [0, 360] deg.
         d (np.ndarray): Array of distances in kpc.
+        L_x_interpolator (RectBivariateSpline): Interpolator function for the X-ray luminosity.
         L_x_threshold (float): A luminosity lower limit in [erg s^-1].
 
     Returns:
         (dict): A dictionary containing the properties of the neutron star emitting in X-rays.
     """
-
-    # Load the interpolator function to evaluate the x-ray luminosity.
-    interpolator_Lx_path = pathlib.Path().joinpath(
-        cfg["path_to_software"],
-        "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/interpolator_Lx.pkl",
-    )
-    with open(interpolator_Lx_path, "rb") as f:
-        L_x_interpolator = pickle.load(f)
 
     L_x_therm = L_x_interpolator.ev(age, B_initial)
 
