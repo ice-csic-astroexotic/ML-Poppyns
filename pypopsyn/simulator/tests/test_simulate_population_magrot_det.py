@@ -460,7 +460,7 @@ def test_case_7():
 
 def test_initialize_radio_surveys(test_case_2):
     """
-    Check that the radio surveys and the dictionaries containing the the detected stars are properly initialized.
+    Check that the radio surveys and the dictionaries containing the detected stars are properly initialized.
     """
     (
         radio_surveys,

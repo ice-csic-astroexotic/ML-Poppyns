@@ -54,7 +54,7 @@ def initialize_radio_surveys(cfg: dict) -> Tuple[dict, dict, dict, dict, dict]:
 
     Returns:
         (Tuple[dict, dict, dict, dict, dict]): A tuple of dictionaries containing the following information:
-            - A dictionary of initialized radio survey objects, keyed by survey names (e.g., "PMPS", "SMPS",  etc.).
+            - A dictionary of initialized radio survey objects, keyed by survey names (e.g., "PMPS", "SMPS", etc.).
             - An empty dictionary for storing detected neutron star data for the "PMPS" survey.
             - An empty dictionary for storing detected neutron star data for the "SMPS" survey.
             - An empty dictionary for storing detected neutron star data for the "HTRU_low" and "HTRU_mid" surveys.
@@ -143,7 +143,7 @@ def load_database_dyn(
         dyn_path_pop (pathlib.Path): Path to the file containing the dynamically evolved population data.
         n_batchsize (int): Batch size of stars to select when loading the data.
         NS_number (int): The total number of neutron stars in the dynamical database.
-        idx_remove (List[int]): List of indices to remove from the dynamical database.
+        idx_remove (list): List of indices to remove from the dynamical database.
 
     Returns:
         (dict): A dictionary containing the data of the selected dynamical population chunk.
@@ -225,7 +225,7 @@ def apply_surveys_coverage(
     Args:
         radio_surveys (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
         dyn_database_dict (dict): A dictionary containing the data of a dynamical population.
-        idx_remove (List): A list of indices of entries to be removed based on the filtering criteria.
+        idx_remove (list): A list of indices of entries to be removed based on the filtering criteria.
         dist_cutoff (float): The maximum heliocentric distance to include in the survey coverage.
 
     Returns:
@@ -466,7 +466,7 @@ def radio_intercepted(dict_final_pop: dict) -> dict:
 
 # Function to update detected neutron star dictionary
 def update_detected_dictionary(
-    dict_to_update: dict, detected_mask: list, **kwargs: dict
+    dict_to_update: dict, detected_mask: list, **kwargs: np.ndarray
 ) -> dict:
     """
     Updates a dictionary to include only the elements corresponding to detected indices.
@@ -475,17 +475,18 @@ def update_detected_dictionary(
         dict_to_update (dict): The original dictionary containing properties of neutron stars.
             Each key corresponds to a property (e.g., 'w_eff', 'S_radio_obs_mean') and its values are lists of those properties.
         detected_mask (list): boolean mask indicating which neutron stars in `dict_to_update` are detected.
-        **kwargs (dict): Additional properties provided as keyword arguments, structured similarly to `dict_to_update`.
+        **kwargs (np.ndarray): Additional property values provided as keyword arguments.
             These properties will also be filtered using the `detected_indices`.
 
     Returns:
         (dict): A new dictionary containing only the detected neutron stars from `dict_to_update` and combining
-        the keys already present in the original dictionary with the one provided in `kwargs`.
+            the keys already present in the original dictionary with the one provided in `kwargs`.
     """
 
     # Extract keys from the dictionary that has to be updated.
     properties = list(dict_to_update.keys())
 
+    print(np.shape(dict_to_update["age"]))
     # Filtering the detected stars in the original dictionary and adding the properties specified in `kwargs`.
     combined_dict = {
         prop: dict_to_update[prop][detected_mask].tolist()
@@ -502,13 +503,13 @@ def radio_detection(
     Simulate radio detections for various surveys and update the dictionaries with the properties
     of detected neutron stars.
 
-    Parameters:
-    radio_surveys (dict): Dictionary containing the radio survey objects.
-    dictionary_intercepted_radio (dict): Dictionary with properties of intercepted radio pulsars.
+    Args:
+        radio_surveys (dict): Dictionary containing the radio survey objects.
+        dictionary_intercepted_radio (dict): Dictionary with properties of intercepted radio pulsars.
 
     Returns:
-    (Tuple[dict, dict, dict, dict]): A tuple consisting of the dictionaries containing the properties
-        of detected pulsars for each survey.
+        (Tuple[dict, dict, dict, dict]): A tuple consisting of the dictionaries containing the properties
+            of detected pulsars for each survey.
     """
 
     # Process each survey dynamically
@@ -588,7 +589,7 @@ def build_dataframe(
     Args:
         data_dict (dict): A dictionary containing the data to be saved in the dataframe.
         parameters (list): A list of parameter names, used as the first level of the MultiIndex header.
-        units (List[str]): A list of physical units, used as the second level of the MultiIndex header.
+        units (list): A list of physical units, used as the second level of the MultiIndex header.
 
     Returns:
         (pd.DataFrame): A Pandas DataFrame with a MultiIndex header, where columns are
@@ -613,7 +614,7 @@ def create_output_dataframe(
     dictionary_detected_HTRU_high: dict,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Creates Pandas DataFrames for containing the information on the detected neutron stars in each survey.
+    Creates Pandas DataFrames containing the information on the detected neutron stars in each survey.
 
     Args:
         dictionary_detected_PMPS (dict): Dictionary containing detected PMPS neutron star properties.
@@ -790,6 +791,7 @@ def simulate_population(args) -> None:
         n_created_HTRU_low_mid = 0
         n_created_HTRU_high = 0
 
+        # These variables count how many stars we detect in total in each survey.
         n_detected_sim_PMPS = 0
         n_detected_sim_SMPS = 0
         n_detected_sim_HTRU_low_mid = 0
@@ -877,6 +879,7 @@ def simulate_population(args) -> None:
 
                 log.info(f"Total number of created neutron stars: {n_created}")
 
+                # Load a chunk of dynamically evolved neutron stars from the dynamical database.
                 database_dyn_chunk = load_database_dyn(
                     dyn_path_pop,
                     n_batchsize,
@@ -884,6 +887,7 @@ def simulate_population(args) -> None:
                     idx_remove,
                 )
 
+                # Filter the loaded database chuck with the surveys sky coverage.
                 database_coverage, idx_remove = apply_surveys_coverage(
                     radio_surveys,
                     database_dyn_chunk,
