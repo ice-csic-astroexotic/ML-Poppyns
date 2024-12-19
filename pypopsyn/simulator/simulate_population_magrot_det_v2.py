@@ -16,6 +16,7 @@
 """
 
 import argparse
+import functools
 import json
 import logging
 import os
@@ -85,7 +86,7 @@ def initialize_radio_surveys(cfg: dict) -> Tuple[dict, dict, dict, dict, dict]:
     }
 
     # Initializing the dictionaries where we save the detected neutron stars for each survey.
-    dictionary_detected_PMPS = {
+    detection_template = {
         "age": [],
         "ra": [],
         "dec": [],
@@ -106,82 +107,19 @@ def initialize_radio_surveys(cfg: dict) -> Tuple[dict, dict, dict, dict, dict]:
         "w_int": [],
         "w_eff": [],
         "spectral_index": [],
-        "idx_det": [],
+        "idx": [],
     }
 
-    dictionary_detected_SMPS = {
-        "age": [],
-        "ra": [],
-        "dec": [],
-        "l": [],
-        "b": [],
-        "DM": [],
-        "dist": [],
-        "pm_ra": [],
-        "pm_dec": [],
-        "v_ls": [],
-        "B": [],
-        "chi": [],
-        "P": [],
-        "P_dot": [],
-        "L_radio_bol": [],
-        "S_radio_obs_mean": [],
-        "S_radio_obs_mean_1400": [],
-        "w_int": [],
-        "w_eff": [],
-        "spectral_index": [],
-        "idx_det": [],
-    }
+    # Specialized template for HTRU detection dictionaries
+    htru_low_mid_detection_template = detection_template.copy()
+    htru_low_mid_detection_template.update({"HTRU_low": [], "HTRU_mid": []})
 
-    dictionary_detected_HTRU_low_mid = {
-        "age": [],
-        "ra": [],
-        "dec": [],
-        "l": [],
-        "b": [],
-        "DM": [],
-        "dist": [],
-        "pm_ra": [],
-        "pm_dec": [],
-        "v_ls": [],
-        "B": [],
-        "chi": [],
-        "P": [],
-        "P_dot": [],
-        "L_radio_bol": [],
-        "S_radio_obs_mean": [],
-        "S_radio_obs_mean_1400": [],
-        "w_int": [],
-        "w_eff": [],
-        "spectral_index": [],
-        "HTRU_low": [],
-        "HTRU_mid": [],
-        "idx_det": [],
-    }
+    # Create detection dictionaries
+    dictionary_detected_PMPS = detection_template.copy()
+    dictionary_detected_SMPS = detection_template.copy()
+    dictionary_detected_HTRU_low_mid = htru_low_mid_detection_template.copy()
+    dictionary_detected_HTRU_high = detection_template.copy()
 
-    dictionary_detected_HTRU_high = {
-        "age": [],
-        "ra": [],
-        "dec": [],
-        "l": [],
-        "b": [],
-        "DM": [],
-        "dist": [],
-        "pm_ra": [],
-        "pm_dec": [],
-        "v_ls": [],
-        "B": [],
-        "chi": [],
-        "P": [],
-        "P_dot": [],
-        "L_radio_bol": [],
-        "S_radio_obs_mean": [],
-        "S_radio_obs_mean_1400": [],
-        "w_int": [],
-        "w_eff": [],
-        "spectral_index": [],
-        "idx_det": [],
-    }
     return (
         radio_surveys,
         dictionary_detected_PMPS,
@@ -310,25 +248,19 @@ def apply_surveys_coverage(
     dist_mask = dist < dist_cutoff
 
     # Select only neutron stars that fall into the sky region covered by the surveys.
-    coverage_PMPS = radio_surveys["PMPS"].sky_coverage(ra, dec, l_gal, b_gal)
-    coverage_SMPS = radio_surveys["SMPS"].sky_coverage(ra, dec, l_gal, b_gal)
-    coverage_HTRU_low = radio_surveys["HTRU_low"].sky_coverage(
-        ra, dec, l_gal, b_gal
-    )
-    coverage_HTRU_mid = radio_surveys["HTRU_mid"].sky_coverage(
-        ra, dec, l_gal, b_gal
-    )
-    coverage_HTRU_high = radio_surveys["HTRU_high"].sky_coverage(
-        ra, dec, l_gal, b_gal
-    )
+    survey_names = list(radio_surveys.keys())
+    coverage = {}
+
+    for name in survey_names:
+        coverage[name] = radio_surveys[name].sky_coverage(
+            ra, dec, l_gal, b_gal
+        )
 
     # Determine which stars fall into the sky region covered by any of the considered radio surveys.
     coverage_radio = (
-        coverage_PMPS
-        | coverage_SMPS
-        | coverage_HTRU_low
-        | coverage_HTRU_mid
-        | coverage_HTRU_high
+        functools.reduce(
+            lambda a, b: a | b, (coverage[name] for name in survey_names)
+        )
     ) & dist_mask
 
     coverage_tot = coverage_radio
@@ -345,11 +277,11 @@ def apply_surveys_coverage(
         "v_ls": v_ls[coverage_tot],
         "idx": idx[coverage_tot],
         "coverage_radio": coverage_radio[coverage_tot],
-        "coverage_PMPS": coverage_PMPS[coverage_tot],
-        "coverage_SMPS": coverage_SMPS[coverage_tot],
-        "coverage_HTRU_low": coverage_HTRU_low[coverage_tot],
-        "coverage_HTRU_mid": coverage_HTRU_mid[coverage_tot],
-        "coverage_HTRU_high": coverage_HTRU_high[coverage_tot],
+        "coverage_PMPS": coverage["PMPS"][coverage_tot],
+        "coverage_SMPS": coverage["SMPS"][coverage_tot],
+        "coverage_HTRU_low": coverage["HTRU_low"][coverage_tot],
+        "coverage_HTRU_mid": coverage["HTRU_mid"][coverage_tot],
+        "coverage_HTRU_high": coverage["HTRU_high"][coverage_tot],
     }
 
     # Remove stars that do not fall into the total sky coverage.
@@ -463,45 +395,28 @@ def radio_intercepted(dict_final_pop: dict) -> dict:
     Returns:
         (dict): A dictionary containing properties of the neutron stars whose radio beams intercept our line of sight.
     """
-    age = dict_final_pop["age"]
-    l_gal = dict_final_pop["l"]
-    b_gal = dict_final_pop["b"]
-    ra = dict_final_pop["ra"]
-    dec = dict_final_pop["dec"]
-    dist = dict_final_pop["dist"]
-    pm_ra = dict_final_pop["pm_ra"]
-    pm_dec = dict_final_pop["pm_dec"]
-    v_ls = dict_final_pop["v_ls"]
-    P = dict_final_pop["P_final"]
-    B = dict_final_pop["B_final"]
-    chi = dict_final_pop["chi_final"]
-    idx = dict_final_pop["idx"]
-    coverage_PMPS = dict_final_pop["coverage_PMPS"]
-    coverage_SMPS = dict_final_pop["coverage_SMPS"]
-    coverage_HTRU_low = dict_final_pop["coverage_HTRU_low"]
-    coverage_HTRU_mid = dict_final_pop["coverage_HTRU_mid"]
-    coverage_HTRU_high = dict_final_pop["coverage_HTRU_high"]
+
     coverage_radio = dict_final_pop["coverage_radio"]
 
     # Select only the stars that can be detected in radio by the considered surveys.
-    age = age[coverage_radio]
-    l_gal = l_gal[coverage_radio]
-    b_gal = b_gal[coverage_radio]
-    ra = ra[coverage_radio]
-    dec = dec[coverage_radio]
-    dist = dist[coverage_radio]
-    pm_ra = pm_ra[coverage_radio]
-    pm_dec = pm_dec[coverage_radio]
-    v_ls = v_ls[coverage_radio]
-    P = P[coverage_radio]
-    B = B[coverage_radio]
-    chi = chi[coverage_radio]
-    idx = idx[coverage_radio]
-    coverage_PMPS = coverage_PMPS[coverage_radio]
-    coverage_SMPS = coverage_SMPS[coverage_radio]
-    coverage_HTRU_low = coverage_HTRU_low[coverage_radio]
-    coverage_HTRU_mid = coverage_HTRU_mid[coverage_radio]
-    coverage_HTRU_high = coverage_HTRU_high[coverage_radio]
+    age = dict_final_pop["age"][coverage_radio]
+    l_gal = dict_final_pop["l"][coverage_radio]
+    b_gal = dict_final_pop["b"][coverage_radio]
+    ra = dict_final_pop["ra"][coverage_radio]
+    dec = dict_final_pop["dec"][coverage_radio]
+    dist = dict_final_pop["dist"][coverage_radio]
+    pm_ra = dict_final_pop["pm_ra"][coverage_radio]
+    pm_dec = dict_final_pop["pm_dec"][coverage_radio]
+    v_ls = dict_final_pop["v_ls"][coverage_radio]
+    P = dict_final_pop["P_final"][coverage_radio]
+    B = dict_final_pop["B_final"][coverage_radio]
+    chi = dict_final_pop["chi_final"][coverage_radio]
+    idx = dict_final_pop["idx"][coverage_radio]
+    coverage_PMPS = dict_final_pop["coverage_PMPS"][coverage_radio]
+    coverage_SMPS = dict_final_pop["coverage_SMPS"][coverage_radio]
+    coverage_HTRU_low = dict_final_pop["coverage_HTRU_low"][coverage_radio]
+    coverage_HTRU_mid = dict_final_pop["coverage_HTRU_mid"][coverage_radio]
+    coverage_HTRU_high = dict_final_pop["coverage_HTRU_high"][coverage_radio]
 
     # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
     # of their radio emission.
@@ -532,9 +447,9 @@ def radio_intercepted(dict_final_pop: dict) -> dict:
         "chi": dictionary_intercepted_radio["chi"],
         "P": dictionary_intercepted_radio["P"],
         "P_dot": dictionary_intercepted_radio["P_dot"],
-        "w_int_s": dictionary_intercepted_radio["w_int_s"],
+        "w_int": dictionary_intercepted_radio["w_int_s"],
         "DM": dictionary_intercepted_radio["DM"],
-        "idx_radio": dictionary_intercepted_radio["idx"],
+        "idx": dictionary_intercepted_radio["idx"],
         "L_radio_bol": dictionary_intercepted_radio["L_radio_bol"],
         "S_radio_bol": dictionary_intercepted_radio["S_radio_bol"],
         "spectral_index": dictionary_intercepted_radio["spectral_index"],
@@ -547,6 +462,37 @@ def radio_intercepted(dict_final_pop: dict) -> dict:
     }
 
     return dictionary_intercepted_radio
+
+
+# Function to update detected neutron star dictionary
+def update_detected_dictionary(
+    dict_to_update: dict, detected_mask: list, **kwargs: dict
+) -> dict:
+    """
+    Updates a dictionary to include only the elements corresponding to detected indices.
+
+    Args:
+        dict_to_update (dict): The original dictionary containing properties of neutron stars.
+            Each key corresponds to a property (e.g., 'w_eff', 'S_radio_obs_mean') and its values are lists of those properties.
+        detected_mask (list): boolean mask indicating which neutron stars in `dict_to_update` are detected.
+        **kwargs (dict): Additional properties provided as keyword arguments, structured similarly to `dict_to_update`.
+            These properties will also be filtered using the `detected_indices`.
+
+    Returns:
+        (dict): A new dictionary containing only the detected neutron stars from `dict_to_update` and combining
+        the keys already present in the original dictionary with the one provided in `kwargs`.
+    """
+
+    # Extract keys from the dictionary that has to be updated.
+    properties = list(dict_to_update.keys())
+
+    # Filtering the detected stars in the original dictionary and adding the properties specified in `kwargs`.
+    combined_dict = {
+        prop: dict_to_update[prop][detected_mask].tolist()
+        for prop in properties
+    } | {key: value[detected_mask].tolist() for key, value in kwargs.items()}
+
+    return combined_dict
 
 
 def radio_detection(
@@ -565,277 +511,99 @@ def radio_detection(
         of detected pulsars for each survey.
     """
 
-    age = dictionary_intercepted_radio["age"]
-    ra = dictionary_intercepted_radio["ra"]
-    dec = dictionary_intercepted_radio["dec"]
-    l_gal = dictionary_intercepted_radio["l"]
-    b_gal = dictionary_intercepted_radio["b"]
-    dist = dictionary_intercepted_radio["dist"]
-    pm_ra = dictionary_intercepted_radio["pm_ra"]
-    pm_dec = dictionary_intercepted_radio["pm_dec"]
-    v_ls = dictionary_intercepted_radio["v_ls"]
-    B = dictionary_intercepted_radio["B"]
-    chi = dictionary_intercepted_radio["chi"]
-    P = dictionary_intercepted_radio["P"]
-    P_dot = dictionary_intercepted_radio["P_dot"]
-    w_int_s = dictionary_intercepted_radio["w_int_s"]
-    DM = dictionary_intercepted_radio["DM"]
-    idx_radio = dictionary_intercepted_radio["idx_radio"]
-    L_radio_bol = dictionary_intercepted_radio["L_radio_bol"]
-    S_radio_bol = dictionary_intercepted_radio["S_radio_bol"]
-    spectral_index = dictionary_intercepted_radio["spectral_index"]
-    tau_sc = dictionary_intercepted_radio["tau_sc"]
-    coverage_PMPS = dictionary_intercepted_radio["coverage_PMPS"]
-    coverage_SMPS = dictionary_intercepted_radio["coverage_SMPS"]
-    coverage_HTRU_low = dictionary_intercepted_radio["coverage_HTRU_low"]
-    coverage_HTRU_mid = dictionary_intercepted_radio["coverage_HTRU_mid"]
-    coverage_HTRU_high = dictionary_intercepted_radio["coverage_HTRU_high"]
+    # Process each survey dynamically
+    detected_dictionaries = {}
+    for survey_key in radio_surveys.keys():
+        (
+            detected_mask,
+            w_eff,
+            S_radio_obs_mean,
+            S_radio_obs_mean_1400,
+        ) = radio_surveys[survey_key].detected_radio_population(
+            dictionary_intercepted_radio["w_int"],
+            dictionary_intercepted_radio["DM"],
+            dictionary_intercepted_radio["P"],
+            dictionary_intercepted_radio["age"],
+            dictionary_intercepted_radio[f"coverage_{survey_key}"],
+            dictionary_intercepted_radio["l"],
+            dictionary_intercepted_radio["b"],
+            dictionary_intercepted_radio["S_radio_bol"],
+            dictionary_intercepted_radio["spectral_index"],
+            dictionary_intercepted_radio["tau_sc"],
+        )
+        detected_dictionaries[survey_key] = update_detected_dictionary(
+            dictionary_intercepted_radio,
+            detected_mask,
+            w_eff=w_eff,
+            S_radio_obs_mean=S_radio_obs_mean,
+            S_radio_obs_mean_1400=S_radio_obs_mean_1400,
+        )
 
-    # ===================== RADIO DETECTION ========================
+        if survey_key == "HTRU_low":
+            detected_HTRU_low = detected_mask
+            w_eff_low = w_eff
+            S_radio_obs_mean_low = S_radio_obs_mean
+            S_radio_obs_mean_1400_low = S_radio_obs_mean_1400
 
-    # ======== Simulating PMPS. ========
-
-    (
-        detected_radio_PMPS,
-        w_eff_PMPS,
-        S_radio_obs_mean_PMPS,
-        S_radio_obs_mean_1400_PMPS,
-    ) = radio_surveys["PMPS"].detected_radio_population(
-        w_int_s,
-        DM,
-        P,
-        age,
-        coverage_PMPS,
-        l_gal,
-        b_gal,
-        S_radio_bol,
-        spectral_index,
-        tau_sc,
-    )
-
-    # Update the database of detected neutron stars.
-    update_dictionary_detected_PMPS = {
-        "age": age[detected_radio_PMPS].tolist(),
-        "ra": ra[detected_radio_PMPS].tolist(),
-        "dec": dec[detected_radio_PMPS].tolist(),
-        "l": l_gal[detected_radio_PMPS].tolist(),
-        "b": b_gal[detected_radio_PMPS].tolist(),
-        "DM": DM[detected_radio_PMPS].tolist(),
-        "dist": dist[detected_radio_PMPS].tolist(),
-        "pm_ra": pm_ra[detected_radio_PMPS].tolist(),
-        "pm_dec": pm_dec[detected_radio_PMPS].tolist(),
-        "v_ls": v_ls[detected_radio_PMPS].tolist(),
-        "B": B[detected_radio_PMPS].tolist(),
-        "chi": chi[detected_radio_PMPS].tolist(),
-        "P": P[detected_radio_PMPS].tolist(),
-        "P_dot": P_dot[detected_radio_PMPS].tolist(),
-        "L_radio_bol": L_radio_bol[detected_radio_PMPS].tolist(),
-        "S_radio_obs_mean": S_radio_obs_mean_PMPS[
-            detected_radio_PMPS
-        ].tolist(),
-        "S_radio_obs_mean_1400": S_radio_obs_mean_1400_PMPS[
-            detected_radio_PMPS
-        ].tolist(),
-        "w_int": w_int_s[detected_radio_PMPS].tolist(),
-        "w_eff": w_eff_PMPS[detected_radio_PMPS].tolist(),
-        "spectral_index": spectral_index[detected_radio_PMPS].tolist(),
-        "idx_det": idx_radio[detected_radio_PMPS].tolist(),
-    }
-
-    # ======== Simulating SMPS. ========
-
-    (
-        detected_radio_SMPS,
-        w_eff_SMPS,
-        S_radio_obs_mean_SMPS,
-        S_radio_obs_mean_1400_SMPS,
-    ) = radio_surveys["SMPS"].detected_radio_population(
-        w_int_s,
-        DM,
-        P,
-        age,
-        coverage_SMPS,
-        l_gal,
-        b_gal,
-        S_radio_bol,
-        spectral_index,
-        tau_sc,
-    )
-
-    # Update the database of detected neutron stars.
-    update_dictionary_detected_SMPS = {
-        "age": age[detected_radio_SMPS].tolist(),
-        "ra": ra[detected_radio_SMPS].tolist(),
-        "dec": dec[detected_radio_SMPS].tolist(),
-        "l": l_gal[detected_radio_SMPS].tolist(),
-        "b": b_gal[detected_radio_SMPS].tolist(),
-        "DM": DM[detected_radio_SMPS].tolist(),
-        "dist": dist[detected_radio_SMPS].tolist(),
-        "pm_ra": pm_ra[detected_radio_SMPS].tolist(),
-        "pm_dec": pm_dec[detected_radio_SMPS].tolist(),
-        "v_ls": v_ls[detected_radio_SMPS].tolist(),
-        "B": B[detected_radio_SMPS].tolist(),
-        "chi": chi[detected_radio_SMPS].tolist(),
-        "P": P[detected_radio_SMPS].tolist(),
-        "P_dot": P_dot[detected_radio_SMPS].tolist(),
-        "L_radio_bol": L_radio_bol[detected_radio_SMPS].tolist(),
-        "S_radio_obs_mean": S_radio_obs_mean_SMPS[
-            detected_radio_SMPS
-        ].tolist(),
-        "S_radio_obs_mean_1400": S_radio_obs_mean_1400_SMPS[
-            detected_radio_SMPS
-        ].tolist(),
-        "w_int": w_int_s[detected_radio_SMPS].tolist(),
-        "w_eff": w_eff_SMPS[detected_radio_SMPS].tolist(),
-        "spectral_index": spectral_index[detected_radio_SMPS].tolist(),
-        "idx_det": idx_radio[detected_radio_SMPS].tolist(),
-    }
-
-    # ======== Simulating the HTRU low and mid surveys. ========
-
-    (
-        detected_radio_HTRU_low,
-        w_eff_HTRU_low,
-        S_radio_obs_mean_HTRU_low,
-        S_radio_obs_mean_1400_HTRU_low,
-    ) = radio_surveys["HTRU_low"].detected_radio_population(
-        w_int_s,
-        DM,
-        P,
-        age,
-        coverage_HTRU_low,
-        l_gal,
-        b_gal,
-        S_radio_bol,
-        spectral_index,
-        tau_sc,
-    )
-
-    (
-        detected_radio_HTRU_mid,
-        w_eff_HTRU_mid,
-        S_radio_obs_mean_HTRU_mid,
-        S_radio_obs_mean_1400_HTRU_mid,
-    ) = radio_surveys["HTRU_mid"].detected_radio_population(
-        w_int_s,
-        DM,
-        P,
-        age,
-        coverage_HTRU_mid,
-        l_gal,
-        b_gal,
-        S_radio_bol,
-        spectral_index,
-        tau_sc,
-    )
+        elif survey_key == "HTRU_mid":
+            detected_HTRU_mid = detected_mask
+            w_eff_mid = w_eff
+            S_radio_obs_mean_mid = S_radio_obs_mean
+            S_radio_obs_mean_1400_mid = S_radio_obs_mean_1400
 
     # Since the sky coverage of the HTRU mid and low surveys overlap, we remove those stars from the mid
     # survey that are already in the low survey in order to not double count individual objects.
-    detected_radio_HTRU_low_mid = (
-        detected_radio_HTRU_low | detected_radio_HTRU_mid
+    detected_HTRU_low_mid = detected_HTRU_low | detected_HTRU_mid
+    detected_dictionaries["HTRU_low_mid"] = update_detected_dictionary(
+        dictionary_intercepted_radio,
+        detected_HTRU_low_mid,
+        w_eff=np.where(detected_HTRU_low, w_eff_low, w_eff_mid),
+        S_radio_obs_mean=np.where(
+            detected_HTRU_low, S_radio_obs_mean_low, S_radio_obs_mean_mid
+        ),
+        S_radio_obs_mean_1400=np.where(
+            detected_HTRU_low,
+            S_radio_obs_mean_1400_low,
+            S_radio_obs_mean_1400_mid,
+        ),
+        HTRU_low=detected_HTRU_low,
+        HTRU_mid=detected_HTRU_mid,
+        idx=dictionary_intercepted_radio["idx"],
     )
-    w_eff_HTRU_low_mid = np.where(
-        detected_radio_HTRU_low, w_eff_HTRU_low, w_eff_HTRU_mid
-    )
-    S_radio_obs_mean_HTRU_low_mid = np.where(
-        detected_radio_HTRU_low,
-        S_radio_obs_mean_HTRU_low,
-        S_radio_obs_mean_HTRU_mid,
-    )
-    S_radio_obs_mean_1400_HTRU_low_mid = np.where(
-        detected_radio_HTRU_low,
-        S_radio_obs_mean_1400_HTRU_low,
-        S_radio_obs_mean_1400_HTRU_mid,
-    )
-
-    update_dictionary_detected_HTRU_low_mid = {
-        "age": age[detected_radio_HTRU_low_mid].tolist(),
-        "ra": ra[detected_radio_HTRU_low_mid].tolist(),
-        "dec": dec[detected_radio_HTRU_low_mid].tolist(),
-        "l": l_gal[detected_radio_HTRU_low_mid].tolist(),
-        "b": b_gal[detected_radio_HTRU_low_mid].tolist(),
-        "DM": DM[detected_radio_HTRU_low_mid].tolist(),
-        "dist": dist[detected_radio_HTRU_low_mid].tolist(),
-        "pm_ra": pm_ra[detected_radio_HTRU_low_mid].tolist(),
-        "pm_dec": pm_dec[detected_radio_HTRU_low_mid].tolist(),
-        "v_ls": v_ls[detected_radio_HTRU_low_mid].tolist(),
-        "B": B[detected_radio_HTRU_low_mid].tolist(),
-        "chi": chi[detected_radio_HTRU_low_mid].tolist(),
-        "P": P[detected_radio_HTRU_low_mid].tolist(),
-        "P_dot": P_dot[detected_radio_HTRU_low_mid].tolist(),
-        "L_radio_bol": L_radio_bol[detected_radio_HTRU_low_mid].tolist(),
-        "S_radio_obs_mean": S_radio_obs_mean_HTRU_low_mid[
-            detected_radio_HTRU_low_mid
-        ].tolist(),
-        "S_radio_obs_mean_1400": S_radio_obs_mean_1400_HTRU_low_mid[
-            detected_radio_HTRU_low_mid
-        ].tolist(),
-        "w_int": w_int_s[detected_radio_HTRU_low_mid].tolist(),
-        "w_eff": w_eff_HTRU_low_mid[detected_radio_HTRU_low_mid].tolist(),
-        "spectral_index": spectral_index[detected_radio_HTRU_low_mid].tolist(),
-        "HTRU_low": detected_radio_HTRU_low[
-            detected_radio_HTRU_low_mid
-        ].tolist(),
-        "HTRU_mid": detected_radio_HTRU_mid[
-            detected_radio_HTRU_low_mid
-        ].tolist(),
-        "idx_det": idx_radio[detected_radio_HTRU_low_mid].tolist(),
-    }
-
-    # ======== Simulating the HTRU high survey. ========
-
-    (
-        detected_radio_HTRU_high,
-        w_eff_HTRU_high,
-        S_radio_obs_mean_HTRU_high,
-        S_radio_obs_mean_1400_HTRU_high,
-    ) = radio_surveys["HTRU_high"].detected_radio_population(
-        w_int_s,
-        DM,
-        P,
-        age,
-        coverage_HTRU_high,
-        l_gal,
-        b_gal,
-        S_radio_bol,
-        spectral_index,
-        tau_sc,
-    )
-
-    update_dictionary_detected_HTRU_high = {
-        "age": age[detected_radio_HTRU_high].tolist(),
-        "ra": ra[detected_radio_HTRU_high].tolist(),
-        "dec": dec[detected_radio_HTRU_high].tolist(),
-        "l": l_gal[detected_radio_HTRU_high].tolist(),
-        "b": b_gal[detected_radio_HTRU_high].tolist(),
-        "DM": DM[detected_radio_HTRU_high].tolist(),
-        "dist": dist[detected_radio_HTRU_high].tolist(),
-        "pm_ra": pm_ra[detected_radio_HTRU_high].tolist(),
-        "pm_dec": pm_dec[detected_radio_HTRU_high].tolist(),
-        "v_ls": v_ls[detected_radio_HTRU_high].tolist(),
-        "B": B[detected_radio_HTRU_high].tolist(),
-        "chi": chi[detected_radio_HTRU_high].tolist(),
-        "P": P[detected_radio_HTRU_high].tolist(),
-        "P_dot": P_dot[detected_radio_HTRU_high].tolist(),
-        "L_radio_bol": L_radio_bol[detected_radio_HTRU_high].tolist(),
-        "S_radio_obs_mean": S_radio_obs_mean_HTRU_high[
-            detected_radio_HTRU_high
-        ].tolist(),
-        "S_radio_obs_mean_1400": S_radio_obs_mean_1400_HTRU_high[
-            detected_radio_HTRU_high
-        ].tolist(),
-        "w_int": w_int_s[detected_radio_HTRU_high].tolist(),
-        "w_eff": w_eff_HTRU_high[detected_radio_HTRU_high].tolist(),
-        "spectral_index": spectral_index[detected_radio_HTRU_high].tolist(),
-        "idx_det": idx_radio[detected_radio_HTRU_high].tolist(),
-    }
 
     return (
-        update_dictionary_detected_PMPS,
-        update_dictionary_detected_SMPS,
-        update_dictionary_detected_HTRU_low_mid,
-        update_dictionary_detected_HTRU_high,
+        detected_dictionaries["PMPS"],
+        detected_dictionaries["SMPS"],
+        detected_dictionaries["HTRU_low_mid"],
+        detected_dictionaries["HTRU_high"],
     )
+
+
+def build_dataframe(
+    data_dict: dict, parameters: list, units: list
+) -> pd.DataFrame:
+    """
+    Helper function to create a DataFrame with a MultiIndex header.
+
+    Args:
+        data_dict (dict): A dictionary containing the data to be saved in the dataframe.
+        parameters (list): A list of parameter names, used as the first level of the MultiIndex header.
+        units (List[str]): A list of physical units, used as the second level of the MultiIndex header.
+
+    Returns:
+        (pd.DataFrame): A Pandas DataFrame with a MultiIndex header, where columns are
+            indexed by parameters and units.
+    """
+
+    # If the key `"idx"` is present, it is removed.
+    data_dict.pop("idx", None)  # Remove idx_det if present
+
+    header = pd.MultiIndex.from_arrays([parameters, units])
+
+    df = pd.DataFrame.from_dict(data=data_dict)
+    df.columns = header
+
+    return df
 
 
 def create_output_dataframe(
@@ -857,13 +625,9 @@ def create_output_dataframe(
         Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]: DataFrames for
             detected neutron stars from PMPS, SMPS, HTRU low/mid and HTRU high.
     """
-    del dictionary_detected_PMPS["idx_det"]
-    del dictionary_detected_SMPS["idx_det"]
-    del dictionary_detected_HTRU_low_mid["idx_det"]
-    del dictionary_detected_HTRU_high["idx_det"]
 
     # Generating two header lines and merging them using MultiIndex.
-    parameters_final = [
+    parameters = [
         "age",
         "RA",
         "DEC",
@@ -885,7 +649,7 @@ def create_output_dataframe(
         "w_eff",
         "spectral_index",
     ]
-    units_final = [
+    units = [
         "[yr]",
         "[deg]",
         "[deg]",
@@ -908,73 +672,21 @@ def create_output_dataframe(
         "",
     ]
 
-    parameters_final_HTRU_low_mid = [
-        "age",
-        "RA",
-        "DEC",
-        "l",
-        "b",
-        "DM",
-        "d",
-        "pm_RA",
-        "pm_DEC",
-        "v_ls",
-        "B",
-        "chi",
-        "P",
-        "P_dot",
-        "L_radio_bol",
-        "S_radio_obs_mean",
-        "S_radio_obs_mean_1400",
-        "w_int",
-        "w_eff",
-        "spectral_index",
-        "HTRU_low",
-        "HTRU_mid",
-    ]
-    units_final_HTRU_low_mid = [
-        "[yr]",
-        "[deg]",
-        "[deg]",
-        "[deg]",
-        "[deg]",
-        "[pc cm^-3]",
-        "[kpc]",
-        "[mas yr^-1]",
-        "[mas yr^-1]",
-        "[km s^-1]",
-        "[G]",
-        "[rad]",
-        "[s]",
-        "[s s^-1]",
-        "[erg s^-1]",
-        "[Jy]",
-        "[Jy]",
-        "[s]",
-        "[s]",
-        "",
-        "",
-        "",
-    ]
+    # Parameters and units for HTRU_low_mid
+    parameters_HTRU_low_mid = parameters + ["HTRU_low", "HTRU_mid"]
+    units_HTRU_low_mid = units + ["", ""]
 
-    header_final = pd.MultiIndex.from_arrays([parameters_final, units_final])
-    header_final_HTRU_low_mid = pd.MultiIndex.from_arrays(
-        [parameters_final_HTRU_low_mid, units_final_HTRU_low_mid]
+    # Build DataFrames
+    df_PMPS = build_dataframe(dictionary_detected_PMPS, parameters, units)
+    df_SMPS = build_dataframe(dictionary_detected_SMPS, parameters, units)
+    df_HTRU_low_mid = build_dataframe(
+        dictionary_detected_HTRU_low_mid,
+        parameters_HTRU_low_mid,
+        units_HTRU_low_mid,
     )
-
-    df_PMPS = pd.DataFrame.from_dict(data=dictionary_detected_PMPS)
-    df_PMPS.columns = header_final
-
-    df_SMPS = pd.DataFrame.from_dict(data=dictionary_detected_SMPS)
-    df_SMPS.columns = header_final
-
-    df_HTRU_low_mid = pd.DataFrame.from_dict(
-        data=dictionary_detected_HTRU_low_mid
+    df_HTRU_high = build_dataframe(
+        dictionary_detected_HTRU_high, parameters, units
     )
-    df_HTRU_low_mid.columns = header_final_HTRU_low_mid
-
-    df_HTRU_high = pd.DataFrame.from_dict(data=dictionary_detected_HTRU_high)
-    df_HTRU_high.columns = header_final
 
     return df_PMPS, df_SMPS, df_HTRU_low_mid, df_HTRU_high
 
@@ -986,7 +698,6 @@ def simulate_population(args) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
-
             - dyn_data (str): Path to a dynamically evolved population database.
             - save_dir (str): Output directory for the run.
             - parameter_override (str): Path to JSON with parameter overrides.
@@ -1309,14 +1020,12 @@ def simulate_population(args) -> None:
 
                 # Remove from the dynamical database the stars that have been detected or
                 # that are outside the sky coverage of the surveys.
-                idx_det_PMPS = update_dictionary_detected_PMPS["idx_det"]
-                idx_det_SMPS = update_dictionary_detected_SMPS["idx_det"]
+                idx_det_PMPS = update_dictionary_detected_PMPS["idx"]
+                idx_det_SMPS = update_dictionary_detected_SMPS["idx"]
                 idx_det_HTRU_low_mid = update_dictionary_detected_HTRU_low_mid[
-                    "idx_det"
+                    "idx"
                 ]
-                idx_det_HTRU_high = update_dictionary_detected_HTRU_high[
-                    "idx_det"
-                ]
+                idx_det_HTRU_high = update_dictionary_detected_HTRU_high["idx"]
 
                 idx_det_tot = list(
                     set().union(
