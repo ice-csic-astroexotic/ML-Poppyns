@@ -23,7 +23,7 @@ import os
 import pathlib
 import sys
 import time
-from typing import List, Tuple
+from typing import Tuple
 
 import numpy as np
 import orjson
@@ -45,47 +45,35 @@ log = logging.getLogger(__name__)
 logging.getLogger("healpy").setLevel(logging.WARNING)
 
 
-def initialize_radio_surveys(cfg: dict) -> Tuple[dict, dict, dict, dict, dict]:
+def initialize_radio_surveys() -> Tuple[dict, dict]:
     """
     Initialize and return radio survey objects and empty detection dictionaries.
-
-    Args:
-        cfg (dict): A dictionary containing the simulator configuration settings.
 
     Returns:
         (Tuple[dict, dict, dict, dict, dict]): A tuple of dictionaries containing the following information:
             - A dictionary of initialized radio survey objects, keyed by survey names (e.g., "PMPS", "SMPS", etc.).
-            - An empty dictionary for storing detected neutron star data for the "PMPS" survey.
-            - An empty dictionary for storing detected neutron star data for the "SMPS" survey.
-            - An empty dictionary for storing detected neutron star data for the "HTRU_low" and "HTRU_mid" surveys.
-            - An empty dictionary for storing detected neutron star data for the "HTRU_high" survey.
+            - An empty dictionary for storing detected neutron star data for each of the survey.
     """
-    PMPS_par_path = pathlib.Path(cfg["path_to_software"]).joinpath(
-        "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
-    )
-    SMPS_par_path = pathlib.Path(cfg["path_to_software"]).joinpath(
-        "pypopsyn/simulator/multiband_surveys/Swinburne_Parkes_parameters.json"
-    )
-    HTRU_low_par_path = pathlib.Path(cfg["path_to_software"]).joinpath(
-        "pypopsyn/simulator/multiband_surveys/htru_low_parameters.json"
-    )
-    HTRU_mid_par_path = pathlib.Path(cfg["path_to_software"]).joinpath(
-        "pypopsyn/simulator/multiband_surveys/htru_mid_parameters.json"
-    )
-    HTRU_high_par_path = pathlib.Path(cfg["path_to_software"]).joinpath(
-        "pypopsyn/simulator/multiband_surveys/htru_high_parameters.json"
-    )
+    # Get the path to the software directory.
+    base_path = pathlib.Path(cfg["path_to_software"])
 
-    # Initialize and return surveys as a dictionary.
-    radio_surveys = {
-        "PMPS": sr.SurveyRadio(PMPS_par_path),
-        "SMPS": sr.SurveyRadio(SMPS_par_path),
-        "HTRU_low": sr.SurveyRadio(HTRU_low_par_path),
-        "HTRU_mid": sr.SurveyRadio(HTRU_mid_par_path),
-        "HTRU_high": sr.SurveyRadio(HTRU_high_par_path),
-    }
+    # Initialize survey objects.
+    radio_surveys = {}
 
-    # Initializing the dictionaries where we save the detected neutron stars for each survey.
+    for survey_name, survey_dict in cfg["surveys_radio"].items():
+        if survey_name == "HTRU_low_mid":
+            radio_surveys["HTRU_low"] = sr.SurveyRadio(
+                str(base_path.joinpath(survey_dict["path_low"]))
+            )
+            radio_surveys["HTRU_mid"] = sr.SurveyRadio(
+                str(base_path.joinpath(survey_dict["path_mid"]))
+            )
+        else:
+            radio_surveys[survey_name] = sr.SurveyRadio(
+                str(base_path.joinpath(survey_dict["path"]))
+            )
+
+    # Detection dictionary template
     detection_template = {
         "age": [],
         "ra": [],
@@ -110,37 +98,33 @@ def initialize_radio_surveys(cfg: dict) -> Tuple[dict, dict, dict, dict, dict]:
         "idx": [],
     }
 
-    # Specialized template for HTRU detection dictionaries
-    htru_low_mid_detection_template = detection_template.copy()
-    htru_low_mid_detection_template.update({"HTRU_low": [], "HTRU_mid": []})
+    # Initialize detection dictionaries for each survey.
+    detection_dictionaries = {
+        survey_name: detection_template.copy()
+        for survey_name in cfg["surveys_radio"].keys()
+    }
 
-    # Create detection dictionaries
-    dictionary_detected_PMPS = detection_template.copy()
-    dictionary_detected_SMPS = detection_template.copy()
-    dictionary_detected_HTRU_low_mid = htru_low_mid_detection_template.copy()
-    dictionary_detected_HTRU_high = detection_template.copy()
+    # Add flags for HTRU low and mid surveys.
+    if "HTRU_low_mid" in cfg["surveys_radio"]:
+        detection_dictionaries["HTRU_low_mid"].update(
+            {"HTRU_low": [], "HTRU_mid": []}
+        )
 
-    return (
-        radio_surveys,
-        dictionary_detected_PMPS,
-        dictionary_detected_SMPS,
-        dictionary_detected_HTRU_low_mid,
-        dictionary_detected_HTRU_high,
-    )
+    return radio_surveys, detection_dictionaries
 
 
 def load_database_dyn(
-    dyn_path_pop: pathlib.Path,
+    dyn_path: pathlib.Path,
     n_batchsize: int,
     NS_number: int,
     idx_remove: list,
 ) -> dict:
     """
-    Load a chunk of a dynamically evolved population from a .csv file, convert coordinates and return a dictionary
+    Load a batch of a dynamically evolved population from a .csv file, convert coordinates and return a dictionary
     with the dynamical information of the selected stars.
 
     Args:
-        dyn_path_pop (pathlib.Path): Path to the file containing the dynamically evolved population data.
+        dyn_path (pathlib.Path): Path to the directory containing the dynamically evolved population data.
         n_batchsize (int): Batch size of stars to select when loading the data.
         NS_number (int): The total number of neutron stars in the dynamical database.
         idx_remove (list): List of indices to remove from the dynamical database.
@@ -149,9 +133,18 @@ def load_database_dyn(
         (dict): A dictionary containing the data of the selected dynamical population chunk.
     """
 
+    # Check if the parsed dynamically simulated population directory exists.
+    dyn_path = pathlib.Path(dyn_path)
+    dyn_config_path = dyn_path / "configuration.json"
+    dyn_data_path = dyn_path / "final_pop_dyn.csv"
+
+    if not dyn_data_path.exists():
+        log.error(f"File {dyn_data_path} not found...")
+        sys.exit()
+
     # Load the chunk of the file containing the dynamically evolved population parameters.
     df_dyn = mes.select(
-        dyn_path_pop,
+        dyn_data_path,
         n_batchsize,
         NS_number,
         idx_remove,
@@ -202,12 +195,26 @@ def load_database_dyn(
         "dec": dec,
         "l": l_gal,
         "b": b_gal,
-        "dist_heliocentric": dist_heliocentric_icrs,
+        "dist": dist_heliocentric_icrs,
         "pm_ra": pm_ra,
         "pm_dec": pm_dec,
         "v_ls": v_ls_icrs,
         "idx": df_dyn.index.values,
     }
+
+    # Update the parameters in the simulation configuration file with the ones of the dynamical database.
+    with open(dyn_config_path, "r") as f:
+        config_dyn = json.load(f)
+
+    cfg["t_age_max"] = config_dyn["t_age_max"]
+    cfg["NS_number"] = config_dyn["NS_number"]
+    cfg["kick_model"] = config_dyn["kick_model"]
+    cfg["sigma_k"] = config_dyn["sigma_k"]
+    cfg["vk_c"] = config_dyn["vk_c"]
+    cfg["h_c"] = config_dyn["h_c"]
+
+    # Add the path of the dynamical database in the configuration file.
+    cfg["dyn_database_path"] = args.dyn_data
 
     return dictionary_dyn_database_chunk
 
@@ -239,7 +246,7 @@ def apply_surveys_coverage(
     dec = dyn_database_dict["dec"]
     l_gal = dyn_database_dict["l"]
     b_gal = dyn_database_dict["b"]
-    dist = dyn_database_dict["dist_heliocentric"]
+    dist = dyn_database_dict["dist"]
     pm_ra = dyn_database_dict["pm_ra"]
     pm_dec = dyn_database_dict["pm_dec"]
     v_ls = dyn_database_dict["v_ls"]
@@ -277,12 +284,15 @@ def apply_surveys_coverage(
         "v_ls": v_ls[coverage_tot],
         "idx": idx[coverage_tot],
         "coverage_radio": coverage_radio[coverage_tot],
-        "coverage_PMPS": coverage["PMPS"][coverage_tot],
-        "coverage_SMPS": coverage["SMPS"][coverage_tot],
-        "coverage_HTRU_low": coverage["HTRU_low"][coverage_tot],
-        "coverage_HTRU_mid": coverage["HTRU_mid"][coverage_tot],
-        "coverage_HTRU_high": coverage["HTRU_high"][coverage_tot],
     }
+
+    # Add coverage for each survey to the dictionary.
+    for survey_name in survey_names:
+        # Add the coverage data for each survey
+        coverage_key = f"coverage_{survey_name}"
+        dictionary_coverage_database[coverage_key] = coverage[survey_name][
+            coverage_tot
+        ]
 
     # Remove stars that do not fall into the total sky coverage.
     out_coverage = np.invert(coverage_tot)
@@ -324,7 +334,6 @@ def initialize_population_magrot(dict_coverage_database: dict) -> dict:
 
 
 def evolve_population_magrot(
-    cfg: dict,
     dict_pop_initial_magrot: dict,
     dict_coverage_database: dict,
     output_path: pathlib.Path,
@@ -333,7 +342,6 @@ def evolve_population_magrot(
     Evolve the magneto-rotational properties of a neutron star population over time based on initial conditions.
 
     Args:
-        cfg (dict): A dictionary containing the simulator configuration settings.
         dict_pop_initial_magrot (dict): Dictionary containing initial magneto-rotational properties of the population.
         dict_coverage_database (dict): Dictionary containing the dynamical properties of the neutron star population
             falling in the survey sky coverage.
@@ -412,11 +420,12 @@ def radio_intercepted(dict_final_pop: dict) -> dict:
     B = dict_final_pop["B_final"][coverage_radio]
     chi = dict_final_pop["chi_final"][coverage_radio]
     idx = dict_final_pop["idx"][coverage_radio]
-    coverage_PMPS = dict_final_pop["coverage_PMPS"][coverage_radio]
-    coverage_SMPS = dict_final_pop["coverage_SMPS"][coverage_radio]
-    coverage_HTRU_low = dict_final_pop["coverage_HTRU_low"][coverage_radio]
-    coverage_HTRU_mid = dict_final_pop["coverage_HTRU_mid"][coverage_radio]
-    coverage_HTRU_high = dict_final_pop["coverage_HTRU_high"][coverage_radio]
+
+    # Collect the coverage data for each survey.
+    coverage_data = {}
+    for key in dict_final_pop.keys():
+        if key.startswith("coverage_"):
+            coverage_data[key] = dict_final_pop[key][coverage_radio]
 
     # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
     # of their radio emission.
@@ -454,51 +463,56 @@ def radio_intercepted(dict_final_pop: dict) -> dict:
         "S_radio_bol": dictionary_intercepted_radio["S_radio_bol"],
         "spectral_index": dictionary_intercepted_radio["spectral_index"],
         "tau_sc": dictionary_intercepted_radio["tau_sc"],
-        "coverage_PMPS": coverage_PMPS[intercepted_radio],
-        "coverage_SMPS": coverage_SMPS[intercepted_radio],
-        "coverage_HTRU_low": coverage_HTRU_low[intercepted_radio],
-        "coverage_HTRU_mid": coverage_HTRU_mid[intercepted_radio],
-        "coverage_HTRU_high": coverage_HTRU_high[intercepted_radio],
     }
+
+    # Add the coverage for each survey to the output dictionary.
+    for coverage_key, coverage_value in coverage_data.items():
+        dictionary_intercepted_radio[coverage_key] = coverage_value[
+            intercepted_radio
+        ]
 
     return dictionary_intercepted_radio
 
 
-# Function to update detected neutron star dictionary
 def update_detected_dictionary(
     dict_to_update: dict, detected_mask: list, **kwargs: np.ndarray
 ) -> dict:
     """
-    Updates a dictionary to include only the elements corresponding to detected indices.
+    This function updates a dictionary to include only the elements corresponding to the given detected mask.
 
     Args:
         dict_to_update (dict): The original dictionary containing properties of neutron stars.
-            Each key corresponds to a property (e.g., 'w_eff', 'S_radio_obs_mean') and its values are lists of those properties.
         detected_mask (list): boolean mask indicating which neutron stars in `dict_to_update` are detected.
         **kwargs (np.ndarray): Additional property values provided as keyword arguments.
-            These properties will also be filtered using the `detected_indices`.
+            These properties will also be filtered using the `detected_mask`.
 
     Returns:
         (dict): A new dictionary containing only the detected neutron stars from `dict_to_update` and combining
-            the keys already present in the original dictionary with the one provided in `kwargs`.
+            the keys already present in the original dictionary with the ones provided in `kwargs`.
     """
 
     # Extract keys from the dictionary that has to be updated.
     properties = list(dict_to_update.keys())
 
-    print(np.shape(dict_to_update["age"]))
-    # Filtering the detected stars in the original dictionary and adding the properties specified in `kwargs`.
-    combined_dict = {
+    # Filtering the detected stars in the original dictionary.
+    filtered_dict = {
         prop: dict_to_update[prop][detected_mask].tolist()
         for prop in properties
-    } | {key: value[detected_mask].tolist() for key, value in kwargs.items()}
+    }
+    # Add and filter the properties specified in `kwargs` to another dictionary.
+    additional_filtered_dict = {
+        key: value[detected_mask].tolist() for key, value in kwargs.items()
+    }
+
+    # Combine the two dictionaries.
+    combined_dict = filtered_dict | additional_filtered_dict
 
     return combined_dict
 
 
 def radio_detection(
     radio_surveys: dict, dictionary_intercepted_radio: dict
-) -> Tuple[dict, dict, dict, dict]:
+) -> dict:
     """
     Simulate radio detections for various surveys and update the dictionaries with the properties
     of detected neutron stars.
@@ -508,31 +522,30 @@ def radio_detection(
         dictionary_intercepted_radio (dict): Dictionary with properties of intercepted radio pulsars.
 
     Returns:
-        (Tuple[dict, dict, dict, dict]): A tuple consisting of the dictionaries containing the properties
-            of detected pulsars for each survey.
+        (dict): A dictionary containing the properties of detected pulsars for each survey.
     """
 
-    # Process each survey dynamically
+    # Process each survey.
     detected_dictionaries = {}
-    for survey_key in radio_surveys.keys():
+    for survey_name in radio_surveys:
         (
             detected_mask,
             w_eff,
             S_radio_obs_mean,
             S_radio_obs_mean_1400,
-        ) = radio_surveys[survey_key].detected_radio_population(
+        ) = radio_surveys[survey_name].detected_radio_population(
             dictionary_intercepted_radio["w_int"],
             dictionary_intercepted_radio["DM"],
             dictionary_intercepted_radio["P"],
             dictionary_intercepted_radio["age"],
-            dictionary_intercepted_radio[f"coverage_{survey_key}"],
+            dictionary_intercepted_radio[f"coverage_{survey_name}"],
             dictionary_intercepted_radio["l"],
             dictionary_intercepted_radio["b"],
             dictionary_intercepted_radio["S_radio_bol"],
             dictionary_intercepted_radio["spectral_index"],
             dictionary_intercepted_radio["tau_sc"],
         )
-        detected_dictionaries[survey_key] = update_detected_dictionary(
+        detected_dictionaries[survey_name] = update_detected_dictionary(
             dictionary_intercepted_radio,
             detected_mask,
             w_eff=w_eff,
@@ -540,44 +553,44 @@ def radio_detection(
             S_radio_obs_mean_1400=S_radio_obs_mean_1400,
         )
 
-        if survey_key == "HTRU_low":
+        # Save the properties for the HTRU low and mid surveys separately.
+        if survey_name == "HTRU_low":
             detected_HTRU_low = detected_mask
             w_eff_low = w_eff
             S_radio_obs_mean_low = S_radio_obs_mean
             S_radio_obs_mean_1400_low = S_radio_obs_mean_1400
 
-        elif survey_key == "HTRU_mid":
+        elif survey_name == "HTRU_mid":
             detected_HTRU_mid = detected_mask
             w_eff_mid = w_eff
             S_radio_obs_mean_mid = S_radio_obs_mean
             S_radio_obs_mean_1400_mid = S_radio_obs_mean_1400
 
-    # Since the sky coverage of the HTRU mid and low surveys overlap, we remove those stars from the mid
-    # survey that are already in the low survey in order to not double count individual objects.
-    detected_HTRU_low_mid = detected_HTRU_low | detected_HTRU_mid
-    detected_dictionaries["HTRU_low_mid"] = update_detected_dictionary(
-        dictionary_intercepted_radio,
-        detected_HTRU_low_mid,
-        w_eff=np.where(detected_HTRU_low, w_eff_low, w_eff_mid),
-        S_radio_obs_mean=np.where(
-            detected_HTRU_low, S_radio_obs_mean_low, S_radio_obs_mean_mid
-        ),
-        S_radio_obs_mean_1400=np.where(
-            detected_HTRU_low,
-            S_radio_obs_mean_1400_low,
-            S_radio_obs_mean_1400_mid,
-        ),
-        HTRU_low=detected_HTRU_low,
-        HTRU_mid=detected_HTRU_mid,
-        idx=dictionary_intercepted_radio["idx"],
-    )
+    if (
+        "HTRU_low" in radio_surveys.keys()
+        and "HTRU_mid" in radio_surveys.keys()
+    ):
+        # Since the sky coverage of the HTRU mid and low surveys overlap, we remove those stars from the mid
+        # survey that are already in the low survey in order to not double count individual objects.
+        detected_HTRU_low_mid = detected_HTRU_low | detected_HTRU_mid
+        detected_dictionaries["HTRU_low_mid"] = update_detected_dictionary(
+            dictionary_intercepted_radio,
+            detected_HTRU_low_mid,
+            w_eff=np.where(detected_HTRU_low, w_eff_low, w_eff_mid),
+            S_radio_obs_mean=np.where(
+                detected_HTRU_low, S_radio_obs_mean_low, S_radio_obs_mean_mid
+            ),
+            S_radio_obs_mean_1400=np.where(
+                detected_HTRU_low,
+                S_radio_obs_mean_1400_low,
+                S_radio_obs_mean_1400_mid,
+            ),
+            HTRU_low=detected_HTRU_low,
+            HTRU_mid=detected_HTRU_mid,
+            idx=dictionary_intercepted_radio["idx"],
+        )
 
-    return (
-        detected_dictionaries["PMPS"],
-        detected_dictionaries["SMPS"],
-        detected_dictionaries["HTRU_low_mid"],
-        detected_dictionaries["HTRU_high"],
-    )
+    return detected_dictionaries
 
 
 def build_dataframe(
@@ -595,9 +608,8 @@ def build_dataframe(
         (pd.DataFrame): A Pandas DataFrame with a MultiIndex header, where columns are
             indexed by parameters and units.
     """
-
     # If the key `"idx"` is present, it is removed.
-    data_dict.pop("idx", None)  # Remove idx_det if present
+    data_dict.pop("idx", None)
 
     header = pd.MultiIndex.from_arrays([parameters, units])
 
@@ -607,27 +619,18 @@ def build_dataframe(
     return df
 
 
-def create_output_dataframe(
-    dictionary_detected_PMPS: dict,
-    dictionary_detected_SMPS: dict,
-    dictionary_detected_HTRU_low_mid: dict,
-    dictionary_detected_HTRU_high: dict,
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def create_output_dataframe(dictionary_detected: dict) -> dict:
     """
-    Creates Pandas DataFrames containing the information on the detected neutron stars in each survey.
+    Creates Pandas DataFrames containing the information on the detected neutron stars for each survey.
 
     Args:
-        dictionary_detected_PMPS (dict): Dictionary containing detected PMPS neutron star properties.
-        dictionary_detected_SMPS (dict): Dictionary containing detected SMPS neutron star properties.
-        dictionary_detected_HTRU_low_mid (dict): Dictionary containing detected HTRU low and mid-latitude neutron star properties.
-        dictionary_detected_HTRU_high (dict): Dictionary containing detected HTRU high-latitude neutron star properties.
+        dictionary_detected (dict): Dictionary containing detected neutron star properties for each survey.
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]: DataFrames for
-            detected neutron stars from PMPS, SMPS, HTRU low/mid and HTRU high.
+        dict: A dictionary of DataFrames, one for each survey containing detected neutron stars' information.
     """
 
-    # Generating two header lines and merging them using MultiIndex.
+    # Defining the parameters and units that are common for all surveys.
     parameters = [
         "age",
         "RA",
@@ -673,23 +676,26 @@ def create_output_dataframe(
         "",
     ]
 
-    # Parameters and units for HTRU_low_mid
-    parameters_HTRU_low_mid = parameters + ["HTRU_low", "HTRU_mid"]
-    units_HTRU_low_mid = units + ["", ""]
+    # Initialize an empty dictionary to store the resulting DataFrames.
+    dfs = {}
 
-    # Build DataFrames
-    df_PMPS = build_dataframe(dictionary_detected_PMPS, parameters, units)
-    df_SMPS = build_dataframe(dictionary_detected_SMPS, parameters, units)
-    df_HTRU_low_mid = build_dataframe(
-        dictionary_detected_HTRU_low_mid,
-        parameters_HTRU_low_mid,
-        units_HTRU_low_mid,
-    )
-    df_HTRU_high = build_dataframe(
-        dictionary_detected_HTRU_high, parameters, units
-    )
+    # Loop over each survey's detected dictionary and generate the corresponding DataFrame.
+    for survey_name, survey_data in dictionary_detected.items():
+        # Check if the survey is a combined survey like 'HTRU_low_mid'.
+        if survey_name == "HTRU_low_mid":
+            parameters_survey = parameters + ["HTRU_low", "HTRU_mid"]
+            units_survey = units + ["", ""]
+        else:
+            parameters_survey = parameters
+            units_survey = units
 
-    return df_PMPS, df_SMPS, df_HTRU_low_mid, df_HTRU_high
+        # Build the DataFrame using the appropriate parameters and units
+        df = build_dataframe(survey_data, parameters_survey, units_survey)
+        dfs[
+            survey_name
+        ] = df  # Store the DataFrame in the dictionary with survey_name as key.
+
+    return dfs
 
 
 def simulate_population(args) -> None:
@@ -711,29 +717,19 @@ def simulate_population(args) -> None:
     output_path.mkdir(parents=True, exist_ok=True)
 
     # Update path-dependent configurations prepending the specified output path.
-    prof_log_path = pathlib.Path().joinpath(output_path, cfg["profile_log"])
-    prof_json_path = pathlib.Path().joinpath(output_path, cfg["profile_json"])
+    prof_log_path = output_path / cfg["profile_log"]
+    prof_json_path = output_path / cfg["profile_json"]
 
     # If already present, remove the profile.json and profile.log files to prevent
     # interrupted server connection issues.
     if os.path.exists(prof_json_path):
         os.remove(prof_json_path)
-
     if os.path.exists(prof_log_path):
         os.remove(prof_log_path)
 
     # Update the paths to profile.json and profile.log files in the configuration file.
     cfg["profile_json"] = str(prof_json_path)
     cfg["profile_log"] = str(prof_log_path)
-
-    # Check if the parsed dynamically simulated population directory exists.
-    dyn_path = pathlib.Path(args.dyn_data)
-    dyn_path_config = pathlib.Path().joinpath(dyn_path, "configuration.json")
-    dyn_path_pop = pathlib.Path().joinpath(dyn_path, "final_pop_dyn.csv")
-
-    if not dyn_path_pop.exists():
-        log.error(f"File {dyn_path} not found...")
-        sys.exit()
 
     # Update simulator configuration with the provided JSON override (if any).
     if args.parameter_override:
@@ -750,83 +746,48 @@ def simulate_population(args) -> None:
     log.info("Seed: {}".format(cfg["seed_magrot"]))
     np.random.seed(cfg["seed_magrot"])
 
-    # Initialize the surveys.
-    (
-        radio_surveys,
-        dictionary_detected_PMPS,
-        dictionary_detected_SMPS,
-        dictionary_detected_HTRU_low_mid,
-        dictionary_detected_HTRU_high,
-    ) = initialize_radio_surveys(cfg)
-
-    n_detected_real_PMPS = cfg["detected_real_PMPS"]
-    n_detected_real_SMPS = cfg["detected_real_SMPS"]
-    n_detected_real_HTRU_low_mid = cfg["detected_real_htru_low_mid"]
-    n_detected_real_HTRU_high = cfg["detected_real_htru_high"]
-
-    # Import the maximum age value from the dynamical configuration file.
-    # This is needed for the computation of the birth rate.
-    with open(dyn_path_config, "r") as f:
-        config_dyn = json.load(f)
-
-    t_max = config_dyn["t_age_max"] / 100  # Maximum time in centuries.
-
-    # Initialize the indicator for an excess in birth rate to False.
-    # This variable will be changed to True if the birth rate exceeds a value of 5 NS / century.
-    # It is finally saved in the configuration.json file where the simulation output is stored.
-    cfg["birth_rate_excess"] = False
-
     with timewith.TimeWith(
         "[TotalSimulation]",
         cfg["profile_log"],
         cfg["profile_json"],
         cfg["show_profiling"],
     ):
-        # ===================== EVOLVE AND DETECT ========================
+        # Initialize radio surveys.
+        surveys_radio, dictionary_detected_radio = initialize_radio_surveys()
+        surveys_radio_cfg = cfg["surveys_radio"]
 
-        # These variables count how many stars we create to reach the desirable number in each survey.
+        # Compute the maximum simulation time in centuries.
+        t_max = cfg["t_age_max"] / 100
+
+        # Initialize the indicator for an excess in birth rate to False.
+        cfg["birth_rate_excess"] = False
+
+        # This variable progressively count how many stars we create in total.
         n_created = 0
-        n_created_PMPS = 0
-        n_created_SMPS = 0
-        n_created_HTRU_low_mid = 0
-        n_created_HTRU_high = 0
+        # In these dictionaries we save how many stars we progressively detect in total in each survey and
+        # the percentage related to the real detected numbers.
+        n_detected_sim = {survey: 0 for survey in surveys_radio_cfg}
+        percentage_detected = {survey: 0 for survey in surveys_radio_cfg}
 
-        # These variables count how many stars we detect in total in each survey.
-        n_detected_sim_PMPS = 0
-        n_detected_sim_SMPS = 0
-        n_detected_sim_HTRU_low_mid = 0
-        n_detected_sim_HTRU_high = 0
+        # In this dictionary we save how many stars we have created to reach the desirable number in each survey.
+        n_created_at_match = {survey: 0 for survey in surveys_radio_cfg}
+        # In this dictionary we save how many stars we have detected when we reach the desirable number in each survey.
+        n_detected_sim_at_match = {survey: 0 for survey in surveys_radio_cfg}
 
-        # In these variables we save how many stars we detect when we reach the desirable number in each survey.
-        n_detected_sim_PMPS_at_match = 0
-        n_detected_sim_SMPS_at_match = 0
-        n_detected_sim_HTRU_low_mid_at_match = 0
-        n_detected_sim_HTRU_high_at_match = 0
-
-        stop_PMPS = False
-        stop_SMPS = False
-        stop_HTRU_low_mid = False
-        stop_HTRU_high = False
-
-        # Define a list to store the indices of the detected neutron stars to avoid resampling.
-        # In the first iteration, we are not removing any indices.
+        # List to store indices of detected neutron stars to avoid resampling.
         idx_remove = []
 
         # To speed up the simulation, generate new neutron stars in batches.
         n_batchsize = 100000
 
-        # Once we have detected 90% or 95% of the NS in both surveys, we reduce the batch size to speed up the
-        # simulations. We initialize these flags as false.
-        flag_90 = False
-        flag_95 = False
+        # Flags for adjusting batch size as we approach the target detection number for all surveys.
+        flags = {0.9: False, 0.95: False}
 
-        # Continue to simulate stars until the detected number of pulsars for all the surveys is reached.
-        while (
-            (n_detected_sim_PMPS < n_detected_real_PMPS)
-            | (n_detected_sim_SMPS < n_detected_real_SMPS)
-            | (n_detected_sim_HTRU_low_mid < n_detected_real_HTRU_low_mid)
-            | (n_detected_sim_HTRU_high < n_detected_real_HTRU_high)
-        ):
+        # Flags for stopping the simulation as we reach the target detection number for all surveys.
+        stop_flags = {survey: False for survey in surveys_radio_cfg}
+
+        # Loop to simulate stars until the detected number of pulsars for all surveys is reached.
+        while not all(stop_flags.values()):
 
             with timewith.TimeWith(
                 "[LoadPopulationDynamics]",
@@ -834,71 +795,69 @@ def simulate_population(args) -> None:
                 cfg["profile_json"],
                 cfg["show_profiling"],
             ):
-
-                # ===================== INITIALIZE THE POPULATION ========================
-
+                # ===================== POPULATION INITIALIZATION ========================
                 # Evaluate the percentage of neutron stars detected by the simulated
-                # surveys with respect to the real surveys.
-                percentage_detected_PMPS = (
-                    n_detected_sim_PMPS / n_detected_real_PMPS
-                )
-                percentage_detected_SMPS = (
-                    n_detected_sim_SMPS / n_detected_real_SMPS
-                )
-                percentage_detected_HTRU_low_mid = (
-                    n_detected_sim_HTRU_low_mid
-                ) / n_detected_real_HTRU_low_mid
+                # surveys with respect to the real surveys and adjust the batch size accordingly.
+                for survey in surveys_radio_cfg:
+                    percentage_detected[survey] = (
+                        n_detected_sim[survey]
+                        / surveys_radio_cfg[survey]["detected_real"]
+                    )
 
-                percentage_detected_HTRU_high = (
-                    n_detected_sim_HTRU_high
-                ) / n_detected_real_HTRU_high
-
-                # If the percentage of all surveys is over 90% reduce the batch size.
                 if (
-                    (percentage_detected_PMPS > 0.9)
-                    & (percentage_detected_SMPS > 0.9)
-                    & (percentage_detected_HTRU_low_mid > 0.9)
-                    & (percentage_detected_HTRU_high > 0.9)
-                    & (flag_90 is False)
+                    all(value > 0.9 for value in percentage_detected.values())
+                    and not flags[0.9]
                 ):
-                    flag_90 = True
+                    flags[0.9] = True
                     n_batchsize = 10000
-
                 elif (
-                    (percentage_detected_PMPS > 0.95)
-                    & (percentage_detected_SMPS > 0.95)
-                    & (percentage_detected_HTRU_low_mid > 0.95)
-                    & (percentage_detected_HTRU_high > 0.95)
-                    & (flag_95 is False)
+                    all(value > 0.95 for value in percentage_detected.values())
+                    and not flags[0.95]
                 ):
-                    flag_95 = True
+                    flags[0.95] = True
                     n_batchsize = 5000
 
                 # Update the total number of simulated neutron stars.
                 n_created += n_batchsize
-
                 log.info(f"Total number of created neutron stars: {n_created}")
 
-                # Load a chunk of dynamically evolved neutron stars from the dynamical database.
-                database_dyn_chunk = load_database_dyn(
-                    dyn_path_pop,
+                # Load a batch of dynamically evolved neutron stars from the dynamical database.
+                database_dyn_batch = load_database_dyn(
+                    args.dyn_data,
                     n_batchsize,
-                    config_dyn["NS_number"],
+                    cfg["NS_number"],
                     idx_remove,
                 )
 
-                # Filter the loaded database chuck with the surveys sky coverage.
+                # Filter the loaded database batch with the surveys' sky coverage.
                 database_coverage, idx_remove = apply_surveys_coverage(
-                    radio_surveys,
-                    database_dyn_chunk,
+                    surveys_radio,
+                    database_dyn_batch,
                     idx_remove,
                     dist_cutoff=30.0,
                 )
 
-                # Initialize neutron star population properties.
+                # Initialize neutron star magneto-rotational properties.
                 pop_magrot_initial = initialize_population_magrot(
                     database_coverage
                 )
+
+            with timewith.TimeWith(
+                "[SimulateMagnetoRotationalEvolution]",
+                cfg["profile_log"],
+                cfg["profile_json"],
+                cfg["show_profiling"],
+            ):
+
+                # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
+                # Evolve in time the magneto-rotational properties.
+                pop_magrot_final = evolve_population_magrot(
+                    pop_magrot_initial, database_coverage, output_path
+                )
+
+                # Merge the dictionary containing the final magneto-rotational properties with the filtered dynamical
+                # database.
+                pop_final = database_coverage | pop_magrot_final
 
             with timewith.TimeWith(
                 "[SimulatePopulationDetection]",
@@ -907,287 +866,108 @@ def simulate_population(args) -> None:
                 cfg["show_profiling"],
             ):
 
-                # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
-
-                # Determine the evolved magnetic field, misalignment angle and rotation period.
-                pop_magrot_final = evolve_population_magrot(
-                    cfg, pop_magrot_initial, database_coverage, output_path
-                )
-
-                pop_final = database_coverage | pop_magrot_final
-
                 # ===================== RADIO DETECTION ========================
-
+                # Filter the population to include only pulsars whose radio beam intercepts our line of sight.
                 pop_intercepted_radio = radio_intercepted(pop_final)
-
                 if len(pop_intercepted_radio["age"]) == 0:
                     break
 
-                (
-                    update_dictionary_detected_PMPS,
-                    update_dictionary_detected_SMPS,
-                    update_dictionary_detected_HTRU_low_mid,
-                    update_dictionary_detected_HTRU_high,
-                ) = radio_detection(radio_surveys, pop_intercepted_radio)
-
-                n_detected_sim_PMPS += len(
-                    update_dictionary_detected_PMPS["age"]
-                )
-                log.info(
-                    f"Total number of neutron stars detected by the Parkes Multibeam Survey: {n_detected_sim_PMPS}"
-                )
-                # Store the value of created neutron stars once the number of detected pulsars with PMPS is reached.
-                # This is needed to compute the birth rate derived from the PMPS detections.
-                if (n_detected_sim_PMPS >= n_detected_real_PMPS) & (
-                    stop_PMPS is False
-                ):
-                    n_detected_sim_PMPS_at_match = n_detected_sim_PMPS
-                    stop_PMPS = True
-                    n_created_PMPS = n_created
-
-                n_detected_sim_SMPS += len(
-                    update_dictionary_detected_SMPS["age"]
-                )
-                log.info(
-                    f"Total number of neutron stars detected by the Swinburne Parkes Multibeam Survey: {n_detected_sim_SMPS}"
-                )
-                # Store the value of created neutron stars once the number of detected pulsars with SMPS is reached.
-                # This is needed to compute the birth rate derived from the SMPS detections.
-                if (n_detected_sim_SMPS >= n_detected_real_SMPS) & (
-                    stop_SMPS is False
-                ):
-                    n_detected_sim_SMPS_at_match = n_detected_sim_SMPS
-                    stop_SMPS = True
-                    n_created_SMPS = n_created
-
-                n_detected_sim_HTRU_low_mid += len(
-                    update_dictionary_detected_HTRU_low_mid["age"]
+                # Filter the population to include only detected pulsars by the surveys.
+                pop_detected_radio_update = radio_detection(
+                    surveys_radio, pop_intercepted_radio
                 )
 
-                log.info(
-                    f"Total number of neutron stars detected by the HTRU mid and low latitude surveys: {n_detected_sim_HTRU_low_mid}"
-                )
-
-                # Store the value of created neutron stars once the number of detected pulsars with HTRU is reached.
-                # This is needed to compute the birth rate derived from the HTRU detections.
-                if (
-                    n_detected_sim_HTRU_low_mid >= n_detected_real_HTRU_low_mid
-                ) & (stop_HTRU_low_mid is False):
-
-                    n_detected_sim_HTRU_low_mid_at_match = (
-                        n_detected_sim_HTRU_low_mid
+                for survey in surveys_radio_cfg:
+                    # Check the number of detected pulsars for each survey.
+                    n_detected_sim[survey] += len(
+                        pop_detected_radio_update[survey]["age"]
                     )
-                    stop_HTRU_low_mid = True
-                    n_created_HTRU_low_mid = n_created
-
-                n_detected_sim_HTRU_high += len(
-                    update_dictionary_detected_HTRU_high["age"]
-                )
-
-                log.info(
-                    f"Total number of neutron stars detected by the HTRU high latitude survey: {n_detected_sim_HTRU_high}"
-                )
-
-                # Store the value of created neutron stars once the number of detected pulsars with HTRU is reached.
-                # This is needed to compute the birth rate derived from the HTRU detections.
-                if (n_detected_sim_HTRU_high >= n_detected_real_HTRU_high) & (
-                    stop_HTRU_high is False
-                ):
-                    n_detected_sim_HTRU_high_at_match = (
-                        n_detected_sim_HTRU_high
+                    log.info(
+                        f"Total number of neutron stars detected by {survey}: {n_detected_sim[survey]}"
                     )
-                    stop_HTRU_high = True
-                    n_created_HTRU_high = n_created
 
-                # Update the dictionaries containing the detection information.
-                dictionary_detected_PMPS = {
-                    key: value + update_dictionary_detected_PMPS[key]
-                    for key, value in dictionary_detected_PMPS.items()
-                }
+                    # If the number of simulated detected pulsars matches the real one, store the value of created neutron stars.
+                    if (
+                        n_detected_sim[survey]
+                        >= surveys_radio_cfg[survey]["detected_real"]
+                        and not stop_flags[survey]
+                    ):
+                        n_detected_sim_at_match[survey] = n_detected_sim[
+                            survey
+                        ]
+                        stop_flags[survey] = True
+                        n_created_at_match[survey] = n_created
 
-                dictionary_detected_SMPS = {
-                    key: value + update_dictionary_detected_SMPS[key]
-                    for key, value in dictionary_detected_SMPS.items()
-                }
+                    # Update the detection dictionary.
+                    dictionary_detected_radio[survey] = {
+                        key: value + pop_detected_radio_update[survey][key]
+                        for key, value in dictionary_detected_radio[
+                            survey
+                        ].items()
+                    }
 
-                dictionary_detected_HTRU_low_mid = {
-                    key: value + update_dictionary_detected_HTRU_low_mid[key]
-                    for key, value in dictionary_detected_HTRU_low_mid.items()
-                }
-
-                dictionary_detected_HTRU_high = {
-                    key: value + update_dictionary_detected_HTRU_high[key]
-                    for key, value in dictionary_detected_HTRU_high.items()
-                }
+                    # Remove from the dynamical database the stars that have been detected.
+                    idx_det_tot = list(
+                        dictionary_detected_radio[survey]["idx"]
+                    )
+                    idx_remove += idx_det_tot
 
                 # ==========================================================
 
-                # Remove from the dynamical database the stars that have been detected or
-                # that are outside the sky coverage of the surveys.
-                idx_det_PMPS = update_dictionary_detected_PMPS["idx"]
-                idx_det_SMPS = update_dictionary_detected_SMPS["idx"]
-                idx_det_HTRU_low_mid = update_dictionary_detected_HTRU_low_mid[
-                    "idx"
-                ]
-                idx_det_HTRU_high = update_dictionary_detected_HTRU_high["idx"]
-
-                idx_det_tot = list(
-                    set().union(
-                        idx_det_PMPS,
-                        idx_det_SMPS,
-                        idx_det_HTRU_low_mid,
-                        idx_det_HTRU_high,
-                    )
-                )
-                idx_remove += idx_det_tot
-
-                # If the current birth rate exceeds an upper limit of 5 NS per century stop the simulation.
+                # Compute the total current birth rate in NSs per century.
                 birth_rate = n_created / t_max
                 log.info(
                     f"Galactic neutron star birth rate per century: {birth_rate} neutron stars per century."
                 )
+                # If the current birth rate exceeds an upper limit of 5 NS per century stop the simulation.
                 if birth_rate > 5:
                     log.info(
-                        "Simulation stopped! Galactic neutron star birth rate per century exceeds 5 neutron stars per century."
+                        "Simulation stopped! Galactic neutron star birth rate exceeds 5 neutron stars per century."
                     )
-                    n_created_PMPS = n_created
-                    n_created_SMPS = n_created
-                    n_created_HTRU_low_mid = n_created
-                    n_created_HTRU_high = n_created
-
-                    # Set the indicator of an excess in birth rate to True.
-                    cfg["birth_rate_excess"] = True
-
                     break
 
-        # Determine the Galactic neutron star birth rate per century for the different surveys.
-        birth_rate_PMPS = n_created_PMPS / t_max
-        birth_rate_SMPS = n_created_SMPS / t_max
-        birth_rate_HTRU_low_mid = n_created_HTRU_low_mid / t_max
-        birth_rate_HTRU_high = n_created_HTRU_high / t_max
+        # Compute the neutron star birth rate for each survey.
+        birth_rates = {}
+        for survey in dictionary_detected_radio:
+            birth_rates[survey] = n_created_at_match[survey] / t_max
 
-        log.info(
-            f"Galactic neutron star birth rate per century according to PMPS: {birth_rate_PMPS} neutron stars per century."
-        )
-        log.info(
-            f"Galactic neutron star birth rate per century according to SMPS: {birth_rate_SMPS} neutron stars per century."
-        )
-        log.info(
-            f"Galactic neutron star birth rate per century according to HTRU mid and low surveys: {birth_rate_HTRU_low_mid} neutron stars per century."
-        )
-        log.info(
-            f"Galactic neutron star birth rate per century according to HTRU high survey: {birth_rate_HTRU_high} neutron stars per century."
-        )
+            log.info(
+                f"Galactic neutron star birth rate per century according to {survey}: {birth_rates[survey]} neutron stars per century."
+            )
 
-        # Add the information of the birth rates to the configuration file.
-        cfg["birth_rate_PMPS_at_match"] = birth_rate_PMPS
-        cfg["birth_rate_SMPS_at_match"] = birth_rate_SMPS
-        cfg["birth_rate_HTRU_low_mid_at_match"] = birth_rate_HTRU_low_mid
-        cfg["birth_rate_HTRU_high_at_match"] = birth_rate_HTRU_high
-
-        # Add information on the number of detected neutron stars for each simulated survey at the point where
-        # our simulation reaches the number of observed neutron stars specified for the real surveys.
-        # Note: these numbers are not necessarily identical, because we batch our neutron star generation.
-        cfg["n_detected_sim_PMPS_at_match"] = n_detected_sim_PMPS_at_match
-        cfg["n_detected_sim_SMPS_at_match"] = n_detected_sim_SMPS_at_match
-        cfg[
-            "n_detected_sim_HTRU_low_mid_at_match"
-        ] = n_detected_sim_HTRU_low_mid_at_match
-        cfg[
-            "n_detected_sim_HTRU_high_at_match"
-        ] = n_detected_sim_HTRU_high_at_match
-
-        # Add information on the number of detected star for each survey at the end of the simulation.
-        cfg["n_detected_sim_PMPS_tot"] = n_detected_sim_PMPS
-        cfg["n_detected_sim_SMPS_tot"] = n_detected_sim_SMPS
-        cfg["n_detected_sim_HTRU_low_mid_tot"] = n_detected_sim_HTRU_low_mid
-        cfg["n_detected_sim_HTRU_high_tot"] = n_detected_sim_HTRU_high
-
-        # Add the parameters from the dynamical database to the configuration file.
-        cfg["t_max"] = config_dyn["t_age_max"]
-        cfg["NS_number"] = config_dyn["NS_number"]
-        cfg["kick_model"] = config_dyn["kick_model"]
-        cfg["sigma_k"] = config_dyn["sigma_k"]
-        cfg["vk_c"] = config_dyn["vk_c"]
-        cfg["h_c"] = config_dyn["h_c"]
-
-        # Add the path of the dynamical database in the configuration file.
-        cfg["dyn_database_path"] = args.dyn_data
-
-        # Dump updated configuration to output path.
-        config_dump_path = pathlib.Path().joinpath(
-            output_path, "configuration.json"
-        )
-        with open(config_dump_path, "w") as f:
-            json.dump(cfg, f, indent=4, sort_keys=True)
+            # Add the information of the birth rates and the number of detected neutron star to the configuration file.
+            cfg[f"birth_rate_{survey}_at_match"] = birth_rates[survey]
+            cfg[f"n_detected_sim_{survey}_at_match"] = n_detected_sim_at_match[
+                survey
+            ]
+            cfg[f"n_detected_sim_{survey}_tot"] = n_detected_sim[survey]
 
         # ===================== EXPORT OUTPUT ========================
-
         with timewith.TimeWith(
             "[Export]",
             cfg["profile_log"],
             cfg["profile_json"],
             cfg["show_profiling"],
         ):
-
-            # Adding the parameters of the detected neutron stars to a data frame for export.
             log.info("Creating data frame for exporting...")
 
-            (
-                df_PMPS,
-                df_SMPS,
-                df_HTRU_low_mid,
-                df_HTRU_high,
-            ) = create_output_dataframe(
-                dictionary_detected_PMPS,
-                dictionary_detected_SMPS,
-                dictionary_detected_HTRU_low_mid,
-                dictionary_detected_HTRU_high,
-            )
+            # Create output dataframes dynamically for each survey.
+            dfs = create_output_dataframe(dictionary_detected_radio)
 
             # Save the data frame as a compressed binary file.
-            PMPS_output_path = pathlib.Path().joinpath(
-                output_path, "survey_PMPS_results.pkl.gz"
-            )
-            df_PMPS.to_pickle(PMPS_output_path, compression="gzip")
+            for survey in dictionary_detected_radio:
+                output_path_survey = (
+                    output_path / f"survey_{survey}_results.pkl.gz"
+                )
+                dfs[survey].to_pickle(output_path_survey, compression="gzip")
+                log.info(
+                    f"Output of the detected population with {survey} generated in {os.getcwd()}/{output_path_survey}"
+                )
 
-            SMPS_output_path = pathlib.Path().joinpath(
-                output_path, "survey_SMPS_results.pkl.gz"
-            )
-            df_SMPS.to_pickle(SMPS_output_path, compression="gzip")
-
-            HTRU_output_low_mid_path = pathlib.Path().joinpath(
-                output_path, "survey_HTRU_low_mid_results.pkl.gz"
-            )
-            df_HTRU_low_mid.to_pickle(
-                HTRU_output_low_mid_path, compression="gzip"
-            )
-
-            HTRU_high_output_path = pathlib.Path().joinpath(
-                output_path, "survey_HTRU_high_results.pkl.gz"
-            )
-            df_HTRU_high.to_pickle(HTRU_high_output_path, compression="gzip")
-
-            log.info(
-                f"Output of the detected population with PMPS generated in {os.getcwd()}/{PMPS_output_path}"
-            )
-            log.info(
-                f"Output of the detected population with SMPS generated in {os.getcwd()}/{SMPS_output_path}"
-            )
-            log.info(
-                f"Output of the detected population with HTRU low and mid surveys generated in {os.getcwd()}/{HTRU_output_low_mid_path}"
-            )
-            log.info(
-                f"Output of the detected population with HTRU high survey generated in {os.getcwd()}/{HTRU_high_output_path}"
-            )
-
-        # Reset seed, profile_log, and profile_json to default values. This is done to prevent issues when
-        # calling the simulate_population function in other scripts more than once, ensuring that the values are
-        # properly reset.
-
-        cfg["seed_magrot"] = None
-        cfg["profile_log"] = "profile.log"
-        cfg["profile_json"] = "profile.json"
+            # Dump updated configuration to output path.
+            config_dump_path = pathlib.Path(output_path) / "configuration.json"
+            with open(config_dump_path, "w") as f:
+                json.dump(cfg, f, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":
