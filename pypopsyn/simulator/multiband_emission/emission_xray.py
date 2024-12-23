@@ -108,7 +108,7 @@ def n_plus_no_delta(
     # Replace the argument of the sqrt with NaN when it is less than 0 for safety and compute term 1.
     sqrt_arg_1_safe = np.where(sqrt_arg_1 < 0, np.nan, sqrt_arg_1)
     term_1 = tau_0 / (8.0 * beta_T) * sqrt_arg_1_safe**0.5
-    # Replace the NaN values in term_1 with 0.
+    # Replace the NaN values and np.inf values in term_1 with 0 and a very large number respectively.
     term_1 = np.nan_to_num(term_1, nan=0)
 
     # Replace the argument of the sqrt with NaN when it is less than 0 for safety and compute I1.
