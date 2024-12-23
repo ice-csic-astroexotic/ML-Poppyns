@@ -116,7 +116,6 @@ def initialize_radio_surveys() -> Tuple[dict, dict]:
 def load_database_dyn(
     dyn_path: pathlib.Path,
     n_batchsize: int,
-    NS_number: int,
     idx_remove: list,
 ) -> dict:
     """
@@ -126,7 +125,6 @@ def load_database_dyn(
     Args:
         dyn_path (pathlib.Path): Path to the directory containing the dynamically evolved population data.
         n_batchsize (int): Batch size of stars to select when loading the data.
-        NS_number (int): The total number of neutron stars in the dynamical database.
         idx_remove (list): List of indices to remove from the dynamical database.
 
     Returns:
@@ -142,11 +140,14 @@ def load_database_dyn(
         log.error(f"File {dyn_data_path} not found...")
         sys.exit()
 
+    with open(dyn_config_path, "r") as f:
+        config_dyn = json.load(f)
+
     # Load the chunk of the file containing the dynamically evolved population parameters.
     df_dyn = mes.select(
         dyn_data_path,
         n_batchsize,
-        NS_number,
+        config_dyn["NS_number"],
         idx_remove,
     )
 
@@ -203,9 +204,6 @@ def load_database_dyn(
     }
 
     # Update the parameters in the simulation configuration file with the ones of the dynamical database.
-    with open(dyn_config_path, "r") as f:
-        config_dyn = json.load(f)
-
     cfg["t_age_max"] = config_dyn["t_age_max"]
     cfg["NS_number"] = config_dyn["NS_number"]
     cfg["kick_model"] = config_dyn["kick_model"]
@@ -825,7 +823,6 @@ def simulate_population(args) -> None:
                 database_dyn_batch = load_database_dyn(
                     args.dyn_data,
                     n_batchsize,
-                    cfg["NS_number"],
                     idx_remove,
                 )
 
@@ -951,7 +948,7 @@ def simulate_population(args) -> None:
         ):
             log.info("Creating data frame for exporting...")
 
-            # Create output dataframes dynamically for each survey.
+            # Create output dataframes for each survey.
             dfs = create_output_dataframe(dictionary_detected_radio)
 
             # Save the data frame as a compressed binary file.
