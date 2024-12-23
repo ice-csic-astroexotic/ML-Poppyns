@@ -64,10 +64,11 @@ cfg["seed_magrot"]: int = None
 # Seed for the random number generation for memory_efficient_sampling.py
 cfg["seed_sampling"] = None
 
-# Resolution for the parameter grid when performing random sampling.
+# Resolution for the parameter grid when performing random sampling for the neutron star properties from a pdf distribution.
 cfg["resolution"]: int = 10000
 
-# Total number of neutron stars to simulate (used only when running simulate_population_full and simulate_population_dyn).
+# Total number of neutron stars to simulate.
+# Used only when running simulate_population_full.py and simulate_population_dyn.py.
 cfg["NS_number"]: int = 300000
 
 # Minimum and maximum ages for the neutron stars in [yr].
@@ -124,7 +125,8 @@ cfg["vk_c"]: float = 180.0
 cfg["sigma_k"]: float = 265.0
 
 # Parameters for the double Maxwell kick velocity pdf (see Eq. (5) and Section 4.2 in Igoshev 2020).
-# The weight is relative to the first Maxwell component and its value has to be in the range between 0 and 1.
+# The weight denotes the importance of the first Maxwell component relative to the whole pdf.
+# Its value has to be in the range between 0 and 1.
 cfg["sigma_k_1"]: float = 55.0
 cfg["sigma_k_2"]: float = 334.0
 cfg["kick_weight"]: float = 0.19
@@ -145,7 +147,7 @@ cfg["P_initial_sigma"]: float = 0.2
 cfg["P_initial_log10_mean"]: float = -0.6
 cfg["P_initial_log10_sigma"]: float = 0.3
 
-# Model pdf for the initial spin period. Choose between "log-normal", "double_log-normal", "smooth_tophat".
+# Model pdf for the initial magnetic field. Choose between "log-normal", "double_log-normal", "smooth_tophat".
 cfg["magnetic_field_model"]: str = "log-normal"
 
 # Minimum and maximum initial magnetic field strength in [G] to simulate.
@@ -157,14 +159,15 @@ cfg["B_initial_log10_mean"]: float = 13.04
 cfg["B_initial_log10_sigma"]: float = 0.53
 
 # Means and standard deviations and relative weight for the double log-normally distributed
-# initial magnetic fields in [G]. The relative weight refers to the first component and has to be a number between 0 and 1.
+# initial magnetic fields in [G]. The weight denotes the importance of the first log-normal component
+# relative to whole pdf. Its value has to be in the range between 0 and 1.
 cfg["B_initial_log10_mean1"]: float = 13.02
 cfg["B_initial_log10_sigma1"]: float = 0.49
 cfg["B_initial_log10_mean2"]: float = 14.5
 cfg["B_initial_log10_sigma2"]: float = 0.5
 cfg["B_initial_weight"]: float = 0.8
 
-# Parameters for the smooth top-hat with gaussian rise and decay for the initial magnetic fields in [G].
+# Parameters for the smooth top-hat with Gaussian rise and decay for the initial magnetic fields in [G].
 cfg["B_initial_log10_rise_mean"]: float = 13.02
 cfg["B_initial_log10_rise_sigma"]: float = 0.49
 cfg["B_initial_log10_decay_mean"]: float = 14.8

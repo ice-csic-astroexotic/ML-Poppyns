@@ -15,26 +15,27 @@ from pypopsyn.simulator.config_simulator import cfg
 def pdf_log10_magnetic_field_2normal(log10B: np.ndarray) -> np.ndarray:
     """
     Mixture of two Gaussian distributions for the logarithm log10 of neutron stars' initial magnetic field.
-    The mean and standard deviation are defined in the configuration file.
+    The means and standard deviations are defined in the configuration file.
 
     Args:
-        log10B (np.ndarray): log10 of the magnetic field Strength in [G].
+        log10B (np.ndarray): log10 of the magnetic field strength in [G].
 
     Returns:
-        (np.ndarray): value of the pdf for each log10B.
+        (np.ndarray): Value of the pdf for each log10B.
     """
 
-    # Define the dispersions of the two Gaussian components.
+    # Define the means and dispersions of the two Gaussian components.
     mean_1 = cfg["B_initial_log10_mean1"]
     mean_2 = cfg["B_initial_log10_mean2"]
     sigma_1 = cfg["B_initial_log10_sigma1"]
     sigma_2 = cfg["B_initial_log10_sigma2"]
+
     # Define the fractional contribution of the first Gaussian.
     w = cfg["B_initial_weight"]
     if (w < 0) or (w > 1):
         raise ValueError(
             "The relative weight parameter of the double_log-normal initial magnetic field model "
-            "must be in the range between 0 and 1."
+            "must be in the range 0 and 1."
         )
 
     pdf_gaussian_1 = (
@@ -59,17 +60,18 @@ def pdf_gaussian_custom_norm(
 ) -> np.ndarray:
     """
     A Gaussian function with custom normalization.
-    This function is needed in the pdf_log10_magnetic_field_smooth_tophat as in that function
-    the normalization of the two Gaussian components will be regulated by the slope of the central region.
+    This function is needed in the pdf_log10_magnetic_field_smooth_tophat function where the normalisation
+    of the two Gaussian components is regulated by the slope of the central region (see implementation of
+    function pdf_log10_magnetic_field_smooth_tophat).
 
     Args:
-        x (np.ndarray): array of values where to compute the function.
+        x (np.ndarray): Array of values where to compute the function.
         mean (float): Mean of the Gaussian distribution.
         sigma (float): Standard deviation of the Gaussian distribution.
         norm (float): Normalization of the Gaussian distribution.
 
     Returns:
-        (np.ndarray): value of the Gaussian distribution for each x.
+        (np.ndarray): Value of the Gaussian distribution for each x.
     """
     gauss_func = norm * np.exp(-0.5 * ((x - mean) / sigma) ** 2)
 
@@ -80,15 +82,16 @@ def pdf_log10_magnetic_field_smooth_tophat(
     log10B: np.ndarray,
 ) -> np.ndarray:
     """
-    A smooth top-hat function with a Gaussian rise until the peak of the first Gaussian, a straight sloped central
-    region going from the first Gaussian peak to the second and a Gaussian decay.
+    Initial magnetic fields following a smooth top-hat function. This function is composed of a Gaussian rise
+    up to the peak of a first Gaussian, a subsequent straight sloped line extending from the first Gaussian peak
+    to a second normal component and final Gaussian decay.
     The parameters of this distribution are defined in the configuration file.
 
     Args:
-        log10B (np.ndarray): log10 of the magnetic field Strength in [G].
+        log10B (np.ndarray): log10 of the magnetic field strength in [G].
 
     Returns:
-        (np.ndarray): value of the pdf for each log10B.
+        (np.ndarray): Value of the pdf for each log10B.
     """
     # Define the parameters of the distribution.
     rise_mean = cfg["B_initial_log10_rise_mean"]
@@ -97,13 +100,15 @@ def pdf_log10_magnetic_field_smooth_tophat(
     decay_sigma = cfg["B_initial_log10_decay_sigma"]
     slope = cfg["B_initial_log10_slope"]
 
-    # Calculate the x coordinate of the center of the sloped part.
+    # Calculate the x coordinate of the center of the sloped segment.
     center = (rise_mean + decay_mean) / 2
 
-    # Evaluate the heights of the two Gaussians assuming that the straight slope pass through the point with
-    # coordinates (center, 1). In other words the slope is defined by a line with a given slope passing through
-    # the point with coordinates (center, 1) beginning at the peak of the first Gaussian component and ending at
-    # the peak of the second Gaussian component.
+    # Evaluate the heights of the two Gaussians assuming that the sloped straight segment pass through the point with
+    # coordinates (center, 1). Since we are only interested in sampling from this distribution, we are not
+    # concerned about the exact normalization of this pdf. Therefore the y-coordinate of this point is chosen
+    # for simplicity to be 1 but could be any arbitrary value. In other words the slope is defined by a line with
+    # a given slope passing through the point with coordinates (center, 1) beginning at the peak of the first Gaussian
+    # component and ending at the peak of the second Gaussian component.
     norm_rise_gaussian = slope * (rise_mean - center) + 1
     norm_decay_gaussian = slope * (decay_mean - center) + 1
 
@@ -135,15 +140,15 @@ def initial_magnetic_field_lognormal(
     mean: float, sigma: float, NS_number: int
 ) -> np.ndarray:
     """
-    Draw random initial magnetic field values from a log-normal distribution as suggested in Gullon et al. (2015).
+    Draw random initial magnetic field values from a log-normal distribution as suggested in Gullón et al. (2015).
 
     Args:
-        mean (float): mean of the Gaussian initial period distribution, in [s].
-        sigma (float): standard deviation of the initial period distribution, in [s].
-        NS_number (int): total number of neutron stars created in the simulation.
+        mean (float): Mean of the Gaussian initial period distribution, in [s].
+        sigma (float): Standard deviation of the initial period distribution, in [s].
+        NS_number (int): Total number of neutron stars created in the simulation.
 
     Returns:
-        (np.ndarray): initial magnetic field in [G].
+        (np.ndarray): Initial magnetic field in [G].
     """
 
     B_rand = 10 ** np.random.normal(mean, sigma, NS_number)
@@ -156,10 +161,10 @@ def initial_magnetic_field_double_lognormal(NS_number: int) -> np.ndarray:
     Draw random initial magnetic field values from a double log-normal distribution.
 
     Args:
-        NS_number (int): total number of neutron stars created in the simulation.
+        NS_number (int): Total number of neutron stars created in the simulation.
 
     Returns:
-        (np.ndarray): initial magnetic field in [G].
+        (np.ndarray): Initial magnetic field in [G].
     """
 
     log10B_grid = np.linspace(
@@ -179,10 +184,10 @@ def initial_magnetic_field_smooth_tophat(NS_number: int) -> np.ndarray:
     Draw random initial magnetic field values from a smooth top-hat distribution.
 
     Args:
-        NS_number (int): total number of neutron stars created in the simulation.
+        NS_number (int): Total number of neutron stars created in the simulation.
 
     Returns:
-        (np.ndarray): initial magnetic field in [G].
+        (np.ndarray): Initial magnetic field in [G].
     """
 
     log10B_grid = np.linspace(

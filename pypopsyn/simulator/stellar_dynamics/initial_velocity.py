@@ -76,7 +76,7 @@ def pdf_kick_velocity_2maxwell(v: np.ndarray) -> np.ndarray:
     if (w < 0) or (w > 1):
         raise ValueError(
             "The relative weight parameter of the km_2maxwell kick velocity model must be in "
-            "the range between 0 and 1."
+            "the range 0 and 1."
         )
 
     pdf_maxwell_1 = (
