@@ -103,10 +103,10 @@ def pdf_log10_magnetic_field_smooth_tophat(
     # Calculate the x coordinate of the center of the sloped segment.
     center = (rise_mean + decay_mean) / 2
 
-    # Evaluate the heights of the two Gaussians assuming that the sloped straight segment pass through the point with
+    # Evaluate the heights of the two Gaussians assuming that the sloped straight segment passes through the point with
     # coordinates (center, 1). Since we are only interested in sampling from this distribution, we are not
     # concerned about the exact normalization of this pdf. Therefore, the y-coordinate of this point is chosen
-    # for simplicity to be 1 but could be any arbitrary value. In other words the slope is defined by a line with
+    # for simplicity to be 1 but could be any arbitrary value. In other words, the slope is defined by a line with
     # a given slope passing through the point with coordinates (center, 1) beginning at the peak of the first Gaussian
     # component and ending at the peak of the second Gaussian component.
     norm_rise_gaussian = slope * (rise_mean - center) + 1
