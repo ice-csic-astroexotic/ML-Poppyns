@@ -212,7 +212,7 @@ def load_database_dyn(
     cfg["h_c"] = config_dyn["h_c"]
 
     # Add the path of the dynamical database in the configuration file.
-    cfg["dyn_database_path"] = args.dyn_data
+    cfg["dyn_database_path"] = dyn_path
 
     return dictionary_dyn_database_chunk
 
@@ -473,14 +473,14 @@ def radio_intercepted(dict_final_pop: dict) -> dict:
 
 
 def update_detected_dictionary(
-    dict_to_update: dict, detected_mask: list, **kwargs: np.ndarray
+    dict_to_update: dict, detected_mask: np.ndarray, **kwargs: np.ndarray
 ) -> dict:
     """
     This function updates a dictionary to include only the elements corresponding to the given detected mask.
 
     Args:
         dict_to_update (dict): The original dictionary containing properties of neutron stars.
-        detected_mask (list): boolean mask indicating which neutron stars in `dict_to_update` are detected.
+        detected_mask (np.ndarray): boolean mask indicating which neutron stars in `dict_to_update` are detected.
         **kwargs (np.ndarray): Additional property values provided as keyword arguments.
             These properties will also be filtered using the `detected_mask`.
 
@@ -587,6 +587,10 @@ def radio_detection(
             HTRU_mid=detected_HTRU_mid,
             idx=dictionary_intercepted_radio["idx"],
         )
+
+        # Remove the single HTRU low and mid surveys.
+        del detected_dictionaries["HTRU_low"]
+        del detected_dictionaries["HTRU_mid"]
 
     return detected_dictionaries
 
