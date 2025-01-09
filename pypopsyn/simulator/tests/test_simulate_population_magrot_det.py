@@ -654,61 +654,72 @@ def test_load_database_dyn(monkeypatch, test_case_2):
     """
     Check that the dynamical database is correctly imported.
     """
-    # Mock for dyn_data_path.exists() function.
-    monkeypatch.setattr(
-        pathlib.Path,
-        "exists",
-        lambda self: self == test_case_2["dyn_data_path"],
-    )
-    # Mock the configuration file loading.
-    monkeypatch.setattr(
-        "builtins.open",
-        mock.mock_open(read_data=json.dumps(test_case_2["config_dyn"])),
-    )
+    # Save the original cfg to restore it later.
+    original_cfg = cfg.copy()
 
-    def mock_select(*args, **kwargs):
-        return test_case_2["mock_df_dyn"]
+    try:
+        # Mock for dyn_data_path.exists() function.
+        monkeypatch.setattr(
+            pathlib.Path,
+            "exists",
+            lambda self: self == test_case_2["dyn_data_path"],
+        )
+        # Mock the configuration file loading.
+        monkeypatch.setattr(
+            "builtins.open",
+            mock.mock_open(read_data=json.dumps(test_case_2["config_dyn"])),
+        )
 
-    monkeypatch.setattr(mes, "select", mock_select)
+        def mock_select(*args, **kwargs):
+            return test_case_2["mock_df_dyn"]
 
-    def mock_polar_to_cartesian(*args, **kwargs):
-        return test_case_2["mock_polar_to_cartesian"]
+        monkeypatch.setattr(mes, "select", mock_select)
 
-    monkeypatch.setattr(coco, "polar_to_cartesian", mock_polar_to_cartesian)
+        def mock_polar_to_cartesian(*args, **kwargs):
+            return test_case_2["mock_polar_to_cartesian"]
 
-    def mock_speed_cylindrical_to_cartesian(*args, **kwargs):
-        return test_case_2["mock_speed_cylindrical_to_cartesian"]
+        monkeypatch.setattr(
+            coco, "polar_to_cartesian", mock_polar_to_cartesian
+        )
 
-    monkeypatch.setattr(
-        coco,
-        "speed_cylindrical_to_cartesian",
-        mock_speed_cylindrical_to_cartesian,
-    )
+        def mock_speed_cylindrical_to_cartesian(*args, **kwargs):
+            return test_case_2["mock_speed_cylindrical_to_cartesian"]
 
-    def mock_galactocentric_to_icrs(*args, **kwargs):
-        return test_case_2["mock_galactocentric_to_icrs"]
+        monkeypatch.setattr(
+            coco,
+            "speed_cylindrical_to_cartesian",
+            mock_speed_cylindrical_to_cartesian,
+        )
 
-    monkeypatch.setattr(
-        coco, "galactocentric_to_icrs", mock_galactocentric_to_icrs
-    )
+        def mock_galactocentric_to_icrs(*args, **kwargs):
+            return test_case_2["mock_galactocentric_to_icrs"]
 
-    def mock_galactocentric_to_galactic(*args, **kwargs):
-        return test_case_2["mock_galactocentric_to_galactic"]
+        monkeypatch.setattr(
+            coco, "galactocentric_to_icrs", mock_galactocentric_to_icrs
+        )
 
-    monkeypatch.setattr(
-        coco, "galactocentric_to_galactic", mock_galactocentric_to_galactic
-    )
+        def mock_galactocentric_to_galactic(*args, **kwargs):
+            return test_case_2["mock_galactocentric_to_galactic"]
 
-    dict_out = sim.load_database_dyn(
-        test_case_2["dyn_path"],
-        test_case_2["n_batchsize"],
-        test_case_2["idx_remove"],
-    )
+        monkeypatch.setattr(
+            coco, "galactocentric_to_galactic", mock_galactocentric_to_galactic
+        )
 
-    assert set(dict_out.keys()) == test_case_2["expected_keys"]
-    for key in test_case_2["cfg_expected"].keys():
-        assert key in cfg.keys()
-        assert cfg[key] == test_case_2["cfg_expected"][key]
+        dict_out = sim.load_database_dyn(
+            test_case_2["dyn_path"],
+            test_case_2["n_batchsize"],
+            test_case_2["idx_remove"],
+        )
+
+        assert set(dict_out.keys()) == test_case_2["expected_keys"]
+        for key in test_case_2["cfg_expected"].keys():
+            assert key in cfg.keys()
+            assert cfg[key] == test_case_2["cfg_expected"][key]
+
+    finally:
+        # Restore the original cfg in order for the other tests to work when pytest is run.
+        cfg.clear()
+        cfg.update(original_cfg)
 
 
 def test_apply_surveys_coverage(test_case_3):
