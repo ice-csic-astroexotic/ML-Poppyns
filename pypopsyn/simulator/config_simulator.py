@@ -164,12 +164,12 @@ cfg["B_initial_log10_sigma"]: float = 0.5
 
 # Means and standard deviations and relative weight for the double log-normally distributed
 # initial magnetic fields in [G]. The weight denotes the importance of the first log-normal component
-# relative to whole pdf. Its value has to be in the range between 0 and 1.
+# relative to whole pdf. Its value has to be in the range 0 and 1.
 cfg["B_initial_log10_mean1"]: float = 13.02
 cfg["B_initial_log10_sigma1"]: float = 0.49
 cfg["B_initial_log10_mean2"]: float = 14.5
 cfg["B_initial_log10_sigma2"]: float = 0.5
-cfg["B_initial_weight"]: float = 0.8
+cfg["B_initial_weight"]: float = 0.7
 
 # Parameters for the smooth top-hat with Gaussian rise and decay for the initial magnetic fields in [G].
 cfg["B_initial_log10_rise_mean"]: float = 13.02
