@@ -84,7 +84,7 @@ def test_pdf_log10_magnetic_field_2normal(test_case_1):
     ):
         imf.pdf_log10_magnetic_field_2normal(test_case_1["log10B"])
 
-    # Reset the weight to its original value.
+    # Reset the weight to its original value in order for the other tests to work properly.
     cfg["B_initial_weight"]: float = 0.8
 
 

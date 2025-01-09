@@ -65,6 +65,8 @@ cfg["seed_magrot"]: int = None
 cfg["seed_sampling"] = None
 
 # Resolution for the parameter grid when performing random sampling for the neutron star properties from a pdf distribution.
+# This is used to sample the initial position in Galactocentric coordinates, the kick velocity, the initial magnetic field,
+# the inclination angle and the line of sight for the radio beam intercept.
 cfg["resolution"]: int = 10000
 
 # Total number of neutron stars to simulate.
@@ -144,8 +146,9 @@ cfg["P_initial_mean"]: float = 0.3
 cfg["P_initial_sigma"]: float = 0.2
 
 # Mean and standard deviation for the log-normal distributed initial periods in [s].
-cfg["P_initial_log10_mean"]: float = -0.6
-cfg["P_initial_log10_sigma"]: float = 0.3
+# (default values are taken from Pardo-Araujo et al. 2025).
+cfg["P_initial_log10_mean"]: float = -0.67
+cfg["P_initial_log10_sigma"]: float = 0.55
 
 # Model pdf for the initial magnetic field. Choose between "log-normal", "double_log-normal", "smooth_tophat".
 cfg["magnetic_field_model"]: str = "log-normal"
@@ -154,9 +157,10 @@ cfg["magnetic_field_model"]: str = "log-normal"
 cfg["B_initial_log10_min"]: float = 10.0
 cfg["B_initial_log10_max"]: float = 16.0
 
-# Mean and standard deviation for the log-normally distributed initial magnetic fields in [G].
-cfg["B_initial_log10_mean"]: float = 13.04
-cfg["B_initial_log10_sigma"]: float = 0.53
+# Mean and standard deviation for the log-normally distributed initial magnetic fields in [G]
+# (default values are taken from Pardo-Araujo et al. 2025).
+cfg["B_initial_log10_mean"]: float = 13.09
+cfg["B_initial_log10_sigma"]: float = 0.5
 
 # Means and standard deviations and relative weight for the double log-normally distributed
 # initial magnetic fields in [G]. The weight denotes the importance of the first log-normal component
@@ -213,8 +217,8 @@ cfg["b2"]: float = -0.2
 # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
 cfg["tau_late"]: float = 2.0e6
 
-# Late time power-law index.
-cfg["a_late"]: float = -2
+# Late time power-law index (default value is taken from Pardo-Araujo et al. 2025).
+cfg["a_late"]: float = -0.88
 
 # Parameters for a log-normal distribution of the magnetic fields of the old millisecond pulsars.
 cfg["B_millisec_mean"] = 8.5
@@ -241,16 +245,17 @@ cfg["a_beam"] = -0.5  # Power-law exponent.
 # We have implemented two different prescriptions for the luminosity in the module
 # pypopsyn/simulator/multiband_emission/emission_radio.py based on the luminosity depending on different parameters.
 # One prescription follows Faucher-Giguère & Kaspi (2006) (pdf_luminosity_radio_ppdot) and assumes that L depends on
-# the period and period derivative. The second one assumes that L depends directly on the loss of rotational energy
+# the period and period derivative.
+# The second one assumes that L depends directly on the loss of rotational energy
 # (pdf_luminosity_radio_edot). If the luminosity is given by pdf_luminosity_radio_ppdot, then the units of
-# L_radio_log10_mean are [erg s^(3 * epsilon_L - 1)]. Otherwise, L_0 has units of [ergs/s]. In both cases,
-# the following parameters were adjusted to match observed data.
+# L_radio_log10_mean are [erg s^(3 * epsilon_L - 1)]. Otherwise, L_0 has units of [ergs/s]. The default values are
+# taken from Pardo-Araujo et al. 2025.
 cfg[
     "L_radio_log10_mean"
-]: float = 26.7  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
+]: float = 26.17  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
 # cfg["L_radio_log10_mean"]: float = 35.5 [erg s^(3 * epsilon_L - 1) ] if pdf_luminosity_radio_ppdot is used.
 cfg["L_radio_log10_sigma"]: float = 0.8
-cfg["epsilon_L"]: float = 0.5
+cfg["epsilon_L"]: float = 0.68
 cfg["Erot_dot_0"]: float = 1e29
 
 # Spectral index following a normal distribution as in Posselt et al. (2023). We set the standard deviation to 0 to
