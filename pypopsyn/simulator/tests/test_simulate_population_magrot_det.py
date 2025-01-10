@@ -207,7 +207,7 @@ def test_case_2():
             "sigma_k": 100.0,
             "vk_c": 100.0,
             "h_c": 100.0,
-            "dyn_database_path": pathlib.Path("/mock/path/to/"),
+            "dyn_database_path": "/mock/path/to",
         },
     }
 

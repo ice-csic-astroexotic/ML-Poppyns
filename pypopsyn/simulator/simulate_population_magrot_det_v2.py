@@ -51,6 +51,7 @@ def initialize_radio_surveys() -> Tuple[dict, dict]:
 
     Returns:
         (Tuple[dict, dict, dict, dict, dict]): A tuple of dictionaries containing the following information:
+
             - A dictionary of initialized radio survey objects, keyed by survey names (e.g., "PMPS", "SMPS", etc.).
             - An empty dictionary for storing detected neutron star data for each of the survey.
     """
@@ -73,7 +74,7 @@ def initialize_radio_surveys() -> Tuple[dict, dict]:
                 str(base_path.joinpath(survey_dict["path"]))
             )
 
-    # Detection dictionary template
+    # Detection dictionary template.
     detection_template = {
         "age": [],
         "ra": [],
@@ -143,7 +144,7 @@ def load_database_dyn(
     with open(dyn_config_path, "r") as f:
         config_dyn = json.load(f)
 
-    # Load the chunk of the file containing the dynamically evolved population parameters.
+    # Load the batch of the file containing the dynamically evolved population parameters.
     df_dyn = mes.select(
         dyn_data_path,
         n_batchsize,
@@ -212,7 +213,7 @@ def load_database_dyn(
     cfg["h_c"] = config_dyn["h_c"]
 
     # Add the path of the dynamical database in the configuration file.
-    cfg["dyn_database_path"] = dyn_path
+    cfg["dyn_database_path"] = str(dyn_path)
 
     return dictionary_dyn_database_chunk
 
@@ -234,7 +235,8 @@ def apply_surveys_coverage(
         dist_cutoff (float): The maximum heliocentric distance to include in the survey coverage.
 
     Returns:
-        (Tuple[dict, list]):
+        (Tuple[dict, list]): A tuple object containing the following attributes:
+
             - A dictionary containing data for stars that meet the coverage criteria.
             - An updated list of indices of stars that are outside the coverage and should be removed.
     """
@@ -522,6 +524,16 @@ def radio_detection(
     Returns:
         (dict): A dictionary containing the properties of detected pulsars for each survey.
     """
+    # Initialize variables for HTRU_low and HTRU_mid to avoid "referenced before assignment".
+    detected_HTRU_low = np.array([])
+    w_eff_low = None
+    S_radio_obs_mean_low = None
+    S_radio_obs_mean_1400_low = None
+
+    detected_HTRU_mid = np.array([])
+    w_eff_mid = None
+    S_radio_obs_mean_mid = None
+    S_radio_obs_mean_1400_mid = None
 
     # Process each survey.
     detected_dictionaries = {}
@@ -707,6 +719,7 @@ def simulate_population(args) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+
             - dyn_data (str): Path to a dynamically evolved population database.
             - save_dir (str): Output directory for the run.
             - parameter_override (str): Path to JSON with parameter overrides.
