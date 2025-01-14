@@ -436,8 +436,9 @@ def prepare_dataset_sbi(
         x_embbeded = (
             neural_net._embedding_net(torch.tensor(x)).detach().numpy()
         )
-        matrix_std = (x_embbeded - np.mean(x_embbeded)) / (np.std(x_embbeded))
-        matrix[i] = torch.tensor(matrix_std, device="cuda")
+        matrix[i] = (x_embbeded - x_embbeded.mean()) / (
+            x_embbeded.std() + 1e-8
+        )
         parameter[i] = theta
 
     # Transforming the maps and labels into torch.tensors.
