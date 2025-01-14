@@ -433,7 +433,10 @@ def prepare_dataset_sbi(
             sys.exit()
 
         # We save the latent vector of the generated maps.
-        matrix[i] = neural_net._embedding_net(torch.tensor(x)).detach().numpy()
+        x_embbeded = (
+            neural_net._embedding_net(torch.tensor(x)).detach().numpy()
+        )
+        matrix[i] = (x_embbeded - np.mean(x_embbeded)) / (np.std(x_embbeded))
         parameter[i] = theta
 
     # Transforming the maps and labels into torch.tensors.
