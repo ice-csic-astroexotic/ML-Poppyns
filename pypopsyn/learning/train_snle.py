@@ -625,9 +625,8 @@ def amortized_posterior(
             )
 
         posterior = inference.build_posterior(
-            density_estimator,
-            mcmc_method="slice_np",
-            mcmc_parameters={"num_chains": 30, "thin": 5},
+            mcmc_method="slice_np_vectorized",
+            mcmc_parameters={"num_chains": 20, "thin": 5},
         )
         posteriors_list.append(posterior)
 
