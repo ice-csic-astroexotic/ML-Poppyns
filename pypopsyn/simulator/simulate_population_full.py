@@ -138,11 +138,23 @@ def simulate_population(args: argparse.Namespace) -> None:
         "pypopsyn/simulator/multiband_surveys/htru_high_parameters.json",
     )
 
+    SKA_low_par_path = pathlib.Path().joinpath(
+        cfg["path_to_software"],
+        "pypopsyn/simulator/multiband_surveys/SKA_low_parameters.json",
+    )
+
+    SKA_mid_par_path = pathlib.Path().joinpath(
+        cfg["path_to_software"],
+        "pypopsyn/simulator/multiband_surveys/SKA_mid_parameters.json",
+    )
+
     survey_PMPS = sr.SurveyRadio(PMPS_par_path)
     survey_SMPS = sr.SurveyRadio(SMPS_par_path)
     survey_HTRU_low = sr.SurveyRadio(HTRU_low_par_path)
     survey_HTRU_mid = sr.SurveyRadio(HTRU_mid_par_path)
     survey_HTRU_high = sr.SurveyRadio(HTRU_high_par_path)
+    survey_SKA_low = sr.SurveyRadio(SKA_low_par_path)
+    survey_SKA_mid = sr.SurveyRadio(SKA_mid_par_path)
 
     with timewith.TimeWith(
         "[TotalSimulation]",
@@ -568,6 +580,12 @@ def simulate_population(args: argparse.Namespace) -> None:
             coverage_HTRU_high = survey_HTRU_high.sky_coverage(
                 ra_final, dec_final, l_final, b_final
             )
+            coverage_SKA_low = survey_SKA_low.sky_coverage(
+                ra_final, dec_final, l_final, b_final
+            )
+            coverage_SKA_mid = survey_SKA_mid.sky_coverage(
+                ra_final, dec_final, l_final, b_final
+            )
 
             dist_cutoff = sun_dist_icrs < 35.0
 
@@ -578,6 +596,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                 | coverage_HTRU_low
                 | coverage_HTRU_mid
                 | coverage_HTRU_high
+                | coverage_SKA_low
+                | coverage_SKA_mid
             ) & dist_cutoff
 
             fraction_coverage = (
@@ -769,11 +789,71 @@ def simulate_population(args: argparse.Namespace) -> None:
                 ~overlap_low_mid & detected_radio_HTRU_mid
             )
 
+            # Simulating the SKA low survey.
+            log.info("Simulate detection with SKA low...")
+
+            (
+                detected_radio_SKA_low,
+                S_radio_obs_mean_SKA_low,
+                w_eff_SKA_low,
+                S_radio_obs_SKA_low,
+            ) = survey_SKA_low.detected_radio_population_full(
+                w_int_s,
+                DM,
+                P_final,
+                l_final,
+                b_final,
+                S_radio_bol,
+                intercepted_radio,
+                coverage_SMPS,
+                dist_cutoff,
+                spectral_index,
+                tau_sc,
+            )
+
+            fraction_detected_radio_SKA_low = len(
+                detected_radio_SKA_low[detected_radio_SKA_low]
+            ) / len(detected_radio_SKA_low)
+            log.info(
+                f"Fraction of detected pulsars by SKA low: {fraction_detected_radio_SKA_low}"
+            )
+
+            # Simulating the SKA mid survey.
+            log.info("Simulate detection with SKA mid...")
+
+            (
+                detected_radio_SKA_mid,
+                S_radio_obs_mean_SKA_mid,
+                w_eff_SKA_mid,
+                S_radio_obs_mid,
+            ) = survey_SKA_mid.detected_radio_population_full(
+                w_int_s,
+                DM,
+                P_final,
+                l_final,
+                b_final,
+                S_radio_bol,
+                intercepted_radio,
+                coverage_SMPS,
+                dist_cutoff,
+                spectral_index,
+                tau_sc,
+            )
+
+            fraction_detected_radio_SKA_mid = len(
+                detected_radio_SKA_mid[detected_radio_SKA_mid]
+            ) / len(detected_radio_SKA_mid)
+            log.info(
+                f"Fraction of detected pulsars by SKA mid: {fraction_detected_radio_SKA_mid}"
+            )
+
             NS_idx_PMPS = NS_idx[detected_radio_PMPS]
             NS_idx_SMPS = NS_idx[detected_radio_SMPS]
             NS_idx_HTRU_low = NS_idx[detected_radio_HTRU_low]
             NS_idx_HTRU_mid = NS_idx[detected_radio_HTRU_mid]
             NS_idx_HTRU_high = NS_idx[detected_radio_HTRU_high]
+            NS_idx_SKA_low = NS_idx[detected_radio_SKA_low]
+            NS_idx_SKA_mid = NS_idx[detected_radio_SKA_mid]
 
         # ===================== EXPORT OUTPUT ========================
 
@@ -1071,6 +1151,72 @@ def simulate_population(args: argparse.Namespace) -> None:
 
         log.info(
             f"Output of the HTRU low and mid-latitude surveys generated in {os.getcwd()}/{HTRU_low_mid_output_path}"
+        )
+
+        # Exporting the population file containing the observed properties of neutron stars detected by SKA low.
+
+        df_SKA_low = pd.DataFrame(
+            data=np.array(
+                [
+                    NS_idx_SKA_low,
+                    ra_final[NS_idx_SKA_low],
+                    dec_final[NS_idx_SKA_low],
+                    l_final[NS_idx_SKA_low],
+                    b_final[NS_idx_SKA_low],
+                    sun_dist_icrs[NS_idx_SKA_low],
+                    DM[NS_idx_SKA_low],
+                    pm_ra_final[NS_idx_SKA_low],
+                    pm_dec_final[NS_idx_SKA_low],
+                    P_final[NS_idx_SKA_low],
+                    P_dot_final[NS_idx_SKA_low],
+                    S_radio_obs_mean_SMPS[NS_idx_SKA_low],
+                    w_eff_SMPS[NS_idx_SKA_low],
+                ]
+            ).T,
+            columns=header,
+        )
+
+        # Save the data frame as a compressed binary file.
+        SKA_low_output_path = pathlib.Path().joinpath(
+            output_path, "survey_SKA_low_results.pkl.gz"
+        )
+        df_SKA_low.to_pickle(SKA_low_output_path, compression="gzip")
+
+        log.info(
+            f"Output of the SKA low survey generated in {os.getcwd()}/{SKA_low_output_path}"
+        )
+
+        # Exporting the population file containing the observed properties of neutron stars detected by SKA mid.
+
+        df_SKA_mid = pd.DataFrame(
+            data=np.array(
+                [
+                    NS_idx_SKA_mid,
+                    ra_final[NS_idx_SKA_mid],
+                    dec_final[NS_idx_SKA_mid],
+                    l_final[NS_idx_SKA_mid],
+                    b_final[NS_idx_SKA_mid],
+                    sun_dist_icrs[NS_idx_SKA_mid],
+                    DM[NS_idx_SKA_mid],
+                    pm_ra_final[NS_idx_SKA_mid],
+                    pm_dec_final[NS_idx_SKA_mid],
+                    P_final[NS_idx_SKA_mid],
+                    P_dot_final[NS_idx_SKA_mid],
+                    S_radio_obs_mean_SMPS[NS_idx_SKA_mid],
+                    w_eff_SMPS[NS_idx_SKA_mid],
+                ]
+            ).T,
+            columns=header,
+        )
+
+        # Save the data frame as a compressed binary file.
+        SKA_mid_output_path = pathlib.Path().joinpath(
+            output_path, "survey_SKA_mid_results.pkl.gz"
+        )
+        df_SKA_mid.to_pickle(SKA_mid_output_path, compression="gzip")
+
+        log.info(
+            f"Output of the SKA mid survey generated in {os.getcwd()}/{SKA_mid_output_path}"
         )
 
         timer.checkpoint("[Export]")
