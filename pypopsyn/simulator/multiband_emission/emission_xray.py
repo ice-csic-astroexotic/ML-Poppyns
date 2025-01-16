@@ -99,6 +99,7 @@ def n_plus_no_delta(
     tau_0 = tau_0[:, np.newaxis, np.newaxis]
     beta_T = beta_T[:, np.newaxis, np.newaxis]
 
+    # Note that x is a matrix with shape (1, len(E), len(E_0)).
     x = (E - E_0) / E_0
 
     # Calculate term_1 safely, Replace x=0 with NaN for safety and set sqrt_arg_1 to np.inf when x was 0.
@@ -151,6 +152,7 @@ def n_minus(
     tau_0 = tau_0[:, np.newaxis, np.newaxis]
     beta_T = beta_T[:, np.newaxis, np.newaxis]
 
+    # Note that x is a matrix with shape (1, len(E), len(E_0)).
     x = (E - E_0) / E_0
 
     sqrt_arg = (2.0 * beta_T - x) * (x + 2.0 * beta_T)
