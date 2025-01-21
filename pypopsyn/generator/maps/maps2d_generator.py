@@ -408,9 +408,9 @@ def generate_avg_fluxes_map(
     total_per_bin[total_per_bin == 0] = 0.0001
     avg_weight = total_weight / total_per_bin
 
-    # If there are no pulsars in a given area, we will set the value of log10(fluxes) to -6.
+    # If there are no pulsars in a given area, we will set the value of log10(fluxes) to -7.
     # This prevents the low flux values of actual pulsars from being mixed with areas that have no pulsars.
-    avg_weight[total_per_bin == 0.0001] = -6
+    avg_weight[total_per_bin == 0.0001] = -7
     avg_weight = scipy.ndimage.gaussian_filter(avg_weight, sigma=1)
 
     DPI = 512
