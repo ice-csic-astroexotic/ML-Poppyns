@@ -624,6 +624,11 @@ def amortized_posterior(
                 f"Saved trained model for round {effective_round}, ensemble index {index}."
             )
 
+        with open(inference_model_path, "wb") as output_file:
+            pickle.dump(inference.cpu(), output_file)
+        logger.info(
+            f"Saved inference object for round {effective_round}, ensemble index {index}."
+        )
         posterior = inference.build_posterior(
             mcmc_method="slice_np_vectorized",
             mcmc_parameters={"num_chains": 20, "thin": 5},
