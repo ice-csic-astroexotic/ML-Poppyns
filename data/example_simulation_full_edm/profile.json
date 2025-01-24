@@ -1,84 +1,84 @@
 {
   "[TotalSimulation]": {
-    "time": 339.5851848125458
+    "time": 297.08814096450806
   },
   "[InitialPopulation]": {
-    "time": 5.6718058586120605,
+    "time": 5.349406003952026,
     "[Initial position and velocity]": {
-      "elapsed_time": 2.470757007598877,
-      "cumulative_time": 2.470757007598877
+      "elapsed_time": 2.3888802528381348,
+      "cumulative_time": 2.3888802528381348
     },
     "[Initial energy]": {
-      "elapsed_time": 1.7780778408050537,
-      "cumulative_time": 4.248834848403931
+      "elapsed_time": 1.608712911605835,
+      "cumulative_time": 3.9975931644439697
     },
     "[Initial angular momentum]": {
-      "elapsed_time": 0.29038333892822266,
-      "cumulative_time": 4.539218187332153
+      "elapsed_time": 0.2633843421936035,
+      "cumulative_time": 4.260977506637573
     },
     "[Initial field strengths, misalignment angles and periods]": {
-      "elapsed_time": 0.0490567684173584,
-      "cumulative_time": 4.588274955749512
+      "elapsed_time": 0.04716825485229492,
+      "cumulative_time": 4.308145761489868
     },
     "[Initial period derivatives]": {
-      "elapsed_time": 0.0838320255279541,
-      "cumulative_time": 4.672106981277466
+      "elapsed_time": 0.07814741134643555,
+      "cumulative_time": 4.386293172836304
     },
     "[Export]": {
-      "elapsed_time": 0.9993088245391846,
-      "cumulative_time": 5.67141580581665
+      "elapsed_time": 0.962726354598999,
+      "cumulative_time": 5.349019527435303
     }
   },
   "[DynamicalEvolution]": {
-    "time": 121.4217472076416,
+    "time": 84.9518792629242,
     "[Dynamical evolution]": {
-      "elapsed_time": 121.40418696403503,
-      "cumulative_time": 121.40418696403503
+      "elapsed_time": 84.94044637680054,
+      "cumulative_time": 84.94044637680054
     },
     "[Final energy]": {
-      "elapsed_time": 0.014382362365722656,
-      "cumulative_time": 121.41856932640076
+      "elapsed_time": 0.00927424430847168,
+      "cumulative_time": 84.94972062110901
     },
     "[Final angular momentum]": {
-      "elapsed_time": 0.0026040077209472656,
-      "cumulative_time": 121.4211733341217
+      "elapsed_time": 0.0018320083618164062,
+      "cumulative_time": 84.95155262947083
     }
   },
   "[MagnetoRotationalEvolution]": {
-    "time": 186.66500544548035,
+    "time": 176.78357410430908,
     "[Final field strengths, misalignment angles and periods]": {
-      "elapsed_time": 186.5779378414154,
-      "cumulative_time": 186.5779378414154
+      "elapsed_time": 176.6970615386963,
+      "cumulative_time": 176.6970615386963
     },
     "[Final period derivatives]": {
-      "elapsed_time": 0.0866856575012207,
-      "cumulative_time": 186.66462349891663
+      "elapsed_time": 0.0861048698425293,
+      "cumulative_time": 176.78316640853882
     }
   },
   "[RadioEmission]": {
-    "time": 0.062122344970703125,
+    "time": 0.06314539909362793,
     "[Radio emission]": {
-      "elapsed_time": 0.06175351142883301,
-      "cumulative_time": 0.06175351142883301
+      "elapsed_time": 0.06272435188293457,
+      "cumulative_time": 0.06272435188293457
     }
   },
   "[RadioDetection]": {
-    "time": 23.292346715927124,
+    "time": 27.76946496963501,
     "[Total sky coverage]": {
-      "elapsed_time": 0.01047372817993164,
-      "cumulative_time": 0.01047372817993164
+      "elapsed_time": 0.00907278060913086,
+      "cumulative_time": 0.00907278060913086
     },
     "[DM computation]": {
-      "elapsed_time": 23.020251035690308,
-      "cumulative_time": 23.03072476387024
+      "elapsed_time": 27.534241437911987,
+      "cumulative_time": 27.543314218521118
     },
     "[Radio surveys detection]": {
-      "elapsed_time": 0.2607402801513672,
-      "cumulative_time": 23.291465044021606
+      "elapsed_time": 0.225144624710083,
+      "cumulative_time": 27.7684588432312
     },
     "[Export]": {
-      "elapsed_time": 2.4578731060028076,
-      "cumulative_time": 25.75021982192993
+      "elapsed_time": 2.162106990814209,
+      "cumulative_time": 29.93157196044922
     }
   }
 }

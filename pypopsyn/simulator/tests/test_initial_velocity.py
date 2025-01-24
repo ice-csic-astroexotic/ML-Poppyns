@@ -16,12 +16,16 @@ from pypopsyn.simulator.config_simulator import cfg
 
 TOL = 1e-5
 
-# Select the galactic model from Marchetti et al. (2019) for the test.
+# Set the galactic model from Marchetti et al. (2019) for the test.
 cfg["galactic_model"] = "gmM19"
-# Select the characteristic kick velocity of the exponential model for the test.
+# Set the characteristic kick velocity of the exponential model for the test.
 cfg["vk_c"] = 180.0
-# Select the kick velocity dispersion of the Maxwell model for the test.
+# Set the kick velocity dispersion of the Maxwell model for the test.
 cfg["sigma_k"] = 265.0
+# Set the parameters of the double Maxwell model for the test.
+cfg["sigma_k_1"]: float = 55.0
+cfg["sigma_k_2"]: float = 334.0
+cfg["kick_weight"]: float = 0.19
 
 
 @pytest.fixture()
@@ -78,6 +82,24 @@ def test_pdf_kick_velocity_2maxwell(test_case_1):
     """
     pdf_vk_out = iv.pdf_kick_velocity_2maxwell(test_case_1["v"])
     assert np.abs(test_case_1["pdf_vk_2maxwell_expected"] - pdf_vk_out) < TOL
+
+    # Test if the error is properly raised when the weight is below 0.
+    cfg["kick_weight"] = -0.1
+    with pytest.raises(
+        ValueError,
+        match="The relative weight parameter of the km_2maxwell kick velocity model must be in "
+        "the range 0 and 1.",
+    ):
+        iv.pdf_kick_velocity_2maxwell(test_case_1["v"])
+
+    # Test if the error is properly raised when the weight is above 1.
+    cfg["kick_weight"] = 1.1
+    with pytest.raises(
+        ValueError,
+        match="The relative weight parameter of the km_2maxwell kick velocity model must be in "
+        "the range 0 and 1.",
+    ):
+        iv.pdf_kick_velocity_2maxwell(test_case_1["v"])
 
 
 def test_circular_velocity(test_case_2):
