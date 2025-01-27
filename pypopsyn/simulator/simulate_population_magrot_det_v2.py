@@ -771,9 +771,6 @@ def simulate_population(args) -> None:
         surveys_radio, dictionary_detected_radio = initialize_radio_surveys()
         surveys_radio_cfg = cfg["surveys_radio"]
 
-        # Compute the maximum simulation time in centuries.
-        t_max = cfg["t_age_max"] / 100
-
         # Initialize the indicator for an excess in birth rate to False.
         cfg["birth_rate_excess"] = False
 
@@ -842,6 +839,9 @@ def simulate_population(args) -> None:
                     n_batchsize,
                     idx_remove,
                 )
+
+                # Compute the maximum simulation time in centuries.
+                t_max = cfg["t_age_max"] / 100
 
                 # Filter the loaded database batch with the surveys' sky coverage.
                 database_coverage, idx_remove = apply_surveys_coverage(
