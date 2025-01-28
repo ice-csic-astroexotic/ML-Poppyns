@@ -848,7 +848,7 @@ def simulate_population(args) -> None:
                     surveys_radio,
                     database_dyn_batch,
                     idx_remove,
-                    dist_cutoff=30.0,
+                    dist_cutoff=35.0,
                 )
 
                 # Initialize neutron star magneto-rotational properties.
