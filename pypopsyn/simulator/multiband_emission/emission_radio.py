@@ -268,6 +268,30 @@ def flux_density_radio(
     return S_radio_f
 
 
+def compute_spectral_index(
+    mean: float, sigma: float, NS_number: int
+) -> np.ndarray:
+    """
+    Draw a random spectral index from a Gaussian distribution (see Posselt et al. 2023).
+
+    Args:
+        mean (float): Mean spectral index for the Gaussian distribution.
+        sigma (float): Standard deviation for the Gaussian distribution.
+        NS_number (int): Number of neutron stars for which sampling the spectral index.
+
+    Returns:
+        (np.ndarray): Array of spectral indices.
+    """
+
+    spectral_index = np.random.normal(
+        mean,
+        sigma,
+        NS_number,
+    )
+
+    return spectral_index
+
+
 def calculate_radio_emission(
     P: np.ndarray,
     age: np.ndarray,
@@ -276,7 +300,7 @@ def calculate_radio_emission(
     dist: np.ndarray,
     B: np.ndarray,
     chi: np.ndarray,
-    idx_det: np.ndarray,
+    idx: np.ndarray,
 ) -> dict:
     """
     Compute the radio beam geometry, the intrinsic bolometric radio flux and the DM.
@@ -291,7 +315,7 @@ def calculate_radio_emission(
         dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
         B (np.ndarray): Array of neutron stars' final magnetic field strengths in [G].
         chi (np.ndarray): Array of the misalignment angles in [rad].
-        idx_det (np.ndarray): Array of the indexes of detected pulsars.
+        idx (np.ndarray): Array of the indexes of pulsars.
 
     Returns:
         (Dict): Dictionary with the intrinsic properties of the pulsars whose beam crosses our line of sight.
@@ -317,7 +341,7 @@ def calculate_radio_emission(
     )
 
     # Select only neutron stars that point at us.
-    idx_det = idx_det[intercepted_radio]
+    idx_det = idx[intercepted_radio]
 
     age_det = age[intercepted_radio]
     l_det = l_gal[intercepted_radio]
@@ -373,19 +397,29 @@ def calculate_radio_emission(
         cfg["ed_model"],
     )
 
+    # Computing the spectral index and the scattering timescale at 327 MHz of each star.
+    spectral_index = compute_spectral_index(
+        cfg["mean_spectral_index"],
+        cfg["std_spectral_index"],
+        len(S_radio_bol),
+    )
+    tau_sc = edm.compute_tau_sc_327(DM)
+
     dictionary_intercepted_radio = {
-        "age_det": age_det,
-        "l_det": l_det,
-        "b_det": b_det,
-        "B_det": B_det,
-        "chi_det": chi_det,
-        "P_det": P_det,
-        "P_dot_det": P_dot_det,
+        "age": age_det,
+        "l": l_det,
+        "b": b_det,
+        "B": B_det,
+        "chi": chi_det,
+        "P": P_det,
+        "P_dot": P_dot_det,
         "w_int_s": w_int_s,
         "L_radio_bol": L_radio_bol,
         "S_radio_bol": S_radio_bol,
+        "spectral_index": spectral_index,
         "DM": DM,
-        "idx_det": idx_det,
+        "tau_sc": tau_sc,
+        "idx": idx_det,
         "intercepted_radio": intercepted_radio,
     }
 

@@ -266,6 +266,26 @@ cfg["std_spectral_index"] = 0
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["ed_model"]: str = "ymw16"
 
+cfg["surveys_radio"]: dict = {
+    "PMPS": {
+        "path": "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json",
+        "detected_real": 1045,
+    },
+    "SMPS": {
+        "path": "pypopsyn/simulator/multiband_surveys/Swinburne_Parkes_parameters.json",
+        "detected_real": 218,
+    },
+    "HTRU_low_mid": {
+        "path_low": "pypopsyn/simulator/multiband_surveys/htru_low_parameters.json",
+        "path_mid": "pypopsyn/simulator/multiband_surveys/htru_mid_parameters.json",
+        "detected_real": 1037,
+    },
+    "HTRU_high": {
+        "path": "pypopsyn/simulator/multiband_surveys/htru_high_parameters.json",
+        "detected_real": 20,
+    },
+}
+
 # Number of Galactic isolated neutron stars detected by the considered surveys.
 # To obtain these estimates, we removed extragalactic sources and those in globular clusters.
 # To exclude recycled objects that we cannot model with our current framework,
