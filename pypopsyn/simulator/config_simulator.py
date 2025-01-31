@@ -266,6 +266,15 @@ cfg["std_spectral_index"] = 0
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["ed_model"]: str = "ymw16"
 
+# ===================== RADIO DETECTION PARAMETERS ========================
+
+# Information on the modeled radio surveys.
+# To obtain the number of Galactic isolated neutron stars detected by the considered surveys,
+# we removed extragalactic sources and those in globular clusters.
+# To exclude recycled objects that we cannot model with our current framework,
+# we also use a cut-off in period of P > 0.01s and period derivative of Pdot > 10^-19s/s.
+# The latter however only applies to those objects with measured Pdot values,
+# i.e., the counts below also include those pulsars with P > 0.01s that have no Pdot measurement.
 cfg["surveys_radio"]: dict = {
     "PMPS": {
         "path": "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json",
@@ -285,17 +294,6 @@ cfg["surveys_radio"]: dict = {
         "detected_real": 20,
     },
 }
-
-# Number of Galactic isolated neutron stars detected by the considered surveys.
-# To obtain these estimates, we removed extragalactic sources and those in globular clusters.
-# To exclude recycled objects that we cannot model with our current framework,
-# we also use a cut-off in period of P > 0.01s and period derivative of Pdot > 10^-19s/s.
-# The latter however only applies to those objects with measured Pdot values,
-# i.e., the counts below also include those pulsars with P > 0.01s that have no Pdot measurement.
-cfg["detected_real_PMPS"]: int = 1045
-cfg["detected_real_SMPS"]: int = 218
-cfg["detected_real_htru_low_mid"]: int = 1037
-cfg["detected_real_htru_high"]: int = 20
 
 # Numbers of objects associated with the three pulsar surveys as followed up with the TPA programme on MeerKAT.
 # For details see Posselt et al. (2023). Note these numbers are used in the pypopsyn/generator/generate_observed_data.py
