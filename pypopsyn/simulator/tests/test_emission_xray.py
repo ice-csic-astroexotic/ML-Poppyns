@@ -64,7 +64,7 @@ def test_case_1():
                 [5.26614782e26, 5.84076633e28, 1.25833142e28, 1.00757951e-15],
             ]
         ),
-        "n_plus_no_delta_expected": np.array(
+        "n_plus_without_delta_expected": np.array(
             [
                 [
                     [0.0, 0.0, 0.0, 0.0],
@@ -164,12 +164,12 @@ def test_blackbody_intensity_spectrum(test_case_1):
     ).all()
 
 
-def test_n_plus_no_delta(test_case_1):
+def test_n_plus_without_delta(test_case_1):
     """
     Verifying that the transmission function n+ without the Dirac delta term is correctly calculated.
     """
 
-    n_plus_no_delta_out = xem.n_plus_no_delta(
+    n_plus_without_delta_out = xem.n_plus_without_delta(
         test_case_1["E"],
         test_case_1["E_0"],
         test_case_1["tau_0"],
@@ -177,8 +177,8 @@ def test_n_plus_no_delta(test_case_1):
     )
 
     assert np.isclose(
-        test_case_1["n_plus_no_delta_expected"],
-        n_plus_no_delta_out,
+        test_case_1["n_plus_without_delta_expected"],
+        n_plus_without_delta_out,
         rtol=TOL,
         atol=1.0e-5,
     ).all()

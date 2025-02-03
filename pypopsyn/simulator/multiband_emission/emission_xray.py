@@ -1,5 +1,5 @@
 """
-    Models for the x-ray emission of thermally emitting neutron stars.
+    Models for the X-ray emission of thermally emitting neutron stars.
 
     Authors:
 
@@ -26,14 +26,14 @@ gr_correction = (
 def T_from_Lx(Lx: np.ndarray) -> np.ndarray:
     """
     Calculating the temperature seen by a distant observer from the simulated X-ray luminosity,
-    by assuming a blackbody emission. This temperature is an observed average temperature of the
-    neutron star surface corrected for the space-time curvature.
+    by assuming a blackbody emission and the Stefan-Boltzmann law. This temperature is an observed average
+    temperature of the neutron star surface corrected for the space-time curvature.
 
     Args:
         Lx (np.ndarray): X-ray thermal luminosity in [erg/s].
 
     Returns:
-        (np.ndarray): array of temperature seen by a distant observer in [K].
+        (np.ndarray): Array of temperature seen by a distant observer in [K].
     """
     R_obs = cfg["NS_radius"] / gr_correction
     T_obs = (Lx / (4 * np.pi * R_obs**2 * const.SIGMA_SB)) ** (1.0 / 4.0)
@@ -46,18 +46,20 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
     Calculating the black-body intensity for a given temperature in [K].
 
     Args:
-        E (np.ndarray): array of energies in [erg] where to compute the intensity.
-        T (np.ndarray): array of temperatures in [K].
+        E (np.ndarray): Array of energies in [erg] where to compute the intensity.
+        T (np.ndarray): Array of temperatures in [K].
 
     Returns:
         (np.ndarray): Intensity of the black-body spectrum in [erg cm^-2 s^-1 erg^-1 sterad^-1] for every temperature.
-                      This will have shape (len(T), len(E)).
+            This will have shape (len(T), len(E)).
     """
     # Reshape T to make it compatible for broadcasting.
     T = T[:, np.newaxis]
 
     exponent = E / (const.K_B * T)
-    # Fix the maximum reachable value of the exponent to 709 to avoid RuntimeWarning: overflow encountered in exp
+
+    # Fix the maximum reachable value of the exponent to 709 to avoid RuntimeWarning: overflow encountered in exp.
+    # The number 709 is the threshold number after which the warning appears.
     exponent_clipped = np.clip(exponent, None, 709)
 
     I_bb = (
@@ -70,42 +72,43 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
     return I_bb
 
 
-def n_plus_no_delta(
+def n_plus_without_delta(
     E: np.ndarray,
     E_0: np.ndarray,
     tau_0: np.ndarray,
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    Transmission function p+ in eq. (11) in overleaf without the Dirac delta term (see also the function n+ in eq. (36)
-    in Lyutikov and Gavrill 2006).
+    Transmission function p+ in eq. (11) in overleaf without the Dirac delta term (see also the function n+ in eq. (35)
+    in Lyutikov and Gavriil 2006).
     When computing the transmitted flux the Dirac delta term will be added analytically in order to avoid computing
     it numerically.
 
     Args:
-        E (np.ndarray): array of energies of the transimitted photons in [erg].
-        E_0 (np.ndarray): array of energies of the source photons in [erg].
-        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavrill 2006).
-        beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
+        E (np.ndarray): Array of energies of the transimitted photons in [erg].
+        E_0 (np.ndarray): Array of energies of the source photons in [erg].
+        tau_0 (np.ndarray): Array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavriil 2006).
+        beta_T (np.ndarray): Array of thermal velocities for the electrons/positrons in units of the speed of light.
 
     Returns:
         (np.ndarray): Value of the transmission function n+ without the Dirac delta term.
             This will have shape (NS_number, len(E), len(E_0)).
     """
 
-    # Reshape the input arrays to make it compatible for broadcasting.
+    # Reshape the input arrays to make them compatible for broadcasting.
     E_0 = E_0[np.newaxis, np.newaxis, :]
     E = E[np.newaxis, :, np.newaxis]
     tau_0 = tau_0[:, np.newaxis, np.newaxis]
     beta_T = beta_T[:, np.newaxis, np.newaxis]
 
-    # Note that x is a matrix with shape (1, len(E), len(E_0)).
-    x = (E - E_0) / E_0
+    # Note that eta is a matrix with shape (1, len(E), len(E_0)).
+    eta = (E - E_0) / E_0
 
-    # Calculate term_1 safely, Replace x=0 with NaN for safety and set sqrt_arg_1 to np.inf when x was 0.
-    x_safe = np.where(x == 0, np.nan, x)
-    sqrt_arg_1 = (4.0 * beta_T - x_safe) / x_safe
-    sqrt_arg_1 = np.where(x == 0, np.inf, sqrt_arg_1)
+    # In order to avoid warning messages like overflows or divide by zero or incorrect value in sqrt
+    # we replace xi=0 with NaN for safety and set sqrt_arg_1 to np.inf when xi was 0.
+    xi_safe = np.where(eta == 0, np.nan, eta)
+    sqrt_arg_1 = (4.0 * beta_T - xi_safe) / xi_safe
+    sqrt_arg_1 = np.where(eta == 0, np.inf, sqrt_arg_1)
     # Replace the argument of the sqrt with NaN when it is less than 0 for safety and compute term 1.
     sqrt_arg_1_safe = np.where(sqrt_arg_1 < 0, np.nan, sqrt_arg_1)
     term_1 = tau_0 / (8.0 * beta_T) * sqrt_arg_1_safe**0.5
@@ -113,13 +116,14 @@ def n_plus_no_delta(
     term_1 = np.nan_to_num(term_1, nan=0)
 
     # Replace the argument of the sqrt with NaN when it is less than 0 for safety and compute I1.
-    sqrt_arg_2 = x * (4.0 * beta_T - x)
+    sqrt_arg_2 = eta * (4.0 * beta_T - eta)
     sqrt_arg_2_safe = np.where(sqrt_arg_2 < 0, np.nan, sqrt_arg_2)
     I1 = scsp.i1(tau_0 / (4.0 * beta_T) * sqrt_arg_2_safe**0.5)
     I1 = np.nan_to_num(I1, nan=0)
 
     term_2 = term_1 * I1
 
+    # Here we divide by E_0 to take into account the differential and rescale to the energy prescription.
     n_p = np.exp(-tau_0 / 2.0) / E_0 * term_2
 
     return n_p
@@ -132,35 +136,37 @@ def n_minus(
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    Reflection function p- in eq. (12) in overleaf (see also the function n- in eq. (36) in Lyutikov and Gavrill 2006).
-    Note that in the original paper this equation misses a factor 1/2 inside the modified Bessel function.
+    Reflection function p- in eq. (12) in overleaf (see also the function n- in eq. (35) in Lyutikov and Gavriil 2006).
+    Note that in the original paper this equation misses a factor 1/2 and in the exponential term should be tau_0/2 instead of tau_0.
 
     Args:
-        E (np.ndarray): array of energies of the transimitted photons in [erg].
-        E_0 (np.ndarray): array of energies of the source photons in [erg].
-        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavrill 2006).
-        beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
+        E (np.ndarray): Array of energies of the transimitted photons in [erg].
+        E_0 (np.ndarray): Array of energies of the source photons in [erg].
+        tau_0 (np.ndarray): Array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavriil 2006).
+        beta_T (np.ndarray): Array of thermal velocities for the electrons/positrons in units of the speed of light.
 
     Returns:
         (np.ndarray): Value of the transmission function n-.
-                      This will have shape (NS_number, len(E), len(E_0)).
+            This will have shape (NS_number, len(E), len(E_0)).
     """
 
-    # Reshape omega to make it compatible for broadcasting.
+    # Reshape the input arrays to make them compatible for broadcasting.
     E_0 = E_0[np.newaxis, np.newaxis, :]
     E = E[np.newaxis, :, np.newaxis]
     tau_0 = tau_0[:, np.newaxis, np.newaxis]
     beta_T = beta_T[:, np.newaxis, np.newaxis]
 
-    # Note that x is a matrix with shape (1, len(E), len(E_0)).
-    x = (E - E_0) / E_0
+    # Note that xi is a matrix with shape (1, len(E), len(E_0)).
+    xi = (E_0 - E) / E_0
 
-    sqrt_arg = (2.0 * beta_T - x) * (x + 2.0 * beta_T)
-    # Replace the argument of the sqrt with NaN when it is less than 0 for safety.
+    sqrt_arg = (2.0 * beta_T - xi) * (xi + 2.0 * beta_T)
+    # In order to avoid warning messages due to incorrect value in sqrt we replace the argument of the sqrt
+    # with NaN when it is less than 0 for safety.
     sqrt_arg_safe = np.where(sqrt_arg < 0, np.nan, sqrt_arg)
     I0 = scsp.i0(tau_0 / (4.0 * beta_T) * sqrt_arg_safe**0.5)
     I0 = np.nan_to_num(I0, nan=0)
 
+    # Here we divide by E_0 to take into account the differential and rescale to the energy prescription.
     n_m = tau_0 / (8.0 * beta_T * E_0) * np.exp(-tau_0 / 2.0) * I0
 
     return n_m
@@ -176,35 +182,35 @@ def resonant_cyclotron_scat_spectrum(
 ) -> np.ndarray:
     """
     Compute the spectrum resulting from resonant cyclotron scattering (RCS) given a source photon intensity spectrum
-    considering multiple reflections and transmissions (see eq. (15) in overleaf and eq. (42) in Lyutikov and Gavrill 2006).
+    considering multiple reflections and transmissions (see eq. (15) in overleaf and eq. (42) in Lyutikov and Gavriil 2006).
 
     Args:
-        E (np.ndarray): array of energies in [erg] of the transmitted intensity.
-        E_0 (np.ndarray): array of energies in [erg] of the source intensity.
-        tau_0 (np.ndarray): array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavrill 2006).
-        beta_T (np.ndarray): array of thermal velocities for the electrons/positrons in units of the speed of light.
-        I_ph_source (np.ndarray): intensity of the source in [ph cm^-2 s^-1 erg^-1 sterad^-1].
-        n_reflections (int): number of reflections (6 reflections guarantee good convergence of the final spectrum,
-                             see Lyutikov and Gavrill 2006).
+        E (np.ndarray): Array of energies in [erg] of the transmitted intensity.
+        E_0 (np.ndarray): Array of energies in [erg] of the source intensity.
+        tau_0 (np.ndarray): Array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavriil 2006).
+        beta_T (np.ndarray): Array of thermal velocities for the electrons/positrons in units of the speed of light.
+        I_ph_source (np.ndarray): Intensity of the source in [photons cm^-2 s^-1 erg^-1 sterad^-1].
+        n_reflections (int): Number of reflections (6 reflections guarantee good convergence of the final spectrum,
+            see Lyutikov and Gavriil 2006).
 
     Returns:
-        (np.ndarray): resonant cyclotron scattering spectrum intensity in [ph cm^-2 s^-1 erg^-1 sterad^-1].
+        (np.ndarray): Resonant cyclotron scattering spectrum intensity in [photons cm^-2 s^-1 erg^-1 sterad^-1].
     """
     rcs_spectrum = np.zeros((len(tau_0), len(E)))
 
     # Compute the transmission and reflection probabilities.
-    n_trans_no_delta = n_plus_no_delta(E, E_0, tau_0, beta_T)
+    n_trans_without_delta = n_plus_without_delta(E, E_0, tau_0, beta_T)
     p_refl = n_minus(E, E_0, tau_0, beta_T)
 
     # Compute the RCS spectrum by considering multiple reflections and transmissions.
-    # (see eq. 42 in Lyutikov and Gavrill 2006).
+    # (see eq. 42 in Lyutikov and Gavriil 2006).
     I_ph = I_ph_source[:, np.newaxis, :]
     # For the transmission probability we calculate the analytical integral of the term with the delta function and
     # add it to the numerical integral of the second term.
     exp_fact = np.exp(-tau_0 / 2.0)
     exp_fact = exp_fact[:, np.newaxis]
     I_ph_trans = I_ph_source * exp_fact + trapz(
-        (I_ph * n_trans_no_delta), E_0, axis=2
+        (I_ph * n_trans_without_delta), E_0, axis=2
     )
     rcs_spectrum = rcs_spectrum + I_ph_trans
 
@@ -212,7 +218,7 @@ def resonant_cyclotron_scat_spectrum(
         I_ph_reflect = trapz((I_ph * p_refl), E_0, axis=2)
         I_ph_reflect_reshape = I_ph_reflect[:, np.newaxis, :]
         I_ph_trans_refl = I_ph_reflect * exp_fact + trapz(
-            (I_ph_reflect_reshape * n_trans_no_delta), E_0, axis=2
+            (I_ph_reflect_reshape * n_trans_without_delta), E_0, axis=2
         )
         rcs_spectrum = rcs_spectrum + I_ph_trans_refl
 
@@ -227,10 +233,10 @@ def beta_plasma(B: np.ndarray) -> np.ndarray:
     (see eq. (4) in Gullon et al. 2015 and fig. 11 in Rea et al. 2008).
 
     Args:
-        B (np.ndarray): array of magnetic field strength in [G].
+        B (np.ndarray): Array of magnetic field strength in [G].
 
     Returns:
-        (np.ndarray): average plasma thermal velocity in units of the speed of light.
+        (np.ndarray): Average plasma thermal velocity in units of the speed of light.
     """
     beta = 0.001 * np.ones(len(B))
     beta[B > 1.0e13] = 0.3
@@ -244,10 +250,10 @@ def resonant_optical_depth(B: np.ndarray) -> np.ndarray:
     (see eq. (3) in Gullon et al. 2015 and fig. 11 in Rea et al. 2008).
 
     Args:
-        B (np.ndarray): array of magnetic field strength in [G].
+        B (np.ndarray): Array of magnetic field strength in [G].
 
     Returns:
-        (np.ndarray): resonant optical depth values.
+        (np.ndarray): Resonant optical depth values.
     """
     tau_res = 0.001 * np.ones(len(B))
     tau_res[B > 1.0e13] = B[B > 1.0e13] / 1.0e14
@@ -263,17 +269,17 @@ def flux_xray_absorbed(
     d: np.ndarray,
 ) -> np.ndarray:
     """
-    Compute the x-ray flux density assuming a black-body spectral shape for the thermal x-ray emission.
+    Compute the X-ray flux density assuming a black-body spectral shape for the thermal X-ray emission.
 
     Args:
         Lx (np.ndarray): X-ray luminosity in [erg/s].
-        B (np.ndarray): array of magnetic field strength in [G].
-        RA (np.ndarray): array of right ascension in [deg] defined between [-90, 90] deg.
-        DEC (np.ndarray): array of right ascension in [deg] defined between [0, 360] deg.
-        d (np.ndarray): array of distances in kpc.
+        B (np.ndarray): Array of magnetic field strength in [G].
+        RA (np.ndarray): Array of right ascension in [deg] defined between [-90, 90] deg.
+        DEC (np.ndarray): Array of right ascension in [deg] defined between [0, 360] deg.
+        d (np.ndarray): Array of distances in kpc.
 
     Returns:
-        (np.ndarray): absorbed x-ray fluxes in [erg s^-1 cm^-2].
+        (np.ndarray): Absorbed X-ray fluxes in [erg s^-1 cm^-2].
     """
     T_obs = T_from_Lx(Lx)
 
@@ -289,7 +295,7 @@ def flux_xray_absorbed(
 
     # Compute the black-body intensity in [erg cm^-2 s^-1 erg^-1 sterad^-1].
     I_bb = blackbody_intensity_spectrum(E_erg, T_obs)
-    # Convert the intensity from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [ph cm^-2 s^-1 erg^-1 sterad^-1].
+    # Convert the intensity from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [photons cm^-2 s^-1 erg^-1 sterad^-1].
     I_ph_bb = I_bb / E_erg
 
     # Estimate the parameters to compute the RCS spectrum.
@@ -297,12 +303,12 @@ def flux_xray_absorbed(
     tau_0 = tau_res / 2.0
     beta_T = beta_plasma(B)
 
-    # Compute the RCS intensity spectrum and convert it in [ph cm^-2 s^-1 erg^-1 sterad^-1].
-    # 6 reflections guarantee good convergence of the final spectrum see Lyutikov and Gavrill 2006.
+    # Compute the RCS intensity spectrum and convert it in [photons cm^-2 s^-1 erg^-1 sterad^-1].
+    # 6 reflections guarantee good convergence of the final spectrum see Lyutikov and Gavriil 2006.
     I_ph_rcs = resonant_cyclotron_scat_spectrum(
         E_erg, E_erg, tau_0, beta_T, I_ph_bb, n_reflections=6
     )
-    # Convert the intensity from [ph cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 erg^-1 sterad^-1] in order
+    # Convert the intensity from [photons cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 erg^-1 sterad^-1] in order
     # to obtain the spectrum in energy.
     I_rcs = I_ph_rcs * E_erg
     # Convert the intensity from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 eV^-1 sterad^-1].
