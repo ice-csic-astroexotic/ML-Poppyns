@@ -194,7 +194,8 @@ def resonant_cyclotron_scat_spectrum(
             see Lyutikov and Gavriil 2006).
 
     Returns:
-        (np.ndarray): Resonant cyclotron scattering spectrum intensity in [photons cm^-2 s^-1 erg^-1 sterad^-1].
+        (np.ndarray): Resonant cyclotron scattering spectrum intensity in [photons cm^-2 s^-1 erg^-1 sterad^-1] with
+            shape (NS_number, len(E)).
     """
     rcs_spectrum = np.zeros((len(tau_0), len(E)))
 
@@ -230,10 +231,10 @@ def resonant_cyclotron_scat_spectrum(
 def beta_plasma(B: np.ndarray) -> np.ndarray:
     """
     Approximated relation between the average plasma thermal velocity and magnetic field strength
-    (see eq. (4) in Gullon et al. 2015 and fig. 11 in Rea et al. 2008).
+    (see eq. (4) in Gullón et al. 2015 and fig. 11 in Rea et al. 2008).
 
     Args:
-        B (np.ndarray): Array of magnetic field strength in [G].
+        B (np.ndarray): Array of magnetic field strengths in [G].
 
     Returns:
         (np.ndarray): Average plasma thermal velocity in units of the speed of light.
@@ -247,10 +248,10 @@ def beta_plasma(B: np.ndarray) -> np.ndarray:
 def resonant_optical_depth(B: np.ndarray) -> np.ndarray:
     """
     Approximated relation between the resonant optical depth and the magnetic field strength
-    (see eq. (3) in Gullon et al. 2015 and fig. 11 in Rea et al. 2008).
+    (see eq. (3) in Gullón et al. 2015 and fig. 11 in Rea et al. 2008).
 
     Args:
-        B (np.ndarray): Array of magnetic field strength in [G].
+        B (np.ndarray): Array of magnetic field strengths in [G].
 
     Returns:
         (np.ndarray): Resonant optical depth values.
@@ -273,9 +274,9 @@ def flux_xray_absorbed(
 
     Args:
         Lx (np.ndarray): X-ray luminosity in [erg/s].
-        B (np.ndarray): Array of magnetic field strength in [G].
-        RA (np.ndarray): Array of right ascension in [deg] defined between [-90, 90] deg.
-        DEC (np.ndarray): Array of right ascension in [deg] defined between [0, 360] deg.
+        B (np.ndarray): Array of magnetic field strengths in [G].
+        RA (np.ndarray): Array of right ascensions in [deg] defined between [-90, 90] deg.
+        DEC (np.ndarray): Array of declinations in [deg] defined between [0, 360] deg.
         d (np.ndarray): Array of distances in kpc.
 
     Returns:
@@ -287,8 +288,8 @@ def flux_xray_absorbed(
 
     d = d * const.KPC_TO_CM
 
-    # Define the energy range between 0.01 keV and 20 keV (a larger energy range than the one where the absorption
-    # cross-section is defined, is required in order to have a good approximation of the RCS spectrum).
+    # Define the energy range between 0.01 keV and 20 keV. Note that we require a larger energy range than
+    # the one used to determine the absorption cross-section in order to properly approximate the RCS spectrum.
     E = np.logspace(1.0, np.log10(20000), 1000)
     # Convert the energy array from [eV] to [erg].
     E_erg = E * const.EV_TO_ERG
@@ -304,7 +305,7 @@ def flux_xray_absorbed(
     beta_T = beta_plasma(B)
 
     # Compute the RCS intensity spectrum and convert it in [photons cm^-2 s^-1 erg^-1 sterad^-1].
-    # 6 reflections guarantee good convergence of the final spectrum see Lyutikov and Gavriil 2006.
+    # 6 reflections guarantee good convergence of the final spectrum see Lyutikov and Gavriil (2006).
     I_ph_rcs = resonant_cyclotron_scat_spectrum(
         E_erg, E_erg, tau_0, beta_T, I_ph_bb, n_reflections=6
     )
