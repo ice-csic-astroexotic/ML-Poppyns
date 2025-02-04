@@ -175,8 +175,8 @@ def combined_derivatives(
     # Specifying the two derivatives.
     dy = np.zeros(len(y), dtype=np.float64)
 
-    B = magnetic_field_evolution_fit(B_initial, t, B_asymptotic, a_late)
-
+    B = B_initial
+    # B = magnetic_field_evolution_fit(B_initial, t, B_asymptotic, a_late)
     dy[0] = madv.misalignment_angle_derivative(B, chi, P)
     dy[1] = pdv.period_derivative(B, chi, P)
 
