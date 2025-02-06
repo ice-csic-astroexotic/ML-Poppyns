@@ -104,14 +104,17 @@ def n_plus_without_delta(
     # Note that eta is a matrix with shape (1, len(E), len(E_0)).
     eta = (E - E_0) / E_0
 
-    # In order to avoid warning messages like overflows or divide by zero or incorrect value in sqrt
-    # we replace xi=0 with NaN for safety and set sqrt_arg_1 to np.inf when xi was 0.
+    # In order to avoid warnings, such as `overflows`, `divide by zero` or `incorrect value in sqrt`,
+    # when calculating the different contributions in the transmission coefficient, we replace xi=0
+    # with NaN for safety and set sqrt_arg_1 to np.inf when xi was 0.
     xi_safe = np.where(eta == 0, np.nan, eta)
     sqrt_arg_1 = (4.0 * beta_T - xi_safe) / xi_safe
     sqrt_arg_1 = np.where(eta == 0, np.inf, sqrt_arg_1)
+
     # Replace the argument of the sqrt with NaN when it is less than 0 for safety and compute term 1.
     sqrt_arg_1_safe = np.where(sqrt_arg_1 < 0, np.nan, sqrt_arg_1)
     term_1 = tau_0 / (8.0 * beta_T) * sqrt_arg_1_safe**0.5
+
     # Replace the NaN values and np.inf values in term_1 with 0 and a very large number respectively.
     term_1 = np.nan_to_num(term_1, nan=0)
 
@@ -160,9 +163,10 @@ def n_minus(
     # Note that xi is a matrix with shape (1, len(E), len(E_0)).
     xi = (E_0 - E) / E_0
 
+    # In order to avoid warnings, such as `incorrect value in sqrt` when calculating the different
+    # contributions in the reflection coefficient, we replace the argument of the sqrt
+    # with NaN when it is less than 0 for safety
     sqrt_arg = (2.0 * beta_T - xi) * (xi + 2.0 * beta_T)
-    # In order to avoid warning messages due to incorrect value in sqrt we replace the argument of the sqrt
-    # with NaN when it is less than 0 for safety.
     sqrt_arg_safe = np.where(sqrt_arg < 0, np.nan, sqrt_arg)
     I0 = scsp.i0(tau_0 / (4.0 * beta_T) * sqrt_arg_safe**0.5)
     I0 = np.nan_to_num(I0, nan=0)
