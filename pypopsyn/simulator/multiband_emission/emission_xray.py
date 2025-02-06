@@ -137,7 +137,8 @@ def n_minus(
 ) -> np.ndarray:
     """
     Reflection function p- in eq. (12) in overleaf (see also the function n- in eq. (35) in Lyutikov and Gavriil 2006).
-    Note that in the original paper this equation misses a factor 1/2 and in the exponential term should be tau_0/2 instead of tau_0.
+    Note that in the original paper this equation misses a factor 1/2 and in the exponential term should be tau_0/2
+    instead of tau_0 in the prefactor.
 
     Args:
         E (np.ndarray): Array of energies of the transmitted photons in [erg].
