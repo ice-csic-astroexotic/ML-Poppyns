@@ -85,7 +85,7 @@ def n_plus_without_delta(
     it numerically.
 
     Args:
-        E (np.ndarray): Array of energies of the transimitted photons in [erg].
+        E (np.ndarray): Array of energies of the transmitted photons in [erg].
         E_0 (np.ndarray): Array of energies of the source photons in [erg].
         tau_0 (np.ndarray): Array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavriil 2006).
         beta_T (np.ndarray): Array of thermal velocities for the electrons/positrons in units of the speed of light.
@@ -140,7 +140,7 @@ def n_minus(
     Note that in the original paper this equation misses a factor 1/2 and in the exponential term should be tau_0/2 instead of tau_0.
 
     Args:
-        E (np.ndarray): Array of energies of the transimitted photons in [erg].
+        E (np.ndarray): Array of energies of the transmitted photons in [erg].
         E_0 (np.ndarray): Array of energies of the source photons in [erg].
         tau_0 (np.ndarray): Array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavriil 2006).
         beta_T (np.ndarray): Array of thermal velocities for the electrons/positrons in units of the speed of light.
