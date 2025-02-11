@@ -21,6 +21,7 @@ import json
 import logging
 import os
 import pathlib
+import pickle
 import sys
 import time
 from typing import Tuple
@@ -28,11 +29,15 @@ from typing import Tuple
 import numpy as np
 import orjson
 import pandas as pd
+from scipy.interpolate import RectBivariateSpline
 
+import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
+import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
+import pypopsyn.simulator.multiband_emission.emission_xray as ex
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import utilities.benchmark.timewith as timewith
@@ -112,6 +117,46 @@ def initialize_radio_surveys() -> Tuple[dict, dict]:
         )
 
     return radio_surveys, detection_dictionaries
+
+
+def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
+    """
+    Initialize and return an x-ray survey detection dictionary and an interpolator for x-ray luminosity.
+
+    Returns:
+        (Tuple[dict, RectBivariateSpline]):
+            - A dictionary for storing detected neutron star data for the x-ray survey.
+            - An interpolator function loaded from a pickled file to evaluate the x-ray luminosity.
+    """
+    dictionary_detected_x = {
+        "age": [],
+        "ra": [],
+        "dec": [],
+        "l": [],
+        "b": [],
+        "N_H": [],
+        "dist": [],
+        "pm_ra": [],
+        "pm_dec": [],
+        "v_ls": [],
+        "B": [],
+        "chi": [],
+        "P": [],
+        "P_dot": [],
+        "L_x_therm": [],
+        "S_x_abs": [],
+        "idx": [],
+    }
+
+    # Load the interpolator function to evaluate the x-ray luminosity.
+    interpolator_Lx_path = pathlib.Path().joinpath(
+        cfg["path_to_software"],
+        "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/interpolator_Lx.pkl",
+    )
+    with open(interpolator_Lx_path, "rb") as f:
+        L_x_interpolator = pickle.load(f)
+
+    return dictionary_detected_x, L_x_interpolator
 
 
 def load_database_dyn(
@@ -220,9 +265,11 @@ def load_database_dyn(
 
 def apply_surveys_coverage(
     radio_surveys: dict,
+    xray_survey: bool,
     dyn_database_dict: dict,
     idx_remove: list,
     dist_cutoff: float,
+    age_cutoff: float,
 ) -> Tuple[dict, list]:
     """
     Apply survey coverage criteria to filter a dynamic population dataset based on sky coverage,
@@ -230,9 +277,12 @@ def apply_surveys_coverage(
 
     Args:
         radio_surveys (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
+        xray_survey (bool): A boolean flag to consider an all sky coverage for an X-ray survey.
         dyn_database_dict (dict): A dictionary containing the data of a dynamical population.
         idx_remove (list): A list of indices of entries to be removed based on the filtering criteria.
         dist_cutoff (float): The maximum heliocentric distance to include in the survey coverage.
+        age_cutoff (float): The maximum neutron star age to include in the survey coverage (this applies only if
+            xray_survey = True).
 
     Returns:
         (Tuple[dict, list]): A tuple object containing the following attributes:
@@ -253,6 +303,7 @@ def apply_surveys_coverage(
     idx = dyn_database_dict["idx"]
 
     dist_mask = dist < dist_cutoff
+    age_mask = age < age_cutoff
 
     # Select only neutron stars that fall into the sky region covered by the surveys.
     survey_names = list(radio_surveys.keys())
@@ -270,7 +321,14 @@ def apply_surveys_coverage(
         )
     ) & dist_mask
 
-    coverage_tot = coverage_radio
+    # For the x-ray survey we consider an all-sky coverage and only apply an age and distance cutoff.
+    coverage_x = age_mask & dist_mask
+
+    if xray_survey:
+        coverage_tot = coverage_radio | coverage_x
+
+    else:
+        coverage_tot = coverage_radio
 
     dictionary_coverage_database = {
         "age": age[coverage_tot],
@@ -293,6 +351,9 @@ def apply_surveys_coverage(
         dictionary_coverage_database[coverage_key] = coverage[survey_name][
             coverage_tot
         ]
+
+    if xray_survey:
+        dictionary_coverage_database["coverage_x"] = coverage_x[coverage_tot]
 
     # Remove stars that do not fall into the total sky coverage.
     out_coverage = np.invert(coverage_tot)
@@ -607,6 +668,100 @@ def radio_detection(
     return detected_dictionaries
 
 
+def x_detection(
+    dict_final_pop: dict,
+    L_x_interpolator: RectBivariateSpline,
+    L_x_threshold: float,
+    S_x_abs_threshold: float,
+) -> dict:
+    """
+    Detects neutron stars based on X-ray luminosity and updates their properties.
+
+    Args:
+        dict_final_pop (dict): Dictionary containing the properties of the evolved neutron star population.
+        L_x_interpolator (RectBivariateSpline): Interpolator used to calculate thermal X-ray luminosity based on age and magnetic field.
+        L_x_threshold (float): A lower limit for the X-ray luminosity.
+        S_x_abs_threshold (float): The absorbed flux threshold for X-ray detection.
+
+    Returns:
+        (dict): A dictionary containing the properties of detected neutron stars in X-rays.
+    """
+    # Select only the stars that can be detected in x-rays.
+    coverage_x = dict_final_pop["coverage_x"]
+
+    age = dict_final_pop["age"][coverage_x]
+    l_gal = dict_final_pop["l"][coverage_x]
+    b_gal = dict_final_pop["b"][coverage_x]
+    ra = dict_final_pop["ra"][coverage_x]
+    dec = dict_final_pop["dec"][coverage_x]
+    dist = dict_final_pop["dist"][coverage_x]
+    pm_ra = dict_final_pop["pm_ra"][coverage_x]
+    pm_dec = dict_final_pop["pm_dec"][coverage_x]
+    v_ls = dict_final_pop["v_ls"][coverage_x]
+    P = dict_final_pop["P_final"][coverage_x]
+    B_initial = dict_final_pop["B_initial"][coverage_x]
+    B = dict_final_pop["B_final"][coverage_x]
+    chi = dict_final_pop["chi_final"][coverage_x]
+    idx = dict_final_pop["idx"][coverage_x]
+
+    # Determining the final period derivative.
+    period_derivative_vect = np.vectorize(pdv.period_derivative)
+    P_dot = (
+        period_derivative_vect(
+            B,
+            chi,
+            P,
+        )
+        / const.YR_TO_S
+    )
+
+    L_x_therm = L_x_interpolator.ev(age, B_initial)
+
+    # Select only the stars that have sufficiently high luminosity.
+    L_x_mask = L_x_therm > L_x_threshold
+    idx = idx[L_x_mask]
+    age = age[L_x_mask]
+    l_gal = l_gal[L_x_mask]
+    b_gal = b_gal[L_x_mask]
+    ra = ra[L_x_mask]
+    dec = dec[L_x_mask]
+    dist = dist[L_x_mask]
+    pm_ra = pm_ra[L_x_mask]
+    pm_dec = pm_dec[L_x_mask]
+    v_ls = v_ls[L_x_mask]
+    B = B[L_x_mask]
+    chi = chi[L_x_mask]
+    P = P[L_x_mask]
+    P_dot = P_dot[L_x_mask]
+    L_x_therm = L_x_therm[L_x_mask]
+
+    S_x_abs, N_H = ex.flux_xray_absorbed(L_x_therm, B, ra, dec, dist)
+
+    detected_x = S_x_abs > S_x_abs_threshold
+
+    dictionary_detected = {
+        "age": age[detected_x].tolist(),
+        "ra": ra[detected_x].tolist(),
+        "dec": dec[detected_x].tolist(),
+        "l": l_gal[detected_x].tolist(),
+        "b": b_gal[detected_x].tolist(),
+        "N_H": N_H[detected_x].tolist(),
+        "dist": dist[detected_x].tolist(),
+        "pm_ra": pm_ra[detected_x].tolist(),
+        "pm_dec": pm_dec[detected_x].tolist(),
+        "v_ls": v_ls[detected_x].tolist(),
+        "B": B[detected_x].tolist(),
+        "chi": chi[detected_x].tolist(),
+        "P": P[detected_x].tolist(),
+        "P_dot": P_dot[detected_x].tolist(),
+        "L_x_therm": L_x_therm[detected_x].tolist(),
+        "S_x_abs": S_x_abs[detected_x].tolist(),
+        "idx": idx[detected_x].tolist(),
+    }
+
+    return dictionary_detected
+
+
 def build_dataframe(
     data_dict: dict, parameters: list, units: list
 ) -> pd.DataFrame:
@@ -633,12 +788,18 @@ def build_dataframe(
     return df
 
 
-def create_output_dataframe(dictionary_detected: dict) -> dict:
+def create_output_dataframe(
+    dictionary_detected_radio: dict,
+    dictionary_detected_x: dict,
+    survey_x: bool,
+) -> dict:
     """
     Creates Pandas DataFrames containing the information on the detected neutron stars for each survey.
 
     Args:
-        dictionary_detected (dict): Dictionary containing detected neutron star properties for each survey.
+        dictionary_detected_radio (dict): Dictionary containing detected neutron star properties for each radio survey.
+        dictionary_detected_x (dict): Dictionary containing detected neutron star properties for an X-ray survey.
+        survey_x (bool): Boolean flag to indicate whether or not saving the results for a X-ray survey.
 
     Returns:
         dict: A dictionary of DataFrames, one for each survey containing detected neutron stars' information.
@@ -694,7 +855,7 @@ def create_output_dataframe(dictionary_detected: dict) -> dict:
     dfs = {}
 
     # Loop over each survey's detected dictionary and generate the corresponding DataFrame.
-    for survey_name, survey_data in dictionary_detected.items():
+    for survey_name, survey_data in dictionary_detected_radio.items():
         # Check if the survey is a combined survey like 'HTRU_low_mid'.
         if survey_name == "HTRU_low_mid":
             parameters_survey = parameters + ["HTRU_low", "HTRU_mid"]
@@ -703,10 +864,54 @@ def create_output_dataframe(dictionary_detected: dict) -> dict:
             parameters_survey = parameters
             units_survey = units
 
-        # Build the DataFrame using the appropriate parameters and units
+        # Build the DataFrame using the appropriate parameters and units.
         df = build_dataframe(survey_data, parameters_survey, units_survey)
         dfs[
             survey_name
+        ] = df  # Store the DataFrame in the dictionary with survey_name as key.
+
+    if survey_x:
+        parameters_x = [
+            "age",
+            "RA",
+            "DEC",
+            "l",
+            "b",
+            "N_H",
+            "d",
+            "pm_RA",
+            "pm_DEC",
+            "v_ls",
+            "B",
+            "chi",
+            "P",
+            "P_dot",
+            "L_x_therm",
+            "S_x_abs",
+        ]
+        units_x = [
+            "[yr]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[cm^-2]",
+            "[kpc]",
+            "[mas yr^-1]",
+            "[mas yr^-1]",
+            "[km s^-1]",
+            "[G]",
+            "[rad]",
+            "[s]",
+            "[s s^-1]",
+            "[erg s^-1]",
+            "[erg s^-1 cm^-2]",
+        ]
+
+        # Build the DataFrame using the appropriate parameters and units.
+        df = build_dataframe(dictionary_detected_x, parameters_x, units_x)
+        dfs[
+            "X-ray"
         ] = df  # Store the DataFrame in the dictionary with survey_name as key.
 
     return dfs
@@ -771,6 +976,11 @@ def simulate_population(args) -> None:
         surveys_radio, dictionary_detected_radio = initialize_radio_surveys()
         surveys_radio_cfg = cfg["surveys_radio"]
 
+        (
+            dictionary_detected_x,
+            luminosity_x_interpolator,
+        ) = initialize_x_surveys()
+
         # Initialize the indicator for an excess in birth rate to False.
         cfg["birth_rate_excess"] = False
 
@@ -779,6 +989,7 @@ def simulate_population(args) -> None:
         # In these dictionaries we save how many stars we progressively detect in total in each survey and
         # the percentage related to the real detected numbers.
         n_detected_sim = {survey: 0 for survey in surveys_radio_cfg}
+        n_detected_sim_x = 0
         percentage_detected = {survey: 0 for survey in surveys_radio_cfg}
 
         # In this dictionary we save how many stars we have created to reach the desirable number in each survey.
@@ -846,9 +1057,11 @@ def simulate_population(args) -> None:
                 # Filter the loaded database batch with the surveys' sky coverage.
                 database_coverage, idx_remove = apply_surveys_coverage(
                     surveys_radio,
+                    args.survey_x,
                     database_dyn_batch,
                     idx_remove,
                     dist_cutoff=35.0,
+                    age_cutoff=1.0e6,
                 )
 
                 # Initialize neutron star magneto-rotational properties.
@@ -874,7 +1087,7 @@ def simulate_population(args) -> None:
                 pop_final = database_coverage | pop_magrot_final
 
             with timewith.TimeWith(
-                "[SimulatePopulationDetection]",
+                "[SimulateRadioDetection]",
                 cfg["profile_log"],
                 cfg["profile_json"],
                 cfg["show_profiling"],
@@ -886,7 +1099,7 @@ def simulate_population(args) -> None:
                 if len(pop_intercepted_radio["age"]) == 0:
                     break
 
-                # Filter the population to include only detected pulsars by the surveys.
+                # Filter the population to include only detected pulsars by the radio surveys.
                 pop_detected_radio_update = radio_detection(
                     surveys_radio, pop_intercepted_radio
                 )
@@ -921,24 +1134,57 @@ def simulate_population(args) -> None:
                     }
 
                     # Remove from the dynamical database the stars that have been detected.
-                    idx_det_tot = list(
+                    idx_det_radio = list(
                         dictionary_detected_radio[survey]["idx"]
                     )
-                    idx_remove += idx_det_tot
+                    idx_remove += idx_det_radio
 
-                # ==========================================================
+            # ===================== X DETECTION ========================
 
-                # Compute the total current birth rate in NSs per century.
-                birth_rate = n_created / t_max
-                log.info(
-                    f"Galactic neutron star birth rate per century: {birth_rate} neutron stars per century."
-                )
-                # If the current birth rate exceeds an upper limit of 5 NS per century stop the simulation.
-                if birth_rate > 5:
-                    log.info(
-                        "Simulation stopped! Galactic neutron star birth rate exceeds 5 neutron stars per century."
+            if args.survey_x:
+                with timewith.TimeWith(
+                    "[SimulateXrayDetection]",
+                    cfg["profile_log"],
+                    cfg["profile_json"],
+                    cfg["show_profiling"],
+                ):
+                    # Filter the population to include only detected pulsars by the X-ray surveys.
+                    pop_detected_x_update = x_detection(
+                        pop_final,
+                        luminosity_x_interpolator,
+                        L_x_threshold=1.0e30,
+                        S_x_abs_threshold=1.0e-15,
                     )
-                    break
+
+                    # Check the number of detected pulsars for each survey.
+                    n_detected_sim_x += len(pop_detected_x_update["age"])
+                    log.info(
+                        f"Total number of neutron stars detected in X-rays: {n_detected_sim_x}"
+                    )
+
+                    # Update the detection dictionary.
+                    dictionary_detected_x = {
+                        key: value + pop_detected_x_update[key]
+                        for key, value in dictionary_detected_x.items()
+                    }
+
+                    # Remove from the dynamical database the stars that have been detected.
+                    idx_det_x = list(dictionary_detected_x["idx"])
+                    idx_remove += idx_det_x
+
+            # ==========================================================
+
+            # Compute the total current birth rate in NSs per century.
+            birth_rate = n_created / t_max
+            log.info(
+                f"Galactic neutron star birth rate per century: {birth_rate} neutron stars per century."
+            )
+            # If the current birth rate exceeds an upper limit of 5 NS per century stop the simulation.
+            if birth_rate > 5:
+                log.info(
+                    "Simulation stopped! Galactic neutron star birth rate exceeds 5 neutron stars per century."
+                )
+                break
 
         # Compute the neutron star birth rate for each survey.
         birth_rates = {}
@@ -966,7 +1212,9 @@ def simulate_population(args) -> None:
             log.info("Creating data frame for exporting...")
 
             # Create output dataframes for each survey.
-            dfs = create_output_dataframe(dictionary_detected_radio)
+            dfs = create_output_dataframe(
+                dictionary_detected_radio, dictionary_detected_x, args.survey_x
+            )
 
             # Save the data frame as a compressed binary file.
             for survey in dictionary_detected_radio:
@@ -976,6 +1224,13 @@ def simulate_population(args) -> None:
                 dfs[survey].to_pickle(output_path_survey, compression="gzip")
                 log.info(
                     f"Output of the detected population with {survey} generated in {os.getcwd()}/{output_path_survey}"
+                )
+
+            if args.survey_x:
+                output_path_survey = output_path / "survey_xray_results.pkl.gz"
+                dfs["X-ray"].to_pickle(output_path_survey, compression="gzip")
+                log.info(
+                    f"Output of the detected population with a X-ray survey generated in {os.getcwd()}/{output_path_survey}"
                 )
 
             # Dump updated configuration to output path.
@@ -1010,6 +1265,14 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Path to JSON containing the parameter override values.",
+    )
+
+    args.add_argument(
+        "--survey_x",
+        nargs="?",
+        type=bool,
+        default=False,
+        help="Wheter to simulate an x-ray survey or not.",
     )
 
     args = args.parse_args()
