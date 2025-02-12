@@ -62,12 +62,17 @@ def blackbody_intensity_spectrum(E: np.ndarray, T: np.ndarray) -> np.ndarray:
     # The number 709 is the threshold number after which the warning appears.
     exponent_clipped = np.clip(exponent, None, 709)
 
+    # Compute the black-body intensity in [erg cm^-2 s^-1 erg^-1 sterad^-1].
     I_bb = (
         2.0
-        / (const.H**3 * const.C**2)
+        / (const.H**2 * const.C**2)
         * E**3
         / (np.exp(exponent_clipped) - 1)
     )
+
+    # Since we later integrate directly in energy we correct the intensity for the Jacobian of the differential term
+    # dE = h df.
+    I_bb = I_bb / const.H
 
     return I_bb
 
