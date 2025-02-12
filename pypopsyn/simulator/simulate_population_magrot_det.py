@@ -736,8 +736,10 @@ def x_detection(
     P_dot = P_dot[L_x_mask]
     L_x_therm = L_x_therm[L_x_mask]
 
+    # Compute the absorbed fluxes and the N_H column density.
     S_x_abs, N_H = ex.flux_xray_absorbed(L_x_therm, B, ra, dec, dist)
 
+    # Filter the neutron stars according to a threshold flux.
     detected_x = S_x_abs > S_x_abs_threshold
 
     dictionary_detected = {
