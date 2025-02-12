@@ -105,20 +105,20 @@ def n_plus_without_delta(
     eta = (E - E_0) / E_0
 
     # In order to avoid warnings, such as `overflows`, `divide by zero` or `incorrect value in sqrt`,
-    # when calculating the different contributions in the transmission coefficient, we replace xi=0
-    # with NaN for safety and set sqrt_arg_1 to np.inf when xi was 0.
-    xi_safe = np.where(eta == 0, np.nan, eta)
-    sqrt_arg_1 = (4.0 * beta_T - xi_safe) / xi_safe
+    # when calculating the different contributions in the transmission coefficient, we replace eta=0
+    # with NaN for safety and set sqrt_arg_1 to np.inf when eta was 0.
+    eta_safe = np.where(eta == 0, np.nan, eta)
+    sqrt_arg_1 = (4.0 * beta_T - eta_safe) / eta_safe
     sqrt_arg_1 = np.where(eta == 0, np.inf, sqrt_arg_1)
 
-    # Replace the argument of the sqrt with NaN when it is less than 0 for safety and compute term 1.
+    # Replace the argument of the first sqrt with NaN when it is less than 0 for safety and compute term 1.
     sqrt_arg_1_safe = np.where(sqrt_arg_1 < 0, np.nan, sqrt_arg_1)
     term_1 = tau_0 / (8.0 * beta_T) * sqrt_arg_1_safe**0.5
 
     # Replace the NaN values and np.inf values in term_1 with 0 and a very large number respectively.
     term_1 = np.nan_to_num(term_1, nan=0)
 
-    # Replace the argument of the sqrt with NaN when it is less than 0 for safety and compute I1.
+    # Replace the argument of the second sqrt with NaN when it is less than 0 for safety and compute I1.
     sqrt_arg_2 = eta * (4.0 * beta_T - eta)
     sqrt_arg_2_safe = np.where(sqrt_arg_2 < 0, np.nan, sqrt_arg_2)
     I1 = scsp.i1(tau_0 / (4.0 * beta_T) * sqrt_arg_2_safe**0.5)
@@ -194,12 +194,12 @@ def resonant_cyclotron_scat_spectrum(
         E_0 (np.ndarray): Array of energies in [erg] of the source intensity.
         tau_0 (np.ndarray): Array of optical depths tau_0 (see eq. (2) in Lyutikov and Gavriil 2006).
         beta_T (np.ndarray): Array of thermal velocities for the electrons/positrons in units of the speed of light.
-        I_ph_source (np.ndarray): Intensity of the source in [photons cm^-2 s^-1 erg^-1 sterad^-1].
+        I_ph_source (np.ndarray): Intensity of the source in [photon count cm^-2 s^-1 erg^-1 sterad^-1].
         n_reflections (int): Number of reflections (6 reflections guarantee good convergence of the final spectrum,
             see Lyutikov and Gavriil 2006).
 
     Returns:
-        (np.ndarray): Resonant cyclotron scattering spectrum intensity in [photons cm^-2 s^-1 erg^-1 sterad^-1] with
+        (np.ndarray): Resonant cyclotron scattering spectrum intensity in [photon count cm^-2 s^-1 erg^-1 sterad^-1] with
             shape (NS_number, len(E)).
     """
     rcs_spectrum = np.zeros((len(tau_0), len(E)))
@@ -301,7 +301,7 @@ def flux_xray_absorbed(
 
     # Compute the black-body intensity in [erg cm^-2 s^-1 erg^-1 sterad^-1].
     I_bb = blackbody_intensity_spectrum(E_erg, T_obs)
-    # Convert the intensity from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [photons cm^-2 s^-1 erg^-1 sterad^-1].
+    # Convert the intensity from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [photon count cm^-2 s^-1 erg^-1 sterad^-1].
     I_ph_bb = I_bb / E_erg
 
     # Estimate the parameters to compute the RCS spectrum.
@@ -309,13 +309,13 @@ def flux_xray_absorbed(
     tau_0 = tau_res / 2.0
     beta_T = beta_plasma(B)
 
-    # Compute the RCS intensity spectrum and convert it in [photons cm^-2 s^-1 erg^-1 sterad^-1].
+    # Compute the RCS intensity spectrum and convert it in [photon count cm^-2 s^-1 erg^-1 sterad^-1].
     # 6 reflections guarantee good convergence of the final spectrum see Lyutikov and Gavriil (2006).
     I_ph_rcs = resonant_cyclotron_scat_spectrum(
         E_erg, E_erg, tau_0, beta_T, I_ph_bb, n_reflections=6
     )
-    # Convert the intensity from [photons cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 erg^-1 sterad^-1] in order
-    # to obtain the spectrum in energy.
+    # Convert the intensity from [photon count cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 erg^-1 sterad^-1] in order
+    # to obtain the spectrum in terms of energy.
     I_rcs = I_ph_rcs * E_erg
     # Convert the intensity from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 eV^-1 sterad^-1].
     I_rcs = I_rcs * const.EV_TO_ERG
