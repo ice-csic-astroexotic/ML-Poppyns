@@ -31,6 +31,7 @@ import orjson
 import pandas as pd
 from scipy.interpolate import RectBivariateSpline
 
+import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
@@ -1269,8 +1270,7 @@ if __name__ == "__main__":
 
     args.add_argument(
         "--survey_x",
-        nargs="?",
-        type=bool,
+        type=configuration_parser.str_to_bool,
         default=False,
         help="Wheter to simulate an x-ray survey or not.",
     )
