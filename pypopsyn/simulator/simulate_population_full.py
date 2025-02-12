@@ -1169,8 +1169,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                     pm_dec_final[NS_idx_SKA_low],
                     P_final[NS_idx_SKA_low],
                     P_dot_final[NS_idx_SKA_low],
-                    S_radio_obs_mean_SMPS[NS_idx_SKA_low],
-                    w_eff_SMPS[NS_idx_SKA_low],
+                    S_radio_obs_mean_SKA_low[NS_idx_SKA_low],
+                    w_eff_SKA_low[NS_idx_SKA_low],
                 ]
             ).T,
             columns=header,
@@ -1202,8 +1202,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                     pm_dec_final[NS_idx_SKA_mid],
                     P_final[NS_idx_SKA_mid],
                     P_dot_final[NS_idx_SKA_mid],
-                    S_radio_obs_mean_SMPS[NS_idx_SKA_mid],
-                    w_eff_SMPS[NS_idx_SKA_mid],
+                    S_radio_obs_mean_SKA_mid[NS_idx_SKA_mid],
+                    w_eff_SKA_mid[NS_idx_SKA_mid],
                 ]
             ).T,
             columns=header,
