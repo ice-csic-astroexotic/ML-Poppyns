@@ -6,7 +6,7 @@
         Michele Ronchi (ronchi@ice.csic.es)
 """
 
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 import scipy.special as scsp
@@ -278,9 +278,9 @@ def flux_xray_absorbed(
     RA: np.ndarray,
     DEC: np.ndarray,
     d: np.ndarray,
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute the X-ray flux density assuming a black-body spectral shape for the thermal X-ray emission.
+    Compute the X-ray observed absorbed flux assuming a black-body spectral shape for the thermal X-ray emission.
 
     Args:
         Lx (np.ndarray): X-ray luminosity in [erg/s].
@@ -290,7 +290,9 @@ def flux_xray_absorbed(
         d (np.ndarray): Array of distances in kpc.
 
     Returns:
-        (np.ndarray): Absorbed X-ray fluxes in [erg s^-1 cm^-2].
+        (np.ndarray, np.ndarray): A tuple containing the following arrays:
+            - absorbed x-ray fluxes in [erg s^-1 cm^-2].
+            - value of the hydrogen column density in [cm^-2].
     """
     T_obs = T_from_Lx(Lx)
 
@@ -342,4 +344,4 @@ def flux_xray_absorbed(
     I_absorbed_bolom = trapz(I_absorbed[:, E_mask], E[E_mask], axis=1)
     flux = (R_obs / d) ** 2 * np.pi * I_absorbed_bolom
 
-    return flux
+    return flux, N_H
