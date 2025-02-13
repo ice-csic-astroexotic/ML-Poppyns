@@ -74,6 +74,8 @@
     "lr": 5e-4,
     "num_rounds": 3,
     "sir": true,
+    "mcmc_sampler": "slice_np_vectorized",
+    "compute_coverage": true,
     "save_dir": "/home/celsa/Documents/MAGNESIA_population_synthesis/toremove/learning_snle"
   }
 }

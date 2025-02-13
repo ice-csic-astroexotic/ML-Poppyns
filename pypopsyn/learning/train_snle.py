@@ -1,6 +1,6 @@
 """
-    Training script for truncated sequential neural posterior estimation following Papamakarios et al. (2019).
-    https://arxiv.org/pdf/1805.07226).
+    Training script for truncated sequential neural likelihood estimation following Papamakarios et al. (2019).
+    https://arxiv.org/abs/1805.07226).
 
     This script implements the sequential neural likelihood estimator using the sbi package.
 
@@ -19,7 +19,7 @@
 
     Display help message to run the code:
 
-    python train_tsnpe.py --help
+    python train_snle.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -30,48 +30,34 @@
 
 import argparse
 import collections
-import json
 import os
 import pathlib
 import pickle
-import signal
 import sys
 import time
 from logging import Logger
-from types import FrameType
 from typing import List, Optional, Tuple, Union
 
-import corner
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
 from sbi import utils
-from sbi.analysis import check_sbc, run_sbc, sbc_rank_plot
-from sbi.analysis import tensorboard_output as tbo
 from sbi.inference import SNLE
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
 from sbi.inference.snle.snle_a import SNLE_A
 from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
-from tqdm import tqdm
 
 import pypopsyn.learning.configuration_parser as configuration_parser
-import pypopsyn.learning.initializers.initializers as learning_initializers
 import pypopsyn.learning.loaders.loader_multichannel_array as dl
-import pypopsyn.learning.models.models as learning_models
+import pypopsyn.learning.utils.sbi_utils as ut
 import utilities.benchmark.timewith as timewith
-from pypopsyn.generator import generate_dataset_surveys
 from pypopsyn.learning.utils.request_device import request_device
-from utilities.coverage_probability import coverage_prob
 from utilities.experiment_helpers.run_simulation_set_sbi import (
     initialize_dask_cluster,
-    simulator_dask,
-    simulator_multiprocess,
 )
 
 
 def build_network_snle(
-    config: configuration_parser.ConfigurationParser,
     device: torch.device,
     prior: utils.BoxUniform,
 ) -> SNLE_A:
@@ -79,17 +65,13 @@ def build_network_snle(
     Building the neural network (composed of the embedding net and the density estimator) using the configuration file
     specified in the arguments, and setting up the inference procedure.
 
-    Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
-            architecture and other settings.
+    Args:.
         device (torch.device): Device used to run the script.
         prior (utils.BoxUniform): Prior distribution.
 
     Returns:
     """
 
-    # Setting up the inference procedure.
-    # We use the default option SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
     inference = SNLE(
         device=f"{device}",
         prior=prior,
@@ -98,52 +80,7 @@ def build_network_snle(
     return inference
 
 
-def load_inference(
-    config: configuration_parser.ConfigurationParser,
-    round_number: int,
-    ensemble: bool = False,
-) -> Union[List[SNLE_A], SNLE_A]:
-    """
-    Load inference objects from pickle files. Note that this is used when resume mode is enabled.
-
-    Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying the settings.
-        round_number (int): The round number to load the inference from.
-        ensemble (bool): Flag indicating if ensemble mode is enabled. Defaults to False.
-
-    Returns:
-        (Union[List[SNPE_C], SNPE_C]): A list of inference objects.
-    """
-    save_dir = config["resume_training"]["save_dir"]
-    inference_list = []
-
-    for i in range(config["trainer"]["size_ensemble"] if ensemble else 1):
-
-        inference_path = (
-            os.path.join(
-                save_dir, f"round_{round_number}/inference_ensemble_{i}.pickle"
-            )
-            if ensemble
-            else os.path.join(
-                save_dir, f"round_{round_number}/inference.pickle"
-            )
-        )
-
-        if not os.path.exists(inference_path):
-            raise FileNotFoundError(
-                "The folder specified in the config file at cfg['resume_training']['save_dir'] does not contain a inference.pickle file.\n"
-                "To use the resume mode, you need to specify the correct path."
-            )
-
-        with open(inference_path, "rb") as inference_file:
-            inference = pickle.load(inference_file)
-
-        inference_list.append(inference)
-
-    return inference_list
-
-
-def initialize_inference(
+def initialize_inference_snle(
     config: configuration_parser.ConfigurationParser,
     device: torch.device,
     prior: utils.BoxUniform,
@@ -167,198 +104,13 @@ def initialize_inference(
     # If ensemble is set to False, only one neural network will be used for training, resulting in a single inference
     # object. Otherwise, there will be as many inference objects as the number of components in the ensemble.
     for _ in range(config["trainer"]["size_ensemble"] if ensemble else 1):
-        inference = build_network_snle(config, device, prior=prior)
+        inference = build_network_snle(device, prior=prior)
         inference_list.append(inference)
 
     return inference_list
 
 
-def wrapper_pypopsyn(
-    proposal: Union[DirectPosterior, utils.RestrictedPrior],
-    num_sim: int,
-    config: configuration_parser.ConfigurationParser,
-    effective_round: int,
-    test: bool,
-    dataset: dl.DatasetMultichannelArray,
-    device: torch.device,
-) -> str:
-    """
-    Simulating `num_sim` of mock neutron star population given the `proposal` distribution. After simulating the
-    populations, we generate the compressed representations for the output.
-
-    Args:
-        proposal (Union[DirectPosterior,utils.RestrictedPrior]): Proposal distribution used for sampling the parameters.
-        num_sim (int): Number of simulations to perform.
-        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
-        effective_round (int): Number of the effective round during the sequential inference approach.
-        test (bool): Flag indicating whether the simulations are for testing or training. If set to True, the
-            simulations are for testing purposes.
-        dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
-        device (torch.device): Device used to run the script.
-
-    Returns:
-        (str): Path to the generated dataset.
-    """
-
-    # Setting paths.
-    # If 'test' is True, simulations are saved in the folder specified for the testing dataset in the config file.
-    # Otherwise, simulations are saved in the folder specified for the training dataset in the config file.
-    if test:
-        sim_dir_path = (
-            config["test_data_loader"]["dataset_path"]
-            + f"/simulations/round_{effective_round}"
-        )
-        dataset_path = (
-            config["test_data_loader"]["dataset_path"]
-            + f"/generated_dataset/round_{effective_round}"
-        )
-    else:
-        sim_dir_path = (
-            config["training_data_loader"]["dataset_path"]
-            + f"/simulations/round_{effective_round}"
-        )
-        dataset_path = (
-            config["training_data_loader"]["dataset_path"]
-            + f"/generated_dataset/round_{effective_round}"
-        )
-
-    # Extracting simulation parameters from configuration file.
-    dyn_data_path = config["dyn_data_loader"]["dataset_path"]
-    args_dict = {
-        "dyn_data": dyn_data_path,
-        "save_dir": sim_dir_path,
-        "simulator_type": "simulate_population_magrot_det",
-        "sampling_size": num_sim,
-        "processes": config["n_processes"],
-    }
-
-    args_gen = argparse.Namespace(
-        data=str(sim_dir_path),
-        save_dir=str(dataset_path),
-        resolution_ppdot=config["arch"]["args"]["input_shape"][1],
-        resolution_dyn=32,
-        data_type="array",
-    )
-
-    # Running the simulations and generating the corresponding density maps for each simulation. The simulations are run
-    # in a multithreaded manner. If config["enable_dask"] is equal to True, then multithreading will be performed with
-    # the Dask package. Otherwise, it will be performed with the multiprocessing package.
-
-    if config["enable_dask"]:
-        simulator_dask(args_dict, proposal, dataset, device)
-    else:
-        simulator_multiprocess(args_dict, proposal, dataset, device)
-
-    generate_dataset_surveys.generate_dataset(args_gen)
-
-    return dataset_path
-
-
-def corner_plot(
-    observed_samples: torch.tensor,
-    dataset: dl.DatasetMultichannelArray,
-    save_dir: str,
-) -> None:
-
-    """
-    Plotting the corner plot for the posterior distribution.
-
-    Args:
-        observed_samples (torch.tensor): Samples of the distribution to plot.
-        dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
-        save_dir (str): Directory to save the corner plot.
-
-    """
-
-    # Save the statistics for the filtered labels.
-    par_max = torch.tensor(dataset.target_max)
-    par_min = torch.tensor(dataset.target_min)
-    par_std = torch.tensor(dataset.target_std)
-    par_mean = torch.tensor(dataset.target_mean)
-
-    # If the parameters were normalized or standardized rescale quantities to their physical ranges.
-    if dataset.normalize:
-        observed_samples = observed_samples * (par_max - par_min) + par_min
-
-    elif dataset.standardize:
-        observed_samples = observed_samples * par_std + par_mean
-
-    # Saving the best estimated parameters and the 95% CI into the log.txt file.
-    quantile = np.quantile(observed_samples, [0.025, 0.5, 0.975], axis=0)
-
-    range_param = [[par_min[v], par_max[v]] for v in range(len(par_max))]
-
-    param_median = quantile[1, :]
-
-    # Corner plot of the inferred posterior distributions for each parameter.
-    figure = corner.corner(
-        observed_samples.detach().cpu().numpy(),
-        bins=32,
-        labels=dataset.target_names,
-        range=range_param,
-        quantiles=[0.025, 0.5, 0.975],
-        levels=(
-            1 - np.exp(-0.5),
-            1 - np.exp(-2),
-            1 - np.exp(-9.0 / 2.0),
-        ),  # 1, 2 and 3 sigma levels
-        show_titles=True,
-        title_kwargs={"fontsize": 12},
-    )
-    corner.overplot_lines(figure, param_median, color="tab:red")
-
-    corner.overplot_points(
-        figure,
-        param_median[None],
-        marker="s",
-        color="tab:red",
-    )
-    plt.savefig(save_dir)
-    plt.close()
-
-
-def merge_all_rounds_dataset(
-    base_path: pathlib.Path, last_completed_round: int
-) -> pathlib.Path:
-    """
-    Merge all dataset_full.csv files from each round into a single DataFrame. This is necessary in resume mode because,
-    during the first round of resuming the training, we need to load all the previous training datasets from the earlier
-    rounds.
-
-    Args:
-        base_path (Path): The base path where the generated datasets are stored.
-        last_completed_round (int): Last completed round number.
-
-    Returns:
-        (pathlib.Path): The path to the merged dataset.
-    """
-    dataframes = []
-
-    # Iterate through the directories to find all the training datasets for each round.
-    for i in range(last_completed_round + 1):
-        round_path = os.path.join(base_path, f"round_{i}")
-        dataset_path = os.path.join(round_path, "dataset_full.csv")
-
-        df = pd.read_csv(dataset_path)
-        dataframes.append(df)
-
-    # Concatenating all the training datasets into one to use in the first round of the resumed inference.
-    merged_df = pd.concat(dataframes, ignore_index=True)
-
-    # Define the path for the merged dataset.
-    output_path = os.path.join(
-        base_path, f"combine_round_{last_completed_round + 1}"
-    )
-    os.makedirs(output_path, exist_ok=True)
-    merged_dataset_path = os.path.join(output_path, "dataset_full.csv")
-
-    # Save the merged dataframe to a CSV file.
-    merged_df.to_csv(merged_dataset_path, index=False)
-
-    return output_path
-
-
-def prepare_dataset_sbi(
+def prepare_dataset_sbi_snle(
     dataset_folder: str,
     config: configuration_parser.ConfigurationParser,
     logger: Logger,
@@ -417,9 +169,10 @@ def prepare_dataset_sbi(
     parameter = np.zeros((len(dataset), n_parameters))
     matrix = np.zeros((len(dataset), 32))
 
-    trained_model_path = config["training_data_loader"]["trained_embedding"]
-    with open(trained_model_path, "rb") as f:
-        neural_net = pickle.load(f)
+    # Load the pre-trained embedding network to encode each dataset sample into a latent vector.
+    embedding_model_path = config["training_data_loader"]["trained_embedding"]
+    with open(embedding_model_path, "rb") as f:
+        emb_neural_net = pickle.load(f)
 
     for i, (x, theta) in enumerate(dataset):
         # Reshaping the matrix to have the channel number at the beginning.
@@ -432,13 +185,18 @@ def prepare_dataset_sbi(
             )
             sys.exit()
 
-        # We save the latent vector of the generated maps.
         x_embbeded = (
-            neural_net._embedding_net(torch.tensor(x)).detach().numpy()
+            emb_neural_net._embedding_net(torch.tensor(x)).detach().numpy()
         )
-        matrix[i] = (x_embbeded - x_embbeded.mean()) / (
-            x_embbeded.std() + 1e-8
-        )
+        if normalize:
+            matrix[i] = (x_embbeded - x_embbeded.min()) / (
+                x_embbeded.max() - x_embbeded.min()
+            )
+        else:
+            matrix[i] = (x_embbeded - x_embbeded.mean()) / (
+                x_embbeded.std() + 1e-8
+            )
+
         parameter[i] = theta
 
     # Transforming the maps and labels into torch.tensors.
@@ -447,67 +205,7 @@ def prepare_dataset_sbi(
     return dataset, parameter, matrix
 
 
-def save_training_statistics(
-    config: configuration_parser.ConfigurationParser,
-    inference: SNLE,
-    index: int,
-    effective_round: int,
-) -> None:
-    """
-    Save training statistics including scalars and training/validation loss plots.
-
-    Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
-        inference (SNPE_C): sbi inference object.
-        index (int): The ensemble index, if ensemble is set to False index is equal to 0.
-        effective_round (int): Number of the effective round during the sequential inference approach.
-    """
-    all_event_data = tbo._get_event_data_from_log_dir(
-        inference._summary_writer.log_dir
-    )
-    training_statistics = all_event_data["scalars"]
-
-    log_dir_round_path = os.path.join(
-        config.log_dir, f"round_{effective_round}"
-    )
-    os.makedirs(log_dir_round_path, exist_ok=True)
-
-    training_statistics_path = (
-        f"{log_dir_round_path}/training_statistics_{index}.json"
-    )
-    with open(training_statistics_path, "w") as f:
-        json.dump(training_statistics, f, indent=4, sort_keys=True)
-
-    # Save the plot showing the evolution of the training and validation losses.
-    f, ax = plt.subplots(figsize=(8, 6))
-    ax.set_xlabel(r"Epoch")
-    ax.set_ylabel(r"Accuracy")
-    ax.plot(
-        training_statistics["training_log_probs"]["step"],
-        training_statistics["training_log_probs"]["value"],
-        linestyle="-",
-        linewidth=4,
-        color="tab:blue",
-        rasterized=True,
-        label="training",
-    )
-    ax.plot(
-        training_statistics["validation_log_probs"]["step"],
-        training_statistics["validation_log_probs"]["value"],
-        linestyle="-",
-        linewidth=4,
-        color="tab:orange",
-        rasterized=True,
-        label="validation",
-    )
-    plt.legend(bbox_to_anchor=(1.05, 1), frameon=False, loc=0, fontsize=10)
-
-    f.savefig(
-        f"{log_dir_round_path}/training_stats_{index}.pdf", bbox_inches="tight"
-    )
-
-
-def amortized_posterior(
+def posterior_snle(
     config: configuration_parser.ConfigurationParser,
     save_dir_round: pathlib.Path,
     logger: Logger,
@@ -630,7 +328,7 @@ def amortized_posterior(
             f"Saved inference object for round {effective_round}, ensemble index {index}."
         )
         posterior = inference.build_posterior(
-            mcmc_method="slice_np_vectorized",
+            mcmc_method=config["trainer"]["mcmc_sampler"],
             mcmc_parameters={"num_chains": 20, "thin": 5},
         )
         posteriors_list.append(posterior)
@@ -643,7 +341,7 @@ def amortized_posterior(
                 pickle.dump(inference, inference_file)
 
         # Saving the training statistics.
-        save_training_statistics(config, inference, index, effective_round)
+        ut.save_training_statistics(config, inference, index, effective_round)
 
     if ensemble:
         # Giving each network in the ensemble an equal weight.
@@ -655,52 +353,6 @@ def amortized_posterior(
         final_posterior = posteriors_list[0]
 
     return final_posterior
-
-
-def compute_proposal_prior(
-    posterior_obs: DirectPosterior,
-    config: configuration_parser.ConfigurationParser,
-    prior: utils.BoxUniform,
-    device: torch.device,
-) -> utils.RestrictedPrior:
-    """
-    Compute the proposal prior by restricting the prior to the posterior of the observation.
-
-    Args:
-        posterior_obs (DirectPosterior): Posterior distribution at the observation.
-        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
-        prior (utils.BoxUniform): Prior distribution.
-        device (torch.device): Device used for training.
-
-    Returns:
-        (utils.RestrictedPrior): The restricted prior based on the posterior distribution of the observation.
-    """
-    # Computing the region of the posterior distribution used to constrain the prior.
-    accept_reject_fn = utils.get_density_thresholder(
-        posterior_obs,
-        quantile=1e-4,
-        num_samples_to_estimate_support=10000,
-    )
-    # Computing the new proposal by restricting the prior to the posterior of the observation.
-    # If config["sir"] is set to true, the restricted prior sampling uses sampling importance
-    # resampling (Rubin et al., 1988); otherwise, it employs rejection sampling. Note that the latter
-    # method may take longer for a narrowed posterior distribution where the rejection rate is high.
-    if config["trainer"]["sir"]:
-        proposal = utils.RestrictedPrior(
-            prior,
-            accept_reject_fn,
-            posterior=posterior_obs,
-            sample_with="sir",
-            device=f"{device}",
-        )
-    else:
-        proposal = utils.RestrictedPrior(
-            prior,
-            accept_reject_fn,
-            sample_with="rejection",
-            device=f"{device}",
-        )
-    return proposal
 
 
 def train(
@@ -777,7 +429,7 @@ def train(
                     config["training_data_loader"]["dataset_path"],
                     "generated_dataset",
                 )
-                train_dataset_path = merge_all_rounds_dataset(
+                train_dataset_path = ut.merge_all_rounds_dataset(
                     train_dataset_all_round_path, last_completed_round
                 )
             else:
@@ -787,11 +439,16 @@ def train(
             logger.info(
                 "Preparing the training dataset for sbi for the first round..."
             )
-            dataset, parameter, matrix = prepare_dataset_sbi(
+            dataset, parameter, matrix = prepare_dataset_sbi_snle(
                 train_dataset_path, config, logger
             )
             n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
             num_rounds = config["trainer"]["num_rounds"]
+
+            # Loading the train dataset as a dataframe and extracting the ground truth labels.
+            filter_labels = config["training_data_loader"]["filter_labels"]
+            dataset_df = pd.read_csv(train_dataset_path + "/dataset_full.csv")
+            parameter_labels = dataset_df.columns[filter_labels]
 
             if config["set_manual_seed"] is True:
                 torch.manual_seed(config["manual_seed"])
@@ -842,16 +499,16 @@ def train(
             # the inference object as all the information about the weights is already in the trained model.
 
             if resume and not retrain_from_scratch:
-                inference_list = load_inference(
+                inference_list = ut.load_inference(
                     config, last_completed_round, ensemble
                 )
             else:
-                inference_list = initialize_inference(
+                inference_list = initialize_inference_snle(
                     config, device, prior, ensemble
                 )
 
             # Create the matrix for the observed sample of neutron stars.
-            _, _, x_o = prepare_dataset_sbi(
+            _, _, x_o = prepare_dataset_sbi_snle(
                 config["observed_sample"]["dataset_path"],
                 config,
                 logger,
@@ -907,7 +564,7 @@ def train(
                                 num_sim_train
                             )
                         )
-                        train_dataset_path = wrapper_pypopsyn(
+                        train_dataset_path = ut.wrapper_pypopsyn(
                             proposal,
                             config=config,
                             num_sim=num_sim_train,
@@ -921,7 +578,7 @@ def train(
                         logger.info(
                             "Preparing the training data set for sbi..."
                         )
-                        dataset, parameter, matrix = prepare_dataset_sbi(
+                        dataset, parameter, matrix = prepare_dataset_sbi_snle(
                             train_dataset_path, config, logger
                         )
 
@@ -935,7 +592,7 @@ def train(
                         f"Training the density estimator with {parameter_round.shape[0]} samples in round {effective_round} ..."
                     )
 
-                    posterior = amortized_posterior(
+                    posterior = posterior_snle(
                         config=config,
                         save_dir_round=save_dir_round,
                         logger=logger,
@@ -948,6 +605,75 @@ def train(
                         prof_json_path=prof_json_path,
                         retrain_from_scratch=retrain_from_scratch,
                     )
+
+                # If compute_coverage is equal to True, simulate a test dataset and compute its coverage probability.
+                if config["trainer"]["compute_coverage"]:
+                    with timewith.TimeWith(
+                        f"[TestingRound{i}]",
+                        prof_log_path,
+                        prof_json_path,
+                        config["show_profiling"],
+                    ):
+
+                        num_sim_test = config["test_data_loader"]["num_sim"]
+
+                        if i == 0:
+                            logger.info(
+                                f"Loading the test dataset for round {effective_round}..."
+                            )
+
+                            # If resuming from a previous training run, we do not create the test dataset in the first
+                            # iteration. Instead, we use the test dataset from the last completed round.
+                            if resume:
+                                test_dataset_path = str(
+                                    pathlib.Path().joinpath(
+                                        config["test_data_loader"][
+                                            "dataset_path"
+                                        ],
+                                        f"generated_dataset/round_{effective_round}",
+                                    )
+                                )
+
+                            else:
+                                test_dataset_path = config["test_data_loader"][
+                                    "dataset_path_first_round"
+                                ]
+
+                        else:
+                            logger.info(
+                                "Simulating the test dataset for {} simulations...".format(
+                                    num_sim_test
+                                )
+                            )
+                            test_dataset_path = ut.wrapper_pypopsyn(
+                                proposal,
+                                config=config,
+                                num_sim=num_sim_test,
+                                effective_round=effective_round,
+                                test=True,
+                                dataset=dataset,
+                                device=device,
+                            )
+                        (
+                            _,
+                            parameter_test,
+                            matrix_test,
+                        ) = ut.prepare_dataset_sbi(
+                            test_dataset_path, config, logger
+                        )
+                        logger.info(
+                            f"Computing the ranks and the coverage probability for round_{effective_round}"
+                        )
+                        ut.compute_rank_coverage(
+                            save_dir=save_dir_round,
+                            parameter=parameter_test,
+                            matrix=matrix_test,
+                            posterior=posterior,
+                            device=device,
+                            parameter_labels=parameter_labels,
+                            logger=logger,
+                            effective_round=effective_round,
+                        )
 
                 with timewith.TimeWith(
                     f"[ComputeRestrictedPriorRound{effective_round}]",
@@ -969,7 +695,7 @@ def train(
                 observed_samples_posterior = posterior_obs.sample(
                     (10000,), show_progress_bars=True
                 ).cpu()
-                corner_plot(
+                ut.corner_plot(
                     observed_samples_posterior,
                     dataset,
                     f"{save_dir_round}/corner_plot_observed_sample_{effective_round}.pdf",
@@ -983,7 +709,7 @@ def train(
                 # and avoid reusing the previously trained weights at each round.
 
                 if retrain_from_scratch:
-                    inference_list = initialize_inference(
+                    inference_list = initialize_inference_snle(
                         config, device, prior, ensemble
                     )
 
