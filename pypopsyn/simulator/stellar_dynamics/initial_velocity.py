@@ -69,10 +69,15 @@ def pdf_kick_velocity_2maxwell(v: np.ndarray) -> np.ndarray:
     """
 
     # Define the dispersions of the two Maxwellian components.
-    sigma_1 = 55
-    sigma_2 = 334
+    sigma_1 = cfg["sigma_k_1"]
+    sigma_2 = cfg["sigma_k_2"]
     # Define the fractional contribution of the first Maxwellian.
-    w = 0.19
+    w = cfg["kick_weight"]
+    if (w < 0) or (w > 1):
+        raise ValueError(
+            "The relative weight parameter of the km_2maxwell kick velocity model must be in "
+            "the range 0 and 1."
+        )
 
     pdf_maxwell_1 = (
         np.sqrt(2 / np.pi)

@@ -16,24 +16,35 @@ import utilities.samplers.random_sampler as rs
 from pypopsyn.simulator.config_simulator import cfg
 
 
-def beam_aperture(P: np.ndarray, r_em: float) -> np.ndarray:
+def beam_aperture(P: np.ndarray) -> np.ndarray:
     """
     Half angular aperture in [rad] of the radio beam as a function of the spin period.
-    It can be derived by assuming that the radio beam width extends in the open
-    field line region around the magnetic poles of the star.
+
+    For the "standard_period_cone" model, the aperture is derived by assuming that the radio beam width extends
+    into the open field line region around the magnetic poles of the star.
     See eq. (3.29) in Lorimer and Kramer (2005) and eq. (2) in Johnston et al. (2020)
     for a derivation and discussion of this model.
+    For the "power-law_period_cone" model, we adopted a generic power-law of the spin period (see Maciesiak et al. 2012).
 
     Args:
         P (np.ndarray): Array of spin periods of the pulsars in [s].
-        r_em (float): Distance from the center of the star where the radio emission
-            is supposed to be generated [cm].
 
     Returns:
         (np.ndarray): Half angular aperture of the radio beam in [rad].
     """
 
-    rho_b = np.sqrt(9.0 * np.pi * r_em / (2.0 * const.C * P))
+    beam_model = cfg["radio_beam_model"]
+
+    if beam_model == "standard_period_cone":
+        rho_b = np.sqrt(9.0 * np.pi * cfg["r_em"] / (2.0 * const.C * P))
+    elif beam_model == "power-law_period_cone":
+        rho_b = cfg["rho_b_0"] * P ** cfg["a_beam"]
+        # Convert the half angular aperture from [deg] to [rad].
+        rho_b = rho_b * np.pi / 180.0
+    else:
+        raise ValueError(
+            "The radio beam model does not exist. Choose between standard_period_cone or power-law_period_cone."
+        )
 
     return rho_b
 
@@ -257,6 +268,30 @@ def flux_density_radio(
     return S_radio_f
 
 
+def compute_spectral_index(
+    mean: float, sigma: float, NS_number: int
+) -> np.ndarray:
+    """
+    Draw a random spectral index from a Gaussian distribution (see Posselt et al. 2023).
+
+    Args:
+        mean (float): Mean spectral index for the Gaussian distribution.
+        sigma (float): Standard deviation for the Gaussian distribution.
+        NS_number (int): Number of neutron stars for which sampling the spectral index.
+
+    Returns:
+        (np.ndarray): Array of spectral indices.
+    """
+
+    spectral_index = np.random.normal(
+        mean,
+        sigma,
+        NS_number,
+    )
+
+    return spectral_index
+
+
 def calculate_radio_emission(
     P: np.ndarray,
     age: np.ndarray,
@@ -265,7 +300,7 @@ def calculate_radio_emission(
     dist: np.ndarray,
     B: np.ndarray,
     chi: np.ndarray,
-    idx_det: np.ndarray,
+    idx: np.ndarray,
 ) -> dict:
     """
     Compute the radio beam geometry, the intrinsic bolometric radio flux and the DM.
@@ -280,14 +315,14 @@ def calculate_radio_emission(
         dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
         B (np.ndarray): Array of neutron stars' final magnetic field strengths in [G].
         chi (np.ndarray): Array of the misalignment angles in [rad].
-        idx_det (np.ndarray): Array of the indexes of detected pulsars.
+        idx (np.ndarray): Array of the indexes of pulsars.
 
     Returns:
         (Dict): Dictionary with the intrinsic properties of the pulsars whose beam crosses our line of sight.
     """
 
     # Determining the radio beam angular aperture.
-    rho_beam = beam_aperture(P, cfg["r_em"])
+    rho_beam = beam_aperture(P)
 
     # Determining the solid angle covered by the two radio beams.
     solid_angle_beam = solid_angle_radio_beams(rho_beam)
@@ -306,7 +341,7 @@ def calculate_radio_emission(
     )
 
     # Select only neutron stars that point at us.
-    idx_det = idx_det[intercepted_radio]
+    idx_det = idx[intercepted_radio]
 
     age_det = age[intercepted_radio]
     l_det = l_gal[intercepted_radio]
@@ -362,19 +397,29 @@ def calculate_radio_emission(
         cfg["ed_model"],
     )
 
+    # Computing the spectral index and the scattering timescale at 327 MHz of each star.
+    spectral_index = compute_spectral_index(
+        cfg["mean_spectral_index"],
+        cfg["std_spectral_index"],
+        len(S_radio_bol),
+    )
+    tau_sc = edm.compute_tau_sc_327(DM)
+
     dictionary_intercepted_radio = {
-        "age_det": age_det,
-        "l_det": l_det,
-        "b_det": b_det,
-        "B_det": B_det,
-        "chi_det": chi_det,
-        "P_det": P_det,
-        "P_dot_det": P_dot_det,
+        "age": age_det,
+        "l": l_det,
+        "b": b_det,
+        "B": B_det,
+        "chi": chi_det,
+        "P": P_det,
+        "P_dot": P_dot_det,
         "w_int_s": w_int_s,
         "L_radio_bol": L_radio_bol,
         "S_radio_bol": S_radio_bol,
+        "spectral_index": spectral_index,
         "DM": DM,
-        "idx_det": idx_det,
+        "tau_sc": tau_sc,
+        "idx": idx_det,
         "intercepted_radio": intercepted_radio,
     }
 
@@ -412,7 +457,7 @@ def calculate_radio_emission_full(
     L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
 
     # Determining the radio beam angular aperture.
-    rho_beam = beam_aperture(P, cfg["r_em"])
+    rho_beam = beam_aperture(P)
 
     # Determining the solid angle covered by the two radio beams.
     solid_angle_beam = solid_angle_radio_beams(rho_beam)

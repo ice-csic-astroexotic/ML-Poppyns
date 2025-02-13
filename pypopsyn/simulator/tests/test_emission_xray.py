@@ -5,24 +5,6 @@ Tests for the x-ray emission module.
 
         Michele Ronchi (ronchi@ice.csic.es)
 
-MIT License
-
-Copyright (c) MAGNESIA (ICE-CSIC) 2024
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 """
 
 import numpy as np
@@ -64,7 +46,7 @@ def test_case_1():
                 [5.26614782e26, 5.84076633e28, 1.25833142e28, 1.00757951e-15],
             ]
         ),
-        "n_plus_no_delta_expected": np.array(
+        "n_plus_without_delta_expected": np.array(
             [
                 [
                     [0.0, 0.0, 0.0, 0.0],
@@ -164,12 +146,12 @@ def test_blackbody_intensity_spectrum(test_case_1):
     ).all()
 
 
-def test_n_plus_no_delta(test_case_1):
+def test_n_plus_without_delta(test_case_1):
     """
     Verifying that the transmission function n+ without the Dirac delta term is correctly calculated.
     """
 
-    n_plus_no_delta_out = xem.n_plus_no_delta(
+    n_plus_without_delta_out = xem.n_plus_without_delta(
         test_case_1["E"],
         test_case_1["E_0"],
         test_case_1["tau_0"],
@@ -177,8 +159,8 @@ def test_n_plus_no_delta(test_case_1):
     )
 
     assert np.isclose(
-        test_case_1["n_plus_no_delta_expected"],
-        n_plus_no_delta_out,
+        test_case_1["n_plus_without_delta_expected"],
+        n_plus_without_delta_out,
         rtol=TOL,
         atol=1.0e-5,
     ).all()

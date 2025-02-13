@@ -12,6 +12,7 @@ from unittest import mock
 import numpy as np
 import pytest
 
+import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import utilities.samplers.random_sampler as rs
 from pypopsyn.simulator.config_simulator import cfg
@@ -28,14 +29,14 @@ cfg["epsilon_L"] = 0.5
 @pytest.fixture()
 def test_case_1():
     data = {
-        "r_em": cfg["r_em"],
         "P": np.array([0.1, 1.0]),
         "P_dot": np.array([1.0e-15, 1.0e-13]),
         "chi": np.array([np.pi / 3.0, np.pi / 4.0]),
         "rho_b": np.array([0.3, 0.1]),
         "los": np.array([0.3, 0.8]),
         "solid_angle_expected": np.array([0.56126, 0.062780]),
-        "beam_aperture_expected": np.array([0.37612, 0.11894]),
+        "beam_aperture_expected_standard": np.array([0.37612, 0.11894]),
+        "beam_aperture_expected_powerlaw": np.array([0.27596079, 0.08726646]),
         "w_expected": np.array([0.277910]),
         "beam_fraction_expected": np.array([0.51186, 0.14119]),
         "intercepted_expected": np.array([False, True]),
@@ -54,34 +55,35 @@ def test_case_1():
 @pytest.fixture()
 def test_case_2():
     data = {
-        "dataset_dict": {
-            "P": np.array([6.28, 0.54]),
-            "P_dot": np.array([1.0e-15, 1.0e-13]),
-            "age": np.array([8.2e6, 1.7e6]),
-            "l_gal": np.array([-2.05, -12.2]),
-            "b_gal": np.array([-8.15, 7.51]),
-            "dist": np.array([12.0, 6.59]),
-            "B": np.array([2.32e11, 2.57e11]),
-            "chi": np.array([0.99, 0.99]),
-            "idx_det": np.array([1804, 2874]),
-            "intercept_los_expected": np.array([False, True]),
-            "los_rand": np.array([1.04, 1.05]),
-            "l_radio_bol": np.array([7.85e24, 2.93e27]),
-        },
-        "dict_expected": {
-            "age_det": np.array([1700000.0]),
-            "l_det": np.array([-12.2]),
-            "b_det": np.array([7.51]),
-            "B_det": np.array([2.57e11]),
-            "chi_det": np.array([0.99]),
-            "P_det": np.array([0.54]),
-            "P_dot_det": np.array([9.95040457e-17]),
+        "P": np.array([6.28, 0.54]),
+        "P_dot": np.array([1.0e-15, 1.0e-13]),
+        "age": np.array([8.2e6, 1.7e6]),
+        "l_gal": np.array([-2.05, -12.2]),
+        "b_gal": np.array([-8.15, 7.51]),
+        "dist": np.array([12.0, 6.59]),
+        "B": np.array([2.32e11, 2.57e11]),
+        "chi": np.array([0.99, 0.99]),
+        "idx": np.array([1804, 2874]),
+        "los_rand": np.array([1.04, 1.05]),
+        "L_radio_bol": np.array([2.93e27]),
+        "spectral_index": np.array([-1.8]),
+        "DM": np.array([310.89]),
+        "tau_sc": np.array([0.01584893]),
+        "dict_intercepted_radio_expected": {
+            "age": np.array([1700000.0]),
+            "l": np.array([-12.2]),
+            "b": np.array([7.51]),
+            "B": np.array([2.57e11]),
+            "chi": np.array([0.99]),
+            "P": np.array([0.54]),
+            "P_dot": np.array([9.95040457e-17]),
             "w_int_s": np.array([0.03034442]),
-            "w_int_s_full": np.array([0, 0.03034442]),
-            "L_radio_bol": np.array([7.85e24, 2.93e27]),
-            "S_radio_bol": np.array([1.15583818e-19, 4.31414761e-17]),
-            "DM": np.array([130.08355713]),
-            "idx_det": np.array([2874]),
+            "L_radio_bol": np.array([2.93e27]),
+            "S_radio_bol": np.array([4.31414761e-17]),
+            "spectral_index": np.array([-1.8]),
+            "DM": np.array([310.89]),
+            "tau_sc": np.array([0.01584893]),
+            "idx": np.array([2874]),
             "intercepted_radio": np.array([False, True]),
         },
     }
@@ -89,19 +91,60 @@ def test_case_2():
     return data
 
 
-def test_beam_aperture(test_case_1):
+@pytest.fixture()
+def test_case_3():
+    data = {
+        "P": np.array([6.28, 0.54]),
+        "P_dot": np.array([1.0e-15, 1.0e-13]),
+        "dist": np.array([12.0, 6.59]),
+        "chi": np.array([0.99, 0.99]),
+        "los_rand": np.array([1.04, 1.05]),
+        "L_radio_bol": np.array([7.85e24, 2.93e27]),
+        "intercepted_radio_expected": np.array([False, True]),
+        "S_radio_bol_expected": np.array([1.15583818e-19, 4.31414761e-17]),
+        "w_int_s_expected": np.array([0, 0.03034442]),
+        "L_radio_bol_expected": np.array([7.85e24, 2.93e27]),
+    }
+    return data
+
+
+def test_beam_aperture_standard(test_case_1):
     """
     Verifying that for a given choice of spin period and emission radius the
     angular beam aperture is correctly calculated.
     """
+    # Set the values of the configuration file for testing purposes.
+    cfg["radio_beam_model"] = "standard_period_cone"
+    cfg["r_em"]: float = 3.0e7
 
     beam_aperture_out = er.beam_aperture(
         test_case_1["P"],
-        test_case_1["r_em"],
     )
 
     assert np.isclose(
-        test_case_1["beam_aperture_expected"],
+        test_case_1["beam_aperture_expected_standard"],
+        beam_aperture_out,
+        rtol=TOL,
+        atol=1.0e-5,
+    ).all()
+
+
+def test_beam_aperture_powerlaw(test_case_1):
+    """
+    Verifying that for a given choice of spin period and emission radius the
+    angular beam aperture is correctly calculated.
+    """
+    # Set the values of the configuration file for testing purposes.
+    cfg["radio_beam_model"] = "power-law_period_cone"
+    cfg["rho_b_0"] = 5.0
+    cfg["a_beam"] = -0.5
+
+    beam_aperture_out = er.beam_aperture(
+        test_case_1["P"],
+    )
+
+    assert np.isclose(
+        test_case_1["beam_aperture_expected_powerlaw"],
         beam_aperture_out,
         rtol=TOL,
         atol=1.0e-5,
@@ -241,58 +284,79 @@ def test_flux_density_radio(test_case_1):
 
 
 def test_calculate_radio_emission(monkeypatch, test_case_2):
-
     """
     Verifying that the radio emission is computed correctly.
     """
+    # Set the values of the configuration file for testing purposes.
+    cfg["radio_beam_model"] = "standard_period_cone"
+    cfg["r_em"]: float = 3.0e7
 
     def mock_los_rand(*args, **kwargs):
-        return test_case_2["dataset_dict"]["los_rand"]
+        return test_case_2["los_rand"]
 
     monkeypatch.setattr(rs, "random_from_pdf", mock_los_rand)
 
     def mock_pdf_luminosity_radio_edot(*args, **kwargs):
-        return test_case_2["dataset_dict"]["l_radio_bol"]
+        return test_case_2["L_radio_bol"]
 
     monkeypatch.setattr(
         er, "pdf_luminosity_radio_edot", mock_pdf_luminosity_radio_edot
     )
 
+    def mock_compute_spectral_index(*args, **kwargs):
+        return test_case_2["spectral_index"]
+
+    monkeypatch.setattr(
+        er, "compute_spectral_index", mock_compute_spectral_index
+    )
+
+    def mock_compute_DM(*args, **kwargs):
+        return test_case_2["DM"]
+
+    monkeypatch.setattr(edm, "compute_DM", mock_compute_DM)
+
+    def mock_compute_tau_sc_327(*args, **kwargs):
+        return test_case_2["tau_sc"]
+
+    monkeypatch.setattr(edm, "compute_tau_sc_327", mock_compute_tau_sc_327)
+
     emission_radio_dict_out = er.calculate_radio_emission(
-        test_case_2["dataset_dict"]["P"],
-        test_case_2["dataset_dict"]["age"],
-        test_case_2["dataset_dict"]["l_gal"],
-        test_case_2["dataset_dict"]["b_gal"],
-        test_case_2["dataset_dict"]["dist"],
-        test_case_2["dataset_dict"]["B"],
-        test_case_2["dataset_dict"]["chi"],
-        test_case_2["dataset_dict"]["idx_det"],
+        test_case_2["P"],
+        test_case_2["age"],
+        test_case_2["l_gal"],
+        test_case_2["b_gal"],
+        test_case_2["dist"],
+        test_case_2["B"],
+        test_case_2["chi"],
+        test_case_2["idx"],
     )
 
     for key1 in emission_radio_dict_out.keys():
 
         assert np.isclose(
-            emission_radio_dict_out[key1].all(),
-            test_case_2["dict_expected"][key1].all(),
+            emission_radio_dict_out[key1],
+            test_case_2["dict_intercepted_radio_expected"][key1],
             rtol=TOL,
             atol=1.0e-30,
-        )
+        ).all()
 
 
-def test_calculate_radio_emission_full(monkeypatch, test_case_2):
-
+def test_calculate_radio_emission_full(monkeypatch, test_case_3):
     """
     Verifying that the radio emission is computed correctly.
     """
+    # Set the values of the configuration file for testing purposes.
     cfg["NS_number"] = 2
+    cfg["radio_beam_model"] = "standard_period_cone"
+    cfg["r_em"]: float = 3.0e7
 
     def mock_los_rand(*args, **kwargs):
-        return test_case_2["dataset_dict"]["los_rand"]
+        return test_case_3["los_rand"]
 
     monkeypatch.setattr(rs, "random_from_pdf", mock_los_rand)
 
     def mock_pdf_luminosity_radio_edot(*args, **kwargs):
-        return test_case_2["dataset_dict"]["l_radio_bol"]
+        return test_case_3["L_radio_bol"]
 
     monkeypatch.setattr(
         er, "pdf_luminosity_radio_edot", mock_pdf_luminosity_radio_edot
@@ -304,31 +368,31 @@ def test_calculate_radio_emission_full(monkeypatch, test_case_2):
         w_int_s,
         L_radio_bol,
     ) = er.calculate_radio_emission_full(
-        test_case_2["dataset_dict"]["P"],
-        test_case_2["dataset_dict"]["P_dot"],
-        test_case_2["dataset_dict"]["dist"],
-        test_case_2["dataset_dict"]["chi"],
+        test_case_3["P"],
+        test_case_3["P_dot"],
+        test_case_3["dist"],
+        test_case_3["chi"],
     )
     assert np.isclose(
-        test_case_2["dict_expected"]["intercepted_radio"],
+        test_case_3["intercepted_radio_expected"],
         intercepted_radio,
         rtol=TOL,
         atol=1.0e-5,
     ).all()
     assert np.isclose(
-        test_case_2["dict_expected"]["S_radio_bol"],
+        test_case_3["S_radio_bol_expected"],
         S_radio_bol,
         rtol=TOL,
         atol=1.0e-5,
     ).all()
     assert np.isclose(
-        test_case_2["dict_expected"]["w_int_s_full"],
+        test_case_3["w_int_s_expected"],
         w_int_s,
         rtol=TOL,
         atol=1.0e-5,
     ).all()
     assert np.isclose(
-        test_case_2["dict_expected"]["L_radio_bol"],
+        test_case_3["L_radio_bol_expected"],
         L_radio_bol,
         rtol=TOL,
         atol=1.0e-5,
