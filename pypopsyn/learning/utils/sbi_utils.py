@@ -1,28 +1,9 @@
 """
-    Training script for truncated sequential neural posterior estimation following Deistler et al. (2022).
-    [https://arxiv.org/abs/2210.04815](https://arxiv.org/abs/2210.04815).
-
-    This script implements the truncated sequential neural posterior estimator using the sbi package. It iteratively
-    trains a density estimator for `num_rounds`, where each iteration involves generating training and testing datasets
-    based on the previously approximated posterior distribution at the observed sample. This approach focuses on
-    the region of the parameter space that matches the observed population to save computational resources.
-
-    To create the training and test datasets, we use either the `multiprocessing` or `Dask`
-    [https://www.dask.org/](https://www.dask.org/) package to run the simulations simultaneously in a multithreaded
-    manner. To use Dask change the variable `enable_dask` in the configuration file to True. Otherwise, change it to
-    False to use multiprocessing.
-
-    Note that there is an option to resume training from a previous run. This allows for training over multiple rounds
-    on a server. If the maximum wall time is reached or if any interruptions occur, the training can be resumed from
-    the last completed round. To enable the resume mode, set the `resume_training` field to `True` in the configuration
-    file. It is also necessary to specify where the logs and models were saved in the first run and indicate the last
-    completed round.
-
-    For further details, visit [https://www.mackelab.org/sbi/](https://www.mackelab.org/sbi/).
+    Sbi utilities.
 
     Display help message to run the code:
 
-    python train_tsnpe.py --help
+    python sbi_utils.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -50,13 +31,18 @@ import torch
 from sbi import utils
 from sbi.analysis import check_sbc, run_sbc, sbc_rank_plot
 from sbi.analysis import tensorboard_output as tbo
+from sbi.inference import SNLE, SNPE
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
-from sbi.inference.snle import SNLE_A
-from sbi.inference.snpe import SNPE_C
+from sbi.inference.snle.snle_a import SNLE_A
+from sbi.inference.snpe.snpe_c import SNPE_C
+from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 from tqdm import tqdm
 
 import pypopsyn.learning.configuration_parser as configuration_parser
+import pypopsyn.learning.initializers.initializers as learning_initializers
 import pypopsyn.learning.loaders.loader_multichannel_array as dl
+import pypopsyn.learning.models.models as learning_models
+import utilities.benchmark.timewith as timewith
 from pypopsyn.generator import generate_dataset_surveys
 from utilities.coverage_probability import coverage_prob
 from utilities.experiment_helpers.run_simulation_set_sbi import (
@@ -452,86 +438,6 @@ def merge_all_rounds_dataset(
     return output_path
 
 
-def prepare_dataset_sbi(
-    dataset_folder: str,
-    config: configuration_parser.ConfigurationParser,
-    logger: Logger,
-    atnf: Optional[bool] = False,
-) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
-    """
-    Prepare dataset for use in sbi training.
-
-    Args:
-        dataset_folder (str): Path to the folder where the dataset is saved.
-        config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
-        atnf (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to
-            the observed population or to a simulated population. If set to True, the simulations correspond to the
-            observed ATNF population. The default is False.
-        logger (Logger): Logger object.
-
-    Returns:
-        (tuple): A tuple containing the dataset, parameter tensor and input matrix tensor.
-    """
-
-    # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
-    dataset_path = (
-        dataset_folder + "/dataset_atnf.csv"
-        if atnf
-        else dataset_folder + "/dataset_full.csv"
-    )
-
-    dataset_stat_path = config["training_data_loader"]["statistic_path"]
-
-    if atnf:
-        filter_inputs = config["observed_sample"]["filter_inputs"]
-        filter_labels = config["observed_sample"]["filter_labels"]
-    else:
-        filter_inputs = config["training_data_loader"]["filter_inputs"]
-        filter_labels = config["training_data_loader"]["filter_labels"]
-
-    normalize = config["training_data_loader"]["normalize"]
-    standardize = config["training_data_loader"]["standardize"]
-    input_shape = config["arch"]["args"]["input_shape"]
-    n_parameters = len(filter_labels)
-
-    # Loading the training dataset.
-    try:
-        dataset = dl.DatasetMultichannelArray(
-            dataset_path=dataset_path,
-            statistic_path=dataset_stat_path,
-            filter_channels=filter_inputs,
-            filter_labels=filter_labels,
-            normalize=normalize,
-            standardize=standardize,
-        )
-    except Exception:
-        logger.exception("Error: an error occurred when loading the dataset.")
-        sys.exit(1)
-
-    parameter = np.zeros((len(dataset), n_parameters))
-    matrix = np.zeros(
-        (len(dataset), input_shape[0], input_shape[1], input_shape[2])
-    )
-    for i, (x, theta) in enumerate(dataset):
-        # Reshaping the matrix to have the channel number at the beginning.
-        x = np.moveaxis(x, -1, 0)
-
-        if list(x.shape) != input_shape:
-            logger.error(
-                "Mismatch between the shape of the input data x {} and the input shape specified "
-                "in the configuration file {}".format(x.shape, input_shape)
-            )
-            sys.exit()
-
-        matrix[i] = x
-        parameter[i] = theta
-
-    # Transforming the maps and labels into torch.tensors.
-    parameter = torch.from_numpy(parameter).type(torch.float32)
-    matrix = torch.from_numpy(matrix).type(torch.float32)
-    return dataset, parameter, matrix
-
-
 def save_training_statistics(
     config: configuration_parser.ConfigurationParser,
     inference: Union[SNPE_C, SNLE_A],
@@ -737,3 +643,372 @@ def compute_rank_coverage(
         bbox_inches="tight",
     )
     plt.close()
+
+
+def build_network_snpe(
+    config: configuration_parser.ConfigurationParser,
+    device: torch.device,
+    prior: utils.BoxUniform,
+) -> SNPE_C:
+    """
+    Building the neural network (composed of the embedding net and the density estimator) using the configuration file
+    specified in the arguments, and setting up the inference procedure.
+
+    Args:
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
+            architecture and other settings.
+        device (torch.device): Device used to run the script.
+        prior (utils.BoxUniform): Prior distribution.
+
+    Returns:
+        (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi's SNPE inference objects.
+    """
+
+    # Building the embedding network.
+    embedding_net = config.init_object("arch", learning_models)
+
+    # Initialize weights.
+    weight_initializer = config.init_object(
+        "weights_initializer", learning_initializers
+    )
+    # Apply the weight initialization scheme to every layer in the model.
+    embedding_net.apply(weight_initializer)
+
+    # Build density estimator.
+    # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
+    # The weights are initialized with the default initialization provided by pytorch.
+    hidden_features = config["arch"]["args"]["len_output_layer"]
+
+    neural_posterior = utils.posterior_nn(
+        model=config["density_estimator"]["type"],
+        embedding_net=embedding_net,
+        hidden_features=hidden_features,
+        num_components=config["density_estimator"]["args"]["num_components"],
+        device=device,
+    )
+
+    # Setting up the inference procedure.
+    # We use the default option SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+    inference = SNPE(
+        density_estimator=neural_posterior,
+        device=f"{device}",
+        prior=prior,
+    )
+
+    return inference
+
+
+def build_network_snle(
+    device: torch.device,
+    prior: utils.BoxUniform,
+) -> SNLE_A:
+    """
+    Building the neural network (composed of the embedding net and the density estimator) using the configuration file
+    specified in the arguments, and setting up the inference procedure.
+
+    Args:.
+        device (torch.device): Device used to run the script.
+        prior (utils.BoxUniform): Prior distribution.
+
+    Returns:
+    """
+
+    inference = SNLE(
+        device=f"{device}",
+        prior=prior,
+    )
+
+    return inference
+
+
+def initialize_inference(
+    config: configuration_parser.ConfigurationParser,
+    device: torch.device,
+    prior: utils.BoxUniform,
+    logger: Logger,
+    ensemble: bool = False,
+) -> Union[List[SNPE], List[SNLE]]:
+    """
+    Initialize inference objects using the provided configuration.
+
+    Args:
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the network and other settings.
+        device (torch.device): Device used to run the script.
+        prior (utils.BoxUniform): Prior distribution used for inference.
+        logger (Logger): Logger object.
+        ensemble (bool): Flag indicating if ensemble mode is enabled.
+
+    Returns:
+        (Union[List[SNPE], List[SNLE]]): List of initialized inference objects.
+    """
+    inference_list = []
+    model_type = config["trainer"]["type"]
+    for _ in range(config["trainer"]["size_ensemble"] if ensemble else 1):
+        if model_type == "snle":
+            inference = build_network_snle(device, prior)
+        elif model_type == "snpe":
+            inference = build_network_snpe(config, device, prior)
+        else:
+            logger.exception(
+                "The model type '{}' is not supported. ".format(model_type)
+            )
+            sys.exit(1)
+
+        inference_list.append(inference)
+
+    return inference_list
+
+
+def prepare_dataset_sbi(
+    dataset_folder: str,
+    config: configuration_parser.ConfigurationParser,
+    logger: Logger,
+    atnf: Optional[bool] = False,
+) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
+    """
+    Prepare dataset for use in sbi training.
+
+    Args:
+        dataset_folder (str): Path to the folder where the dataset is saved.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
+        atnf (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to
+            the observed population or to a simulated population. If set to True, the simulations correspond to the
+            observed ATNF population. The default is False.
+        logger (Logger): Logger object.
+
+    Returns:
+        (tuple): A tuple containing the dataset, parameter tensor and input matrix tensor.
+    """
+
+    # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
+    dataset_path = (
+        dataset_folder + "/dataset_atnf.csv"
+        if atnf
+        else dataset_folder + "/dataset_full.csv"
+    )
+
+    dataset_stat_path = config["training_data_loader"]["statistic_path"]
+
+    if atnf:
+        filter_inputs = config["observed_sample"]["filter_inputs"]
+        filter_labels = config["observed_sample"]["filter_labels"]
+    else:
+        filter_inputs = config["training_data_loader"]["filter_inputs"]
+        filter_labels = config["training_data_loader"]["filter_labels"]
+
+    normalize = config["training_data_loader"]["normalize"]
+    standardize = config["training_data_loader"]["standardize"]
+    input_shape = config["arch"]["args"]["input_shape"]
+    n_parameters = len(filter_labels)
+
+    # Loading the training dataset.
+    try:
+        dataset = dl.DatasetMultichannelArray(
+            dataset_path=dataset_path,
+            statistic_path=dataset_stat_path,
+            filter_channels=filter_inputs,
+            filter_labels=filter_labels,
+            normalize=normalize,
+            standardize=standardize,
+        )
+    except Exception:
+        logger.exception("Error: an error occurred when loading the dataset.")
+        sys.exit(1)
+
+    parameter = np.zeros((len(dataset), n_parameters))
+    matrix = np.zeros((len(dataset), 32))
+
+    if config["trainer"]["embedding"]:
+        # Load the pre-trained embedding network to encode each dataset sample into a latent vector.
+        embedding_model_path = config["trainer"]["trained_embedding"]
+        with open(embedding_model_path, "rb") as f:
+            emb_neural_net = pickle.load(f)
+
+    for i, (x, theta) in enumerate(dataset):
+        # Reshaping the matrix to have the channel number at the beginning.
+        x = np.moveaxis(x, -1, 0)
+
+        if list(x.shape) != input_shape:
+            logger.error(
+                "Mismatch between the shape of the input data x {} and the input shape specified "
+                "in the configuration file {}".format(x.shape, input_shape)
+            )
+            sys.exit()
+
+        if config["trainer"]["embedding"]:
+            x_embbeded = (
+                emb_neural_net._embedding_net(torch.tensor(x)).detach().numpy()
+            )
+            if normalize:
+                matrix[i] = (x_embbeded - x_embbeded.min()) / (
+                    x_embbeded.max() - x_embbeded.min()
+                )
+            else:
+                matrix[i] = (x_embbeded - x_embbeded.mean()) / (
+                    x_embbeded.std() + 1e-8
+                )
+        else:
+            matrix[i] = x
+
+        parameter[i] = theta
+
+    # Transforming the maps and labels into torch.tensors.
+    parameter = torch.from_numpy(parameter).type(torch.float32)
+    matrix = torch.from_numpy(matrix).type(torch.float32)
+    return dataset, parameter, matrix
+
+
+def build_posterior(
+    config: configuration_parser.ConfigurationParser,
+    save_dir_round: pathlib.Path,
+    logger: Logger,
+    inference_list: Union[SNPE_C, List[SNPE_C]],
+    parameter_round: torch.Tensor,
+    matrix_round: torch.Tensor,
+    device: torch.device,
+    round_current: int,
+    prof_log_path: str,
+    prof_json_path: str,
+    retrain_from_scratch: bool = False,
+) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
+    """
+    Train the density estimator for a given round.
+
+    If resuming is set to True, this mode allows training to continue from the last completed round if interrupted.
+    It uses the previously saved state to resume training without starting over.
+    If ensemble training is enabled, multiple models (an ensemble) are trained and their predictions are combined to
+    ensure conservative coverages. Each of the neural networks will be trained on the same training dataset.
+
+    Note that the inference object should be different for each component of the ensemble to ensure independent weights
+    for each component.
+
+    Args:
+        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
+        save_dir_round (pathlib.Path): Directory where the trained model will be saved or is saved already.
+        logger (Logger): Logger object.
+        inference_list (Union[SNPE_C, List[SNPE_C]]): sbi inference object or list of inference objects for ensemble.
+        parameter_round (torch.Tensor): Tensor containing the parameters for the current round.
+        matrix_round (torch.Tensor): Tensor containing the matrices for the current round.
+        device (torch.device): Device used for training.
+        round_current (int): Current round number.
+        prof_json_path (str): The profile.json path.
+        prof_log_path (str): The profile.log path.
+        retrain_from_scratch (bool): Whether to retrain the conditional density estimator for the posterior from
+            scratch each round. Default value is False.
+
+    Returns:
+        (Union[DirectPosterior, NeuralPosteriorEnsemble]): Trained density estimator or ensemble of estimators.
+    """
+    ensemble = config["trainer"]["ensemble"]
+    ensemble_size = config["trainer"]["size_ensemble"] if ensemble else 1
+    resume = config["resume_training"]["resume"]
+    last_round = config["resume_training"]["last_round"]
+    model_type = config["trainer"]["type"]
+
+    # Determining the number of the effective inference round of the sequential sbi approach. Note that the
+    # round_current number is not the effective round when resume mode is enabled, as we did not start from 0.
+    effective_round = (
+        round_current + int(last_round) if resume else round_current
+    )
+
+    posteriors_list = []
+
+    for index in range(ensemble_size):
+
+        if ensemble:
+            trained_model_path = os.path.join(
+                save_dir_round, f"trained_model_ensemble_{index}.pickle"
+            )
+            inference_model_path = os.path.join(
+                save_dir_round, f"inference_ensemble_{index}.pickle"
+            )
+        else:
+            trained_model_path = os.path.join(
+                save_dir_round, "trained_model.pickle"
+            )
+            inference_model_path = os.path.join(
+                save_dir_round, "inference.pickle"
+            )
+
+        inference = inference_list[index]
+
+        # If we are in the first round of training and resume mode is enabled, the model is loaded from the last
+        # completed round instead of being trained again.
+        # This is needed to compute the proposal prior for the next round.
+        if resume and round_current == 0:
+
+            if not os.path.exists(trained_model_path):
+                raise FileNotFoundError(
+                    "The folder specified in the config file at cfg['resume_training']['save_dir'] does not contain a trained_model.pkl file.\n"
+                    "To use the resume mode, you need to specify the correct path."
+                )
+
+            with open(trained_model_path, "rb") as f:
+                density_estimator = pickle.load(f)
+            logger.info(
+                f"Loaded pre-trained model for round {effective_round}, ensemble index {index}."
+            )
+        else:
+            with timewith.TimeWith(
+                f"[TrainingRound{effective_round}Ensemble{index}]",
+                prof_log_path,
+                prof_json_path,
+                config["show_profiling"],
+            ):
+                density_estimator = inference.append_simulations(
+                    parameter_round.to(device), matrix_round.to(device)
+                ).train(
+                    learning_rate=config["trainer"]["lr"],
+                    training_batch_size=config["trainer"]["batch_size"],
+                    validation_fraction=config["trainer"][
+                        "validation_fraction"
+                    ],
+                    show_train_summary=True,
+                    force_first_round_loss=True,
+                    retrain_from_scratch=retrain_from_scratch,
+                )
+            logger.info(
+                f"Trained density estimator for round {effective_round}, ensemble index {index}."
+            )
+
+            with open(trained_model_path, "wb") as output_file:
+                pickle.dump(density_estimator.cpu(), output_file)
+            logger.info(
+                f"Saved trained model for round {effective_round}, ensemble index {index}."
+            )
+
+        if model_type == "snpe":
+            posterior = inference.build_posterior(density_estimator.to(device))
+        elif model_type == "snle":
+            posterior = inference.build_posterior(
+                mcmc_method=config["trainer"]["mcmc_sampler"],
+                mcmc_parameters={"num_chains": 20, "thin": 5},
+            )
+        else:
+            logger.exception(
+                "The model type '{}' is not supported. ".format(model_type)
+            )
+            sys.exit(1)
+
+        posteriors_list.append(posterior)
+
+        if not retrain_from_scratch:
+            logger.info(
+                f"Saved inference for round {effective_round}, ensemble index {index}."
+            )
+            with open(inference_model_path, "wb") as inference_file:
+                pickle.dump(inference, inference_file)
+
+        # Saving the training statistics.
+        save_training_statistics(config, inference, index, effective_round)
+
+    if ensemble:
+        # Giving each network in the ensemble an equal weight.
+        weights_ensemble = torch.ones(ensemble_size) / ensemble_size
+        final_posterior = NeuralPosteriorEnsemble(
+            posteriors_list, weights=weights_ensemble.to(device)
+        )
+    else:
+        final_posterior = posteriors_list[0]
+
+    return final_posterior
