@@ -817,7 +817,9 @@ def prepare_dataset_sbi(
         sys.exit(1)
 
     parameter = np.zeros((len(dataset), n_parameters))
-    matrix = np.zeros((len(dataset), 32))
+    matrix = np.zeros(
+        (len(dataset), config["arch"]["args"]["len_output_layer"])
+    )
 
     if config["trainer"]["embedding"]:
         # Load the pre-trained embedding network to encode each dataset sample into a latent vector.
