@@ -62,24 +62,29 @@ log = logging.getLogger(__name__)
 dask.config.set({"distributed.comm.timeouts.tcp": "120s"})
 
 
-def sample_without_nan(distribution: Any, sampling_size: int) -> torch.Tensor:
+def sample_without_nan(
+    distribution: Any, sampling_size: int, max_attempts: int = 20
+) -> torch.Tensor:
     """
     Sample a distribution while removing NaN values from the sampled outputs.
+    Stops after max_attempts if sufficient valid samples are not obtained.
 
     Args:
         distribution (Any): The distribution to sample from.
         sampling_size (int): The number of samples to draw from the distribution.
+        max_attempts (int): The maximum number of attempts to sample (default is 20).
 
     Returns:
         torch.Tensor: A tensor of samples, with shape [sampling_size, D] (where D is the dimensionality of the samples).
-                      All NaN values have been removed.
+                      All NaN values have been removed. If not enough valid samples are obtained, returns fewer samples.
     """
 
     samples = []
-    while len(samples) < sampling_size:
+    attempts = 0
+
+    while len(samples) < sampling_size and attempts < max_attempts:
         remaining_samples = sampling_size - len(samples)
 
-        # Sample the remaining samples.
         new_samples = distribution.sample(
             (remaining_samples,), show_progress_bars=False
         )
@@ -88,8 +93,14 @@ def sample_without_nan(distribution: Any, sampling_size: int) -> torch.Tensor:
             ~torch.any(torch.isnan(new_samples), dim=1)
         ]
 
-        # Add valid samples to the list
         samples.extend(valid_samples.tolist())
+
+        attempts += 1
+
+    if len(samples) < sampling_size:
+        raise RuntimeError(
+            f"Unable to obtain {sampling_size} valid samples after {max_attempts} attempts."
+        )
 
     return torch.tensor(samples)
 
