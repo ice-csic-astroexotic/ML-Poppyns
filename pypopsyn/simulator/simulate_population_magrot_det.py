@@ -40,6 +40,7 @@ import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_emission.emission_xray as ex
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
+import pypopsyn.simulator.multiband_surveys.survey_x as sx
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import utilities.benchmark.timewith as timewith
 import utilities.samplers.memory_efficient_sampling as mes
@@ -447,9 +448,9 @@ def evolve_population_magrot(
 
     dictionary_final_pop_magrot = {
         "B_initial": B_initial,
-        "B_final": B_final,
-        "chi_final": chi_final,
-        "P_final": P_final,
+        "B": B_final,
+        "chi": chi_final,
+        "P": P_final,
     }
 
     return dictionary_final_pop_magrot
@@ -478,9 +479,9 @@ def radio_intercepted(dict_final_pop: dict) -> dict:
     pm_ra = dict_final_pop["pm_ra"][coverage_radio]
     pm_dec = dict_final_pop["pm_dec"][coverage_radio]
     v_ls = dict_final_pop["v_ls"][coverage_radio]
-    P = dict_final_pop["P_final"][coverage_radio]
-    B = dict_final_pop["B_final"][coverage_radio]
-    chi = dict_final_pop["chi_final"][coverage_radio]
+    P = dict_final_pop["P"][coverage_radio]
+    B = dict_final_pop["B"][coverage_radio]
+    chi = dict_final_pop["chi"][coverage_radio]
     idx = dict_final_pop["idx"][coverage_radio]
 
     # Collect the coverage data for each survey.
@@ -687,80 +688,35 @@ def x_detection(
     Returns:
         (dict): A dictionary containing the properties of detected neutron stars in X-rays.
     """
-    # Select only the stars that can be detected in x-rays.
-    coverage_x = dict_final_pop["coverage_x"]
-
-    age = dict_final_pop["age"][coverage_x]
-    l_gal = dict_final_pop["l"][coverage_x]
-    b_gal = dict_final_pop["b"][coverage_x]
-    ra = dict_final_pop["ra"][coverage_x]
-    dec = dict_final_pop["dec"][coverage_x]
-    dist = dict_final_pop["dist"][coverage_x]
-    pm_ra = dict_final_pop["pm_ra"][coverage_x]
-    pm_dec = dict_final_pop["pm_dec"][coverage_x]
-    v_ls = dict_final_pop["v_ls"][coverage_x]
-    P = dict_final_pop["P_final"][coverage_x]
-    B_initial = dict_final_pop["B_initial"][coverage_x]
-    B = dict_final_pop["B_final"][coverage_x]
-    chi = dict_final_pop["chi_final"][coverage_x]
-    idx = dict_final_pop["idx"][coverage_x]
-
-    # Determining the final period derivative.
-    period_derivative_vect = np.vectorize(pdv.period_derivative)
-    P_dot = (
-        period_derivative_vect(
-            B,
-            chi,
-            P,
-        )
-        / const.YR_TO_S
+    (
+        detected_mask,
+        L_x_therm,
+        S_x_abs,
+        N_H,
+        P_dot,
+    ) = sx.detected_x_population(
+        dict_final_pop["P"],
+        dict_final_pop["B"],
+        dict_final_pop["B_initial"],
+        dict_final_pop["chi"],
+        dict_final_pop["age"],
+        dict_final_pop["ra"],
+        dict_final_pop["dec"],
+        dict_final_pop["dist"],
+        dict_final_pop["coverage_x"],
+        L_x_interpolator,
+        L_x_threshold,
+        S_x_abs_threshold,
     )
 
-    L_x_therm = L_x_interpolator.ev(age, B_initial)
-
-    # Select only the stars that have sufficiently high luminosity.
-    L_x_mask = L_x_therm > L_x_threshold
-    idx = idx[L_x_mask]
-    age = age[L_x_mask]
-    l_gal = l_gal[L_x_mask]
-    b_gal = b_gal[L_x_mask]
-    ra = ra[L_x_mask]
-    dec = dec[L_x_mask]
-    dist = dist[L_x_mask]
-    pm_ra = pm_ra[L_x_mask]
-    pm_dec = pm_dec[L_x_mask]
-    v_ls = v_ls[L_x_mask]
-    B = B[L_x_mask]
-    chi = chi[L_x_mask]
-    P = P[L_x_mask]
-    P_dot = P_dot[L_x_mask]
-    L_x_therm = L_x_therm[L_x_mask]
-
-    # Compute the absorbed fluxes and the N_H column density.
-    S_x_abs, N_H = ex.flux_xray_absorbed(L_x_therm, B, ra, dec, dist)
-
-    # Filter the neutron stars according to a threshold flux.
-    detected_x = S_x_abs > S_x_abs_threshold
-
-    dictionary_detected = {
-        "age": age[detected_x].tolist(),
-        "ra": ra[detected_x].tolist(),
-        "dec": dec[detected_x].tolist(),
-        "l": l_gal[detected_x].tolist(),
-        "b": b_gal[detected_x].tolist(),
-        "N_H": N_H[detected_x].tolist(),
-        "dist": dist[detected_x].tolist(),
-        "pm_ra": pm_ra[detected_x].tolist(),
-        "pm_dec": pm_dec[detected_x].tolist(),
-        "v_ls": v_ls[detected_x].tolist(),
-        "B": B[detected_x].tolist(),
-        "chi": chi[detected_x].tolist(),
-        "P": P[detected_x].tolist(),
-        "P_dot": P_dot[detected_x].tolist(),
-        "L_x_therm": L_x_therm[detected_x].tolist(),
-        "S_x_abs": S_x_abs[detected_x].tolist(),
-        "idx": idx[detected_x].tolist(),
-    }
+    dictionary_detected = update_detected_dictionary(
+        dict_final_pop,
+        detected_mask,
+        P_dot=P_dot,
+        L_x_therm=L_x_therm,
+        S_x_abs=S_x_abs,
+        N_H=N_H,
+    )
 
     return dictionary_detected
 

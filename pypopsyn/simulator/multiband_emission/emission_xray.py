@@ -344,4 +344,6 @@ def flux_xray_absorbed(
     I_absorbed_bolom = trapz(I_absorbed[:, E_mask], E[E_mask], axis=1)
     flux = (R_obs / d) ** 2 * np.pi * I_absorbed_bolom
 
+    N_H = N_H.squeeze()
+
     return flux, N_H

@@ -528,7 +528,7 @@ class SurveyRadio:
             DM (np.ndarray): Dispersion measure in [pc cm^-3].
             P (np.ndarray): Array of spin periods of the pulsars in [s].
             age (np.ndarray): Array of neutron star ages [yrs].
-            coverage (np.ndarray): Array of indexes of the pulsar within the sky coverage.
+            coverage (np.ndarray): Array of boolean variable indicating the pulsars within the sky coverage.
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
             S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
@@ -536,9 +536,11 @@ class SurveyRadio:
             tau_sc (np.ndarray): Scattering timescale in [s].
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of four arrays defining the
-                indexes of the pulsars detected by the survey, the effective pulse width and period-averaged fluxes at
-                the central frequency of the survey and at 1.429 GHz.
+            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of the following arrays:
+                - Boolean mask to select the pulsars detected by the survey.
+                - Effective pulse width in [s].
+                - Period-averaged fluxes at the central frequency of the survey in [Jy]
+                - Period-averaged fluxes at the central frequency of 1.429 GHz in [Jy].
         """
 
         # Computing the intrinsic radio flux density in [Jy].
@@ -625,9 +627,11 @@ class SurveyRadio:
             tau_sc (np.ndarray): Scattering timescale in [s].
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of four arrays defining
-                the indexes of the pulsars detected by the survey, the observed period-averaged radio flux density,the
-                effective pulse width and the observed radio flux density.
+            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of the following arrays:
+                - Boolean mask to select the pulsars detected by the survey.
+                - Observed period-averaged radio flux density in [Jy].
+                - Effective pulse width in [s].
+                - Observed radio flux density in [Jy].
         """
 
         detectable_radio_survey = (
