@@ -35,10 +35,8 @@ import collections
 import pathlib
 import time
 
-import numpy as np
 import pandas as pd
 import torch
-from sbi.utils import BoxUniform
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.utils.sbi_utils as ut
@@ -152,39 +150,7 @@ def train(
                 logger.info("Seed: {}".format(int(time.time())))
 
             logger.info("Defining the prior distribution...")
-
-            # Setting the prior distribution for the parameters.
-            # Note that we need to rescale the prior distribution to ensure that it has the correct limits when
-            # restricted.
-            if config["training_data_loader"]["normalize"]:
-                # All the parameters are rescaled in the range [0, 1].
-                prior = BoxUniform(
-                    low=torch.tensor(np.zeros(n_parameters)),
-                    high=torch.tensor(np.ones(n_parameters)),
-                    device=f"{device}",
-                )
-            elif config["training_data_loader"]["standardize"]:
-                low = (
-                    torch.tensor(config["prior_ranges"]["low"])
-                    - dataset.target_mean
-                ) / dataset.target_std
-                high = (
-                    torch.tensor(config["prior_ranges"]["high"])
-                    - dataset.target_mean
-                ) / dataset.target_std
-                prior = BoxUniform(
-                    low=low,
-                    high=high,
-                    device=f"{device}",
-                )
-            else:
-                # Set the prior range to the range of the parameters.
-                prior = BoxUniform(
-                    low=torch.tensor(config["prior_ranges"]["low"]),
-                    high=torch.tensor(config["prior_ranges"]["high"]),
-                    device=f"{device}",
-                )
-
+            prior = ut.initialize_prior(config, n_parameters, device, dataset)
             logger.info("Building the neural network...")
 
             # When resuming from a previous run, load the inference object that contains the weights of the previously
@@ -212,8 +178,10 @@ def train(
             proposal = prior
 
             # Lists to store parameters and matrices from each round.
-            parameter_list = []
-            matrix_list = []
+            parameter_train = []
+            matrix_train = []
+            parameter_test = []
+            matrix_test = []
 
         for i in range(num_rounds):
 
@@ -277,11 +245,15 @@ def train(
                             train_dataset_path, config, logger
                         )
 
-                    # Saving the training data to reuse it in the next rounds.
-                    parameter_list.append(parameter)
-                    matrix_list.append(matrix)
-                    parameter_round = torch.cat(parameter_list, dim=0)
-                    matrix_round = torch.cat(matrix_list, dim=0)
+                    # Saving the training data to reuse it in the next rounds if the proposal is truncated with the prior.
+                    if config["trainer"]["truncated_prior"]:
+                        parameter_train = []
+                        matrix_train = []
+
+                    parameter_train.append(parameter)
+                    matrix_train.append(matrix)
+                    parameter_round = torch.cat(parameter_train, dim=0)
+                    matrix_round = torch.cat(matrix_train, dim=0)
 
                     logger.info(
                         f"Training the density estimator with {parameter_round.shape[0]} samples in round {effective_round} ..."
@@ -348,20 +320,27 @@ def train(
                                 dataset=dataset,
                                 device=device,
                             )
-                        (
-                            _,
-                            parameter_test,
-                            matrix_test,
-                        ) = ut.prepare_dataset_sbi(
+                        (_, parameter, matrix,) = ut.prepare_dataset_sbi(
                             test_dataset_path, config, logger
                         )
+
+                        # Saving the testing data to reuse it in the next rounds if the proposal is truncated with the prior.
+                        if config["trainer"]["truncated_prior"]:
+                            parameter_test = []
+                            matrix_test = []
+
+                        parameter_test.append(parameter)
+                        matrix_test.append(matrix)
+                        parameter_round_test = torch.cat(parameter_test, dim=0)
+                        matrix_round_test = torch.cat(matrix_test, dim=0)
+
                         logger.info(
                             f"Computing the ranks and the coverage probability for round_{effective_round}"
                         )
                         ut.compute_rank_coverage(
                             save_dir=save_dir_round,
-                            parameter=parameter_test,
-                            matrix=matrix_test,
+                            parameter=parameter_round_test,
+                            matrix=matrix_round_test,
                             posterior=posterior,
                             device=device,
                             parameter_labels=parameter_labels,

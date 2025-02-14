@@ -35,6 +35,7 @@ from sbi.inference import SNLE, SNPE
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
 from sbi.inference.snle.snle_a import SNLE_A
 from sbi.inference.snpe.snpe_c import SNPE_C
+from sbi.utils import BoxUniform
 from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 from tqdm import tqdm
 
@@ -1018,3 +1019,59 @@ def build_posterior(
         final_posterior = posteriors_list[0]
 
     return final_posterior
+
+
+def initialize_prior(
+    config: configuration_parser.ConfigurationParser,
+    n_parameters: int,
+    device: torch.device,
+    dataset: dl.DatasetMultichannelArray,
+) -> BoxUniform:
+    """
+    Initializes the prior distribution for the model based on the configuration and dataset.
+
+    The prior is initialized as a uniform distribution over the parameter space.
+    If the dataset is normalized or standardized, the prior is scaled accordingly to ensure
+    that it fits the transformed space. If no normalization or standardization is applied,
+    the prior is defined over the raw parameter space as specified in the configuration.
+
+    Args:
+        config (configuration_parser.ConfigurationParser): The configuration object containing the model settings.
+        n_parameters (int): The number of parameters in the model that the prior will cover.
+        device (torch.device): The device on which the prior distribution is allocated (e.g., CPU or GPU).
+        dataset (dl.DatasetMultichannelArray): The dataset where is saved the statistics for normalization or standardization.
+
+    Returns:
+        BoxUniform: The initialized prior distribution as a BoxUniform object.
+
+    """
+    # Setting the prior distribution for the parameters.
+    # Note that we need to rescale the prior distribution to ensure that it has the correct limits when
+    # restricted.
+    if config["training_data_loader"]["normalize"]:
+        # All the parameters are rescaled in the range [0, 1].
+        prior = BoxUniform(
+            low=torch.tensor(np.zeros(n_parameters)),
+            high=torch.tensor(np.ones(n_parameters)),
+            device=f"{device}",
+        )
+    elif config["training_data_loader"]["standardize"]:
+        low = (
+            torch.tensor(config["prior_ranges"]["low"]) - dataset.target_mean
+        ) / dataset.target_std
+        high = (
+            torch.tensor(config["prior_ranges"]["high"]) - dataset.target_mean
+        ) / dataset.target_std
+        prior = BoxUniform(
+            low=low,
+            high=high,
+            device=f"{device}",
+        )
+    else:
+        # Set the prior range to the range of the parameters.
+        prior = BoxUniform(
+            low=torch.tensor(config["prior_ranges"]["low"]),
+            high=torch.tensor(config["prior_ranges"]["high"]),
+            device=f"{device}",
+        )
+    return prior
