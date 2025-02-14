@@ -21,7 +21,7 @@
 
     Display help message to run the code:
 
-    python sbi.py --help
+    python train_sbi.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -31,13 +31,14 @@
 """
 
 import argparse
+import collections
 import pathlib
 import time
 
 import numpy as np
 import pandas as pd
 import torch
-from sbi import utils
+from sbi.utils import BoxUniform
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.utils.sbi_utils as ut
@@ -157,7 +158,7 @@ def train(
             # restricted.
             if config["training_data_loader"]["normalize"]:
                 # All the parameters are rescaled in the range [0, 1].
-                prior = utils.BoxUniform(
+                prior = BoxUniform(
                     low=torch.tensor(np.zeros(n_parameters)),
                     high=torch.tensor(np.ones(n_parameters)),
                     device=f"{device}",
@@ -171,14 +172,14 @@ def train(
                     torch.tensor(config["prior_ranges"]["high"])
                     - dataset.target_mean
                 ) / dataset.target_std
-                prior = utils.BoxUniform(
+                prior = BoxUniform(
                     low=low,
                     high=high,
                     device=f"{device}",
                 )
             else:
                 # Set the prior range to the range of the parameters.
-                prior = utils.BoxUniform(
+                prior = BoxUniform(
                     low=torch.tensor(config["prior_ranges"]["low"]),
                     high=torch.tensor(config["prior_ranges"]["high"]),
                     device=f"{device}",
@@ -437,3 +438,109 @@ def train(
         if config["enable_dask"]:
             # Closing the cluster once the training has finished.
             cluster.close()
+
+
+if __name__ == "__main__":
+    args = argparse.ArgumentParser(description="Truncated SNPE trainer")
+
+    args.add_argument(
+        "-c",
+        "--configuration",
+        type=str,
+        default="pypopsyn/learning/config_tsnpe.json",
+        help="Machine learning configuration file path.",
+    )
+
+    args.add_argument(
+        "--plot_proposal",
+        type=configuration_parser.str_to_bool,
+        default=False,
+        help="If the proposal corner plot for each round is required, this argument should be set to True.",
+    )
+
+    args.add_argument(
+        "--trained_model",
+        type=str,
+        default=None,
+        help="Path to checkpoint to resume training. This argument is not used at the moment.",
+    )
+
+    args.add_argument(
+        "--infer",
+        nargs="?",
+        type=str,
+        default=False,
+        help="Flag to setup the inference saving path. This argument is not used at the moment.",
+    )
+
+    CustomArgs = collections.namedtuple(
+        "CustomArgs", "flags type nargs target"
+    )
+
+    options = [
+        CustomArgs(
+            ["--dataset_training"],
+            type=str,
+            nargs="?",
+            target="training_data_loader;dataset_path",
+        ),
+        CustomArgs(
+            ["--dataset_statistics"],
+            type=str,
+            nargs="?",
+            target="training_data_loader;statistic_path",
+        ),
+        CustomArgs(
+            ["--filter_inputs"],
+            type=int,
+            nargs="*",
+            target="training_data_loader;filter_inputs",
+        ),
+        CustomArgs(
+            ["--filter_labels"],
+            type=int,
+            nargs="*",
+            target="training_data_loader;filter_labels",
+        ),
+        CustomArgs(
+            ["--batch_size"],
+            type=int,
+            nargs="?",
+            target="training_data_loader;batch_size",
+        ),
+        CustomArgs(
+            ["--input_shape"],
+            type=int,
+            nargs=3,
+            target="arch;args;input_shape",
+        ),
+        CustomArgs(
+            ["--len_output_layer"],
+            type=int,
+            nargs="?",
+            target="arch;args;len_output_layer",
+        ),
+        CustomArgs(
+            ["--save_dir"],
+            type=str,
+            nargs="?",
+            target="trainer;save_dir",
+        ),
+        CustomArgs(
+            ["--normalize"],
+            type=configuration_parser.str_to_bool,
+            nargs="?",
+            target="training_data_loader;normalize",
+        ),
+        CustomArgs(
+            ["--standardize"],
+            type=configuration_parser.str_to_bool,
+            nargs="?",
+            target="training_data_loader;standardize",
+        ),
+        CustomArgs(["--lr"], type=float, nargs="?", target="trainer;lr"),
+    ]
+
+    configuration = configuration_parser.ConfigurationParser.from_args(args)
+
+    train(args.parse_args(), configuration)

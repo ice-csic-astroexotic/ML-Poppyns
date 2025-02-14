@@ -48,9 +48,9 @@
   },
 
   "test_data_loader": {
-    "testing": true,
-    "dataset_path": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/test_dataset",
-    "dataset_path_first_round": "/data/magnesia/common/paper_pardo_araujo_etal_2024/test/data/test_dataset/generated_dataset/round_0",
+    "testing": false,
+    "dataset_path": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot",
+    "dataset_path_first_round": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot",
     "num_sim": 3
   },
 

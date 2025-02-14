@@ -955,18 +955,24 @@ def build_posterior(
                 prof_json_path,
                 config["show_profiling"],
             ):
-                density_estimator = inference.append_simulations(
-                    parameter_round.to(device), matrix_round.to(device)
-                ).train(
-                    learning_rate=config["trainer"]["lr"],
-                    training_batch_size=config["trainer"]["batch_size"],
-                    validation_fraction=config["trainer"][
+                train_args = {
+                    "learning_rate": config["trainer"]["lr"],
+                    "training_batch_size": config["trainer"]["batch_size"],
+                    "validation_fraction": config["trainer"][
                         "validation_fraction"
                     ],
-                    show_train_summary=True,
-                    force_first_round_loss=True,
-                    retrain_from_scratch=retrain_from_scratch,
-                )
+                    "show_train_summary": True,
+                    "retrain_from_scratch": retrain_from_scratch,
+                }
+
+                # If snpe is chosen enable the possibility to retrain from scratch.
+                if model_type == "snpe":
+                    train_args["force_first_round_loss"] = True
+
+                density_estimator = inference.append_simulations(
+                    parameter_round.to(device), matrix_round.to(device)
+                ).train(**train_args)
+
             logger.info(
                 f"Trained density estimator for round {effective_round}, ensemble index {index}."
             )

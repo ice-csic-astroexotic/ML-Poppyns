@@ -36,6 +36,7 @@ import multiprocessing as mp
 import os
 import pathlib
 from logging import Logger
+from typing import Any
 
 import dask
 import torch
@@ -59,6 +60,38 @@ log = logging.getLogger(__name__)
 
 # Forcing Dask to wait 120 s before considering an unresponsive worker as dead.
 dask.config.set({"distributed.comm.timeouts.tcp": "120s"})
+
+
+def sample_without_nan(distribution: Any, sampling_size: int) -> torch.Tensor:
+    """
+    Sample a distribution while removing NaN values from the sampled outputs.
+
+    Args:
+        distribution (Any): The distribution to sample from.
+        sampling_size (int): The number of samples to draw from the distribution.
+
+    Returns:
+        torch.Tensor: A tensor of samples, with shape [sampling_size, D] (where D is the dimensionality of the samples).
+                      All NaN values have been removed.
+    """
+
+    samples = []
+    while len(samples) < sampling_size:
+        remaining_samples = sampling_size - len(samples)
+
+        # Sample the remaining samples.
+        new_samples = distribution.sample(
+            (remaining_samples,), show_progress_bars=False
+        )
+
+        valid_samples = new_samples[
+            ~torch.any(torch.isnan(new_samples), dim=1)
+        ]
+
+        # Add valid samples to the list
+        samples.extend(valid_samples.tolist())
+
+    return torch.tensor(samples)
 
 
 def initialize_dask_cluster(
@@ -151,7 +184,9 @@ def simulator_dask(
     par_mean = torch.tensor(dataset.target_mean).to(device)
 
     # Create a generator of the random sets of parameters using the prior distribution.
-    parameter_sets_gen_tensor = prior.sample((args_dict["sampling_size"],))
+    parameter_sets_gen_tensor = sample_without_nan(
+        prior, args_dict["sampling_size"]
+    )
 
     # If the parameters were normalized or standardized, rescale quantities to their physical ranges.
     if dataset.normalize:
@@ -290,7 +325,9 @@ def simulator_multiprocess(
     par_mean = torch.tensor(dataset.target_mean).to(device)
 
     # Create a generator of the random sets of parameters using the prior distribution.
-    parameter_sets_gen_tensor = prior.sample((args_dict["sampling_size"],))
+    parameter_sets_gen_tensor = sample_without_nan(
+        prior, args_dict["sampling_size"]
+    )
 
     # If the parameters were normalized or standardized, rescale quantities to their physical ranges.
     if dataset.normalize:
