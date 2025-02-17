@@ -63,7 +63,10 @@ dask.config.set({"distributed.comm.timeouts.tcp": "120s"})
 
 
 def sample_without_nan(
-    distribution: Any, sampling_size: int, max_attempts: int = 20
+    distribution: Any,
+    sampling_size: int,
+    device: torch.device,
+    max_attempts: int = 20,
 ) -> torch.Tensor:
     """
     Sample a distribution while removing NaN values from the sampled outputs.
@@ -72,6 +75,7 @@ def sample_without_nan(
     Args:
         distribution (Any): The distribution to sample from.
         sampling_size (int): The number of samples to draw from the distribution.
+        device (torch.device): Device used to run the script.
         max_attempts (int): The maximum number of attempts to sample (default is 20).
 
     Returns:
@@ -102,7 +106,7 @@ def sample_without_nan(
             f"Unable to obtain {sampling_size} valid samples after {max_attempts} attempts."
         )
 
-    return torch.tensor(samples)
+    return torch.tensor(samples).to(device)
 
 
 def initialize_dask_cluster(
