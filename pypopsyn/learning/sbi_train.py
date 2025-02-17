@@ -160,12 +160,12 @@ def train(
 
             if resume and not retrain_from_scratch:
                 inference_list = ut.load_inference(
-                    config, last_completed_round, ensemble
+                    config, last_completed_round, logger
                 )
             else:
 
                 inference_list = ut.initialize_inference(
-                    config, device, prior, ensemble
+                    config, device, prior, logger, ensemble
                 )
 
             # Create the matrix for the observed sample of neutron stars.
@@ -406,7 +406,7 @@ def train(
 
                 if retrain_from_scratch:
                     inference_list = ut.initialize_inference(
-                        config, device, prior, ensemble
+                        config, device, prior, logger, ensemble
                     )
 
             # Stop the training when the number of rounds is reached. This is necessary in the resume case to avoid
