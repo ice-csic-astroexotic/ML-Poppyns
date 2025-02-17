@@ -1,6 +1,8 @@
 """
     Training script for simulation based inference using the sbi package.
 
+    It offers the flexibility to train either a Sequential Neural Posterior Estimator (SNPE) or a Sequential Neural
+    Likelihood Estimator (SNLE), for the latter sampling from the posterior involves a MCMC sampler.
     This script implements a sequential approach which iteratively trains a density estimator for `num_rounds`,
     where each iteration involves generating training and testing datasets based on the previously approximated posterior
     distribution at the observed sample. This approach focuses on the region of the parameter space that matches

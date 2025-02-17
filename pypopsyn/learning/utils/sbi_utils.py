@@ -652,7 +652,7 @@ def build_network_snpe(
     prior: utils.BoxUniform,
 ) -> SNPE_C:
     """
-    Building the neural network (composed of the embedding net and the density estimator) using the configuration file
+    Building the neural network for snpe (composed of the embedding net and the density estimator) using the configuration file
     specified in the arguments, and setting up the inference procedure.
 
     Args:
@@ -704,8 +704,8 @@ def build_network_snle(
     prior: utils.BoxUniform,
 ) -> SNLE_A:
     """
-    Building the neural network (composed of the embedding net and the density estimator) using the configuration file
-    specified in the arguments, and setting up the inference procedure.
+    Building the neural network for snle using the configuration file specified in the arguments, and setting
+    up the inference procedure.
 
     Args:.
         device (torch.device): Device used to run the script.

@@ -79,8 +79,7 @@ def sample_without_nan(
         max_attempts (int): The maximum number of attempts to sample (default is 20).
 
     Returns:
-        torch.Tensor: A tensor of samples, with shape [sampling_size, D] (where D is the dimensionality of the samples).
-                      All NaN values have been removed. If not enough valid samples are obtained, returns fewer samples.
+        torch.Tensor: A tensor of sample where all NaN values have been removed.
     """
 
     samples = []
