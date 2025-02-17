@@ -1,13 +1,13 @@
 """
-    Inference script for TSNPE algorithm
+    Inference script for sbi.
 
-    This script performs inference on a test dataset within a TSNPE framework using the sbi package. It loads the
+    This script performs inference on a test dataset within a SNPE or SNLE framework using the sbi package. It loads the
     trained density estimator to approximate the posterior distribution for a dataset of simulated data and evaluates
     its performance on a test dataset in each round.
 
     Display help message to run the code:
 
-    python infer_tsnpe.py --help
+    python sbi_infer.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -34,14 +34,9 @@ from sbi.inference.snpe.snpe_c import SNPE_C
 from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 
 import pypopsyn.learning.configuration_parser as configuration_parser
+import pypopsyn.learning.utils.sbi_utils as ut
 import utilities.benchmark.timewith as timewith
-from pypopsyn.learning.train_tsnpe import (
-    compute_proposal_prior,
-    compute_rank_coverage,
-    corner_plot,
-    initialize_inference,
-    prepare_dataset_sbi,
-)
+from pypopsyn.learning.train_tsnpe import initialize_inference
 from pypopsyn.learning.utils.request_device import request_device
 
 
@@ -162,7 +157,7 @@ def infer(
 
             # Load the training dataset information. Note that when performing inference, we do not require the
             # underlying data samples, only the corresponding ground truths and their statistics.
-            dataset, _, _ = prepare_dataset_sbi(
+            dataset, _, _ = ut.prepare_dataset_sbi(
                 train_dataset_path, config, logger
             )
             n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
@@ -187,39 +182,10 @@ def infer(
             # Setting the prior distribution for the parameters.
             # Note that we need to rescale the prior distribution to ensure that it has the correct limits when
             # restricted.
-            if config["training_data_loader"]["normalize"]:
-                # All the parameters are rescaled in the range [0, 1].
-                prior = utils.BoxUniform(
-                    low=torch.tensor(np.zeros(n_parameters)),
-                    high=torch.tensor(np.ones(n_parameters)),
-                    device=f"{device}",
-                )
-            elif config["training_data_loader"]["standardize"]:
-                low = (
-                    torch.tensor(config["prior_ranges"]["low"])
-                    - dataset.target_mean
-                ) / dataset.target_std
-                high = (
-                    torch.tensor(config["prior_ranges"]["high"])
-                    - dataset.target_mean
-                ) / dataset.target_std
-                prior = utils.BoxUniform(
-                    low=low,
-                    high=high,
-                    device=f"{device}",
-                )
-            else:
-                # Set the prior range to the range of the parameters.
-                prior = utils.BoxUniform(
-                    low=torch.tensor(config["prior_ranges"]["low"]),
-                    high=torch.tensor(config["prior_ranges"]["high"]),
-                    device=f"{device}",
-                )
-
-            logger.info("Building the neural network...")
+            prior = ut.initialize_prior(config, n_parameters, device, dataset)
 
             # Create the matrix for the observed sample of neutron stars.
-            _, _, x_o = prepare_dataset_sbi(
+            _, _, x_o = ut.prepare_dataset_sbi(
                 config["observed_sample"]["dataset_path"],
                 config,
                 logger,
@@ -229,9 +195,12 @@ def infer(
             # During inference, we load the trained model. The inference object is used to identify which neural
             # posterior estimation algorithm is employed. In this case we use SNPE. Therefore, we only need to
             # initialize the network at the beginning.
-            inference_list = initialize_inference(
-                config, device, prior, ensemble
+            inference_list = ut.initialize_inference(
+                config, device, prior, logger, ensemble
             )
+
+        parameter_test = []
+        matrix_test = []
         for i in range(num_rounds):
 
             save_dir_round = config.log_dir / f"round_{i}"
@@ -250,6 +219,15 @@ def infer(
                 posterior = load_posterior(
                     config, load_dir_round, logger, inference_list, device, i
                 )
+                posterior_obs = posterior.set_default_x(x_o)
+                # Setting the proposal prior to the truncated prior or to the previous approximated posterior distribution at the observed data.
+                if config["trainer"]["truncated_prior"]:
+                    proposal = ut.compute_proposal_prior(
+                        posterior_obs, config, prior, device
+                    )
+
+                else:
+                    proposal = posterior_obs
 
                 with timewith.TimeWith(
                     f"[TestingRound{i}]",
@@ -258,25 +236,60 @@ def infer(
                     config["show_profiling"],
                 ):
                     if config["infer"]["compute_coverage"]:
+                        if config["infer"]["sim_dataset"]:
+                            num_sim_test = config["test_data_loader"][
+                                "num_sim"
+                            ]
 
-                        test_dataset_path = str(
-                            pathlib.Path().joinpath(
-                                config["test_data_loader"]["dataset_path"],
-                                f"generated_dataset/round_{i}",
+                            logger.info(
+                                "Simulating the test dataset for {} simulations...".format(
+                                    num_sim_test
+                                )
                             )
-                        )
 
-                        _, parameter_test, matrix_test = prepare_dataset_sbi(
+                            test_dataset_path = ut.wrapper_pypopsyn(
+                                proposal,
+                                config=config,
+                                num_sim=num_sim_test,
+                                effective_round=i,
+                                test=True,
+                                dataset=dataset,
+                                device=device,
+                            )
+                        else:
+                            test_dataset_path = str(
+                                pathlib.Path().joinpath(
+                                    config["test_data_loader"]["dataset_path"],
+                                    f"generated_dataset/round_{i}",
+                                )
+                            )
+
+                        (
+                            _,
+                            parameter_test,
+                            matrix_test,
+                        ) = ut.prepare_dataset_sbi(
                             test_dataset_path, config, logger
                         )
+
+                        # Saving the testing data to reuse it in the next rounds if the proposal is truncated with the prior.
+                        if config["trainer"]["truncated_prior"]:
+                            parameter_test = []
+                            matrix_test = []
+
+                        parameter_test.append(parameter_test)
+                        matrix_test.append(matrix_test)
+                        parameter_round_test = torch.cat(parameter_test, dim=0)
+                        matrix_round_test = torch.cat(matrix_test, dim=0)
+
                         logger.info(
                             f"Computing the ranks and the coverage probability for round_{i}"
                         )
 
-                        compute_rank_coverage(
+                        ut.compute_rank_coverage(
                             save_dir=save_dir_round,
-                            parameter=parameter_test,
-                            matrix=matrix_test,
+                            parameter=parameter_round_test,
+                            matrix=matrix_round_test,
                             posterior=posterior,
                             device=device,
                             parameter_labels=parameter_labels,
@@ -294,37 +307,11 @@ def infer(
                         f"Computing the proposal prior for round {i + 1}..."
                     )
 
-                    posterior_obs = posterior.set_default_x(x_o)
-                    proposal = compute_proposal_prior(
-                        posterior_obs, config, prior, device
-                    )
-
-                    if args.plot_proposal:
-                        # If `args.plot_proposal` is set to True, a corner plot of the proposal distribution will be
-                        # produced. Note that this might take a while since we are using SIR or rejection methods to
-                        # sample from the proposal distribution.
-                        observed_samples_proposal = proposal.sample(
-                            (50000,), show_progress_bars=False
-                        ).cpu()
-                        corner_plot(
-                            observed_samples_proposal,
-                            dataset,
-                            f"{save_dir_round}/corner_plot_prior_round_{i + 1}.pdf",
-                        )
-                        # Save the samples from the inferred posterior distribution.
-                        torch.save(
-                            observed_samples_proposal,
-                            f"{save_dir_round}/samples_prior_{i + 1}.pt",
-                        )
-
-                logger.info(
-                    f"Inferring the parameters for the observed sample for round {i}..."
-                )
-
                 observed_samples_posterior = posterior_obs.sample(
                     (50000,), show_progress_bars=False
                 ).cpu()
-                corner_plot(
+
+                ut.corner_plot(
                     observed_samples_posterior,
                     dataset,
                     f"{save_dir_round}/corner_plot_observed_sample_{i}.pdf",

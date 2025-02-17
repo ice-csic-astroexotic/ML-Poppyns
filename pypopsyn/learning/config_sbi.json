@@ -1,6 +1,9 @@
 {
   "name": "SBI_ConvolutionMDN",
   "n_gpu": 1,
+  "enable_dask": false,
+  "n_processes": 4,
+  "workers_dask": 4,
   "set_manual_seed": false,
   "manual_seed": 42,
   "profile_log": "profile.log",
@@ -10,7 +13,7 @@
   "arch": {
     "type": "ModelConvSBI",
     "args": {
-        "input_shape": [3, 32, 32],
+        "input_shape": [6, 32, 32],
         "len_output_layer": 32
     }
   },
@@ -26,37 +29,68 @@
       "num_components": 10
        }
   },
-
+  
+  "prior_ranges": {
+      "labels": ["B_initial_log10_mean", "P_initial_log10_mean"],
+	  "low": [12,-1.5],
+	  "high": [14,-0.3]
+  },
+	
   "training_data_loader": {
-    "dataset_path": "data/example_generator_magrot/dataset_train.csv",
-    "statistic_path": "data/example_generator_magrot/statistics_train.json",
-    "filter_inputs": [9, 10, 11],
-    "filter_labels": [15, 16],
+    "dataset_path": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot",
+    "statistic_path": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot/statistics_train.json",
+    "dataset_path_first_round": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot",
+    "filter_inputs": [9, 10, 11, 12, 13, 14],
+    "filter_labels": [15,16],
     "normalize": false,
-    "standardize": true
+    "standardize": true,
+    "num_sim": 2
   },
 
   "test_data_loader": {
-    "dataset_path": "data/example_generator_magrot/dataset_test.csv",
-    "statistic_path": "data/example_generator_magrot/statistics_train.json",
-    "filter_inputs": [9, 10, 11],
-    "filter_labels": [15, 16],
-    "normalize": false,
-    "standardize": true
+    "testing": false,
+    "dataset_path": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot",
+    "dataset_path_first_round": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot",
+    "num_sim": 3
+  },
+
+  "dyn_data_loader": {
+      "dataset_path": "/home/celsa/Documents/data/sim_dyn_ns1e7_t1e8_maxwell_hc180"
+  },
+      
+  "observed_sample": {
+      "dataset_path": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/paper_results/pardo_etal_2025/observed_data_res32_updated_atnf",
+      "filter_inputs": [9, 10, 11, 12, 13, 14],
+      "filter_labels": [15,17]
   },
 
   "resume_training": {
-    "resume": false
-    },
+    "resume": false,
+    "last_round": 7,
+    "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_6_10rounds_1ksim_long_flavour_ensemble_10comp/learning/models/SBI_ConvolutionMDN/20240705_123828",
+    "log_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_6_10rounds_1ksim_long_flavour_ensemble_10comp/learning/models/SBI_ConvolutionMDN/20240705_123828"
+  },
 
   "trainer": {
+    "type": "snle",
+    "truncated_prior": false,
+    "embedding": true,
+    "trained_embedding": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/paper_results/pardo_etal_2025/experiments/exp_4/round_9/trained_model_ensemble_0.pickle",
+    "retrain_from_scratch": false,
+    "ensemble": true,
+    "size_ensemble": 5,
     "validation_fraction": 0.1,
     "batch_size": 8,
     "lr": 5e-4,
-    "save_dir": "data/example_learning_sbi"
+    "num_rounds": 3,
+    "sir": true,
+    "mcmc_sampler": "slice_np_vectorized",
+    "save_dir": "/home/celsa/Documents/MAGNESIA_population_synthesis/toremove/learning_snle"
   },
-
   "infer": {
-    "save_dir": "data/example_inference_sbi"
+    "sim_dataset":false ,
+    "compute_coverage": true,
+    "load_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_10_10rounds_1ksim_long_flavour_ensemble_5_comp_retrain_from_scratch_True/learning/models/SBI_ConvolutionMDN/20240719_164759",
+    "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2024/exp_10_10rounds_1ksim_long_flavour_ensemble_5_comp_retrain_from_scratch_True/inference"
   }
 }

@@ -23,7 +23,7 @@
 
     Display help message to run the code:
 
-    python train_sbi.py --help
+    python sbi_train.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -247,7 +247,7 @@ def train(
                             train_dataset_path, config, logger
                         )
 
-                    # Saving the training data to reuse it in the next rounds if the proposal is truncated with the prior.
+                    # Save the training data for reuse in future rounds if the proposal distribution is truncated by the prior.
                     if config["trainer"]["truncated_prior"]:
                         parameter_train = []
                         matrix_train = []
