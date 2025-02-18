@@ -262,7 +262,7 @@ def infer(
                     )
 
                     observed_samples_posterior = posterior_obs.sample(
-                        (50000,), show_progress_bars=False
+                        (10000,), show_progress_bars=True
                     ).cpu()
 
                 ut.corner_plot(
