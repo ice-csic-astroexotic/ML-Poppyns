@@ -46,6 +46,7 @@ import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
 from utilities.experiment_helpers.run_simulation_set_sbi import (
     initialize_dask_cluster,
+    sample_without_nan,
 )
 
 
@@ -136,7 +137,6 @@ def train(
             dataset, parameter, matrix = ut.prepare_dataset_sbi(
                 train_dataset_path, config, logger
             )
-            n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
             num_rounds = config["trainer"]["num_rounds"]
 
             # Loading the train dataset as a dataframe and extracting the ground truth labels.
@@ -152,7 +152,7 @@ def train(
                 logger.info("Seed: {}".format(int(time.time())))
 
             logger.info("Defining the prior distribution...")
-            prior = ut.initialize_prior(config, n_parameters, device, dataset)
+            prior = ut.initialize_prior(config, device, dataset)
             logger.info("Building the neural network...")
 
             # When resuming from a previous run, load the inference object that contains the weights of the previously
@@ -162,7 +162,7 @@ def train(
 
             if resume and not retrain_from_scratch:
                 inference_list = ut.load_inference(
-                    config, last_completed_round, logger
+                    config, last_completed_round
                 )
             else:
 
@@ -247,10 +247,13 @@ def train(
                             train_dataset_path, config, logger
                         )
 
-                    # Save the training data for reuse in future rounds if the proposal distribution is truncated by the prior.
-                    if config["trainer"]["truncated_prior"]:
+                    # Save the training and testing data for reuse in future rounds if the proposal distribution is
+                    # truncated by the prior; otherwise, use the simulation from the current round.
+                    if not config["trainer"]["truncated_prior"]:
                         parameter_train = []
                         matrix_train = []
+                        parameter_test = []
+                        matrix_test = []
 
                     parameter_train.append(parameter)
                     matrix_train.append(matrix)
@@ -326,11 +329,6 @@ def train(
                             test_dataset_path, config, logger
                         )
 
-                        # Saving the testing data to reuse it in the next rounds if the proposal is truncated with the prior.
-                        if config["trainer"]["truncated_prior"]:
-                            parameter_test = []
-                            matrix_test = []
-
                         parameter_test.append(parameter)
                         matrix_test.append(matrix)
                         parameter_round_test = torch.cat(parameter_test, dim=0)
@@ -361,6 +359,7 @@ def train(
                     )
 
                     posterior_obs = posterior.set_default_x(x_o)
+
                     if config["trainer"]["truncated_prior"]:
                         proposal = ut.compute_proposal_prior(
                             posterior_obs, config, prior, device
@@ -370,8 +369,10 @@ def train(
                             # If `args.plot_proposal` is set to True, a corner plot of the proposal distribution will be
                             # produced. Note that this might take a while since we are using SIR or rejection methods to
                             # sample from the proposal distribution.
-                            observed_samples_proposal = proposal.sample(
-                                (50000,), show_progress_bars=False
+                            observed_samples_proposal = sample_without_nan(
+                                posterior_obs,
+                                sampling_size=5000,
+                                device=device,
                             ).cpu()
                             ut.corner_plot(
                                 observed_samples_proposal,
@@ -390,8 +391,8 @@ def train(
                     f"Inferring the parameters for the observed sample for round {effective_round}..."
                 )
 
-                observed_samples_posterior = posterior_obs.sample(
-                    (50000,), show_progress_bars=False
+                observed_samples_posterior = sample_without_nan(
+                    posterior_obs, 50000, device
                 ).cpu()
                 ut.corner_plot(
                     observed_samples_posterior,
@@ -422,7 +423,7 @@ def train(
 
 
 if __name__ == "__main__":
-    args = argparse.ArgumentParser(description="Truncated SNPE trainer")
+    args = argparse.ArgumentParser(description="SBI trainer")
 
     args.add_argument(
         "-c",

@@ -1025,7 +1025,6 @@ def build_posterior(
 
 def initialize_prior(
     config: configuration_parser.ConfigurationParser,
-    n_parameters: int,
     device: torch.device,
     dataset: dl.DatasetMultichannelArray,
 ) -> BoxUniform:
@@ -1039,7 +1038,6 @@ def initialize_prior(
 
     Args:
         config (configuration_parser.ConfigurationParser): The configuration object containing the model settings.
-        n_parameters (int): The number of parameters in the model that the prior will cover.
         device (torch.device): The device on which the prior distribution is allocated (e.g., CPU or GPU).
         dataset (dl.DatasetMultichannelArray): The dataset where is saved the statistics for normalization or standardization.
 
@@ -1047,6 +1045,7 @@ def initialize_prior(
         BoxUniform: The initialized prior distribution as a BoxUniform object.
 
     """
+    n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
     # Setting the prior distribution for the parameters.
     # Note that we need to rescale the prior distribution to ensure that it has the correct limits when
     # restricted.
@@ -1077,3 +1076,75 @@ def initialize_prior(
             device=f"{device}",
         )
     return prior
+
+
+def load_posterior(
+    config: configuration_parser.ConfigurationParser,
+    logger: Logger,
+    inference_list: Union[SNPE_C, List[SNPE_C]],
+    device: torch.device,
+    round_current: int,
+) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
+    """
+    Load the trained density estimator for a given round.
+
+    Args:
+        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
+        logger (Logger): Logger object.
+        inference_list (Union[SNPE_C, List[SNPE_C]]): sbi inference object or list of inference objects for ensemble.
+        device (torch.device): Device used for training.
+        round_current (int): Current round number.
+
+    Returns:
+        (Union[DirectPosterior, NeuralPosteriorEnsemble]): Trained density estimator or ensemble of estimators.
+    """
+    ensemble = config["trainer"]["ensemble"]
+    ensemble_size = config["trainer"]["size_ensemble"] if ensemble else 1
+    model_type = config["trainer"]["type"]
+    posteriors_list = []
+
+    # Load_dir folder is where the trained_model.pkl is saved.
+    load_dir = config["infer"]["load_dir"]
+    save_dir_round = load_dir + f"/round_{round_current}"
+
+    for index in range(ensemble_size):
+        trained_model_path = (
+            os.path.join(
+                save_dir_round, f"trained_model_ensemble_{index}.pickle"
+            )
+            if ensemble
+            else os.path.join(save_dir_round, "trained_model.pickle")
+        )
+
+        inference = inference_list[index if ensemble else 0]
+
+        with open(trained_model_path, "rb") as f:
+            density_estimator = pickle.load(f)
+        logger.info(
+            f"Loaded pre-trained model for round {round_current}, ensemble index {index}."
+        )
+
+        if model_type == "snpe":
+            posterior = inference.build_posterior(density_estimator.to(device))
+        elif model_type == "snle":
+            posterior = inference.build_posterior(
+                mcmc_method=config["trainer"]["mcmc_sampler"],
+                mcmc_parameters={"num_chains": 20, "thin": 5},
+            )
+        else:
+            logger.exception(
+                "The model type '{}' is not supported. ".format(model_type)
+            )
+            sys.exit(1)
+
+        posteriors_list.append(posterior)
+
+    if ensemble:
+        weights_ensemble = torch.ones(ensemble_size) / ensemble_size
+        final_posterior = NeuralPosteriorEnsemble(
+            posteriors_list, weights=weights_ensemble.to(device)
+        )
+    else:
+        final_posterior = posteriors_list[0]
+
+    return final_posterior

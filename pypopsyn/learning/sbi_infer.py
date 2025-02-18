@@ -18,84 +18,16 @@
 
 import argparse
 import collections
-import os
 import pathlib
-import pickle
 import time
-from logging import Logger
-from typing import List, Union
 
-import numpy as np
 import pandas as pd
 import torch
-from sbi import utils
-from sbi.inference.posteriors.direct_posterior import DirectPosterior
-from sbi.inference.snpe.snpe_c import SNPE_C
-from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.utils.sbi_utils as ut
 import utilities.benchmark.timewith as timewith
-from pypopsyn.learning.train_tsnpe import initialize_inference
 from pypopsyn.learning.utils.request_device import request_device
-
-
-def load_posterior(
-    config: configuration_parser.ConfigurationParser,
-    save_dir_round: pathlib.Path,
-    logger: Logger,
-    inference_list: Union[SNPE_C, List[SNPE_C]],
-    device: torch.device,
-    round_current: int,
-) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
-    """
-    Load the trained density estimator for a given round.
-
-    Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
-        save_dir_round (pathlib.Path): Directory where the trained model will be saved or is saved already.
-        logger (Logger): Logger object.
-        inference_list (Union[SNPE_C, List[SNPE_C]]): sbi inference object or list of inference objects for ensemble.
-        device (torch.device): Device used for training.
-        round_current (int): Current round number.
-
-    Returns:
-        (Union[DirectPosterior, NeuralPosteriorEnsemble]): Trained density estimator or ensemble of estimators.
-    """
-    ensemble = config["trainer"]["ensemble"]
-    ensemble_size = config["trainer"]["size_ensemble"] if ensemble else 1
-
-    posteriors_list = []
-
-    for index in range(ensemble_size):
-        trained_model_path = (
-            os.path.join(
-                save_dir_round, f"trained_model_ensemble_{index}.pickle"
-            )
-            if ensemble
-            else os.path.join(save_dir_round, "trained_model.pickle")
-        )
-
-        inference = inference_list[index if ensemble else 0]
-
-        with open(trained_model_path, "rb") as f:
-            density_estimator = pickle.load(f)
-        logger.info(
-            f"Loaded pre-trained model for round {round_current}, ensemble index {index}."
-        )
-
-        posterior = inference.build_posterior(density_estimator.to(device))
-        posteriors_list.append(posterior)
-
-    if ensemble:
-        weights_ensemble = torch.ones(ensemble_size) / ensemble_size
-        final_posterior = NeuralPosteriorEnsemble(
-            posteriors_list, weights=weights_ensemble.to(device)
-        )
-    else:
-        final_posterior = posteriors_list[0]
-
-    return final_posterior
 
 
 def infer(
@@ -160,7 +92,6 @@ def infer(
             dataset, _, _ = ut.prepare_dataset_sbi(
                 train_dataset_path, config, logger
             )
-            n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
             num_rounds = config["trainer"]["num_rounds"]
 
             # Loading the header of the training dataset to extract the ground truth labels.
@@ -182,7 +113,7 @@ def infer(
             # Setting the prior distribution for the parameters.
             # Note that we need to rescale the prior distribution to ensure that it has the correct limits when
             # restricted.
-            prior = ut.initialize_prior(config, n_parameters, device, dataset)
+            prior = ut.initialize_prior(config, device, dataset)
 
             # Create the matrix for the observed sample of neutron stars.
             _, _, x_o = ut.prepare_dataset_sbi(
@@ -205,9 +136,6 @@ def infer(
 
             save_dir_round = config.log_dir / f"round_{i}"
             save_dir_round.mkdir(parents=True, exist_ok=True)
-            # Load_dir folder is where the trained_model.pkl is saved.
-            load_dir = config["infer"]["load_dir"]
-            load_dir_round = load_dir + f"/round_{i}"
 
             with timewith.TimeWith(
                 f"[TotalRound{i}]",
@@ -216,8 +144,8 @@ def infer(
                 config["show_profiling"],
             ):
 
-                posterior = load_posterior(
-                    config, load_dir_round, logger, inference_list, device, i
+                posterior = ut.load_posterior(
+                    config, logger, inference_list, device, i
                 )
                 posterior_obs = posterior.set_default_x(x_o)
                 # Setting the proposal prior to the truncated prior or to the previous approximated posterior distribution at the observed data.
@@ -307,9 +235,9 @@ def infer(
                         f"Computing the proposal prior for round {i + 1}..."
                     )
 
-                observed_samples_posterior = posterior_obs.sample(
-                    (50000,), show_progress_bars=False
-                ).cpu()
+                    observed_samples_posterior = posterior_obs.sample(
+                        (50000,), show_progress_bars=False
+                    ).cpu()
 
                 ut.corner_plot(
                     observed_samples_posterior,
