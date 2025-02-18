@@ -105,7 +105,10 @@ def test_case_1():
         "beta_T_expected": np.array([0.001, 0.3, 0.3]),
         "tau_res_expected": np.array([0.001, 1.0, 10.0]),
         "flux_expected": np.array(
-            [6.35737874e-11, 1.06565796e-12, 5.86406010e-14]
+            [6.37348633e-11, 1.07255307e-12, 5.85475838e-14]
+        ),
+        "N_H_expected": np.array(
+            [2.38085937e21, 5.48339844e20, 2.89306641e20]
         ),
     }
 
@@ -247,7 +250,7 @@ def test_flux_xray_absorbed(test_case_1):
     Verifying that absorbed X-ray flux is correctly estimated.
     """
 
-    flux_out = xem.flux_xray_absorbed(
+    flux_out, N_H_out = xem.flux_xray_absorbed(
         test_case_1["Lx"],
         test_case_1["B"],
         test_case_1["RA"],
@@ -258,6 +261,13 @@ def test_flux_xray_absorbed(test_case_1):
     assert np.isclose(
         test_case_1["flux_expected"],
         flux_out,
+        rtol=TOL,
+        atol=1.0e-14,
+    ).all()
+
+    assert np.isclose(
+        test_case_1["N_H_expected"],
+        N_H_out,
         rtol=TOL,
         atol=1.0e-14,
     ).all()
