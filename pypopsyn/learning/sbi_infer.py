@@ -163,12 +163,12 @@ def infer(
                             weights=weights_ensemble.to(device),
                         )
                     else:
-                        inference_list = ut.initialize_inference(
-                            config, device, prior, logger, ensemble
-                        )
                         final_posterior = posteriors_list[0]
 
                 elif model_type == "snpe":
+                    inference_list = ut.initialize_inference(
+                        config, device, prior, logger, ensemble
+                    )
                     final_posterior = ut.load_posterior(
                         config, logger, inference_list, device, i
                     )
