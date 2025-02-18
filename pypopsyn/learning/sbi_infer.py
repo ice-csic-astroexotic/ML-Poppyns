@@ -19,10 +19,12 @@
 import argparse
 import collections
 import pathlib
+import sys
 import time
 
 import pandas as pd
 import torch
+from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.utils.sbi_utils as ut
@@ -136,13 +138,46 @@ def infer(
                 prof_json_path,
                 config["show_profiling"],
             ):
+
                 inference_list = ut.load_inference(
                     config, i, config["infer"]["load_dir"], ensemble
                 )
-                posterior = ut.load_posterior(
-                    config, logger, inference_list, device, i
-                )
-                posterior_obs = posterior.set_default_x(x_o)
+
+                model_type = config["trainer"]["type"]
+
+                if model_type == "snle":
+                    posteriors_list = []
+                    for inference in inference_list:
+                        posterior = inference.build_posterior(
+                            mcmc_method=config["trainer"]["mcmc_sampler"],
+                            mcmc_parameters={"num_chains": 20, "thin": 5},
+                        )
+                        posteriors_list.append(posterior)
+                    if ensemble:
+                        ensemble_size = len(inference_list)
+                        # Giving each network in the ensemble an equal weight.
+                        weights_ensemble = (
+                            torch.ones(ensemble_size) / ensemble_size
+                        )
+                        final_posterior = NeuralPosteriorEnsemble(
+                            posteriors_list,
+                            weights=weights_ensemble.to(device),
+                        )
+                    else:
+                        final_posterior = posteriors_list[0]
+                elif model_type == "snpe":
+                    final_posterior = ut.load_posterior(
+                        config, logger, inference_list, device, i
+                    )
+                else:
+                    logger.exception(
+                        "The model type '{}' is not supported. ".format(
+                            model_type
+                        )
+                    )
+                    sys.exit(1)
+
+                posterior_obs = final_posterior.set_default_x(x_o)
                 # Setting the proposal prior to the truncated prior or to the previous approximated posterior distribution at the observed data.
                 if config["trainer"]["truncated_prior"]:
                     proposal = ut.compute_proposal_prior(
@@ -192,7 +227,7 @@ def infer(
                         )
 
                         # Saving the testing data to reuse it in the next rounds if the proposal is truncated with the prior.
-                        if config["trainer"]["truncated_prior"]:
+                        if not config["trainer"]["truncated_prior"]:
                             parameter_test = []
                             matrix_test = []
 
@@ -209,7 +244,7 @@ def infer(
                             save_dir=save_dir_round,
                             parameter=parameter_round_test,
                             matrix=matrix_round_test,
-                            posterior=posterior,
+                            posterior=final_posterior,
                             device=device,
                             parameter_labels=parameter_labels,
                             logger=logger,
@@ -223,7 +258,7 @@ def infer(
                     config["show_profiling"],
                 ):
                     logger.info(
-                        f"Computing the proposal prior for round {i + 1}..."
+                        f"Sampling from the posterior for round {i + 1}..."
                     )
 
                     observed_samples_posterior = posterior_obs.sample(
@@ -242,7 +277,7 @@ def infer(
 
 
 if __name__ == "__main__":
-    args = argparse.ArgumentParser(description="Truncated SNPE trainer")
+    args = argparse.ArgumentParser(description="Inference SBI")
 
     args.add_argument(
         "-c",
