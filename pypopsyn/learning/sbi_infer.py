@@ -139,13 +139,12 @@ def infer(
                 config["show_profiling"],
             ):
 
-                inference_list = ut.load_inference(
-                    config, i, config["infer"]["load_dir"], ensemble
-                )
-
                 model_type = config["trainer"]["type"]
 
                 if model_type == "snle":
+                    inference_list = ut.load_inference(
+                        config, i, config["infer"]["load_dir"], ensemble
+                    )
                     posteriors_list = []
                     for inference in inference_list:
                         posterior = inference.build_posterior(
@@ -164,12 +163,17 @@ def infer(
                             weights=weights_ensemble.to(device),
                         )
                     else:
+                        inference_list = ut.initialize_inference(
+                            config, device, prior, logger, ensemble
+                        )
                         final_posterior = posteriors_list[0]
+
                 elif model_type == "snpe":
                     final_posterior = ut.load_posterior(
                         config, logger, inference_list, device, i
                     )
                 else:
+
                     logger.exception(
                         "The model type '{}' is not supported. ".format(
                             model_type
