@@ -162,7 +162,10 @@ def train(
 
             if resume and not retrain_from_scratch:
                 inference_list = ut.load_inference(
-                    config, last_completed_round
+                    config,
+                    last_completed_round,
+                    config["resume_training"]["save_dir"],
+                    ensemble,
                 )
             else:
 

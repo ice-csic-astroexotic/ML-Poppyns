@@ -123,13 +123,6 @@ def infer(
                 atnf=True,
             )
 
-            # During inference, we load the trained model. The inference object is used to identify which neural
-            # posterior estimation algorithm is employed. In this case we use SNPE. Therefore, we only need to
-            # initialize the network at the beginning.
-            inference_list = ut.initialize_inference(
-                config, device, prior, logger, ensemble
-            )
-
         parameter_test = []
         matrix_test = []
         for i in range(num_rounds):
@@ -143,7 +136,9 @@ def infer(
                 prof_json_path,
                 config["show_profiling"],
             ):
-
+                inference_list = ut.load_inference(
+                    config, i, config["infer"]["load_dir"], ensemble
+                )
                 posterior = ut.load_posterior(
                     config, logger, inference_list, device, i
                 )
@@ -192,11 +187,7 @@ def infer(
                                 )
                             )
 
-                        (
-                            _,
-                            parameter_test,
-                            matrix_test,
-                        ) = ut.prepare_dataset_sbi(
+                        (_, parameter, matrix,) = ut.prepare_dataset_sbi(
                             test_dataset_path, config, logger
                         )
 
@@ -205,8 +196,8 @@ def infer(
                             parameter_test = []
                             matrix_test = []
 
-                        parameter_test.append(parameter_test)
-                        matrix_test.append(matrix_test)
+                        parameter_test.append(parameter)
+                        matrix_test.append(matrix)
                         parameter_round_test = torch.cat(parameter_test, dim=0)
                         matrix_round_test = torch.cat(matrix_test, dim=0)
 

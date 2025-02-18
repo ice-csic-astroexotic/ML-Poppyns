@@ -212,6 +212,7 @@ def calculate_smallest_hdr(
 def load_inference(
     config: configuration_parser.ConfigurationParser,
     round_number: int,
+    save_dir: pathlib.Path,
     ensemble: bool = False,
 ) -> Union[List[Union[SNPE_C, SNLE_A]], SNPE_C, SNLE_A]:
     """
@@ -220,12 +221,12 @@ def load_inference(
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the settings.
         round_number (int): The round number to load the inference from.
+        save_dir (pathlib.Path): The directory to load the inference from.
         ensemble (bool): Flag indicating if ensemble mode is enabled. Defaults to False.
 
     Returns:
         (Union[List[SNPE_C], SNPE_C]): A list of inference objects.
     """
-    save_dir = config["resume_training"]["save_dir"]
     inference_list = []
 
     for i in range(config["trainer"]["size_ensemble"] if ensemble else 1):
@@ -744,6 +745,7 @@ def initialize_inference(
     """
     inference_list = []
     model_type = config["trainer"]["type"]
+
     for _ in range(config["trainer"]["size_ensemble"] if ensemble else 1):
         if model_type == "snle":
             inference = build_network_snle(device, prior)
