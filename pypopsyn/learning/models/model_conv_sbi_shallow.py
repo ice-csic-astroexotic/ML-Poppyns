@@ -17,7 +17,7 @@ from .model_base import ModelBase
 
 class ModelConvSBIshallow(ModelBase):
     """
-    A convolutional neural network model with 2 convolutional filters.
+    A convolutional neural network model with 1 convolutional filters.
     """
 
     def __init__(
