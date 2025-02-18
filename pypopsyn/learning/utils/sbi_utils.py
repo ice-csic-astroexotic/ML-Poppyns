@@ -819,16 +819,19 @@ def prepare_dataset_sbi(
         sys.exit(1)
 
     parameter = np.zeros((len(dataset), n_parameters))
-    matrix = np.zeros(
-        (len(dataset), config["arch"]["args"]["len_output_layer"])
-    )
 
     if config["trainer"]["embedding"]:
+        matrix = np.zeros(
+            (len(dataset), config["arch"]["args"]["len_output_layer"])
+        )
         # Load the pre-trained embedding network to encode each dataset sample into a latent vector.
         embedding_model_path = config["trainer"]["trained_embedding"]
         with open(embedding_model_path, "rb") as f:
             emb_neural_net = pickle.load(f)
-
+    else:
+        matrix = np.zeros(
+            (len(dataset), input_shape[0], input_shape[1], input_shape[2])
+        )
     for i, (x, theta) in enumerate(dataset):
         # Reshaping the matrix to have the channel number at the beginning.
         x = np.moveaxis(x, -1, 0)
