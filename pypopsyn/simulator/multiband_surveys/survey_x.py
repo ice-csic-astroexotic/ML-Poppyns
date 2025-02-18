@@ -9,20 +9,9 @@
             Michele Ronchi (ronchi@ice.csic.es)
 """
 
-import argparse
-import functools
-import json
-import logging
-import os
-import pathlib
-import pickle
-import sys
-import time
 from typing import Tuple
 
 import numpy as np
-import orjson
-import pandas as pd
 from scipy.interpolate import RectBivariateSpline
 
 import pypopsyn.simulator.basics.constants as const

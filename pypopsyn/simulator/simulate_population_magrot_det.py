@@ -32,13 +32,10 @@ import pandas as pd
 from scipy.interpolate import RectBivariateSpline
 
 import pypopsyn.learning.configuration_parser as configuration_parser
-import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
-import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
-import pypopsyn.simulator.multiband_emission.emission_xray as ex
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.multiband_surveys.survey_x as sx
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
@@ -292,7 +289,6 @@ def apply_surveys_coverage(
             - A dictionary containing data for stars that meet the coverage criteria.
             - An updated list of indices of stars that are outside the coverage and should be removed.
     """
-
     age = dyn_database_dict["age"]
     ra = dyn_database_dict["ra"]
     dec = dyn_database_dict["dec"]
@@ -718,6 +714,14 @@ def x_detection(
         N_H=N_H,
     )
 
+    # Remove keys that are not needed in the X-ray detection dataframe.
+    dictionary_detected.pop("B_initial", None)
+    dictionary_detected.pop("coverage_HTRU_low", None)
+    dictionary_detected.pop("coverage_HTRU_mid", None)
+    dictionary_detected.pop("coverage_PMPS", None)
+    dictionary_detected.pop("coverage_radio", None)
+    dictionary_detected.pop("coverage_x", None)
+
     return dictionary_detected
 
 
@@ -765,7 +769,7 @@ def create_output_dataframe(
     """
 
     # Defining the parameters and units that are common for all surveys.
-    parameters = [
+    parameters_radio = [
         "age",
         "RA",
         "DEC",
@@ -787,7 +791,7 @@ def create_output_dataframe(
         "w_eff",
         "spectral_index",
     ]
-    units = [
+    units_radio = [
         "[yr]",
         "[deg]",
         "[deg]",
@@ -817,11 +821,11 @@ def create_output_dataframe(
     for survey_name, survey_data in dictionary_detected_radio.items():
         # Check if the survey is a combined survey like 'HTRU_low_mid'.
         if survey_name == "HTRU_low_mid":
-            parameters_survey = parameters + ["HTRU_low", "HTRU_mid"]
-            units_survey = units + ["", ""]
+            parameters_survey = parameters_radio + ["HTRU_low", "HTRU_mid"]
+            units_survey = units_radio + ["", ""]
         else:
-            parameters_survey = parameters
-            units_survey = units
+            parameters_survey = parameters_radio
+            units_survey = units_radio
 
         # Build the DataFrame using the appropriate parameters and units.
         df = build_dataframe(survey_data, parameters_survey, units_survey)
