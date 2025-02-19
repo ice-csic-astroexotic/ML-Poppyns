@@ -182,6 +182,12 @@ def infer(
                     sys.exit(1)
 
                 posterior_obs = final_posterior.set_default_x(x_o)
+                logger.info(
+                    f"Sampling from the posterior for round {i + 1}..."
+                )
+                observed_samples_posterior = posterior_obs.sample(
+                    (10000,), show_progress_bars=True
+                ).cpu()
                 # Setting the proposal prior to the truncated prior or to the previous approximated posterior distribution at the observed data.
                 if config["trainer"]["truncated_prior"]:
                     proposal = ut.compute_proposal_prior(
@@ -192,7 +198,7 @@ def infer(
                     proposal = posterior_obs
 
                 with timewith.TimeWith(
-                    f"[TestingRound{i}]",
+                    f"[ComputingCoverage{i}]",
                     prof_log_path,
                     prof_json_path,
                     config["show_profiling"],
@@ -254,20 +260,6 @@ def infer(
                             logger=logger,
                             effective_round=i,
                         )
-
-                with timewith.TimeWith(
-                    f"[ComputeRestrictedPriorRound{i}]",
-                    prof_log_path,
-                    prof_json_path,
-                    config["show_profiling"],
-                ):
-                    logger.info(
-                        f"Sampling from the posterior for round {i + 1}..."
-                    )
-
-                    observed_samples_posterior = posterior_obs.sample(
-                        (10000,), show_progress_bars=True
-                    ).cpu()
 
                 ut.corner_plot(
                     observed_samples_posterior,
