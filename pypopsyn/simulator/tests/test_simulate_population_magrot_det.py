@@ -21,7 +21,6 @@ import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolutio
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_emission.emission_xray as ex
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
-import pypopsyn.simulator.multiband_surveys.survey_x as sx
 import pypopsyn.simulator.simulate_population_magrot_det as sim
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import utilities.samplers.memory_efficient_sampling as mes

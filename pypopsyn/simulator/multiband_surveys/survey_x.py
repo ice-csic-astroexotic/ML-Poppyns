@@ -53,6 +53,7 @@ def detected_x_population(
 
     Returns:
         (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple containing the following arrays:
+
             - Boolean mask to select the pulsars detected by the survey.
             - X-ray thermal luminosities in [erg/s].
             - X-ray absorbed fluxes in [erg s^-1 cm^-2].
@@ -74,9 +75,12 @@ def detected_x_population(
         / const.YR_TO_S
     )
 
+    # Interpolate the thermal luminosity from the initial magnetic field value and the age.
     L_x_therm = L_x_interpolator.ev(age, B_initial)
 
     # Select only the stars that have sufficiently high luminosity and fall in the X-ray survey coverage.
+    # This is done in order to avoid computing the RCS spectra for those stars whose luminosity is too low and
+    # remove luminosity values that are toos small or negative due to the results of interpolation at late times.
     L_x_mask = L_x_therm > L_x_threshold
     coverage = coverage & L_x_mask
 
