@@ -32,10 +32,13 @@ import pandas as pd
 from scipy.interpolate import RectBivariateSpline
 
 import pypopsyn.learning.configuration_parser as configuration_parser
+import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
+import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
+import pypopsyn.simulator.multiband_emission.emission_xray as ex
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.multiband_surveys.survey_x as sx
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
@@ -263,25 +266,22 @@ def load_database_dyn(
 
 
 def apply_surveys_coverage(
-    radio_surveys: dict,
-    xray_survey: bool,
+    surveys_radio: dict,
+    survey_xray: bool,
     dyn_database_dict: dict,
     idx_remove: list,
     dist_cutoff: float,
-    age_cutoff: float,
 ) -> Tuple[dict, list]:
     """
     Apply survey coverage criteria to filter a dynamic population dataset based on sky coverage,
     distance, and age cutoffs, and update the indices of entries to be removed.
 
     Args:
-        radio_surveys (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
-        xray_survey (bool): A boolean flag to consider an all sky coverage for an X-ray survey.
+        surveys_radio (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
+        survey_xray (bool): A boolean flag to consider an all sky coverage for an X-ray survey.
         dyn_database_dict (dict): A dictionary containing the data of a dynamical population.
         idx_remove (list): A list of indices of entries to be removed based on the filtering criteria.
         dist_cutoff (float): The maximum heliocentric distance to include in the survey coverage.
-        age_cutoff (float): The maximum neutron star age to include in the survey coverage (this applies only if
-            xray_survey = True).
 
     Returns:
         (Tuple[dict, list]): A tuple object containing the following attributes:
@@ -289,71 +289,63 @@ def apply_surveys_coverage(
             - A dictionary containing data for stars that meet the coverage criteria.
             - An updated list of indices of stars that are outside the coverage and should be removed.
     """
-    age = dyn_database_dict["age"]
-    ra = dyn_database_dict["ra"]
-    dec = dyn_database_dict["dec"]
-    l_gal = dyn_database_dict["l"]
-    b_gal = dyn_database_dict["b"]
+
     dist = dyn_database_dict["dist"]
-    pm_ra = dyn_database_dict["pm_ra"]
-    pm_dec = dyn_database_dict["pm_dec"]
-    v_ls = dyn_database_dict["v_ls"]
-    idx = dyn_database_dict["idx"]
-
     dist_mask = dist < dist_cutoff
-    age_mask = age < age_cutoff
 
-    # Select only neutron stars that fall into the sky region covered by the surveys.
-    survey_names = list(radio_surveys.keys())
-    coverage = {}
+    # Evaluate the sky coverage for each radio survey.
+    survey_radio_names = list(surveys_radio.keys())
+    coverage_survey_radio = {}
 
-    for name in survey_names:
-        coverage[name] = radio_surveys[name].sky_coverage(
-            ra, dec, l_gal, b_gal
+    for name in survey_radio_names:
+        coverage_survey_radio[name] = surveys_radio[name].sky_coverage(
+            dyn_database_dict["ra"],
+            dyn_database_dict["dec"],
+            dyn_database_dict["l"],
+            dyn_database_dict["b"],
         )
 
-    # Determine which stars fall into the sky region covered by any of the considered radio surveys.
-    coverage_radio = (
+    coverage_radio_tot = (
         functools.reduce(
-            lambda a, b: a | b, (coverage[name] for name in survey_names)
+            lambda a, b: a | b,
+            (coverage_survey_radio[name] for name in survey_radio_names),
         )
     ) & dist_mask
 
-    # For the x-ray survey we consider an all-sky coverage and only apply an age and distance cutoff.
-    coverage_x = age_mask & dist_mask
+    # For the x-ray survey we consider an all-sky coverage and only apply a distance cutoff.
+    coverage_x_tot = dist_mask
 
-    if xray_survey:
-        coverage_tot = coverage_radio | coverage_x
+    # Evaluate the total sky coverage for both radio and X-ray surveys.
+    if survey_xray:
+        coverage_tot = coverage_radio_tot | coverage_x_tot
 
     else:
-        coverage_tot = coverage_radio
+        coverage_tot = coverage_radio_tot
 
+    # Select only neutron stars that fall into the sky region covered by the surveys.
     dictionary_coverage_database = {
-        "age": age[coverage_tot],
-        "ra": ra[coverage_tot],
-        "dec": dec[coverage_tot],
-        "l": l_gal[coverage_tot],
-        "b": b_gal[coverage_tot],
-        "dist": dist[coverage_tot],
-        "pm_ra": pm_ra[coverage_tot],
-        "pm_dec": pm_dec[coverage_tot],
-        "v_ls": v_ls[coverage_tot],
-        "idx": idx[coverage_tot],
-        "coverage_radio": coverage_radio[coverage_tot],
+        key: value[coverage_tot] for key, value in dyn_database_dict.items()
     }
 
     # Add coverage for each survey to the dictionary.
-    for survey_name in survey_names:
+    dictionary_coverage_database["coverage_radio"] = coverage_radio_tot[
+        coverage_tot
+    ]
+
+    for survey_name in survey_radio_names:
         # Add the coverage data for each survey
-        coverage_key = f"coverage_{survey_name}"
-        dictionary_coverage_database[coverage_key] = coverage[survey_name][
+        coverage_key = f"coverage_radio_{survey_name}"
+        dictionary_coverage_database[coverage_key] = coverage_survey_radio[
+            survey_name
+        ][coverage_tot]
+
+    if survey_xray:
+        dictionary_coverage_database["coverage_x"] = coverage_x_tot[
             coverage_tot
         ]
 
-    if xray_survey:
-        dictionary_coverage_database["coverage_x"] = coverage_x[coverage_tot]
-
     # Remove stars that do not fall into the total sky coverage.
+    idx = dyn_database_dict["idx"]
     out_coverage = np.invert(coverage_tot)
     idx_remove += idx[out_coverage].tolist()
 
@@ -373,10 +365,10 @@ def initialize_population_magrot(dict_coverage_database: dict) -> dict:
             in the survey sky coverage.
     """
 
+    age = dict_coverage_database["age"]
+
     # Initialize neutron star population properties.
-    pop_initial = ipop.InitialNeutronStarPopulation(
-        NS_number=len(dict_coverage_database["age"])
-    )
+    pop_initial = ipop.InitialNeutronStarPopulation(NS_number=len(age))
 
     # Computing the initial field strengths, misalignment angles, and periods.
     B_initial = pop_initial.magnetic_field()
@@ -384,6 +376,7 @@ def initialize_population_magrot(dict_coverage_database: dict) -> dict:
     P_initial = pop_initial.period()
 
     dictionary_initial_pop_magrot = {
+        "age": age,
         "B_initial": B_initial,
         "chi_initial": chi_initial,
         "P_initial": P_initial,
@@ -394,7 +387,6 @@ def initialize_population_magrot(dict_coverage_database: dict) -> dict:
 
 def evolve_population_magrot(
     dict_pop_initial_magrot: dict,
-    dict_coverage_database: dict,
     output_path: pathlib.Path,
 ) -> dict:
     """
@@ -402,14 +394,12 @@ def evolve_population_magrot(
 
     Args:
         dict_pop_initial_magrot (dict): Dictionary containing initial magneto-rotational properties of the population.
-        dict_coverage_database (dict): Dictionary containing the dynamical properties of the neutron star population
-            falling in the survey sky coverage.
         output_path (pathlib.Path): The path where the evolution data will be saved if enabled in the configuration.
 
     Returns:
         (dict): A dictionary containing the properties of the evolved neutron star population.
     """
-    age = dict_coverage_database["age"]
+    age = dict_pop_initial_magrot["age"]
     B_initial = dict_pop_initial_magrot["B_initial"]
     chi_initial = dict_pop_initial_magrot["chi_initial"]
     P_initial = dict_pop_initial_magrot["P_initial"]
@@ -442,11 +432,23 @@ def evolve_population_magrot(
                 )
             )
 
+    # Determining the final period derivative.
+    period_derivative_vect = np.vectorize(pdv.period_derivative)
+    P_dot_final = (
+        period_derivative_vect(
+            B_final,
+            chi_final,
+            P_final,
+        )
+        / const.YR_TO_S
+    )
+
     dictionary_final_pop_magrot = {
         "B_initial": B_initial,
         "B": B_final,
         "chi": chi_final,
         "P": P_final,
+        "P_dot": P_dot_final,
     }
 
     return dictionary_final_pop_magrot
@@ -463,72 +465,48 @@ def radio_intercepted(dict_final_pop: dict) -> dict:
         (dict): A dictionary containing properties of the neutron stars whose radio beams intercept our line of sight.
     """
 
-    coverage_radio = dict_final_pop["coverage_radio"]
-
     # Select only the stars that can be detected in radio by the considered surveys.
-    age = dict_final_pop["age"][coverage_radio]
-    l_gal = dict_final_pop["l"][coverage_radio]
-    b_gal = dict_final_pop["b"][coverage_radio]
-    ra = dict_final_pop["ra"][coverage_radio]
-    dec = dict_final_pop["dec"][coverage_radio]
-    dist = dict_final_pop["dist"][coverage_radio]
-    pm_ra = dict_final_pop["pm_ra"][coverage_radio]
-    pm_dec = dict_final_pop["pm_dec"][coverage_radio]
-    v_ls = dict_final_pop["v_ls"][coverage_radio]
-    P = dict_final_pop["P"][coverage_radio]
-    B = dict_final_pop["B"][coverage_radio]
-    chi = dict_final_pop["chi"][coverage_radio]
-    idx = dict_final_pop["idx"][coverage_radio]
+    coverage_radio = dict_final_pop["coverage_radio"]
+    dict_final_pop_filtered = {
+        key: value[coverage_radio] for key, value in dict_final_pop.items()
+    }
 
-    # Collect the coverage data for each survey.
+    # Collect the coverage data for each radio survey.
     coverage_data = {}
     for key in dict_final_pop.keys():
-        if key.startswith("coverage_"):
+        if key.startswith("coverage_radio_"):
             coverage_data[key] = dict_final_pop[key][coverage_radio]
 
     # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
     # of their radio emission.
-    dictionary_intercepted_radio = er.calculate_radio_emission(
-        P,
-        age,
-        l_gal,
-        b_gal,
-        dist,
-        B,
-        chi,
-        idx,
+    (
+        intercepted_radio,
+        w_int_s,
+        L_radio_bol,
+        S_radio_bol,
+        spectral_index,
+        DM,
+        tau_sc,
+    ) = er.calculate_radio_emission(
+        dict_final_pop_filtered["P"],
+        dict_final_pop_filtered["P_dot"],
+        dict_final_pop_filtered["age"],
+        dict_final_pop_filtered["l"],
+        dict_final_pop_filtered["b"],
+        dict_final_pop_filtered["dist"],
+        dict_final_pop_filtered["chi"],
     )
 
-    intercepted_radio = dictionary_intercepted_radio["intercepted_radio"]
-
     dictionary_intercepted_radio = {
-        "age": dictionary_intercepted_radio["age"],
-        "l": dictionary_intercepted_radio["l"],
-        "b": dictionary_intercepted_radio["b"],
-        "ra": ra[intercepted_radio],
-        "dec": dec[intercepted_radio],
-        "dist": dist[intercepted_radio],
-        "pm_ra": pm_ra[intercepted_radio],
-        "pm_dec": pm_dec[intercepted_radio],
-        "v_ls": v_ls[intercepted_radio],
-        "B": dictionary_intercepted_radio["B"],
-        "chi": dictionary_intercepted_radio["chi"],
-        "P": dictionary_intercepted_radio["P"],
-        "P_dot": dictionary_intercepted_radio["P_dot"],
-        "w_int": dictionary_intercepted_radio["w_int_s"],
-        "DM": dictionary_intercepted_radio["DM"],
-        "idx": dictionary_intercepted_radio["idx"],
-        "L_radio_bol": dictionary_intercepted_radio["L_radio_bol"],
-        "S_radio_bol": dictionary_intercepted_radio["S_radio_bol"],
-        "spectral_index": dictionary_intercepted_radio["spectral_index"],
-        "tau_sc": dictionary_intercepted_radio["tau_sc"],
+        key: value[intercepted_radio]
+        for key, value in dict_final_pop_filtered.items()
     }
-
-    # Add the coverage for each survey to the output dictionary.
-    for coverage_key, coverage_value in coverage_data.items():
-        dictionary_intercepted_radio[coverage_key] = coverage_value[
-            intercepted_radio
-        ]
+    dictionary_intercepted_radio["w_int"] = w_int_s
+    dictionary_intercepted_radio["L_radio_bol"] = L_radio_bol
+    dictionary_intercepted_radio["S_radio_bol"] = S_radio_bol
+    dictionary_intercepted_radio["spectral_index"] = spectral_index
+    dictionary_intercepted_radio["DM"] = DM
+    dictionary_intercepted_radio["tau_sc"] = tau_sc
 
     return dictionary_intercepted_radio
 
@@ -607,7 +585,7 @@ def radio_detection(
             dictionary_intercepted_radio["DM"],
             dictionary_intercepted_radio["P"],
             dictionary_intercepted_radio["age"],
-            dictionary_intercepted_radio[f"coverage_{survey_name}"],
+            dictionary_intercepted_radio[f"coverage_radio_{survey_name}"],
             dictionary_intercepted_radio["l"],
             dictionary_intercepted_radio["b"],
             dictionary_intercepted_radio["S_radio_bol"],
@@ -670,6 +648,7 @@ def x_detection(
     dict_final_pop: dict,
     L_x_interpolator: RectBivariateSpline,
     L_x_threshold: float,
+    age_cutoff: float,
     S_x_abs_threshold: float,
 ) -> dict:
     """
@@ -679,48 +658,46 @@ def x_detection(
         dict_final_pop (dict): Dictionary containing the properties of the evolved neutron star population.
         L_x_interpolator (RectBivariateSpline): Interpolator used to calculate thermal X-ray luminosity based on age and magnetic field.
         L_x_threshold (float): A lower limit for the X-ray luminosity.
+        age_cutoff (float): An upper limit for the neutron star age for X-ray detection.
         S_x_abs_threshold (float): The absorbed flux threshold for X-ray detection.
 
     Returns:
         (dict): A dictionary containing the properties of detected neutron stars in X-rays.
     """
-    (
-        detected_mask,
-        L_x_therm,
-        S_x_abs,
-        N_H,
-        P_dot,
-    ) = sx.detected_x_population(
-        dict_final_pop["P"],
-        dict_final_pop["B"],
-        dict_final_pop["B_initial"],
-        dict_final_pop["chi"],
-        dict_final_pop["age"],
-        dict_final_pop["ra"],
-        dict_final_pop["dec"],
-        dict_final_pop["dist"],
-        dict_final_pop["coverage_x"],
+    # Select only the stars that can be detected in x by the considered surveys.
+    coverage_x = dict_final_pop["coverage_x"]
+    dict_final_pop_filtered = {
+        key: value[coverage_x] for key, value in dict_final_pop.items()
+    }
+
+    xray_bright_mask, L_x_therm, S_x_abs, N_H = ex.calculate_x_emission(
+        dict_final_pop_filtered["B"],
+        dict_final_pop_filtered["B_initial"],
+        dict_final_pop_filtered["age"],
+        dict_final_pop_filtered["ra"],
+        dict_final_pop_filtered["dec"],
+        dict_final_pop_filtered["dist"],
         L_x_interpolator,
         L_x_threshold,
+        age_cutoff,
+    )
+
+    dict_xray_bright = {
+        key: value[xray_bright_mask]
+        for key, value in dict_final_pop_filtered.items()
+    }
+    dict_xray_bright["L_x_therm"] = L_x_therm
+    dict_xray_bright["S_x_abs"] = S_x_abs
+    dict_xray_bright["N_H"] = N_H
+
+    detected_mask = sx.detected_x_population_flux_threshold(
+        dict_xray_bright["S_x_abs"],
         S_x_abs_threshold,
     )
 
     dictionary_detected = update_detected_dictionary(
-        dict_final_pop,
-        detected_mask,
-        P_dot=P_dot,
-        L_x_therm=L_x_therm,
-        S_x_abs=S_x_abs,
-        N_H=N_H,
+        dict_xray_bright, detected_mask
     )
-
-    # Remove keys that are not needed in the X-ray detection dataframe.
-    dictionary_detected.pop("B_initial", None)
-    dictionary_detected.pop("coverage_HTRU_low", None)
-    dictionary_detected.pop("coverage_HTRU_mid", None)
-    dictionary_detected.pop("coverage_PMPS", None)
-    dictionary_detected.pop("coverage_radio", None)
-    dictionary_detected.pop("coverage_x", None)
 
     return dictionary_detected
 
@@ -1024,7 +1001,6 @@ def simulate_population(args) -> None:
                     database_dyn_batch,
                     idx_remove,
                     dist_cutoff=35.0,
-                    age_cutoff=1.0e6,
                 )
 
                 # Initialize neutron star magneto-rotational properties.
@@ -1042,7 +1018,7 @@ def simulate_population(args) -> None:
                 # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
                 # Evolve in time the magneto-rotational properties.
                 pop_magrot_final = evolve_population_magrot(
-                    pop_magrot_initial, database_coverage, output_path
+                    pop_magrot_initial, output_path
                 )
 
                 # Merge the dictionary containing the final magneto-rotational properties with the filtered dynamical
@@ -1117,6 +1093,7 @@ def simulate_population(args) -> None:
                         luminosity_x_interpolator,
                         L_x_threshold=1.0e30,
                         S_x_abs_threshold=1.0e-15,
+                        age_cutoff=1.0e6,
                     )
 
                     # Check the number of detected pulsars for each survey.

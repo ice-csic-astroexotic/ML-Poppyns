@@ -11,10 +11,12 @@ from typing import Optional, Tuple
 import numpy as np
 import scipy.special as scsp
 from scipy.integrate import trapz
+from scipy.interpolate import RectBivariateSpline
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.interstellar_medium.nh_model as nhm
 import pypopsyn.simulator.interstellar_medium.xray_abs_cross_section as xabs
+import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.config_simulator import cfg
 
 # General relativity correction factor that accounts for space-time curvature around a neutron star.
@@ -347,3 +349,72 @@ def flux_xray_absorbed(
     N_H = N_H.squeeze()
 
     return flux, N_H
+
+
+def calculate_x_emission(
+    B: np.ndarray,
+    B_initial: np.ndarray,
+    age: np.ndarray,
+    ra: np.ndarray,
+    dec: np.ndarray,
+    dist: np.ndarray,
+    L_x_interpolator: RectBivariateSpline,
+    L_x_threshold: float,
+    age_cutoff: float,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Compute the X-ray thermal luminosity, the absorbed X-ray flux and the N_H value for the pulsars that are X-ray
+    bright.
+
+    Args:
+        P (np.ndarray): Array of spin periods of the pulsars in [s].
+        B (np.ndarray): Array of evolved magnetic fields of the pulsars in [G].
+        B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
+        chi (np.ndarray): Array of inclination angles in [rad].
+        age (np.ndarray): Array of neutron star ages [yrs].
+        ra (np.ndarray): Right ascension in [deg] defined between [0, 360] deg in ICRS frame.
+        dec (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
+        dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
+        L_x_interpolator (RectBivariateSpline): Interpolator used to calculate thermal X-ray luminosity based on age and magnetic field.
+        L_x_threshold (float): A lower limit for the X-ray luminosity.
+        age_cutoff (float): An upper limit for the neutron star age for X-ray detection.
+
+    Returns:
+        (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple containing the following arrays:
+
+            - X-ray thermal luminosities in [erg/s].
+            - X-ray absorbed fluxes in [erg s^-1 cm^-2].
+            - N_H column density in [cm^-2].
+            - Spin period derivative values in [s/s].
+    """
+
+    L_x_therm = np.zeros(len(age))
+
+    # Consider an age cutoff. Note that the interpolation is valid only up to 10^6 yrs as the magneto-thermal
+    # cooling curves are reliable only until that time.
+    age_mask = age < age_cutoff
+
+    # Interpolate the thermal luminosity from the initial magnetic field value and the age.
+    L_x_therm[age_mask] = L_x_interpolator.ev(
+        age[age_mask], B_initial[age_mask]
+    )
+
+    # Select only the stars that have sufficiently high luminosity.
+    # This is done in order to remove luminosity values that are too small or even negative due to the unreliable
+    # results of the interpolation at late times. This helps to avoid computing the RCS spectra for those stars
+    # whose luminosity is too low to be detectable and save computational resources.
+    L_x_mask = L_x_therm > L_x_threshold
+    L_x_therm = L_x_therm[L_x_mask]
+
+    xray_bright_mask = age_mask & L_x_mask
+
+    # Compute the absorbed fluxes and the N_H column density.
+    S_x_abs, N_H = flux_xray_absorbed(
+        L_x_therm,
+        B[xray_bright_mask],
+        ra[xray_bright_mask],
+        dec[xray_bright_mask],
+        dist[xray_bright_mask],
+    )
+
+    return xray_bright_mask, L_x_therm, S_x_abs, N_H
