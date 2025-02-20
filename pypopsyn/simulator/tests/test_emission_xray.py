@@ -9,6 +9,7 @@ Tests for the x-ray emission module.
 
 import numpy as np
 import pytest
+from scipy.interpolate import RectBivariateSpline
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.multiband_emission.emission_xray as xem
@@ -110,6 +111,32 @@ def test_case_1():
         "N_H_expected": np.array(
             [2.38085937e21, 5.48339844e20, 2.89306641e20]
         ),
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_2():
+    data = {
+        "age": np.array([1e4, 2e5, 1e7]),
+        "ra": np.array([50.0, 250.0, 30.0]),
+        "dec": np.array([-50.0, 50.0, 30.0]),
+        "dist": np.array([2.0, 10.0, 5.0]),
+        "B_initial": np.array([1e12, 1e14, 1e13]),
+        "B": np.array([1e12, 1e14, 1e13]),
+        "age_cutoff": 1.0e6,
+        "L_x_threshold": 1e29,
+        "dummy_L_x_interpolator": RectBivariateSpline(
+            [0, 1, 2, 3],
+            [0, 1, 2, 3],
+            [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
+        ),
+        "xray_bright_mask_expected": np.array([False, True, False]),
+        "L_x_therm_expected": np.array([1e33]),
+        "mock_L_x_therm": np.array([1e28, 1e33]),
+        "mock_S_x_abs": np.array([3.0e-12]),
+        "mock_N_H": np.array([2.0e-21]),
     }
 
     return data
@@ -267,6 +294,64 @@ def test_flux_xray_absorbed(test_case_1):
 
     assert np.isclose(
         test_case_1["N_H_expected"],
+        N_H_out,
+        rtol=TOL,
+        atol=1.0e-14,
+    ).all()
+
+
+def test_calculate_x_emission(test_case_2, monkeypatch):
+    """
+    Verifying that absorbed X-ray flux is correctly estimated.
+    """
+
+    def mock_interpolator(*args, **kwargs):
+        return test_case_2["mock_L_x_therm"]
+
+    monkeypatch.setattr(RectBivariateSpline, "ev", mock_interpolator)
+
+    def mock_flux_xray_absorbed(*args, **kwargs):
+        return test_case_2["mock_S_x_abs"], test_case_2["mock_N_H"]
+
+    monkeypatch.setattr(xem, "flux_xray_absorbed", mock_flux_xray_absorbed)
+
+    (
+        xray_bright_mask_out,
+        L_x_therm_out,
+        S_x_abs_out,
+        N_H_out,
+    ) = xem.calculate_x_emission(
+        test_case_2["B"],
+        test_case_2["B_initial"],
+        test_case_2["age"],
+        test_case_2["ra"],
+        test_case_2["dec"],
+        test_case_2["dist"],
+        test_case_2["dummy_L_x_interpolator"],
+        test_case_2["L_x_threshold"],
+        test_case_2["age_cutoff"],
+    )
+
+    assert np.all(
+        xray_bright_mask_out == test_case_2["xray_bright_mask_expected"]
+    )
+
+    assert np.isclose(
+        test_case_2["L_x_therm_expected"],
+        L_x_therm_out,
+        rtol=TOL,
+        atol=1.0e-14,
+    ).all()
+
+    assert np.isclose(
+        test_case_2["mock_S_x_abs"],
+        S_x_abs_out,
+        rtol=TOL,
+        atol=1.0e-14,
+    ).all()
+
+    assert np.isclose(
+        test_case_2["mock_N_H"],
         N_H_out,
         rtol=TOL,
         atol=1.0e-14,

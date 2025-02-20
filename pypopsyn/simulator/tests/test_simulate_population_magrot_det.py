@@ -280,6 +280,7 @@ def test_case_4():
             "age": np.array([1e6, 2e6]),
         },
         "expected_keys": {
+            "age",
             "B_initial",
             "P_initial",
             "chi_initial",
@@ -292,10 +293,8 @@ def test_case_4():
 @pytest.fixture()
 def test_case_5():
     data = {
-        "dict_coverage_database": {
-            "age": np.array([1e6]),
-        },
         "dict_pop_initial_magrot": {
+            "age": np.array([1e6]),
             "B_initial": np.array([1.0e12]),
             "P_initial": np.array([0.1]),
             "chi_initial": np.array([0.5]),
@@ -315,6 +314,7 @@ def test_case_5():
             "B_initial",
             "B",
             "P",
+            "P_dot",
             "chi",
         },
     }
@@ -336,31 +336,22 @@ def test_case_6():
             "pm_dec": np.array([-50.0, 50.0]),
             "v_ls": np.array([-50.0, 50.0]),
             "P": np.array([0.01, 0.5]),
+            "P_dot": np.array([1.0e-11, 1.0e-12]),
             "B": np.array([1e12, 1e14]),
             "chi": np.array([1.0, 2.0]),
             "idx": np.array([0, 1]),
-            "coverage_PMPS": np.array([True, False]),
-            "coverage_HTRU_low": np.array([True, False]),
-            "coverage_HTRU_mid": np.array([True, False]),
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
             "coverage_radio": np.array([True, False]),
         },
-        "mock_dictionary_intercepted_radio": {
-            "age": np.array([1e6]),
-            "l": np.array([-50.0]),
-            "b": np.array([-20.0]),
-            "B": np.array([1e12]),
-            "chi": np.array([1.0]),
-            "P": np.array([0.01]),
-            "P_dot": np.array([1.0e-14]),
-            "w_int_s": np.array([0.001]),
-            "L_radio_bol": np.array([1.0e26]),
-            "S_radio_bol": np.array([1.0e-6]),
-            "spectral_index": np.array([-1.8]),
-            "DM": np.array([100]),
-            "tau_sc": np.array([0.001]),
-            "idx": np.array([0]),
-            "intercepted_radio": np.array([True]),
-        },
+        "w_int_s": np.array([0.001]),
+        "L_radio_bol": np.array([1.0e26]),
+        "S_radio_bol": np.array([1.0e-6]),
+        "spectral_index": np.array([-1.8]),
+        "DM": np.array([100]),
+        "tau_sc": np.array([0.001]),
+        "intercepted_radio": np.array([True]),
         "expected_keys": [
             "age",
             "l",
@@ -382,9 +373,9 @@ def test_case_6():
             "S_radio_bol",
             "spectral_index",
             "tau_sc",
-            "coverage_PMPS",
-            "coverage_HTRU_low",
-            "coverage_HTRU_mid",
+            "coverage_radio_PMPS",
+            "coverage_radio_HTRU_low",
+            "coverage_radio_HTRU_mid",
             "coverage_radio",
         ],
     }
@@ -444,9 +435,9 @@ def test_case_8():
             "S_radio_bol": np.array([0.01, 0.02]),
             "spectral_index": np.array([-1.8, -1.8]),
             "tau_sc": np.array([0.001, 0.002]),
-            "coverage_PMPS": np.array([True, False]),
-            "coverage_HTRU_low": np.array([True, False]),
-            "coverage_HTRU_mid": np.array([True, False]),
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
         },
         "expected_update_dictionary_detected": {
             "PMPS": {
@@ -472,9 +463,9 @@ def test_case_8():
                 "w_eff": np.array([0.1]),
                 "spectral_index": np.array([-1.8]),
                 "tau_sc": np.array([0.001]),
-                "coverage_PMPS": np.array([True]),
-                "coverage_HTRU_low": np.array([True]),
-                "coverage_HTRU_mid": np.array([True]),
+                "coverage_radio_PMPS": np.array([True]),
+                "coverage_radio_HTRU_low": np.array([True]),
+                "coverage_radio_HTRU_mid": np.array([True]),
                 "idx": np.array([0]),
             },
             "HTRU_low_mid": {
@@ -500,9 +491,9 @@ def test_case_8():
                 "w_eff": np.array([0.1]),
                 "spectral_index": np.array([-1.8]),
                 "tau_sc": np.array([0.001]),
-                "coverage_PMPS": np.array([True]),
-                "coverage_HTRU_low": np.array([True]),
-                "coverage_HTRU_mid": np.array([True]),
+                "coverage_radio_PMPS": np.array([True]),
+                "coverage_radio_HTRU_low": np.array([True]),
+                "coverage_radio_HTRU_mid": np.array([True]),
                 "idx": np.array([0]),
                 "HTRU_low": np.array([True]),
                 "HTRU_mid": np.array([True]),
@@ -778,7 +769,7 @@ def test_case_11():
 def test_case_12():
     data = {
         "dict_final_pop": {
-            "age": np.array([1e4, 2e6]),
+            "age": np.array([1e6, 2e6]),
             "l": np.array([-50.0, 50.0]),
             "b": np.array([-20.0, 10.0]),
             "ra": np.array([50.0, 250.0]),
@@ -788,15 +779,16 @@ def test_case_12():
             "pm_dec": np.array([-50.0, 50.0]),
             "v_ls": np.array([-50.0, 50.0]),
             "P": np.array([0.01, 0.5]),
+            "P_dot": np.array([1.0e-11, 1.0e-12]),
             "B_initial": np.array([1e12, 1e14]),
             "B": np.array([1e12, 1e14]),
             "chi": np.array([1.0, 2.0]),
             "idx": np.array([0, 1]),
-            "coverage_PMPS": np.array([True, False]),
-            "coverage_HTRU_low": np.array([True, False]),
-            "coverage_HTRU_mid": np.array([True, False]),
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
             "coverage_radio": np.array([True, False]),
-            "coverage_x": np.array([True, False]),
+            "coverage_x": np.array([True, True]),
         },
         "L_x_threshold": 1e29,
         "S_x_abs_threshold": 1e-15,
@@ -805,7 +797,10 @@ def test_case_12():
             [0, 1, 2, 3],
             [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
         ),
-        "mock_S_x_abs": np.array([3.0e-12, 4.0e-15]),
+        "age_cutoff": 1.0e6,
+        "mock_xray_bright_mask": np.array([True, True]),
+        "mock_L_x_therm": np.array([1e33, 1e34]),
+        "mock_S_x_abs": np.array([3.0e-12, 4.0e-16]),
         "mock_N_H": np.array([2.0e-21, 3.0e-21]),
         "detected_x_expected": np.array([True, False]),
         "update_dictionary_detected_x_expected": {
@@ -819,6 +814,7 @@ def test_case_12():
             "pm_ra": np.array([-50.0]),
             "pm_dec": np.array([-50.0]),
             "v_ls": np.array([-50.0]),
+            "B_initial": np.array([1e12]),
             "B": np.array([1e12]),
             "chi": np.array([1.0]),
             "P": np.array([0.01]),
@@ -826,6 +822,11 @@ def test_case_12():
             "L_x_therm": np.array([1.0e34]),
             "S_x_abs": np.array([3.0e-12]),
             "idx": np.array([0]),
+            "coverage_radio": np.array([False]),
+            "coverage_radio_HTRU_low": np.array([False]),
+            "coverage_radio_HTRU_mid": np.array([False]),
+            "coverage_radio_PMPS": np.array([False]),
+            "coverage_x": np.array([True]),
         },
     }
 
@@ -949,7 +950,6 @@ def test_apply_surveys_coverage(test_case_3):
         test_case_3["dyn_database_dict"],
         test_case_3["idx_remove"],
         test_case_3["dist_cutoff"],
-        test_case_3["age_cutoff"],
     )
 
     assert len(dictionary_coverage_database["age"]) <= len(
@@ -976,7 +976,6 @@ def test_apply_surveys_coverage(test_case_3):
         test_case_3["dyn_database_dict"],
         test_case_3["idx_remove"],
         test_case_3["dist_cutoff"],
-        test_case_3["age_cutoff"],
     )
 
     assert len(dictionary_coverage_database["age"]) <= len(
@@ -985,7 +984,6 @@ def test_apply_surveys_coverage(test_case_3):
     assert all(
         dictionary_coverage_database["dist"] < test_case_3["dist_cutoff"]
     )
-    assert all(dictionary_coverage_database["age"] < test_case_3["age_cutoff"])
     assert len(updated_idx_remove) == len(
         test_case_3["dyn_database_dict"]["idx"]
     ) - len(dictionary_coverage_database["idx"])
@@ -1028,7 +1026,6 @@ def test_evolve_population_magrot(monkeypatch, test_case_5, tmp_path):
 
     output_dict = sim.evolve_population_magrot(
         test_case_5["dict_pop_initial_magrot"],
-        test_case_5["dict_coverage_database"],
         output_path,
     )
 
@@ -1047,7 +1044,15 @@ def test_radio_intercepted(monkeypatch, test_case_6):
     """
 
     def mock_calculate_radio_emission(*args, **kwargs):
-        return test_case_6["mock_dictionary_intercepted_radio"]
+        return (
+            test_case_6["intercepted_radio"],
+            test_case_6["w_int_s"],
+            test_case_6["L_radio_bol"],
+            test_case_6["S_radio_bol"],
+            test_case_6["spectral_index"],
+            test_case_6["DM"],
+            test_case_6["tau_sc"],
+        )
 
     monkeypatch.setattr(
         er, "calculate_radio_emission", mock_calculate_radio_emission
@@ -1057,9 +1062,7 @@ def test_radio_intercepted(monkeypatch, test_case_6):
     # Verify that the keys are correct.
     assert set(out_dict.keys()) == set(test_case_6["expected_keys"])
     # Verify that the output dictionary contains at most the same number of stars as the input one.
-    assert len(out_dict["age"]) <= len(
-        test_case_6["mock_dictionary_intercepted_radio"]["age"]
-    )
+    assert len(out_dict["age"]) <= len(test_case_6["dict_final_pop"]["age"])
 
 
 def test_update_detected_dictionary(test_case_7):
@@ -1202,27 +1205,21 @@ def test_x_detection(test_case_12, monkeypatch):
     Check that the dictionary with the properties of the neutron stars that are detected in X-rays is properly returned.
     """
 
-    def mock_interpolator(*args, **kwargs):
-        L_x = 1.0e34 * np.ones(len(test_case_12["dict_final_pop"]["B"]))
-        return L_x
+    def mock_calculate_x_emission(*args, **kwargs):
+        return (
+            test_case_12["mock_xray_bright_mask"],
+            test_case_12["mock_L_x_therm"],
+            test_case_12["mock_S_x_abs"],
+            test_case_12["mock_N_H"],
+        )
 
-    monkeypatch.setattr(RectBivariateSpline, "ev", mock_interpolator)
-
-    def mock_flux_xray_absorbed(*args, **kwargs):
-        S_x_abs = test_case_12["mock_S_x_abs"][
-            test_case_12["dict_final_pop"]["coverage_x"]
-        ]
-        N_H = test_case_12["mock_N_H"][
-            test_case_12["dict_final_pop"]["coverage_x"]
-        ]
-        return S_x_abs, N_H
-
-    monkeypatch.setattr(ex, "flux_xray_absorbed", mock_flux_xray_absorbed)
+    monkeypatch.setattr(ex, "calculate_x_emission", mock_calculate_x_emission)
 
     output_dict = sim.x_detection(
         test_case_12["dict_final_pop"],
         test_case_12["dummy_L_x_interpolator"],
         test_case_12["L_x_threshold"],
+        test_case_12["age_cutoff"],
         test_case_12["S_x_abs_threshold"],
     )
     # Verify that the keys are correct.

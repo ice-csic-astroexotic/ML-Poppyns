@@ -664,12 +664,13 @@ def x_detection(
     Returns:
         (dict): A dictionary containing the properties of detected neutron stars in X-rays.
     """
-    # Select only the stars that can be detected in x by the considered surveys.
+    # Select only the stars that can be detected in X-rays by the considered surveys.
     coverage_x = dict_final_pop["coverage_x"]
     dict_final_pop_filtered = {
         key: value[coverage_x] for key, value in dict_final_pop.items()
     }
 
+    # Compute the properties of the X-ray bright neutron stars.
     xray_bright_mask, L_x_therm, S_x_abs, N_H = ex.calculate_x_emission(
         dict_final_pop_filtered["B"],
         dict_final_pop_filtered["B_initial"],
@@ -690,6 +691,7 @@ def x_detection(
     dict_xray_bright["S_x_abs"] = S_x_abs
     dict_xray_bright["N_H"] = N_H
 
+    # Apply a flux threshold to mimic detection biases.
     detected_mask = sx.detected_x_population_flux_threshold(
         dict_xray_bright["S_x_abs"],
         S_x_abs_threshold,

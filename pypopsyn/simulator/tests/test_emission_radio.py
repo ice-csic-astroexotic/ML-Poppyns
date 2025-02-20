@@ -63,29 +63,15 @@ def test_case_2():
         "dist": np.array([12.0, 6.59]),
         "B": np.array([2.32e11, 2.57e11]),
         "chi": np.array([0.99, 0.99]),
-        "idx": np.array([1804, 2874]),
         "los_rand": np.array([1.04, 1.05]),
+        "w_int_s": np.array([0.03034442]),
         "L_radio_bol": np.array([2.93e27]),
+        "S_radio_bol": np.array([4.31414761e-17]),
         "spectral_index": np.array([-1.8]),
         "DM": np.array([310.89]),
         "tau_sc": np.array([0.01584893]),
-        "dict_intercepted_radio_expected": {
-            "age": np.array([1700000.0]),
-            "l": np.array([-12.2]),
-            "b": np.array([7.51]),
-            "B": np.array([2.57e11]),
-            "chi": np.array([0.99]),
-            "P": np.array([0.54]),
-            "P_dot": np.array([9.95040457e-17]),
-            "w_int_s": np.array([0.03034442]),
-            "L_radio_bol": np.array([2.93e27]),
-            "S_radio_bol": np.array([4.31414761e-17]),
-            "spectral_index": np.array([-1.8]),
-            "DM": np.array([310.89]),
-            "tau_sc": np.array([0.01584893]),
-            "idx": np.array([2874]),
-            "intercepted_radio": np.array([False, True]),
-        },
+        "idx": np.array([2874]),
+        "intercepted_radio": np.array([False, True]),
     }
 
     return data
@@ -320,25 +306,61 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
 
     monkeypatch.setattr(edm, "compute_tau_sc_327", mock_compute_tau_sc_327)
 
-    emission_radio_dict_out = er.calculate_radio_emission(
+    (
+        intercepted_radio_out,
+        w_int_s_out,
+        L_radio_bol_out,
+        S_radio_bol_out,
+        spectral_index_out,
+        DM_out,
+        tau_sc_out,
+    ) = er.calculate_radio_emission(
         test_case_2["P"],
+        test_case_2["P_dot"],
         test_case_2["age"],
         test_case_2["l_gal"],
         test_case_2["b_gal"],
         test_case_2["dist"],
-        test_case_2["B"],
         test_case_2["chi"],
-        test_case_2["idx"],
     )
 
-    for key1 in emission_radio_dict_out.keys():
-
-        assert np.isclose(
-            emission_radio_dict_out[key1],
-            test_case_2["dict_intercepted_radio_expected"][key1],
-            rtol=TOL,
-            atol=1.0e-30,
-        ).all()
+    assert np.all(intercepted_radio_out == test_case_2["intercepted_radio"])
+    assert np.isclose(
+        w_int_s_out,
+        test_case_2["w_int_s"],
+        rtol=TOL,
+        atol=1.0e-30,
+    ).all()
+    assert np.isclose(
+        L_radio_bol_out,
+        test_case_2["L_radio_bol"],
+        rtol=TOL,
+        atol=1.0e-30,
+    ).all()
+    assert np.isclose(
+        S_radio_bol_out,
+        test_case_2["S_radio_bol"],
+        rtol=TOL,
+        atol=1.0e-30,
+    ).all()
+    assert np.isclose(
+        spectral_index_out,
+        test_case_2["spectral_index"],
+        rtol=TOL,
+        atol=1.0e-30,
+    ).all()
+    assert np.isclose(
+        DM_out,
+        test_case_2["DM"],
+        rtol=TOL,
+        atol=1.0e-30,
+    ).all()
+    assert np.isclose(
+        tau_sc_out,
+        test_case_2["tau_sc"],
+        rtol=TOL,
+        atol=1.0e-30,
+    ).all()
 
 
 def test_calculate_radio_emission_full(monkeypatch, test_case_3):

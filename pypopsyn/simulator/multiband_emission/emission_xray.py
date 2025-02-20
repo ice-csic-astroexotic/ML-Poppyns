@@ -367,10 +367,8 @@ def calculate_x_emission(
     bright.
 
     Args:
-        P (np.ndarray): Array of spin periods of the pulsars in [s].
         B (np.ndarray): Array of evolved magnetic fields of the pulsars in [G].
         B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
-        chi (np.ndarray): Array of inclination angles in [rad].
         age (np.ndarray): Array of neutron star ages [yrs].
         ra (np.ndarray): Right ascension in [deg] defined between [0, 360] deg in ICRS frame.
         dec (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
@@ -393,6 +391,9 @@ def calculate_x_emission(
     # Consider an age cutoff. Note that the interpolation is valid only up to 10^6 yrs as the magneto-thermal
     # cooling curves are reliable only until that time.
     age_mask = age < age_cutoff
+
+    print(len(L_x_therm))
+    print(age_mask)
 
     # Interpolate the thermal luminosity from the initial magnetic field value and the age.
     L_x_therm[age_mask] = L_x_interpolator.ev(
