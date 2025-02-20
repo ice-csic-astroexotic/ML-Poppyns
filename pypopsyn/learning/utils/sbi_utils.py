@@ -216,7 +216,8 @@ def load_inference(
     ensemble: bool = False,
 ) -> Union[List[Union[SNPE_C, SNLE_A]], SNPE_C, SNLE_A]:
     """
-    Load inference objects from pickle files. Note that this is used when resume mode is enabled.
+    Load inference objects from pickle files. Note that this is used when resume mode is enabled or when doing inference
+    with snle.
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the settings.
@@ -225,7 +226,7 @@ def load_inference(
         ensemble (bool): Flag indicating if ensemble mode is enabled. Defaults to False.
 
     Returns:
-        (Union[List[SNPE_C], SNPE_C]): A list of inference objects.
+        (Union[List[Union[SNPE_C, SNLE_A]], SNPE_C, SNLE_A]): A list of inference objects.
     """
     inference_list = []
 
@@ -243,8 +244,8 @@ def load_inference(
 
         if not os.path.exists(inference_path):
             raise FileNotFoundError(
-                "The folder specified in the config file at cfg['resume_training']['save_dir'] does not contain a inference.pickle file.\n"
-                "To use the resume mode, you need to specify the correct path."
+                f"The folder specified at {inference_path} in the config file does not contain a inference.pickle file.\n"
+                "To use the resume mode or inference with snle, you need to specify the correct path."
             )
 
         with open(inference_path, "rb") as inference_file:
@@ -653,8 +654,8 @@ def build_network_snpe(
     prior: utils.BoxUniform,
 ) -> SNPE_C:
     """
-    Building the neural network for snpe (composed of the embedding net and the density estimator) using the configuration file
-    specified in the arguments, and setting up the inference procedure.
+    Building the neural network for SNPE (composed of the embedding net and the density estimator) using the
+    configuration file specified in the arguments, and setting up the inference procedure.
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
@@ -663,7 +664,7 @@ def build_network_snpe(
         prior (utils.BoxUniform): Prior distribution.
 
     Returns:
-        (sbi.inference.snpe.snpe_c.SNPE_C): An instance of sbi's SNPE inference objects.
+        (SNPE_C): An instance of sbi's SNPE inference objects.
     """
 
     # Building the embedding network.
@@ -705,14 +706,15 @@ def build_network_snle(
     prior: utils.BoxUniform,
 ) -> SNLE_A:
     """
-    Building the neural network for snle using the configuration file specified in the arguments, and setting
-    up the inference procedure.
+    Building inference procedure for SNLE.
 
     Args:.
         device (torch.device): Device used to run the script.
         prior (utils.BoxUniform): Prior distribution.
 
     Returns:
+        (SNLE_C): An instance of sbi's SNLE inference objects.
+
     """
 
     inference = SNLE(
@@ -769,7 +771,7 @@ def prepare_dataset_sbi(
     atnf: Optional[bool] = False,
 ) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
     """
-    Prepare dataset for use in sbi training.
+    Prepare dataset for use in sbi.
 
     Args:
         dataset_folder (str): Path to the folder where the dataset is saved.
@@ -832,6 +834,7 @@ def prepare_dataset_sbi(
         matrix = np.zeros(
             (len(dataset), input_shape[0], input_shape[1], input_shape[2])
         )
+
     for i, (x, theta) in enumerate(dataset):
         # Reshaping the matrix to have the channel number at the beginning.
         x = np.moveaxis(x, -1, 0)
@@ -870,7 +873,7 @@ def build_posterior(
     config: configuration_parser.ConfigurationParser,
     save_dir_round: pathlib.Path,
     logger: Logger,
-    inference_list: Union[SNPE_C, List[SNPE_C]],
+    inference_list: Union[List[Union[SNPE_C, SNLE_A]], SNPE_C, SNLE_A],
     parameter_round: torch.Tensor,
     matrix_round: torch.Tensor,
     device: torch.device,
@@ -888,13 +891,15 @@ def build_posterior(
     ensure conservative coverages. Each of the neural networks will be trained on the same training dataset.
 
     Note that the inference object should be different for each component of the ensemble to ensure independent weights
-    for each component.
+    for each component. Moreover, if config['trainer']['model_type'] == 'snle', then an MCMC sampler is needed to sample
+    from the posterior distribution.
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
         save_dir_round (pathlib.Path): Directory where the trained model will be saved or is saved already.
         logger (Logger): Logger object.
-        inference_list (Union[SNPE_C, List[SNPE_C]]): sbi inference object or list of inference objects for ensemble.
+        inference_list (Union[List[Union[SNPE_C, SNLE_A]], SNPE_C, SNLE_A]): sbi inference object or list of inference
+        objects for ensemble.
         parameter_round (torch.Tensor): Tensor containing the parameters for the current round.
         matrix_round (torch.Tensor): Tensor containing the matrices for the current round.
         device (torch.device): Device used for training.
@@ -973,7 +978,7 @@ def build_posterior(
                     "retrain_from_scratch": retrain_from_scratch,
                 }
 
-                # If snpe is chosen enable the possibility to retrain from scratch.
+                # If model_type is 'snpe' enable the possibility to retrain from scratch.
                 if model_type == "snpe":
                     train_args["force_first_round_loss"] = True
 

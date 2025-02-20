@@ -36,18 +36,11 @@ def infer(
     args: argparse.Namespace, config: configuration_parser.ConfigurationParser
 ) -> None:
     """
-    Infer the posterior distribution for the observed population using the truncated sequential neural posterior
-    estimator approach described in Deistler et al. (2022), assuming that the train_tsnpe.py script has already been run
-    and a trained_model.pkl was generated.
+    Infer the posterior distribution for the observed population using simulation-based inference, assuming that the
+    sbi_train.py script has already been run and a trained_model.pkl file has been generated.
 
     Args:
         args (argparse.Namespace): Command-line arguments parsed by argparse. It includes:
-
-            - configuration (str): Path to the configuration file.
-            - plot_proposal (bool): If set to True, generates proposal corner plots for each round.
-            - trained_model (str): Path to the pretrained model (this argument is not used here).
-            - infer (str): Flag to set up the inference saving path (default is True).
-
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
     """
     # Get handle for the logger --------------------------------------------
@@ -89,8 +82,7 @@ def infer(
                 "dataset_path_first_round"
             ]
 
-            # Load the training dataset information. Note that when performing inference, we do not require the
-            # underlying data samples, only the corresponding ground truths and their statistics.
+            # Load the training dataset information to extract the training statistics.
             dataset, _, _ = ut.prepare_dataset_sbi(
                 train_dataset_path, config, logger
             )
@@ -145,25 +137,9 @@ def infer(
                     inference_list = ut.load_inference(
                         config, i, config["infer"]["load_dir"], ensemble
                     )
-                    posteriors_list = []
-                    for inference in inference_list:
-                        posterior = inference.build_posterior(
-                            mcmc_method=config["trainer"]["mcmc_sampler"],
-                            mcmc_parameters={"num_chains": 20, "thin": 5},
-                        )
-                        posteriors_list.append(posterior)
-                    if ensemble:
-                        ensemble_size = len(inference_list)
-                        # Giving each network in the ensemble an equal weight.
-                        weights_ensemble = (
-                            torch.ones(ensemble_size) / ensemble_size
-                        )
-                        final_posterior = NeuralPosteriorEnsemble(
-                            posteriors_list,
-                            weights=weights_ensemble.to(device),
-                        )
-                    else:
-                        final_posterior = posteriors_list[0]
+                    final_posterior = ut.load_posterior(
+                        config, logger, inference_list, device, i
+                    )
 
                 elif model_type == "snpe":
                     inference_list = ut.initialize_inference(
@@ -186,7 +162,7 @@ def infer(
                     f"Sampling from the posterior for round {i + 1}..."
                 )
                 observed_samples_posterior = posterior_obs.sample(
-                    (10000,), show_progress_bars=True
+                    (50000,), show_progress_bars=True
                 ).cpu()
                 # Setting the proposal prior to the truncated prior or to the previous approximated posterior distribution at the observed data.
                 if config["trainer"]["truncated_prior"]:
