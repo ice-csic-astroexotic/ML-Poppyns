@@ -180,6 +180,8 @@ def train(
                 logger,
                 atnf=True,
             )
+
+            # Set the proposal prior to the pior in the first round.
             proposal = prior
 
             # Lists to store parameters and matrices from each round.
@@ -203,6 +205,7 @@ def train(
             else:
                 effective_round = i
                 save_dir_round = config.save_dir / f"round_{i}"
+
             save_dir_round.mkdir(parents=True, exist_ok=True)
 
             with timewith.TimeWith(
@@ -251,7 +254,7 @@ def train(
                         )
 
                     # Save the training and testing data for reuse in future rounds if the proposal distribution is
-                    # truncated by the prior; otherwise, use the simulation from the current round.
+                    # truncated by the prior; otherwise, use the simulations from the current round.
                     if not config["trainer"]["truncated_prior"]:
                         parameter_train = []
                         matrix_train = []
