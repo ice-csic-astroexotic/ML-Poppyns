@@ -978,8 +978,12 @@ def build_posterior(
                     "retrain_from_scratch": retrain_from_scratch,
                 }
 
-                # If model_type is 'snpe' enable the possibility to retrain from scratch.
-                if model_type == "snpe":
+                # If model_type is 'snpe' and the proposal is directly the approximated posterior,
+                # enable the correction for using a proposal distribution different from the prior.
+                if (
+                    model_type == "snpe"
+                    and not config["trainer"]["truncated_prior"]
+                ):
                     train_args["force_first_round_loss"] = True
 
                 density_estimator = inference.append_simulations(
