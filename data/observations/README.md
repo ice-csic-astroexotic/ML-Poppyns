@@ -22,3 +22,19 @@ To download the TPA MeerKAT data, we refer to the work by [Posselt et al. (2023)
 The data can be downloaded [here](https://academic.oup.com/mnras/article/520/3/4582/7049638#supplementary-data).
 
 In particular, the table containing the flux information is given in the file `Census_Table5.csv`.
+
+# Thermally emitting neutron stars
+
+This catalog contains neutron star with a significant thermal emission component in their X-ray spectra. 
+The data were collected and analyzed by Alessio Marino, Alice Borghese and Francesco Coti Zelati. 
+
+The neutron stars are divided in classes: central compact objects (CCO), magnetars and 
+rotational powered pulsars (RPP).
+For the rotation powered pulsars the reported fluxes only come from the black-body component (the non-thermal component 
+of the pulsar wind nebula has been removed as probably it is due to synchro-curvature emission mechanism). 
+For the magnetars the reported fluxes include the non-thermal part as it is probably due to the resonant scattering in 
+the magnetosphere of thermal photons coming from the hot surface. 
+
+For the assoc. we indicate if the neutron star is associated with a pulsar wind nebula (PWN), has a radio counterpart 
+and if it belongs to the Large Magellanic Cloud (LMC) or the small magellanic cloud (SMC).
+
