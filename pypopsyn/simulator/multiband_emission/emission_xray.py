@@ -392,9 +392,6 @@ def calculate_x_emission(
     # cooling curves are reliable only until that time.
     age_mask = age < age_cutoff
 
-    print(len(L_x_therm))
-    print(age_mask)
-
     # Interpolate the thermal luminosity from the initial magnetic field value and the age.
     L_x_therm[age_mask] = L_x_interpolator.ev(
         age[age_mask], B_initial[age_mask]

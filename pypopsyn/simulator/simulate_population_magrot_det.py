@@ -999,7 +999,7 @@ def simulate_population(args) -> None:
                 # Filter the loaded database batch with the surveys' sky coverage.
                 database_coverage, idx_remove = apply_surveys_coverage(
                     surveys_radio,
-                    args.survey_x,
+                    cfg["survey_xray"],
                     database_dyn_batch,
                     idx_remove,
                     dist_cutoff=35.0,
@@ -1082,7 +1082,7 @@ def simulate_population(args) -> None:
 
             # ===================== X DETECTION ========================
 
-            if args.survey_x:
+            if cfg["survey_xray"]:
                 with timewith.TimeWith(
                     "[SimulateXrayDetection]",
                     cfg["profile_log"],
@@ -1155,7 +1155,9 @@ def simulate_population(args) -> None:
 
             # Create output dataframes for each survey.
             dfs = create_output_dataframe(
-                dictionary_detected_radio, dictionary_detected_x, args.survey_x
+                dictionary_detected_radio,
+                dictionary_detected_x,
+                cfg["survey_xray"],
             )
 
             # Save the data frame as a compressed binary file.
@@ -1168,7 +1170,7 @@ def simulate_population(args) -> None:
                     f"Output of the detected population with {survey} generated in {os.getcwd()}/{output_path_survey}"
                 )
 
-            if args.survey_x:
+            if cfg["survey_xray"]:
                 output_path_survey = output_path / "survey_xray_results.pkl.gz"
                 dfs["X-ray"].to_pickle(output_path_survey, compression="gzip")
                 log.info(
@@ -1207,13 +1209,6 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Path to JSON containing the parameter override values.",
-    )
-
-    args.add_argument(
-        "--survey_x",
-        type=configuration_parser.str_to_bool,
-        default=False,
-        help="Wheter to simulate an x-ray survey or not.",
     )
 
     args = args.parse_args()

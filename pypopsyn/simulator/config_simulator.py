@@ -77,6 +77,10 @@ cfg["NS_number"]: int = 300000
 cfg["t_age_min"]: float = 1.0
 cfg["t_age_max"]: float = 3e7
 
+# Whether to perform X-ray simulation or not. If set to True both radio and X-ray simulations will be performed if False
+# only the radio simulation will be performed.
+cfg["survey_xray"]: bool = True
+
 # ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
 
 # Characteristic neutron star radius in [cm].
