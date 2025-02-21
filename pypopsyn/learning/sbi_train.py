@@ -248,8 +248,8 @@ def train(
                         )
 
                     # Save the training and testing data for reuse in future rounds if the proposal distribution is
-                    # truncated by the prior; otherwise, use the simulations from the current round.
-                    if not config["trainer"]["truncated_prior"]:
+                    # config["trainer"]["append_simulations"] is True ; otherwise, use the simulations from the current round.
+                    if config["trainer"]["append_simulations"]:
                         parameter_train = []
                         matrix_train = []
                         parameter_test = []
