@@ -46,12 +46,8 @@ if cfg["server_run"]:
 else:
     # Change the following parameters to your local path, e.g., something like
     # /home/michele/Documents/MAGNESIA_population_synthesis. Otherwise, some notebooks might not work!
-    cfg[
-        "path_to_software"
-    ] = "/scratch2/vgraber/repos/MAGNESIA_population_synthesis"
-    cfg[
-        "path_to_output"
-    ] = "/scratch2/vgraber/repos/MAGNESIA_population_synthesis"
+    cfg["path_to_software"] = ""
+    cfg["path_to_output"] = ""
 
 if cfg["path_to_software"] == "":
     log.warning(
