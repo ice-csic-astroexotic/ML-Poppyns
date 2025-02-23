@@ -46,8 +46,12 @@ if cfg["server_run"]:
 else:
     # Change the following parameters to your local path, e.g., something like
     # /home/michele/Documents/MAGNESIA_population_synthesis. Otherwise, some notebooks might not work!
-    cfg["path_to_software"] = ""
-    cfg["path_to_output"] = ""
+    cfg[
+        "path_to_software"
+    ] = "/scratch2/vgraber/repos/MAGNESIA_population_synthesis"
+    cfg[
+        "path_to_output"
+    ] = "/scratch2/vgraber/repos/MAGNESIA_population_synthesis"
 
 if cfg["path_to_software"] == "":
     log.warning(
@@ -70,7 +74,7 @@ cfg["seed_sampling"] = None
 cfg["resolution"]: int = 10000
 
 # Integer number of neutron stars for the population.
-cfg["NS_number"]: int = 6e6
+cfg["NS_number"]: int = 40000000
 
 # Sun's distance from the galactocentric axis in [kpc].
 cfg["R_sun"]: float = 8.3
@@ -94,7 +98,7 @@ cfg["arm_number"]: int = 5
 cfg["t_age_min"]: float = 1.0
 
 # Maximum age for the neutron stars in [yr].
-cfg["t_age_max"]: float = 3e8
+cfg["t_age_max"]: float = 2e9
 
 # Time step for the dynamical evolution [yr].
 cfg["dyn_time_step"]: float = 1e4
