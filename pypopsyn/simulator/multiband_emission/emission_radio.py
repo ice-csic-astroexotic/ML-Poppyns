@@ -317,7 +317,7 @@ def calculate_radio_emission(
 
     Args:
         P (np.ndarray): Array of spin periods of the pulsars in [s].
-        P_dot (np.ndarray): Array of neutron stars' spin period derivatives in [s s^-1].
+        P_dot (np.ndarray): Array of neutron star spin period derivatives in [s s^-1].
         age (np.ndarray): Array of neutron star ages [yrs].
         l_gal (np.ndarray): Array of galactic longitudes in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): Array of galactic latitudes in [deg] defined between [-90, 90] deg.
