@@ -3,7 +3,7 @@
 
     Display help message to run the code:
 
-    python simulate_population_magrot_det.py --h
+    python simulate_population_magrot_det.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -123,12 +123,12 @@ def initialize_radio_surveys() -> Tuple[dict, dict]:
 
 def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
     """
-    Initialize and return an x-ray survey detection dictionary and an interpolator for x-ray luminosity.
+    Initialize and return an X-ray survey detection dictionary and an interpolator for the X-ray luminosity.
 
     Returns:
         (Tuple[dict, RectBivariateSpline]):
-            - A dictionary for storing detected neutron star data for the x-ray survey.
-            - An interpolator function loaded from a pickled file to evaluate the x-ray luminosity.
+            - A dictionary for storing detected neutron star data for the X-ray survey.
+            - An interpolator function loaded from a pickled file to evaluate the X-ray luminosity.
     """
     dictionary_detected_x = {
         "age": [],
@@ -150,7 +150,7 @@ def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
         "idx": [],
     }
 
-    # Load the interpolator function to evaluate the x-ray luminosity.
+    # Load the interpolator function to evaluate the X-ray luminosity.
     interpolator_Lx_path = pathlib.Path().joinpath(
         cfg["path_to_software"],
         "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/interpolator_Lx.pkl",
@@ -312,7 +312,7 @@ def apply_surveys_coverage(
         )
     ) & dist_mask
 
-    # For the x-ray survey we consider an all-sky coverage and only apply a distance cutoff.
+    # For the X-ray survey we consider an all-sky coverage and only apply a distance cutoff.
     coverage_x_tot = dist_mask
 
     # Evaluate the total sky coverage for both radio and X-ray surveys.
@@ -741,7 +741,7 @@ def create_output_dataframe(
     Args:
         dictionary_detected_radio (dict): Dictionary containing detected neutron star properties for each radio survey.
         dictionary_detected_x (dict): Dictionary containing detected neutron star properties for an X-ray survey.
-        survey_x (bool): Boolean flag to indicate whether or not saving the results for a X-ray survey.
+        survey_x (bool): Boolean flag to indicate whether we save the results of the X-ray survey.
 
     Returns:
         dict: A dictionary of DataFrames, one for each survey containing detected neutron stars' information.
