@@ -20,7 +20,7 @@ def detected_x_population_flux_threshold(
     Compute the pulsars detected by an X-ray survey with a given flux threshold.
 
     Args:
-        S_x_abs (np.ndarray): Array of X-ray absorbed fluxes in [erg s^-1 cm^-2]
+        S_x_abs (np.ndarray): Array of X-ray absorbed fluxes in [erg s^-1 cm^-2].
         S_x_abs_threshold (float): The absorbed flux threshold for X-ray detection in [erg s^-1 cm^-2].
 
     Returns:
