@@ -1015,12 +1015,11 @@ def build_posterior(
 
         posteriors_list.append(posterior)
 
-        if not retrain_from_scratch:
-            logger.info(
-                f"Saved inference for round {effective_round}, ensemble index {index}."
-            )
-            with open(inference_model_path, "wb") as inference_file:
-                pickle.dump(inference, inference_file)
+        logger.info(
+            f"Saved inference for round {effective_round}, ensemble index {index}."
+        )
+        with open(inference_model_path, "wb") as inference_file:
+            pickle.dump(inference, inference_file)
 
         # Saving the training statistics.
         save_training_statistics(config, inference, index, effective_round)
