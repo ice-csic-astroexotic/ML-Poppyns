@@ -881,6 +881,7 @@ def build_posterior(
     prof_log_path: str,
     prof_json_path: str,
     retrain_from_scratch: bool = False,
+    proposal: DirectPosterior = None,
 ) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
     """
     Train the density estimator for a given round.
@@ -908,6 +909,7 @@ def build_posterior(
         prof_log_path (str): The profile.log path.
         retrain_from_scratch (bool): Whether to retrain the conditional density estimator for the posterior from
             scratch each round. Default value is False.
+        proposal (DirectPosterior): The proposal prior use in that round.
 
     Returns:
         (Union[DirectPosterior, NeuralPosteriorEnsemble]): Trained density estimator or ensemble of estimators.
@@ -977,7 +979,6 @@ def build_posterior(
                     "show_train_summary": True,
                     "retrain_from_scratch": retrain_from_scratch,
                 }
-
                 # If model_type is 'snpe' and the proposal is directly the approximated posterior,
                 # enable the correction for using a proposal distribution different from the prior.
                 if (
@@ -987,7 +988,7 @@ def build_posterior(
                     train_args["force_first_round_loss"] = True
 
                 density_estimator = inference.append_simulations(
-                    parameter_round.to(device), matrix_round.to(device)
+                    parameter_round.to(device), matrix_round.to(device), proposal = proposal
                 ).train(**train_args)
 
             logger.info(

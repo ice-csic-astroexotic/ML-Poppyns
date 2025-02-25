@@ -264,6 +264,12 @@ def train(
                         f"Training the density estimator with {parameter_round.shape[0]} samples in round {effective_round} ..."
                     )
 
+                    # If the trained model is SNPE with the proposal prior being the approximated posterior, we need to correct the posterior with the proposal.
+                    if config['trainer']['type'] == 'snpe' and not config["trainer"]["truncated_prior"]:
+                        proposal_train = proposal
+                    else:
+                        proposal_train = None
+
                     posterior = ut.build_posterior(
                         config=config,
                         save_dir_round=save_dir_round,
@@ -276,6 +282,7 @@ def train(
                         prof_log_path=prof_log_path,
                         prof_json_path=prof_json_path,
                         retrain_from_scratch=retrain_from_scratch,
+                        proposal=proposal_train
                     )
 
                 if config["test_data_loader"]["testing"]:
