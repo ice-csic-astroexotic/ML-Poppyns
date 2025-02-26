@@ -534,4 +534,4 @@ if __name__ == "__main__":
 
     configuration = configuration_parser.ConfigurationParser.from_args(args)
 
-    train(args.parse_args(), configuration)
+    train(configuration)

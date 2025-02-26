@@ -345,4 +345,4 @@ if __name__ == "__main__":
 
     configuration = configuration_parser.ConfigurationParser.from_args(args)
 
-    infer(args.parse_args(), configuration)
+    infer(configuration)
