@@ -1,10 +1,12 @@
 """
     Model for a shallow convolutional neural network used as an embedding network in the sbi framework to compress the
-    input features into a latent vector.
+    input features into a latent vector. The neural network is composed of a single convolutional layer after a max-pool
+    layer, followed by a fully connected layer that will serve as the latent vector.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import numpy as np

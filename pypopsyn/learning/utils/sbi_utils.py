@@ -54,7 +54,8 @@ from utilities.experiment_helpers.run_simulation_set_sbi import (
 
 def handler(signum: int, frame: FrameType) -> None:
     """
-    Signal handler that raises a TimeoutError when a SIGALRM signal is received.
+    Signal handler that raises a TimeoutError when a SIGALRM signal is received.  This function is needed in the
+    sample_with_timeout function to raise an error if the sampling exceeds the maximum time.
 
     Args:
         signum (int): The signal number.
@@ -69,30 +70,30 @@ def handler(signum: int, frame: FrameType) -> None:
 def sample(
     posterior: DirectPosterior,
     simulation_output: torch.Tensor,
-    n_samples_coverage: int,
+    n_samples: int,
 ) -> torch.Tensor:
     """
      Perform sampling from the posterior distribution. This function is designed to be used with a signal handler
-     to enforce a timeout during sampling.
+     to enforce a timeout during sampling, see below.
 
      Args:
         posterior (DirectPosterior): Posterior distribution.
         simulation_output (torch.Tensor): Simulation output matrix.
-        n_samples_coverage (int): The number of samples to draw from the posterior distribution.
+        n_samples (int): The number of samples to draw from the posterior distribution.
 
     Returns:
         (torch.Tensor): The samples drawn from the posterior distribution.
     """
     return posterior.set_default_x(simulation_output).sample(
-        (n_samples_coverage,), show_progress_bars=False
+        (n_samples,), show_progress_bars=False
     )
 
 
 def sample_with_timeout(
     posterior: DirectPosterior,
     simulation_output: torch.Tensor,
-    n_samples_coverage: int,
-    timeout: int = 180,
+    n_samples: int,
+    timeout: Optional[int] = 180,
 ) -> Tuple[Optional[torch.Tensor], bool]:
     """
     Perform sampling from the posterior distribution with a specified timeout.
@@ -100,8 +101,8 @@ def sample_with_timeout(
     Args:
         posterior (DirectPosterior): Posterior distribution.
         simulation_output (torch.Tensor): Simulation output matrix.
-        n_samples_coverage (int): The number of samples to draw from the posterior distribution.
-        timeout (int, optional): The maximum time in seconds to allow for n_samples_coverage to be drawn. Defaults to 180 seconds.
+        n_samples (int): The number of samples to draw from the posterior distribution.
+        timeout (int, optional): The maximum time in seconds to allow for n_samples to be drawn. Defaults to 180 seconds.
 
     Returns:
         (Tuple[Optional[torch.Tensor], bool]): A tuple containing the result of the sampling (or None if it times out)
@@ -113,7 +114,7 @@ def sample_with_timeout(
 
     try:
         # If the sampling completes before the timeout, return the result and set success to True.
-        result = sample(posterior, simulation_output, n_samples_coverage)
+        result = sample(posterior, simulation_output, n_samples)
         success = True
     except TimeoutError:
         # If the timeout is reached, return None and set success to False.
@@ -131,20 +132,21 @@ def calculate_smallest_hdr(
     posterior: DirectPosterior,
     theta: torch.tensor,
     matrix: torch.tensor,
-    n_samples_coverage: int,
+    n_samples: int,
     logger: Logger,
     device: torch.device,
 ) -> np.ndarray:
     """
     Calculating the smallest highest density region of the posterior distribution, that contains the true value for the
-    test dataset produced with the values theta and simulation output in matrix.
+    test dataset produced with the ground truths and simulation output stored in the arguments theta and matrix,
+    respectively.
 
     Args:
         posterior (DirectPosterior): Posterior distribution.
         theta (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
             population in matrix.
         matrix (torch.tensor): Tensor containing the maps of the simulated population.
-        n_samples_coverage (float): Number of approximate posterior samples used for computing the coverage.
+        n_samples (float): Number of approximate posterior samples.
         logger (Logger): Logger object.
         device (torch.device): Device used to run the script.
 
@@ -167,7 +169,7 @@ def calculate_smallest_hdr(
 
         # Perform sampling with a timeout of 180 seconds.
         posterior_samples, success = sample_with_timeout(
-            posterior, simulation_output, n_samples_coverage, timeout=180
+            posterior, simulation_output, n_samples, timeout=180
         )
 
         if not success:
@@ -266,14 +268,16 @@ def wrapper_pypopsyn(
     device: torch.device,
 ) -> str:
     """
-    Simulating `num_sim` of mock neutron star population given the `proposal` distribution. After simulating the
+    Simulating `num_sim` of mock neutron star populations given the `proposal` distribution. After simulating the
     populations, we generate the compressed representations for the output.
 
     Args:
         proposal (Union[DirectPosterior,utils.RestrictedPrior]): Proposal distribution used for sampling the parameters.
         num_sim (int): Number of simulations to perform.
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
-        effective_round (int): Number of the effective round during the sequential inference approach.
+        effective_round (int): Number of the effective round during the sequential inference approach. Note that when
+            resume is False, the effective round is the same as the actual round. On the other hand, if resume mode is
+            enabled, effective_round = last_completed_round + actual_round.
         test (bool): Flag indicating whether the simulations are for testing or training. If set to True, the
             simulations are for testing purposes.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
@@ -342,7 +346,6 @@ def corner_plot(
     dataset: dl.DatasetMultichannelArray,
     save_dir: str,
 ) -> None:
-
     """
     Plotting the corner plot for the posterior distribution.
 
@@ -452,9 +455,11 @@ def save_training_statistics(
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
-        inference (SNPE_C): sbi inference object.
+        inference (Union[SNPE_C, SNLE_A]): sbi inference object.
         index (int): The ensemble index, if ensemble is set to False index is equal to 0.
-        effective_round (int): Number of the effective round during the sequential inference approach.
+        effective_round (int): Number of the effective round during the sequential inference approach. Note that when
+            resume is False, the effective round is the same as the actual round. On the other hand, if resume mode is
+            enabled, effective_round = last_completed_round + actual_round.
     """
     all_event_data = tbo._get_event_data_from_log_dir(
         inference._summary_writer.log_dir
@@ -508,8 +513,8 @@ def compute_proposal_prior(
     device: torch.device,
 ) -> utils.RestrictedPrior:
     """
-    Compute the proposal prior by restricting the prior to the posterior of the observation.
-
+    Compute the proposal prior by restricting the prior to the regions where the posterior of the observation has
+        non-negligible mass.
     Args:
         posterior_obs (DirectPosterior): Posterior distribution at the observation.
         config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
@@ -568,7 +573,9 @@ def compute_rank_coverage(
         device (torch.device): Device used for training.
         parameter_labels (List[str]): Labels for the parameters in the test dataset.
         logger (Logger): Logger object.
-        effective_round (int): Number of the effective round during the sequential inference approach.
+        effective_round (int): Number of the effective round during the sequential inference approach. Note that when
+            resume is False, the effective round is the same as the actual round. On the other hand, if resume mode is
+            enabled, effective_round = last_completed_round + actual_round.
     """
     logger.info(
         f"Computing coverage probability for the test dataset for round {effective_round}..."
@@ -847,16 +854,16 @@ def prepare_dataset_sbi(
             sys.exit()
 
         if config["trainer"]["embedding"]:
-            x_embbeded = (
+            x_embedded = (
                 emb_neural_net._embedding_net(torch.tensor(x)).detach().numpy()
             )
             if normalize:
-                matrix[i] = (x_embbeded - x_embbeded.min()) / (
-                    x_embbeded.max() - x_embbeded.min()
+                matrix[i] = (x_embedded - x_embedded.min()) / (
+                    x_embedded.max() - x_embedded.min()
                 )
             else:
-                matrix[i] = (x_embbeded - x_embbeded.mean()) / (
-                    x_embbeded.std() + 1e-8
+                matrix[i] = (x_embedded - x_embedded.mean()) / (
+                    x_embedded.std() + 1e-8
                 )
         else:
             matrix[i] = x
