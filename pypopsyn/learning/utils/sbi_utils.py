@@ -146,7 +146,7 @@ def calculate_smallest_hdr(
         theta (torch.tensor): Tensor containing the values of the parameters used to generate the simulated
             population in matrix.
         matrix (torch.tensor): Tensor containing the maps of the simulated population.
-        n_samples (float): Number of approximate posterior samples.
+        n_samples (int): The number of samples to draw from the posterior distribution.
         logger (Logger): Logger object.
         device (torch.device): Device used to run the script.
 
@@ -222,7 +222,7 @@ def load_inference(
     with snle.
 
     Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying the settings.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         round_number (int): The round number to load the inference from.
         save_dir (pathlib.Path): The directory to load the inference from.
         ensemble (bool): Flag indicating if ensemble mode is enabled. Defaults to False.
@@ -274,7 +274,7 @@ def wrapper_pypopsyn(
     Args:
         proposal (Union[DirectPosterior,utils.RestrictedPrior]): Proposal distribution used for sampling the parameters.
         num_sim (int): Number of simulations to perform.
-        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         effective_round (int): Number of the effective round during the sequential inference approach. Note that when
             resume is False, the effective round is the same as the actual round. On the other hand, if resume mode is
             enabled, effective_round = last_completed_round + actual_round.
@@ -454,7 +454,7 @@ def save_training_statistics(
     Save training statistics including scalars and training/validation loss plots.
 
     Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         inference (Union[SNPE_C, SNLE_A]): sbi inference object.
         index (int): The ensemble index, if ensemble is set to False index is equal to 0.
         effective_round (int): Number of the effective round during the sequential inference approach. Note that when
@@ -517,14 +517,16 @@ def compute_proposal_prior(
         non-negligible mass.
     Args:
         posterior_obs (DirectPosterior): Posterior distribution at the observation.
-        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         prior (utils.BoxUniform): Prior distribution.
-        device (torch.device): Device used for training.
+        device (torch.device): Device used to run the script.
 
     Returns:
         (utils.RestrictedPrior): The restricted prior based on the posterior distribution of the observation.
     """
-    # Computing the region of the posterior distribution used to constrain the prior.
+    # Computing the region of the posterior distribution used to constrain the prior. The quantile value is the default
+    # of SBI. We decided to sample 10,000 times since our posteriors are Gaussian-like, and reducing the number of
+    # samples make things faster.
     accept_reject_fn = utils.get_density_thresholder(
         posterior_obs,
         quantile=1e-4,
@@ -566,11 +568,11 @@ def compute_rank_coverage(
     Compute and visualize ranks and coverage probability for a test dataset.
 
     Args:
-        save_dir (str): Directory to save the computed results and plots.
+        save_dir (pathlib): Directory to save the computed results and plots.
         parameter (torch.Tensor): Tensor containing the parameters for the test dataset in the current round.
         matrix (torch.Tensor): Tensor containing the matrices for the test dataset in the current round.
         posterior (DirectPosterior): Approximated posterior distribution.
-        device (torch.device): Device used for training.
+        device (torch.device): Device used to run the script.
         parameter_labels (List[str]): Labels for the parameters in the test dataset.
         logger (Logger): Logger object.
         effective_round (int): Number of the effective round during the sequential inference approach. Note that when
@@ -665,8 +667,7 @@ def build_network_snpe(
     configuration file specified in the arguments, and setting up the inference procedure.
 
     Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
-            architecture and other settings.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         device (torch.device): Device used to run the script.
         prior (utils.BoxUniform): Prior distribution.
 
@@ -716,8 +717,7 @@ def build_network_snle(
     Building inference procedure for SNLE.
 
     Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
-            architecture and other settings.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         device (torch.device): Device used to run the script.
         prior (utils.BoxUniform): Prior distribution.
     Returns:
@@ -745,7 +745,7 @@ def initialize_inference(
     Initialize inference objects using the provided configuration.
 
     Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying the network and other settings.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the settings.
         device (torch.device): Device used to run the script.
         prior (utils.BoxUniform): Prior distribution used for inference.
         logger (Logger): Logger object.
@@ -784,14 +784,14 @@ def prepare_dataset_sbi(
 
     Args:
         dataset_folder (str): Path to the folder where the dataset is saved.
-        config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
+        logger (Logger): Logger object.
         atnf (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to
             the observed population or to a simulated population. If set to True, the simulations correspond to the
             observed ATNF population. The default is False.
-        logger (Logger): Logger object.
 
     Returns:
-        (tuple): A tuple containing the dataset, parameter tensor and input matrix tensor.
+        (tuple): A tuple containing the dataset containing the statistics, parameter tensor and input matrix tensor.
     """
 
     # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
@@ -875,6 +875,7 @@ def prepare_dataset_sbi(
     # Transforming the maps and labels into torch.tensors.
     parameter = torch.from_numpy(parameter).type(torch.float32)
     matrix = torch.from_numpy(matrix).type(torch.float32)
+
     return dataset, parameter, matrix
 
 
@@ -895,30 +896,31 @@ def build_posterior(
     """
     Train the density estimator for a given round.
 
-    If resuming is set to True, this mode allows training to continue from the last completed round if interrupted.
-    It uses the previously saved state to resume training without starting over.
-    If ensemble training is enabled, multiple models (an ensemble) are trained and their predictions are combined to
-    ensure conservative coverages. Each of the neural networks will be trained on the same training dataset.
+    If resume is set to True in the configuration file, this mode allows training to continue from the last completed
+    round if interrupted. It uses the previously saved state to resume training without starting over.
+    If ensemble is set to True in the configuration file, multiple models (an ensemble) are trained and their
+    predictions are combined to ensure conservative coverages. Each of the neural networks will be trained on the same
+    training dataset.
 
     Note that the inference object should be different for each component of the ensemble to ensure independent weights
     for each component. Moreover, if config['trainer']['model_type'] == 'snle', then an MCMC sampler is needed to sample
     from the posterior distribution.
 
     Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         save_dir_round (pathlib.Path): Directory where the trained model will be saved or is saved already.
         logger (Logger): Logger object.
         inference_list (Union[List[Union[SNPE_C, SNLE_A]], SNPE_C, SNLE_A]): sbi inference object or list of inference
-        objects for ensemble.
+            objects for ensemble.
         parameter_round (torch.Tensor): Tensor containing the parameters for the current round.
         matrix_round (torch.Tensor): Tensor containing the matrices for the current round.
-        device (torch.device): Device used for training.
+        device (torch.device): Device used to run the script.
         round_current (int): Current round number.
         prof_json_path (str): The profile.json path.
         prof_log_path (str): The profile.log path.
         retrain_from_scratch (bool): Whether to retrain the conditional density estimator for the posterior from
             scratch each round. Default value is False.
-        proposal (DirectPosterior): The proposal prior use in that round.
+        proposal (DirectPosterior): The proposal prior used in the current round.
 
     Returns:
         (Union[DirectPosterior, NeuralPosteriorEnsemble]): Trained density estimator or ensemble of estimators.
@@ -1063,8 +1065,8 @@ def initialize_prior(
     the prior is defined over the raw parameter space as specified in the configuration.
 
     Args:
-        config (configuration_parser.ConfigurationParser): The configuration object containing the model settings.
-        device (torch.device): The device on which the prior distribution is allocated (e.g., CPU or GPU).
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
+        device (torch.device): Device used to run the script.
         dataset (dl.DatasetMultichannelArray): The dataset where is saved the statistics for normalization or standardization.
 
     Returns:
@@ -1115,10 +1117,10 @@ def load_posterior(
     Load the trained density estimator for a given round.
 
     Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying training parameters.
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         logger (Logger): Logger object.
         inference_list (Union[SNPE_C, List[SNPE_C]]): sbi inference object or list of inference objects for ensemble.
-        device (torch.device): Device used for training.
+        device (torch.device): Device used to run the script.
         round_current (int): Current round number.
 
     Returns:
