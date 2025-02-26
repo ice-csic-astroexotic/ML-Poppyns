@@ -1,5 +1,5 @@
 """
-    Inference script for sbi.
+    Inference script for simulation-based inference.
 
     This script performs inference on a test dataset within a SNPE or SNLE framework using the sbi package. It loads the
     trained density estimator to approximate the posterior distribution for a dataset of simulated data and evaluates
@@ -24,7 +24,6 @@ import time
 
 import pandas as pd
 import torch
-from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.utils.sbi_utils as ut
@@ -32,15 +31,12 @@ import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
 
 
-def infer(
-    args: argparse.Namespace, config: configuration_parser.ConfigurationParser
-) -> None:
+def infer(config: configuration_parser.ConfigurationParser) -> None:
     """
     Infer the posterior distribution for the observed population using simulation-based inference, assuming that the
     sbi_train.py script has already been run and a trained_model.pkl file has been generated.
 
     Args:
-        args (argparse.Namespace): Command-line arguments parsed by argparse. It includes:
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
     """
     # Get handle for the logger --------------------------------------------
@@ -105,8 +101,6 @@ def infer(
             logger.info("Defining the prior distribution...")
 
             # Setting the prior distribution for the parameters.
-            # Note that we need to rescale the prior distribution to ensure that it has the correct limits when
-            # restricted.
             prior = ut.initialize_prior(config, device, dataset)
 
             # Create the matrix for the observed sample of neutron stars.
@@ -212,7 +206,8 @@ def infer(
                             test_dataset_path, config, logger
                         )
 
-                        # Saving the testing data to reuse it in the next rounds if the proposal is truncated with the prior.
+                        # Saving the testing data to reuse it in the next rounds if the proposal is truncated with the
+                        # prior.
                         if not config["trainer"]["truncated_prior"]:
                             parameter_test = []
                             matrix_test = []

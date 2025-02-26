@@ -86,6 +86,7 @@
     "sir": true,
     "mcmc_sampler": "slice_np_vectorized",
     "append_simulations": true,
+    "plot_proposal": false,
     "save_dir": "/home/celsa/Documents/MAGNESIA_population_synthesis/toremove/learning_snle"
   },
   "infer": {
