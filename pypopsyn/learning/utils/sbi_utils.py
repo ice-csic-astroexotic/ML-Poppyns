@@ -558,7 +558,7 @@ def compute_rank_coverage(
     matrix: torch.tensor,
     posterior: DirectPosterior,
     device: torch.device,
-    parameter_labels: list,
+    parameter_labels: List[str],
     logger: Logger,
     effective_round: int,
 ):
@@ -698,7 +698,6 @@ def build_network_snpe(
     )
 
     # Setting up the inference procedure.
-    # We use the default option SNPE-C (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
     inference = SNPE(
         density_estimator=neural_posterior,
         device=f"{device}",
@@ -709,22 +708,25 @@ def build_network_snpe(
 
 
 def build_network_snle(
+    config: configuration_parser.ConfigurationParser,
     device: torch.device,
     prior: utils.BoxUniform,
 ) -> SNLE_A:
     """
     Building inference procedure for SNLE.
 
-    Args:.
+    Args:
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the neural network
+            architecture and other settings.
         device (torch.device): Device used to run the script.
         prior (utils.BoxUniform): Prior distribution.
-
     Returns:
         (SNLE_C): An instance of sbi's SNLE inference objects.
 
     """
 
     inference = SNLE(
+        density_estimator=config["density_estimator"]["type"],
         device=f"{device}",
         prior=prior,
     )
@@ -757,7 +759,7 @@ def initialize_inference(
 
     for _ in range(config["trainer"]["size_ensemble"] if ensemble else 1):
         if model_type == "snle":
-            inference = build_network_snle(device, prior)
+            inference = build_network_snle(config, device, prior)
         elif model_type == "snpe":
             inference = build_network_snpe(config, device, prior)
         else:
@@ -995,7 +997,9 @@ def build_posterior(
                     train_args["force_first_round_loss"] = True
 
                 density_estimator = inference.append_simulations(
-                    parameter_round.to(device), matrix_round.to(device), proposal = proposal
+                    parameter_round.to(device),
+                    matrix_round.to(device),
+                    proposal=proposal,
                 ).train(**train_args)
 
             logger.info(
