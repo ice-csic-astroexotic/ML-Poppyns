@@ -79,7 +79,7 @@ def sample_without_nan(
         max_attempts (int): The maximum number of attempts to sample (default is 20).
 
     Returns:
-        torch.Tensor: A tensor of sample where all NaN values have been removed.
+        torch.Tensor: A tensor of samples where all NaN values have been removed.
     """
 
     samples = []
@@ -199,7 +199,7 @@ def simulator_dask(
 
     # Create a generator of the random sets of parameters using the prior distribution.
     parameter_sets_gen_tensor = sample_without_nan(
-        prior, args_dict["sampling_size"], device
+        prior, args_dict["sampling_size"], device, max_attempts=20
     )
 
     # If the parameters were normalized or standardized, rescale quantities to their physical ranges.

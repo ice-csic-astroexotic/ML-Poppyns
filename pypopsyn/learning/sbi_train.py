@@ -1,5 +1,5 @@
 """
-    Training script for simulation based inference using the sbi package.
+    Training script for simulation-based inference using the sbi package.
 
     It offers the flexibility to train either a Sequential Neural Posterior Estimator (SNPE) or a Sequential Neural
     Likelihood Estimator (SNLE), for the latter sampling from the posterior involves a MCMC sampler.
@@ -59,6 +59,10 @@ def train(
 
     Args:
         args (argparse.Namespace): Command-line arguments parsed by argparse. It includes:
+            - configuration (str): Path to the configuration file.
+            - plot_proposal (bool): If set to True, generates proposal corner plots for each round.
+            - trained_model (str): Path to the pretrained model (this argument is not used here).
+            - infer (str): Flag to set up the inference saving path (default is True).
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
     """
     # Get handle for the logger --------------------------------------------
@@ -248,7 +252,7 @@ def train(
                         )
 
                     # Save the training and testing data for reuse in future rounds if the proposal distribution is
-                    # config["trainer"]["append_simulations"] is True ; otherwise, use the simulations from the current round.
+                    # config["trainer"]["append_simulations"] is True; otherwise, use the simulations from the current round.
                     if not config["trainer"]["append_simulations"]:
                         parameter_train = []
                         matrix_train = []
@@ -264,8 +268,12 @@ def train(
                         f"Training the density estimator with {parameter_round.shape[0]} samples in round {effective_round} ..."
                     )
 
-                    # If the trained model is SNPE with the proposal prior being the approximated posterior, we need to correct the posterior with the proposal.
-                    if config['trainer']['type'] == 'snpe' and not config["trainer"]["truncated_prior"]:
+                    # If the trained model is SNPE with the proposal prior being the approximated posterior, we need to
+                    # correct the approximated posterior when training with the proposal prior.
+                    if (
+                        config["trainer"]["type"] == "snpe"
+                        and not config["trainer"]["truncated_prior"]
+                    ):
                         proposal_train = proposal
                     else:
                         proposal_train = None
@@ -282,7 +290,7 @@ def train(
                         prof_log_path=prof_log_path,
                         prof_json_path=prof_json_path,
                         retrain_from_scratch=retrain_from_scratch,
-                        proposal=proposal_train
+                        proposal=proposal_train,
                     )
 
                 if config["test_data_loader"]["testing"]:

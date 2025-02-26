@@ -990,8 +990,8 @@ def build_posterior(
                     "show_train_summary": True,
                     "retrain_from_scratch": retrain_from_scratch,
                 }
-                # If model_type is 'snpe' and the proposal is directly the approximated posterior,
-                # enable the correction for using a proposal distribution different from the prior.
+                # If model_type is 'snpe' and the proposal is the approximated posterior, correct the approximated
+                # posterior for using a proposal prior distribution different from the prior.
                 if (
                     model_type == "snpe"
                     and not config["trainer"]["truncated_prior"]
@@ -1067,7 +1067,7 @@ def initialize_prior(
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         device (torch.device): Device used to run the script.
-        dataset (dl.DatasetMultichannelArray): The dataset where is saved the statistics for normalization or standardization.
+        dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
 
     Returns:
         BoxUniform: The initialized prior distribution as a BoxUniform object.
