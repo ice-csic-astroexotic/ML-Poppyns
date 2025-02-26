@@ -41,6 +41,7 @@ import pandas as pd
 import torch
 
 import pypopsyn.learning.configuration_parser as configuration_parser
+import pypopsyn.learning.utils.sbi_builder as sbi_builder
 import pypopsyn.learning.utils.sbi_utils as ut
 import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
@@ -143,7 +144,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                 logger.info("Seed: {}".format(int(time.time())))
 
             logger.info("Defining the prior distribution...")
-            prior = ut.initialize_prior(config, device, dataset)
+            prior = sbi_builder.initialize_prior(config, device, dataset)
             logger.info("Building the neural network...")
 
             # When resuming from a previous run, load the inference object that contains the weights of the previously
@@ -152,7 +153,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
             # the inference object as all the information about the weights is already in the trained model.
 
             if resume and not retrain_from_scratch:
-                inference_list = ut.load_inference(
+                inference_list = sbi_builder.load_inference(
                     config,
                     last_completed_round,
                     config["resume_training"]["save_dir"],
@@ -160,7 +161,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                 )
             else:
 
-                inference_list = ut.initialize_inference(
+                inference_list = sbi_builder.initialize_inference(
                     config, device, prior, logger, ensemble
                 )
 
@@ -271,7 +272,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                     else:
                         proposal_train = None
 
-                    posterior = ut.build_posterior(
+                    posterior = sbi_builder.build_posterior(
                         config=config,
                         save_dir_round=save_dir_round,
                         logger=logger,
@@ -369,7 +370,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                     posterior_obs = posterior.set_default_x(x_o)
 
                     if config["trainer"]["truncated_prior"]:
-                        proposal = ut.compute_proposal_prior(
+                        proposal = sbi_builder.compute_proposal_prior(
                             posterior_obs, config, prior, device
                         )
 
@@ -416,7 +417,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                 # and avoid reusing the previously trained weights at each round.
 
                 if retrain_from_scratch:
-                    inference_list = ut.initialize_inference(
+                    inference_list = sbi_builder.initialize_inference(
                         config, device, prior, logger, ensemble
                     )
 

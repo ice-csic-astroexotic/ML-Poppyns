@@ -26,6 +26,7 @@ import pandas as pd
 import torch
 
 import pypopsyn.learning.configuration_parser as configuration_parser
+import pypopsyn.learning.utils.sbi_builder as sbi_builder
 import pypopsyn.learning.utils.sbi_utils as ut
 import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
@@ -101,7 +102,7 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
             logger.info("Defining the prior distribution...")
 
             # Setting the prior distribution for the parameters.
-            prior = ut.initialize_prior(config, device, dataset)
+            prior = sbi_builder.initialize_prior(config, device, dataset)
 
             # Create the matrix for the observed sample of neutron stars.
             _, _, x_o = ut.prepare_dataset_sbi(
@@ -128,20 +129,15 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                 model_type = config["trainer"]["type"]
 
                 if model_type == "snle":
-                    inference_list = ut.load_inference(
+                    inference_list = sbi_builder.load_inference(
                         config, i, config["infer"]["load_dir"], ensemble
-                    )
-                    final_posterior = ut.load_posterior(
-                        config, logger, inference_list, device, i
                     )
 
                 elif model_type == "snpe":
-                    inference_list = ut.initialize_inference(
+                    inference_list = sbi_builder.initialize_inference(
                         config, device, prior, logger, ensemble
                     )
-                    final_posterior = ut.load_posterior(
-                        config, logger, inference_list, device, i
-                    )
+
                 else:
 
                     logger.exception(
@@ -151,6 +147,9 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                     )
                     sys.exit(1)
 
+                final_posterior = sbi_builder.load_posterior(
+                    config, logger, inference_list, device, i
+                )
                 posterior_obs = final_posterior.set_default_x(x_o)
                 logger.info(
                     f"Sampling from the posterior for round {i + 1}..."
@@ -160,7 +159,7 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                 ).cpu()
                 # Setting the proposal prior to the truncated prior or to the previous approximated posterior distribution at the observed data.
                 if config["trainer"]["truncated_prior"]:
-                    proposal = ut.compute_proposal_prior(
+                    proposal = sbi_builder.compute_proposal_prior(
                         posterior_obs, config, prior, device
                     )
 
