@@ -362,16 +362,17 @@ def build_posterior(
                 }
                 # If model_type is 'snpe' and the proposal is the approximated posterior, correct the approximated
                 # posterior for using a proposal prior distribution different from the prior.
+                kwargs = {}
                 if (
                     model_type == "snpe"
                     and not config["trainer"]["truncated_prior"]
                 ):
-                    train_args["force_first_round_loss"] = True
+                    kwargs["proposal"] = proposal
 
                 density_estimator = inference.append_simulations(
                     parameter_round.to(device),
                     matrix_round.to(device),
-                    proposal=proposal,
+                    **kwargs,
                 ).train(**train_args)
 
             logger.info(
