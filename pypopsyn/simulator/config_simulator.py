@@ -77,8 +77,8 @@ cfg["NS_number"]: int = 300000
 cfg["t_age_min"]: float = 1.0
 cfg["t_age_max"]: float = 3e7
 
-# Whether to perform X-ray simulation or not. If set to True both radio and X-ray simulations will be performed if False
-# only the radio simulation will be performed.
+# Flag indicating whether to perform the X-ray simulation or not. If set to True then radio and X-ray emissions
+# will be simulated; if False then only the radio population synthesis will be performed.
 cfg["simulation_xray"]: bool = True
 
 # ===================== CANONICAL NEUTRON STAR PARAMETERS ========================

@@ -3,7 +3,7 @@
 
     Display help message to run the code:
 
-    python simulate_population_magrot_det.py --h
+    python simulate_population_magrot_det.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -122,12 +122,12 @@ def initialize_radio_surveys() -> Tuple[dict, dict]:
 
 def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
     """
-    Initialize and return an x-ray survey detection dictionary and an interpolator for x-ray luminosity.
+    Initialize and return an X-ray survey detection dictionary and an interpolator for the X-ray luminosity.
 
     Returns:
         (Tuple[dict, RectBivariateSpline]):
-            - A dictionary for storing detected neutron star data for the x-ray survey.
-            - An interpolator function loaded from a pickled file to evaluate the x-ray luminosity.
+            - A dictionary for storing detected neutron star data for the X-ray survey.
+            - An interpolator function loaded from a pickled file to evaluate the X-ray luminosity.
     """
     dictionary_detected_x = {
         "age": [],
@@ -149,7 +149,7 @@ def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
         "idx": [],
     }
 
-    # Load the interpolator function to evaluate the x-ray luminosity.
+    # Load the interpolator function to evaluate the X-ray luminosity.
     interpolator_Lx_path = pathlib.Path().joinpath(
         cfg["path_to_software"],
         "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/interpolator_Lx.pkl",
@@ -311,11 +311,11 @@ def apply_surveys_coverage(
         )
     ) & dist_mask
 
-    # For the x-ray survey we consider an all-sky coverage and only apply a distance cutoff.
+    # For the X-ray survey, we consider an all-Sky coverage and only apply a distance cut-off.
     coverage_x_tot = dist_mask
 
-    # Evaluate the total sky coverage for both radio and X-ray surveys.
-    if cfg["simulation_xray"]:
+    # Evaluate the total sky coverage for the radio and X-ray surveys together.
+    if survey_xray:
         coverage_tot = coverage_radio_tot | coverage_x_tot
 
     else:
@@ -332,7 +332,7 @@ def apply_surveys_coverage(
     ]
 
     for survey_name in survey_radio_names:
-        # Add the coverage data for each survey
+        # Add the coverage data for each survey.
         coverage_key = f"coverage_radio_{survey_name}"
         dictionary_coverage_database[coverage_key] = coverage_survey_radio[
             survey_name
@@ -655,7 +655,8 @@ def x_detection(
 
     Args:
         dict_final_pop (dict): Dictionary containing the properties of the evolved neutron star population.
-        L_x_interpolator (RectBivariateSpline): Interpolator used to calculate thermal X-ray luminosity based on age and magnetic field.
+        L_x_interpolator (RectBivariateSpline): Interpolator used to calculate the thermal X-ray luminosity based
+            on age and magnetic field.
         L_x_threshold (float): A lower limit for the X-ray luminosity.
         age_cutoff (float): An upper limit for the neutron star age for X-ray detection.
         S_x_abs_threshold (float): The absorbed flux threshold for X-ray detection.
@@ -740,7 +741,7 @@ def create_output_dataframe(
     Args:
         dictionary_detected_radio (dict): Dictionary containing detected neutron star properties for each radio survey.
         dictionary_detected_x (dict): Dictionary containing detected neutron star properties for an X-ray survey.
-        survey_x (bool): Boolean flag to indicate whether or not saving the results for a X-ray survey.
+        survey_x (bool): Boolean flag to indicate whether we save the results of the X-ray survey.
 
     Returns:
         dict: A dictionary of DataFrames, one for each survey containing detected neutron stars' information.
@@ -1039,7 +1040,7 @@ def simulate_population(args) -> None:
                 if len(pop_intercepted_radio["age"]) == 0:
                     break
 
-                # Filter the population to include only detected pulsars by the radio surveys.
+                # Filter the population to include only pulsars detected by the radio surveys.
                 pop_detected_radio_update = radio_detection(
                     surveys_radio, pop_intercepted_radio
                 )
@@ -1073,7 +1074,7 @@ def simulate_population(args) -> None:
                         ].items()
                     }
 
-                    # Remove from the dynamical database the stars that have been detected.
+                    # Remove the stars that have been detected from the dynamical database.
                     idx_det_radio = list(
                         dictionary_detected_radio[survey]["idx"]
                     )
@@ -1088,7 +1089,7 @@ def simulate_population(args) -> None:
                     cfg["profile_json"],
                     cfg["show_profiling"],
                 ):
-                    # Filter the population to include only detected pulsars by the X-ray surveys.
+                    # Filter the population to include only pulsars detected by the X-ray surveys.
                     pop_detected_x_update = x_detection(
                         pop_final,
                         luminosity_x_interpolator,
@@ -1109,7 +1110,7 @@ def simulate_population(args) -> None:
                         for key, value in dictionary_detected_x.items()
                     }
 
-                    # Remove from the dynamical database the stars that have been detected.
+                    # Remove the stars that have been detected from the dynamical database.
                     idx_det_x = list(dictionary_detected_x["idx"])
                     idx_remove += idx_det_x
 
@@ -1173,7 +1174,7 @@ def simulate_population(args) -> None:
                 output_path_survey = output_path / "survey_xray_results.pkl.gz"
                 dfs["X-ray"].to_pickle(output_path_survey, compression="gzip")
                 log.info(
-                    f"Output of the detected population with a X-ray survey generated in {os.getcwd()}/{output_path_survey}"
+                    f"Output of the detected X-ray population generated in {os.getcwd()}/{output_path_survey}"
                 )
 
             # Dump updated configuration to output path.

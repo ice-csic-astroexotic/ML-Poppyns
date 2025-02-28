@@ -348,7 +348,7 @@ class SurveyRadio:
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
 
         Returns:
-            (np.ndarray): Array of boolean variables: true if the pulsar is in the covered sky region, false if not.
+            (np.ndarray): Array of boolean variables: True if the pulsar is in the covered sky region, False if not.
         """
         if self.name == "HTRU high":
 
@@ -482,8 +482,7 @@ class SurveyRadio:
             P (np.ndarray): Spin period in [s].
 
         Returns:
-            (np.ndarray): Array of boolean variables: true if the pulsar is detected,
-                false if not.
+            (np.ndarray): Array of boolean variables: True if the pulsar is detected, False if not.
         """
 
         # Store the total number of sources.
@@ -528,7 +527,7 @@ class SurveyRadio:
             DM (np.ndarray): Dispersion measure in [pc cm^-3].
             P (np.ndarray): Array of spin periods of the pulsars in [s].
             age (np.ndarray): Array of neutron star ages [yrs].
-            coverage (np.ndarray): Array of boolean variable indicating the pulsars within the sky coverage.
+            coverage (np.ndarray): Array of boolean variables indicating the pulsars within the sky coverage.
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
             S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
@@ -618,11 +617,11 @@ class SurveyRadio:
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
             S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
-            intercepted_radio: (np.ndarray) Array of boolean variables where true values represent stars that its
+            intercepted_radio: (np.ndarray) Array of boolean variables where True values represent stars whose
                 beam crosses our line of sight.
-            coverage_survey: (np.ndarray) Array of boolean variables where true values represent stars within the
+            coverage_survey: (np.ndarray) Array of boolean variables where True values represent stars within the
                 sky coverage of each survey.
-            dist_cutoff: (np.ndarray) Array of boolean variables where true values represent stars within 35 kpc.
+            dist_cutoff: (np.ndarray) Array of boolean variables where True values represent stars within 35 kpc.
             spectral_index (np.ndarray): Spectral indexes.
             tau_sc (np.ndarray): Scattering timescale in [s].
 
