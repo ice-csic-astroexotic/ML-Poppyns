@@ -432,14 +432,10 @@ def evolve_population_magrot(
             )
 
     # Determining the final period derivative.
-    period_derivative_vect = np.vectorize(pdv.period_derivative)
-    P_dot_final = (
-        period_derivative_vect(
-            B_final,
-            chi_final,
-            P_final,
-        )
-        / const.YR_TO_S
+    P_dot_final = pdv.period_derivative_numpy(
+        B_final,
+        chi_final,
+        P_final,
     )
 
     dictionary_final_pop_magrot = {
@@ -643,12 +639,12 @@ def radio_detection(
     return detected_dictionaries
 
 
-def x_detection(
+def xray_detection(
     dict_final_pop: dict,
     L_x_interpolator: RectBivariateSpline,
-    L_x_threshold: float,
-    age_cutoff: float,
-    S_x_abs_threshold: float,
+    L_x_threshold: float = 1.0e30,
+    age_cutoff: float = 1.0e6,
+    S_x_abs_threshold: float = 1.0e-15,
 ) -> dict:
     """
     Detects neutron stars based on X-ray luminosity and updates their properties.
@@ -664,7 +660,7 @@ def x_detection(
     Returns:
         (dict): A dictionary containing the properties of detected neutron stars in X-rays.
     """
-    # Select only the stars that can be detected in X-rays by the considered surveys.
+    # Select only the stars that can be detected in X-rays.
     coverage_x = dict_final_pop["coverage_x"]
     dict_final_pop_filtered = {
         key: value[coverage_x] for key, value in dict_final_pop.items()
@@ -854,7 +850,7 @@ def create_output_dataframe(
         df = build_dataframe(dictionary_detected_x, parameters_x, units_x)
         dfs[
             "X-ray"
-        ] = df  # Store the DataFrame in the dictionary with survey_name as key.
+        ] = df  # Store the DataFrame in the dictionary with X-ray as key.
 
     return dfs
 
@@ -1090,11 +1086,11 @@ def simulate_population(args) -> None:
                     cfg["show_profiling"],
                 ):
                     # Filter the population to include only pulsars detected by the X-ray surveys.
-                    pop_detected_x_update = x_detection(
+                    pop_detected_x_update = xray_detection(
                         pop_final,
                         luminosity_x_interpolator,
                         L_x_threshold=1.0e30,
-                        S_x_abs_threshold=1.0e-15,
+                        S_x_abs_threshold=cfg["S_x_abs_threshold"],
                         age_cutoff=1.0e6,
                     )
 

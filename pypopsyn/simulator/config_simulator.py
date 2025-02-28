@@ -329,6 +329,11 @@ cfg["ISM_abundances"]: List[float] = [
     6.05,
 ]
 
+# ===================== X-RAY DETECTION PARAMETERS ========================
+
+# Absorbed X-ray flux threshold for X-ray detection in [erg s^-1 cm^-2]
+cfg["S_x_abs_threshold"]: float = 1.0e-15
+
 
 def update_configuration(new_configuration: dict) -> None:
     """
