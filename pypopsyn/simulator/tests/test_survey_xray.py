@@ -11,7 +11,7 @@ import pytest
 from scipy.interpolate import RectBivariateSpline
 
 import pypopsyn.simulator.multiband_emission.emission_xray as ex
-import pypopsyn.simulator.multiband_surveys.survey_x as sx
+import pypopsyn.simulator.multiband_surveys.survey_xray as sx
 
 
 @pytest.fixture()

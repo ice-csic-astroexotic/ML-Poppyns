@@ -14,7 +14,7 @@ import numpy as np
 
 def detected_x_population_flux_threshold(
     S_x_abs: np.ndarray,
-    S_x_abs_threshold: float,
+    S_x_abs_threshold: float = 1.0e-15,
 ) -> np.ndarray:
     """
     Compute the pulsars detected by an X-ray survey with a given flux threshold.

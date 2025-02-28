@@ -251,7 +251,7 @@ def sky_temperature_H81refined(
     # Convert sky coordinates into pixel coordinates and extract the temperatures.
     l_g = coord.l.degree
     b_g = coord.b.degree
-    vec = hp.rotator.dir2vec(l_g, b_g, lonlat=True)
+    vec = np.array(hp.rotator.dir2vec(l_g, b_g, lonlat=True))
     n_side = 512
     pix = hp.pixelfunc.vec2pix(n_side, vec[0], vec[1], vec[2], nest=False)
 

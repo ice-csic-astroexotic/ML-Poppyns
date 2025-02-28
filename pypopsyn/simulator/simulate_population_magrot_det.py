@@ -31,7 +31,6 @@ import orjson
 import pandas as pd
 from scipy.interpolate import RectBivariateSpline
 
-import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
@@ -40,7 +39,7 @@ import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_emission.emission_xray as ex
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
-import pypopsyn.simulator.multiband_surveys.survey_x as sx
+import pypopsyn.simulator.multiband_surveys.survey_xray as sx
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import utilities.benchmark.timewith as timewith
 import utilities.samplers.memory_efficient_sampling as mes
@@ -316,7 +315,7 @@ def apply_surveys_coverage(
     coverage_x_tot = dist_mask
 
     # Evaluate the total sky coverage for both radio and X-ray surveys.
-    if survey_xray:
+    if cfg["simulation_xray"]:
         coverage_tot = coverage_radio_tot | coverage_x_tot
 
     else:
@@ -999,7 +998,7 @@ def simulate_population(args) -> None:
                 # Filter the loaded database batch with the surveys' sky coverage.
                 database_coverage, idx_remove = apply_surveys_coverage(
                     surveys_radio,
-                    cfg["survey_xray"],
+                    cfg["simulation_xray"],
                     database_dyn_batch,
                     idx_remove,
                     dist_cutoff=35.0,
@@ -1082,7 +1081,7 @@ def simulate_population(args) -> None:
 
             # ===================== X DETECTION ========================
 
-            if cfg["survey_xray"]:
+            if cfg["simulation_xray"]:
                 with timewith.TimeWith(
                     "[SimulateXrayDetection]",
                     cfg["profile_log"],
@@ -1157,7 +1156,7 @@ def simulate_population(args) -> None:
             dfs = create_output_dataframe(
                 dictionary_detected_radio,
                 dictionary_detected_x,
-                cfg["survey_xray"],
+                cfg["simulation_xray"],
             )
 
             # Save the data frame as a compressed binary file.
@@ -1170,7 +1169,7 @@ def simulate_population(args) -> None:
                     f"Output of the detected population with {survey} generated in {os.getcwd()}/{output_path_survey}"
                 )
 
-            if cfg["survey_xray"]:
+            if cfg["simulation_xray"]:
                 output_path_survey = output_path / "survey_xray_results.pkl.gz"
                 dfs["X-ray"].to_pickle(output_path_survey, compression="gzip")
                 log.info(

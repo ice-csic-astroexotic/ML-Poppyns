@@ -333,7 +333,7 @@ def calculate_radio_emission(
             - Bolometric radio luminosity [erg s^-1].
             - Bolometric radio flux in [erg s^-1 cm^-2].
             - Spectral index.
-            - Dispersion measure in [pc cm^-2].
+            - Dispersion measure in [pc cm^-3].
             - Scattering timescale in [s].
     """
 

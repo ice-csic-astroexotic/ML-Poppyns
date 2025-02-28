@@ -1139,7 +1139,7 @@ def test_create_output_dataframe(test_case_10):
         survey_x,
     )
 
-    # Assert the result matches the expected output
+    # Assert the result matches the expected output.
     for survey_name, expected_df in output_dfs_without_xray.items():
         pd.testing.assert_frame_equal(
             output_dfs_without_xray[survey_name],
@@ -1153,7 +1153,7 @@ def test_create_output_dataframe(test_case_10):
         survey_x,
     )
 
-    # Assert the result matches the expected output
+    # Assert the result matches the expected output.
     for survey_name, expected_df in output_dfs_with_xray.items():
         pd.testing.assert_frame_equal(
             output_dfs_with_xray[survey_name],
@@ -1166,7 +1166,7 @@ def test_initialize_x_surveys(test_case_11, monkeypatch):
     Check that the x survey and the dictionaries containing the detected stars are properly initialized.
     """
 
-    # Mocking pathlib and pickle
+    # Mocking pathlib and pickle.
     with patch(
         "builtins.open",
         mock_open(
@@ -1186,7 +1186,7 @@ def test_initialize_x_surveys(test_case_11, monkeypatch):
                     L_x_interpolator,
                 ) = sim.initialize_x_surveys()
 
-                # Check the returned types
+                # Check the returned types.
                 assert isinstance(
                     dictionary_detected_x, dict
                 ), "Expected a dictionary"

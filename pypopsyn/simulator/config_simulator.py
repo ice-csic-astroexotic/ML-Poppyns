@@ -79,7 +79,7 @@ cfg["t_age_max"]: float = 3e7
 
 # Whether to perform X-ray simulation or not. If set to True both radio and X-ray simulations will be performed if False
 # only the radio simulation will be performed.
-cfg["survey_xray"]: bool = True
+cfg["simulation_xray"]: bool = True
 
 # ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
 

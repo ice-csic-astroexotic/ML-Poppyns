@@ -325,36 +325,42 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
     )
 
     assert np.all(intercepted_radio_out == test_case_2["intercepted_radio"])
+
     assert np.isclose(
         w_int_s_out,
         test_case_2["w_int_s"],
         rtol=TOL,
         atol=1.0e-30,
     ).all()
+
     assert np.isclose(
         L_radio_bol_out,
         test_case_2["L_radio_bol"],
         rtol=TOL,
         atol=1.0e-30,
     ).all()
+
     assert np.isclose(
         S_radio_bol_out,
         test_case_2["S_radio_bol"],
         rtol=TOL,
         atol=1.0e-30,
     ).all()
+
     assert np.isclose(
         spectral_index_out,
         test_case_2["spectral_index"],
         rtol=TOL,
         atol=1.0e-30,
     ).all()
+
     assert np.isclose(
         DM_out,
         test_case_2["DM"],
         rtol=TOL,
         atol=1.0e-30,
     ).all()
+
     assert np.isclose(
         tau_sc_out,
         test_case_2["tau_sc"],
@@ -395,24 +401,28 @@ def test_calculate_radio_emission_full(monkeypatch, test_case_3):
         test_case_3["dist"],
         test_case_3["chi"],
     )
+
     assert np.isclose(
         test_case_3["intercepted_radio_expected"],
         intercepted_radio,
         rtol=TOL,
         atol=1.0e-5,
     ).all()
+
     assert np.isclose(
         test_case_3["S_radio_bol_expected"],
         S_radio_bol,
         rtol=TOL,
         atol=1.0e-5,
     ).all()
+
     assert np.isclose(
         test_case_3["w_int_s_expected"],
         w_int_s,
         rtol=TOL,
         atol=1.0e-5,
     ).all()
+
     assert np.isclose(
         test_case_3["L_radio_bol_expected"],
         L_radio_bol,
