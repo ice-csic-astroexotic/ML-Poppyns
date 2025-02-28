@@ -350,7 +350,7 @@ def flux_xray_absorbed(
     return flux, N_H
 
 
-def calculate_x_emission(
+def calculate_xray_emission(
     B: np.ndarray,
     B_initial: np.ndarray,
     age: np.ndarray,

@@ -300,7 +300,7 @@ def test_flux_xray_absorbed(test_case_1):
     ).all()
 
 
-def test_calculate_x_emission(test_case_2, monkeypatch):
+def test_calculate_xray_emission(test_case_2, monkeypatch):
     """
     Verifying that absorbed X-ray flux is correctly estimated.
     """
@@ -320,7 +320,7 @@ def test_calculate_x_emission(test_case_2, monkeypatch):
         L_x_therm_out,
         S_x_abs_out,
         N_H_out,
-    ) = xem.calculate_x_emission(
+    ) = xem.calculate_xray_emission(
         test_case_2["B"],
         test_case_2["B_initial"],
         test_case_2["age"],

@@ -1200,12 +1200,12 @@ def test_initialize_x_surveys(test_case_11, monkeypatch):
                     assert dictionary_detected_x[key] == []
 
 
-def test_x_detection(test_case_12, monkeypatch):
+def test_xray_detection(test_case_12, monkeypatch):
     """
     Check that the dictionary with the properties of the neutron stars that are detected in X-rays is properly returned.
     """
 
-    def mock_calculate_x_emission(*args, **kwargs):
+    def mock_calculate_xray_emission(*args, **kwargs):
         return (
             test_case_12["mock_xray_bright_mask"],
             test_case_12["mock_L_x_therm"],
@@ -1213,9 +1213,11 @@ def test_x_detection(test_case_12, monkeypatch):
             test_case_12["mock_N_H"],
         )
 
-    monkeypatch.setattr(ex, "calculate_x_emission", mock_calculate_x_emission)
+    monkeypatch.setattr(
+        ex, "calculate_xray_emission", mock_calculate_xray_emission
+    )
 
-    output_dict = sim.x_detection(
+    output_dict = sim.xray_detection(
         test_case_12["dict_final_pop"],
         test_case_12["dummy_L_x_interpolator"],
         test_case_12["L_x_threshold"],

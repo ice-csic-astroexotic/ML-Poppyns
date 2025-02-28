@@ -667,7 +667,7 @@ def xray_detection(
     }
 
     # Compute the properties of the X-ray bright neutron stars.
-    xray_bright_mask, L_x_therm, S_x_abs, N_H = ex.calculate_x_emission(
+    xray_bright_mask, L_x_therm, S_x_abs, N_H = ex.calculate_xray_emission(
         dict_final_pop_filtered["B"],
         dict_final_pop_filtered["B_initial"],
         dict_final_pop_filtered["age"],
