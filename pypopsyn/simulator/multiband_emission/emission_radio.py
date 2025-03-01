@@ -345,8 +345,8 @@ def calculate_radio_emission(
     # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
     # NOTE: If the luminosity law is changed, the normalisation constant (L_radio_log10_sigma) has to be adjusted in
     # the simulator configuration file pypopsyn/simulator/config_simulator.
-    L_radio_bol = pdf_luminosity_radio_ppdot(P_det, P_dot_det)
-    # L_radio_bol = pdf_luminosity_radio_edot(P_det, P_dot_det)
+    # L_radio_bol = pdf_luminosity_radio_ppdot(P_det, P_dot_det)
+    L_radio_bol = pdf_luminosity_radio_edot(P_det, P_dot_det)
 
     # Computing the intrinsic bolometric radio flux.
     S_radio_bol = flux_radio(
