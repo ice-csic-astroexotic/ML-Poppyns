@@ -1094,7 +1094,7 @@ def simulate_population(args) -> None:
                         age_cutoff=1.0e6,
                     )
 
-                    # Check the number of detected pulsars for each survey.
+                    # Print number of detected neutron stars in X-ray.
                     n_detected_sim_x += len(pop_detected_x_update["age"])
                     log.info(
                         f"Total number of neutron stars detected in X-rays: {n_detected_sim_x}"
@@ -1195,7 +1195,7 @@ if __name__ == "__main__":
         "--save_dir",
         nargs="?",
         type=str,
-        default="output/sim_magrot",
+        default="data/example_simulation_dyn",
         help="Path to the directory where the run will be saved.",
     )
 
