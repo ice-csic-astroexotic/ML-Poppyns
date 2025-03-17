@@ -527,6 +527,7 @@ def load_posterior(
             posterior = inference.build_posterior(density_estimator.to(device))
         elif model_type == "snle":
             posterior = inference.build_posterior(
+                density_estimator=density_estimator.to(device),
                 mcmc_method=config["trainer"]["mcmc_sampler"],
                 mcmc_parameters={"num_chains": 20, "thin": 5},
             )
