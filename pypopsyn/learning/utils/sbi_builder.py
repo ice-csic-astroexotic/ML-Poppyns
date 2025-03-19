@@ -390,8 +390,11 @@ def build_posterior(
         elif model_type == "snle":
             posterior = inference.build_posterior(
                 density_estimator=density_estimator.to(device),
-                mcmc_method=config["trainer"]["mcmc_sampler"],
-                mcmc_parameters={"num_chains": 20, "thin": 5},
+                mcmc_method=config["mcmc_sampler"]["type"],
+                mcmc_parameters={
+                    "num_chains": config["mcmc_sampler"]["num_chains"],
+                    config["mcmc_sampler"]["thin"]: 5,
+                },
             )
         else:
             logger.exception(
@@ -528,8 +531,11 @@ def load_posterior(
         elif model_type == "snle":
             posterior = inference.build_posterior(
                 density_estimator=density_estimator.to(device),
-                mcmc_method=config["trainer"]["mcmc_sampler"],
-                mcmc_parameters={"num_chains": 20, "thin": 5},
+                mcmc_method=config["mcmc_sampler"]["type"],
+                mcmc_parameters={
+                    "num_chains": config["mcmc_sampler"]["num_chains"],
+                    config["mcmc_sampler"]["thin"]: 5,
+                },
             )
         else:
             logger.exception(

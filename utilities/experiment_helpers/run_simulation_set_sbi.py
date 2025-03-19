@@ -340,7 +340,7 @@ def simulator_multiprocess(
 
     # Create a generator of the random sets of parameters using the prior distribution.
     parameter_sets_gen_tensor = sample_without_nan(
-        prior, args_dict["sampling_size"], device
+        prior, args_dict["sampling_size"], device, max_attempts=20
     )
 
     # If the parameters were normalized or standardized, rescale quantities to their physical ranges.

@@ -569,10 +569,12 @@ def prepare_dataset_sbi(
                 matrix[i] = (x_embedded - x_embedded.min()) / (
                     x_embedded.max() - x_embedded.min()
                 )
-            else:
+            if standardize:
                 matrix[i] = (x_embedded - x_embedded.mean()) / (
                     x_embedded.std() + 1e-8
                 )
+            else:
+                matrix[i] = x
         else:
             matrix[i] = x
 
