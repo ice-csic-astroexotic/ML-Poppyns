@@ -3,7 +3,7 @@
 
     Display help message to run the code:
 
-    python sbi_utils.py --help
+    python sbi_builder.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -114,7 +114,7 @@ def compute_proposal_prior(
     # Computing the new proposal by restricting the prior to the posterior of the observation.
     # If config["sir"] is set to true, the restricted prior sampling uses sampling importance
     # resampling (Rubin et al., 1988); otherwise, it employs rejection sampling. Note that the latter
-    # method may take longer for a narrowed posterior distribution where the rejection rate is high.
+    # method may take longer for a narrower posterior distribution where the rejection rate is high.
     if config["trainer"]["sir"]:
         proposal = utils.RestrictedPrior(
             prior,

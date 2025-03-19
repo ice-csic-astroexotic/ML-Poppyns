@@ -35,7 +35,7 @@ def handler(signum: int, frame: FrameType) -> None:
     raise TimeoutError("The operation timed out")
 
 
-def sample(
+def posterior_sampler(
     posterior: DirectPosterior,
     simulation_output: torch.Tensor,
     n_samples: int,
@@ -82,7 +82,7 @@ def sample_with_timeout(
 
     try:
         # If the sampling completes before the timeout, return the result and set success to True.
-        result = sample(posterior, simulation_output, n_samples)
+        result = posterior_sampler(posterior, simulation_output, n_samples)
         success = True
     except TimeoutError:
         # If the timeout is reached, return None and set success to False.

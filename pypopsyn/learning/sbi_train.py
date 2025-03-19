@@ -53,8 +53,7 @@ from utilities.experiment_helpers.run_simulation_set_sbi import (
 
 def train(config: configuration_parser.ConfigurationParser) -> None:
     """
-    Training a density estimator to infer the posterior distribution at the observed population with the truncated
-    sequential neural posterior estimator approach in Deistler et al. (2022) using the sbi package.
+    Training a density estimator to infer the posterior distribution at the observed population.
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying dataset loading parameters.
@@ -149,9 +148,9 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
 
             # When resuming from a previous run, load the inference object that contains the weights of the previously
             # trained neural networks. Otherwise, initialize the neural network. Note that if resume = True and
-            # retrain_from_scratch = True, in the first round we load the trained model. Hence, there is no need to load
-            # the inference object as all the information about the weights is already in the trained model.
-
+            # retrain_from_scratch = True, in the first round, we will train with newly initialized weights. Hence,
+            # there is no need to load the inference object. To perform inference, the trained_model.pickle is the only
+            # object needed.
             if resume and not retrain_from_scratch:
                 inference_list = sbi_builder.load_inference(
                     config,
@@ -438,7 +437,7 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="pypopsyn/learning/config_tsnpe.json",
+        default="pypopsyn/learning/config_sbi.json",
         help="Machine learning configuration file path.",
     )
 
