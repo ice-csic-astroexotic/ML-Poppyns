@@ -79,7 +79,7 @@ cfg["t_age_max"]: float = 3e7
 
 # Flag indicating whether to perform the X-ray simulation or not. If set to True then radio and X-ray emissions
 # will be simulated; if False then only the radio population synthesis will be performed.
-cfg["simulation_xray"]: bool = True
+cfg["simulation_xray"]: bool = False
 
 # ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
 
@@ -169,8 +169,8 @@ cfg["B_initial_log10_sigma"]: float = 0.5
 # Means and standard deviations and relative weight for the double log-normally distributed
 # initial magnetic fields in [G]. The weight denotes the importance of the first log-normal component
 # relative to whole pdf. Its value has to be in the range 0 and 1.
-cfg["B_initial_log10_mean1"]: float = 13.02
-cfg["B_initial_log10_sigma1"]: float = 0.49
+cfg["B_initial_log10_mean1"]: float = 13.09
+cfg["B_initial_log10_sigma1"]: float = 0.5
 cfg["B_initial_log10_mean2"]: float = 14.5
 cfg["B_initial_log10_sigma2"]: float = 0.5
 cfg["B_initial_weight"]: float = 0.7

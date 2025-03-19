@@ -376,8 +376,10 @@ def calculate_xray_emission(
         dec (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
         dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
         L_x_interpolator (RectBivariateSpline): Interpolator used to calculate thermal X-ray luminosity based on age and magnetic field.
-        L_x_threshold (float): A lower limit for the X-ray luminosity.
-        age_cutoff (float): An upper limit for the neutron star age for X-ray detection.
+        L_x_threshold (float): A lower limit for the X-ray luminosity. The default value of 10^30 erg s^-1 is chosen since
+            no observed thermally emitting neutron star has a luminosity lower than this.
+        age_cutoff (float): An upper limit for the neutron star age for X-ray detection. The default value of 10^6 yr is
+            chosen due to the fact that the cooling models are valid up to this age.
 
     Returns:
         (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple containing the following arrays:
@@ -406,7 +408,7 @@ def calculate_xray_emission(
     L_x_mask = L_x_therm > L_x_threshold
     L_x_therm = L_x_therm[L_x_mask]
 
-    xray_bright_mask = age_mask & L_x_mask
+    xray_bright_mask = L_x_mask
 
     # Compute the absorbed fluxes computing the RCS spectra and the N_H column density.
     S_x_abs, N_H = flux_xray_absorbed(
