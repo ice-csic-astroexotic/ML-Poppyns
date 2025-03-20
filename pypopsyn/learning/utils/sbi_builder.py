@@ -393,7 +393,7 @@ def build_posterior(
                 mcmc_method=config["mcmc_sampler"]["type"],
                 mcmc_parameters={
                     "num_chains": config["mcmc_sampler"]["num_chains"],
-                    config["mcmc_sampler"]["thin"]: 5,
+                    "thin": config["mcmc_sampler"]["thin"],
                 },
             )
         else:
@@ -534,7 +534,7 @@ def load_posterior(
                 mcmc_method=config["mcmc_sampler"]["type"],
                 mcmc_parameters={
                     "num_chains": config["mcmc_sampler"]["num_chains"],
-                    config["mcmc_sampler"]["thin"]: 5,
+                    "thin": config["mcmc_sampler"]["thin"],
                 },
             )
         else:
