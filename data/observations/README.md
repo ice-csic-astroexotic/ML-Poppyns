@@ -37,5 +37,5 @@ the reported fluxes include the non-thermal part as it is probably due to the re
 of thermal photons coming from the hot surface, therefore they have a thermal origin.
 
 For the `assoc` column, we indicate if the neutron star is associated with a pulsar wind nebula (PWN), has a radio
-counterpart or if it belongs to the Large Magellanic Cloud (LMC) or the Small Magellanic c=Cloud (SMC).
+counterpart or if it belongs to the Large Magellanic Cloud (LMC) or the Small Magellanic Cloud (SMC).
 
