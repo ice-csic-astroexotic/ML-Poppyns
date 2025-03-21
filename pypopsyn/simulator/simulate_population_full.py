@@ -140,12 +140,12 @@ def simulate_population(args: argparse.Namespace) -> None:
 
     SKA_low_par_path = pathlib.Path().joinpath(
         cfg["path_to_software"],
-        "pypopsyn/simulator/multiband_surveys/SKA_low_parameters_AA*.json",
+        "pypopsyn/simulator/multiband_surveys/SKA_low_parameters_AA4.json",
     )
 
     SKA_mid_par_path = pathlib.Path().joinpath(
         cfg["path_to_software"],
-        "pypopsyn/simulator/multiband_surveys/SKA_mid_parameters_AA*.json",
+        "pypopsyn/simulator/multiband_surveys/SKA_mid_parameters_AA4.json",
     )
 
     survey_PMPS = sr.SurveyRadio(PMPS_par_path)
