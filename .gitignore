@@ -130,7 +130,7 @@ dmypy.json
 outputs/
 tutorials/tutorial_notebooks/output
 multirun/
-.DS_Store/
+.DS_Store
 tutorials/.DS_Store/
 sbi-logs/
 tutorials/tutorial_notebooks/sbi-logs
