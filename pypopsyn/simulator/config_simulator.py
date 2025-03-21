@@ -240,22 +240,25 @@ cfg[
 ] = 2.5  # Half opening angle of the radio beam in [deg] corresponding to a spin period of 1 s.
 cfg["a_beam"] = -0.5  # Power-law exponent.
 
-
 # Relevant parameters for the log-normally distributed luminosity, L.
 # We have implemented two different prescriptions for the luminosity in the module
 # pypopsyn/simulator/multiband_emission/emission_radio.py based on the luminosity depending on different parameters.
-# One prescription follows Faucher-Giguère & Kaspi (2006) (pdf_luminosity_radio_ppdot) and assumes that L depends on
+# One prescription follows Faucher-Giguère & Kaspi (2006) (lum_radio_ppdot model) and assumes that L depends on
 # the period and period derivative.
-# The second one assumes that L depends directly on the loss of rotational energy
-# (pdf_luminosity_radio_edot). If the luminosity is given by pdf_luminosity_radio_ppdot, then the units of
-# L_radio_log10_mean are [erg s^(3 * epsilon_L - 1)]. Otherwise, L_0 has units of [ergs/s]. The default values are
-# taken from Pardo-Araujo et al. 2025.
-cfg[
-    "L_radio_log10_mean"
-]: float = 26.17  # [erg s^(- 1)] if pdf_luminosity_radio_edot is used.
-# cfg["L_radio_log10_mean"]: float = 35.5 [erg s^(3 * epsilon_L - 1) ] if pdf_luminosity_radio_ppdot is used.
-cfg["L_radio_log10_sigma"]: float = 0.8
-cfg["epsilon_L"]: float = 0.68
+# The second one assumes that L depends directly on the loss of rotational energy (lum_radio_edot model).
+
+# Model pdf for the radio luminosity. Choose between "lum_radio_ppdot" and "lum_radio_edot".
+cfg["radio_luminosity_model"]: str = "lum_radio_edot"
+
+# Parameters for the "lum_radio_ppdot" model (Graber et al. 2024).
+cfg["L_radio_ppdot_log10_mean"]: float = 35.5  # [erg s^(3 * epsilon_L - 1) ]
+cfg["L_radio_ppdot_log10_sigma"]: float = 0.8
+cfg["epsilon_L_ppdot"]: float = 0.5
+
+# Parameters for the "lum_radio_edot" model (Pardo-Araujo et al. 2025).
+cfg["L_radio_edot_log10_mean"]: float = 26.17  # [erg s^(- 1)]
+cfg["L_radio_edot_log10_sigma"]: float = 0.8
+cfg["epsilon_L_edot"]: float = 0.68
 cfg["Erot_dot_0"]: float = 1e29
 
 # Spectral index following a normal distribution as in Posselt et al. (2023). We set the standard deviation to 0 to

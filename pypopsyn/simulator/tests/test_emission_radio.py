@@ -290,6 +290,7 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
     # Set the values of the configuration file for testing purposes.
     cfg["radio_beam_model"] = "standard_period_cone"
     cfg["r_em"]: float = 3.0e7
+    cfg["radio_luminosity_model"] = "lum_radio_edot"
 
     def mock_los_rand(*args, **kwargs):
         return test_case_2["los_rand"]
@@ -349,6 +350,7 @@ def test_calculate_radio_emission_full(monkeypatch, test_case_3):
     cfg["NS_number"] = 2
     cfg["radio_beam_model"] = "standard_period_cone"
     cfg["r_em"]: float = 3.0e7
+    cfg["radio_luminosity_model"] = "lum_radio_edot"
 
     def mock_los_rand(*args, **kwargs):
         return test_case_3["los_rand"]
