@@ -360,6 +360,11 @@ def build_posterior(
                     "show_train_summary": True,
                     "retrain_from_scratch": retrain_from_scratch,
                 }
+
+                # Set force_first_round_loss = True if truncated prior is used, then not correctation for the loss fucntion will be made.
+                if config["trainer"]["truncated_prior"]:
+                    train_args["force_first_round_loss"] = True
+
                 # If model_type is 'snpe' and the proposal is the approximated posterior, correct the approximated
                 # posterior for using a proposal prior distribution different from the prior.
                 kwargs = {}
