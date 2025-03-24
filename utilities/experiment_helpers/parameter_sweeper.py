@@ -67,19 +67,56 @@ def main(args):
             - sigma_k (list[float]): Range and number of values for the kick velocity sigma parameter.
             - vk_c (list[float]): Range and number of values for the kick velocity vk_c parameter.
             - h_c (list[float]): Range and number of values for the scale height h_c parameter.
-            - P_initial_mean (list[float]): Range and number of values for the mean initial spin period.
+            - P_initial_mean (list[float]): Range and number of values for the mean initial spin period (if
+                spin_period_model = normal).
             - P_initial_sigma (list[float]): Range and number of values for the dispersion of the initial
-            spin period.
+            spin period (if spin_period_model = normal).
             - P_initial_log10_mean (list[float]): Range and number of values for the log10 mean initial
-            spin period.
+            spin period (if spin_period_model = log-normal).
             - P_initial_log10_sigma (list[float]): Range and number of values for the log10 dispersion
-            of the initial spin period.
+            of the initial spin period (if spin_period_model = log-normal).
             - B_initial_log10_mean (list[float]): Range and number of values for the mean of the log10
-            initial magnetic field strength.
+            initial magnetic field strength (if magnetic_field_model = log-normal).
             - B_initial_log10_sigma (list[float]): Range and number of values for the dispersion of the
-            log10 initial magnetic field strength.
+            log10 initial magnetic field strength (if magnetic_field_model = log-normal).
+            - B_initial_log10_mean1 (list[float]): Range and number of values for the mean of the log10
+            initial magnetic field strength of the first log-normal component (if
+                magnetic_field_model = double_log-normal).
+            - B_initial_log10_sigma1 (list[float]): Range and number of values for the dispersion of the
+            log10 initial magnetic field strength of the first log-normal component (if
+                magnetic_field_model = double_log-normal).
+            - B_initial_log10_mean2 (list[float]): Range and number of values for the mean of the log10
+            initial magnetic field strength of the second log-normal component (if
+                magnetic_field_model = double_log-normal).
+            - B_initial_log10_sigma2 (list[float]): Range and number of values for the dispersion of the
+            log10 initial magnetic field strength of the second log-normal component (if
+                magnetic_field_model = double_log-normal).
+            - B_initial_weight (list[float]): Range and number of values for the relative weight of the first
+            log-normal component with respect to the full pdf (if magnetic_field_model = double_log-normal).
+            - B_initial_log10_rise_mean (list[float]): Range and number of values for the mean of the log10
+            initial magnetic field strength of the first log-normal component (if
+                magnetic_field_model = smooth_tophat).
+            - B_initial_log10_rise_sigma (list[float]): Range and number of values for the dispersion of the
+            log10 initial magnetic field strength of the first log-normal component (if
+                magnetic_field_model = smooth_tophat).
+            - B_initial_log10_decay_mean (list[float]): Range and number of values for the mean of the log10
+            initial magnetic field strength of the second log-normal component (if
+                magnetic_field_model = smooth_tophat).
+            - B_initial_log10_decay_sigma (list[float]): Range and number of values for the dispersion of the
+            log10 initial magnetic field strength of the second log-normal component (if
+                magnetic_field_model = smooth_tophat).
+            - B_initial_log10_slope (list[float]): Range and number of values for the slope connecting the first
+            log-normal component to the second one (if magnetic_field_model = smooth_tophat).
             - a_late (list[float]): Range and number of values for the power-law slope of the late time
             magnetic field evolution.
+            - L_radio_ppdot_log10_mean (list[float]): Range and number of values for the mean of the log10
+            radio luminosity normalization (if radio_luminosity_model = lum_radio_ppdot).
+            - epsilon_L_ppdot (list[float]): Range and number of values for the power-law index of the log10
+            radio luminosity (if radio_luminosity_model = lum_radio_ppdot).
+            - L_radio_edot_log10_mean (list[float]): Range and number of values for the mean of the log10
+            radio luminosity normalization (if radio_luminosity_model = lum_radio_edot).
+            - epsilon_L_edot (list[float]): Range and number of values for the power-law index of the log10
+            radio luminosity (if radio_luminosity_model = lum_radio_edot).
     """
     # Parse arguments provided to the parameter-sweeper script.
     log.info("Parsing arguments...")
@@ -235,26 +272,6 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--B_initial_log10_mean",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range for the mean of the log10 initial magnetic field strength with number of values "
-        "[low, high, n_values]."
-        "In random mode: range of the mean of the log10 initial magnetic field strength [low, high].",
-    )
-
-    args.add_argument(
-        "--B_initial_log10_sigma",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range for the dispersion of the log10 of the initial magnetic field strength "
-        "with number of values [low, high, n_values]."
-        "In random mode: range of the dispersion of the log10 initial magnetic field strength [low, high].",
-    )
-
-    args.add_argument(
         "--P_initial_log10_mean",
         nargs="*",
         type=float,
@@ -275,6 +292,137 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
+        "--B_initial_log10_mean",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the mean of the log10 initial magnetic field strength with number of values "
+        "[low, high, n_values]."
+        "In random mode: range of the mean of the log10 initial magnetic field strength [low, high].",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_sigma",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the dispersion of the log10 of the initial magnetic field strength "
+        "with number of values [low, high, n_values] for model log-normal."
+        "In random mode: range of the dispersion of the log10 initial magnetic field strength [low, high] "
+        "for model log-normal.",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_mean1",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the mean of the log10 initial magnetic field strength for the first log-normal "
+        "component with number of values [low, high, n_values] for model double_log-normal."
+        "In random mode: range of the mean of the log10 initial magnetic field strength for the first log-normal "
+        "[low, high] for model double_log-normal.",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_sigma1",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the dispersion of the log10 of the initial magnetic field strength for the first"
+        "log-normal component with number of values [low, high, n_values] for model double_log-normal."
+        "In random mode: range of the dispersion of the log10 initial magnetic field strength for the first"
+        "log-normal component [low, high] for model double_log-normal.",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_mean2",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the mean of the log10 initial magnetic field strength for the second log-normal "
+        "component with number of values [low, high, n_values] for model double_log-normal."
+        "In random mode: range of the mean of the log10 initial magnetic field strength for the second log-normal "
+        "[low, high] for model double_log-normal.",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_sigma2",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the dispersion of the log10 of the initial magnetic field strength for the second"
+        "log-normal component with number of values [low, high, n_values] for model double_log-normal."
+        "In random mode: range of the dispersion of the log10 initial magnetic field strength for the second"
+        "log-normal component [low, high] for model double_log-normal.",
+    )
+
+    args.add_argument(
+        "--B_initial_weight",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the relative weight of the first log-normal component for the log10 initial "
+        "magnetic field strength with number of values [low, high, n_values] for model double_log-normal."
+        "In random mode: range of the relative weight of the first log-normal component for the log10 initial "
+        "magnetic field strength [low, high] for model double_log-normal.",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_rise_mean",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the mean of the log10 initial magnetic field strength for the first log-normal "
+        "component with number of values [low, high, n_values] for model smooth_tophat."
+        "In random mode: range of the mean of the log10 initial magnetic field strength for the first log-normal "
+        "[low, high] for model smooth_tophat.",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_rise_sigma",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the dispersion of the log10 of the initial magnetic field strength for the first"
+        "log-normal component with number of values [low, high, n_values] for model smooth_tophat."
+        "In random mode: range of the dispersion of the log10 initial magnetic field strength for the first"
+        "log-normal component [low, high] for model smooth_tophat.",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_decay_mean",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the mean of the log10 initial magnetic field strength for the second log-normal "
+        "component with number of values [low, high, n_values] for model smooth_tophat."
+        "In random mode: range of the mean of the log10 initial magnetic field strength for the second log-normal "
+        "[low, high] for model smooth_tophat.",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_decay_sigma",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the dispersion of the log10 of the initial magnetic field strength for the second "
+        "log-normal component with number of values [low, high, n_values] for model smooth_tophat."
+        "In random mode: range of the dispersion of the log10 initial magnetic field strength for the second "
+        "log-normal component [low, high] for model smooth_tophat.",
+    )
+
+    args.add_argument(
+        "--B_initial_log10_slope",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the slope connecting the first log-normal component to the second one for the "
+        "log10 initial magnetic field strength with number of values [low, high, n_values] for model smooth_tophat."
+        "In random mode: range for the slope connecting the first log-normal component to the second one for the "
+        "log10 initial magnetic field strength [low, high] for model smooth_tophat.",
+    )
+
+    args.add_argument(
         "--a_late",
         nargs="*",
         type=float,
@@ -284,22 +432,44 @@ if __name__ == "__main__":
         "In random mode: range of the power-law slope of the late time magnetic field evolution [low, high].",
     )
     args.add_argument(
-        "--L_radio_log10_mean",
+        "--L_radio_ppdot_log10_mean",
         nargs="*",
         type=float,
         default=None,
-        help="In grid mode: range for the mean of the log-normally distributed radio luminosity normalization factor."
-        "with number of values [low, high, n_values]."
-        "In random mode: range of the mean of the log-normally distributed radio luminosity normalization factor [low, high].",
+        help="In grid mode: range for the mean of the log-normally distributed radio luminosity normalization "
+        "factor with number of values [low, high, n_values] for model lum_radio_ppdot."
+        "In random mode: range of the mean of the log-normally distributed radio luminosity normalization factor "
+        "[low, high] for model lum_radio_ppdot.",
     )
     args.add_argument(
-        "--epsilon_L",
+        "--epsilon_L_ppdot",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the power-law slope of the intrinsic luminosity with number of "
+        "values [low, high, n_values] for model lum_radio_ppdot."
+        "In random mode: range of the power-law slope of the intrinsic luminosity [low, high] for model "
+        "lum_radio_ppdot.",
+    )
+    args.add_argument(
+        "--L_radio_edot_log10_mean",
+        nargs="*",
+        type=float,
+        default=None,
+        help="In grid mode: range for the mean of the log-normally distributed radio luminosity normalization "
+        "factor with number of values [low, high, n_values] for model lum_radio_edot."
+        "In random mode: range of the mean of the log-normally distributed radio luminosity normalization factor "
+        "[low, high] for model lum_radio_edot.",
+    )
+    args.add_argument(
+        "--epsilon_L_edot",
         nargs="*",
         type=float,
         default=None,
         help="In grid mode: range for the power-law slope of the intrinsic luminosity "
-        "with number of values [low, high, n_values]."
-        "In random mode: range of the power-law slope of the intrinsic luminosity [low, high].",
+        "with number of values [low, high, n_values] for model lum_radio_edot."
+        "In random mode: range of the power-law slope of the intrinsic luminosity [low, high] for model "
+        "lum_radio_edot.",
     )
     args = args.parse_args()
 
