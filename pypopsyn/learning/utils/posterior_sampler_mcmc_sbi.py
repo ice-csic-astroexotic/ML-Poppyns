@@ -1,7 +1,9 @@
 """
     Posterior Sampling Script for SNLE-Trained SBI Models
 
-    This script samples from the posterior distribution of an SNLE-trained method and computes the log probability for each sample. Note that this is perform nchain times to create a chain of posterior samples and log probability to latter use them with the harmonic package to compute the model evidence at the observed data.
+    This script samples from the posterior distribution of an SNLE-trained method and computes the log probability for
+    each sample. Note that this is performed nchain times to create a chain of posterior samples and log probability
+    to latter use them with the harmonic package to compute the model evidence at the observed data.
 
     Display help message to run the code:
 
