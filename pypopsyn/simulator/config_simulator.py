@@ -331,7 +331,7 @@ cfg["ISM_abundances"]: List[float] = [
 
 # ===================== X-RAY DETECTION PARAMETERS ========================
 
-# Absorbed X-ray flux threshold for X-ray detection in [erg s^-1 cm^-2]
+# Absorbed X-ray flux threshold for X-ray detection in [erg s^-1 cm^-2].
 cfg["S_x_abs_threshold"]: float = 1.0e-15
 
 
