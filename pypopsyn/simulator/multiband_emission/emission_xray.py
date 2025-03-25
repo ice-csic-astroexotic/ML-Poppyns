@@ -303,7 +303,7 @@ def flux_xray_absorbed(
 
     # Define the energy range between 0.01 keV and 20 keV. Note that we require a larger energy range than
     # the one used to determine the absorption cross-section in order to properly approximate the RCS spectrum.
-    # Moreover, we choose a energy array with 200 elements for computational reasons. When computing the RCS spectrum,
+    # Moreover, we choose an energy array with 200 elements for computational reasons. When computing the RCS spectrum,
     # the relative error between using this energy grid and a finer one is less than 2 %.
     E = np.logspace(1.0, np.log10(20000), 200)
     # Convert the energy array from [eV] to [erg].
