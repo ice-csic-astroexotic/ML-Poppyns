@@ -223,7 +223,6 @@ def corner_plot(
         observed_samples (torch.tensor): Samples of the distribution to plot.
         dataset (DatasetMultichannelArray): Dataset where the statistics are saved.
         save_dir (str): Directory to save the corner plot.
-
     """
 
     # Save the statistics for the filtered labels.
@@ -385,7 +384,7 @@ def compute_rank_coverage(
     parameter_labels: List[str],
     logger: Logger,
     effective_round: int,
-):
+) -> None:
     """
     Compute and visualize ranks and coverage probability for a test dataset.
 

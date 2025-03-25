@@ -45,8 +45,8 @@ def load_inference(
     ensemble: bool = False,
 ) -> Union[List[Union[SNPE_C, SNLE_A]], SNPE_C, SNLE_A]:
     """
-    Load inference objects from pickle files. Note that this is used when resume mode is enabled or when doing inference
-    with snle.
+    Load inference objects from pickle files. Note that this is used when resume mode is enabled
+    or when doing inference with snle.
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
@@ -92,8 +92,9 @@ def compute_proposal_prior(
     device: torch.device,
 ) -> utils.RestrictedPrior:
     """
-    Compute the proposal prior by restricting the prior to the regions where the posterior of the observation has
-        non-negligible mass.
+    Compute the proposal prior by restricting the prior to the regions where the posterior of the
+    observation has non-negligible probability mass.
+
     Args:
         posterior_obs (DirectPosterior): Posterior distribution at the observation.
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
@@ -196,6 +197,7 @@ def build_network_snle(
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         device (torch.device): Device used to run the script.
         prior (utils.BoxUniform): Prior distribution.
+
     Returns:
         (SNLE_C): An instance of sbi's SNLE inference objects.
 
