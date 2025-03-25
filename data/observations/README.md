@@ -34,7 +34,7 @@ Since we model only the thermal emission in our code, for the rotation powered p
 from the black-body component, i.e., the non-thermal components of the pulsar wind nebulae have been removed as these 
 originate in the pulsar magnetosphere and are likely due to synchro-curvature emission mechanism. For the magnetars, 
 the reported fluxes include the non-thermal part as it is probably due to the resonant scattering in the magnetosphere 
-of thermal photons coming from the hot surface, therefore they have a thermal origin.
+of thermal photons coming from the hot surface. Therefore, those photons have a thermal origin.
 
 For the `assoc` column, we indicate if the neutron star is associated with a pulsar wind nebula (PWN), has a radio
 counterpart or if it belongs to the Large Magellanic Cloud (LMC) or the Small Magellanic Cloud (SMC).
