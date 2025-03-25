@@ -31,7 +31,6 @@ import orjson
 import pandas as pd
 from scipy.interpolate import RectBivariateSpline
 
-import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
