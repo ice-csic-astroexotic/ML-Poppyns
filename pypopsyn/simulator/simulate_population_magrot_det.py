@@ -647,7 +647,7 @@ def xray_detection(
     S_x_abs_threshold: float = 1.0e-15,
 ) -> dict:
     """
-    Detects neutron stars based on X-ray luminosity and updates their properties.
+    This function detects neutron stars based on their X-ray luminosity and updates their properties.
 
     Args:
         dict_final_pop (dict): Dictionary containing the properties of the evolved neutron star population.
