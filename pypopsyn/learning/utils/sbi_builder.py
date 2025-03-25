@@ -105,8 +105,8 @@ def compute_proposal_prior(
         (utils.RestrictedPrior): The restricted prior based on the posterior distribution of the observation.
     """
     # Computing the region of the posterior distribution used to constrain the prior. The quantile value is the default
-    # of SBI. We decided to sample 10,000 times since our posteriors are Gaussian-like, and reducing the number of
-    # samples make things faster.
+    # in sbi. Instead of using the default 100,000 for the sample number, we sample 10,000 times which is possible as
+    # our posteriors are Gaussian-like. This reduction also makes things faster.
     accept_reject_fn = utils.get_density_thresholder(
         posterior_obs,
         quantile=1e-4,
