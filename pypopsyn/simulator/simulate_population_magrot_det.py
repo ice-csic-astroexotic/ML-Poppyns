@@ -125,6 +125,7 @@ def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
 
     Returns:
         (Tuple[dict, RectBivariateSpline]):
+
             - A dictionary for storing detected neutron star data for the X-ray survey.
             - An interpolator function loaded from a pickled file to evaluate the X-ray luminosity.
     """

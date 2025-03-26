@@ -536,6 +536,7 @@ class SurveyRadio:
 
         Returns:
             (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of the following arrays:
+
                 - Boolean mask to select the pulsars detected by the survey.
                 - Effective pulse width in [s].
                 - Period-averaged fluxes at the central frequency of the survey in [Jy]
@@ -627,6 +628,7 @@ class SurveyRadio:
 
         Returns:
             (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of the following arrays:
+
                 - Boolean mask to select the pulsars detected by the survey.
                 - Observed period-averaged radio flux density in [Jy].
                 - Effective pulse width in [s].
