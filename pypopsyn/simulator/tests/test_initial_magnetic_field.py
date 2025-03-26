@@ -18,11 +18,11 @@ TOL = 1e-5
 cfg["B_initial_log10_mean"]: float = 13.04
 cfg["B_initial_log10_sigma"]: float = 0.53
 
-cfg["B_initial_log10_mean1"]: float = 13.02
-cfg["B_initial_log10_sigma1"]: float = 0.49
-cfg["B_initial_log10_mean2"]: float = 14.5
-cfg["B_initial_log10_sigma2"]: float = 0.5
-cfg["B_initial_weight"]: float = 0.8
+cfg["B_initial_log10_mean_comp1"]: float = 13.02
+cfg["B_initial_log10_sigma_comp1"]: float = 0.49
+cfg["B_initial_log10_mean_comp2"]: float = 14.5
+cfg["B_initial_log10_sigma_comp2"]: float = 0.5
+cfg["B_initial_log10_weight_comp1"]: float = 0.8
 
 cfg["B_initial_log10_rise_mean"]: float = 13.02
 cfg["B_initial_log10_rise_sigma"]: float = 0.49

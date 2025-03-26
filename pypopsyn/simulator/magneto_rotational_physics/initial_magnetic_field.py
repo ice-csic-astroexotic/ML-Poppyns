@@ -25,13 +25,13 @@ def pdf_log10_magnetic_field_2normal(log10B: np.ndarray) -> np.ndarray:
     """
 
     # Define the means and dispersions of the two Gaussian components.
-    mean_1 = cfg["B_initial_log10_mean1"]
-    mean_2 = cfg["B_initial_log10_mean2"]
-    sigma_1 = cfg["B_initial_log10_sigma1"]
-    sigma_2 = cfg["B_initial_log10_sigma2"]
+    mean_1 = cfg["B_initial_log10_mean_comp1"]
+    mean_2 = cfg["B_initial_log10_mean_comp2"]
+    sigma_1 = cfg["B_initial_log10_sigma_comp1"]
+    sigma_2 = cfg["B_initial_log10_sigma_comp2"]
 
     # Define the fractional contribution of the first Gaussian.
-    w = cfg["B_initial_weight"]
+    w = cfg["B_initial_log10_weight_comp1"]
     if (w < 0) or (w > 1):
         raise ValueError(
             "The relative weight parameter of the double_log-normal initial magnetic field model "

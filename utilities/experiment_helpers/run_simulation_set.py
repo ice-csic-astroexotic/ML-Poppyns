@@ -315,53 +315,53 @@ def main(args) -> None:
             - P_initial_mean (list[float]): Range and number of values for the mean initial spin period (if
                 spin_period_model = normal).
             - P_initial_sigma (list[float]): Range and number of values for the dispersion of the initial
-            spin period (if spin_period_model = normal).
+                spin period (if spin_period_model = normal).
             - P_initial_log10_mean (list[float]): Range and number of values for the log10 mean initial
-            spin period (if spin_period_model = log-normal).
+                spin period (if spin_period_model = log-normal).
             - P_initial_log10_sigma (list[float]): Range and number of values for the log10 dispersion
-            of the initial spin period (if spin_period_model = log-normal).
+                of the initial spin period (if spin_period_model = log-normal).
             - B_initial_log10_mean (list[float]): Range and number of values for the mean of the log10
-            initial magnetic field strength (if magnetic_field_model = log-normal).
+                initial magnetic field strength (if magnetic_field_model = log-normal).
             - B_initial_log10_sigma (list[float]): Range and number of values for the dispersion of the
-            log10 initial magnetic field strength (if magnetic_field_model = log-normal).
-            - B_initial_log10_mean1 (list[float]): Range and number of values for the mean of the log10
-            initial magnetic field strength of the first log-normal component (if
+                log10 initial magnetic field strength (if magnetic_field_model = log-normal).
+            - B_initial_log10_mean_comp1 (list[float]): Range and number of values for the mean of the log10
+                initial magnetic field strength of the first log-normal component (if
                 magnetic_field_model = double_log-normal).
-            - B_initial_log10_sigma1 (list[float]): Range and number of values for the dispersion of the
-            log10 initial magnetic field strength of the first log-normal component (if
+            - B_initial_log10_sigma_comp1 (list[float]): Range and number of values for the dispersion of the
+                log10 initial magnetic field strength of the first log-normal component (if
                 magnetic_field_model = double_log-normal).
-            - B_initial_log10_mean2 (list[float]): Range and number of values for the mean of the log10
-            initial magnetic field strength of the second log-normal component (if
+            - B_initial_log10_mean_comp2 (list[float]): Range and number of values for the mean of the log10
+                initial magnetic field strength of the second log-normal component (if
                 magnetic_field_model = double_log-normal).
-            - B_initial_log10_sigma2 (list[float]): Range and number of values for the dispersion of the
-            log10 initial magnetic field strength of the second log-normal component (if
+            - B_initial_log10_sigma_comp2 (list[float]): Range and number of values for the dispersion of the
+                log10 initial magnetic field strength of the second log-normal component (if
                 magnetic_field_model = double_log-normal).
-            - B_initial_weight (list[float]): Range and number of values for the relative weight of the first
-            log-normal component with respect to the full pdf (if magnetic_field_model = double_log-normal).
+            - B_initial_log10_weight_comp1 (list[float]): Range and number of values for the relative weight of the first
+                log-normal component with respect to the full pdf (if magnetic_field_model = double_log-normal).
             - B_initial_log10_rise_mean (list[float]): Range and number of values for the mean of the log10
-            initial magnetic field strength of the first log-normal component (if
+                initial magnetic field strength of the first log-normal component (if
                 magnetic_field_model = smooth_tophat).
             - B_initial_log10_rise_sigma (list[float]): Range and number of values for the dispersion of the
-            log10 initial magnetic field strength of the first log-normal component (if
+                log10 initial magnetic field strength of the first log-normal component (if
                 magnetic_field_model = smooth_tophat).
             - B_initial_log10_decay_mean (list[float]): Range and number of values for the mean of the log10
-            initial magnetic field strength of the second log-normal component (if
+                initial magnetic field strength of the second log-normal component (if
                 magnetic_field_model = smooth_tophat).
             - B_initial_log10_decay_sigma (list[float]): Range and number of values for the dispersion of the
-            log10 initial magnetic field strength of the second log-normal component (if
+                log10 initial magnetic field strength of the second log-normal component (if
                 magnetic_field_model = smooth_tophat).
             - B_initial_log10_slope (list[float]): Range and number of values for the slope connecting the first
-            log-normal component to the second one (if magnetic_field_model = smooth_tophat).
+                log-normal component to the second one (if magnetic_field_model = smooth_tophat).
             - a_late (list[float]): Range and number of values for the power-law slope of the late time
-            magnetic field evolution.
+                magnetic field evolution.
             - L_radio_ppdot_log10_mean (list[float]): Range and number of values for the mean of the log10
-            radio luminosity normalization (if radio_luminosity_model = lum_radio_ppdot).
+                radio luminosity normalization (if radio_luminosity_model = lum_radio_ppdot).
             - epsilon_L_ppdot (list[float]): Range and number of values for the power-law index of the log10
-            radio luminosity (if radio_luminosity_model = lum_radio_ppdot).
+                radio luminosity (if radio_luminosity_model = lum_radio_ppdot).
             - L_radio_edot_log10_mean (list[float]): Range and number of values for the mean of the log10
-            radio luminosity normalization (if radio_luminosity_model = lum_radio_edot).
+                radio luminosity normalization (if radio_luminosity_model = lum_radio_edot).
             - epsilon_L_edot (list[float]): Range and number of values for the power-law index of the log10
-            radio luminosity (if radio_luminosity_model = lum_radio_edot).
+                radio luminosity (if radio_luminosity_model = lum_radio_edot).
     """
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.

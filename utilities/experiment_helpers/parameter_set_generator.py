@@ -70,19 +70,18 @@ def check_parameter_compatibility(args_dict: dict) -> None:
         )
     ):
         raise ValueError(
-            "The provided spin-period distribution parameters are not compatible with the model {} in the configuration file.".format(
-                cfg["spin_period_model"]
-            )
+            "The provided spin-period distribution parameters are not compatible with the model {} "
+            "in the configuration file.".format(cfg["spin_period_model"])
         )
     elif (
         (
             (cfg["magnetic_field_model"] == "log-normal")
             and (
-                (args_dict["B_initial_log10_mean1"] is not None)
-                or (args_dict["B_initial_log10_sigma1"] is not None)
-                or (args_dict["B_initial_log10_mean2"] is not None)
-                or (args_dict["B_initial_log10_sigma2"] is not None)
-                or (args_dict["B_initial_weight"] is not None)
+                (args_dict["B_initial_log10_mean_comp1"] is not None)
+                or (args_dict["B_initial_log10_sigma_comp1"] is not None)
+                or (args_dict["B_initial_log10_mean_comp2"] is not None)
+                or (args_dict["B_initial_log10_sigma_comp2"] is not None)
+                or (args_dict["B_initial_log10_weight_comp1"] is not None)
                 or (args_dict["B_initial_log10_rise_mean"] is not None)
                 or (args_dict["B_initial_log10_rise_sigma"] is not None)
                 or (args_dict["B_initial_log10_decay_mean"] is not None)
@@ -107,18 +106,17 @@ def check_parameter_compatibility(args_dict: dict) -> None:
             and (
                 (args_dict["B_initial_log10_mean"] is not None)
                 or (args_dict["B_initial_log10_sigma"] is not None)
-                or (args_dict["B_initial_log10_mean1"] is not None)
-                or (args_dict["B_initial_log10_sigma1"] is not None)
-                or (args_dict["B_initial_log10_mean2"] is not None)
-                or (args_dict["B_initial_log10_sigma2"] is not None)
-                or (args_dict["B_initial_weight"] is not None)
+                or (args_dict["B_initial_log10_mean_comp1"] is not None)
+                or (args_dict["B_initial_log10_sigma_comp1"] is not None)
+                or (args_dict["B_initial_log10_mean_comp2"] is not None)
+                or (args_dict["B_initial_log10_sigma_comp2"] is not None)
+                or (args_dict["B_initial_log10_weight_comp1"] is not None)
             )
         )
     ):
         raise ValueError(
-            "The provided magnetic-field distribution parameters are not compatible with the model {} in the configuration file.".format(
-                cfg["magnetic_field_model"]
-            )
+            "The provided magnetic-field distribution parameters are not compatible with the model {} "
+            "in the configuration file.".format(cfg["magnetic_field_model"])
         )
     elif (
         (cfg["radio_luminosity_model"] == "lum_radio_edot")
@@ -134,9 +132,8 @@ def check_parameter_compatibility(args_dict: dict) -> None:
         )
     ):
         raise ValueError(
-            "The provided radio-luminosity distribution parameters are not compatible with the model {} in the configuration file.".format(
-                cfg["radio_luminosity_model"]
-            )
+            "The provided radio-luminosity distribution parameters are not compatible with the model {} "
+            "in the configuration file.".format(cfg["radio_luminosity_model"])
         )
     else:
         log.info(

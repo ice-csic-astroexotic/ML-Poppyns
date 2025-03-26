@@ -371,6 +371,7 @@ def calculate_radio_emission(
 
     # Determining the bolometric radio luminosity.
     # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
+    # See line 251 in the config_simulator.py file.
     radio_luminosity_model = cfg["radio_luminosity_model"]
 
     if radio_luminosity_model == "lum_radio_ppdot":
@@ -461,6 +462,7 @@ def calculate_radio_emission_full(
 
     # Determining the bolometric radio luminosity.
     # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
+    # See line 251 in the config_simulator.py file.
     radio_luminosity_model = cfg["radio_luminosity_model"]
 
     if radio_luminosity_model == "lum_radio_ppdot":

@@ -151,7 +151,7 @@ cfg["P_initial_log10_mean"]: float = -0.67
 cfg["P_initial_log10_sigma"]: float = 0.55
 
 # Model pdf for the initial magnetic field. Choose between "log-normal", "double_log-normal", "smooth_tophat".
-cfg["magnetic_field_model"]: str = "log-normal"
+cfg["magnetic_field_model"]: str = "double_log-normal"
 
 # Minimum and maximum initial magnetic field strength in [G] to simulate.
 cfg["B_initial_log10_min"]: float = 10.0
@@ -165,11 +165,11 @@ cfg["B_initial_log10_sigma"]: float = 0.5
 # Means and standard deviations and relative weight for the double log-normally distributed
 # initial magnetic fields in [G]. The weight denotes the importance of the first log-normal component
 # relative to whole pdf. Its value has to be in the range 0 and 1.
-cfg["B_initial_log10_mean1"]: float = 13.02
-cfg["B_initial_log10_sigma1"]: float = 0.49
-cfg["B_initial_log10_mean2"]: float = 14.5
-cfg["B_initial_log10_sigma2"]: float = 0.5
-cfg["B_initial_weight"]: float = 0.7
+cfg["B_initial_log10_mean_comp1"]: float = 13.02
+cfg["B_initial_log10_sigma_comp1"]: float = 0.49
+cfg["B_initial_log10_mean_comp2"]: float = 14.5
+cfg["B_initial_log10_sigma_comp2"]: float = 0.5
+cfg["B_initial_log10_weight_comp1"]: float = 0.7
 
 # Parameters for the smooth top-hat with Gaussian rise and decay for the initial magnetic fields in [G].
 cfg["B_initial_log10_rise_mean"]: float = 13.02
@@ -251,11 +251,13 @@ cfg["a_beam"] = -0.5  # Power-law exponent.
 cfg["radio_luminosity_model"]: str = "lum_radio_edot"
 
 # Parameters for the "lum_radio_ppdot" model (Graber et al. 2024).
+# These best parameters assume a mean_spectral_index = -1.6.
 cfg["L_radio_ppdot_log10_mean"]: float = 35.5  # [erg s^(3 * epsilon_L - 1) ]
 cfg["L_radio_ppdot_log10_sigma"]: float = 0.8
 cfg["epsilon_L_ppdot"]: float = 0.5
 
 # Parameters for the "lum_radio_edot" model (Pardo-Araujo et al. 2025).
+# These best parameters assume a mean_spectral_index = -1.8.
 cfg["L_radio_edot_log10_mean"]: float = 26.17  # [erg s^(- 1)]
 cfg["L_radio_edot_log10_sigma"]: float = 0.8
 cfg["epsilon_L_edot"]: float = 0.68
