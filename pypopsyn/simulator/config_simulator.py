@@ -291,7 +291,7 @@ cfg["surveys_radio"]: dict = {
     "HTRU_low_mid": {
         "path_low": "pypopsyn/simulator/multiband_surveys/htru_low_parameters.json",
         "path_mid": "pypopsyn/simulator/multiband_surveys/htru_mid_parameters.json",
-        "detected_real": 1037,
+        "detected_real": 1095,
     },
     "HTRU_high": {
         "path": "pypopsyn/simulator/multiband_surveys/htru_high_parameters.json",
