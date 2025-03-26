@@ -244,8 +244,9 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                             train_dataset_path, config, logger
                         )
 
-                    # Save the training and testing data for reuse in future rounds if the proposal distribution is
-                    # config["trainer"]["append_simulations"] is True; otherwise, use the simulations from the current round.
+                    # Save the training and testing data for reuse in future rounds if the proposal distribution
+                    # config["trainer"]["append_simulations"] is True.
+                    # Otherwise, use the simulations from the current round.
                     if not config["trainer"]["append_simulations"]:
                         parameter_train = []
                         matrix_train = []

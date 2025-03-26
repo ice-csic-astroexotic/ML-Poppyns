@@ -45,8 +45,8 @@ def load_inference(
     ensemble: bool = False,
 ) -> Union[List[SNPE], List[SNLE]]:
     """
-    Load inference objects from pickle files. Note that this is used when resume mode is enabled or when doing inference
-    with snle.
+    Load inference objects from pickle files. Note that this is used when resume mode is enabled
+    or when doing inference with snle.
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
@@ -92,8 +92,9 @@ def compute_proposal_prior(
     device: torch.device,
 ) -> utils.RestrictedPrior:
     """
-    Compute the proposal prior by restricting the prior to the regions where the posterior of the observation has
-        non-negligible mass.
+    Compute the proposal prior by restricting the prior to the regions where the posterior of the
+    observation has non-negligible probability mass.
+
     Args:
         posterior_obs (DirectPosterior): Posterior distribution at the observation.
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
@@ -104,8 +105,8 @@ def compute_proposal_prior(
         (utils.RestrictedPrior): The restricted prior based on the posterior distribution of the observation.
     """
     # Computing the region of the posterior distribution used to constrain the prior. The quantile value is the default
-    # of SBI. We decided to sample 10,000 times since our posteriors are Gaussian-like, and reducing the number of
-    # samples make things faster.
+    # in sbi. Instead of using the default 100,000 for the sample number, we sample 10,000 times which is possible as
+    # our posteriors are Gaussian-like. This reduction also makes things faster.
     accept_reject_fn = utils.get_density_thresholder(
         posterior_obs,
         quantile=1e-4,
@@ -196,6 +197,7 @@ def build_network_snle(
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         device (torch.device): Device used to run the script.
         prior (utils.BoxUniform): Prior distribution.
+
     Returns:
         (SNLE_C): An instance of sbi's SNLE inference objects.
 

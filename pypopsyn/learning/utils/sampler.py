@@ -22,7 +22,7 @@ from sbi.inference.posteriors.direct_posterior import DirectPosterior
 
 def handler(signum: int, frame: FrameType) -> None:
     """
-    Signal handler that raises a TimeoutError when a SIGALRM signal is received.  This function is needed in the
+    Signal handler that raises a TimeoutError when a SIGALRM signal is received. This function is needed in the
     sample_with_timeout function to raise an error if the sampling exceeds the maximum time.
 
     Args:
