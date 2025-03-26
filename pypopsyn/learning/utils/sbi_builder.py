@@ -43,7 +43,7 @@ def load_inference(
     round_number: int,
     save_dir: pathlib.Path,
     ensemble: bool = False,
-) -> Union[List[Union[SNPE_C, SNLE_A]], SNPE_C, SNLE_A]:
+) -> Union[List[SNPE], List[SNLE]]:
     """
     Load inference objects from pickle files. Note that this is used when resume mode is enabled or when doing inference
     with snle.
@@ -55,7 +55,7 @@ def load_inference(
         ensemble (bool): Flag indicating if ensemble mode is enabled. Defaults to False.
 
     Returns:
-        (Union[List[Union[SNPE_C, SNLE_A]], SNPE_C, SNLE_A]): A list of inference objects.
+        (Union[List[SNPE], List[SNLE]]):  A list of inference objects.
     """
     inference_list = []
 
@@ -285,7 +285,7 @@ def build_posterior(
         parameter_round (torch.Tensor): Tensor containing the parameters for the current round.
         matrix_round (torch.Tensor): Tensor containing the matrices for the current round.
         device (torch.device): Device used to run the script.
-        round_current (int): Current round number.
+        round_current (int): Current round number. This parameter starts at zero.
         prof_json_path (str): The profile.json path.
         prof_log_path (str): The profile.log path.
         retrain_from_scratch (bool): Whether to retrain the conditional density estimator for the posterior from
@@ -361,12 +361,13 @@ def build_posterior(
                     "retrain_from_scratch": retrain_from_scratch,
                 }
 
-                # Set force_first_round_loss = True if truncated prior is used, then not correctation for the loss fucntion will be made.
+                # When using SNPE with a truncated prior, set force_first_round_loss = True to disable loss-function
+                # correction. Otherwise, the loss will be corrected using the proposal prior during training. In that
+                # case, pass the proposal prior to the append_simulations function.
+
                 if config["trainer"]["truncated_prior"]:
                     train_args["force_first_round_loss"] = True
 
-                # If model_type is 'snpe' and the proposal is the approximated posterior, correct the approximated
-                # posterior for using a proposal prior distribution different from the prior.
                 kwargs = {}
                 if (
                     model_type == "snpe"
@@ -500,7 +501,7 @@ def load_posterior(
         logger (Logger): Logger object.
         inference_list (Union[SNPE_C, List[SNPE_C]]): sbi inference object or list of inference objects for ensemble.
         device (torch.device): Device used to run the script.
-        round_current (int): Current round number.
+        round_current (int): Current round number. This parameter starts at zero.
 
     Returns:
         (Union[DirectPosterior, NeuralPosteriorEnsemble]): Trained density estimator or ensemble of estimators.

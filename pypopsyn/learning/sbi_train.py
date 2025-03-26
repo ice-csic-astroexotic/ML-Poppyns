@@ -261,8 +261,9 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                         f"Training the density estimator with {parameter_round.shape[0]} samples in round {effective_round} ..."
                     )
 
-                    # If the trained model is SNPE with the proposal prior being the approximated posterior, we need to
-                    # correct the approximated posterior when training with the proposal prior.
+                    # If the trained model is SNPE with the proposal prior being the approximated posterior, correct
+                    # the loss function when training with this proposal prior.
+
                     if (
                         config["trainer"]["type"] == "snpe"
                         and not config["trainer"]["truncated_prior"]

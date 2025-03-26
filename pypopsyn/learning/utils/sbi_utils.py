@@ -497,7 +497,7 @@ def prepare_dataset_sbi(
             observed ATNF population. The default is False.
 
     Returns:
-        (tuple): A tuple containing the dataset containing the statistics, parameter tensor and input matrix tensor.
+        (dl.DatasetMultichannelArray, torch.tensor, torch.tensor): A tuple containing the dataset containing the statistics, parameter tensor and input matrix tensor.
     """
 
     # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
