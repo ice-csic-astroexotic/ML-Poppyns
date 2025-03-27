@@ -32,6 +32,7 @@
   "density_estimator": {
     "type": "mdn",
     "args": {
+      "hidden_features": 16,
       "num_components": 10
        }
   },

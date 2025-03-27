@@ -3,7 +3,7 @@
 
     Display help message to run the code:
 
-    python sampler.py --help
+    python posterior_sampler.py --help
 
     Displays all the relevant arguments that can be used.
 

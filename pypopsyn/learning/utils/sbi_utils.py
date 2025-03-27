@@ -36,7 +36,7 @@ from tqdm import tqdm
 
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.loaders.loader_multichannel_array as dl
-import pypopsyn.learning.utils.sampler as sampler
+import pypopsyn.learning.utils.posterior_sampler as sampler
 from pypopsyn.generator import generate_dataset_surveys
 from utilities.coverage_probability import coverage_prob
 from utilities.experiment_helpers.run_simulation_set_sbi import (

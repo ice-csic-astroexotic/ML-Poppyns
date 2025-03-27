@@ -165,12 +165,11 @@ def build_network_snpe(
     # Build density estimator.
     # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
     # The weights are initialized with the default initialization provided by pytorch.
-    hidden_features = config["arch"]["args"]["len_output_layer"]
 
     neural_posterior = utils.posterior_nn(
         model=config["density_estimator"]["type"],
         embedding_net=embedding_net,
-        hidden_features=hidden_features,
+        hidden_features=config["density_estimator"]["args"]["hidden_features"],
         num_components=config["density_estimator"]["args"]["num_components"],
         device=device,
     )
