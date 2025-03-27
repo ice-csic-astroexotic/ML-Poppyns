@@ -250,7 +250,7 @@ def initialize_inference(
     return inference_list
 
 
-def build_posterior(
+def train_posterior(
     config: configuration_parser.ConfigurationParser,
     save_dir_round: pathlib.Path,
     logger: Logger,

@@ -5,6 +5,7 @@
     each sample. Note that this is performed `nchain` times to create chains of posterior samples and log probability
     to latter use them with the harmonic package to compute the model evidence at the observed data.
 
+
     Display help message to run the code:
 
     python posterior_sampler_mcmc_sbi.py --help
@@ -61,7 +62,7 @@ def run_posterior_sampling(args: argparse.Namespace) -> None:
     """
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-    config_path = args.exp_path + "config_snle.json"
+    config_path = args.exp_path + "config_sbi.json"
 
     with open(config_path, "r") as file:
         config = json.load(file)

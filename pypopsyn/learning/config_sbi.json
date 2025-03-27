@@ -36,16 +36,17 @@
       "num_components": 10
        }
   },
-  
-  "prior_ranges": {
-      "labels": ["B_initial_log10_mean", "P_initial_log10_mean"],
-	  "low": [12,-1.5],
-	  "high": [14,-0.3]
-  },
-	
+
+ "prior_ranges": {
+	  "labels":["B_initial_log10_mean", "B_initial_log10_sigma","P_initial_log10_mean", "P_initial_log10_sigma","L_radio_log10_mean", "epsilon_L"],
+	  "low": [12,0.1,-1.5,0.1,24.6,0.1],
+	  "high":[14,1,-0.3,1,28.6,1]
+	  },
+
+
   "training_data_loader": {
     "dataset_path": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot",
-    "statistic_path": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot/statistics_train.json",
+    "statistic_path": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/data/paper_results/pardo_etal_2025/experiments/exp_5/statistics_train.json",
     "dataset_path_first_round": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot",
     "filter_inputs": [9, 10, 11, 12, 13, 14],
     "filter_labels": [15,16],
@@ -64,7 +65,7 @@
   "dyn_data_loader": {
       "dataset_path": "/home/celsa/Documents/data/sim_dyn_ns1e7_t1e8_maxwell_hc180"
   },
-      
+
   "observed_sample": {
       "dataset_path": "data/paper_results/pardo_etal_2025/observed_data_res32_updated_atnf",
       "filter_inputs": [9, 10, 11, 12, 13, 14],

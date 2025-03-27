@@ -273,7 +273,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                     else:
                         proposal_train = None
 
-                    posterior = sbi_builder.build_posterior(
+                    posterior = sbi_builder.train_posterior(
                         config=config,
                         save_dir_round=save_dir_round,
                         logger=logger,
