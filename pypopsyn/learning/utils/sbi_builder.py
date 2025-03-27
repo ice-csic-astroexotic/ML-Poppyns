@@ -46,7 +46,7 @@ def load_inference(
 ) -> Union[List[SNPE], List[SNLE]]:
     """
     Load inference objects from pickle files. Note that this is used when resume mode is enabled
-    or when doing inference with snle.
+    or when doing inference with SNLE.
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
@@ -74,7 +74,7 @@ def load_inference(
         if not os.path.exists(inference_path):
             raise FileNotFoundError(
                 f"The folder specified at {inference_path} in the config file does not contain a inference.pickle file.\n"
-                "To use the resume mode or inference with snle, you need to specify the correct path."
+                "To use the resume mode or inference with SNLE, you need to specify the correct path."
             )
 
         with open(inference_path, "rb") as inference_file:

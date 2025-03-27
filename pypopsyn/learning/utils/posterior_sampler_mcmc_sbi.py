@@ -3,7 +3,8 @@
 
     This script samples from the posterior distribution of an SNLE-trained method and computes the log probability for
     each sample. Note that this is performed `nchain` times to create chains of posterior samples and log probability
-    to latter use them with the harmonic package to compute the model evidence at the observed data.
+    to latter use them with the harmonic package (https://github.com/astro-informatics/harmonic) to compute the model
+    evidence at the observed data.
 
 
     Display help message to run the code:
@@ -41,7 +42,7 @@ def run_posterior_sampling(args: argparse.Namespace) -> None:
     """
     Samples from the posterior distribution of an SNLE-trained SBI model and computes the log-probability
     of each sample. The process is repeated across multiple MCMC chains to facilitate evidence estimation
-    using the harmonic package.
+    using the harmonic package (https://github.com/astro-informatics/harmonic).
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
