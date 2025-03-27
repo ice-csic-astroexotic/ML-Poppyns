@@ -67,7 +67,7 @@ def test_pdf_log10_magnetic_field_2normal(test_case_1):
     ).all()
 
     # Test if the error is properly raised when the weight is below 0.
-    cfg["B_initial_weight"] = -0.1
+    cfg["B_initial_log10_weight_comp1"] = -0.1
     with pytest.raises(
         ValueError,
         match="The relative weight parameter of the double_log-normal initial magnetic field model "
@@ -76,7 +76,7 @@ def test_pdf_log10_magnetic_field_2normal(test_case_1):
         imf.pdf_log10_magnetic_field_2normal(test_case_1["log10B"])
 
     # Test if the error is properly raised when the weight is above 1.
-    cfg["B_initial_weight"] = 1.1
+    cfg["B_initial_log10_weight_comp1"] = 1.1
     with pytest.raises(
         ValueError,
         match="The relative weight parameter of the double_log-normal initial magnetic field model "
@@ -85,7 +85,7 @@ def test_pdf_log10_magnetic_field_2normal(test_case_1):
         imf.pdf_log10_magnetic_field_2normal(test_case_1["log10B"])
 
     # Reset the weight to its original value in order for the other tests to work properly.
-    cfg["B_initial_weight"]: float = 0.8
+    cfg["B_initial_log10_weight_comp1"]: float = 0.8
 
 
 def test_pdf_gaussian_custom_norm(test_case_1):
