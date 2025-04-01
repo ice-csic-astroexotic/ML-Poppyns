@@ -92,7 +92,7 @@ def run_posterior_sampling(args: argparse.Namespace) -> None:
             else os.path.join(learning_path, "trained_model.pickle")
         )
 
-        inference = inference_list[index]  # if ensemble else 0]
+        inference = inference_list[index if ensemble else 0]
 
         with open(trained_model_path, "rb") as f:
             density_estimator = pickle.load(f)

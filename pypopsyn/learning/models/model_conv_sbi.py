@@ -1,7 +1,7 @@
 """
     Model for a convolutional neural network used as an embedding network in the sbi framework to compress the
-    input features into a latent vector. The neural network is composed of 2 convolutional layers after a max-pool
-    layer, followed by a fully connected layer that will serve as the latent vector.
+    input features into a latent vector. The neural network is composed of 2 sets of convolutional and max-pool layers,
+     followed by a fully connected layer that will serve as the latent vector.
 
     Authors:
 
