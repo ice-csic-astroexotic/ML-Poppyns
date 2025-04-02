@@ -1,7 +1,8 @@
 """
     Model for a deeper convolutional neural network used as an embedding network in the sbi framework to compress the
-    input features into a latent vector. The neural network is composed of 3 sets of convolutional layers after a
-    max-pool layer, followed by a fully connected layer that will serve as the latent vector.
+    input features into a latent vector. The architecture consists of three blocks of convolutional layers, each
+    followed by a max-pooling layer. The final output is flattened and passed through a fully connected layer to produce
+    the latent vector used for inference.
 
     Authors:
 
