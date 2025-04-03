@@ -145,7 +145,8 @@ def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
         "P": [],
         "P_dot": [],
         "L_x_therm": [],
-        "S_x_abs": [],
+        "S_x_rcs_abs": [],
+        "S_x_bb_abs": [],
         "idx": [],
     }
 
@@ -667,7 +668,13 @@ def xray_detection(
     }
 
     # Compute the properties of the X-ray bright neutron stars.
-    xray_bright_mask, L_x_therm, S_x_abs, N_H = ex.calculate_xray_emission(
+    (
+        xray_bright_mask,
+        L_x_therm,
+        S_x_bb_abs,
+        S_x_rcs_abs,
+        N_H,
+    ) = ex.calculate_xray_emission(
         dict_final_pop_filtered["B"],
         dict_final_pop_filtered["B_initial"],
         dict_final_pop_filtered["age"],
@@ -684,12 +691,13 @@ def xray_detection(
         for key, value in dict_final_pop_filtered.items()
     }
     dict_xray_bright["L_x_therm"] = L_x_therm
-    dict_xray_bright["S_x_abs"] = S_x_abs
+    dict_xray_bright["S_x_rcs_abs"] = S_x_rcs_abs
+    dict_xray_bright["S_x_bb_abs"] = S_x_bb_abs
     dict_xray_bright["N_H"] = N_H
 
     # Apply a flux threshold to mimic detection biases.
     detected_mask = sx.detected_x_population_flux_threshold(
-        dict_xray_bright["S_x_abs"],
+        dict_xray_bright["S_x_rcs_abs"],
         S_x_abs_threshold,
     )
 
@@ -825,7 +833,8 @@ def create_output_dataframe(
             "P",
             "P_dot",
             "L_x_therm",
-            "S_x_abs",
+            "S_x_rcs_abs",
+            "S_x_bb_abs",
         ]
         units_x = [
             "[yr]",
@@ -843,6 +852,7 @@ def create_output_dataframe(
             "[s]",
             "[s s^-1]",
             "[erg s^-1]",
+            "[erg s^-1 cm^-2]",
             "[erg s^-1 cm^-2]",
         ]
 

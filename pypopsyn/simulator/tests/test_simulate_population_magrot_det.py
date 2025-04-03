@@ -601,7 +601,8 @@ def test_case_10():
             "P": np.array([0.01]),
             "P_dot": np.array([1.0e-11]),
             "L_x_therm": np.array([1.0e34]),
-            "S_x_abs": np.array([3.0e-12]),
+            "S_x_rcs_abs": np.array([3.0e-12]),
+            "S_x_bb_abs": np.array([2.0e-12]),
             "idx": np.array([0]),
         },
         "expected_dfs_with_xrays": {
@@ -672,7 +673,8 @@ def test_case_10():
                     ("P", "[s]"): np.array([0.01]),
                     ("P_dot", "[s s^-1]"): np.array([1.0e-11]),
                     ("L_x_therm", "[erg s^-1]"): np.array([1.0e34]),
-                    ("S_x_abs", "[erg s^-1 cm^-2]"): np.array([3.0e-12]),
+                    ("S_x_rcs_abs", "[erg s^-1 cm^-2]"): np.array([3.0e-12]),
+                    ("S_x_bb_abs", "[erg s^-1 cm^-2]"): np.array([2.0e-12]),
                 }
             ),
         },
@@ -757,7 +759,8 @@ def test_case_11():
             "P": [],
             "P_dot": [],
             "L_x_therm": [],
-            "S_x_abs": [],
+            "S_x_rcs_abs": [],
+            "S_x_bb_abs": [],
             "idx": [],
         },
     }
@@ -800,7 +803,8 @@ def test_case_12():
         "age_cutoff": 1.0e6,
         "mock_xray_bright_mask": np.array([True, True]),
         "mock_L_x_therm": np.array([1e33, 1e34]),
-        "mock_S_x_abs": np.array([3.0e-12, 4.0e-16]),
+        "mock_S_x_rcs_abs": np.array([3.0e-12, 4.0e-16]),
+        "mock_S_x_bb_abs": np.array([2.0e-12, 3.0e-16]),
         "mock_N_H": np.array([2.0e-21, 3.0e-21]),
         "detected_x_expected": np.array([True, False]),
         "update_dictionary_detected_x_expected": {
@@ -820,7 +824,8 @@ def test_case_12():
             "P": np.array([0.01]),
             "P_dot": np.array([1.0e-11]),
             "L_x_therm": np.array([1.0e34]),
-            "S_x_abs": np.array([3.0e-12]),
+            "S_x_rcs_abs": np.array([3.0e-12]),
+            "S_x_bb_abs": np.array([2.0e-12]),
             "idx": np.array([0]),
             "coverage_radio": np.array([False]),
             "coverage_radio_HTRU_low": np.array([False]),
@@ -1209,7 +1214,8 @@ def test_xray_detection(test_case_12, monkeypatch):
         return (
             test_case_12["mock_xray_bright_mask"],
             test_case_12["mock_L_x_therm"],
-            test_case_12["mock_S_x_abs"],
+            test_case_12["mock_S_x_bb_abs"],
+            test_case_12["mock_S_x_rcs_abs"],
             test_case_12["mock_N_H"],
         )
 

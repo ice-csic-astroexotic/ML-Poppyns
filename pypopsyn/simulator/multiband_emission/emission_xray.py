@@ -279,7 +279,7 @@ def flux_xray_absorbed(
     RA: np.ndarray,
     DEC: np.ndarray,
     d: np.ndarray,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the X-ray observed absorbed flux assuming a black-body spectral shape for the thermal X-ray emission.
 
@@ -292,7 +292,8 @@ def flux_xray_absorbed(
 
     Returns:
         (np.ndarray, np.ndarray): A tuple containing the following arrays:
-            - absorbed x-ray fluxes in [erg s^-1 cm^-2].
+            - X-ray absorbed fluxes considering only black-body emission in [erg s^-1 cm^-2].
+            - X-ray absorbed fluxes considering black-body emission modified by the RCS process in [erg s^-1 cm^-2].
             - value of the hydrogen column density in [cm^-2].
     """
     T_obs = T_from_Lx(Lx)
@@ -327,7 +328,8 @@ def flux_xray_absorbed(
     # Convert the intensity from [photon count cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 erg^-1 sterad^-1] in order
     # to obtain the spectrum in terms of energy.
     I_rcs = I_ph_rcs * E_erg
-    # Convert the intensity from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 eV^-1 sterad^-1].
+    # Convert the intensities from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 eV^-1 sterad^-1].
+    I_bb = I_bb * const.EV_TO_ERG
     I_rcs = I_rcs * const.EV_TO_ERG
 
     # Estimate the N_H column density.
@@ -338,18 +340,22 @@ def flux_xray_absorbed(
     # Estimate the X-ray absorption cross section.
     sigma_ISM = xabs.absorption_cross_section_tot(E, cfg["ISM_abundances"])
 
-    # Compute the absorbed intensity (see eq. (2) in Wilms et al. 2000).
+    # Compute the absorbed intensities (see eq. (2) in Wilms et al. 2000).
     absorb_factor = np.exp(-sigma_ISM * N_H)
-    I_absorbed = absorb_factor * I_rcs
+    I_bb_absorbed = absorb_factor * I_bb
+    I_rcs_absorbed = absorb_factor * I_rcs
 
-    # Compute the total observed flux in the energy range [0.01, 10] keV (see eq. (17) in overleaf).
+    # Compute the total observed fluxes in the energy range [0.01, 10] keV (see eq. (17) in overleaf).
     E_mask = E <= 10000
-    I_absorbed_bolom = trapz(I_absorbed[:, E_mask], E[E_mask], axis=1)
-    flux = (R_obs / d) ** 2 * np.pi * I_absorbed_bolom
+    I_bb_absorbed_bolom = trapz(I_bb_absorbed[:, E_mask], E[E_mask], axis=1)
+    I_rcs_absorbed_bolom = trapz(I_rcs_absorbed[:, E_mask], E[E_mask], axis=1)
+
+    flux_bb_absorbed = (R_obs / d) ** 2 * np.pi * I_bb_absorbed_bolom
+    flux_rcs_absorbed = (R_obs / d) ** 2 * np.pi * I_rcs_absorbed_bolom
 
     N_H = N_H.squeeze()
 
-    return flux, N_H
+    return flux_bb_absorbed, flux_rcs_absorbed, N_H
 
 
 def calculate_xray_emission(
@@ -362,7 +368,7 @@ def calculate_xray_emission(
     L_x_interpolator: RectBivariateSpline,
     L_x_threshold: float = 1.0e30,
     age_cutoff: float = 1.0e6,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the X-ray thermal luminosity, the absorbed X-ray flux and the N_H value for the pulsars that are X-ray
     bright. Note that the interpolation of the luminosity is valid only up to 10^6 yrs as the magneto-thermal
@@ -386,7 +392,8 @@ def calculate_xray_emission(
 
             - Boolean mask to select the neutron stars that can be detected in X-rays.
             - X-ray thermal luminosities in [erg/s].
-            - X-ray absorbed fluxes in [erg s^-1 cm^-2].
+            - X-ray absorbed fluxes considering only black-body emission in [erg s^-1 cm^-2].
+            - X-ray absorbed fluxes considering black-body emission modified by the RCS process in [erg s^-1 cm^-2].
             - N_H column density in [cm^-2].
     """
 
@@ -411,7 +418,7 @@ def calculate_xray_emission(
     xray_bright_mask = L_x_mask
 
     # Compute the absorbed fluxes computing the RCS spectra and the N_H column density.
-    S_x_abs, N_H = flux_xray_absorbed(
+    S_x_bb_abs, S_x_rcs_abs, N_H = flux_xray_absorbed(
         L_x_therm,
         B[xray_bright_mask],
         ra[xray_bright_mask],
@@ -419,4 +426,4 @@ def calculate_xray_emission(
         dist[xray_bright_mask],
     )
 
-    return xray_bright_mask, L_x_therm, S_x_abs, N_H
+    return xray_bright_mask, L_x_therm, S_x_bb_abs, S_x_rcs_abs, N_H

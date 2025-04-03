@@ -105,7 +105,10 @@ def test_case_1():
         ),
         "beta_T_expected": np.array([0.001, 0.3, 0.3]),
         "tau_res_expected": np.array([0.001, 1.0, 10.0]),
-        "flux_expected": np.array(
+        "flux_bb_expected": np.array(
+            [[6.35986131e-11, 1.05078767e-12, 3.53004896e-14]]
+        ),
+        "flux_rcs_expected": np.array(
             [6.37348633e-11, 1.07255307e-12, 5.85475838e-14]
         ),
         "N_H_expected": np.array(
@@ -135,7 +138,8 @@ def test_case_2():
         "xray_bright_mask_expected": np.array([False, True, False]),
         "L_x_therm_expected": np.array([1e33]),
         "mock_L_x_therm": np.array([1e28, 1e33]),
-        "mock_S_x_abs": np.array([3.0e-12]),
+        "mock_S_x_rcs_abs": np.array([3.0e-12]),
+        "mock_S_x_bb_abs": np.array([2.0e-12]),
         "mock_N_H": np.array([2.0e-21]),
     }
 
@@ -277,7 +281,7 @@ def test_flux_xray_absorbed(test_case_1):
     Verifying that absorbed X-ray flux is correctly estimated.
     """
 
-    flux_out, N_H_out = xem.flux_xray_absorbed(
+    flux_bb_out, flux_rcs_out, N_H_out = xem.flux_xray_absorbed(
         test_case_1["Lx"],
         test_case_1["B"],
         test_case_1["RA"],
@@ -286,8 +290,15 @@ def test_flux_xray_absorbed(test_case_1):
     )
 
     assert np.isclose(
-        test_case_1["flux_expected"],
-        flux_out,
+        test_case_1["flux_bb_expected"],
+        flux_bb_out,
+        rtol=TOL,
+        atol=1.0e-14,
+    ).all()
+
+    assert np.isclose(
+        test_case_1["flux_rcs_expected"],
+        flux_rcs_out,
         rtol=TOL,
         atol=1.0e-14,
     ).all()
@@ -311,14 +322,19 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
     monkeypatch.setattr(RectBivariateSpline, "ev", mock_interpolator)
 
     def mock_flux_xray_absorbed(*args, **kwargs):
-        return test_case_2["mock_S_x_abs"], test_case_2["mock_N_H"]
+        return (
+            test_case_2["mock_S_x_bb_abs"],
+            test_case_2["mock_S_x_rcs_abs"],
+            test_case_2["mock_N_H"],
+        )
 
     monkeypatch.setattr(xem, "flux_xray_absorbed", mock_flux_xray_absorbed)
 
     (
         xray_bright_mask_out,
         L_x_therm_out,
-        S_x_abs_out,
+        S_x_bb_abs_out,
+        S_x_rcs_abs_out,
         N_H_out,
     ) = xem.calculate_xray_emission(
         test_case_2["B"],
@@ -344,8 +360,15 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
     ).all()
 
     assert np.isclose(
-        test_case_2["mock_S_x_abs"],
-        S_x_abs_out,
+        test_case_2["mock_S_x_bb_abs"],
+        S_x_bb_abs_out,
+        rtol=TOL,
+        atol=1.0e-14,
+    ).all()
+
+    assert np.isclose(
+        test_case_2["mock_S_x_rcs_abs"],
+        S_x_rcs_abs_out,
         rtol=TOL,
         atol=1.0e-14,
     ).all()
