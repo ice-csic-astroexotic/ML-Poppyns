@@ -99,17 +99,19 @@ def fake_sampler(monkeypatch):
 
 
 @pytest.fixture
-def dummy_logger():
-    mock = MagicMock()
-    mock.info = MagicMock()
-    return mock
-
-
-@pytest.fixture
 def make_config(tmp_path):
     config = MagicMock()
     config.log_dir = str(tmp_path)
     return config
+
+
+@pytest.fixture
+def dummy_logger():
+    logger = MagicMock()
+    logger.exception = MagicMock()
+    logger.error = MagicMock()
+    logger.info = MagicMock()
+    return logger
 
 
 def test_calculate_smallest_hdr(fake_posterior, fake_sampler, dummy_logger):
@@ -150,7 +152,6 @@ def test_corner_plot(tmp_path, fake_dataset):
     Args:
         tmp_path (Path): Temporary directory where the plot will be saved.
         fake_dataset (MagicMock): Mocked dataset containing parameter stats and metadata.
-
     """
     # Generate fake posterior samples.
     n_samples = 100
@@ -173,7 +174,6 @@ def test_merge_all_rounds_dataset(fake_round_datasets):
 
     Args:
         fake_round_datasets (tuple): Function that create the subfolders structure and the dummy datasets.
-
     """
     base_path, last_completed_round = fake_round_datasets
     output_path = sbi_utils.merge_all_rounds_dataset(
@@ -239,3 +239,30 @@ def test_save_training_statistics(
     assert "validation_log_probs" in data
 
     plt.close("all")
+
+
+@patch("pypopsyn.learning.utils.sbi_utils.dl.DatasetMultichannelArray")
+def test_prepare_dataset_sbi(dummy_logger):
+    """
+    Integration test for prepare_dataset_sbi using a real dataset and config file.
+
+    Asserts:
+        dummy_logger (MagicMock): Logger object that records info messages.
+    """
+    dataset_folder = "data/example_generator_magrot"
+    config_path = Path("pypopsyn/learning/config_npe.json")
+
+    with open(config_path, "r") as f:
+        config = json.load(f)
+
+    config["trainer"]["embedding"] = False
+
+    dataset, parameter, matrix = sbi_utils.prepare_dataset_sbi(
+        dataset_folder=dataset_folder,
+        config=config,
+        logger=dummy_logger,
+        atnf=False,
+    )
+
+    assert parameter.shape[0] == matrix.shape[0] == len(dataset)
+    assert matrix.shape[2] == config["arch"]["args"]["input_shape"][1]
