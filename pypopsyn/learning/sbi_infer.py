@@ -173,7 +173,7 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                     config["show_profiling"],
                 ):
                     if config["infer"]["compute_coverage"]:
-                        if config["infer"]["sim_dataset"]:
+                        if config["infer"]["sim_dataset"] and i > 0:
                             num_sim_test = config["test_data_loader"][
                                 "num_sim"
                             ]
