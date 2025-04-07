@@ -251,13 +251,13 @@ cfg["a_beam"] = -0.5  # Power-law exponent.
 cfg["radio_luminosity_model"]: str = "lum_radio_edot"
 
 # Parameters for the "lum_radio_ppdot" model (Graber et al. 2024).
-# These best parameters assume a mean_spectral_index = -1.6.
+# These best parameters assume a mean_spectral_index = -1.6 (see Jankowski et al. 2018).
 cfg["L_radio_ppdot_log10_mean"]: float = 35.5  # [erg s^(3 * epsilon_L - 1) ]
 cfg["L_radio_ppdot_log10_sigma"]: float = 0.8
 cfg["epsilon_L_ppdot"]: float = 0.5
 
 # Parameters for the "lum_radio_edot" model (Pardo-Araujo et al. 2025).
-# These best parameters assume a mean_spectral_index = -1.8.
+# These best parameters assume a mean_spectral_index = -1.8 (see Posselt et al. 2023).
 cfg["L_radio_edot_log10_mean"]: float = 26.17  # [erg s^(- 1)]
 cfg["L_radio_edot_log10_sigma"]: float = 0.8
 cfg["epsilon_L_edot"]: float = 0.68
