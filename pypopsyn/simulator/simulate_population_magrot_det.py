@@ -278,7 +278,7 @@ def apply_surveys_coverage(
 
     Args:
         surveys_radio (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
-        survey_xray (bool): A boolean flag to include an all sky coverage for an X-ray survey if set to True.
+        survey_xray (bool): A boolean flag to include an all sky coverage for an X-ray survey if this is used.
         dyn_database_dict (dict): A dictionary containing the data of a dynamical population.
         idx_remove (list): A list of indices of entries to be removed based on the filtering criteria.
         dist_cutoff (float): The maximum heliocentric distance to include in the survey coverage.
