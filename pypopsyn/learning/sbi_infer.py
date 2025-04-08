@@ -30,6 +30,10 @@ import pypopsyn.learning.utils.sbi_builder as sbi_builder
 import pypopsyn.learning.utils.sbi_utils as ut
 import utilities.benchmark.timewith as timewith
 from pypopsyn.learning.utils.request_device import request_device
+from utilities.experiment_helpers.run_simulation_set_sbi import (
+    initialize_dask_cluster,
+    sample_without_nan,
+)
 
 
 def infer(config: configuration_parser.ConfigurationParser) -> None:
@@ -58,10 +62,20 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
     logger.info("Devices obtained: {}".format(device_ids))
     ensemble = config["trainer"]["ensemble"]
 
+    if config["enable_dask"]:
+        with timewith.TimeWith(
+            "[InitializingDask]",
+            prof_log_path,
+            prof_json_path,
+            config["show_profiling"],
+        ):
+            logger.info("Initializing dask cluster...")
+            cluster = initialize_dask_cluster(logger, config)
+
     # Show experiment information ------------------------------------------
     logger.info("=========================================================")
     with timewith.TimeWith(
-        "[TotalTraining]",
+        "[TotalInference]",
         prof_log_path,
         prof_json_path,
         config["show_profiling"],
@@ -154,9 +168,12 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                 logger.info(
                     f"Sampling from the posterior for round {i + 1}..."
                 )
-                observed_samples_posterior = posterior_obs.sample(
-                    (50000,), show_progress_bars=True
+                observed_samples_posterior = sample_without_nan(
+                    posterior_obs,
+                    sampling_size=5000,
+                    device=device,
                 ).cpu()
+
                 # Setting the proposal prior to the truncated prior or to the previous approximated posterior distribution at the observed data.
                 if config["trainer"]["truncated_prior"]:
                     proposal = sbi_builder.compute_proposal_prior(
@@ -240,6 +257,10 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                     observed_samples_posterior,
                     f"{save_dir_round}/samples_posterior_{i}.pt",
                 )
+
+        if config["enable_dask"]:
+            # Closing the cluster once the training has finished.
+            cluster.close()
 
 
 if __name__ == "__main__":
