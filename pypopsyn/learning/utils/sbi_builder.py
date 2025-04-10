@@ -361,10 +361,10 @@ def train_posterior(
                     "retrain_from_scratch": retrain_from_scratch,
                 }
 
-                # When using SNPE with a truncated prior, we set force_first_round_loss = True in the following to disable the
-                # loss-function correction. Otherwise, the loss would be corrected using the proposal prior during training.
-                # In the case where we do not truncate the prior and account for the correction, we then pass the proposal
-                # prior to the append_simulations function.
+                # When using SNPE with a truncated prior, we set force_first_round_loss = True in the following to
+                # disable the loss-function correction. Otherwise, the loss would be corrected using the proposal prior
+                # during training. In the case where we do not truncate the prior and account for the correction, we
+                # then pass the proposal prior to the append_simulations function.
 
                 if config["trainer"]["truncated_prior"]:
                     train_args["force_first_round_loss"] = True
