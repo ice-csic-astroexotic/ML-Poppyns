@@ -123,7 +123,7 @@ def initialize_dask_cluster(
     """
 
     # Creating a folder to save the stdout and stderr of the terminal for each worker.
-    htcondor_output_folder = f"{config.save_dir}/htcondor_output"
+    htcondor_output_folder = f"{config.log_dir}/htcondor_output"
     pathlib.Path(htcondor_output_folder).mkdir(parents=True, exist_ok=True)
     logger.info(
         f"Saving the stdout and stderr of the terminal for each worker in {htcondor_output_folder}."
