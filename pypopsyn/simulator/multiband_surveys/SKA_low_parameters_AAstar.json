@@ -1,7 +1,7 @@
 { "name" : "SKA low",
   "ref": "L Levin",
   "deg_factor": 1.0,
-  "G0": 8.06,
+  "G0": 16.11,
   "t_obs": 600.0,
   "t_samp": 100e-6,
   "T_sys": 56.0,

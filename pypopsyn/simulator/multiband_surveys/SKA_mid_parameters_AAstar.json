@@ -1,7 +1,7 @@
 { "name" : "SKA mid",
   "ref": "L Levin",
   "deg_factor": 1.0,
-  "G0": 1.72,
+  "G0": 2.464,
   "t_obs": 600.0,
   "t_samp": 0.1e-3,
   "T_sys": 20.0,
