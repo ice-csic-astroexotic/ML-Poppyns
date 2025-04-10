@@ -251,7 +251,7 @@ def sky_temperature_H81refined(
     # Convert sky coordinates into pixel coordinates and extract the temperatures.
     l_g = coord.l.degree
     b_g = coord.b.degree
-    vec = hp.rotator.dir2vec(l_g, b_g, lonlat=True)
+    vec = np.array(hp.rotator.dir2vec(l_g, b_g, lonlat=True))
     n_side = 512
     pix = hp.pixelfunc.vec2pix(n_side, vec[0], vec[1], vec[2], nest=False)
 
@@ -348,7 +348,7 @@ class SurveyRadio:
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
 
         Returns:
-            (np.ndarray): Array of boolean variables: true if the pulsar is in the covered sky region, false if not.
+            (np.ndarray): Array of boolean variables: True if the pulsar is in the covered sky region, False if not.
         """
         if self.name == "HTRU high":
 
@@ -482,8 +482,7 @@ class SurveyRadio:
             P (np.ndarray): Spin period in [s].
 
         Returns:
-            (np.ndarray): Array of boolean variables: true if the pulsar is detected,
-                false if not.
+            (np.ndarray): Array of boolean variables: True if the pulsar is detected, False if not.
         """
 
         # Store the total number of sources.
@@ -528,7 +527,7 @@ class SurveyRadio:
             DM (np.ndarray): Dispersion measure in [pc cm^-3].
             P (np.ndarray): Array of spin periods of the pulsars in [s].
             age (np.ndarray): Array of neutron star ages [yrs].
-            coverage (np.ndarray): Array of indexes of the pulsar within the sky coverage.
+            coverage (np.ndarray): Array of boolean variables indicating the pulsars within the sky coverage.
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
             S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
@@ -536,9 +535,12 @@ class SurveyRadio:
             tau_sc (np.ndarray): Scattering timescale in [s].
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of four arrays defining the
-                indexes of the pulsars detected by the survey, the effective pulse width and period-averaged fluxes at
-                the central frequency of the survey and at 1.429 GHz.
+            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of the following arrays:
+
+                - Boolean mask to select the pulsars detected by the survey.
+                - Effective pulse width in [s].
+                - Period-averaged fluxes at the central frequency of the survey in [Jy]
+                - Period-averaged fluxes at the central frequency of 1.429 GHz in [Jy].
         """
 
         # Computing the intrinsic radio flux density in [Jy].
@@ -616,18 +618,21 @@ class SurveyRadio:
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
             S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
-            intercepted_radio: (np.ndarray) Array of boolean variables where true values represent stars that its
+            intercepted_radio: (np.ndarray) Array of boolean variables where True values represent stars whose
                 beam crosses our line of sight.
-            coverage_survey: (np.ndarray) Array of boolean variables where true values represent stars within the
+            coverage_survey: (np.ndarray) Array of boolean variables where True values represent stars within the
                 sky coverage of each survey.
-            dist_cutoff: (np.ndarray) Array of boolean variables where true values represent stars within 35 kpc.
+            dist_cutoff: (np.ndarray) Array of boolean variables where True values represent stars within 35 kpc.
             spectral_index (np.ndarray): Spectral indexes.
             tau_sc (np.ndarray): Scattering timescale in [s].
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of four arrays defining
-                the indexes of the pulsars detected by the survey, the observed period-averaged radio flux density,the
-                effective pulse width and the observed radio flux density.
+            (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of the following arrays:
+
+                - Boolean mask to select the pulsars detected by the survey.
+                - Observed period-averaged radio flux density in [Jy].
+                - Effective pulse width in [s].
+                - Observed radio flux density in [Jy].
         """
 
         detectable_radio_survey = (

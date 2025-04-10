@@ -120,11 +120,12 @@ class TrainerBasic(BaseTrainer):
 
         Returns:
             (Tuple[dict, dict, dict]): A Tuple containing the following dictionaries:
-                dictionary with the results for the epoch, i.e., the
+
+                - A dictionary with the results for the epoch, i.e., the
                 average for the losses and for the tracked metric for the training set.
-                A dictionary with the same info but for the validation set (if available, None is
+                - A dictionary with the same info but for the validation set (if available, None is
                 returned otherwise).
-                A dictionary with the values for each individual loss for
+                - A dictionary with the values for each individual loss for
                 each one of the targets. If validation is performed, such losses
                 correspond to validation losses, otherwise they are the training
                 set losses.
