@@ -419,8 +419,8 @@ def calculate_radio_emission_full(
     # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
     # NOTE: If the luminosity law is changed, the normalisation constant (L_radio_log10_sigma) has to be adjusted in
     # the simulator configuration file pypopsyn/simulator/config_simulator.
-    L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
-    # L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
+    # L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
+    L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
 
     # Determining the radio beam angular aperture.
     rho_beam = beam_aperture(P)
