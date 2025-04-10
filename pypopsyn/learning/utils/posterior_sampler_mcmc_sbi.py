@@ -74,7 +74,7 @@ def run_posterior_sampling(args: argparse.Namespace) -> None:
     )
     ensemble = config["trainer"]["ensemble"]
     ensemble_size = config["trainer"]["size_ensemble"] if ensemble else 1
-    learning_path = os.path.join(args.learning_path, f"/round_{args.round}")
+    learning_path = os.path.join(args.learning_path, f"round_{args.round}")
 
     # Load inference and initialize the prior. To extend the prior, modify prior_ranges in the configuration file.
     inference_list = sbi_builder.load_inference(
@@ -86,10 +86,10 @@ def run_posterior_sampling(args: argparse.Namespace) -> None:
     for index in range(ensemble_size):
         trained_model_path = (
             os.path.join(
-                learning_path, f"/trained_model_ensemble_{index}.pickle"
+                learning_path, f"trained_model_ensemble_{index}.pickle"
             )
             if ensemble
-            else os.path.join(learning_path, "/trained_model.pickle")
+            else os.path.join(learning_path, "trained_model.pickle")
         )
 
         inference = inference_list[index if ensemble else 0]
