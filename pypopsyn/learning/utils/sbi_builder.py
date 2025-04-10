@@ -254,7 +254,7 @@ def train_posterior(
     config: configuration_parser.ConfigurationParser,
     save_dir_round: pathlib.Path,
     logger: Logger,
-    inference_list: Union[List[Union[SNPE_C, SNLE_A]], SNPE_C, SNLE_A],
+    inference_list: Union[List[SNPE], List[SNLE]],
     parameter_round: torch.Tensor,
     matrix_round: torch.Tensor,
     device: torch.device,
@@ -281,8 +281,7 @@ def train_posterior(
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         save_dir_round (pathlib.Path): Directory where the trained model will be saved or is saved already.
         logger (Logger): Logger object.
-        inference_list (Union[List[Union[SNPE_C, SNLE_A]], SNPE_C, SNLE_A]): sbi inference object or list of inference
-            objects for ensemble.
+        inference_list (Union[List[SNPE], List[SNLE]]): List of inference sbi objects.
         parameter_round (torch.Tensor): Tensor containing the parameters for the current round.
         matrix_round (torch.Tensor): Tensor containing the matrices for the current round.
         device (torch.device): Device used to run the script.
@@ -362,9 +361,10 @@ def train_posterior(
                     "retrain_from_scratch": retrain_from_scratch,
                 }
 
-                # When using SNPE with a truncated prior, set force_first_round_loss = True to disable loss-function
-                # correction. Otherwise, the loss will be corrected using the proposal prior during training. In that
-                # case, pass the proposal prior to the append_simulations function.
+                # When using SNPE with a truncated prior, we set force_first_round_loss = True in the following to disable the
+                # loss-function correction. Otherwise, the loss would be corrected using the proposal prior during training.
+                # In the case where we do not truncate the prior and account for the correction, we then pass the proposal
+                # prior to the append_simulations function.
 
                 if config["trainer"]["truncated_prior"]:
                     train_args["force_first_round_loss"] = True
@@ -490,7 +490,7 @@ def initialize_prior(
 def load_posterior(
     config: configuration_parser.ConfigurationParser,
     logger: Logger,
-    inference_list: Union[SNPE_C, List[SNPE_C]],
+    inference_list: Union[List[SNPE], List[SNLE]],
     device: torch.device,
     round_current: int,
 ) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
@@ -500,7 +500,7 @@ def load_posterior(
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         logger (Logger): Logger object.
-        inference_list (Union[SNPE_C, List[SNPE_C]]): sbi inference object or list of inference objects for ensemble.
+        inference_list (Union[List[SNPE], List[SNLE]]): List of sbi inference object.
         device (torch.device): Device used to run the script.
         round_current (int): Current round number. This parameter starts at zero.
 
