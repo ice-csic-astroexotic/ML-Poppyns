@@ -73,6 +73,7 @@ def data_sampler(args: argparse.Namespace) -> None:
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
+
             - data (str): Path to where the simulated populations are located.
             - save_dir (str): Path to where to save the resampled population files.
             - size (int): Number of stars to randomly sample from the population files.
