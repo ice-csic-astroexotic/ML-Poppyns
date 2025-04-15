@@ -77,6 +77,10 @@ cfg["NS_number"]: int = 300000
 cfg["t_age_min"]: float = 1.0
 cfg["t_age_max"]: float = 3e7
 
+# Flag indicating whether to perform the X-ray simulation or not. If set to True then radio and X-ray emissions
+# will be simulated; if False then only the radio population synthesis will be performed.
+cfg["simulation_xray"]: bool = False
+
 # ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
 
 # Characteristic neutron star radius in [cm].
@@ -292,7 +296,7 @@ cfg["surveys_radio"]: dict = {
     "HTRU_low_mid": {
         "path_low": "pypopsyn/simulator/multiband_surveys/htru_low_parameters.json",
         "path_mid": "pypopsyn/simulator/multiband_surveys/htru_mid_parameters.json",
-        "detected_real": 1037,
+        "detected_real": 1095,
     },
     "HTRU_high": {
         "path": "pypopsyn/simulator/multiband_surveys/htru_high_parameters.json",
@@ -329,6 +333,11 @@ cfg["ISM_abundances"]: List[float] = [
     7.43,
     6.05,
 ]
+
+# ===================== X-RAY DETECTION PARAMETERS ========================
+
+# Absorbed X-ray flux threshold for X-ray detection in [erg s^-1 cm^-2].
+cfg["S_x_abs_threshold"]: float = 1.0e-15
 
 
 def update_configuration(new_configuration: dict) -> None:

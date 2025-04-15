@@ -7,11 +7,12 @@
         Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
+from typing import Tuple
+
 import numpy as np
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
-import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import utilities.samplers.random_sampler as rs
 from pypopsyn.simulator.config_simulator import cfg
 
@@ -298,14 +299,21 @@ def compute_spectral_index(
 
 def calculate_radio_emission(
     P: np.ndarray,
+    P_dot: np.ndarray,
     age: np.ndarray,
     l_gal: np.ndarray,
     b_gal: np.ndarray,
     dist: np.ndarray,
-    B: np.ndarray,
     chi: np.ndarray,
-    idx: np.ndarray,
-) -> dict:
+) -> Tuple[
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+    np.ndarray,
+]:
     """
     Compute the radio beam geometry, the intrinsic bolometric radio flux and the DM.
     Note that the luminosity and DM are computed only for those pulsars whose beams cross our line of sight.
@@ -313,16 +321,24 @@ def calculate_radio_emission(
 
     Args:
         P (np.ndarray): Array of spin periods of the pulsars in [s].
+        P_dot (np.ndarray): Array of neutron star spin period derivatives in [s s^-1].
         age (np.ndarray): Array of neutron star ages [yrs].
         l_gal (np.ndarray): Array of galactic longitudes in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): Array of galactic latitudes in [deg] defined between [-90, 90] deg.
         dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
-        B (np.ndarray): Array of neutron stars' final magnetic field strengths in [G].
         chi (np.ndarray): Array of the misalignment angles in [rad].
-        idx (np.ndarray): Array of the indexes of pulsars.
 
     Returns:
-        (Dict): Dictionary with the intrinsic properties of the pulsars whose beam crosses our line of sight.
+        (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): A Tuple
+        containing the following information:
+
+            - Boolean mask to select the pulsars whose radio beam crosses our line of sight.
+            - Intrinsic pulse widths in [s].
+            - Bolometric radio luminosity [erg s^-1].
+            - Bolometric radio flux in [erg s^-1 cm^-2].
+            - Spectral index.
+            - Dispersion measure in [pc cm^-3].
+            - Scattering timescale in [s].
     """
 
     # Determining the radio beam angular aperture.
@@ -345,29 +361,15 @@ def calculate_radio_emission(
     )
 
     # Select only neutron stars that point at us.
-    idx_det = idx[intercepted_radio]
-
-    age_det = age[intercepted_radio]
-    l_det = l_gal[intercepted_radio]
-    b_det = b_gal[intercepted_radio]
-    dist_det = dist[intercepted_radio]
-    B_det = B[intercepted_radio]
-    chi_det = chi[intercepted_radio]
-    P_det = P[intercepted_radio]
-    rho_beam_det = rho_beam[intercepted_radio]
-    los_rand_det = los_rand[intercepted_radio]
+    l_gal = l_gal[intercepted_radio]
+    b_gal = b_gal[intercepted_radio]
+    dist = dist[intercepted_radio]
+    chi = chi[intercepted_radio]
+    P = P[intercepted_radio]
+    P_dot = P_dot[intercepted_radio]
+    rho_beam = rho_beam[intercepted_radio]
+    los_rand = los_rand[intercepted_radio]
     solid_angle_beam = solid_angle_beam[intercepted_radio]
-
-    # Determining the final period derivative.
-    period_derivative_vect = np.vectorize(pdv.period_derivative)
-    P_dot_det = (
-        period_derivative_vect(
-            B_det,
-            chi_det,
-            P_det,
-        )
-        / const.YR_TO_S
-    )
 
     # Determining the bolometric radio luminosity.
     # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
@@ -375,9 +377,9 @@ def calculate_radio_emission(
     radio_luminosity_model = cfg["radio_luminosity_model"]
 
     if radio_luminosity_model == "lum_radio_ppdot":
-        L_radio_bol = pdf_luminosity_radio_ppdot(P_det, P_dot_det)
+        L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
     elif radio_luminosity_model == "lum_radio_edot":
-        L_radio_bol = pdf_luminosity_radio_edot(P_det, P_dot_det)
+        L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
     else:
         raise ValueError(
             "The radio luminosity model does not exist. Choose between lum_radio_ppdot or lum_radio_edot."
@@ -386,25 +388,25 @@ def calculate_radio_emission(
     # Computing the intrinsic bolometric radio flux.
     S_radio_bol = flux_radio(
         L_radio_bol,
-        dist_det,
+        dist,
         solid_angle_beam,
     )
 
     # Computing the intrinsic pulse width of the radio pulse.
     w_int = pulse_width(
-        chi_det,
-        rho_beam_det,
-        los_rand_det,
+        chi,
+        rho_beam,
+        los_rand,
     )
 
     # Convert pulse width from [rad] to [s].
-    w_int_s = w_int * P_det / (2.0 * np.pi)
+    w_int_s = w_int * P / (2.0 * np.pi)
 
     # Computing the DM.
     DM = edm.compute_DM(
-        l_det,
-        b_det,
-        dist_det,
+        l_gal,
+        b_gal,
+        dist,
         cfg["ed_model"],
     )
 
@@ -416,25 +418,15 @@ def calculate_radio_emission(
     )
     tau_sc = edm.compute_tau_sc_327(DM)
 
-    dictionary_intercepted_radio = {
-        "age": age_det,
-        "l": l_det,
-        "b": b_det,
-        "B": B_det,
-        "chi": chi_det,
-        "P": P_det,
-        "P_dot": P_dot_det,
-        "w_int_s": w_int_s,
-        "L_radio_bol": L_radio_bol,
-        "S_radio_bol": S_radio_bol,
-        "spectral_index": spectral_index,
-        "DM": DM,
-        "tau_sc": tau_sc,
-        "idx": idx_det,
-        "intercepted_radio": intercepted_radio,
-    }
-
-    return dictionary_intercepted_radio
+    return (
+        intercepted_radio,
+        w_int_s,
+        L_radio_bol,
+        S_radio_bol,
+        spectral_index,
+        DM,
+        tau_sc,
+    )
 
 
 def calculate_radio_emission_full(

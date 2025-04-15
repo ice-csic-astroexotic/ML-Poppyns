@@ -11,6 +11,7 @@ from typing import Optional, Tuple
 import numpy as np
 import scipy.special as scsp
 from scipy.integrate import trapz
+from scipy.interpolate import RectBivariateSpline
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.interstellar_medium.nh_model as nhm
@@ -278,7 +279,7 @@ def flux_xray_absorbed(
     RA: np.ndarray,
     DEC: np.ndarray,
     d: np.ndarray,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the X-ray observed absorbed flux assuming a black-body spectral shape for the thermal X-ray emission.
 
@@ -291,7 +292,8 @@ def flux_xray_absorbed(
 
     Returns:
         (np.ndarray, np.ndarray): A tuple containing the following arrays:
-            - absorbed x-ray fluxes in [erg s^-1 cm^-2].
+            - X-ray absorbed fluxes considering only black-body emission in [erg s^-1 cm^-2].
+            - X-ray absorbed fluxes considering black-body emission modified by the RCS process in [erg s^-1 cm^-2].
             - value of the hydrogen column density in [cm^-2].
     """
     T_obs = T_from_Lx(Lx)
@@ -302,7 +304,9 @@ def flux_xray_absorbed(
 
     # Define the energy range between 0.01 keV and 20 keV. Note that we require a larger energy range than
     # the one used to determine the absorption cross-section in order to properly approximate the RCS spectrum.
-    E = np.logspace(1.0, np.log10(20000), 1000)
+    # Moreover, we choose an energy array with 200 elements for computational reasons. When computing the RCS spectrum,
+    # the relative error between using this energy grid and a finer one is less than 2 %.
+    E = np.logspace(1.0, np.log10(20000), 200)
     # Convert the energy array from [eV] to [erg].
     E_erg = E * const.EV_TO_ERG
 
@@ -324,7 +328,8 @@ def flux_xray_absorbed(
     # Convert the intensity from [photon count cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 erg^-1 sterad^-1] in order
     # to obtain the spectrum in terms of energy.
     I_rcs = I_ph_rcs * E_erg
-    # Convert the intensity from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 eV^-1 sterad^-1].
+    # Convert the intensities from [erg cm^-2 s^-1 erg^-1 sterad^-1] to [erg cm^-2 s^-1 eV^-1 sterad^-1].
+    I_bb = I_bb * const.EV_TO_ERG
     I_rcs = I_rcs * const.EV_TO_ERG
 
     # Estimate the N_H column density.
@@ -335,15 +340,90 @@ def flux_xray_absorbed(
     # Estimate the X-ray absorption cross section.
     sigma_ISM = xabs.absorption_cross_section_tot(E, cfg["ISM_abundances"])
 
-    # Compute the absorbed intensity (see eq. (2) in Wilms et al. 2000).
+    # Compute the absorbed intensities (see eq. (2) in Wilms et al. 2000).
     absorb_factor = np.exp(-sigma_ISM * N_H)
-    I_absorbed = absorb_factor * I_rcs
+    I_bb_absorbed = absorb_factor * I_bb
+    I_rcs_absorbed = absorb_factor * I_rcs
 
-    # Compute the total observed flux in the energy range [0.01, 10] keV (see eq. (17) in overleaf).
+    # Compute the total observed fluxes in the energy range [0.01, 10] keV (see eq. (17) in overleaf).
     E_mask = E <= 10000
-    I_absorbed_bolom = trapz(I_absorbed[:, E_mask], E[E_mask], axis=1)
-    flux = (R_obs / d) ** 2 * np.pi * I_absorbed_bolom
+    I_bb_absorbed_bolom = trapz(I_bb_absorbed[:, E_mask], E[E_mask], axis=1)
+    I_rcs_absorbed_bolom = trapz(I_rcs_absorbed[:, E_mask], E[E_mask], axis=1)
+
+    flux_bb_absorbed = (R_obs / d) ** 2 * np.pi * I_bb_absorbed_bolom
+    flux_rcs_absorbed = (R_obs / d) ** 2 * np.pi * I_rcs_absorbed_bolom
 
     N_H = N_H.squeeze()
 
-    return flux, N_H
+    return flux_bb_absorbed, flux_rcs_absorbed, N_H
+
+
+def calculate_xray_emission(
+    B: np.ndarray,
+    B_initial: np.ndarray,
+    age: np.ndarray,
+    ra: np.ndarray,
+    dec: np.ndarray,
+    dist: np.ndarray,
+    L_x_interpolator: RectBivariateSpline,
+    L_x_threshold: float = 1.0e30,
+    age_cutoff: float = 1.0e6,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Compute the X-ray thermal luminosity, the absorbed X-ray flux and the N_H value for the pulsars that are X-ray
+    bright. Note that the interpolation of the luminosity is valid only up to 10^6 yrs as the magneto-thermal
+    cooling curves are reliable only until that time.
+
+    Args:
+        B (np.ndarray): Array of evolved magnetic fields of the pulsars in [G].
+        B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
+        age (np.ndarray): Array of neutron star ages [yrs].
+        ra (np.ndarray): Right ascension in [deg] defined between [0, 360] deg in ICRS frame.
+        dec (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
+        dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
+        L_x_interpolator (RectBivariateSpline): Interpolator used to calculate thermal X-ray luminosity based on age and magnetic field.
+        L_x_threshold (float): A lower limit for the X-ray luminosity. The default value of 10^30 erg s^-1 is chosen since
+            no observed thermally emitting neutron star has a luminosity lower than this.
+        age_cutoff (float): An upper limit for the neutron star age for X-ray detection. The default value of 10^6 yr is
+            chosen due to the fact that the cooling models are valid up to this age.
+
+    Returns:
+        (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple containing the following arrays:
+
+            - Boolean mask to select the neutron stars that can be detected in X-rays.
+            - X-ray thermal luminosities in [erg/s].
+            - X-ray absorbed fluxes considering only black-body emission in [erg s^-1 cm^-2].
+            - X-ray absorbed fluxes considering black-body emission modified by the RCS process in [erg s^-1 cm^-2].
+            - N_H column density in [cm^-2].
+    """
+
+    L_x_therm = np.zeros(len(age))
+
+    # Consider an age cutoff. Note that the interpolation is valid only up to 10^6 yrs as the magneto-thermal
+    # cooling curves are reliable only until that time.
+    age_mask = age < age_cutoff
+
+    # Interpolate the thermal luminosity from the initial magnetic field value and the age.
+    L_x_therm[age_mask] = L_x_interpolator.ev(
+        age[age_mask], B_initial[age_mask]
+    )
+
+    # Select only the stars that have sufficiently high luminosity.
+    # This is done in order to remove luminosity values that are too small or even negative due to the unreliable
+    # results of the interpolation at late times. This helps to avoid computing the RCS spectra for those stars
+    # whose luminosity is too low to be detectable and save computational resources.
+    L_x_mask = L_x_therm > L_x_threshold
+    L_x_therm = L_x_therm[L_x_mask]
+
+    xray_bright_mask = L_x_mask
+
+    # Compute the absorbed fluxes computing the RCS spectra and the N_H column density.
+    S_x_bb_abs, S_x_rcs_abs, N_H = flux_xray_absorbed(
+        L_x_therm,
+        B[xray_bright_mask],
+        ra[xray_bright_mask],
+        dec[xray_bright_mask],
+        dist[xray_bright_mask],
+    )
+
+    return xray_bright_mask, L_x_therm, S_x_bb_abs, S_x_rcs_abs, N_H
