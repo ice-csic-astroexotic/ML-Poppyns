@@ -367,7 +367,6 @@ def calculate_xray_emission(
     dist: np.ndarray,
     L_x_interpolator: RectBivariateSpline,
     L_x_threshold: float = 1.0e30,
-    age_cutoff: float = 1.0e6,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Compute the X-ray thermal luminosity, the absorbed X-ray flux and the N_H value for the pulsars that are X-ray
@@ -384,8 +383,6 @@ def calculate_xray_emission(
         L_x_interpolator (RectBivariateSpline): Interpolator used to calculate thermal X-ray luminosity based on age and magnetic field.
         L_x_threshold (float): A lower limit for the X-ray luminosity. The default value of 10^30 erg s^-1 is chosen since
             no observed thermally emitting neutron star has a luminosity lower than this.
-        age_cutoff (float): An upper limit for the neutron star age for X-ray detection. The default value of 10^6 yr is
-            chosen due to the fact that the cooling models are valid up to this age.
 
     Returns:
         (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple containing the following arrays:
@@ -397,16 +394,8 @@ def calculate_xray_emission(
             - N_H column density in [cm^-2].
     """
 
-    L_x_therm = np.zeros(len(age))
-
-    # Consider an age cutoff. Note that the interpolation is valid only up to 10^6 yrs as the magneto-thermal
-    # cooling curves are reliable only until that time.
-    age_mask = age < age_cutoff
-
     # Interpolate the thermal luminosity from the initial magnetic field value and the age.
-    L_x_therm[age_mask] = L_x_interpolator.ev(
-        age[age_mask], B_initial[age_mask]
-    )
+    L_x_therm = L_x_interpolator.ev(age, B_initial)
 
     # Select only the stars that have sufficiently high luminosity.
     # This is done in order to remove luminosity values that are too small or even negative due to the unreliable

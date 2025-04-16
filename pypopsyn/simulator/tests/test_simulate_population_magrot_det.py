@@ -240,7 +240,6 @@ def test_case_3():
         },
         "idx_remove": [],
         "dist_cutoff": 5.0,
-        "age_cutoff": 1.5e6,
         "expected_keys_with_xray": {
             "age",
             "ra",
@@ -800,7 +799,6 @@ def test_case_12():
             [0, 1, 2, 3],
             [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
         ),
-        "age_cutoff": 1.0e6,
         "mock_xray_bright_mask": np.array([True, True]),
         "mock_L_x_therm": np.array([1e33, 1e34]),
         "mock_S_x_rcs_abs": np.array([3.0e-12, 4.0e-16]),
@@ -1227,7 +1225,6 @@ def test_xray_detection(test_case_12, monkeypatch):
         test_case_12["dict_final_pop"],
         test_case_12["dummy_L_x_interpolator"],
         test_case_12["L_x_threshold"],
-        test_case_12["age_cutoff"],
         test_case_12["S_x_abs_threshold"],
     )
     # Verify that the keys are correct.
