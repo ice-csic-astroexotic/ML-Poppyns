@@ -148,6 +148,9 @@ cfg["P_initial_sigma"]: float = 0.2
 cfg["P_initial_log10_mean"]: float = -0.6
 cfg["P_initial_log10_sigma"]: float = 0.3
 
+# If you would like to set the magnetic field to be constant throughout the evolution set this to True.
+cfg["B_constant"]: bool = False
+
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [s].
 cfg["B_initial_log10_mean"]: float = 13.25
 cfg["B_initial_log10_sigma"]: float = 0.75

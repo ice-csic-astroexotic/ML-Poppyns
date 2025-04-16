@@ -183,6 +183,45 @@ def combined_derivatives(
     return dy
 
 
+@jit(
+    [float64[:](float64, float64[:], float64)],
+    nopython=True,
+)
+def combined_derivatives_B_const(
+    t: float,
+    y: np.ndarray,
+    B_initial: float,
+) -> np.ndarray:
+    """
+    Combining the two derivative functions for the misalignment angle
+    and the spin period (combined into a single two-component vector y) into a single
+    function to allow combined integration.
+
+    Args:
+        t (float): Unused time variable, required for the integration below.
+        y (np.ndarray): Two magneto-rotational parameters, i.e., chi in [rad]
+            and P in [s] for a single pulsar at a given time.
+        B_initial (float): Initial magnetic field magnitude for one pulsar, measured in [G].
+
+    Returns:
+        (np.ndarray): Derivative of the two magneto-rotational parameters for one pulsar,
+        quantities are referred to in respective changes per [yr].
+    """
+
+    # Unpacking the two components of the vector y.
+    chi, P = y
+
+    # Specifying the two derivatives.
+    dy = np.zeros(len(y), dtype=np.float64)
+
+    B = B_initial
+
+    dy[0] = madv.misalignment_angle_derivative(B, chi, P)
+    dy[1] = pdv.period_derivative(B, chi, P)
+
+    return dy
+
+
 def magneto_rotational_evolution(
     B_initial: np.ndarray,
     chi_initial: np.ndarray,
@@ -249,22 +288,36 @@ def magneto_rotational_evolution(
         # To integrate the problem, we use scipy's odeint function.
         # We set tfirst=True to unify the structure of the input ODEs in order to be able
         # to compare different scipy functions to solve the ODEs.
-        evol_output = np.array(
-            odeint(
-                combined_derivatives,
-                y0=y_initial[i],
-                t=time_grid,
-                args=(B_initial[i], B_asymptotic[i], a_late),
-                tfirst=True,
+        if cfg["B_constant"]:
+            evol_output = np.array(
+                odeint(
+                    combined_derivatives_B_const,
+                    y0=y_initial[i],
+                    t=time_grid,
+                    args=(B_initial[i],),
+                    tfirst=True,
+                )
             )
-        )
+        else:
+            evol_output = np.array(
+                odeint(
+                    combined_derivatives,
+                    y0=y_initial[i],
+                    t=time_grid,
+                    args=(B_initial[i], B_asymptotic[i], a_late),
+                    tfirst=True,
+                )
+            )
 
         if cfg["save_magrot_evolution"]:
 
             # Evaluate the magnetic field evolution.
-            B_t = magnetic_field_evolution_fit_numpy(
-                B_initial[i], time_grid, B_asymptotic[i], a_late
-            )
+            if cfg["B_constant"]:
+                B_t = B_initial[i] * np.ones(len(time_grid))
+            else:
+                B_t = magnetic_field_evolution_fit_numpy(
+                    B_initial[i], time_grid, B_asymptotic[i], a_late
+                )
 
             # Save the evolution output of the i-th neutron star in a dictionary.
             evolution = {
@@ -279,9 +332,12 @@ def magneto_rotational_evolution(
             evolution_dictionary = {**evolution_dictionary, **evolution}
 
         # Save the final values of the magnetic field, inclination angle and spin period.
-        B_final[i] = magnetic_field_evolution_fit(
-            B_initial[i], t_age[i], B_asymptotic[i], a_late
-        )
+        if cfg["B_constant"]:
+            B_final[i] = B_initial[i]
+        else:
+            B_final[i] = magnetic_field_evolution_fit(
+                B_initial[i], t_age[i], B_asymptotic[i], a_late
+            )
         chi_final[i] = evol_output[-1, 0]
         P_final[i] = evol_output[-1, 1]
 
