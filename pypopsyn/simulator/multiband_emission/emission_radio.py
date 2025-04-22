@@ -165,9 +165,11 @@ def pdf_luminosity_radio_ppdot(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     NS_number = len(P)
 
     L_0 = 10 ** np.random.normal(
-        cfg["L_radio_log10_mean"], cfg["L_radio_log10_sigma"], NS_number
+        cfg["L_radio_ppdot_log10_mean"],
+        cfg["L_radio_ppdot_log10_sigma"],
+        NS_number,
     )
-    L_radio = L_0 * (P ** (-3) * P_dot) ** cfg["epsilon_L"]
+    L_radio = L_0 * (P ** (-3) * P_dot) ** cfg["epsilon_L_ppdot"]
 
     return L_radio
 
@@ -186,10 +188,12 @@ def pdf_luminosity_radio_edot(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     """
     NS_number = len(P)
     L_0 = 10 ** np.random.normal(
-        cfg["L_radio_log10_mean"], cfg["L_radio_log10_sigma"], NS_number
+        cfg["L_radio_edot_log10_mean"],
+        cfg["L_radio_edot_log10_sigma"],
+        NS_number,
     )
     Erot_dot = loss_rotational_energy(P, P_dot)
-    L_radio = L_0 * (Erot_dot / cfg["Erot_dot_0"]) ** cfg["epsilon_L"]
+    L_radio = L_0 * (Erot_dot / cfg["Erot_dot_0"]) ** cfg["epsilon_L_edot"]
 
     return L_radio
 
@@ -369,10 +373,17 @@ def calculate_radio_emission(
 
     # Determining the bolometric radio luminosity.
     # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
-    # NOTE: If the luminosity law is changed, the normalisation constant (L_radio_log10_sigma) has to be adjusted in
-    # the simulator configuration file pypopsyn/simulator/config_simulator.
-    # L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
-    L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
+    # See line 251 in the config_simulator.py file.
+    radio_luminosity_model = cfg["radio_luminosity_model"]
+
+    if radio_luminosity_model == "lum_radio_ppdot":
+        L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
+    elif radio_luminosity_model == "lum_radio_edot":
+        L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
+    else:
+        raise ValueError(
+            "The radio luminosity model does not exist. Choose between lum_radio_ppdot or lum_radio_edot."
+        )
 
     # Computing the intrinsic bolometric radio flux.
     S_radio_bol = flux_radio(
@@ -443,10 +454,17 @@ def calculate_radio_emission_full(
 
     # Determining the bolometric radio luminosity.
     # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
-    # NOTE: If the luminosity law is changed, the normalisation constant (L_radio_log10_sigma) has to be adjusted in
-    # the simulator configuration file pypopsyn/simulator/config_simulator.
-    # L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
-    L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
+    # See line 251 in the config_simulator.py file.
+    radio_luminosity_model = cfg["radio_luminosity_model"]
+
+    if radio_luminosity_model == "lum_radio_ppdot":
+        L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
+    elif radio_luminosity_model == "lum_radio_edot":
+        L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
+    else:
+        raise ValueError(
+            "The radio luminosity model does not exist. Choose between lum_radio_ppdot or lum_radio_edot."
+        )
 
     # Determining the radio beam angular aperture.
     rho_beam = beam_aperture(P)
