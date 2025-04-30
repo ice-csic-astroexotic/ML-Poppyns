@@ -416,9 +416,11 @@ def train_posterior(
         )
         with open(inference_model_path, "wb") as inference_file:
             pickle.dump(inference, inference_file)
-
-        # Saving the training statistics.
-        ut.save_training_statistics(config, inference, index, effective_round)
+        if resume and round_current != 0:
+            # Saving the training statistics.
+            ut.save_training_statistics(
+                config, inference, index, effective_round
+            )
 
     if ensemble:
         # Giving each network in the ensemble an equal weight.
