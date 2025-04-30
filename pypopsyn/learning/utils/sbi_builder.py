@@ -416,8 +416,10 @@ def train_posterior(
         )
         with open(inference_model_path, "wb") as inference_file:
             pickle.dump(inference, inference_file)
+
+        # Saving the training statistics. If resuming in the first round, no training is performed, i.e., nothing is
+        # saved.
         if resume and round_current != 0:
-            # Saving the training statistics.
             ut.save_training_statistics(
                 config, inference, index, effective_round
             )
