@@ -143,10 +143,8 @@ def run_posterior_sampling(args: argparse.Namespace) -> None:
         [tensor.cpu().numpy() for tensor in log_prob_chain]
     )
 
-    torch.save(
-        posterior_obs_chain, f"{args.save_dir}/posterior_obs_chain_2.pt"
-    )
-    torch.save(log_prob_chain, f"{args.save_dir}/log_prob_chain_2.pt")
+    torch.save(posterior_obs_chain, f"{args.save_dir}/posterior_obs_chain.pt")
+    torch.save(log_prob_chain, f"{args.save_dir}/log_prob_chain.pt")
 
 
 if __name__ == "__main__":
