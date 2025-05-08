@@ -128,7 +128,6 @@ def test_case_2():
         "dist": np.array([2.0, 10.0, 5.0]),
         "B_initial": np.array([1e12, 1e14, 1e13]),
         "B": np.array([1e12, 1e14, 1e13]),
-        "age_cutoff": 1.0e6,
         "L_x_threshold": 1e29,
         "dummy_L_x_interpolator": RectBivariateSpline(
             [0, 1, 2, 3],
@@ -137,7 +136,7 @@ def test_case_2():
         ),
         "xray_bright_mask_expected": np.array([False, True, False]),
         "L_x_therm_expected": np.array([1e33]),
-        "mock_L_x_therm": np.array([1e28, 1e33]),
+        "mock_L_x_therm": np.array([1e28, 1e33, 1e27]),
         "mock_S_x_rcs_abs": np.array([3.0e-12]),
         "mock_S_x_bb_abs": np.array([2.0e-12]),
         "mock_N_H": np.array([2.0e-21]),
@@ -345,7 +344,6 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
         test_case_2["dist"],
         test_case_2["dummy_L_x_interpolator"],
         test_case_2["L_x_threshold"],
-        test_case_2["age_cutoff"],
     )
 
     assert np.all(

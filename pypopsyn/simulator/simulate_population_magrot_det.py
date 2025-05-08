@@ -644,7 +644,6 @@ def xray_detection(
     dict_final_pop: dict,
     L_x_interpolator: RectBivariateSpline,
     L_x_threshold: float = 1.0e30,
-    age_cutoff: float = 1.0e6,
     S_x_abs_threshold: float = 1.0e-15,
 ) -> dict:
     """
@@ -655,7 +654,6 @@ def xray_detection(
         L_x_interpolator (RectBivariateSpline): Interpolator used to calculate the thermal X-ray luminosity based
             on age and magnetic field.
         L_x_threshold (float): A lower limit for the X-ray luminosity.
-        age_cutoff (float): An upper limit for the neutron star age for X-ray detection.
         S_x_abs_threshold (float): The absorbed flux threshold for X-ray detection.
 
     Returns:
@@ -683,7 +681,6 @@ def xray_detection(
         dict_final_pop_filtered["dist"],
         L_x_interpolator,
         L_x_threshold,
-        age_cutoff,
     )
 
     dict_xray_bright = {
@@ -1101,7 +1098,6 @@ def simulate_population(args) -> None:
                         luminosity_x_interpolator,
                         L_x_threshold=1.0e30,
                         S_x_abs_threshold=cfg["S_x_abs_threshold"],
-                        age_cutoff=1.0e6,
                     )
 
                     # Print number of detected neutron stars in X-ray.
