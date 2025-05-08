@@ -9,7 +9,7 @@
 
      Display help message to run the code:
 
-    python infer_sbi.py --help
+    python infer_npe.py --help
 
     Displays all the relevant arguments that can be used.
 
@@ -562,7 +562,7 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="pypopsyn/learning/config_sbi.json",
+        default="pypopsyn/learning/config_npe.json",
         help="Configuration file path.",
     )
     args.add_argument(
