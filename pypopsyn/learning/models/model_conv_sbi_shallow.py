@@ -1,13 +1,12 @@
 """
-
-    Model for a deeper convolutional neural network used as an embedding network in the sbi framework to compress the
-    input features into a latent vector. The architecture consists of two blocks of convolutional layers, each
-    followed by a max-pooling layer. The final output is flattened and passed through a fully connected layer to produce
-    the latent vector used for inference.
+    Model for a shallow convolutional neural network used as an embedding network in the sbi framework to compress the
+    input features into a latent vector. The neural network is composed of a single convolutional layer after a max-pool
+    layer, followed by a fully connected layer that will serve as the latent vector.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import numpy as np
@@ -18,9 +17,9 @@ import torch.nn.functional as F
 from .model_base import ModelBase
 
 
-class ModelConvSBI(ModelBase):
+class ModelConvSBIshallow(ModelBase):
     """
-    A convolutional neural network model with 2 convolutional filters.
+    A convolutional neural network model with 1 convolutional filters.
     """
 
     def __init__(
@@ -37,8 +36,7 @@ class ModelConvSBI(ModelBase):
         """
 
         super().__init__()
-        self.conv1 = nn.Conv2d(input_shape[0], 32, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.conv1 = nn.Conv2d(input_shape[0], 64, kernel_size=3, padding=1)
         self.pool = nn.MaxPool2d(2, 2)
 
         # Create a mock input with the same shape of the real input drawing values from a normal distribution and pass
@@ -64,7 +62,6 @@ class ModelConvSBI(ModelBase):
         """
 
         x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
 
         # If the dimension of the flattened input features to the linear layers has not been saved yet, save it.
         if self._to_linear is None:
