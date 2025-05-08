@@ -20,13 +20,30 @@ from pypopsyn.simulator.config_simulator import cfg
 
 # Redefining global variables to allow type specification.
 # Necessary right now in order to get JIT to work.
-a1_cfg: float = cfg["a1"]
-a2_cfg: float = cfg["a2"]
-A1_cfg: float = cfg["A1"]
-A2_cfg: float = cfg["A2"]
-b1_cfg: float = cfg["b1"]
-b2_cfg: float = cfg["b2"]
-tau_late_cfg: float = cfg["tau_late"]
+if cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
+    a1_cfg: float = cfg["a1_SLy4_dip-tor_h"]
+    a2_cfg: float = cfg["a2_SLy4_dip-tor_h"]
+    A1_cfg: float = cfg["A1_SLy4_dip-tor_h"]
+    A2_cfg: float = cfg["A2_SLy4_dip-tor_h"]
+    b1_cfg: float = cfg["b1_SLy4_dip-tor_h"]
+    b2_cfg: float = cfg["b2_SLy4_dip-tor_h"]
+    tau_late_cfg: float = cfg["tau_late_SLy4_dip-tor_h"]
+elif cfg["magneto-thermal_model"] == "BKS24_dip-tor_heavy":
+    a1_cfg: float = cfg["a1_BKS24_dip-tor_h"]
+    a2_cfg: float = cfg["a2_BKS24_dip-tor_h"]
+    A1_cfg: float = cfg["A1_BKS24_dip-tor_h"]
+    A2_cfg: float = cfg["A2_BKS24_dip-tor_h"]
+    b1_cfg: float = cfg["b1_BKS24_dip-tor_h"]
+    b2_cfg: float = cfg["b2_BKS24_dip-tor_h"]
+    tau_late_cfg: float = cfg["tau_late_BKS24_dip-tor_h"]
+elif cfg["magneto-thermal_model"] == "BKS24_dip-tor_light":
+    a1_cfg: float = cfg["a1_BKS24_dip-tor_l"]
+    a2_cfg: float = cfg["a2_BKS24_dip-tor_l"]
+    A1_cfg: float = cfg["A1_BKS24_dip-tor_l"]
+    A2_cfg: float = cfg["A2_BKS24_dip-tor_l"]
+    b1_cfg: float = cfg["b1_BKS24_dip-tor_l"]
+    b2_cfg: float = cfg["b2_BKS24_dip-tor_l"]
+    tau_late_cfg: float = cfg["tau_late_BKS24_dip-tor_l"]
 
 
 def magnetic_field_evolution_fit_numpy(

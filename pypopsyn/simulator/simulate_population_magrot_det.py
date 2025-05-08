@@ -151,10 +151,22 @@ def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
     }
 
     # Load the interpolator function to evaluate the X-ray luminosity.
-    interpolator_Lx_path = pathlib.Path().joinpath(
-        cfg["path_to_software"],
-        "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/interpolator_Lx.pkl",
-    )
+    if cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
+        interpolator_Lx_path = pathlib.Path().joinpath(
+            cfg["path_to_software"],
+            "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/SLy4_dip-tor_heavy-envelope/interpolator_Lx.pkl",
+        )
+    elif cfg["magneto-thermal_model"] == "BKS24_dip-tor_heavy":
+        interpolator_Lx_path = pathlib.Path().joinpath(
+            cfg["path_to_software"],
+            "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BKS24_dip-tor_heavy-envelope/interpolator_Lx.pkl",
+        )
+    elif cfg["magneto-thermal_model"] == "BKS24_dip-tor_light":
+        interpolator_Lx_path = pathlib.Path().joinpath(
+            cfg["path_to_software"],
+            "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BKS24_dip-tor_light-envelope/interpolator_Lx.pkl",
+        )
+
     with open(interpolator_Lx_path, "rb") as f:
         L_x_interpolator = pickle.load(f)
 
