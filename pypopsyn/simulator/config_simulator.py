@@ -210,46 +210,36 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 
 # Model pdf for the magneto-thermal simulations. Choose between "SLy4_dip-tor_heavy", "BKS24_dip-tor_heavy",
 # "BKS24_dip-tor_light", "BKS24_multi_heavy" and BKS24_multi_light.
-cfg["magneto-thermal_model"]: str = "BKS24_dip-tor_light"
+cfg["magneto-thermal_model"]: str = "BKS24_dip-tor_heavy"
 
-# Power-law indices.
-cfg["a1_SLy4_dip-tor_h"]: float = -0.13
-cfg["a2_SLy4_dip-tor_h"]: float = -3.0
+# Power-law indices for the model "SLy4_dip-tor_heavy".
+cfg["a1_SLy4_dip-tor"]: float = -0.13
+cfg["a2_SLy4_dip-tor"]: float = -3.0
 
-# Timescale parameters, normalizations and power-law indices.
-cfg["A1_SLy4_dip-tor_h"]: float = 1.0e14
-cfg["b1_SLy4_dip-tor_h"]: float = -0.8
-cfg["A2_SLy4_dip-tor_h"]: float = 6.0e8
-cfg["b2_SLy4_dip-tor_h"]: float = -0.2
+# Timescale parameters, normalizations and power-law indices for the model "SLy4_dip-tor_heavy".
+cfg["A1_SLy4_dip-tor"]: float = 1.0e14
+cfg["b1_SLy4_dip-tor"]: float = -0.8
+cfg["A2_SLy4_dip-tor"]: float = 6.0e8
+cfg["b2_SLy4_dip-tor"]: float = -0.2
 
-# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
-cfg["tau_late_SLy4_dip-tor_h"]: float = 2.0e6
+# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution
+# for the model "SLy4_dip-tor_heavy".
+cfg["tau_late_SLy4_dip-tor"]: float = 2.0e6
 
-# Power-law indices.
-cfg["a1_BKS24_dip-tor_h"]: float = -0.13
-cfg["a2_BKS24_dip-tor_h"]: float = -6.0
+# Power-law indices for the models "BKS24_dip-tor_heavy" and "BKS24_dip-tor_light".
+cfg["a1_BKS24_dip-tor"]: float = -0.13
+cfg["a2_BKS24_dip-tor"]: float = -3.0
 
-# Timescale parameters, normalizations and power-law indices.
-cfg["A1_BKS24_dip-tor_h"]: float = 1.0e14
-cfg["b1_BKS24_dip-tor_h"]: float = -0.8
-cfg["A2_BKS24_dip-tor_h"]: float = 3.6e11
-cfg["b2_BKS24_dip-tor_h"]: float = -0.3
+# Timescale parameters, normalizations and power-law indices for the models "BKS24_dip-tor_heavy"
+# and "BKS24_dip-tor_light".
+cfg["A1_BKS24_dip-tor"]: float = 2.0e14
+cfg["b1_BKS24_dip-tor"]: float = -0.8
+cfg["A2_BKS24_dip-tor"]: float = 2.1e10
+cfg["b2_BKS24_dip-tor"]: float = -0.31
 
-# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
-cfg["tau_late_BKS24_dip-tor_h"]: float = 5.0e6
-
-# Power-law indices.
-cfg["a1_BKS24_dip-tor_l"]: float = -0.13
-cfg["a2_BKS24_dip-tor_l"]: float = -6.0
-
-# Timescale parameters, normalizations and power-law indices.
-cfg["A1_BKS24_dip-tor_l"]: float = 1.0e14
-cfg["b1_BKS24_dip-tor_l"]: float = -0.8
-cfg["A2_BKS24_dip-tor_l"]: float = 3.6e10
-cfg["b2_BKS24_dip-tor_l"]: float = -0.3
-
-# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
-cfg["tau_late_BKS24_dip-tor_l"]: float = 5.0e6
+# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution
+# for the models "BKS24_dip-tor_heavy" and "BKS24_dip-tor_light".
+cfg["tau_late_BKS24_dip-tor"]: float = 5.0e6
 
 # Late time power-law index (default value is taken from Pardo-Araujo et al. 2025).
 cfg["a_late"]: float = -0.88
