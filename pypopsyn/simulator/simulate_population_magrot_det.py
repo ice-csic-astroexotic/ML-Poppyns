@@ -416,6 +416,27 @@ def evolve_population_magrot(
     chi_initial = dict_pop_initial_magrot["chi_initial"]
     P_initial = dict_pop_initial_magrot["P_initial"]
 
+    # Set the right parameters for the analytical fit of the magnetic-field evolution depending on the
+    # magneto-thermal model.
+    if cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
+        a1 = cfg["a1_SLy4_dip-tor"]
+        a2 = cfg["a2_SLy4_dip-tor"]
+        A1 = cfg["A1_SLy4_dip-tor"]
+        A2 = cfg["A2_SLy4_dip-tor"]
+        b1 = cfg["b1_SLy4_dip-tor"]
+        b2 = cfg["b2_SLy4_dip-tor"]
+        tau_late = cfg["tau_late_SLy4_dip-tor"]
+    elif (cfg["magneto-thermal_model"] == "BKS24_dip-tor_heavy") or (
+            cfg["magneto-thermal_model"] == "BKS24_dip-tor_light"
+    ):
+        a1 = cfg["a1_BKS24_dip-tor"]
+        a2 = cfg["a2_BKS24_dip-tor"]
+        A1 = cfg["A1_BKS24_dip-tor"]
+        A2 = cfg["A2_BKS24_dip-tor"]
+        b1 = cfg["b1_BKS24_dip-tor"]
+        b2 = cfg["b2_BKS24_dip-tor"]
+        tau_late = cfg["tau_late_BKS24_dip-tor"]
+
     a_late = cfg["a_late"]
 
     # Determine the evolved magnetic field, misalignment angle and rotation period.
@@ -425,7 +446,18 @@ def evolve_population_magrot(
         P_final,
         magrot_evol_dict,
     ) = mre.magneto_rotational_evolution(
-        B_initial, chi_initial, P_initial, age, a_late
+        B_initial,
+        chi_initial,
+        P_initial,
+        age,
+        a1,
+        a2,
+        A1,
+        A2,
+        b1,
+        b2,
+        tau_late,
+        a_late
     )
 
     if cfg["save_magrot_evolution"]:

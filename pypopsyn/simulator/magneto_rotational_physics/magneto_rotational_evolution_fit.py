@@ -18,30 +18,18 @@ import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivati
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.config_simulator import cfg
 
-# Redefining global variables to allow type specification.
-# Necessary right now in order to get JIT to work.
-if cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
-    a1_cfg: float = cfg["a1_SLy4_dip-tor"]
-    a2_cfg: float = cfg["a2_SLy4_dip-tor"]
-    A1_cfg: float = cfg["A1_SLy4_dip-tor"]
-    A2_cfg: float = cfg["A2_SLy4_dip-tor"]
-    b1_cfg: float = cfg["b1_SLy4_dip-tor"]
-    b2_cfg: float = cfg["b2_SLy4_dip-tor"]
-    tau_late_cfg: float = cfg["tau_late_SLy4_dip-tor"]
-elif (cfg["magneto-thermal_model"] == "BKS24_dip-tor_heavy") or (
-    cfg["magneto-thermal_model"] == "BKS24_dip-tor_light"
-):
-    a1_cfg: float = cfg["a1_BKS24_dip-tor"]
-    a2_cfg: float = cfg["a2_BKS24_dip-tor"]
-    A1_cfg: float = cfg["A1_BKS24_dip-tor"]
-    A2_cfg: float = cfg["A2_BKS24_dip-tor"]
-    b1_cfg: float = cfg["b1_BKS24_dip-tor"]
-    b2_cfg: float = cfg["b2_BKS24_dip-tor"]
-    tau_late_cfg: float = cfg["tau_late_BKS24_dip-tor"]
-
-
 def magnetic_field_evolution_fit_numpy(
-    B_initial: float, t: np.ndarray, B_asymptotic: float, a_late: float
+    B_initial: float,
+    t: np.ndarray,
+    B_asymptotic: float,
+    a1: float,
+    a2: float,
+    A1: float,
+    A2: float,
+    b1: float,
+    b2: float,
+    tau_late: float,
+    a_late: float
 ) -> np.ndarray:
     """
     An analytical function for the magnetic field evolution curves from the magneto-thermal evolution simulations.
@@ -52,6 +40,18 @@ def magnetic_field_evolution_fit_numpy(
         B_initial (float): Initial magnetic field strength in [G].
         t (np.ndarray): Time in [s].
         B_asymptotic (float): Asymptotic magnetic field strength at late times in [G].
+        a1 (float): Power-law index for the first power-law component of the fit of the magnetic-field evolution.
+        a2 (float): Power-law index for the second power-law component of the fit of the magnetic-field evolution.
+        A1 (float): Normalization for the timescale parameter of the first power-law component of the fit of the
+            magnetic-field evolution.
+        A2 (float): Normalization for the timescale parameter of the second power-law component of the fit of the
+            magnetic-field evolution.
+        b1 (float): Power-law index for the timescale parameter of the first power-law component of the fit of the
+            magnetic-field evolution.
+        b2 (float): Power-law index for the timescale parameter of the second power-law component of the fit of the
+            magnetic-field evolution.
+        tau_late (float): Timescale in [yr] when transitioning from the simulated curves to the simple late-time
+            power-law evolution of the magnetic field strength.
         a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
@@ -64,25 +64,25 @@ def magnetic_field_evolution_fit_numpy(
     B = np.zeros(len(t))
 
     # Define the two timescales as a function of the initial B field.
-    tau1 = A1_cfg * B_initial**b1_cfg
-    tau2 = A2_cfg * B_initial**b2_cfg
+    tau1 = A1 * B_initial**b1
+    tau2 = A2 * B_initial**b2
 
-    if tau2 < tau_late_cfg:
+    if tau2 < tau_late:
         B = (
             B_initial
-            * (1 + t / tau1) ** a1_cfg
-            * (1 + t / tau2) ** (a2_cfg - a1_cfg)
-            * (1 + t / tau_late_cfg) ** (a_late - a2_cfg)
+            * (1 + t / tau1) ** a1
+            * (1 + t / tau2) ** (a2 - a1)
+            * (1 + t / tau_late) ** (a_late - a2)
         )
 
-    elif (tau1 < tau_late_cfg) & (tau_late_cfg < tau2):
+    elif (tau1 < tau_late) & (tau_late < tau2):
         B = (
             B_initial
-            * (1 + t / tau1) ** a1_cfg
-            * (1 + t / tau_late_cfg) ** (a_late - a1_cfg)
+            * (1 + t / tau1) ** a1
+            * (1 + t / tau_late) ** (a_late - a1)
         )
-    elif tau_late_cfg < tau1:
-        B = B_initial * (1 + t / tau_late_cfg) ** a_late
+    elif tau_late < tau1:
+        B = B_initial * (1 + t / tau_late) ** a_late
 
     # If the magnetic field becomes lower than an asymptotic value derived from the old millisecond pulsar population,
     # fix the magnetic field to that constant asymptotic value unless the initial field is already lower than this
@@ -95,9 +95,19 @@ def magnetic_field_evolution_fit_numpy(
     return B
 
 
-@jit([float64(float64, float64, float64, float64)], nopython=True)
+@jit([float64(float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, float64)], nopython=True)
 def magnetic_field_evolution_fit(
-    B_initial: float, t: float, B_asymptotic: float, a_late: float
+    B_initial: float,
+    t: float,
+    B_asymptotic: float,
+    a1: float,
+    a2: float,
+    A1: float,
+    A2: float,
+    b1: float,
+    b2: float,
+    tau_late: float,
+    a_late: float
 ) -> float:
     """
     An analytical fit for the magnetic field evolution curves from the magneto-thermal evolution simulations.
@@ -108,6 +118,18 @@ def magnetic_field_evolution_fit(
         B_initial (float): Initial magnetic field strength in [G].
         t (float): Time in [s].
         B_asymptotic (float): Asymptotic magnetic field strength at late times in [G].
+        a1 (float): Power-law index for the first power-law component of the fit of the magnetic-field evolution.
+        a2 (float): Power-law index for the second power-law component of the fit of the magnetic-field evolution.
+        A1 (float): Normalization for the timescale parameter of the first power-law component of the fit of the
+            magnetic-field evolution.
+        A2 (float): Normalization for the timescale parameter of the second power-law component of the fit of the
+            magnetic-field evolution.
+        b1 (float): Power-law index for the timescale parameter of the first power-law component of the fit of the
+            magnetic-field evolution.
+        b2 (float): Power-law index for the timescale parameter of the second power-law component of the fit of the
+            magnetic-field evolution.
+        tau_late (float): Timescale in [yr] when transitioning from the simulated curves to the simple late-time
+            power-law evolution of the magnetic field strength.
         a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
@@ -120,25 +142,25 @@ def magnetic_field_evolution_fit(
     B: float = B_initial
 
     # Define the two timescales as a function of the initial B field.
-    tau1 = A1_cfg * B_initial**b1_cfg
-    tau2 = A2_cfg * B_initial**b2_cfg
+    tau1 = A1 * B_initial**b1
+    tau2 = A2 * B_initial**b2
 
-    if tau2 < tau_late_cfg:
+    if tau2 < tau_late:
         B = (
             B_initial
-            * (1 + t / tau1) ** a1_cfg
-            * (1 + t / tau2) ** (a2_cfg - a1_cfg)
-            * (1 + t / tau_late_cfg) ** (a_late - a2_cfg)
+            * (1 + t / tau1) ** a1
+            * (1 + t / tau2) ** (a2 - a1)
+            * (1 + t / tau_late) ** (a_late - a2)
         )
 
-    elif (tau1 < tau_late_cfg) & (tau_late_cfg < tau2):
+    elif (tau1 < tau_late) & (tau_late < tau2):
         B = (
             B_initial
-            * (1 + t / tau1) ** a1_cfg
-            * (1 + t / tau_late_cfg) ** (a_late - a1_cfg)
+            * (1 + t / tau1) ** a1
+            * (1 + t / tau_late) ** (a_late - a1)
         )
-    elif tau_late_cfg < tau1:
-        B = B_initial * (1 + t / tau_late_cfg) ** a_late
+    elif tau_late < tau1:
+        B = B_initial * (1 + t / tau_late) ** a_late
 
     # If the magnetic field becomes lower than an asymptotic value derived from the old millisecond pulsar population,
     # fix the magnetic field to that constant asymptotic value unless the initial field is already lower than this
@@ -152,7 +174,7 @@ def magnetic_field_evolution_fit(
 
 
 @jit(
-    [float64[:](float64, float64[:], float64, float64, float64)],
+    [float64[:](float64, float64[:], float64, float64, float64, float64, float64, float64, float64, float64, float64, float64)],
     nopython=True,
 )
 def combined_derivatives(
@@ -160,6 +182,13 @@ def combined_derivatives(
     y: np.ndarray,
     B_initial: float,
     B_asymptotic: float,
+    a1: float,
+    a2: float,
+    A1: float,
+    A2: float,
+    b1: float,
+    b2: float,
+    tau_late: float,
     a_late: float,
 ) -> np.ndarray:
     """
@@ -173,6 +202,18 @@ def combined_derivatives(
             and P in [s] for a single pulsar at a given time.
         B_initial (float): Initial magnetic field magnitude for one pulsar, measured in [G].
         B_asymptotic (float): Asymptotic magnetic field strength at late times in [G].
+        a1 (float): Power-law index for the first power-law component of the fit of the magnetic-field evolution.
+        a2 (float): Power-law index for the second power-law component of the fit of the magnetic-field evolution.
+        A1 (float): Normalization for the timescale parameter of the first power-law component of the fit of the
+            magnetic-field evolution.
+        A2 (float): Normalization for the timescale parameter of the second power-law component of the fit of the
+            magnetic-field evolution.
+        b1 (float): Power-law index for the timescale parameter of the first power-law component of the fit of the
+            magnetic-field evolution.
+        b2 (float): Power-law index for the timescale parameter of the second power-law component of the fit of the
+            magnetic-field evolution.
+        tau_late (float): Timescale in [yr] when transitioning from the simulated curves to the simple late-time
+            power-law evolution of the magnetic field strength.
         a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
@@ -186,7 +227,19 @@ def combined_derivatives(
     # Specifying the two derivatives.
     dy = np.zeros(len(y), dtype=np.float64)
 
-    B = magnetic_field_evolution_fit(B_initial, t, B_asymptotic, a_late)
+    B = magnetic_field_evolution_fit(
+        B_initial,
+        t,
+        B_asymptotic,
+        a1,
+        a2,
+        A1,
+        A2,
+        b1,
+        b2,
+        tau_late,
+        a_late
+    )
 
     dy[0] = madv.misalignment_angle_derivative(B, chi, P)
     dy[1] = pdv.period_derivative(B, chi, P)
@@ -199,6 +252,13 @@ def magneto_rotational_evolution(
     chi_initial: np.ndarray,
     P_initial: np.ndarray,
     t_age: np.ndarray,
+    a1: float,
+    a2: float,
+    A1: float,
+    A2: float,
+    b1: float,
+    b2: float,
+    tau_late: float,
     a_late: float,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, dict]:
     """
@@ -213,6 +273,18 @@ def magneto_rotational_evolution(
         chi_initial (np.ndarray): Pulsars' initial misalignment angles, measured in [rad].
         P_initial (np.ndarray): Pulsars' initial rotation periods, measured in [s].
         t_age (np.ndarray): Array of neutron star ages in [yr].
+        a1 (float): Power-law index for the first power-law component of the fit of the magnetic-field evolution.
+        a2 (float): Power-law index for the second power-law component of the fit of the magnetic-field evolution.
+        A1 (float): Normalization for the timescale parameter of the first power-law component of the fit of the
+            magnetic-field evolution.
+        A2 (float): Normalization for the timescale parameter of the second power-law component of the fit of the
+            magnetic-field evolution.
+        b1 (float): Power-law index for the timescale parameter of the first power-law component of the fit of the
+            magnetic-field evolution.
+        b2 (float): Power-law index for the timescale parameter of the second power-law component of the fit of the
+            magnetic-field evolution.
+        tau_late (float): Timescale in [yr] when transitioning from the simulated curves to the simple late-time
+            power-law evolution of the magnetic field strength.
         a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
@@ -265,7 +337,18 @@ def magneto_rotational_evolution(
                 combined_derivatives,
                 y0=y_initial[i],
                 t=time_grid,
-                args=(B_initial[i], B_asymptotic[i], a_late),
+                args=(
+                    B_initial[i],
+                    B_asymptotic[i],
+                    a1,
+                    a2,
+                    A1,
+                    A2,
+                    b1,
+                    b2,
+                    tau_late,
+                    a_late
+                ),
                 tfirst=True,
             )
         )
@@ -274,7 +357,17 @@ def magneto_rotational_evolution(
 
             # Evaluate the magnetic field evolution.
             B_t = magnetic_field_evolution_fit_numpy(
-                B_initial[i], time_grid, B_asymptotic[i], a_late
+                B_initial[i],
+                time_grid,
+                B_asymptotic[i],
+                a1,
+                a2,
+                A1,
+                A2,
+                b1,
+                b2,
+                tau_late,
+                a_late
             )
 
             # Save the evolution output of the i-th neutron star in a dictionary.
@@ -291,7 +384,17 @@ def magneto_rotational_evolution(
 
         # Save the final values of the magnetic field, inclination angle and spin period.
         B_final[i] = magnetic_field_evolution_fit(
-            B_initial[i], t_age[i], B_asymptotic[i], a_late
+            B_initial[i],
+            t_age[i],
+            B_asymptotic[i],
+            a1,
+            a2,
+            A1,
+            A2,
+            b1,
+            b2,
+            tau_late,
+            a_late
         )
         chi_final[i] = evol_output[-1, 0]
         P_final[i] = evol_output[-1, 1]
