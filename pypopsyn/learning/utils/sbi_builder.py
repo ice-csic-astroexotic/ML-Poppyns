@@ -23,10 +23,11 @@ from typing import List, Union
 import numpy as np
 import torch
 from sbi import utils
-from sbi.inference import SNLE, SNPE
+from sbi.inference import SNLE, SNPE, SNRE
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
 from sbi.inference.snle.snle_a import SNLE_A
 from sbi.inference.snpe.snpe_c import SNPE_C
+from sbi.inference.snre.snre_b import SNRE_B
 from sbi.utils import BoxUniform
 from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 
@@ -134,81 +135,90 @@ def compute_proposal_prior(
     return proposal
 
 
-def build_network_snpe(
+def build_inference_network(
+    model_type: str,
+    logger: Logger,
     config: configuration_parser.ConfigurationParser,
     device: torch.device,
     prior: utils.BoxUniform,
-) -> SNPE_C:
+) -> Union[SNPE_C, SNLE_A, SNRE_B]:
+
     """
-    Building the neural network for SNPE (composed of the embedding net and the density estimator) using the
-    configuration file specified in the arguments, and setting up the inference procedure.
+    Builds an inference object (SNPE, SNLE, or SNRE) based on the selected model_type,
+    using the provided configuration, device, and prior.
 
     Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
-        device (torch.device): Device used to run the script.
-        prior (utils.BoxUniform): Prior distribution.
+        model_type (str): The inference model_type to use. Must be one of:
+                      "snpe", "snle", or "snre".
+        logger (Logger): Logger object.
+        config (ConfigurationParser): Configuration object that defines the architecture
+                                      and training parameters for the model.
+        device (torch.device): The device (CPU or GPU) on which to build and run the model.
+        prior (utils.BoxUniform): The prior distribution over the parameters.
 
     Returns:
-        (SNPE_C): An instance of sbi's SNPE inference objects.
+        Union[SNPE_C, SNLE_A, SNRE_A]: An instance of the corresponding sbi inference class,
+                                       depending on the model_type specified.
     """
 
-    # Building the embedding network.
-    embedding_net = config.init_object("arch", learning_models)
+    if model_type.lower() == "snpe":
+        # Building the embedding network.
+        embedding_net = config.init_object("arch", learning_models)
 
-    # Initialize weights.
-    weight_initializer = config.init_object(
-        "weights_initializer", learning_initializers
-    )
-    # Apply the weight initialization scheme to every layer in the model.
-    embedding_net.apply(weight_initializer)
+        # Initialize weights.
+        weight_initializer = config.init_object(
+            "weights_initializer", learning_initializers
+        )
+        # Apply the weight initialization scheme to every layer in the model.
+        embedding_net.apply(weight_initializer)
 
-    # Build density estimator.
-    # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
-    # The weights are initialized with the default initialization provided by pytorch.
+        # Build density estimator.
+        # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
+        # The weights are initialized with the default initialization provided by pytorch.
 
-    neural_posterior = utils.posterior_nn(
-        model=config["density_estimator"]["type"],
-        embedding_net=embedding_net,
-        hidden_features=config["density_estimator"]["args"]["hidden_features"],
-        num_components=config["density_estimator"]["args"]["num_components"],
-        device=device,
-    )
+        neural_posterior = utils.posterior_nn(
+            model=config["density_estimator"]["type"],
+            embedding_net=embedding_net,
+            hidden_features=config["density_estimator"]["args"][
+                "hidden_features"
+            ],
+            num_components=config["density_estimator"]["args"][
+                "num_components"
+            ],
+            device=device,
+        )
 
-    # Setting up the inference procedure.
-    inference = SNPE(
-        density_estimator=neural_posterior,
-        device=f"{device}",
-        prior=prior,
-    )
+        # Setting up the inference procedure.
+        inference = SNPE(
+            density_estimator=neural_posterior,
+            device=f"{device}",
+            prior=prior,
+        )
 
-    return inference
+        return inference
 
+    if model_type.lower() == "snle":
+        inference = SNLE(
+            density_estimator=config["density_estimator"]["type"],
+            device=f"{device}",
+            prior=prior,
+        )
 
-def build_network_snle(
-    config: configuration_parser.ConfigurationParser,
-    device: torch.device,
-    prior: utils.BoxUniform,
-) -> SNLE_A:
-    """
-    Building inference procedure for SNLE.
+        return inference
 
-    Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
-        device (torch.device): Device used to run the script.
-        prior (utils.BoxUniform): Prior distribution.
+    if model_type.lower() == "snre":
+        inference = SNRE(
+            classifier=config["density_estimator"]["classifier_nre"],
+            device=f"{device}",
+            prior=prior,
+        )
 
-    Returns:
-        (SNLE_C): An instance of sbi's SNLE inference objects.
-
-    """
-
-    inference = SNLE(
-        density_estimator=config["density_estimator"]["type"],
-        device=f"{device}",
-        prior=prior,
-    )
-
-    return inference
+        return inference
+    else:
+        logger.exception(
+            "The model type '{}' is not supported. ".format(model_type)
+        )
+        sys.exit(1)
 
 
 def initialize_inference(
@@ -235,16 +245,9 @@ def initialize_inference(
     model_type = config["trainer"]["type"]
 
     for _ in range(config["trainer"]["size_ensemble"] if ensemble else 1):
-        if model_type == "snle":
-            inference = build_network_snle(config, device, prior)
-        elif model_type == "snpe":
-            inference = build_network_snpe(config, device, prior)
-        else:
-            logger.exception(
-                "The model type '{}' is not supported. ".format(model_type)
-            )
-            sys.exit(1)
-
+        inference = build_inference_network(
+            model_type, logger, config, device, prior
+        )
         inference_list.append(inference)
 
     return inference_list

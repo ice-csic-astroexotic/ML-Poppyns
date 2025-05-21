@@ -31,6 +31,7 @@
 
   "density_estimator": {
     "type": "mdn",
+    "classifier_nre": "resnet",
     "args": {
       "hidden_features": 16,
       "num_components": 10
@@ -96,6 +97,7 @@
     "plot_proposal": false,
     "save_dir": "/home/celsa/Documents/MAGNESIA_population_synthesis/toremove/learning_snle"
   },
+
   "infer": {
     "sim_dataset":false ,
     "compute_coverage": true,
