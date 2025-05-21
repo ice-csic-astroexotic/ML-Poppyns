@@ -422,7 +422,7 @@ def train_posterior(
 
         # Saving the training statistics. If resuming in the first round, no training is performed, i.e., nothing is
         # saved.
-        if resume and round_current != 0:
+        if not resume or round_current != 0:
             ut.save_training_statistics(
                 config, inference, index, effective_round
             )
