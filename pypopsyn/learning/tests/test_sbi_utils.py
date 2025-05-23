@@ -131,7 +131,7 @@ def test_calculate_smallest_hdr(fake_posterior, fake_sampler, dummy_logger):
     matrix = torch.randn((n_test_samples, 3, 32, 32))
     device = torch.device("cpu")
 
-    hdr = calculate_smallest_hdr(
+    hdr, _ = calculate_smallest_hdr(
         posterior=fake_posterior,
         theta=theta,
         matrix=matrix,
