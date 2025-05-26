@@ -296,10 +296,12 @@ class SurveyRadio:
         # FWHM (float): FWHM of the beam[arcmin].
         # SNR_th (float): threshold signal-to-noise ratio.
         # RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
-        # DEC_range(np.ndarray): range of the sky covered by the survey in DEC [deg].
-        # l_range(np.ndarray): range of the sky covered by the survey in Galactic longitude l[deg].
-        # b_range_abs(np.ndarray): absolute value of the range of the sky covered
+        # DEC_range (np.ndarray): range of the sky covered by the survey in DEC [deg].
+        # l_range (np.ndarray): range of the sky covered by the survey in Galactic longitude l[deg].
+        # b_range_abs (np.ndarray): absolute value of the range of the sky covered
         #   by the survey in Galactic latitude b [deg].
+        # aperture_config (bool): If True, use the aperture array configuration for the pulsar detection.
+
         self.deg_factor = self.parameters["deg_factor"]
         self.G0 = self.parameters["G0"]
         self.t_obs = self.parameters["t_obs"]
@@ -315,6 +317,7 @@ class SurveyRadio:
         self.DEC_range = self.parameters["DEC_range"]
         self.l_range = self.parameters["l_range"]
         self.b_range_abs = self.parameters["b_range_abs"]
+        self.aperture_config = self.parameters["aperture_config"]
         self.name = self.parameters["name"]
 
     def __init__(
@@ -421,6 +424,26 @@ class SurveyRadio:
 
         return G
 
+    def aperture_array_factor(self, DEC: np.ndarray) -> np.ndarray:
+        """
+        Computes the aperture array sensitivity correction factor as a function of declination for each pulsar.
+
+        Args:
+            DEC (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
+
+        Returns:
+            (np.ndarray): correction factor emulate the sensitivity of an aperture array for different declinations.
+        """
+
+        # Compute the pulsar offset angles from zenith and convert them in rad.
+        offset_from_zenith = (
+            DEC - (self.DEC_range[0] + self.DEC_range[1]) / 2.0
+        ) * const.DEG_TO_RAD
+
+        aa_factor = np.cos(offset_from_zenith)
+
+        return aa_factor
+
     def radiometer_equation(
         self,
         S_radio_obs_mean: np.ndarray,
@@ -467,6 +490,7 @@ class SurveyRadio:
         S_radio_obs_mean: np.ndarray,
         l_gal: np.ndarray,
         b_gal: np.ndarray,
+        DEC: np.ndarray,
         w_eff: np.ndarray,
         P: np.ndarray,
     ) -> np.ndarray:
@@ -478,6 +502,7 @@ class SurveyRadio:
             S_radio_obs_mean (np.ndarray): Observed period-averaged radio flux density in [Jy].
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+            DEC (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
             w_eff (np.ndarray): Effective pulse width in [s].
             P (np.ndarray): Spin period in [s].
 
@@ -500,6 +525,10 @@ class SurveyRadio:
             S_radio_obs_mean, G, w_eff, P, T_sky
         )
 
+        if self.aperture_config:
+            aa_factor = self.aperture_array_factor(DEC)
+            SNR_detection = SNR_detection * aa_factor
+
         detected = SNR_detection > self.SNR_th
 
         return detected
@@ -513,6 +542,7 @@ class SurveyRadio:
         coverage: np.ndarray,
         l_gal: np.ndarray,
         b_gal: np.ndarray,
+        DEC: np.ndarray,
         S_radio_bol: np.ndarray,
         spectral_index: np.ndarray,
         tau_sc: np.ndarray,
@@ -530,6 +560,7 @@ class SurveyRadio:
             coverage (np.ndarray): Array of boolean variables indicating the pulsars within the sky coverage.
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+            DEC (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
             S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
             spectral_index (np.ndarray): Spectral indexes.
             tau_sc (np.ndarray): Scattering timescale in [s].
@@ -586,6 +617,7 @@ class SurveyRadio:
             S_radio_obs_mean[coverage],
             l_gal[coverage],
             b_gal[coverage],
+            DEC[coverage],
             w_eff[coverage],
             P[coverage],
         )
@@ -599,6 +631,7 @@ class SurveyRadio:
         P: np.ndarray,
         l_gal: np.ndarray,
         b_gal: np.ndarray,
+        DEC: np.ndarray,
         S_radio_bol,
         intercepted_radio: np.ndarray,
         coverage_survey: np.ndarray,
@@ -617,6 +650,7 @@ class SurveyRadio:
             P (np.ndarray): Array of spin periods of the pulsars in [s].
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+            DEC (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
             S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
             intercepted_radio: (np.ndarray) Array of boolean variables where True values represent stars whose
                 beam crosses our line of sight.
@@ -677,6 +711,7 @@ class SurveyRadio:
             S_radio_obs_mean[detectable_radio_survey],
             l_gal[detectable_radio_survey],
             b_gal[detectable_radio_survey],
+            DEC[detectable_radio_survey],
             w_eff[detectable_radio_survey],
             P[detectable_radio_survey],
         )
