@@ -559,7 +559,14 @@ def prepare_dataset_sbi(
 
     elif use_embedding and embedding_type == "cnn":
         parameter, matrix = cnn_compression(
-            n_samples, input_shape, dataset, logger, parameter
+            n_samples,
+            parameter,
+            config,
+            dataset,
+            input_shape,
+            logger,
+            normalize,
+            standardize,
         )
 
     elif use_embedding and embedding_type == "pca":
