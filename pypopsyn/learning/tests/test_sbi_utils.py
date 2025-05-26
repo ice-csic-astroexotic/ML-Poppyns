@@ -90,7 +90,7 @@ def fake_posterior():
 def fake_sampler(monkeypatch):
     # Simulate successful posterior sampling.
     def sample_with_timeout(posterior, x, n_samples, timeout):
-        samples = torch.randn((n_samples, x.shape[-1]))
+        samples = torch.randn((n_samples, 3))
         return samples, True
 
     monkeypatch.setattr(
@@ -250,12 +250,12 @@ def test_prepare_dataset_sbi(dummy_logger):
         dummy_logger (MagicMock): Logger object that records info messages.
     """
     dataset_folder = "data/example_generator_magrot"
-    config_path = Path("pypopsyn/learning/config_npe.json")
+    config_path = Path("pypopsyn/learning/config_sbi.json")
 
     with open(config_path, "r") as f:
         config = json.load(f)
 
-    config["trainer"]["embedding"] = False
+    config["embedding"]["use_embedding"] = False
 
     dataset, parameter, matrix = sbi_utils.prepare_dataset_sbi(
         dataset_folder=dataset_folder,
