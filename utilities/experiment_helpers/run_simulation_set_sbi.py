@@ -36,6 +36,7 @@ import multiprocessing as mp
 import os
 import pathlib
 from logging import Logger
+from typing import Any
 
 import dask
 import torch
@@ -61,6 +62,52 @@ log = logging.getLogger(__name__)
 dask.config.set({"distributed.comm.timeouts.tcp": "120s"})
 
 
+def sample_without_nan(
+    distribution: Any,
+    sampling_size: int,
+    device: torch.device,
+    max_attempts: int = 20,
+) -> torch.Tensor:
+    """
+    Sample a distribution while removing NaN values from the sampled outputs.
+    Stops after max_attempts if sufficient valid samples are not obtained.
+
+    Args:
+        distribution (Any): The distribution to sample from.
+        sampling_size (int): The number of samples to draw from the distribution.
+        device (torch.device): Device used to run the script.
+        max_attempts (int): The maximum number of attempts to sample (default is 20).
+
+    Returns:
+        torch.Tensor: A tensor of samples where all NaN values have been removed.
+    """
+
+    samples = []
+    attempts = 0
+
+    while len(samples) < sampling_size and attempts < max_attempts:
+        remaining_samples = sampling_size - len(samples)
+
+        new_samples = distribution.sample(
+            (remaining_samples,), show_progress_bars=False
+        )
+
+        valid_samples = new_samples[
+            ~torch.any(torch.isnan(new_samples), dim=1)
+        ]
+
+        samples.extend(valid_samples.tolist())
+
+        attempts += 1
+
+    if len(samples) < sampling_size:
+        raise RuntimeError(
+            f"Unable to obtain {sampling_size} valid samples after {max_attempts} attempts."
+        )
+
+    return torch.tensor(samples).to(device)
+
+
 def initialize_dask_cluster(
     logger: Logger, config: configuration_parser.ConfigurationParser
 ) -> HTCondorCluster:
@@ -76,7 +123,7 @@ def initialize_dask_cluster(
     """
 
     # Creating a folder to save the stdout and stderr of the terminal for each worker.
-    htcondor_output_folder = f"{config.save_dir}/htcondor_output"
+    htcondor_output_folder = f"{config.log_dir}/htcondor_output"
     pathlib.Path(htcondor_output_folder).mkdir(parents=True, exist_ok=True)
     logger.info(
         f"Saving the stdout and stderr of the terminal for each worker in {htcondor_output_folder}."
@@ -151,7 +198,9 @@ def simulator_dask(
     par_mean = torch.tensor(dataset.target_mean).to(device)
 
     # Create a generator of the random sets of parameters using the prior distribution.
-    parameter_sets_gen_tensor = prior.sample((args_dict["sampling_size"],))
+    parameter_sets_gen_tensor = sample_without_nan(
+        prior, args_dict["sampling_size"], device, max_attempts=20
+    )
 
     # If the parameters were normalized or standardized, rescale quantities to their physical ranges.
     if dataset.normalize:
@@ -290,7 +339,9 @@ def simulator_multiprocess(
     par_mean = torch.tensor(dataset.target_mean).to(device)
 
     # Create a generator of the random sets of parameters using the prior distribution.
-    parameter_sets_gen_tensor = prior.sample((args_dict["sampling_size"],))
+    parameter_sets_gen_tensor = sample_without_nan(
+        prior, args_dict["sampling_size"], device, max_attempts=20
+    )
 
     # If the parameters were normalized or standardized, rescale quantities to their physical ranges.
     if dataset.normalize:

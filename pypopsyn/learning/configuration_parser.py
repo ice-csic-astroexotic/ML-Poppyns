@@ -18,7 +18,7 @@ from logging import Logger
 from typing import Any, Optional, Union
 
 import pypopsyn.learning.logger.logger as learning_logger
-import pypopsyn.learning.utils.json as learning_utils_json
+import pypopsyn.learning.utils.json_utils as learning_utils_json
 
 
 class ConfigurationParser:
