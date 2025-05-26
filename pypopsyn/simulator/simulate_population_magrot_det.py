@@ -166,6 +166,16 @@ def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
             cfg["path_to_software"],
             "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BKS24_dip-tor_light-envelope/interpolator_Lx.pkl",
         )
+    elif cfg["magneto-thermal_model"] == "BKS24_multi_heavy":
+        interpolator_Lx_path = pathlib.Path().joinpath(
+            cfg["path_to_software"],
+            "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BKS24_multi_heavy-envelope/interpolator_Lx.pkl",
+        )
+    elif cfg["magneto-thermal_model"] == "BKS24_multi_light":
+        interpolator_Lx_path = pathlib.Path().joinpath(
+            cfg["path_to_software"],
+            "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BKS24_multi_light-envelope/interpolator_Lx.pkl",
+        )
 
     with open(interpolator_Lx_path, "rb") as f:
         L_x_interpolator = pickle.load(f)
@@ -436,6 +446,16 @@ def evolve_population_magrot(
         b1 = cfg["b1_BKS24_dip-tor"]
         b2 = cfg["b2_BKS24_dip-tor"]
         tau_late = cfg["tau_late_BKS24_dip-tor"]
+    elif (cfg["magneto-thermal_model"] == "BKS24_multi_heavy") or (
+            cfg["magneto-thermal_model"] == "BKS24_multi_light"
+    ):
+        a1 = cfg["a1_BKS24_multi"]
+        a2 = cfg["a2_BKS24_multi"]
+        A1 = cfg["A1_BKS24_multi"]
+        A2 = cfg["A2_BKS24_multi"]
+        b1 = cfg["b1_BKS24_multi"]
+        b2 = cfg["b2_BKS24_multi"]
+        tau_late = cfg["tau_late_BKS24_multi"]
 
     a_late = cfg["a_late"]
 

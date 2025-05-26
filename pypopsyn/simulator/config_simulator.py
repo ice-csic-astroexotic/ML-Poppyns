@@ -84,7 +84,7 @@ cfg["simulation_xray"]: bool = True
 # ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
 
 # Characteristic neutron star radius in [cm].
-cfg["NS_radius"]: float = 1.1e6
+cfg["NS_radius"]: float = 1.25e6 #1.1e6
 
 # Characteristic neutron star mass in [g].
 cfg["NS_mass"]: float = 1.4 * const.M_SUN
@@ -159,7 +159,7 @@ cfg["magnetic_field_model"]: str = "double_log-normal"
 
 # Minimum and maximum initial magnetic field strength in [G] to simulate.
 cfg["B_initial_log10_min"]: float = 10.0
-cfg["B_initial_log10_max"]: float = 16.0
+cfg["B_initial_log10_max"]: float = 15.7
 
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [G]
 # (default values are taken from Pardo-Araujo et al. 2025).
@@ -169,18 +169,18 @@ cfg["B_initial_log10_sigma"]: float = 0.5
 # Means and standard deviations and relative weight for the double log-normally distributed
 # initial magnetic fields in [G]. The weight denotes the importance of the first log-normal component
 # relative to whole pdf. Its value has to be in the range 0 and 1.
-cfg["B_initial_log10_mean_comp1"]: float = 13.02
-cfg["B_initial_log10_sigma_comp1"]: float = 0.49
-cfg["B_initial_log10_mean_comp2"]: float = 14.5
-cfg["B_initial_log10_sigma_comp2"]: float = 0.5
-cfg["B_initial_log10_weight_comp1"]: float = 0.7
+cfg["B_initial_log10_mean_comp1"]: float = 13.09
+cfg["B_initial_log10_sigma_comp1"]: float = 0.5
+cfg["B_initial_log10_mean_comp2"]: float = 14.3
+cfg["B_initial_log10_sigma_comp2"]: float = 0.3
+cfg["B_initial_log10_weight_comp1"]: float = 0.6
 
 # Parameters for the smooth top-hat with Gaussian rise and decay for the initial magnetic fields in [G].
 cfg["B_initial_log10_rise_mean"]: float = 13.02
 cfg["B_initial_log10_rise_sigma"]: float = 0.49
-cfg["B_initial_log10_decay_mean"]: float = 14.8
+cfg["B_initial_log10_decay_mean"]: float = 14.5
 cfg["B_initial_log10_decay_sigma"]: float = 0.2
-cfg["B_initial_log10_slope"]: float = -2.0
+cfg["B_initial_log10_slope"]: float = 0.0
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
@@ -239,7 +239,22 @@ cfg["b2_BKS24_dip-tor"]: float = -0.31
 
 # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution
 # for the models "BKS24_dip-tor_heavy" and "BKS24_dip-tor_light".
-cfg["tau_late_BKS24_dip-tor"]: float = 5.0e6
+cfg["tau_late_BKS24_dip-tor"]: float = 2.0e6
+
+# Power-law indices for the models "BKS24_multi_heavy" and "BKS24_multi_light".
+cfg["a1_BKS24_multi"]: float = -0.15
+cfg["a2_BKS24_multi"]: float = -4.0
+
+# Timescale parameters, normalizations and power-law indices for the models "BKS24_multi_heavy"
+# and "BKS24_multi_light".
+cfg["A1_BKS24_multi"]: float = 1.0e14
+cfg["b1_BKS24_multi"]: float = -0.8
+cfg["A2_BKS24_multi"]: float = 1.3e9
+cfg["b2_BKS24_multi"]: float = -0.23
+
+# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution
+# for the models "BKS24_multi_heavy" and "BKS24_multi_light".
+cfg["tau_late_BKS24_multi"]: float = 2.0e6
 
 # Late time power-law index (default value is taken from Pardo-Araujo et al. 2025).
 cfg["a_late"]: float = -0.88
