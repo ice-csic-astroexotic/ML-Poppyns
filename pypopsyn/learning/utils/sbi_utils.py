@@ -497,7 +497,8 @@ def prepare_dataset_sbi(
     atnf: Optional[bool] = False,
 ) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
     """
-    Prepare dataset for use in sbi.
+    Prepare dataset for use in SBI. If embedding is enabled, either PCA or CNN compression will be applied to the input
+    matrix tensor.
 
     Args:
         dataset_folder (str): Path to the folder where the dataset is saved.
@@ -531,6 +532,7 @@ def prepare_dataset_sbi(
     input_shape = config["arch"]["args"]["input_shape"]
     n_parameters = len(filter_labels)
 
+    # Load the density maps and parameters, and normalize or standardize them depending on the configuration file.
     try:
         dataset = dl.DatasetMultichannelArray(
             dataset_path=dataset_path,
@@ -724,7 +726,7 @@ def raw_vector(
     dataset: dl.DatasetMultichannelArray,
     logger: Logger,
     parameter: np.ndarray,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Loads raw data vectors without compression for use as input to the model.
 
