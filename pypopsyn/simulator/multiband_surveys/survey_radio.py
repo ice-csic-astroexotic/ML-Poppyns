@@ -440,6 +440,8 @@ class SurveyRadio:
             DEC - (self.DEC_range[0] + self.DEC_range[1]) / 2.0
         ) * const.DEG_TO_RAD
 
+        print(offset_from_zenith)
+
         aa_factor = np.cos(offset_from_zenith)
 
         return aa_factor
