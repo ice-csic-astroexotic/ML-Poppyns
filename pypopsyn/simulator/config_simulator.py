@@ -48,10 +48,10 @@ else:
     # /home/michele/Documents/MAGNESIA_population_synthesis. Otherwise, some notebooks might not work!
     cfg[
         "path_to_software"
-    ] = "/Users/vanessa/github/MAGNESIA/MAGNESIA_population_synthesis"
+    ] = "/Users/ronchi/Documents/GitHub/MAGNESIA_population_synthesis"
     cfg[
         "path_to_output"
-    ] = "/Users/vanessa/github/MAGNESIA/MAGNESIA_population_synthesis"
+    ] = "/Users/ronchi/Documents/GitHub/MAGNESIA_population_synthesis"
 
 if cfg["path_to_software"] == "":
     log.warning(

@@ -14,5 +14,6 @@
   "RA_range": [0.0, 360.0],
   "DEC_range": [-90.0, 90.0],
   "l_range": [-120.0, 30.0],
-  "b_range_abs": [0, 15.0]
+  "b_range_abs": [0, 15.0],
+  "aperture_config": false
 }
