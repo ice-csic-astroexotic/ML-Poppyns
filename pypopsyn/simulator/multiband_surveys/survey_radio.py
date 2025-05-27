@@ -432,10 +432,10 @@ class SurveyRadio:
             DEC (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
 
         Returns:
-            (np.ndarray): correction factor emulate the sensitivity of an aperture array for different declinations.
+            (np.ndarray): Correction factor emulating the sensitivity of an aperture array for different declinations.
         """
 
-        # Compute the pulsar offset angles from zenith and convert them in rad.
+        # Compute the pulsars' offset angles from zenith and convert them to [rad].
         offset_from_zenith = (
             DEC - (self.DEC_range[0] + self.DEC_range[1]) / 2.0
         ) * const.DEG_TO_RAD
@@ -495,7 +495,7 @@ class SurveyRadio:
         P: np.ndarray,
     ) -> np.ndarray:
         """
-        Simulate a detection: if the measured SNR surpasses the threshold SNR_th of the survey
+        Simulate a detection: If the measured SNR surpasses the threshold SNR_th of the survey
         then the pulsar is detected.
 
         Args:
