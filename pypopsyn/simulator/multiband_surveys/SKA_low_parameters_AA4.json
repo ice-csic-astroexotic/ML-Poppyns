@@ -1,7 +1,7 @@
 { "name" : "SKA Low AA4",
   "ref": "Keane et al. (2025)",
   "deg_factor": 1.0,
-  "G0": 20.62,
+  "G0": 33.4,
   "t_obs": 600.0,
   "t_samp": 100e-6,
   "T_sys": 47.0,
