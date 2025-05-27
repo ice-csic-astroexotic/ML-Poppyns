@@ -948,7 +948,7 @@ def simulate_population(args: argparse.Namespace) -> None:
             )
 
             fraction_detected_radio_SKA_mid_band2_AAstar = len(
-                detected_radio_SKA_mid_band1_AAstar[
+                detected_radio_SKA_mid_band2_AAstar[
                     detected_radio_SKA_mid_band2_AAstar
                 ]
             ) / len(detected_radio_SKA_mid_band2_AAstar)
@@ -961,7 +961,7 @@ def simulate_population(args: argparse.Namespace) -> None:
                 S_radio_obs_mean_SKA_mid_band1_AA4,
                 w_eff_SKA_mid_band1_AA4,
                 S_radio_obs_mid_band1_AA4,
-            ) = survey_SKA_mid_band1_AAstar.detected_radio_population_full(
+            ) = survey_SKA_mid_band1_AA4.detected_radio_population_full(
                 w_int_s,
                 DM,
                 P_final,
@@ -1006,7 +1006,7 @@ def simulate_population(args: argparse.Namespace) -> None:
             )
 
             fraction_detected_radio_SKA_mid_band2_AA4 = len(
-                detected_radio_SKA_mid_band1_AA4[
+                detected_radio_SKA_mid_band2_AA4[
                     detected_radio_SKA_mid_band2_AA4
                 ]
             ) / len(detected_radio_SKA_mid_band2_AA4)
