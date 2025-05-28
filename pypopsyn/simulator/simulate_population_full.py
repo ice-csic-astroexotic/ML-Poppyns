@@ -1061,6 +1061,8 @@ def simulate_population(args: argparse.Namespace) -> None:
             "L_radio_bol",
             "S_radio_bol",
             "w_int",
+            "DM",
+            "tau_sc",
             "intercepted_radio",
             "spectral_index",
         ]
@@ -1086,6 +1088,8 @@ def simulate_population(args: argparse.Namespace) -> None:
             "[s s^-1]",
             "[erg s^-1]",
             "[erg s^-1 cm^(-2)]",
+            "[s]",
+            "[pc cm^-3]",
             "[s]",
             " ",
             " ",
@@ -1119,6 +1123,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                     L_radio_bol,
                     S_radio_bol,
                     w_int_s,
+                    DM,
+                    tau_sc,
                     intercepted_radio,
                     spectral_index,
                 ]
