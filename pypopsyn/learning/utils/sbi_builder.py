@@ -162,31 +162,37 @@ def build_inference_network(
     """
 
     if model_type.lower() == "snpe":
-        # Building the embedding network.
-        embedding_net = config.init_object("arch", learning_models)
 
-        # Initialize weights.
-        weight_initializer = config.init_object(
-            "weights_initializer", learning_initializers
-        )
-        # Apply the weight initialization scheme to every layer in the model.
-        embedding_net.apply(weight_initializer)
-
-        # Build density estimator.
-        # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
-        # The weights are initialized with the default initialization provided by pytorch.
-
-        neural_posterior = utils.posterior_nn(
-            model=config["density_estimator"]["type"],
-            embedding_net=embedding_net,
-            hidden_features=config["density_estimator"]["args"][
+        # If config["compression_input"]["use_compression"] is False, input data compression will be performed directly
+        # within the density network. In this case, the first component of the network is a CNN that compresses the
+        # input data, and it is trained jointly with the density estimator. Note that this option is only compatible
+        # with the NPE.
+        posterior_nn_args = {
+            "model": config["density_estimator"]["type"],
+            "hidden_features": config["density_estimator"]["args"][
                 "hidden_features"
             ],
-            num_components=config["density_estimator"]["args"][
+            "num_components": config["density_estimator"]["args"][
                 "num_components"
             ],
-            device=device,
-        )
+            "device": device,
+        }
+
+        if not config["compression_input"]["use_compression"]:
+            # Build the embedding network
+            embedding_net = config.init_object("arch", learning_models)
+
+            # Initialize weights
+            weight_initializer = config.init_object(
+                "weights_initializer", learning_initializers
+            )
+            embedding_net.apply(weight_initializer)
+
+            posterior_nn_args["embedding_net"] = embedding_net
+
+        # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
+        # The weights are initialized with the default initialization provided by pytorch.
+        neural_posterior = utils.posterior_nn(**posterior_nn_args)
 
         # Setting up the inference procedure.
         inference = SNPE(
