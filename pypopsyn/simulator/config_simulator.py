@@ -83,9 +83,6 @@ cfg["simulation_xray"]: bool = True
 
 # ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
 
-# Characteristic neutron star radius in [cm].
-cfg["NS_radius"]: float = 1.25e6 #1.1e6
-
 # Characteristic neutron star mass in [g].
 cfg["NS_mass"]: float = 1.4 * const.M_SUN
 
@@ -208,9 +205,23 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 # B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**(a2-a1) * (1 + t/tau_late)**(a_late-a2)
 # with tau1 = A1 * B_initial**b1 and tau2 = A2 * B_initial**b2.
 
-# Model pdf for the magneto-thermal simulations. Choose between "SLy4_dip-tor_heavy", "BKS24_dip-tor_heavy",
-# "BKS24_dip-tor_light", "BKS24_multi_heavy" and BKS24_multi_light.
-cfg["magneto-thermal_model"]: str = "BKS24_dip-tor_heavy"
+# Model pdf for the magneto-thermal simulations. Choose between "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy",
+# "BSk24_dip-tor_light", "BSk24_multi_heavy" and BSk24_multi_light.
+cfg["magneto-thermal_model"]: str = "BSk24_dip-tor_heavy"
+
+# Depending on the equation of state SLy4 or BSK24 we set the characteristic neutron star radius in [cm]
+# for a mass of 1.4 Msun.
+if (
+    (cfg["magneto-thermal_model"] == "BSk24_dip-tor_heavy")
+    or (cfg["magneto-thermal_model"] == "BSk24_dip-tor_light")
+    or (cfg["magneto-thermal_model"] == "BSk24_multi_heavy")
+    or (cfg["magneto-thermal_model"] == "BSk24_multi_light")
+):
+    cfg["NS_radius"]: float = 1.25e6
+elif (cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy") or (
+    cfg["magneto-thermal_model"] == "SLy4_dip-tor_light"
+):
+    cfg["NS_radius"]: float = 1.1e6
 
 # Power-law indices for the model "SLy4_dip-tor_heavy".
 cfg["a1_SLy4_dip-tor"]: float = -0.13
@@ -226,35 +237,35 @@ cfg["b2_SLy4_dip-tor"]: float = -0.2
 # for the model "SLy4_dip-tor_heavy".
 cfg["tau_late_SLy4_dip-tor"]: float = 2.0e6
 
-# Power-law indices for the models "BKS24_dip-tor_heavy" and "BKS24_dip-tor_light".
-cfg["a1_BKS24_dip-tor"]: float = -0.13
-cfg["a2_BKS24_dip-tor"]: float = -3.0
+# Power-law indices for the models "BSk24_dip-tor_heavy" and "BSk24_dip-tor_light".
+cfg["a1_BSk24_dip-tor"]: float = -0.13
+cfg["a2_BSk24_dip-tor"]: float = -3.0
 
-# Timescale parameters, normalizations and power-law indices for the models "BKS24_dip-tor_heavy"
-# and "BKS24_dip-tor_light".
-cfg["A1_BKS24_dip-tor"]: float = 2.0e14
-cfg["b1_BKS24_dip-tor"]: float = -0.8
-cfg["A2_BKS24_dip-tor"]: float = 2.1e10
-cfg["b2_BKS24_dip-tor"]: float = -0.31
-
-# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution
-# for the models "BKS24_dip-tor_heavy" and "BKS24_dip-tor_light".
-cfg["tau_late_BKS24_dip-tor"]: float = 2.0e6
-
-# Power-law indices for the models "BKS24_multi_heavy" and "BKS24_multi_light".
-cfg["a1_BKS24_multi"]: float = -0.15
-cfg["a2_BKS24_multi"]: float = -4.0
-
-# Timescale parameters, normalizations and power-law indices for the models "BKS24_multi_heavy"
-# and "BKS24_multi_light".
-cfg["A1_BKS24_multi"]: float = 1.0e14
-cfg["b1_BKS24_multi"]: float = -0.8
-cfg["A2_BKS24_multi"]: float = 1.3e9
-cfg["b2_BKS24_multi"]: float = -0.23
+# Timescale parameters, normalizations and power-law indices for the models "BSk24_dip-tor_heavy"
+# and "BSk24_dip-tor_light".
+cfg["A1_BSk24_dip-tor"]: float = 2.0e14
+cfg["b1_BSk24_dip-tor"]: float = -0.8
+cfg["A2_BSk24_dip-tor"]: float = 2.1e10
+cfg["b2_BSk24_dip-tor"]: float = -0.31
 
 # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution
-# for the models "BKS24_multi_heavy" and "BKS24_multi_light".
-cfg["tau_late_BKS24_multi"]: float = 2.0e6
+# for the models "BSk24_dip-tor_heavy" and "BSk24_dip-tor_light".
+cfg["tau_late_BSk24_dip-tor"]: float = 2.0e6
+
+# Power-law indices for the models "BSk24_multi_heavy" and "BSk24_multi_light".
+cfg["a1_BSk24_multi"]: float = -0.15
+cfg["a2_BSk24_multi"]: float = -4.0
+
+# Timescale parameters, normalizations and power-law indices for the models "BSk24_multi_heavy"
+# and "BSk24_multi_light".
+cfg["A1_BSk24_multi"]: float = 1.0e14
+cfg["b1_BSk24_multi"]: float = -0.8
+cfg["A2_BSk24_multi"]: float = 1.3e9
+cfg["b2_BSk24_multi"]: float = -0.23
+
+# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution
+# for the models "BSk24_multi_heavy" and "BSk24_multi_light".
+cfg["tau_late_BSk24_multi"]: float = 2.0e6
 
 # Late time power-law index (default value is taken from Pardo-Araujo et al. 2025).
 cfg["a_late"]: float = -0.88
