@@ -19,10 +19,10 @@ TOL = 1e-5
 @pytest.fixture()
 def test_case_1():
     data = {
-        "r": np.array([1.5, 10]),
+        "r": np.array([1.5, 10.0]),
         "phi": np.array([2.0, 1.5]),
-        "x_expected": np.array([-0.62422, 0.70737]),
-        "y_expected": np.array([1.36395, 9.97495]),
+        "x_expected": np.array([-0.6242202548207136, 0.7073720166770291]),
+        "y_expected": np.array([1.3639461402385225, 9.974949866040545]),
     }
 
     return data
@@ -80,6 +80,19 @@ def test_polar_to_cartesian(test_case_1):
     ).all()
     assert np.isclose(
         test_case_1["y_expected"], y_out, rtol=TOL, atol=1.0e-30
+    ).all()
+
+
+def test_cartesian_to_polar(test_case_1):
+    """
+    Verifying that the conversion from Cartesian to polar coordinates is correct.
+    """
+    r_out, phi_out = coco.cartesian_to_polar(
+        test_case_1["x_expected"], test_case_1["y_expected"]
+    )
+    assert np.isclose(test_case_1["r"], r_out, rtol=TOL, atol=1.0e-30).all()
+    assert np.isclose(
+        test_case_1["phi"], phi_out, rtol=TOL, atol=1.0e-30
     ).all()
 
 
