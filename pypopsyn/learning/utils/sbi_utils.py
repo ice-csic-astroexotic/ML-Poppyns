@@ -549,15 +549,19 @@ def prepare_dataset_sbi(
     n_samples = len(dataset)
     parameter = np.zeros((n_samples, n_parameters))
 
-    use_embedding = config["embedding"].get("use_embedding", False)
-    embedding_type = config["embedding"].get("embedding_type", None)
+    use_compression_input = config["compression_input"].get(
+        "use_compression", False
+    )
+    compression_type = config["compression_input"].get(
+        "compression_type", None
+    )
 
-    if not use_embedding:
+    if not use_compression_input:
         parameter, matrix = raw_vector(
             n_samples, input_shape, dataset, logger, parameter
         )
 
-    elif use_embedding and embedding_type == "cnn":
+    elif use_compression_input and compression_type == "cnn":
         parameter, matrix = cnn_compression(
             n_samples,
             parameter,
@@ -569,7 +573,7 @@ def prepare_dataset_sbi(
             standardize,
         )
 
-    elif use_embedding and embedding_type == "pca":
+    elif use_compression_input and compression_type == "pca":
         parameter, matrix = pca_compression(
             n_samples,
             input_shape,
@@ -583,7 +587,7 @@ def prepare_dataset_sbi(
 
     else:
         logger.error(
-            "Invalid embedding configuration: 'embedding' enabled but 'embedding_type' not recognized"
+            "Invalid compression configuration: 'compression_input' enabled but 'compression_type' not recognized"
         )
         sys.exit(1)
 
