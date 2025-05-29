@@ -15,13 +15,13 @@ from pypopsyn.simulator.config_simulator import cfg
 
 # Redefining global variables to allow type specification.
 # Necessary right now in order to get JIT to work.
-NS_mass: float = cfg["NS_mass"]
-NS_radius: float = cfg["NS_radius"]
-k_coefficients_2: float = cfg["k_coefficients"][2]
+k_coefficients_2 = float(cfg["k_coefficients"][2])
 
 
-@jit(float64(float64, float64, float64))
-def misalignment_angle_derivative(B: float, chi: float, P: float) -> float:
+@jit(float64(float64, float64, float64, float64, float64))
+def misalignment_angle_derivative(
+    B: float, chi: float, P: float, NS_mass: float, NS_radius: float
+) -> float:
     """
     This function determines the change in the misalignment angle, i.e., the angle between the
     magnetic dipolar moment and the rotation axis of a pulsar. It is taken from eq. (71) of
@@ -36,6 +36,8 @@ def misalignment_angle_derivative(B: float, chi: float, P: float) -> float:
         chi (float): Angles between the magnetic dipolar moment, i.e., the magnetic
             field axis, and the rotation axis for all simulated pulsars, measured in [rad].
         P (float): Spin periods of simulated pulsars, measured in [s].
+        NS_mass (float): Neutron star mass, measured in [g].
+        NS_radius (float): Neutron star radius, measured in [cm].
 
     Returns:
         (float): Misalignment angle derivatives for all simulated pulsars in [rad/yr].

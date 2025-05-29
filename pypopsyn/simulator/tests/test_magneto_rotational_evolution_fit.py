@@ -9,6 +9,7 @@
 import numpy as np
 import pytest
 
+import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
 from pypopsyn.simulator.config_simulator import cfg
 
@@ -16,6 +17,12 @@ TOL = 1e-5
 
 # Update the number of simulated objects for testing purposes.
 cfg["NS_number"] = 2
+
+# Update the neutron star radius in [cm] for testing purposes.
+cfg["NS_radius"] = 1.1e6
+
+# Update neutron star mass in solar masses for testing purposes.
+cfg["NS_mass"] = 1.4 * const.M_SUN
 
 # Update the logarithmic time step for testing purposes.
 cfg["magrot_time_step_log10"] = 1
@@ -192,6 +199,8 @@ def test_combined_derivatives(test_case_3):
         test_case_3["b2"],
         test_case_3["tau_late"],
         test_case_3["a_late"],
+        cfg["NS_mass"],
+        cfg["NS_radius"],
     )
 
     assert np.isclose(
@@ -227,13 +236,6 @@ def test_magneto_rotational_evolution(monkeypatch, test_case_4):
         test_case_4["chi_initial"],
         test_case_4["P_initial"],
         test_case_4["t_age"],
-        test_case_4["a1"],
-        test_case_4["a2"],
-        test_case_4["A1"],
-        test_case_4["A2"],
-        test_case_4["b1"],
-        test_case_4["b2"],
-        test_case_4["tau_late"],
         test_case_4["a_late"],
     )
     assert np.isclose(

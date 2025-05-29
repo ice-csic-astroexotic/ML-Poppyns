@@ -9,7 +9,13 @@
 import numpy as np
 import pytest
 
+import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivative as madv
+from pypopsyn.simulator.config_simulator import cfg
+
+# Set the neutron parameters for testing purposes.
+cfg["NS_mass"] = 1.4 * const.M_SUN
+cfg["NS_radius"] = 1.1e6
 
 TOL = 1e-5
 
@@ -39,6 +45,8 @@ def test_misalignment_angle_derivative(test_case_1):
         test_case_1["B"],
         test_case_1["chi"],
         test_case_1["P"],
+        cfg["NS_mass"],
+        cfg["NS_radius"],
     )
 
     assert np.isclose(

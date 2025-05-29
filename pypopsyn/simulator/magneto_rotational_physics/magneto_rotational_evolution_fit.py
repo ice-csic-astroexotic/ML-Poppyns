@@ -18,6 +18,19 @@ import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivati
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.config_simulator import cfg
 
+# Redefining global variables to allow type specification.
+# Necessary right now in order to get JIT to work.
+NS_mass = float(cfg["NS_mass"])
+NS_radius = float(cfg["NS_radius"])
+a1 = float(cfg["a1"])
+a2 = float(cfg["a2"])
+A1 = float(cfg["A1"])
+A2 = float(cfg["A2"])
+b1 = float(cfg["b1"])
+b2 = float(cfg["b2"])
+tau_late = float(cfg["tau_late"])
+
+
 def magnetic_field_evolution_fit_numpy(
     B_initial: float,
     t: np.ndarray,
@@ -29,7 +42,7 @@ def magnetic_field_evolution_fit_numpy(
     b1: float,
     b2: float,
     tau_late: float,
-    a_late: float
+    a_late: float,
 ) -> np.ndarray:
     """
     An analytical function for the magnetic field evolution curves from the magneto-thermal evolution simulations.
@@ -95,7 +108,24 @@ def magnetic_field_evolution_fit_numpy(
     return B
 
 
-@jit([float64(float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, float64)], nopython=True)
+@jit(
+    [
+        float64(
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+        )
+    ],
+    nopython=True,
+)
 def magnetic_field_evolution_fit(
     B_initial: float,
     t: float,
@@ -107,7 +137,7 @@ def magnetic_field_evolution_fit(
     b1: float,
     b2: float,
     tau_late: float,
-    a_late: float
+    a_late: float,
 ) -> float:
     """
     An analytical fit for the magnetic field evolution curves from the magneto-thermal evolution simulations.
@@ -174,7 +204,24 @@ def magnetic_field_evolution_fit(
 
 
 @jit(
-    [float64[:](float64, float64[:], float64, float64, float64, float64, float64, float64, float64, float64, float64, float64)],
+    [
+        float64[:](
+            float64,
+            float64[:],
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+            float64,
+        )
+    ],
     nopython=True,
 )
 def combined_derivatives(
@@ -190,6 +237,8 @@ def combined_derivatives(
     b2: float,
     tau_late: float,
     a_late: float,
+    NS_mass: float,
+    NS_radius: float,
 ) -> np.ndarray:
     """
     Combining the two derivative functions for the misalignment angle
@@ -215,6 +264,8 @@ def combined_derivatives(
         tau_late (float): Timescale in [yr] when transitioning from the simulated curves to the simple late-time
             power-law evolution of the magnetic field strength.
         a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
+        NS_mass (float): Neutron star mass, measured in [g].
+        NS_radius (float): Neutron star radius, measured in [cm].
 
     Returns:
         (np.ndarray): Derivative of the two magneto-rotational parameters for one pulsar,
@@ -228,21 +279,11 @@ def combined_derivatives(
     dy = np.zeros(len(y), dtype=np.float64)
 
     B = magnetic_field_evolution_fit(
-        B_initial,
-        t,
-        B_asymptotic,
-        a1,
-        a2,
-        A1,
-        A2,
-        b1,
-        b2,
-        tau_late,
-        a_late
+        B_initial, t, B_asymptotic, a1, a2, A1, A2, b1, b2, tau_late, a_late
     )
 
-    dy[0] = madv.misalignment_angle_derivative(B, chi, P)
-    dy[1] = pdv.period_derivative(B, chi, P)
+    dy[0] = madv.misalignment_angle_derivative(B, chi, P, NS_mass, NS_radius)
+    dy[1] = pdv.period_derivative(B, chi, P, NS_mass, NS_radius)
 
     return dy
 
@@ -252,13 +293,6 @@ def magneto_rotational_evolution(
     chi_initial: np.ndarray,
     P_initial: np.ndarray,
     t_age: np.ndarray,
-    a1: float,
-    a2: float,
-    A1: float,
-    A2: float,
-    b1: float,
-    b2: float,
-    tau_late: float,
     a_late: float,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, dict]:
     """
@@ -273,18 +307,6 @@ def magneto_rotational_evolution(
         chi_initial (np.ndarray): Pulsars' initial misalignment angles, measured in [rad].
         P_initial (np.ndarray): Pulsars' initial rotation periods, measured in [s].
         t_age (np.ndarray): Array of neutron star ages in [yr].
-        a1 (float): Power-law index for the first power-law component of the fit of the magnetic-field evolution.
-        a2 (float): Power-law index for the second power-law component of the fit of the magnetic-field evolution.
-        A1 (float): Normalization for the timescale parameter of the first power-law component of the fit of the
-            magnetic-field evolution.
-        A2 (float): Normalization for the timescale parameter of the second power-law component of the fit of the
-            magnetic-field evolution.
-        b1 (float): Power-law index for the timescale parameter of the first power-law component of the fit of the
-            magnetic-field evolution.
-        b2 (float): Power-law index for the timescale parameter of the second power-law component of the fit of the
-            magnetic-field evolution.
-        tau_late (float): Timescale in [yr] when transitioning from the simulated curves to the simple late-time
-            power-law evolution of the magnetic field strength.
         a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
 
     Returns:
@@ -347,7 +369,9 @@ def magneto_rotational_evolution(
                     b1,
                     b2,
                     tau_late,
-                    a_late
+                    a_late,
+                    NS_mass,
+                    NS_radius,
                 ),
                 tfirst=True,
             )
@@ -367,7 +391,7 @@ def magneto_rotational_evolution(
                 b1,
                 b2,
                 tau_late,
-                a_late
+                a_late,
             )
 
             # Save the evolution output of the i-th neutron star in a dictionary.
@@ -394,7 +418,7 @@ def magneto_rotational_evolution(
             b1,
             b2,
             tau_late,
-            a_late
+            a_late,
         )
         chi_final[i] = evol_output[-1, 0]
         P_final[i] = evol_output[-1, 1]

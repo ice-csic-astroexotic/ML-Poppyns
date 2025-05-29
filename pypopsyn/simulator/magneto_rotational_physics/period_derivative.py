@@ -15,14 +15,14 @@ from pypopsyn.simulator.config_simulator import cfg
 
 # Redefining global variables to allow type specification.
 # Necessary right now in order to get JIT to work.
-NS_mass: float = cfg["NS_mass"]
-NS_radius: float = cfg["NS_radius"]
-k_coefficients_0: float = cfg["k_coefficients"][0]
-k_coefficients_1: float = cfg["k_coefficients"][1]
+k_coefficients_0 = float(cfg["k_coefficients"][0])
+k_coefficients_1 = float(cfg["k_coefficients"][1])
 
 
-@jit(float64(float64, float64, float64))
-def period_derivative(B: float, chi: float, P: float) -> float:
+@jit(float64(float64, float64, float64, float64, float64))
+def period_derivative(
+    B: float, chi: float, P: float, NS_mass: float, NS_radius: float
+) -> float:
     """
     This function determines the change in the rotation period of a pulsar. It is taken
     from eq. (70) of Pons & Vigano (2019). For more details see, e.g., Spitkovsky (2006)
@@ -36,6 +36,8 @@ def period_derivative(B: float, chi: float, P: float) -> float:
         chi (float): Angle between the magnetic dipolar moment, i.e., the magnetic
             field axis, and the rotation axis for a simulated pulsar, measured in [rad].
         P (float): Spin period of a simulated pulsar, measured in [s].
+        NS_mass (float): Neutron star mass, measured in [g].
+        NS_radius (float): Neutron star radius, measured in [cm].
 
     Returns:
         (float): Period derivative of a simulated pulsar in [s/yr].
@@ -59,7 +61,11 @@ def period_derivative(B: float, chi: float, P: float) -> float:
 
 
 def period_derivative_numpy(
-    B: np.ndarray, chi: np.ndarray, P: np.ndarray
+    B: np.ndarray,
+    chi: np.ndarray,
+    P: np.ndarray,
+    NS_mass: float,
+    NS_radius: float,
 ) -> np.ndarray:
     """
     This is the numpy array version of the function above. It determines the change in the
@@ -75,6 +81,8 @@ def period_derivative_numpy(
         chi (np.ndarray): Array of angles between the magnetic dipolar moment, i.e., the magnetic
             field axis, and the rotation axis for the simulated pulsars, measured in [rad].
         P (np.ndarray): Array of spin period of a simulated pulsars, measured in [s].
+        NS_mass (float): Neutron star mass, measured in [g].
+        NS_radius (float): Neutron star radius, measured in [cm].
 
     Returns:
         (np.ndarray): Array of period derivatives of the simulated pulsars in [s/s].
