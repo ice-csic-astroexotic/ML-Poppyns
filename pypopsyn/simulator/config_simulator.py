@@ -8,6 +8,7 @@
 """
 
 import logging
+import pathlib
 import sys
 from typing import List
 
@@ -37,17 +38,17 @@ cfg["save_magrot_evolution"]: bool = False
 
 # Specify here the absolute path to the directory where the repository is saved.
 # If launching experiments on one of the PIC servers set cfg["server_run"] = True.
-cfg["server_run"] = False
+cfg["server_run"]: bool = False
 if cfg["server_run"]:
     cfg[
         "path_to_software"
-    ] = "/data/magnesia/software/MAGNESIA_population_synthesis"
-    cfg["path_to_output"] = "/data/magnesia/common"
+    ]: str = "/data/magnesia/software/MAGNESIA_population_synthesis"
+    cfg["path_to_output"]: str = "/data/magnesia/common"
 else:
     # Change the following parameters to your local path, e.g., something like
     # /home/michele/Documents/MAGNESIA_population_synthesis. Otherwise, some notebooks might not work!
-    cfg["path_to_software"] = ""
-    cfg["path_to_output"] = ""
+    cfg["path_to_software"]: str = ""
+    cfg["path_to_output"]: str = ""
 
 if cfg["path_to_software"] == "":
     log.warning(
@@ -62,7 +63,7 @@ cfg["seed_dyn"]: int = None
 # Seed for the random number generation for simulate_population_magrot_det.py.
 cfg["seed_magrot"]: int = None
 # Seed for the random number generation for memory_efficient_sampling.py
-cfg["seed_sampling"] = None
+cfg["seed_sampling"]: bool = None
 
 # Resolution for the parameter grid when performing random sampling for the neutron star properties from a pdf distribution.
 # This is used to sample the initial position in Galactocentric coordinates, the kick velocity, the initial magnetic field,
@@ -121,18 +122,21 @@ cfg["kick_model"]: str = "km_maxwell"
 # Maximum kick velocity magnitude in [km/s].
 cfg["vk_extent"]: float = 2500.0
 
-# Characteristic kick velocity in [km/s] for the exponential kick velocity pdf (Faucher-Giguère amd Kaspi 2006).
-cfg["vk_c"]: float = 180.0
+if cfg["kick_model"] == "km_exp":
+    # Characteristic kick velocity in [km/s] for the exponential kick velocity pdf (Faucher-Giguère amd Kaspi 2006).
+    cfg["vk_c"]: float = 180.0
 
-# Sigma in [km/s] for the Maxwell kick velocity pdf (Hobbs et al. 2005).
-cfg["sigma_k"]: float = 265.0
+elif cfg["kick_model"] == "km_maxwell":
+    # Sigma in [km/s] for the Maxwell kick velocity pdf (Hobbs et al. 2005).
+    cfg["sigma_k"]: float = 265.0
 
-# Parameters for the double Maxwell kick velocity pdf (see Eq. (5) and Section 4.2 in Igoshev 2020).
-# The weight denotes the importance of the first Maxwell component relative to the whole pdf.
-# Its value has to be in the range between 0 and 1.
-cfg["sigma_k_1"]: float = 55.0
-cfg["sigma_k_2"]: float = 334.0
-cfg["kick_weight"]: float = 0.19
+elif cfg["kick_model"] == "km_2maxwell":
+    # Parameters for the double Maxwell kick velocity pdf (see Eq. (5) and Section 4.2 in Igoshev 2020).
+    # The weight denotes the importance of the first Maxwell component relative to the whole pdf.
+    # Its value has to be in the range between 0 and 1.
+    cfg["sigma_k_1"]: float = 55.0
+    cfg["sigma_k_2"]: float = 334.0
+    cfg["kick_weight"]: float = 0.19
 
 # Time step for the dynamical evolution [yr].
 cfg["dyn_time_step"]: float = 1e4
@@ -142,42 +146,47 @@ cfg["dyn_time_step"]: float = 1e4
 # Model pdf for the initial spin period. Choose between "normal", "log-normal".
 cfg["spin_period_model"]: str = "log-normal"
 
-# Mean and standard deviation for the Gaussian distributed initial periods in [s].
-cfg["P_initial_mean"]: float = 0.3
-cfg["P_initial_sigma"]: float = 0.2
+if cfg["spin_period_model"] == "normal":
+    # Mean and standard deviation for the Gaussian distributed initial periods in [s].
+    cfg["P_initial_mean"]: float = 0.3
+    cfg["P_initial_sigma"]: float = 0.2
 
-# Mean and standard deviation for the log-normal distributed initial periods in [s].
-# (default values are taken from Pardo-Araujo et al. 2025).
-cfg["P_initial_log10_mean"]: float = -0.67
-cfg["P_initial_log10_sigma"]: float = 0.55
+elif cfg["spin_period_model"] == "log-normal":
+    # Mean and standard deviation for the log-normal distributed initial periods in [s].
+    # (default values are taken from Pardo-Araujo et al. 2025).
+    cfg["P_initial_log10_mean"]: float = -0.67
+    cfg["P_initial_log10_sigma"]: float = 0.55
 
 # Model pdf for the initial magnetic field. Choose between "log-normal", "double_log-normal", "smooth_tophat".
-cfg["magnetic_field_model"]: str = "double_log-normal"
+cfg["magnetic_field_model"]: str = "log-normal"
 
 # Minimum and maximum initial magnetic field strength in [G] to simulate.
 cfg["B_initial_log10_min"]: float = 10.0
 cfg["B_initial_log10_max"]: float = 15.7
 
-# Mean and standard deviation for the log-normally distributed initial magnetic fields in [G]
-# (default values are taken from Pardo-Araujo et al. 2025).
-cfg["B_initial_log10_mean"]: float = 13.09
-cfg["B_initial_log10_sigma"]: float = 0.5
+if cfg["magnetic_field_model"] == "log-normal":
+    # Mean and standard deviation for the log-normally distributed initial magnetic fields in [G]
+    # (default values are taken from Pardo-Araujo et al. 2025).
+    cfg["B_initial_log10_mean"]: float = 13.09
+    cfg["B_initial_log10_sigma"]: float = 0.5
 
-# Means and standard deviations and relative weight for the double log-normally distributed
-# initial magnetic fields in [G]. The weight denotes the importance of the first log-normal component
-# relative to whole pdf. Its value has to be in the range 0 and 1.
-cfg["B_initial_log10_mean_comp1"]: float = 13.09
-cfg["B_initial_log10_sigma_comp1"]: float = 0.5
-cfg["B_initial_log10_mean_comp2"]: float = 14.3
-cfg["B_initial_log10_sigma_comp2"]: float = 0.3
-cfg["B_initial_log10_weight_comp1"]: float = 0.6
+elif cfg["magnetic_field_model"] == "double_log-normal":
+    # Means and standard deviations and relative weight for the double log-normally distributed
+    # initial magnetic fields in [G]. The weight denotes the importance of the first log-normal component
+    # relative to whole pdf. Its value has to be in the range 0 and 1.
+    cfg["B_initial_log10_mean_comp1"]: float = 13.09
+    cfg["B_initial_log10_sigma_comp1"]: float = 0.5
+    cfg["B_initial_log10_mean_comp2"]: float = 14.3
+    cfg["B_initial_log10_sigma_comp2"]: float = 0.3
+    cfg["B_initial_log10_weight_comp1"]: float = 0.6
 
-# Parameters for the smooth top-hat with Gaussian rise and decay for the initial magnetic fields in [G].
-cfg["B_initial_log10_rise_mean"]: float = 13.02
-cfg["B_initial_log10_rise_sigma"]: float = 0.49
-cfg["B_initial_log10_decay_mean"]: float = 14.5
-cfg["B_initial_log10_decay_sigma"]: float = 0.2
-cfg["B_initial_log10_slope"]: float = 0.0
+elif cfg["magnetic_field_model"] == "smooth_tophat":
+    # Parameters for the smooth top-hat with Gaussian rise and decay for the initial magnetic fields in [G].
+    cfg["B_initial_log10_rise_mean"]: float = 13.02
+    cfg["B_initial_log10_rise_sigma"]: float = 0.49
+    cfg["B_initial_log10_decay_mean"]: float = 14.5
+    cfg["B_initial_log10_decay_sigma"]: float = 0.2
+    cfg["B_initial_log10_slope"]: float = 0.0
 
 # Dimensionless coefficients k_0, k_1, k_2 for a force-free magnetosphere
 # taken from Spitkovsky (2006) and Philippov et al. (2014).
@@ -209,84 +218,124 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 # "BSk24_dip-tor_light", "BSk24_multi_heavy" and BSk24_multi_light.
 cfg["magneto-thermal_model"]: str = "BSk24_dip-tor_heavy"
 
-# Depending on the equation of state SLy4 or BSK24 we set the characteristic neutron star radius in [cm]
-# for a mass of 1.4 Msun.
-if (
-    (cfg["magneto-thermal_model"] == "BSk24_dip-tor_heavy")
-    or (cfg["magneto-thermal_model"] == "BSk24_dip-tor_light")
-    or (cfg["magneto-thermal_model"] == "BSk24_multi_heavy")
-    or (cfg["magneto-thermal_model"] == "BSk24_multi_light")
+if cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
+    # Set the characteristic neutron star radius in [cm] for a mass of 1.4 Msun.
+    cfg["NS_radius"]: float = 1.170e6
+
+    # Power-law indices.
+    cfg["a1"]: float = -0.13
+    cfg["a2"]: float = -3.0
+
+    # Timescale parameters, normalizations and power-law indices.
+    cfg["A1"]: float = 1.0e14
+    cfg["b1"]: float = -0.8
+    cfg["A2"]: float = 6.0e8
+    cfg["b2"]: float = -0.2
+
+    # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
+    cfg["tau_late"]: float = 2.0e6
+
+    # Load the interpolator function to evaluate the X-ray luminosity.
+    cfg["interpolator_Lx_path"]: str = str(
+        pathlib.Path().joinpath(
+            cfg["path_to_software"],
+            "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/SLy4_dip-tor_heavy-envelope/interpolator_Lx.pkl",
+        )
+    )
+
+elif (cfg["magneto-thermal_model"] == "BSk24_dip-tor_heavy") or (
+    cfg["magneto-thermal_model"] == "BSk24_dip-tor_light"
 ):
-    cfg["NS_radius"]: float = 1.25e6
-elif cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
-    cfg["NS_radius"]: float = 1.1e6
+    # Set the characteristic neutron star radius in [cm] for a mass of 1.4 Msun.
+    cfg["NS_radius"]: float = 1.259e6
 
-# Power-law indices for the model "SLy4_dip-tor_heavy".
-cfg["a1_SLy4_dip-tor"]: float = -0.13
-cfg["a2_SLy4_dip-tor"]: float = -3.0
+    # Power-law indices.
+    cfg["a1"]: float = -0.13
+    cfg["a2"]: float = -3.0
 
-# Timescale parameters, normalizations and power-law indices for the model "SLy4_dip-tor_heavy".
-cfg["A1_SLy4_dip-tor"]: float = 1.0e14
-cfg["b1_SLy4_dip-tor"]: float = -0.8
-cfg["A2_SLy4_dip-tor"]: float = 6.0e8
-cfg["b2_SLy4_dip-tor"]: float = -0.2
+    # Timescale parameters, normalizations and power-law indices.
+    cfg["A1"]: float = 1.0e14
+    cfg["b1"]: float = -0.8
+    cfg["A2"]: float = 6.0e8
+    cfg["b2"]: float = -0.2
 
-# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution
-# for the model "SLy4_dip-tor_heavy".
-cfg["tau_late_SLy4_dip-tor"]: float = 2.0e6
+    # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
+    cfg["tau_late"]: float = 2.0e6
 
-# Power-law indices for the models "BSk24_dip-tor_heavy" and "BSk24_dip-tor_light".
-cfg["a1_BSk24_dip-tor"]: float = -0.13
-cfg["a2_BSk24_dip-tor"]: float = -3.0
+    # Load the interpolator function to evaluate the X-ray luminosity.
+    if cfg["magneto-thermal_model"] == "BSk24_dip-tor_heavy":
+        cfg["interpolator_Lx_path"]: str = str(
+            pathlib.Path().joinpath(
+                cfg["path_to_software"],
+                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_heavy-envelope/interpolator_Lx.pkl",
+            )
+        )
+    elif cfg["magneto-thermal_model"] == "BSk24_dip-tor_light":
+        cfg["interpolator_Lx_path"]: str = str(
+            pathlib.Path().joinpath(
+                cfg["path_to_software"],
+                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_light-envelope/interpolator_Lx.pkl",
+            )
+        )
 
-# Timescale parameters, normalizations and power-law indices for the models "BSk24_dip-tor_heavy"
-# and "BSk24_dip-tor_light".
-cfg["A1_BSk24_dip-tor"]: float = 1.0e14
-cfg["b1_BSk24_dip-tor"]: float = -0.8
-cfg["A2_BSk24_dip-tor"]: float = 6.0e8
-cfg["b2_BSk24_dip-tor"]: float = -0.2
+elif (cfg["magneto-thermal_model"] == "BSk24_multi_heavy") or (
+    cfg["magneto-thermal_model"] == "BSk24_multi_light"
+):
+    # Set the characteristic neutron star radius in [cm] for a mass of 1.4 Msun.
+    cfg["NS_radius"]: float = 1.259e6
 
-# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution
-# for the models "BSk24_dip-tor_heavy" and "BSk24_dip-tor_light".
-cfg["tau_late_BSk24_dip-tor"]: float = 2.0e6
+    # Power-law indices.
+    cfg["a1"]: float = -0.15
+    cfg["a2"]: float = -4.0
 
-# Power-law indices for the models "BSk24_multi_heavy" and "BSk24_multi_light".
-cfg["a1_BSk24_multi"]: float = -0.15
-cfg["a2_BSk24_multi"]: float = -4.0
+    # Timescale parameters, normalizations and power-law indices.
+    cfg["A1"]: float = 9.0e13
+    cfg["b1"]: float = -0.8
+    cfg["A2"]: float = 6.0e8
+    cfg["b2"]: float = -0.2
 
-# Timescale parameters, normalizations and power-law indices for the models "BSk24_multi_heavy"
-# and "BSk24_multi_light".
-cfg["A1_BSk24_multi"]: float = 9.0e13
-cfg["b1_BSk24_multi"]: float = -0.8
-cfg["A2_BSk24_multi"]: float = 6.0e8
-cfg["b2_BSk24_multi"]: float = -0.2
+    # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
+    cfg["tau_late"]: float = 2.0e6
 
-# Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution
-# for the models "BSk24_multi_heavy" and "BSk24_multi_light".
-cfg["tau_late_BSk24_multi"]: float = 2.0e6
+    # Load the interpolator function to evaluate the X-ray luminosity.
+    if cfg["magneto-thermal_model"] == "BSk24_multi_heavy":
+        cfg["interpolator_Lx_path"]: str = str(
+            pathlib.Path().joinpath(
+                cfg["path_to_software"],
+                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_heavy-envelope/interpolator_Lx.pkl",
+            )
+        )
+    elif cfg["magneto-thermal_model"] == "BSk24_multi_light":
+        cfg["interpolator_Lx_path"]: str = str(
+            pathlib.Path().joinpath(
+                cfg["path_to_software"],
+                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_light-envelope/interpolator_Lx.pkl",
+            )
+        )
 
 # Late time power-law index (default value is taken from Pardo-Araujo et al. 2025).
 cfg["a_late"]: float = -0.88
 
 # Parameters for a log-normal distribution of the magnetic fields of the old millisecond pulsars.
-cfg["B_millisec_mean"] = 8.5
-cfg["B_millisec_sigma"] = 0.5
+cfg["B_millisec_mean"]: float = 8.5
+cfg["B_millisec_sigma"]: float = 0.5
 
 
 # ===================== RADIO EMISSION-MODEL PARAMETERS ========================
 
 # Model for the radio beam aperture. Choose between "standard_period_cone" and "power-law_period_cone".
-cfg["radio_beam_model"] = "standard_period_cone"
+cfg["radio_beam_model"]: str = "standard_period_cone"
 
-# Distance in [cm] from the center of the star to where the radio emission is generated (Johnston et al. 2020).
-# This parameter is required only if the cfg["radio_beam_model"] is set to "standard_period_cone".
-cfg["r_em"]: float = 3.0e7
+if cfg["radio_beam_model"] == "standard_period_cone":
+    # Distance in [cm] from the center of the star to where the radio emission is generated (Johnston et al. 2020).
+    cfg["r_em"]: float = 3.0e7
 
-# Parameters for the "power-law_period_cone" model (Maciesiak et al. 2012).
-cfg[
-    "rho_b_0"
-] = 2.5  # Half opening angle of the radio beam in [deg] corresponding to a spin period of 1 s.
-cfg["a_beam"] = -0.5  # Power-law exponent.
+elif cfg["radio_beam_model"] == "power-law_period_cone":
+    # Parameters taken from Maciesiak et al. 2012.
+    cfg[
+        "rho_b_0"
+    ]: float = 2.5  # Half opening angle of the radio beam in [deg] corresponding to a spin period of 1 s.
+    cfg["a_beam"]: float = -0.5  # Power-law exponent.
 
 # Relevant parameters for the log-normally distributed luminosity, L.
 # We have implemented two different prescriptions for the luminosity in the module
@@ -298,23 +347,25 @@ cfg["a_beam"] = -0.5  # Power-law exponent.
 # Model pdf for the radio luminosity. Choose between "lum_radio_ppdot" and "lum_radio_edot".
 cfg["radio_luminosity_model"]: str = "lum_radio_edot"
 
-# Parameters for the "lum_radio_ppdot" model (Graber et al. 2024).
-# These best parameters assume a mean_spectral_index = -1.6 (see Jankowski et al. 2018).
-cfg["L_radio_ppdot_log10_mean"]: float = 35.5  # [erg s^(3 * epsilon_L - 1) ]
-cfg["L_radio_ppdot_log10_sigma"]: float = 0.8
-cfg["epsilon_L_ppdot"]: float = 0.5
+if cfg["radio_luminosity_model"] == "lum_radio_ppdot":
+    # Parameters for the "lum_radio_ppdot" model (Graber et al. 2024).
+    # These best parameters assume a mean_spectral_index = -1.6 (see Jankowski et al. 2018).
+    cfg["L_radio_log10_mean"]: float = 35.5  # [erg s^(3 * epsilon_L - 1) ]
+    cfg["L_radio_log10_sigma"]: float = 0.8
+    cfg["epsilon_L"]: float = 0.5
 
-# Parameters for the "lum_radio_edot" model (Pardo-Araujo et al. 2025).
-# These best parameters assume a mean_spectral_index = -1.8 (see Posselt et al. 2023).
-cfg["L_radio_edot_log10_mean"]: float = 26.17  # [erg s^(- 1)]
-cfg["L_radio_edot_log10_sigma"]: float = 0.8
-cfg["epsilon_L_edot"]: float = 0.68
-cfg["Erot_dot_0"]: float = 1e29
+if cfg["radio_luminosity_model"] == "lum_radio_edot":
+    # Parameters for the "lum_radio_edot" model (Pardo-Araujo et al. 2025).
+    # These best parameters assume a mean_spectral_index = -1.8 (see Posselt et al. 2023).
+    cfg["L_radio_log10_mean"]: float = 26.17  # [erg s^(- 1)]
+    cfg["L_radio_log10_sigma"]: float = 0.8
+    cfg["epsilon_L"]: float = 0.68
+    cfg["Erot_dot_0"]: float = 1e29
 
 # Spectral index following a normal distribution as in Posselt et al. (2023). We set the standard deviation to 0 to
 # efficiently produce a fixed spectral index.
-cfg["mean_spectral_index"] = -1.8
-cfg["std_spectral_index"] = 0
+cfg["mean_spectral_index"]: float = -1.8
+cfg["std_spectral_index"]: float = 0
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["ed_model"]: str = "ymw16"
