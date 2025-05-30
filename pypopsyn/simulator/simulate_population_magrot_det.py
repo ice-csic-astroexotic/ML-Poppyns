@@ -1184,6 +1184,14 @@ def simulate_population(args) -> None:
             with open(config_dump_path, "w") as f:
                 json.dump(cfg, f, indent=4, sort_keys=True)
 
+            # Reset seed, profile_log, and profile_json to default values. This is done to prevent issues when
+            # calling the simulate_population function in other scripts more than once, ensuring that the values are
+            # properly reset.
+
+            cfg["seed_magrot"] = None
+            cfg["profile_log"] = "profile.log"
+            cfg["profile_json"] = "profile.json"
+
 
 if __name__ == "__main__":
 
