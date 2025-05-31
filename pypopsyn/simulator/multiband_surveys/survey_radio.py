@@ -524,11 +524,11 @@ class SurveyRadio:
         SNR_detection = self.radiometer_equation(
             S_radio_obs_mean, G, w_eff, P, T_sky
         )
-
-        # Apply efficiency factor from Morello et al. (2020) (see eq. 44) to account for incoherent FFT search.
-        duty_cycle = w_eff / P
-        epsilon = (1.0 + 0.0473 * duty_cycle ** (-0.627)) ** (-1)
-        SNR_detection = SNR_detection * epsilon
+        #
+        # # Apply efficiency factor from Morello et al. (2020) (see eq. 44) to account for incoherent FFT search.
+        # duty_cycle = w_eff / P
+        # epsilon = (1.0 + 0.0473 * duty_cycle ** (-0.627)) ** (-1)
+        # SNR_detection = SNR_detection * epsilon
 
         if self.aperture_config:
             aa_factor = self.aperture_array_factor(DEC)
