@@ -71,7 +71,7 @@ cfg["resolution"]: int = 10000
 
 # Integer number of neutron stars for the population.
 # Used only when running simulate_population_full.py and simulate_population_dyn.py.
-cfg["NS_number"]: int = 40000000
+cfg["NS_number"]: int = 30000000
 
 # Minimum and maximum ages for the neutron stars in [yr].
 cfg["t_age_min"]: float = 1.0
@@ -153,8 +153,8 @@ cfg["P_initial_sigma"]: float = 0.2
 
 # Mean and standard deviation for the log-normal distributed initial periods in [s].
 # (default values are taken from Pardo-Araujo et al. 2025).
-cfg["P_initial_log10_mean"]: float = -0.67
-cfg["P_initial_log10_sigma"]: float = 0.55
+cfg["P_initial_log10_mean"]: float = -0.71
+cfg["P_initial_log10_sigma"]: float = 0.58
 
 # Model pdf for the initial magnetic field. Choose between "log-normal", "double_log-normal", "smooth_tophat".
 cfg["magnetic_field_model"]: str = "log-normal"
@@ -165,8 +165,8 @@ cfg["B_initial_log10_max"]: float = 16.0
 
 # Mean and standard deviation for the log-normally distributed initial magnetic fields in [G]
 # (default values are taken from Pardo-Araujo et al. 2025).
-cfg["B_initial_log10_mean"]: float = 13.09
-cfg["B_initial_log10_sigma"]: float = 0.5
+cfg["B_initial_log10_mean"]: float = 13.10
+cfg["B_initial_log10_sigma"]: float = 0.48
 
 # Means and standard deviations and relative weight for the double log-normally distributed
 # initial magnetic fields in [G]. The weight denotes the importance of the first log-normal component
@@ -224,7 +224,7 @@ cfg["b2"]: float = -0.2
 cfg["tau_late"]: float = 2.0e6
 
 # Late time power-law index (default value is taken from Pardo-Araujo et al. 2025).
-cfg["a_late"]: float = -0.88
+cfg["a_late"]: float = -0.92
 
 # Parameters for a log-normal distribution of the magnetic fields of the old millisecond pulsars.
 cfg["B_millisec_mean"] = 8.5
@@ -263,16 +263,15 @@ cfg["L_radio_ppdot_log10_sigma"]: float = 0.8
 cfg["epsilon_L_ppdot"]: float = 0.5
 
 # Parameters for the "lum_radio_edot" model (Pardo-Araujo et al. 2025).
-# These best parameters assume a mean_spectral_index = -1.8 (see Posselt et al. 2023).
-cfg["L_radio_edot_log10_mean"]: float = 26.17  # [erg s^(- 1)]
+# These following best parameters assume a mean_spectral_index = -1.45.
+cfg["L_radio_edot_log10_mean"]: float = 25.67  # [erg s^(- 1)]
 cfg["L_radio_edot_log10_sigma"]: float = 0.8
-cfg["epsilon_L_edot"]: float = 0.68
+cfg["epsilon_L_edot"]: float = 0.70
 cfg["Erot_dot_0"]: float = 1e29
 
-# Spectral index following a normal distribution as in Posselt et al. (2023). We set the standard deviation to 0 to
-# efficiently produce a fixed spectral index.
-cfg["mean_spectral_index"] = -1.8
-cfg["std_spectral_index"] = 0
+# Spectral index following a normal distribution.
+cfg["mean_spectral_index"] = -1.45
+cfg["std_spectral_index"] = 0.15
 
 # Free electron density model for the Galaxy, choose between "ne2001" and "ymw16".
 cfg["ed_model"]: str = "ymw16"
