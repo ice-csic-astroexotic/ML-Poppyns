@@ -434,60 +434,69 @@ def compute_rank_coverage(
         num_posterior_samples=num_posterior_samples,
     )
 
-    # Saving the ranks and the number of posterior samples to reproduce the plot.
-    torch.save(ranks, f"{save_dir}/ranks.pt")
-    logger.info(
-        f"Number of posterior samples to generate the plot of the ranks is {num_posterior_samples}"
-    )
+    if len(parameter) > 100:
 
-    logger.info("Check the rank statistics...")
-    # Check if the rank distributions follow a uniform distribution with three different tests
-    # (see [here](https://www.mackelab.org/sbi/tutorial/13_diagnostics_simulation_based_calibration/)
-    # for more details on these tests).
-    check_stats = check_sbc(
-        ranks,
-        parameter.to(device),
-        dap_samples.to(device),
-        num_posterior_samples=num_posterior_samples,
-        num_c2st_repetitions=5,
-    )
+        # Saving the ranks and the number of posterior samples to reproduce the plot.
+        torch.save(ranks, f"{save_dir}/ranks.pt")
+        logger.info(
+            f"Number of posterior samples to generate the plot of the ranks is {num_posterior_samples}"
+        )
 
-    logger.info(
-        f"kolmogorov-smirnov p-values \n - check_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
-    )
+        logger.info("Check the rank statistics...")
+        # Check if the rank distributions follow a uniform distribution with three different tests
+        # (see [here](https://www.mackelab.org/sbi/tutorial/13_diagnostics_simulation_based_calibration/)
+        # for more details on these tests).
+        check_stats = check_sbc(
+            ranks,
+            parameter.to(device),
+            dap_samples.to(device),
+            num_posterior_samples=num_posterior_samples,
+            num_c2st_repetitions=5,
+        )
 
-    logger.info(
-        f"c2st accuracies \n - check_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()} "
-        f"\n - check_stats['c2st_dap'] = {check_stats['c2st_dap'].numpy()}"
-    )
+        logger.info(
+            f"kolmogorov-smirnov p-values \n - check_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
+        )
 
-    # Visually check if the ranks follow a uniform distribution.
-    # The gray band represents the 99% credibility interval around the mean for a uniform distribution.
-    f, ax = sbc_rank_plot(
-        ranks=ranks,
-        num_posterior_samples=num_posterior_samples,
-        plot_type="hist",
-        num_bins=30,  # When passing None the default is len(dataset_test) / 20.
-        parameter_labels=parameter_labels,
-    )
+        logger.info(
+            f"c2st accuracies \n - check_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()} "
+            f"\n - check_stats['c2st_dap'] = {check_stats['c2st_dap'].numpy()}"
+        )
 
-    f.savefig(
-        f"{save_dir}/ranks_histograms.pdf",
-        bbox_inches="tight",
-    )
-    plt.close()
-    f, ax = sbc_rank_plot(
-        ranks=ranks,
-        num_posterior_samples=num_posterior_samples,
-        plot_type="cdf",
-        parameter_labels=parameter_labels,
-    )
+        # Visually check if the ranks follow a uniform distribution.
+        # The gray band represents the 99% credibility interval around the mean for a uniform distribution.
+        f, ax = sbc_rank_plot(
+            ranks=ranks,
+            num_posterior_samples=num_posterior_samples,
+            plot_type="hist",
+            num_bins=30,  # When passing None the default is len(dataset_test) / 20.
+            parameter_labels=parameter_labels,
+        )
 
-    f.savefig(
-        f"{save_dir}/ranks_cumulative.pdf",
-        bbox_inches="tight",
-    )
-    plt.close()
+        f.savefig(
+            f"{save_dir}/ranks_histograms.pdf",
+            bbox_inches="tight",
+        )
+        plt.close()
+        f, ax = sbc_rank_plot(
+            ranks=ranks,
+            num_posterior_samples=num_posterior_samples,
+            plot_type="cdf",
+            parameter_labels=parameter_labels,
+        )
+
+        f.savefig(
+            f"{save_dir}/ranks_cumulative.pdf",
+            bbox_inches="tight",
+        )
+        plt.close()
+
+    else:
+        logger.warning(
+            "WARNING: Simulation-based Calibration cannot be performed due to the limited number of test samples."
+            "For SBC, the number of test samples should be on the order of 1000s to give reliable results. "
+            "We recommend using 10000."
+        )
 
 
 def prepare_dataset_sbi(
@@ -531,7 +540,6 @@ def prepare_dataset_sbi(
     standardize = config["training_data_loader"]["standardize"]
     input_shape = config["arch"]["args"]["input_shape"]
     n_parameters = len(filter_labels)
-
     # Load the density maps and parameters, and normalize or standardize them depending on the configuration file.
     try:
         dataset = dl.DatasetMultichannelArray(
