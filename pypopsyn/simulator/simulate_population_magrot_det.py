@@ -129,6 +129,9 @@ def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
             - A dictionary for storing detected neutron star data for the X-ray survey.
             - An interpolator function loaded from a pickled file to evaluate the X-ray luminosity.
     """
+    # Get the path to the software directory.
+    base_path = pathlib.Path(cfg["path_to_software"])
+
     dictionary_detected_x = {
         "age": [],
         "ra": [],
@@ -151,7 +154,9 @@ def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
     }
 
     # Load the interpolator function to evaluate the X-ray luminosity.
-    interpolator_Lx_path = cfg["interpolator_Lx_path"]
+    interpolator_Lx_path = base_path.joinpath(
+        cfg["magneto-thermal_path"], "interpolator_Lx.pkl"
+    )
 
     with open(interpolator_Lx_path, "rb") as f:
         L_x_interpolator = pickle.load(f)

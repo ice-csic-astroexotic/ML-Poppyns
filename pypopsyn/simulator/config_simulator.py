@@ -235,11 +235,11 @@ if cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
     # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
     cfg["tau_late"]: float = 2.0e6
 
-    # Load the interpolator function to evaluate the X-ray luminosity.
-    cfg["interpolator_Lx_path"]: str = str(
+    # Set the path where the magneto-thermal results are saved.
+    cfg["magneto-thermal_path"]: str = str(
         pathlib.Path().joinpath(
             cfg["path_to_software"],
-            "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/SLy4_dip-tor_heavy-envelope/interpolator_Lx.pkl",
+            "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/SLy4_dip-tor_heavy-envelope/",
         )
     )
 
@@ -262,19 +262,19 @@ elif (cfg["magneto-thermal_model"] == "BSk24_dip-tor_heavy") or (
     # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
     cfg["tau_late"]: float = 2.0e6
 
-    # Load the interpolator function to evaluate the X-ray luminosity.
+    # Set the path where the magneto-thermal results are saved.
     if cfg["magneto-thermal_model"] == "BSk24_dip-tor_heavy":
-        cfg["interpolator_Lx_path"]: str = str(
+        cfg["magneto-thermal_path"]: str = str(
             pathlib.Path().joinpath(
                 cfg["path_to_software"],
-                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_heavy-envelope/interpolator_Lx.pkl",
+                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_heavy-envelope/",
             )
         )
     elif cfg["magneto-thermal_model"] == "BSk24_dip-tor_light":
-        cfg["interpolator_Lx_path"]: str = str(
+        cfg["magneto-thermal_path"]: str = str(
             pathlib.Path().joinpath(
                 cfg["path_to_software"],
-                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_light-envelope/interpolator_Lx.pkl",
+                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_light-envelope/",
             )
         )
 
@@ -297,19 +297,19 @@ elif (cfg["magneto-thermal_model"] == "BSk24_multi_heavy") or (
     # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
     cfg["tau_late"]: float = 2.0e6
 
-    # Load the interpolator function to evaluate the X-ray luminosity.
+    # Set the path where the magneto-thermal results are saved.
     if cfg["magneto-thermal_model"] == "BSk24_multi_heavy":
-        cfg["interpolator_Lx_path"]: str = str(
+        cfg["magneto-thermal_path"]: str = str(
             pathlib.Path().joinpath(
                 cfg["path_to_software"],
-                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_heavy-envelope/interpolator_Lx.pkl",
+                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_heavy-envelope/",
             )
         )
     elif cfg["magneto-thermal_model"] == "BSk24_multi_light":
-        cfg["interpolator_Lx_path"]: str = str(
+        cfg["magneto-thermal_path"]: str = str(
             pathlib.Path().joinpath(
                 cfg["path_to_software"],
-                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_light-envelope/interpolator_Lx.pkl",
+                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_light-envelope/",
             )
         )
 
