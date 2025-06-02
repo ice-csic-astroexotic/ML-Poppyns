@@ -37,9 +37,9 @@
       "num_components": 10
        }
   },
-  "embedding": {
-    "use_embedding": false,
-    "embedding_type": "cnn",
+  "compression_input": {
+    "use_compression": false,
+    "compression_type": "cnn",
     "cnn_model_path": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/paper_results/pardo_etal_2025/experiments/exp_4/round_9/trained_model_ensemble_0.pickle",
     "pca_model_path":"/nfs/pic.es/user/c/cpardoar/PCAs/1_PCA_95_new/pca_model_combined.pkl"
   },

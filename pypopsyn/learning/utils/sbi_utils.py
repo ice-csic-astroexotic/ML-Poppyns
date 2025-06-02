@@ -639,10 +639,10 @@ def pca_compression(
         matrix_raw[i] = x.reshape(-1)
         parameter[i] = theta
 
-    pca_model_path = config["embedding"].get("pca_model_path", None)
+    pca_model_path = config["compression_input"].get("pca_model_path", None)
     if pca_model_path is None:
         logger.error(
-            "PCA model path not provided in config under 'trainer.embedding_pca'"
+            "PCA model path not provided in config under 'compression_input.pca_model_path'"
         )
         sys.exit(1)
 
@@ -694,7 +694,7 @@ def cnn_compression(
     matrix_embedded = np.zeros(
         (n_samples, config["arch"]["args"]["len_output_layer"])
     )
-    embedding_model_path = config["embedding"]["cnn_model_path"]
+    embedding_model_path = config["compression_input"]["cnn_model_path"]
 
     # Load embedding model (assumed pickled)
     with open(embedding_model_path, "rb") as f:
