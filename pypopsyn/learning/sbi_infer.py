@@ -211,12 +211,9 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                                 device=device,
                             )
                         else:
-                            test_dataset_path = str(
-                                pathlib.Path().joinpath(
-                                    config["test_data_loader"]["dataset_path"],
-                                    f"generated_dataset/round_{i}",
-                                )
-                            )
+                            test_dataset_path = config["test_data_loader"][
+                                "dataset_path_first_round"
+                            ]
 
                         (_, parameter, matrix,) = ut.prepare_dataset_sbi(
                             test_dataset_path, config, logger
