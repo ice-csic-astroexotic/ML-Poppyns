@@ -216,7 +216,7 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 
 # Model pdf for the magneto-thermal simulations. Choose between "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy",
 # "BSk24_dip-tor_light", "BSk24_multi_heavy" and BSk24_multi_light.
-cfg["magneto-thermal_model"]: str = "BSk24_dip-tor_heavy"
+cfg["magneto-thermal_model"]: str = "BSk24_multi_light"
 
 if cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
     # Set the characteristic neutron star radius in [cm] for a mass of 1.4 Msun.
@@ -302,14 +302,14 @@ elif (cfg["magneto-thermal_model"] == "BSk24_multi_heavy") or (
         cfg["magneto-thermal_path"]: str = str(
             pathlib.Path().joinpath(
                 cfg["path_to_software"],
-                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_heavy-envelope/",
+                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_multi_heavy-envelope/",
             )
         )
     elif cfg["magneto-thermal_model"] == "BSk24_multi_light":
         cfg["magneto-thermal_path"]: str = str(
             pathlib.Path().joinpath(
                 cfg["path_to_software"],
-                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_light-envelope/",
+                "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_multi_light-envelope/",
             )
         )
 
