@@ -2,7 +2,7 @@
 
 ::: pypopsyn.learning.utils.benchmark
 
-::: pypopsyn.learning.utils.json
+::: pypopsyn.learning.utils.json_utils
 
 ::: pypopsyn.learning.utils.metric_tracker
 

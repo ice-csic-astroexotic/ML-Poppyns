@@ -37,8 +37,8 @@
     "compression_input": {
         "use_compression": false,
         "embedding_type": "cnn",
-        "cnn_model_path": "/home/celsa/Documents/MAGNESIA_population_synthesis/data/paper_results/pardo_etal_2025/experiments/exp_4/round_9/trained_model_ensemble_0.pickle",
-        "pca_model_path": "/nfs/pic.es/user/c/cpardoar/PCAs/1_PCA_95_new/pca_model_combined.pkl"
+        "cnn_model_path": "exp_4/round_9/trained_model_ensemble_0.pickle",
+        "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
     },
     "weights_initializer": {
         "type": "InitializerKaiming",
@@ -64,7 +64,7 @@
         ]
     },
     "training_data_loader": {
-        "dataset_path_first_round": "data/train",
+        "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0",
         "dataset_path": "output/generator/",
         "statistic_path": "output/generator/statistics_train.json",
         "filter_inputs": [
@@ -96,7 +96,7 @@
         "normalize": false,
         "standardize": true,
         "num_sim": 10,
-        "dataset_path_first_round": "data/test"
+        "dataset_path_first_round": "output/data/test_dataset/generated_dataset/round_0"
     },
     "resume_training": {
         "resume": false,
@@ -119,8 +119,9 @@
     },
     "infer": {
         "save_dir": "output/inference_sbi",
-        "load_dir": "../../tutorials/tutorial_notebooks/output/learning_sbi/models/SBI_ConvolutionMDN/20250530_135402",
+        "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20250530_135402/",
         "compute_coverage": true,
-        "sim_dataset": false
+        "sim_dataset": false,
+        "dataset_path": "output/generator/"
     }
 }
