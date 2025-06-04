@@ -1139,7 +1139,7 @@ def simulate_population(args) -> None:
                 )
                 break
 
-        # Compute the neutron star birth rate for each survey.
+        # Compute the neutron star birth rate for each radio survey.
         birth_rates = {}
         for survey in dictionary_detected_radio:
             birth_rates[survey] = n_created_at_match[survey] / t_max
@@ -1154,6 +1154,9 @@ def simulate_population(args) -> None:
                 survey
             ]
             cfg[f"n_detected_sim_{survey}_tot"] = n_detected_sim[survey]
+
+        # Add the information on the number of detected neutron star in X-rays to the configuration file.
+        cfg["n_detected_sim_x_tot"] = n_detected_sim_x
 
         # ===================== EXPORT OUTPUT ========================
         with timewith.TimeWith(
