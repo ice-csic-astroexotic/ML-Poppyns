@@ -162,7 +162,7 @@ cfg["magnetic_field_model"]: str = "log-normal"
 
 # Minimum and maximum initial magnetic field strength in [G] to simulate.
 cfg["B_initial_log10_min"]: float = 10.0
-cfg["B_initial_log10_max"]: float = 15.7
+cfg["B_initial_log10_max"]: float = 16.0
 
 if cfg["magnetic_field_model"] == "log-normal":
     # Mean and standard deviation for the log-normally distributed initial magnetic fields in [G]
@@ -178,7 +178,7 @@ elif cfg["magnetic_field_model"] == "double_log-normal":
     cfg["B_initial_log10_sigma_comp1"]: float = 0.5
     cfg["B_initial_log10_mean_comp2"]: float = 14.3
     cfg["B_initial_log10_sigma_comp2"]: float = 0.3
-    cfg["B_initial_log10_weight_comp1"]: float = 0.6
+    cfg["B_initial_log10_weight_comp1"]: float = 0.5
 
 elif cfg["magnetic_field_model"] == "smooth_tophat":
     # Parameters for the smooth top-hat with Gaussian rise and decay for the initial magnetic fields in [G].
