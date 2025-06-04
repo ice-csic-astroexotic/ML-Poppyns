@@ -255,7 +255,7 @@ def test_prepare_dataset_sbi(dummy_logger):
     with open(config_path, "r") as f:
         config = json.load(f)
 
-    config["embedding"]["use_embedding"] = False
+    config["compression_input"]["use_compression"] = False
 
     dataset, parameter, matrix = sbi_utils.prepare_dataset_sbi(
         dataset_folder=dataset_folder,

@@ -113,9 +113,9 @@ def main(args):
                 radio luminosity normalization (if radio_luminosity_model = lum_radio_ppdot).
             - epsilon_L_ppdot (list[float]): Range and number of values for the power-law index of the log10
                 radio luminosity (if radio_luminosity_model = lum_radio_ppdot).
-            - L_radio_edot_log10_mean (list[float]): Range and number of values for the mean of the log10
+            - L_radio_log10_mean (list[float]): Range and number of values for the mean of the log10
                 radio luminosity normalization (if radio_luminosity_model = lum_radio_edot).
-            - epsilon_L_edot (list[float]): Range and number of values for the power-law index of the log10
+            - epsilon_L (list[float]): Range and number of values for the power-law index of the log10
                 radio luminosity (if radio_luminosity_model = lum_radio_edot).
     """
     # Parse arguments provided to the parameter-sweeper script.
@@ -432,28 +432,9 @@ if __name__ == "__main__":
         "with number of values [low, high, n_values]."
         "In random mode: range of the power-law slope of the late time magnetic field evolution [low, high].",
     )
+
     args.add_argument(
-        "--L_radio_ppdot_log10_mean",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range for the mean of the log-normally distributed radio luminosity normalization "
-        "factor with number of values [low, high, n_values] for model lum_radio_ppdot."
-        "In random mode: range of the mean of the log-normally distributed radio luminosity normalization factor "
-        "[low, high] for model lum_radio_ppdot.",
-    )
-    args.add_argument(
-        "--epsilon_L_ppdot",
-        nargs="*",
-        type=float,
-        default=None,
-        help="In grid mode: range for the power-law slope of the intrinsic luminosity with number of "
-        "values [low, high, n_values] for model lum_radio_ppdot."
-        "In random mode: range of the power-law slope of the intrinsic luminosity [low, high] for model "
-        "lum_radio_ppdot.",
-    )
-    args.add_argument(
-        "--L_radio_edot_log10_mean",
+        "--L_radio_log10_mean",
         nargs="*",
         type=float,
         default=None,
@@ -463,7 +444,7 @@ if __name__ == "__main__":
         "[low, high] for model lum_radio_edot.",
     )
     args.add_argument(
-        "--epsilon_L_edot",
+        "--epsilon_L",
         nargs="*",
         type=float,
         default=None,

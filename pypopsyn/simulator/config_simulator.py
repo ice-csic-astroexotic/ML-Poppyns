@@ -254,18 +254,21 @@ cfg["a_beam"] = -0.5  # Power-law exponent.
 # Model pdf for the radio luminosity. Choose between "lum_radio_ppdot" and "lum_radio_edot".
 cfg["radio_luminosity_model"]: str = "lum_radio_edot"
 
-# Parameters for the "lum_radio_ppdot" model (Graber et al. 2024).
-# These best parameters assume a mean_spectral_index = -1.6 (see Jankowski et al. 2018).
-cfg["L_radio_ppdot_log10_mean"]: float = 35.5  # [erg s^(3 * epsilon_L - 1) ]
-cfg["L_radio_ppdot_log10_sigma"]: float = 0.8
-cfg["epsilon_L_ppdot"]: float = 0.5
+if cfg["radio_luminosity_model"] == "lum_radio_ppdot":
+    # Parameters for the "lum_radio_ppdot" model (Graber et al. 2024).
+    # These best parameters assume a mean_spectral_index = -1.6 (see Jankowski et al. 2018).
+    cfg["L_radio_log10_mean"]: float = 35.5  # [erg s^(3 * epsilon_L - 1) ]
+    cfg["L_radio_log10_sigma"]: float = 0.8
+    cfg["epsilon_L"]: float = 0.5
 
-# Parameters for the "lum_radio_edot" model (Pardo-Araujo et al. 2025).
-# These best parameters assume a mean_spectral_index = -1.8 (see Posselt et al. 2023).
-cfg["L_radio_edot_log10_mean"]: float = 26.17  # [erg s^(- 1)]
-cfg["L_radio_edot_log10_sigma"]: float = 0.8
-cfg["epsilon_L_edot"]: float = 0.68
-cfg["Erot_dot_0"]: float = 1e29
+if cfg["radio_luminosity_model"] == "lum_radio_edot":
+    # Parameters for the "lum_radio_edot" model (Pardo-Araujo et al. 2025).
+    # These best parameters assume a mean_spectral_index = -1.8 (see Posselt et al. 2023).
+    cfg["L_radio_log10_mean"]: float = 26.17  # [erg s^(- 1)]
+    cfg["L_radio_log10_sigma"]: float = 0.8
+    cfg["epsilon_L"]: float = 0.68
+    cfg["Erot_dot_0"]: float = 1e29
+
 
 # Spectral index following a normal distribution as in Posselt et al. (2023). We set the standard deviation to 0 to
 # efficiently produce a fixed spectral index.

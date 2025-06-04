@@ -165,11 +165,11 @@ def pdf_luminosity_radio_ppdot(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     NS_number = len(P)
 
     L_0 = 10 ** np.random.normal(
-        cfg["L_radio_ppdot_log10_mean"],
-        cfg["L_radio_ppdot_log10_sigma"],
+        cfg["L_radio_log10_mean"],
+        cfg["L_radio_log10_sigma"],
         NS_number,
     )
-    L_radio = L_0 * (P ** (-3) * P_dot) ** cfg["epsilon_L_ppdot"]
+    L_radio = L_0 * (P ** (-3) * P_dot) ** cfg["epsilon_L"]
 
     return L_radio
 
@@ -188,12 +188,12 @@ def pdf_luminosity_radio_edot(P: np.ndarray, P_dot: np.ndarray) -> np.ndarray:
     """
     NS_number = len(P)
     L_0 = 10 ** np.random.normal(
-        cfg["L_radio_edot_log10_mean"],
-        cfg["L_radio_edot_log10_sigma"],
+        cfg["L_radio_log10_mean"],
+        cfg["L_radio_log10_sigma"],
         NS_number,
     )
     Erot_dot = loss_rotational_energy(P, P_dot)
-    L_radio = L_0 * (Erot_dot / cfg["Erot_dot_0"]) ** cfg["epsilon_L_edot"]
+    L_radio = L_0 * (Erot_dot / cfg["Erot_dot_0"]) ** cfg["epsilon_L"]
 
     return L_radio
 

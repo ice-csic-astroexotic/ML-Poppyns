@@ -557,12 +557,8 @@ def prepare_dataset_sbi(
     n_samples = len(dataset)
     parameter = np.zeros((n_samples, n_parameters))
 
-    use_compression_input = config["compression_input"].get(
-        "use_compression", False
-    )
-    compression_type = config["compression_input"].get(
-        "compression_type", None
-    )
+    use_compression_input = config["compression_input"]["use_compression"]
+    compression_type = config["compression_input"]["compression_type"]
 
     if not use_compression_input:
         parameter, matrix = raw_vector(
@@ -647,7 +643,7 @@ def pca_compression(
         matrix_raw[i] = x.reshape(-1)
         parameter[i] = theta
 
-    pca_model_path = config["embedding"].get("pca_model_path", None)
+    pca_model_path = config["embedding"]["pca_model_path"]
     if pca_model_path is None:
         logger.error(
             "PCA model path not provided in config under 'trainer.embedding_pca'"

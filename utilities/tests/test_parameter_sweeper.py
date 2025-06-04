@@ -47,10 +47,8 @@ def args_random(tmp_path):
         B_initial_log10_decay_sigma=None,
         B_initial_log10_slope=None,
         a_late=None,
-        L_radio_ppdot_log10_mean=None,
-        epsilon_L_ppdot=None,
-        L_radio_edot_log10_mean=None,
-        epsilon_L_edot=None,
+        L_radio_log10_mean=None,
+        epsilon_L=None,
     )
 
 
@@ -87,10 +85,8 @@ def args_grid(tmp_path):
         B_initial_log10_decay_sigma=None,
         B_initial_log10_slope=None,
         a_late=None,
-        L_radio_ppdot_log10_mean=None,
-        epsilon_L_ppdot=None,
-        L_radio_edot_log10_mean=None,
-        epsilon_L_edot=None,
+        L_radio_log10_mean=None,
+        epsilon_L=None,
     )
 
 
@@ -127,10 +123,8 @@ def args_invalid(tmp_path):
         B_initial_log10_decay_sigma=None,
         B_initial_log10_slope=None,
         a_late=None,
-        L_radio_ppdot_log10_mean=None,
-        epsilon_L_ppdot=None,
-        L_radio_edot_log10_mean=None,
-        epsilon_L_edot=None,
+        L_radio_log10_mean=None,
+        epsilon_L=None,
     )
 
 

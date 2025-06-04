@@ -121,14 +121,14 @@ def check_parameter_compatibility(args_dict: dict) -> None:
     elif (
         (cfg["radio_luminosity_model"] == "lum_radio_edot")
         and (
-            (args_dict["L_radio_ppdot_log10_mean"] is not None)
-            or (args_dict["epsilon_L_ppdot"] is not None)
+            (args_dict["L_radio_log10_mean"] is not None)
+            or (args_dict["epsilon_L"] is not None)
         )
     ) or (
         (cfg["radio_luminosity_model"] == "lum_radio_ppdot")
         and (
-            (args_dict["L_radio_edot_log10_mean"] is not None)
-            or (args_dict["epsilon_L_edot"] is not None)
+            (args_dict["L_radio_log10_mean"] is not None)
+            or (args_dict["epsilon_L"] is not None)
         )
     ):
         raise ValueError(

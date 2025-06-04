@@ -281,7 +281,7 @@ We need to specify the labels and prior ranges for plotting purposes. Note that 
 the order of parameters in `dataset_full.csv`.
 ```json
 "prior_ranges": {
-          "labels":["B_initial_log10_mean", "B_initial_log10_sigma","P_initial_log10_mean", "P_initial_log10_sigma", "a_late", "L_radio_edot_log10_mean", "epsilon_L_edot"],
+          "labels":["B_initial_log10_mean", "B_initial_log10_sigma","P_initial_log10_mean", "P_initial_log10_sigma", "a_late", "L_radio_log10_mean", "epsilon_L"],
           "low": [12,0.1,-1.5,0.1,-3,24.6,0.1],
           "high":[14,1,0.5,1,0,28.6,1] 
           },
