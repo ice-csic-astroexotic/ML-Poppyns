@@ -149,6 +149,17 @@ def test_case_2():
     return data
 
 
+@pytest.fixture()
+def test_case_3():
+    data = {
+        "age": np.array([50, 200, 800, 2000]),
+        "B_initial": np.array([1e14, 5e12, 2e13, 9e12]),
+        "outburst_mask_expected": np.array([True, False, False, False]),
+    }
+
+    return data
+
+
 def test_T_from_Lx(test_case_1, monkeypatch):
     """
     Verifying that for a given x-ray luminosity the temperature is correctly calculated.
@@ -394,3 +405,32 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
         rtol=TOL,
         atol=1.0e-14,
     ).all()
+
+
+def test_outburst_filter(test_case_3, monkeypatch):
+
+    # Fixed uniform return values based on age group logic.
+    def mock_uniform(low, high, size):
+        if low == 0.40 and high == 0.85:
+            return np.full(size, 0.7)
+        elif low == 0.1 and high == 0.4:
+            return np.full(size, 0.2)
+        elif low == 0.05 and high == 0.2:
+            return np.full(size, 0.1)
+        elif low == 0.0 and high == 0.05:
+            return np.full(size, 0.03)
+        else:
+            raise ValueError("Unexpected uniform call")
+
+    # Fixed rand values: these simulate the draw to compare against probability.
+    def mock_rand(size):
+        return np.array([0.6, 0.3, 0.4, 0.02])
+
+    monkeypatch.setattr(np.random, "uniform", mock_uniform)
+    monkeypatch.setattr(np.random, "rand", mock_rand)
+
+    outburst_mask_out = xem.outburst_filter(
+        test_case_3["B_initial"], test_case_3["age"]
+    )
+
+    assert np.all(outburst_mask_out == test_case_3["outburst_mask_expected"])
