@@ -702,7 +702,7 @@ def xray_detection(
     dict_xray_bright["N_H"] = N_H
 
     # Apply a flux threshold to mimic detection biases.
-    detected_mask = sx.detected_x_population_flux_threshold(
+    detected_mask = sx.detected_x_population_sharp_flux_filter(
         dict_xray_bright["S_x_rcs_abs"],
         S_x_abs_threshold,
     )
