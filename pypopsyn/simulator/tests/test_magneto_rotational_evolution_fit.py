@@ -226,6 +226,14 @@ def test_magneto_rotational_evolution(monkeypatch, test_case_4):
 
     monkeypatch.setattr(np.random, "normal", mock_log_B_asymptotic)
 
+    monkeypatch.setattr(mre, "a1", test_case_4["a1"])
+    monkeypatch.setattr(mre, "a2", test_case_4["a2"])
+    monkeypatch.setattr(mre, "A1", test_case_4["A1"])
+    monkeypatch.setattr(mre, "A2", test_case_4["A2"])
+    monkeypatch.setattr(mre, "tau_late", test_case_4["tau_late"])
+    monkeypatch.setattr(mre, "NS_mass", cfg["NS_mass"])
+    monkeypatch.setattr(mre, "NS_radius", cfg["NS_radius"])
+
     (
         B_final_out,
         chi_final_out,
