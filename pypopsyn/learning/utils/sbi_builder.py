@@ -375,7 +375,10 @@ def train_posterior(
                 # during training. In the case where we do not truncate the prior and account for the correction, we
                 # then pass the proposal prior to the append_simulations function.
 
-                if config["trainer"]["truncated_prior"]:
+                if (
+                    config["trainer"]["truncated_prior"]
+                    and model_type == "snpe"
+                ):
                     train_args["force_first_round_loss"] = True
 
                 kwargs = {}
