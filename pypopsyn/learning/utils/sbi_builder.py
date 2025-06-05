@@ -406,7 +406,7 @@ def train_posterior(
 
         if model_type == "snpe":
             posterior = inference.build_posterior(density_estimator.to(device))
-        elif model_type == "snle":
+        elif model_type == "snle" or "snre":
             posterior = inference.build_posterior(
                 density_estimator=density_estimator.to(device),
                 mcmc_method=config["mcmc_sampler"]["type"],
