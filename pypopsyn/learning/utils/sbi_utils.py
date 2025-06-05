@@ -506,7 +506,7 @@ def prepare_dataset_sbi(
     atnf: Optional[bool] = False,
 ) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
     """
-    Prepare dataset for use in SBI. If embedding is enabled, either PCA or CNN compression will be applied to the input
+    Prepare dataset for use in SBI. If compression is enabled, either PCA or CNN compression will be applied to the input
     matrix tensor.
 
     Args:
@@ -643,10 +643,10 @@ def pca_compression(
         matrix_raw[i] = x.reshape(-1)
         parameter[i] = theta
 
-    pca_model_path = config["embedding"]["pca_model_path"]
+    pca_model_path = config["compression_input"]["pca_model_path"]
     if pca_model_path is None:
         logger.error(
-            "PCA model path not provided in config under 'trainer.embedding_pca'"
+            "PCA model path not provided in config under 'compression_input.pca_model_path"
         )
         sys.exit(1)
 
@@ -679,12 +679,12 @@ def cnn_compression(
     standardize: bool,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Applies CNN-based embedding to compress input samples using a trained embedding model.
+    Applies CNN-based compression to compress input samples using a trained compression model.
 
     Args:
         n_samples (int): Number of samples in the dataset.
         parameter (np.ndarray): Array to store physical parameters (theta).
-        config (ConfigurationParser): Configuration including the CNN embedding model path.
+        config (ConfigurationParser): Configuration including the CNN compression model path.
         dataset (DatasetMultichannelArray): Dataset object.
         input_shape (Tuple[int, int, int]): Expected input shape.
         logger (Logger): Logger for reporting.
@@ -698,9 +698,8 @@ def cnn_compression(
     matrix_embedded = np.zeros(
         (n_samples, config["arch"]["args"]["len_output_layer"])
     )
-    embedding_model_path = config["embedding"]["cnn_model_path"]
+    embedding_model_path = config["compression_input"]["cnn_model_path"]
 
-    # Load embedding model (assumed pickled)
     with open(embedding_model_path, "rb") as f:
         emb_neural_net = pickle.load(f)
 
