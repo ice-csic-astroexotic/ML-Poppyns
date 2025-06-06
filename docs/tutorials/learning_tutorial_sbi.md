@@ -424,7 +424,7 @@ python pypopsyn/learning/utils/data_folder_struct_sbi.py --base_path exp_folder_
 ```
 
 
-This will generate the following structure under exp_folder_path:
+This will generate the following structure under `exp_folder_path`:
 
 ```commandline
 exp_folder_path/
@@ -600,6 +600,12 @@ located in `utilities/simulation_helper/run_simulation_set.py`.
     
     Queue
     ```
+!!!Note 
+    In the example above, we assume you have created `htcondor_submit` and `htcondor_output` folders. The first is used to store 
+    the `job.submit` and  `wrapper.sh` files, and the second stores the `stdout` and `stderr` from the main job.
+
+We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `exp_folder_pat` directory where the
+`data` folder (explained in the Folder Structure section) is located.
 
 #### Monitoring Dask Workers (HTCondor + GPU)
 
