@@ -71,7 +71,7 @@ cfg["resolution"]: int = 10000
 
 # Integer number of neutron stars for the population.
 # Used only when running simulate_population_full.py and simulate_population_dyn.py.
-cfg["NS_number"]: int = 30000000
+cfg["NS_number"]: int = 40000000
 
 # Minimum and maximum ages for the neutron stars in [yr].
 cfg["t_age_min"]: float = 1.0
