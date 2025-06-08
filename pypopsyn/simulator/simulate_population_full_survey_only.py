@@ -22,7 +22,6 @@ import time
 import numpy as np
 import pandas as pd
 
-import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import utilities.benchmark.timewith as timewith
 from pypopsyn.simulator.config_simulator import cfg
@@ -205,6 +204,8 @@ def simulate_surveys(args: argparse.Namespace) -> None:
             intercepted_radio_final = df_final_pop["intercepted_radio"][
                 " "
             ].to_numpy()
+            DM_final = df_final_pop["DM"]["[pc cm^-3]"].to_numpy()
+            tau_sc_final = df_final_pop["tau_sc"]["[s]"].to_numpy()
             spectral_index_final = df_final_pop["spectral_index"][
                 " "
             ].to_numpy()
@@ -306,24 +307,6 @@ def simulate_surveys(args: argparse.Namespace) -> None:
 
             timer.checkpoint("[Total sky coverage]")
 
-            # Determine which stars could in principle be detected.
-            detectable_radio = intercepted_radio_final & coverage_tot
-
-            # Computing the DM for the stars that fall into the surveys' sky coverage and whose
-            # radio beam intercepts our line of sight.
-            DM = np.zeros(NS_number)
-            DM[detectable_radio] = edm.compute_DM(
-                l_final[detectable_radio],
-                b_final[detectable_radio],
-                d_final[detectable_radio],
-                cfg["ed_model"],
-            )
-
-            timer.checkpoint("[DM computation]")
-
-            tau_sc = np.zeros(NS_number)
-            tau_sc[DM != 0] = edm.compute_tau_sc_327(DM[DM != 0])
-
             # Simulating the PMPS survey.
             log.info("Simulate detection with PMPS...")
 
@@ -334,7 +317,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 S_radio_obs_PMPS,
             ) = survey_PMPS.detected_radio_population_full(
                 w_int_final,
-                DM,
+                DM_final,
                 P_final,
                 l_final,
                 b_final,
@@ -344,7 +327,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 coverage_PMPS,
                 dist_cutoff,
                 spectral_index_final,
-                tau_sc,
+                tau_sc_final,
             )
 
             fraction_detected_radio_PMPS = len(
@@ -364,7 +347,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 S_radio_obs_SMPS,
             ) = survey_SMPS.detected_radio_population_full(
                 w_int_final,
-                DM,
+                DM_final,
                 P_final,
                 l_final,
                 b_final,
@@ -374,7 +357,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 coverage_SMPS,
                 dist_cutoff,
                 spectral_index_final,
-                tau_sc,
+                tau_sc_final,
             )
 
             fraction_detected_radio_SMPS = len(
@@ -394,7 +377,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 S_radio_obs_HTRU_low,
             ) = survey_HTRU_low.detected_radio_population_full(
                 w_int_final,
-                DM,
+                DM_final,
                 P_final,
                 l_final,
                 b_final,
@@ -404,7 +387,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 coverage_HTRU_low,
                 dist_cutoff,
                 spectral_index_final,
-                tau_sc,
+                tau_sc_final,
             )
 
             fraction_detected_radio_HTRU_low = len(
@@ -425,7 +408,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 S_radio_obs_HTRU_mid,
             ) = survey_HTRU_mid.detected_radio_population_full(
                 w_int_final,
-                DM,
+                DM_final,
                 P_final,
                 l_final,
                 b_final,
@@ -435,7 +418,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 coverage_HTRU_mid,
                 dist_cutoff,
                 spectral_index_final,
-                tau_sc,
+                tau_sc_final,
             )
 
             fraction_detected_radio_HTRU_mid = len(
@@ -456,7 +439,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 S_radio_obs_HTRU_high,
             ) = survey_HTRU_high.detected_radio_population_full(
                 w_int_final,
-                DM,
+                DM_final,
                 P_final,
                 l_final,
                 b_final,
@@ -466,7 +449,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 coverage_HTRU_high,
                 dist_cutoff,
                 spectral_index_final,
-                tau_sc,
+                tau_sc_final,
             )
 
             fraction_detected_radio_HTRU_high = len(
@@ -495,7 +478,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 S_radio_obs_SKA_low_AAstar,
             ) = survey_SKA_low_AAstar.detected_radio_population_full(
                 w_int_final,
-                DM,
+                DM_final,
                 P_final,
                 l_final,
                 b_final,
@@ -505,7 +488,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 coverage_SKA_low_AAstar,
                 dist_cutoff,
                 spectral_index_final,
-                tau_sc,
+                tau_sc_final,
             )
 
             fraction_detected_radio_SKA_low_AAstar = len(
@@ -522,7 +505,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 S_radio_obs_SKA_low_AA4,
             ) = survey_SKA_low_AA4.detected_radio_population_full(
                 w_int_final,
-                DM,
+                DM_final,
                 P_final,
                 l_final,
                 b_final,
@@ -532,7 +515,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 coverage_SKA_low_AA4,
                 dist_cutoff,
                 spectral_index_final,
-                tau_sc,
+                tau_sc_final,
             )
 
             fraction_detected_radio_SKA_low_AA4 = len(
@@ -552,7 +535,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 S_radio_obs_mid_band1_AAstar,
             ) = survey_SKA_mid_band1_AAstar.detected_radio_population_full(
                 w_int_final,
-                DM,
+                DM_final,
                 P_final,
                 l_final,
                 b_final,
@@ -562,7 +545,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 coverage_SKA_mid_band1_AAstar,
                 dist_cutoff,
                 spectral_index_final,
-                tau_sc,
+                tau_sc_final,
             )
 
             fraction_detected_radio_SKA_mid_band1_AAstar = len(
@@ -581,7 +564,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 S_radio_obs_mid_band2_AAstar,
             ) = survey_SKA_mid_band2_AAstar.detected_radio_population_full(
                 w_int_final,
-                DM,
+                DM_final,
                 P_final,
                 l_final,
                 b_final,
@@ -591,7 +574,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 coverage_SKA_mid_band2_AAstar,
                 dist_cutoff,
                 spectral_index_final,
-                tau_sc,
+                tau_sc_final,
             )
 
             fraction_detected_radio_SKA_mid_band2_AAstar = len(
@@ -610,7 +593,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 S_radio_obs_mid_band1_AA4,
             ) = survey_SKA_mid_band1_AA4.detected_radio_population_full(
                 w_int_final,
-                DM,
+                DM_final,
                 P_final,
                 l_final,
                 b_final,
@@ -620,7 +603,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 coverage_SKA_mid_band1_AA4,
                 dist_cutoff,
                 spectral_index_final,
-                tau_sc,
+                tau_sc_final,
             )
 
             fraction_detected_radio_SKA_mid_band1_AA4 = len(
@@ -639,7 +622,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 S_radio_obs_mid_band2_AA4,
             ) = survey_SKA_mid_band2_AA4.detected_radio_population_full(
                 w_int_final,
-                DM,
+                DM_final,
                 P_final,
                 l_final,
                 b_final,
@@ -649,7 +632,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 coverage_SKA_mid_band2_AA4,
                 dist_cutoff,
                 spectral_index_final,
-                tau_sc,
+                tau_sc_final,
             )
 
             fraction_detected_radio_SKA_mid_band2_AA4 = len(
@@ -727,7 +710,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                     l_final[NS_idx_PMPS],
                     b_final[NS_idx_PMPS],
                     d_final[NS_idx_PMPS],
-                    DM[NS_idx_PMPS],
+                    DM_final[NS_idx_PMPS],
                     pm_RA_final[NS_idx_PMPS],
                     pm_DEC_final[NS_idx_PMPS],
                     P_final[NS_idx_PMPS],
@@ -760,7 +743,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                     l_final[NS_idx_SMPS],
                     b_final[NS_idx_SMPS],
                     d_final[NS_idx_SMPS],
-                    DM[NS_idx_SMPS],
+                    DM_final[NS_idx_SMPS],
                     pm_RA_final[NS_idx_SMPS],
                     pm_DEC_final[NS_idx_SMPS],
                     P_final[NS_idx_SMPS],
@@ -793,7 +776,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                     l_final[NS_idx_HTRU_high],
                     b_final[NS_idx_HTRU_high],
                     d_final[NS_idx_HTRU_high],
-                    DM[NS_idx_HTRU_high],
+                    DM_final[NS_idx_HTRU_high],
                     pm_RA_final[NS_idx_HTRU_high],
                     pm_DEC_final[NS_idx_HTRU_high],
                     P_final[NS_idx_HTRU_high],
@@ -826,7 +809,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                     l_final[NS_idx_HTRU_low],
                     b_final[NS_idx_HTRU_low],
                     d_final[NS_idx_HTRU_low],
-                    DM[NS_idx_HTRU_low],
+                    DM_final[NS_idx_HTRU_low],
                     pm_RA_final[NS_idx_HTRU_low],
                     pm_DEC_final[NS_idx_HTRU_low],
                     P_final[NS_idx_HTRU_low],
@@ -849,7 +832,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                     l_final[NS_idx_HTRU_mid],
                     b_final[NS_idx_HTRU_mid],
                     d_final[NS_idx_HTRU_mid],
-                    DM[NS_idx_HTRU_mid],
+                    DM_final[NS_idx_HTRU_mid],
                     pm_RA_final[NS_idx_HTRU_mid],
                     pm_DEC_final[NS_idx_HTRU_mid],
                     P_final[NS_idx_HTRU_mid],
@@ -885,7 +868,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                     l_final[NS_idx_SKA_low_AAstar],
                     b_final[NS_idx_SKA_low_AAstar],
                     d_final[NS_idx_SKA_low_AAstar],
-                    DM[NS_idx_SKA_low_AAstar],
+                    DM_final[NS_idx_SKA_low_AAstar],
                     pm_RA_final[NS_idx_SKA_low_AAstar],
                     pm_DEC_final[NS_idx_SKA_low_AAstar],
                     P_final[NS_idx_SKA_low_AAstar],
@@ -918,7 +901,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                     l_final[NS_idx_SKA_low_AA4],
                     b_final[NS_idx_SKA_low_AA4],
                     d_final[NS_idx_SKA_low_AA4],
-                    DM[NS_idx_SKA_low_AA4],
+                    DM_final[NS_idx_SKA_low_AA4],
                     pm_RA_final[NS_idx_SKA_low_AA4],
                     pm_DEC_final[NS_idx_SKA_low_AA4],
                     P_final[NS_idx_SKA_low_AA4],
@@ -951,7 +934,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                     l_final[NS_idx_SKA_mid_band1_AAstar],
                     b_final[NS_idx_SKA_mid_band1_AAstar],
                     d_final[NS_idx_SKA_mid_band1_AAstar],
-                    DM[NS_idx_SKA_mid_band1_AAstar],
+                    DM_final[NS_idx_SKA_mid_band1_AAstar],
                     pm_RA_final[NS_idx_SKA_mid_band1_AAstar],
                     pm_DEC_final[NS_idx_SKA_mid_band1_AAstar],
                     P_final[NS_idx_SKA_mid_band1_AAstar],
@@ -986,7 +969,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                     l_final[NS_idx_SKA_mid_band2_AAstar],
                     b_final[NS_idx_SKA_mid_band2_AAstar],
                     d_final[NS_idx_SKA_mid_band2_AAstar],
-                    DM[NS_idx_SKA_mid_band2_AAstar],
+                    DM_final[NS_idx_SKA_mid_band2_AAstar],
                     pm_RA_final[NS_idx_SKA_mid_band2_AAstar],
                     pm_DEC_final[NS_idx_SKA_mid_band2_AAstar],
                     P_final[NS_idx_SKA_mid_band2_AAstar],
@@ -1021,7 +1004,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                     l_final[NS_idx_SKA_mid_band1_AA4],
                     b_final[NS_idx_SKA_mid_band1_AA4],
                     d_final[NS_idx_SKA_mid_band1_AA4],
-                    DM[NS_idx_SKA_mid_band1_AA4],
+                    DM_final[NS_idx_SKA_mid_band1_AA4],
                     pm_RA_final[NS_idx_SKA_mid_band1_AA4],
                     pm_DEC_final[NS_idx_SKA_mid_band1_AA4],
                     P_final[NS_idx_SKA_mid_band1_AA4],
@@ -1056,7 +1039,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                     l_final[NS_idx_SKA_mid_band2_AA4],
                     b_final[NS_idx_SKA_mid_band2_AA4],
                     d_final[NS_idx_SKA_mid_band2_AA4],
-                    DM[NS_idx_SKA_mid_band2_AA4],
+                    DM_final[NS_idx_SKA_mid_band2_AA4],
                     pm_RA_final[NS_idx_SKA_mid_band2_AA4],
                     pm_DEC_final[NS_idx_SKA_mid_band2_AA4],
                     P_final[NS_idx_SKA_mid_band2_AA4],
