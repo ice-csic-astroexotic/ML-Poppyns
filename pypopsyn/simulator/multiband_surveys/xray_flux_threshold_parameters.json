@@ -1,0 +1,13 @@
+{
+  "name": "X-ray_flux_threshold",
+  "apply_sharp_flux_threshold": true,
+  "sharp_flux_threshold": 1.0e-15,
+  "S_x_threshold_log10_mean_long_exposure": -14,
+  "S_x_threshold_log10_sigma_long_exposure": 0.5,
+  "S_x_threshold_log10_mean_shallow_exposure": -12,
+  "S_x_threshold_log10_sigma_shallow_exposure": 0.5,
+  "RA_range": [0.0, 360.0],
+  "DEC_range": [-90.0, 90],
+  "l_range": [-180.0,180.0],
+  "b_range_abs": [-90.0, 90.0]
+}

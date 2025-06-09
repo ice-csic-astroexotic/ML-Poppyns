@@ -158,7 +158,7 @@ elif cfg["spin_period_model"] == "log-normal":
     cfg["P_initial_log10_sigma"]: float = 0.55
 
 # Model pdf for the initial magnetic field. Choose between "log-normal", "double_log-normal", "smooth_tophat".
-cfg["magnetic_field_model"]: str = "log-normal"
+cfg["magnetic_field_model"]: str = "double_log-normal"
 
 # Minimum and maximum initial magnetic field strength in [G] to simulate.
 cfg["B_initial_log10_min"]: float = 10.0
@@ -320,7 +320,6 @@ cfg["a_late"]: float = -0.88
 cfg["B_millisec_mean"]: float = 8.5
 cfg["B_millisec_sigma"]: float = 0.5
 
-
 # ===================== RADIO EMISSION-MODEL PARAMETERS ========================
 
 # Model for the radio beam aperture. Choose between "standard_period_cone" and "power-law_period_cone".
@@ -431,8 +430,21 @@ cfg["ISM_abundances"]: List[float] = [
 
 # ===================== X-RAY DETECTION PARAMETERS ========================
 
-# Absorbed X-ray flux threshold for X-ray detection in [erg s^-1 cm^-2].
-cfg["S_x_abs_threshold"]: float = 1.0e-15
+# Information on the modeled X-ray surveys.
+# To obtain the number of Galactic isolated neutron stars detected with a quiescent thermal emission in X-rays,
+# we only include magnetars and XDINSs, as young RPPs with quiescent X-ray emission are primarily discovered through the
+# detection of the supernova remnant emission and pulsar wind nebulae contribution which we are not modeling in our code.
+# The first survey
+cfg["surveys_xray"]: dict = {
+    "X-rays_flux_threshold": {
+        "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
+        "detected_real": 31,
+    },
+    "X-rays_realistic": {
+        "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json",
+        "detected_real": 31,
+    },
+}
 
 
 def update_configuration(new_configuration: dict) -> None:
