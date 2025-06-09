@@ -8,12 +8,15 @@
         Michele Ronchi (ronchi@ice.csic.es)
 """
 
+import pathlib
 from typing import Tuple
 
 import numpy as np
+import orjson
 from numba import float64, jit
 from scipy.integrate import odeint
 
+import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivative as madv
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.config_simulator import cfg
@@ -424,3 +427,105 @@ def magneto_rotational_evolution(
         P_final[i] = evol_output[-1, 1]
 
     return B_final, chi_final, P_final, evolution_dictionary
+
+
+def initialize_population_magrot(age: np.ndarray) -> dict:
+    """
+    Initialize the magneto-rotational properties of a neutron star population.
+
+    Args:
+        age (np.ndarray): An array of ages in [yr] fot the neutron stars that has to be initialized for the
+            magneto-rotational evolution.
+
+    Returns:
+        (dict): A dictionary containing the initialized magneto-rotational properties of the neutron star population
+            in the survey sky coverage.
+    """
+
+    # Initialize neutron star population properties.
+    pop_initial = ipop.InitialNeutronStarPopulation(NS_number=len(age))
+
+    # Computing the initial field strengths, misalignment angles, and periods.
+    B_initial = pop_initial.magnetic_field()
+    chi_initial = pop_initial.misalignment_angle()
+    P_initial = pop_initial.period()
+
+    dictionary_initial_pop_magrot = {
+        "age": age,
+        "B_initial": B_initial,
+        "chi_initial": chi_initial,
+        "P_initial": P_initial,
+    }
+
+    return dictionary_initial_pop_magrot
+
+
+def evolve_population_magrot(
+    dict_pop_initial_magrot: dict,
+    output_path: pathlib.Path,
+) -> dict:
+    """
+    Evolve the magneto-rotational properties of a neutron star population over time based on initial conditions.
+
+    Args:
+        dict_pop_initial_magrot (dict): Dictionary containing initial magneto-rotational properties of the population.
+        output_path (pathlib.Path): The path where the evolution data will be saved if enabled in the configuration.
+
+    Returns:
+        (dict): A dictionary containing the properties of the evolved neutron star population.
+    """
+    age = dict_pop_initial_magrot["age"]
+    B_initial = dict_pop_initial_magrot["B_initial"]
+    chi_initial = dict_pop_initial_magrot["chi_initial"]
+    P_initial = dict_pop_initial_magrot["P_initial"]
+
+    a_late = cfg["a_late"]
+
+    # Determine the evolved magnetic field, misalignment angle and rotation period.
+    (
+        B_final,
+        chi_final,
+        P_final,
+        magrot_evol_dict,
+    ) = magneto_rotational_evolution(
+        B_initial,
+        chi_initial,
+        P_initial,
+        age,
+        a_late,
+    )
+
+    if cfg["save_magrot_evolution"]:
+        # Save dictionary containing evolution information to output path in a .json file.
+        magrot_evolution_dump_path = pathlib.Path().joinpath(
+            output_path, "magrot_evolution.json"
+        )
+
+        with open(magrot_evolution_dump_path, "wb") as f:
+            f.write(
+                orjson.dumps(
+                    dict(magrot_evol_dict),
+                    option=orjson.OPT_SERIALIZE_NUMPY
+                    | orjson.OPT_NON_STR_KEYS
+                    | orjson.OPT_SORT_KEYS,
+                )
+            )
+
+    # Determining the final period derivative.
+    P_dot_final = pdv.period_derivative_numpy(
+        B_final,
+        chi_final,
+        P_final,
+        cfg["NS_mass"],
+        cfg["NS_radius"],
+    )
+
+    dictionary_final_pop_magrot = {
+        "B_initial": B_initial,
+        "B": B_final,
+        "chi": chi_final,
+        "P": P_final,
+        "P_dot": P_dot_final,
+    }
+
+    return dictionary_final_pop_magrot

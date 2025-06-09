@@ -504,3 +504,54 @@ def calculate_radio_emission_full(
     )
 
     return intercepted_radio, S_radio_bol, w_int_s, L_radio_bol
+
+
+def radio_population(dict_pop: dict) -> dict:
+    """
+    Filter and compute properties of a population of neutron stars whose radio beams intercept our line of sight.
+
+    Args:
+        dict_pop (dict): Dictionary containing the properties of a neutron star population.
+
+    Returns:
+        (dict): A dictionary containing properties of the neutron stars whose radio beams intercept our line of sight.
+    """
+
+    # Select only the stars that can be detected in radio by the considered surveys.
+    coverage_radio = dict_pop["coverage_radio"]
+    dict_pop_filtered = {
+        key: value[coverage_radio] for key, value in dict_pop.items()
+    }
+
+    # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
+    # of their radio emission.
+    (
+        intercepted_radio,
+        w_int_s,
+        L_radio_bol,
+        S_radio_bol,
+        spectral_index,
+        DM,
+        tau_sc,
+    ) = calculate_radio_emission(
+        dict_pop_filtered["P"],
+        dict_pop_filtered["P_dot"],
+        dict_pop_filtered["age"],
+        dict_pop_filtered["l"],
+        dict_pop_filtered["b"],
+        dict_pop_filtered["dist"],
+        dict_pop_filtered["chi"],
+    )
+
+    dictionary_radio_pop = {
+        key: value[intercepted_radio]
+        for key, value in dict_pop_filtered.items()
+    }
+    dictionary_radio_pop["w_int"] = w_int_s
+    dictionary_radio_pop["L_radio_bol"] = L_radio_bol
+    dictionary_radio_pop["S_radio_bol"] = S_radio_bol
+    dictionary_radio_pop["spectral_index"] = spectral_index
+    dictionary_radio_pop["DM"] = DM
+    dictionary_radio_pop["tau_sc"] = tau_sc
+
+    return dictionary_radio_pop

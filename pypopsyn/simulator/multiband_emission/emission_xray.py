@@ -6,6 +6,8 @@
         Michele Ronchi (ronchi@ice.csic.es)
 """
 
+import pathlib
+import pickle
 from typing import Optional, Tuple
 
 import numpy as np
@@ -418,6 +420,27 @@ def calculate_xray_emission(
     return xray_bright_mask, L_x_therm, S_x_bb_abs, S_x_rcs_abs, N_H
 
 
+def initialize_Lx_interpolator() -> RectBivariateSpline:
+    """
+    Initialize the interpolator for the X-ray luminosity.
+
+    Returns:
+        (RectBivariateSpline): An interpolator function loaded from a pickled file to evaluate the X-ray luminosity.
+    """
+
+    # Get the path to the software directory.
+    base_path = pathlib.Path(cfg["path_to_software"])
+    # Load the interpolator function to evaluate the X-ray luminosity.
+    interpolator_Lx_path = base_path.joinpath(
+        cfg["magneto-thermal_path"], "interpolator_Lx.pkl"
+    )
+
+    with open(interpolator_Lx_path, "rb") as f:
+        L_x_interpolator = pickle.load(f)
+
+    return L_x_interpolator
+
+
 def outburst_filter(B_initial: np.ndarray, age: np.ndarray) -> np.ndarray:
     """
     A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that goes in outburst
@@ -459,3 +482,64 @@ def outburst_filter(B_initial: np.ndarray, age: np.ndarray) -> np.ndarray:
     )
 
     return outburst_mask
+
+
+def xray_population(
+    dict_pop: dict,
+    L_x_interpolator: RectBivariateSpline,
+    L_x_threshold: float = 1.0e30,
+) -> dict:
+    """
+    Filter and compute properties of a population of neutron stars that emits thermally in X-rays.
+
+    Args:
+        dict_pop (dict): Dictionary containing the properties of a neutron star population.
+        L_x_interpolator (RectBivariateSpline): Interpolator used to calculate the thermal X-ray luminosity based
+            on age and magnetic field.
+        L_x_threshold (float): A lower limit for the X-ray luminosity.
+
+    Returns:
+        (dict): A dictionary containing properties of the neutron stars that emits thermally in X-rays.
+    """
+
+    # Select only the stars that can be detected in X-rays.
+    coverage_x = dict_pop["coverage_x"]
+    dict_final_pop_filtered = {
+        key: value[coverage_x] for key, value in dict_pop.items()
+    }
+
+    # Compute the properties of the X-ray bright neutron stars.
+    (
+        xray_bright_mask,
+        L_x_therm,
+        S_x_bb_abs,
+        S_x_rcs_abs,
+        N_H,
+    ) = calculate_xray_emission(
+        dict_final_pop_filtered["B"],
+        dict_final_pop_filtered["B_initial"],
+        dict_final_pop_filtered["age"],
+        dict_final_pop_filtered["ra"],
+        dict_final_pop_filtered["dec"],
+        dict_final_pop_filtered["dist"],
+        L_x_interpolator,
+        L_x_threshold,
+    )
+
+    dict_xray_pop = {
+        key: value[xray_bright_mask]
+        for key, value in dict_final_pop_filtered.items()
+    }
+
+    # Apply the filter to see which neutron stars goes in outburst.
+    outburst_mask = outburst_filter(
+        dict_xray_pop["B_initial"], dict_xray_pop["age"]
+    )
+
+    dict_xray_pop["L_x_therm"] = L_x_therm
+    dict_xray_pop["S_x_rcs_abs"] = S_x_rcs_abs
+    dict_xray_pop["S_x_bb_abs"] = S_x_bb_abs
+    dict_xray_pop["N_H"] = N_H
+    dict_xray_pop["outburst"] = outburst_mask
+
+    return dict_xray_pop
