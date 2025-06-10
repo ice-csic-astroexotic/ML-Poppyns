@@ -18,7 +18,11 @@ import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 TOL = 1e-5
 
 PMPS_par_path = "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
+SKA_low_AAstar_par_path = (
+    "pypopsyn/simulator/multiband_surveys/SKA_low_parameters_AAstar.json"
+)
 PMPS = sr.SurveyRadio(PMPS_par_path)
+SKA_low_AAstar = sr.SurveyRadio(SKA_low_AAstar_par_path)
 
 
 @pytest.fixture()
@@ -44,6 +48,7 @@ def test_case_1():
         "offset2": np.array([5, 10]),
         "S_radio_bol": np.array([5.1e-18, 2.9e-19]),
         "G_expected": np.array([0.68485507, 0.63813124]),
+        "aa_factor_expected": np.array([0.99862953, 0.22495105]),
         "S_radio_int": np.array([0.01, 100]),
         "S_radio_obs_expected": np.array([0.00728263, 0.50610848]),
         "S_radio_obs_mean_expected": np.array([9.99999989e-5, 0.999999996]),
@@ -166,6 +171,18 @@ def test_gain_gaussian_beam(test_case_1):
     ).all()
 
 
+def test_aperture_array_factor(test_case_1):
+    """
+    Verifying that the aperture array factor is computed correctly.
+    """
+
+    aa_factor_out = SKA_low_AAstar.aperture_array_factor(test_case_1["DEC"])
+
+    assert np.isclose(
+        test_case_1["aa_factor_expected"], aa_factor_out, rtol=TOL, atol=1.0e-5
+    ).all()
+
+
 def test_radiometer_equation(test_case_1):
     """
     Verifying that the signal-to-noise values are computed correctly using the radiometer equation.
@@ -199,6 +216,7 @@ def test_simulate_detection(monkeypatch, test_case_1):
         test_case_1["S_radio_obs_expected"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],
+        test_case_1["DEC"],
         test_case_1["w_eff_expected"],
         test_case_1["P"],
     )
@@ -224,6 +242,7 @@ def test_detect_radio_population(test_case_1):
         test_case_1["coverage_expected"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],
+        test_case_1["DEC"],
         test_case_1["S_radio_bol"],
         test_case_1["spectral_index"],
         test_case_1["tau_sc"],

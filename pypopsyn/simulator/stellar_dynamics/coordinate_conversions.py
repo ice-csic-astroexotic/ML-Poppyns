@@ -48,6 +48,28 @@ def polar_to_cartesian(
     return x, y
 
 
+def cartesian_to_polar(
+    x: np.ndarray, y: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Calculating the plane polar coordinates r and phi from Cartesian x and y coordinates.
+
+    Args:
+        x (np.ndarray): x coordinate in Cartesian system.
+        y (np.ndarray): y coordinate in Cartesian system.
+
+    Returns:
+        (Tuple[np.ndarray, np.ndarray]): r and phi coordinates in a plane polar coordinates.
+            phi is returned in the range [0, 2*pi].
+    """
+
+    r = np.sqrt(x**2 + y**2)
+    phi = np.arctan2(y, x)
+    phi = np.mod(phi, 2 * np.pi)
+
+    return r, phi
+
+
 def spherical_to_cartesian(
     r: np.ndarray, theta: np.ndarray, psi: np.ndarray
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:

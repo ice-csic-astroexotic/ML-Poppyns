@@ -62,6 +62,7 @@ class MockSurveyRadio:
         coverage,
         l_gal,
         b_gal,
+        dec,
         S_radio_bol,
         spectral_index,
         tau_sc,

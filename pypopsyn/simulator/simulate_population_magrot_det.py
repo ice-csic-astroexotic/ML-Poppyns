@@ -584,6 +584,7 @@ def radio_detection(
             dictionary_intercepted_radio[f"coverage_radio_{survey_name}"],
             dictionary_intercepted_radio["l"],
             dictionary_intercepted_radio["b"],
+            dictionary_intercepted_radio["dec"],
             dictionary_intercepted_radio["S_radio_bol"],
             dictionary_intercepted_radio["spectral_index"],
             dictionary_intercepted_radio["tau_sc"],
