@@ -11,7 +11,7 @@ the [sbi](https://sbi-dev.github.io/sbi/) library ([Tejero-Cantero et al., 2020]
 For a discussion of how neural networks can be used to infer point estimates (without quantifying uncertainties) see
 [Learning pulsar parameters with NNs](learning_tutorial_nn.md).
 
-## SBi methods
+## SBI methods
 
 Using the `pypopsyn/learning/sbi_train.py` script, we support the following approaches for simulation-based inference:
 
@@ -64,9 +64,9 @@ Here, the `config_sbi.json` file contains all the information required to optimi
 
 ## General configuration options
 
-We now discuss the various options in the `config_sbi.json` training configuration file, which include the sbi method 
-use, the type of compression if needed, the type of density estimator, the input shape of the dataset, and 
-other relevant training hyperparameters. This option are commons for both single and multi-round inference.
+We now discuss the various options in the `config_sbi.json` training configuration file, which include the type of SBI 
+method, the type of compression if needed, the type of density estimator, the input shape of the dataset, and 
+other relevant training hyperparameters. These options are common for both single and multi-round inference.
 
 #### General info
 
@@ -183,10 +183,10 @@ If you would like to design your own network architecture, you need to implement
 
 #### Compression of input data
 For cases where Neural Ratio Estimation (NRE) or Neural Likelihood Estimation (NLE) is used, an extra step is required 
-to preprocess the data before passing it to the neural network. Unlike SNPE, you cannot train an embedding network 
+to preprocess the data before passing it to the neural network. Unlike in Neural Posterior Estimation (NPE), you cannot train an embedding network 
 simultaneously with the density estimator. To address this, we provide two options for data compression: a Convolutional
 Neural Network (CNN) or Principal Component Analysis (PCA). The CNN is assumed to have been trained as part of a 
-previous NPE (Neural Posterior Estimation) experiment. The PCA model can be trained separately using the
+previous NPE experiment. The PCA model can be trained separately using the
 `tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook.
 
 
@@ -363,9 +363,10 @@ a pre-trained model, and a dataset, and run the inference.
 ### Configuration options
 
 In addition to the training and testing data loaders specified above, we also need to define the directories for saving
-and loading inference results using the infer, save_dir, and load_dir fields. The `load_dir` should point to the location 
-where `inference.pickle` and `trained_model.pickle` are stored, as these files are required to perform inference.
-You must also specify whether to compute the coverage probability using the compute_coverage flag.
+and loading inference results using the `save_dir` and `load_dir` parameters under the `infer` field in the configuration file. 
+The `load_dir` should point to the location where `inference.pickle` and `trained_model.pickle` are stored, as these 
+files are required to perform inference.
+You must also specify whether to compute the coverage probability using the `compute_coverage` flag.
 If `compute_coverage` is not enabled, the output will include a corner plot and samples from the posterior distribution 
 conditioned on the observed data. If it is enabled, additional outputs will be saved:
 
@@ -373,7 +374,7 @@ conditioned on the observed data. If it is enabled, additional outputs will be s
 * `coverage_probability.npy`: a tensor of coverage probabilities.
 * `coverage_plot.pdf`: a plot visualizing the coverage probabilities.
 
-If sim_dataset is set to True, the test dataset will be generated in each round. Otherwise, it is assumed that the 
+If `sim_dataset` is set to `True`, the test dataset will be generated in each round. Otherwise, it is assumed that the 
 directory specified in the `dataset_path` field under `test_dataset_loader` contains a pre-generated test dataset for each 
 round.
 
@@ -488,9 +489,9 @@ the consistency of the resume mode.
 When resuming, in the first iteration, you need to load the trained model and the training dataset from the last 
 completed round. This is necessary to:
 
-    - Compute the proposal prior distribution for the next round.
-    - Load the training dataset, since simulations from previous rounds are reused in subsequent rounds 
-      when append_simulations is enable.
+* Compute the proposal prior distribution for the next round.
+* Load the training dataset, since simulations from previous rounds are reused in subsequent rounds 
+  when `append_simulations` is enable.
 
 An example of the configuration file:
 
@@ -512,17 +513,18 @@ From round 4 onward, the computation will proceed as usual in a multi-round infe
 ### Extra parameter for training
 Several additional parameters control how training behaves across rounds:
 
-* `append_simulations`: If true, simulations from previous rounds are included in the current round.
+* `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round.
 
-* `truncated_prior`: If `true`, the proposal prior is obtained by truncating the posterior from the previous round 
+* `truncated_prior`: If set to `true`, the proposal prior is obtained by truncating the posterior from the previous round 
  (evaluated at the observed data) using the prior distribution. Otherwise, the proposal prior is simply the 
  approximated posterior distribution from the previous round.
 
-* `sir`: If true, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, rejection sampling is used.
+* `sir`: If set to `true`, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, rejection sampling is used.
 
-* `retrain_from_scratch`: If true, the model is retrained from scratch in each round. Otherwise, training continues from previous weights.
+* `retrain_from_scratch`: If set to `true`, the model is retrained from scratch in each round, i.e., the model weights are re-initialized in each round. 
+  Otherwise, training continues updating the weights trained in the previous rounds.
 
-* `plot_proposal`: If true, a corner plot of the proposal prior will be saved.
+* `plot_proposal`: If set to `true`, a corner plot of the proposal prior will be saved.
 
 Note: For SNPE, you cannot enable both `truncated_prior = false` and `append_simulations = true`. 
 
@@ -604,13 +606,13 @@ located in `utilities/simulation_helper/run_simulation_set.py`.
     In the example above, we assume you have created `htcondor_submit` and `htcondor_output` folders. The first is used to store 
     the `job.submit` and  `wrapper.sh` files, and the second stores the `stdout` and `stderr` from the main job.
 
-We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `exp_folder_pat` directory where the
-`data` folder (explained in the Folder Structure section) is located.
+We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `exp_folder_path` directory where the
+`data` folder is located (see section [Folder Structure](#folder-structure)).
 
 #### Monitoring Dask Workers (HTCondor + GPU)
 
 If this is your first time using Dask on the PIC server, you must manually launch an empty Dask cluster via the Jupyter
-dashboard to ensure correct functionality. If you're running the main job on HTCondor with GPU, you can monitor the 
+dashboard (located in the left sidebar on the PIC Jupyter interface) to ensure correct functionality. If you're running the main job on HTCondor with GPU, you can monitor the 
 Dask workers through Jupyter following these steps:
 
    1. Open the Jupyter interface on a GPU node.
