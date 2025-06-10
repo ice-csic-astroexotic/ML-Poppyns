@@ -7,7 +7,7 @@
   "T_sys": 47.0,
   "f_central": 190.0e6,
   "BW": 100.0e6,
-  "channel_width": 0.005e6,
+  "channel_width": 0.013e6,
   "n_pol": 2.0,
   "FWHM": 121.3,
   "SNR_th": 9.0,
