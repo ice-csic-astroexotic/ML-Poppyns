@@ -436,11 +436,11 @@ cfg["ISM_abundances"]: List[float] = [
 # detection of the supernova remnant emission and pulsar wind nebulae contribution which we are not modeling in our code.
 # The first survey
 cfg["surveys_xray"]: dict = {
-    "X-rays_flux_threshold": {
+    "xray_flux_threshold": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
         "detected_real": 31,
     },
-    "X-rays_realistic": {
+    "xray_realistic": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json",
         "detected_real": 31,
     },

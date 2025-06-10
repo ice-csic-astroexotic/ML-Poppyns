@@ -253,6 +253,11 @@ def apply_surveys_coverage(
     survey_radio_names = list(surveys_radio.keys())
     coverage_survey_radio = {}
 
+    if surveys_xray is not None:
+        # Evaluate the sky coverage for each X-ray survey.
+        survey_xray_names = list(surveys_xray.keys())
+        coverage_survey_xray = {}
+
     for name in survey_radio_names:
         coverage_survey_radio[name] = surveys_radio[name].sky_coverage(
             dyn_database_dict["ra"],
@@ -269,9 +274,6 @@ def apply_surveys_coverage(
     ) & dist_mask
 
     if surveys_xray is not None:
-        # Evaluate the sky coverage for each X-ray survey.
-        survey_xray_names = list(surveys_xray.keys())
-        coverage_survey_xray = {}
 
         for name in survey_xray_names:
             coverage_survey_xray[name] = surveys_xray[name].sky_coverage(
@@ -313,9 +315,16 @@ def apply_surveys_coverage(
         ][coverage_tot]
 
     if surveys_xray is not None:
-        dictionary_coverage_database["coverage_x"] = coverage_xray_tot[
+        dictionary_coverage_database["coverage_xray"] = coverage_xray_tot[
             coverage_tot
         ]
+
+        for survey_name in survey_xray_names:
+            # Add the coverage data for each survey.
+            coverage_key = f"coverage_xray_{survey_name}"
+            dictionary_coverage_database[coverage_key] = coverage_survey_xray[
+                survey_name
+            ][coverage_tot]
 
     # Remove stars that do not fall into the total sky coverage.
     idx = dyn_database_dict["idx"]

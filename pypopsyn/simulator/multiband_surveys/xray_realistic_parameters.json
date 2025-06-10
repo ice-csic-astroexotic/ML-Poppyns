@@ -1,5 +1,5 @@
 {
-  "name": "X-ray_realistic",
+  "name": "xray_realistic",
   "apply_sharp_flux_threshold": false,
   "sharp_flux_threshold": 1.0e-15,
   "S_x_threshold_log10_mean_long_exposure": -14,
