@@ -646,7 +646,7 @@ def pca_compression(
     pca_model_path = config["compression_input"]["pca_model_path"]
     if pca_model_path is None:
         logger.error(
-            "PCA model path not provided in config under 'compression_input.pca_model_path"
+            "PCA model path not provided in configuration under compression_input -> pca_model_path."
         )
         sys.exit(1)
 
