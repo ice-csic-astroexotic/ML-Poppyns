@@ -18,11 +18,6 @@ import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivati
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.config_simulator import cfg
 
-# Redefining global variables to allow type specification.
-# Necessary right now in order to get JIT to work.
-NS_mass = float(cfg["NS_mass"])
-NS_radius = float(cfg["NS_radius"])
-
 
 @jit(float64[:](float64, float64[:], float64, float64, float64))
 def combined_derivatives(
@@ -125,7 +120,7 @@ def magneto_rotational_evolution(
                 combined_derivatives,
                 y0=y_initial[i],
                 t=time_grid,
-                args=(B_initial[i], NS_mass, NS_radius),
+                args=(B_initial[i], cfg["NS_mass"], cfg["NS_radius"]),
                 tfirst=True,
             )
         )

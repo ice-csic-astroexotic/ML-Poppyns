@@ -209,12 +209,14 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 
 # ===================== FIT PARAMETERS FOR MAGNETO-THERMAL SIMULATIONS ========================
 
-# We fit a functional equation of the magneto-thermal evolution curves (more information can be found in
+# We fit a functional equation of the magnetic field evolution curves (more information can be found in
 # pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/README.md):
 # B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**(a2-a1) * (1 + t/tau_late)**(a_late-a2)
 # with tau1 = A1 * B_initial**b1 and tau2 = A2 * B_initial**b2.
+# The fit parameters for each model were adjusted by hand (see the notebook
+# tutorials/analysis_notebooks/magnetic_field_evolution_fit.ipynb for more details).
 
-# Model pdf for the magneto-thermal simulations. Choose between "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy",
+# Model for the magneto-thermal simulations. Choose between "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy",
 # "BSk24_dip-tor_light", "BSk24_multi_heavy" and BSk24_multi_light.
 cfg["magneto-thermal_model"]: str = "BSk24_dip-tor_heavy"
 
@@ -235,7 +237,7 @@ if cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
     # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
     cfg["tau_late"]: float = 2.0e6
 
-    # Set the path where the magneto-thermal results are saved.
+    # Set the path to where the magneto-thermal results are saved.
     cfg["magneto-thermal_path"]: str = str(
         pathlib.Path().joinpath(
             cfg["path_to_software"],
@@ -262,7 +264,7 @@ elif (cfg["magneto-thermal_model"] == "BSk24_dip-tor_heavy") or (
     # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
     cfg["tau_late"]: float = 2.0e6
 
-    # Set the path where the magneto-thermal results are saved.
+    # Set the path to where the magneto-thermal results are saved.
     if cfg["magneto-thermal_model"] == "BSk24_dip-tor_heavy":
         cfg["magneto-thermal_path"]: str = str(
             pathlib.Path().joinpath(
@@ -297,7 +299,7 @@ elif (cfg["magneto-thermal_model"] == "BSk24_multi_heavy") or (
     # Timescale in [yr] when transitioning from the simulated curves to the simple late-time power-law evolution.
     cfg["tau_late"]: float = 2.0e6
 
-    # Set the path where the magneto-thermal results are saved.
+    # Set the path to where the magneto-thermal results are saved.
     if cfg["magneto-thermal_model"] == "BSk24_multi_heavy":
         cfg["magneto-thermal_path"]: str = str(
             pathlib.Path().joinpath(
@@ -331,7 +333,7 @@ if cfg["radio_beam_model"] == "standard_period_cone":
     cfg["r_em"]: float = 3.0e7
 
 elif cfg["radio_beam_model"] == "power-law_period_cone":
-    # Parameters taken from Maciesiak et al. 2012.
+    # Parameters taken from Maciesiak et al. (2012).
     cfg[
         "rho_b_0"
     ]: float = 2.5  # Half opening angle of the radio beam in [deg] corresponding to a spin period of 1 s.

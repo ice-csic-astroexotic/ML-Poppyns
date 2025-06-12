@@ -18,18 +18,6 @@ import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivati
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.config_simulator import cfg
 
-# Redefining global variables to allow type specification.
-# Necessary right now in order to get JIT to work.
-NS_mass = float(cfg["NS_mass"])
-NS_radius = float(cfg["NS_radius"])
-a1 = float(cfg["a1"])
-a2 = float(cfg["a2"])
-A1 = float(cfg["A1"])
-A2 = float(cfg["A2"])
-b1 = float(cfg["b1"])
-b2 = float(cfg["b2"])
-tau_late = float(cfg["tau_late"])
-
 
 def magnetic_field_evolution_fit_numpy(
     B_initial: float,
@@ -362,16 +350,16 @@ def magneto_rotational_evolution(
                 args=(
                     B_initial[i],
                     B_asymptotic[i],
-                    a1,
-                    a2,
-                    A1,
-                    A2,
-                    b1,
-                    b2,
-                    tau_late,
+                    cfg["a1"],
+                    cfg["a2"],
+                    cfg["A1"],
+                    cfg["A2"],
+                    cfg["b1"],
+                    cfg["b2"],
+                    cfg["tau_late"],
                     a_late,
-                    NS_mass,
-                    NS_radius,
+                    cfg["NS_mass"],
+                    cfg["NS_radius"],
                 ),
                 tfirst=True,
             )
@@ -384,13 +372,13 @@ def magneto_rotational_evolution(
                 B_initial[i],
                 time_grid,
                 B_asymptotic[i],
-                a1,
-                a2,
-                A1,
-                A2,
-                b1,
-                b2,
-                tau_late,
+                cfg["a1"],
+                cfg["a2"],
+                cfg["A1"],
+                cfg["A2"],
+                cfg["b1"],
+                cfg["b2"],
+                cfg["tau_late"],
                 a_late,
             )
 
@@ -411,13 +399,13 @@ def magneto_rotational_evolution(
             B_initial[i],
             t_age[i],
             B_asymptotic[i],
-            a1,
-            a2,
-            A1,
-            A2,
-            b1,
-            b2,
-            tau_late,
+            cfg["a1"],
+            cfg["a2"],
+            cfg["A1"],
+            cfg["A2"],
+            cfg["b1"],
+            cfg["b2"],
+            cfg["tau_late"],
             a_late,
         )
         chi_final[i] = evol_output[-1, 0]
