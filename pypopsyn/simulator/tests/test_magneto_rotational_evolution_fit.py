@@ -30,6 +30,15 @@ cfg["magrot_time_step_log10"] = 1
 # Set to save the time evolution output for testing purposes.
 cfg["save_magrot_evolution"] = True
 
+# Set the fit parameters for the magnetic field evolution for testing purposes.
+cfg["a1"] = -0.13
+cfg["a2"] = -3.0
+cfg["A1"] = 1.0e14
+cfg["b1"] = -0.8
+cfg["A2"] = 6.0e8
+cfg["b2"] = -0.2
+cfg["tau_late"] = 2.0e6
+
 
 @pytest.fixture()
 def test_case_1():
@@ -225,14 +234,6 @@ def test_magneto_rotational_evolution(monkeypatch, test_case_4):
         return test_case_4["log_B_asymptotic"]
 
     monkeypatch.setattr(np.random, "normal", mock_log_B_asymptotic)
-
-    monkeypatch.setattr(mre, "a1", test_case_4["a1"])
-    monkeypatch.setattr(mre, "a2", test_case_4["a2"])
-    monkeypatch.setattr(mre, "A1", test_case_4["A1"])
-    monkeypatch.setattr(mre, "A2", test_case_4["A2"])
-    monkeypatch.setattr(mre, "tau_late", test_case_4["tau_late"])
-    monkeypatch.setattr(mre, "NS_mass", cfg["NS_mass"])
-    monkeypatch.setattr(mre, "NS_radius", cfg["NS_radius"])
 
     (
         B_final_out,
