@@ -217,7 +217,7 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 # tutorials/analysis_notebooks/magnetic_field_evolution_fit.ipynb for more details).
 
 # Model for the magneto-thermal simulations. Choose between "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy",
-# "BSk24_dip-tor_light", "BSk24_multi_heavy" and BSk24_multi_light.
+# "BSk24_dip-tor_light", "BSk24_multi_heavy" and "BSk24_multi_light".
 cfg["magneto-thermal_model"]: str = "BSk24_dip-tor_heavy"
 
 if cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":

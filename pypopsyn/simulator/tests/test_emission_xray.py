@@ -1,5 +1,5 @@
 """
-Tests for the x-ray emission module.
+Tests for the X-ray emission module.
 
     Authors:
 
