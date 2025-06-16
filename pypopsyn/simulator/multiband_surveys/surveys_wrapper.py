@@ -104,6 +104,7 @@ def initialize_radio_surveys() -> Tuple[dict, dict]:
         "S_radio_obs_mean_1400": [],
         "w_int": [],
         "w_eff": [],
+        "tau_sc": [],
         "spectral_index": [],
         "idx": [],
     }
@@ -156,6 +157,7 @@ def initialize_xray_surveys() -> Tuple[dict, dict]:
         "pm_dec": [],
         "v_ls": [],
         "B": [],
+        "B_initial": [],
         "chi": [],
         "P": [],
         "P_dot": [],
@@ -632,6 +634,7 @@ def create_output_dataframe(
         "S_radio_obs_mean_1400",
         "w_int",
         "w_eff",
+        "tau_sc",
         "spectral_index",
     ]
     units_radio = [
@@ -652,6 +655,7 @@ def create_output_dataframe(
         "[erg s^-1]",
         "[Jy]",
         "[Jy]",
+        "[s]",
         "[s]",
         "[s]",
         "",
@@ -685,6 +689,7 @@ def create_output_dataframe(
             "pm_RA",
             "pm_DEC",
             "v_ls",
+            "B_initial",
             "B",
             "chi",
             "P",
@@ -704,6 +709,7 @@ def create_output_dataframe(
             "[mas yr^-1]",
             "[mas yr^-1]",
             "[km s^-1]",
+            "[G]",
             "[G]",
             "[rad]",
             "[s]",

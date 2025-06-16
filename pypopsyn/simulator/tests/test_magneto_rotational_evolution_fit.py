@@ -130,6 +130,53 @@ def test_case_4():
     return data
 
 
+@pytest.fixture()
+def test_case_5():
+    data = {
+        "age": np.array([1e6, 2e6]),
+        "expected_keys": {
+            "age",
+            "B_initial",
+            "P_initial",
+            "chi_initial",
+        },
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_6():
+    data = {
+        "dict_pop_initial_magrot": {
+            "age": np.array([1e6]),
+            "B_initial": np.array([1.0e12]),
+            "P_initial": np.array([0.1]),
+            "chi_initial": np.array([0.5]),
+        },
+        "B_final": np.array([1.0e12]),
+        "P_final": np.array([0.1]),
+        "chi_final": np.array([0.5]),
+        "magrot_evol_dict": {
+            "0": {
+                "t": [],
+                "B(t)": [],
+                "P(t)": [],
+                "chi(t)": [],
+            }
+        },
+        "expected_keys": {
+            "B_initial",
+            "B",
+            "P",
+            "P_dot",
+            "chi",
+        },
+    }
+
+    return data
+
+
 def test_magnetic_field_evolution_fit(test_case_1):
     """
     Testing that the output of the model for the magnetic field evolution is correct.
@@ -272,3 +319,46 @@ def test_magneto_rotational_evolution(monkeypatch, test_case_4):
             magrot_evol_dict_out[key].keys()
             == test_case_4["magrot_evol_dict_expected"][key].keys()
         )
+
+
+def test_initialize_population_magrot(test_case_5):
+    """
+    Check that the dictionary with the initial magneto-rotational properties is properly initialized.
+    """
+    output_dict = mre.initialize_population_magrot(test_case_5["age"])
+    assert set(output_dict.keys()) == test_case_5["expected_keys"]
+
+
+def test_evolve_population_magrot(monkeypatch, test_case_6, tmp_path):
+    """
+    Check that the dictionary with the final magneto-rotational properties is properly returned.
+    """
+    cfg[
+        "save_magrot_evolution"
+    ] = True  # Enable saving for testing file output.
+
+    output_path = tmp_path
+
+    def mock_magneto_rotational_evolution(*args, **kwargs):
+        return (
+            test_case_6["B_final"],
+            test_case_6["P_final"],
+            test_case_6["chi_final"],
+            test_case_6["magrot_evol_dict"],
+        )
+
+    monkeypatch.setattr(
+        mre, "magneto_rotational_evolution", mock_magneto_rotational_evolution
+    )
+
+    output_dict = mre.evolve_population_magrot(
+        test_case_6["dict_pop_initial_magrot"],
+        output_path,
+    )
+
+    assert set(output_dict.keys()) == test_case_6["expected_keys"]
+
+    # Check if the file was saved correctly.
+    if cfg["save_magrot_evolution"]:
+        magrot_file = output_path / "magrot_evolution.json"
+        assert magrot_file.exists()

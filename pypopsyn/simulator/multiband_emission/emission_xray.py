@@ -503,7 +503,7 @@ def xray_population(
     """
 
     # Select only the stars that can be detected in X-rays.
-    coverage_x = dict_pop["coverage_x"]
+    coverage_x = dict_pop["coverage_xray"]
     dict_final_pop_filtered = {
         key: value[coverage_x] for key, value in dict_pop.items()
     }
