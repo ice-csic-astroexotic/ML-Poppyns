@@ -15,14 +15,14 @@ For a discussion of how neural networks can be used to infer point estimates (wi
 
 Using the `pypopsyn/learning/sbi_train.py` script, we support the following approaches for simulation-based inference:
 
- 1. Neural Posterior Estimation (NPE): A neural network is trained to approximate the posterior distribution directly, 
+ 1. Neural Posterior Estimation ([NPE](https://proceedings.neurips.cc/paper_files/paper/2016/file/6aca97005c68f1206823815f66102863-Paper.pdf)): A neural network is trained to approximate the posterior distribution directly, 
     learning a mapping from model parameters **θ** to **P(θ | x)**.
 
- 2. Neural Likelihood Estimation (NLE): A neural network emulates the simulator by approximating the likelihood 
+ 2. Neural Likelihood Estimation ([NLE](https://proceedings.mlr.press/v89/papamakarios19a/papamakarios19a.pdf)): A neural network emulates the simulator by approximating the likelihood 
     **P(x | θ)**. Once trained, this model can be used with standard sampling algorithms (e.g., MCMC) to sample from 
     the posterior.
 
- 3. Neural Ratio Estimation (NRE): A classifier is trained to approximate the likelihood-to-evidence ratio
+ 3. Neural Ratio Estimation ([NRE](https://proceedings.mlr.press/v119/hermans20a/hermans20a.pdf)): A classifier is trained to approximate the likelihood-to-evidence ratio
     **r(θ, x) = P(x | θ) / P(x)**, which can be used to compute or sample from the posterior using methods like MCMC.
 
 ## Amortized vs Sequential inference
@@ -31,7 +31,8 @@ SBI can be performed using either amortized or sequential strategies. While amor
 estimates for any input after a single large training phase, sequential methods focus the simulation budget on regions 
 most relevant to a specific observation, making them more efficient for cases with a single dataset and expensive 
 simulations, as in our application. In the following, we will refer to amortized as **single-round** and sequential 
-as **multi-round** inference.
+as **multi-round** inference. All the methods above have their own sequential variants, which are named by adding an 'S'
+at the beginning. For example, SNPE stands for Sequential Neural Posterior Estimation. 
 
 For multi-round inference, the workflow is as follows:
 
@@ -115,7 +116,7 @@ Here is a list with the different initialization procedures available:
 Next, we decide on the type of density estimator used to approximate the posterior distribution. The 
 preconfigured options in the sbi library include so-called masked autoregressive flows `maf` or Gaussian mixture 
 density networks `mdn`. For more details on these methods and relevant hyperparameters as well as custom density 
-estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorial/04_density_estimators/).
+estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
 
 In the following example, we are setting a mixture density network with `10` Gaussian components, and the number of 
 neurons in the hidden layers is set to `16`.
@@ -134,6 +135,7 @@ neurons in the hidden layers is set to `16`.
 #### MCMC sampler
 For cases where Neural Ratio Estimation (NRE) or Neural Likelihood Estimation (NLE) is used, an extra step is required 
 to sample from the posterior. In this case, we use the default MCMC-based sampling provided by the `sbi` package. 
+For details on the different samplers in `sbi`, see [the sbi documentation](https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/).
 
 To perform MCMC sampling, you need to specify: the number of parallel chains, the thinning factor, 
 and the MCMC sampler type.
@@ -479,7 +481,7 @@ Resume mode allows training to continue from a previous round if it was interrup
 mode:
 
 * Set `config["resume_training"]["resume"] = true`.
-* Specify the round to resume from using `config["resume_training"]["last_round"] = 2`.
+* Specify the last completed round to resume from using `config["resume_training"]["last_round"] = 2`.
 * Provide the paths to the previously saved model and logs using: `config["resume_training"]["save_dir"]` and 
   `config["resume_training"]["log_dir"]` respectively.
 
@@ -515,8 +517,8 @@ Several additional parameters control how training behaves across rounds:
 
 * `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round.
 
-* `truncated_prior`: If set to `true`, the proposal prior is obtained by truncating the posterior from the previous round 
- (evaluated at the observed data) using the prior distribution. Otherwise, the proposal prior is simply the 
+* `truncated_prior`: If set to `true`, the proposal prior is obtained by truncating the initial prior with the posterior
+  from the previous round (evaluated at the observed data). Otherwise, the proposal prior is simply the 
  approximated posterior distribution from the previous round.
 
 * `sir`: If set to `true`, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, rejection sampling is used.

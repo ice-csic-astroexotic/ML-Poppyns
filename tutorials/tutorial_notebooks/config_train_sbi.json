@@ -36,7 +36,7 @@
     },
     "compression_input": {
         "use_compression": false,
-        "embedding_type": "cnn",
+        "compression_type": "cnn",
         "cnn_model_path": "exp_4/round_9/trained_model_ensemble_0.pickle",
         "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
     },
