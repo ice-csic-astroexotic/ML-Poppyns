@@ -7,9 +7,8 @@
 """
 import json
 import pathlib
-import pickle
 from unittest import mock
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
