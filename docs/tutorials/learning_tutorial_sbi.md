@@ -521,7 +521,8 @@ Several additional parameters control how training behaves across rounds:
   from the previous round (evaluated at the observed data). Otherwise, the proposal prior is simply the 
  approximated posterior distribution from the previous round.
 
-* `sir`: If set to `true`, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, rejection sampling is used.
+* `sir`: If set to `true`, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, 
+ rejection sampling is used. For an explanation of these two methods, we refer the user to [Liu, J. S. (2001), Monte Carlo Strategies in Scientific Computing.](https://github.com/szcf-weiya/MonteCarlo/blob/master/References/Monte-Carlo-Strategies-in-Scientific-Computing.pdf)
 
 * `retrain_from_scratch`: If set to `true`, the model is retrained from scratch in each round, i.e., the model weights are re-initialized in each round. 
   Otherwise, training continues updating the weights trained in the previous rounds.

@@ -69,7 +69,7 @@ def calculate_smallest_hdr(
         device (torch.device): Device used to run the script.
 
     Returns:
-        (np.ndarray, np.array): Smallest highest density region of the posterior that contains the true value, posterior samples for all test simulations.
+        (np.ndarray, np.ndarray): Smallest highest density region of the posterior that contains the true value, posterior samples for all test simulations.
     """
     hdr = []
     # Counter for successful samples.
@@ -88,7 +88,7 @@ def calculate_smallest_hdr(
         simulation_output = simulation_output.unsqueeze(0)
         true_value = theta[index]
 
-        # Perform sampling with a timeout of 180 seconds.
+        # Perform sampling with a timeout of 6000 seconds.
         posterior_samples, success = sampler.sample_with_timeout(
             posterior, simulation_output, n_samples, timeout=6000
         )
@@ -518,7 +518,7 @@ def prepare_dataset_sbi(
             observed ATNF population. The default is False.
 
     Returns:
-        (tuple): A tuple containing the dataset containing the statistics, parameter tensor and input matrix tensor.
+        (Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]): A tuple containing the dataset containing the statistics, parameter tensor and input matrix tensor.
     """
 
     # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
@@ -626,7 +626,7 @@ def pca_compression(
         standardize (bool): Whether to standardize compressed values to zero mean and unit variance.
 
     Returns:
-        (tuple): Parameter array (theta) of shape (n_samples, n_parameters), PCA-compressed input array of shape (n_samples, n_pca_components)
+        (Tuple[np.ndarray, np.ndarray]): Parameter array (theta) of shape (n_samples, n_parameters), PCA-compressed input array of shape (n_samples, n_pca_components)
     """
 
     matrix_raw = np.zeros(
@@ -692,7 +692,7 @@ def cnn_compression(
         standardize (bool): Whether to standardize embedded values.
 
     Returns:
-        (tuple): Parameter array (theta) of shape (n_samples, n_parameters), CNN-compressed input array of shape (n_samples, len_output_layer)
+        (Tuple[np.ndarray, np.ndarray]): Parameter array (theta) of shape (n_samples, n_parameters), CNN-compressed input array of shape (n_samples, len_output_layer)
     """
 
     matrix_embedded = np.zeros(

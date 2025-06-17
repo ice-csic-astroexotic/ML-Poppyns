@@ -44,7 +44,7 @@ def load_inference(
     round_number: int,
     save_dir: pathlib.Path,
     ensemble: bool = False,
-) -> Union[List[SNPE], List[SNLE]]:
+) -> Union[List[SNPE], List[SNLE], List[SNRE]]:
     """
     Load inference objects from pickle files. Note that this is used when resume mode is enabled
     or when doing inference with SNLE.
@@ -56,7 +56,7 @@ def load_inference(
         ensemble (bool): Flag indicating if ensemble mode is enabled. Defaults to False.
 
     Returns:
-        (Union[List[SNPE], List[SNLE]]):  A list of inference objects.
+        (Union[List[SNPE], List[SNLE], List[SNRE]]):  A list of inference objects.
     """
     inference_list = []
 
@@ -157,16 +157,12 @@ def build_inference_network(
         prior (utils.BoxUniform): The prior distribution over the parameters.
 
     Returns:
-        Union[SNPE_C, SNLE_A, SNRE_A]: An instance of the corresponding sbi inference class,
+        Union[SNPE_C, SNLE_A, SNRE_B]: An instance of the corresponding sbi inference class,
                                        depending on the model_type specified.
     """
 
     if model_type.lower() == "snpe":
 
-        # If config["compression_input"]["use_compression"] is False, input data compression will be performed directly
-        # within the density network. In this case, the first component of the network is a CNN that compresses the
-        # input data, and it is trained jointly with the density estimator. Note that this option is only compatible
-        # with the NPE.
         posterior_nn_args = {
             "model": config["density_estimator"]["type"],
             "hidden_features": config["density_estimator"]["args"][
@@ -178,6 +174,10 @@ def build_inference_network(
             "device": device,
         }
 
+        # If config["compression_input"]["use_compression"] is False, input data compression will be performed directly
+        # within the density network. In this case, the first component of the network is a CNN that compresses the
+        # input data, and it is trained jointly with the density estimator. Note that this option is only compatible
+        # with the NPE.
         if not config["compression_input"]["use_compression"]:
             # Build the embedding network
             embedding_net = config.init_object("arch", learning_models)
@@ -203,7 +203,7 @@ def build_inference_network(
 
         return inference
 
-    if model_type.lower() == "snle":
+    elif model_type.lower() == "snle":
         inference = SNLE(
             density_estimator=config["density_estimator"]["type"],
             device=f"{device}",
@@ -212,7 +212,7 @@ def build_inference_network(
 
         return inference
 
-    if model_type.lower() == "snre":
+    elif model_type.lower() == "snre":
         inference = SNRE(
             classifier=config["density_estimator"]["classifier_nre"],
             device=f"{device}",
@@ -233,7 +233,7 @@ def initialize_inference(
     prior: utils.BoxUniform,
     logger: Logger,
     ensemble: bool = False,
-) -> Union[List[SNPE], List[SNLE]]:
+) -> Union[List[SNPE], List[SNLE], List[SNRE]]:
     """
     Initialize inference objects using the provided configuration.
 
@@ -245,7 +245,7 @@ def initialize_inference(
         ensemble (bool): Flag indicating if ensemble mode is enabled.
 
     Returns:
-        (Union[List[SNPE], List[SNLE]]): List of initialized inference objects.
+        (Union[List[SNPE], List[SNLE], List[SNRE]]): List of initialized inference objects.
     """
     inference_list = []
     model_type = config["trainer"]["type"]
@@ -506,7 +506,7 @@ def initialize_prior(
 def load_posterior(
     config: configuration_parser.ConfigurationParser,
     logger: Logger,
-    inference_list: Union[List[SNPE], List[SNLE]],
+    inference_list: Union[List[SNPE], List[SNLE], List[SNRE]],
     device: torch.device,
     round_current: int,
 ) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
@@ -551,7 +551,8 @@ def load_posterior(
 
         if model_type == "snpe":
             posterior = inference.build_posterior(density_estimator.to(device))
-        elif model_type == "snle":
+
+        elif model_type == "snle" or "snre":
             posterior = inference.build_posterior(
                 density_estimator=density_estimator.to(device),
                 mcmc_method=config["mcmc_sampler"]["type"],
@@ -560,6 +561,7 @@ def load_posterior(
                     "thin": config["mcmc_sampler"]["thin"],
                 },
             )
+
         else:
             logger.exception(
                 "The model type '{}' is not supported. ".format(model_type)

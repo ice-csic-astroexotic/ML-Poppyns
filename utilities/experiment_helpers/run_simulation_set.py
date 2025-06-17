@@ -355,13 +355,9 @@ def main(args) -> None:
             - a_late (list[float]): Range and number of values for the power-law slope of the late time
                 magnetic field evolution.
             - L_radio_log10_mean (list[float]): Range and number of values for the mean of the log10
-                radio luminosity normalization (if radio_luminosity_model = lum_radio_ppdot).
+                radio luminosity normalization.
             - epsilon_L (list[float]): Range and number of values for the power-law index of the log10
-                radio luminosity (if radio_luminosity_model = lum_radio_ppdot).
-            - L_radio_log10_mean (list[float]): Range and number of values for the mean of the log10
-                radio luminosity normalization (if radio_luminosity_model = lum_radio_edot).
-            - epsilon_L(list[float]): Range and number of values for the power-law index of the log10
-                radio luminosity (if radio_luminosity_model = lum_radio_edot).
+                radio luminosity.
     """
     # Event on the master process that will be used to synchronize the child
     # processes and signal them for execution in the pool.
