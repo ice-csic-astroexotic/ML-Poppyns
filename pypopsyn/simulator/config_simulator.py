@@ -435,8 +435,10 @@ cfg["ISM_abundances"]: List[float] = [
 # Information on the modeled X-ray surveys.
 # To obtain the number of Galactic isolated neutron stars detected with a quiescent thermal emission in X-rays,
 # we only include magnetars and XDINSs, as young RPPs with quiescent X-ray emission are primarily discovered through the
-# detection of the supernova remnant emission and pulsar wind nebulae contribution which we are not modeling in our code.
-# The first survey
+# detection of the supernova remnant emission and pulsar wind nebulae contribution which we are not modeled in our code.
+# The first survey takes into account a simple flux threshold cut. The second one considers that many magnetars
+# have been discovered during an outburst phase. For those we consider a deeper survey to detect a quiescent emission,
+# and combine it with a less deep survey which detects only the brightest sources.
 cfg["surveys_xray"]: dict = {
     "xray_flux_threshold": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",

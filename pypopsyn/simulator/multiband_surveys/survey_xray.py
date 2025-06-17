@@ -81,31 +81,43 @@ class SurveyXray:
         with open(parameters_path) as read_file:
             self.parameters = json.load(read_file)
 
-        # RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
-        # DEC_range(np.ndarray): range of the sky covered by the survey in DEC [deg].
-        # l_range(np.ndarray): range of the sky covered by the survey in Galactic longitude l[deg].
-        # b_range_abs(np.ndarray): absolute value of the range of the sky covered
-        #   by the survey in Galactic latitude b [deg].
+        # apply_sharp_flux_threshold (bool): boolean flag to apply a simplified survey with a sharp flux threshold or
+        # not.
         self.apply_sharp_flux_threshold = self.parameters[
             "apply_sharp_flux_threshold"
         ]
+        # sharp_flux_threshold (float): sharp flux threshold value for a generic survey.
         self.sharp_flux_threshold = self.parameters["sharp_flux_threshold"]
+        # S_x_threshold_log10_mean_long_exposure (float): mean for the log10 of the
+        # flux threshold distribution for a survey with shallow exposure.
         self.S_x_threshold_log10_mean_long_exposure = self.parameters[
             "S_x_threshold_log10_mean_long_exposure"
         ]
+        # S_x_threshold_log10_sigma_long_exposure (float): standard deviation for the log10 of the
+        # flux threshold distribution for a survey with long exposure.
         self.S_x_threshold_log10_sigma_long_exposure = self.parameters[
             "S_x_threshold_log10_sigma_long_exposure"
         ]
+        # S_x_threshold_log10_mean_shallow_exposure (float): mean for the log10 of the
+        # flux threshold distribution for a survey with shallow exposure.
         self.S_x_threshold_log10_mean_shallow_exposure = self.parameters[
             "S_x_threshold_log10_mean_shallow_exposure"
         ]
+        # S_x_threshold_log10_sigma_shallow_exposure (float): standard deviation for the log10 of the
+        # flux threshold distribution for a survey with shallow exposure.
         self.S_x_threshold_log10_sigma_shallow_exposure = self.parameters[
             "S_x_threshold_log10_sigma_shallow_exposure"
         ]
+        # RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
         self.RA_range = self.parameters["RA_range"]
+        # DEC_range(np.ndarray): range of the sky covered by the survey in DEC [deg].
         self.DEC_range = self.parameters["DEC_range"]
+        # l_range(np.ndarray): range of the sky covered by the survey in Galactic longitude l[deg].
         self.l_range = self.parameters["l_range"]
+        # b_range_abs(np.ndarray): absolute value of the range of the sky covered
+        #   by the survey in Galactic latitude b [deg].
         self.b_range_abs = self.parameters["b_range_abs"]
+        # name(str): name of the survey.
         self.name = self.parameters["name"]
 
     def __init__(
@@ -113,11 +125,11 @@ class SurveyXray:
         parameters_path: str,
     ) -> None:
         """
-        Radio survey initialization.
+        X-ray survey initialization.
 
         Args:
             parameters_path (str): Path to the survey_parameter.json file
-                containing the parameters of the radio survey.
+                containing the parameters of the X-ray survey.
         """
 
         self.__import_parameters(parameters_path)

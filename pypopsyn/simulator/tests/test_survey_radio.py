@@ -9,12 +9,10 @@
 
 import json
 import tempfile
-from unittest import mock
 
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 
 TOL = 1e-5
