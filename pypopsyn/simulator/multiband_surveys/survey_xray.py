@@ -14,6 +14,54 @@ import json
 import numpy as np
 
 
+def sharp_flux_filter(
+    S_x: np.ndarray,
+    S_x_threshold: float = 1.0e-15,
+) -> np.ndarray:
+    """
+    Compute the pulsars detected by an X-ray survey with a given sharp flux threshold.
+
+    Args:
+        S_x (np.ndarray): Array of observed X-ray fluxes in [erg s^-1 cm^-2].
+        S_x_threshold (float): The flux threshold for X-ray detection in [erg s^-1 cm^-2].
+
+    Returns:
+        (np.ndarray): Boolean mask to select the pulsars detected above a given flux threshold.
+    """
+
+    # Filter the neutron stars according to a threshold flux.
+    detected_x = S_x > S_x_threshold
+
+    return detected_x
+
+
+def smooth_flux_filter(
+    S_x: np.ndarray,
+    S_x_threshold_log10_mean: float = -15,
+    S_x_threshold_log10_sigma: float = 0.5,
+) -> np.ndarray:
+    """
+    Compute the pulsars detected by an X-ray survey with a given flux threshold from a gaussian distribution in log10
+    to mimic all the uncertainties inherent in a detection with an instrument.
+
+    Args:
+        S_x (np.ndarray): Array of observed X-ray fluxes in [erg s^-1 cm^-2].
+        S_x_threshold_log10_mean (float): The mean of the flux threshold distribution for X-ray detection in [erg s^-1 cm^-2].
+        S_x_threshold_log10_sigma (float): The standard deviation of the flux threshold distribution for X-ray detection in
+            [erg s^-1 cm^-2].
+
+    Returns:
+        (np.ndarray): Boolean mask to select the pulsars detected above a given flux threshold.
+    """
+    flux_threshold = 10 ** np.random.normal(
+        S_x_threshold_log10_mean,
+        S_x_threshold_log10_sigma,
+        len(S_x),
+    )
+    detected_mask = S_x > flux_threshold
+    return detected_mask
+
+
 class SurveyXray:
     """
     Class for any Xray survey.
@@ -133,54 +181,6 @@ class SurveyXray:
 
         return coverage
 
-    def sharp_flux_filter(
-        self,
-        S_x: np.ndarray,
-        S_x_threshold: float = 1.0e-15,
-    ) -> np.ndarray:
-        """
-        Compute the pulsars detected by an X-ray survey with a given sharp flux threshold.
-
-        Args:
-            S_x (np.ndarray): Array of observed X-ray fluxes in [erg s^-1 cm^-2].
-            S_x_threshold (float): The flux threshold for X-ray detection in [erg s^-1 cm^-2].
-
-        Returns:
-            (np.ndarray): Boolean mask to select the pulsars detected above a given flux threshold.
-        """
-
-        # Filter the neutron stars according to a threshold flux.
-        detected_x = S_x > S_x_threshold
-
-        return detected_x
-
-    def smooth_flux_filter(
-        self,
-        S_x: np.ndarray,
-        S_x_threshold_log10_mean: float = -15,
-        S_x_threshold_log10_sigma: float = 0.5,
-    ) -> np.ndarray:
-        """
-        Compute the pulsars detected by an X-ray survey with a given flux threshold from a gaussian distribution in log10
-        to mimic all the uncertainties inherent in a detection with an instrument.
-
-        Args:
-            S_x (np.ndarray): Array of observed X-ray fluxes in [erg s^-1 cm^-2].
-            S_x_threshold_log10_mean (float): The mean of the flux threshold distribution for X-ray detection in [erg s^-1 cm^-2].
-            S_x_threshold_log10_sigma (float): The standard deviation of the flux threshold distribution for X-ray detection in
-                [erg s^-1 cm^-2].
-
-        Returns:
-            (np.ndarray): Boolean mask to select the pulsars detected above a given flux threshold.
-        """
-        flux_threshold = 10 ** np.random.normal(
-            S_x_threshold_log10_mean,
-            S_x_threshold_log10_sigma,
-            len(S_x),
-        )
-        detected_mask = S_x > flux_threshold
-        return detected_mask
-
     def detected_xray_population(
         self,
         S_x: np.ndarray,
@@ -200,7 +200,7 @@ class SurveyXray:
 
         if self.apply_sharp_flux_threshold:
             # Apply a sharp flux threshold to cut out very faint sources.
-            detected_xray_mask = self.sharp_flux_filter(
+            detected_xray_mask = sharp_flux_filter(
                 S_x,
                 self.sharp_flux_threshold,
             )
@@ -213,7 +213,7 @@ class SurveyXray:
             # observations to see if the quiescent emission is detectable.
             # For this we consider a flux threshold around 10^-14 erg s^-1 cm^-2 with an intrinsic dispersion to mimic the
             # detection sensitivity of instruments like XMM-Newton or Chandra with relatively long exposure times.
-            detected_outburst_mask = self.smooth_flux_filter(
+            detected_outburst_mask = smooth_flux_filter(
                 S_x,
                 self.S_x_threshold_log10_mean_long_exposure,
                 self.S_x_threshold_log10_sigma_long_exposure,
@@ -222,7 +222,7 @@ class SurveyXray:
             # To include sources that didn't go in outburst but have high quiescent fluxes we also include a filter with
             # a higher flux threshold. This emulates all-sky surveys like the one performed by ROSAT
             # or the slew mode in XMM that are more sensitive to brighter X-ray sources.
-            detected_bright_mask = self.smooth_flux_filter(
+            detected_bright_mask = smooth_flux_filter(
                 S_x,
                 self.S_x_threshold_log10_mean_shallow_exposure,
                 self.S_x_threshold_log10_sigma_shallow_exposure,

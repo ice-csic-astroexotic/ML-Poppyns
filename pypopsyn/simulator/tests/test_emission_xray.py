@@ -7,6 +7,10 @@ Tests for the X-ray emission module.
 
 """
 
+import pickle
+import tempfile
+from unittest import mock
+
 import numpy as np
 import pytest
 from scipy.interpolate import RectBivariateSpline
@@ -403,6 +407,37 @@ def test_flux_xray_absorbed(test_case_1, monkeypatch):
         rtol=TOL,
         atol=1.0e-14,
     ).all()
+
+
+def test_initialize_Lx_interpolator(test_case_2, tmp_path):
+    """
+    Test that initialize_Lx_interpolator loads and returns a valid interpolator.
+    """
+    # Create sub-directory for the pickle file
+    subdir = tmp_path / "magneto-thermal"
+    subdir.mkdir()
+
+    # Path to interpolator pickle inside subdir
+    interpolator_path = subdir / "interpolator_Lx.pkl"
+
+    # Write the dummy interpolator to the file
+    with open(interpolator_path, "wb") as f:
+        pickle.dump(test_case_2["dummy_L_x_interpolator"], f)
+
+    # Define a fake cfg to point to this location
+    fake_cfg = {
+        "path_to_software": str(tmp_path),  # base dir is tmp_path
+        "magneto-thermal_path": "magneto-thermal",  # subdir
+    }
+
+    # Patch cfg with this fake_cfg
+    with mock.patch(
+        "pypopsyn.simulator.multiband_emission.emission_xray.cfg", fake_cfg
+    ):
+        interpolator = xem.initialize_Lx_interpolator()
+
+    # Assertions
+    assert isinstance(interpolator, RectBivariateSpline)
 
 
 def test_calculate_xray_emission(test_case_2, monkeypatch):

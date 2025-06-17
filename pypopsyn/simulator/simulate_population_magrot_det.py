@@ -40,44 +40,6 @@ log = logging.getLogger(__name__)
 logging.getLogger("healpy").setLevel(logging.WARNING)
 
 
-def adjust_n_batchsize(SurveyData) -> int:
-    """
-    To speed up the simulation, generate new neutron stars in batches.
-    The batchsize is adjusted depending if the simulation is close to reach the observed number of neutron stars in
-    real surveys. This guarantees a better fine tuning of the simulated detected numbers.
-    """
-
-    surveys_cfg = SurveyData.surveys_cfg
-    n_detected_sim = SurveyData.n_detected_sim
-    percentage_detected = SurveyData.percentage_detected
-    batchsize_adjusting_flags = SurveyData.batchsize_adjust_flags
-
-    # Evaluate the percentage of neutron stars detected by the simulated
-    # surveys with respect to the real surveys and adjust the batch size accordingly.
-    for survey in surveys_cfg:
-        percentage_detected[survey] = (
-            n_detected_sim[survey] / surveys_cfg[survey]["detected_real"]
-        )
-
-    if (
-        all(value > 0.9 for value in percentage_detected.values())
-        and not batchsize_adjusting_flags[0.9]
-    ):
-        batchsize_adjusting_flags[0.9] = True
-        n_batchsize = 10000
-    elif (
-        all(value > 0.95 for value in percentage_detected.values())
-        and not batchsize_adjusting_flags[0.95]
-    ):
-        batchsize_adjusting_flags[0.95] = True
-        n_batchsize = 5000
-
-    else:
-        n_batchsize = 100000
-
-    return n_batchsize
-
-
 def simulate_population(args) -> None:
     """
     Simulating a detected neutron star population starting from a dynamically evolved
@@ -160,7 +122,7 @@ def simulate_population(args) -> None:
                 cfg["show_profiling"],
             ):
 
-                n_batchsize = adjust_n_batchsize(SurveyData)
+                n_batchsize = sw.adjust_n_batchsize(SurveyData)
                 # Update the total number of simulated neutron stars.
                 n_created += n_batchsize
                 log.info(f"Total number of created neutron stars: {n_created}")

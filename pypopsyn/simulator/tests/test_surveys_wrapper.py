@@ -1457,6 +1457,97 @@ def test_case_10():
     return data
 
 
+@pytest.fixture()
+def test_case_11():
+    data = {
+        "SurveyData": sw.SurveyData(
+            surveys_cfg={
+                "PMPS": {
+                    "path": "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json",
+                    "detected_real": 1045,
+                },
+                "HTRU_low_mid": {
+                    "path_low": "pypopsyn/simulator/multiband_surveys/htru_low_parameters.json",
+                    "path_mid": "pypopsyn/simulator/multiband_surveys/htru_mid_parameters.json",
+                    "detected_real": 1037,
+                },
+            },
+            surveys_radio={
+                "PMPS": MockSurveyRadio("PMPS"),
+                "HTRU_low": MockSurveyRadio("HTRU_low"),
+                "HTRU_mid": MockSurveyRadio("HTRU_mid"),
+            },
+            surveys_xray=None,
+            n_detected_sim={survey: 0 for survey in ("PMPS", "HTRU_low_mid")},
+            percentage_detected={
+                survey: 0 for survey in ("PMPS", "HTRU_low_mid")
+            },
+            n_created_at_match={
+                survey: 0 for survey in ("PMPS", "HTRU_low_mid")
+            },
+            n_detected_sim_at_match={
+                survey: 0 for survey in ("PMPS", "HTRU_low_mid")
+            },
+            batchsize_adjust_flags={0.9: False, 0.95: False},
+            stop_flags={survey: False for survey in ("PMPS", "HTRU_low_mid")},
+            dictionary_detected_radio={
+                "PMPS": {
+                    "age": [],
+                    "ra": [],
+                    "dec": [],
+                    "l": [],
+                    "b": [],
+                    "DM": [],
+                    "dist": [],
+                    "pm_ra": [],
+                    "pm_dec": [],
+                    "v_ls": [],
+                    "B": [],
+                    "chi": [],
+                    "P": [],
+                    "P_dot": [],
+                    "L_radio_bol": [],
+                    "S_radio_obs_mean": [],
+                    "S_radio_obs_mean_1400": [],
+                    "w_int": [],
+                    "w_eff": [],
+                    "tau_sc": [],
+                    "spectral_index": [],
+                    "idx": [],
+                },
+                "HTRU_low_mid": {
+                    "age": [],
+                    "ra": [],
+                    "dec": [],
+                    "l": [],
+                    "b": [],
+                    "DM": [],
+                    "dist": [],
+                    "pm_ra": [],
+                    "pm_dec": [],
+                    "v_ls": [],
+                    "B": [],
+                    "chi": [],
+                    "P": [],
+                    "P_dot": [],
+                    "L_radio_bol": [],
+                    "S_radio_obs_mean": [],
+                    "S_radio_obs_mean_1400": [],
+                    "w_int": [],
+                    "w_eff": [],
+                    "tau_sc": [],
+                    "spectral_index": [],
+                    "idx": [],
+                    "HTRU_low": [],
+                    "HTRU_mid": [],
+                },
+            },
+            dictionary_detected_xray=None,
+        ),
+    }
+    return data
+
+
 def test_initialize_radio_surveys(test_case_1, monkeypatch):
     """
     Check that the radio surveys and the dictionaries containing the detected stars are properly initialized.
@@ -1711,7 +1802,7 @@ def test_update_filtered_dictionary(test_case_7):
 
 def test_update_survey_data(test_case_8):
     """
-    Check that the a SurveyData object is properly updated.
+    Check that the SurveyData object is properly updated.
     """
 
     # Test if updating the radio survey data works properly.
@@ -1733,7 +1824,7 @@ def test_update_survey_data(test_case_8):
     assert survey_data.n_detected_sim["PMPS"] == 1
     assert survey_data.n_detected_sim["HTRU_low_mid"] == 1
 
-    # Check dictionary updated
+    # Check dictionary updated.
     assert (
         survey_data.dictionary_detected_radio
         == test_case_8["dictionary_detected_radio_expected"]
@@ -1774,7 +1865,7 @@ def test_update_survey_data(test_case_8):
     assert survey_data.n_detected_sim["xray_flux_threshold"] == 1
     assert survey_data.n_detected_sim["xray_realistic"] == 1
 
-    # Check dictionary updated
+    # Check dictionary updated.
     assert (
         survey_data.dictionary_detected_xray
         == test_case_8["dictionary_detected_xray_expected"]
@@ -1842,3 +1933,41 @@ def test_create_output_dataframe(test_case_10):
             output_dfs_with_xray[survey_name],
             test_case_10["expected_dfs_with_xrays"][survey_name],
         )
+
+
+def test_adjust_n_batchsize(test_case_11):
+    """
+    Check the the batch size for the simulation is correctly adjusted.
+    """
+
+    survey_data = test_case_11["SurveyData"]
+
+    survey_data.n_detected_sim["PMPS"] = 1
+    survey_data.n_detected_sim["HTRU_low-mid"] = 1
+
+    n_batchsize = sw.adjust_n_batchsize(survey_data)
+
+    # Assertions.
+    assert n_batchsize == 100000
+    assert survey_data.batchsize_adjust_flags[0.9] is False
+    assert survey_data.batchsize_adjust_flags[0.95] is False
+
+    survey_data.n_detected_sim["PMPS"] = 950
+    survey_data.n_detected_sim["HTRU_low_mid"] = 950
+
+    n_batchsize = sw.adjust_n_batchsize(survey_data)
+
+    # Assertions.
+    assert n_batchsize == 10000
+    assert survey_data.batchsize_adjust_flags[0.9] is True
+    assert survey_data.batchsize_adjust_flags[0.95] is False
+
+    survey_data.n_detected_sim["PMPS"] = 1030
+    survey_data.n_detected_sim["HTRU_low_mid"] = 1030
+
+    n_batchsize = sw.adjust_n_batchsize(survey_data)
+
+    # Assertions.
+    assert n_batchsize == 5000
+    assert survey_data.batchsize_adjust_flags[0.9] is True
+    assert survey_data.batchsize_adjust_flags[0.95] is True
