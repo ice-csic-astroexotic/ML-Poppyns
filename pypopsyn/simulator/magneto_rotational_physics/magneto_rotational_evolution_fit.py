@@ -36,6 +36,8 @@ def magnetic_field_evolution_fit_numpy(
     An analytical function for the magnetic field evolution curves from the magneto-thermal evolution simulations.
     This method is compatible with numpy arrays and is used if one wants to save the entire evolution output in the
     magneto_rotational_evolution method.
+    The fit parameters for each magneto-thermal model specified in the config_simulator.py file were adjusted by hand
+    (see the notebook tutorials/analysis_notebooks/magnetic_field_evolution_fit.ipynb for more details).
 
     Args:
         B_initial (float): Initial magnetic field strength in [G].
@@ -131,6 +133,8 @@ def magnetic_field_evolution_fit(
     An analytical fit for the magnetic field evolution curves from the magneto-thermal evolution simulations.
     This method is used when solving the differential equations if one wants to save only the final state in the
     magneto_rotational_evolution method.
+    The fit parameters for each magneto-thermal model specified in the config_simulator.py file were adjusted by hand
+    (see the notebook tutorials/analysis_notebooks/magnetic_field_evolution_fit.ipynb for more details).
 
     Args:
         B_initial (float): Initial magnetic field strength in [G].
