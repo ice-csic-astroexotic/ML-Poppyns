@@ -78,6 +78,9 @@ cfg["NS_number"]: int = 300000
 cfg["t_age_min"]: float = 1.0
 cfg["t_age_max"]: float = 3e7
 
+# Maximum birth rate in neutron star per century that can be reached by a simulation before stopping.
+cfg["birth_rate_max"]: float = 5.0
+
 # Flag indicating whether to perform the X-ray simulation or not. If set to True then radio and X-ray emissions
 # will be simulated; if False then only the radio population synthesis will be performed.
 cfg["simulation_xray"]: bool = True

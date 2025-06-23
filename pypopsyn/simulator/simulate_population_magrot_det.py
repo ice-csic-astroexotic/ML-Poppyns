@@ -231,11 +231,12 @@ def simulate_population(args) -> None:
             log.info(
                 f"Galactic neutron star birth rate per century: {birth_rate} neutron stars per century."
             )
-            # If the current birth rate exceeds an upper limit of 5 neutron stars per century stop the simulation.
-            if birth_rate > 5:
+            # If the current birth rate exceeds the upper limit on the birth rate specified in the configuration file stop the simulation.
+            max_birth_rate = cfg["birth_rate_max"]
+            if birth_rate > max_birth_rate:
                 cfg["birth_rate_excess"] = True
                 log.info(
-                    "Simulation stopped! Galactic neutron star birth rate exceeds 5 neutron stars per century."
+                    f"Simulation stopped! Galactic neutron star birth rate exceeds {max_birth_rate} neutron stars per century."
                 )
                 break
 
