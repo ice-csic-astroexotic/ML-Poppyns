@@ -34,9 +34,11 @@ class SurveyData:
     surveys_cfg: Dict
     # In this dictionary we save all the radio survey objects.
     surveys_radio: Dict
-    # In these dictionaries we save how many stars we progressively detect in total in each survey and
-    # the percentage related to the real detected numbers.
+    # In these dictionaries we save how many stars we progressively detect in total in each survey, how many neutron
+    # stars are detected in the flux ranges where we assume completeness and the percentage related to the real
+    # detected numbers.
     n_detected_sim: Dict
+    n_detected_complete_sim: Dict
     percentage_detected: Dict
     # In this dictionary we save how many stars we have created to reach the desirable number in each survey.
     n_created_at_match: Dict
@@ -202,6 +204,7 @@ def initialize_all_surveys() -> SurveyData:
             surveys_radio=surveys_radio,
             surveys_xray=surveys_xray,
             n_detected_sim={survey: 0 for survey in surveys_cfg},
+            n_detected_complete_sim={survey: 0 for survey in surveys_cfg},
             percentage_detected={survey: 0 for survey in surveys_cfg},
             n_created_at_match={survey: 0 for survey in surveys_cfg},
             n_detected_sim_at_match={survey: 0 for survey in surveys_cfg},
@@ -215,6 +218,7 @@ def initialize_all_surveys() -> SurveyData:
         surveys_cfg=surveys_cfg,
         surveys_radio=surveys_radio,
         n_detected_sim={survey: 0 for survey in surveys_cfg},
+        n_detected_complete_sim={survey: 0 for survey in surveys_cfg},
         percentage_detected={survey: 0 for survey in surveys_cfg},
         n_created_at_match={survey: 0 for survey in surveys_cfg},
         n_detected_sim_at_match={survey: 0 for survey in surveys_cfg},
@@ -524,6 +528,7 @@ def update_survey_data(
 
     surveys_cfg = SurveyData.surveys_cfg
     n_detected_sim = SurveyData.n_detected_sim
+    n_detected_complete_sim = SurveyData.n_detected_complete_sim
     stop_flags = SurveyData.stop_flags
     n_detected_sim_at_match = SurveyData.n_detected_sim_at_match
     n_created_at_match = SurveyData.n_created_at_match
@@ -531,23 +536,31 @@ def update_survey_data(
     dictionary_detected_xray = SurveyData.dictionary_detected_xray
 
     for survey in pop_detected_dict_update:
-        # Check the number of detected pulsars for each survey.
-        n_detected_sim[survey] += len(pop_detected_dict_update[survey]["age"])
-        logger.info(
-            f"Total number of neutron stars detected by {survey}: {n_detected_sim[survey]}"
-        )
 
-        # If the number of simulated detected pulsars matches the real one, store the value of created neutron stars.
-        if (
-            n_detected_sim[survey] >= surveys_cfg[survey]["detected_real"]
-            and not stop_flags[survey]
-        ):
-            n_detected_sim_at_match[survey] = n_detected_sim[survey]
-            stop_flags[survey] = True
-            n_created_at_match[survey] = n_created
-
-        # Update the detection dictionaries.
         if survey_type == "radio":
+            # Check the number of detected pulsars for each survey.
+            n_detected_sim[survey] += len(
+                pop_detected_dict_update[survey]["age"]
+            )
+            n_detected_complete_sim[survey] += len(
+                pop_detected_dict_update[survey]["age"]
+            )
+            logger.info(
+                f"Total number of neutron stars detected by {survey}: {n_detected_sim[survey]}"
+            )
+            # Since we assume that the radio surveys are complete, i.e.,
+            # n_detected_complete_sim = n_detected_sim, if the number of simulated detected pulsars
+            # matches the real one, store the value of created neutron stars.
+            if (
+                n_detected_complete_sim[survey]
+                >= surveys_cfg[survey]["detected_real"]
+                and not stop_flags[survey]
+            ):
+                n_detected_sim_at_match[survey] = n_detected_sim[survey]
+                stop_flags[survey] = True
+                n_created_at_match[survey] = n_created
+
+            # Update the detection dictionaries.
             dictionary_detected_radio[survey] = {
                 key: value + pop_detected_dict_update[survey][key]
                 for key, value in dictionary_detected_radio[survey].items()
@@ -557,6 +570,34 @@ def update_survey_data(
             idx_remove += idx_det
 
         elif survey_type == "X-ray":
+            # For the X-ray survey we are not complete and we do not control well the observational biases, therefore
+            # we consider a flux threshold above which we assume we are complete and try to match the number of observed
+            # sources above this flux threshold.
+            n_detected_sim[survey] += len(
+                pop_detected_dict_update[survey]["age"]
+            )
+            mask_completeness = (
+                np.array(pop_detected_dict_update[survey]["S_x_rcs_abs"])
+                > surveys_cfg[survey]["flux_threshold_completeness"]
+            )
+            n_detected_complete_sim[survey] += len(
+                np.array(pop_detected_dict_update[survey]["age"])[
+                    mask_completeness
+                ]
+            )
+            logger.info(
+                f"Total number of neutron stars detected by {survey}: {n_detected_sim[survey]} (above completeness flux threshold: {n_detected_complete_sim[survey]})"
+            )
+            # if the number of simulated detected pulsars above the completeness flux threshold matches the
+            # real one, store the value of created neutron stars.
+            if (
+                n_detected_complete_sim[survey]
+                >= surveys_cfg[survey]["detected_real"]
+                and not stop_flags[survey]
+            ):
+                n_detected_sim_at_match[survey] = n_detected_sim[survey]
+                stop_flags[survey] = True
+                n_created_at_match[survey] = n_created
             dictionary_detected_xray[survey] = {
                 key: value + pop_detected_dict_update[survey][key]
                 for key, value in dictionary_detected_xray[survey].items()
@@ -742,7 +783,7 @@ def adjust_n_batchsize(SurveyData) -> int:
     """
 
     surveys_cfg = SurveyData.surveys_cfg
-    n_detected_sim = SurveyData.n_detected_sim
+    n_detected_complete_sim = SurveyData.n_detected_complete_sim
     percentage_detected = SurveyData.percentage_detected
     batchsize_adjusting_flags = SurveyData.batchsize_adjust_flags
 
@@ -750,7 +791,8 @@ def adjust_n_batchsize(SurveyData) -> int:
     # surveys with respect to the real surveys and adjust the batch size accordingly.
     for survey in surveys_cfg:
         percentage_detected[survey] = (
-            n_detected_sim[survey] / surveys_cfg[survey]["detected_real"]
+            n_detected_complete_sim[survey]
+            / surveys_cfg[survey]["detected_real"]
         )
 
     if (

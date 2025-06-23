@@ -442,11 +442,13 @@ cfg["ISM_abundances"]: List[float] = [
 cfg["surveys_xray"]: dict = {
     "xray_flux_threshold": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
-        "detected_real": 31,
+        "detected_real": 14,
+        "flux_threshold_completeness": 2.0e-12,
     },
     "xray_realistic": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json",
-        "detected_real": 31,
+        "detected_real": 14,
+        "flux_threshold_completeness": 2.0e-12,
     },
 }
 

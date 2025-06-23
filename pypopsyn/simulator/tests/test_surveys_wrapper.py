@@ -33,11 +33,13 @@ cfg["surveys_radio"]: dict = {
 cfg["surveys_xray"]: dict = {
     "xray_flux_threshold": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
-        "detected_real": 31,
+        "detected_real": 14,
+        "flux_threshold_completeness": 2.0e-12,
     },
     "xray_realistic": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json",
-        "detected_real": 31,
+        "detected_real": 14,
+        "flux_threshold_completeness": 2.0e-12,
     },
 }
 
@@ -246,6 +248,9 @@ def test_case_3():
             },
             surveys_xray=None,
             n_detected_sim={survey: 0 for survey in ("PMPS", "HTRU_low_mid")},
+            n_detected_complete_sim={
+                survey: 0 for survey in ("PMPS", "HTRU_low_mid")
+            },
             percentage_detected={
                 survey: 0 for survey in ("PMPS", "HTRU_low_mid")
             },
@@ -324,11 +329,13 @@ def test_case_3():
                 },
                 "xray_flux_threshold": {
                     "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
-                    "detected_real": 31,
+                    "detected_real": 14,
+                    "flux_threshold_completeness": 2.0e-12,
                 },
                 "xray_realistic": {
                     "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json",
-                    "detected_real": 31,
+                    "detected_real": 14,
+                    "flux_threshold_completeness": 2.0e-12,
                 },
             },
             surveys_radio={
@@ -341,6 +348,15 @@ def test_case_3():
                 "xray_realistic": MockSurveyXray("xray_realistic"),
             },
             n_detected_sim={
+                survey: 0
+                for survey in (
+                    "PMPS",
+                    "HTRU_low_mid",
+                    "xray_flux_threshold",
+                    "xray_realistic",
+                )
+            },
+            n_detected_complete_sim={
                 survey: 0
                 for survey in (
                     "PMPS",
@@ -791,11 +807,13 @@ def test_case_8():
                 },
                 "xray_flux_threshold": {
                     "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
-                    "detected_real": 31,
+                    "detected_real": 14,
+                    "flux_threshold_completeness": 2.0e-12,
                 },
                 "xray_realistic": {
                     "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json",
-                    "detected_real": 31,
+                    "detected_real": 14,
+                    "flux_threshold_completeness": 2.0e-12,
                 },
             },
             surveys_radio={
@@ -808,6 +826,15 @@ def test_case_8():
                 "xray_realistic": MockSurveyXray("xray_realistic"),
             },
             n_detected_sim={
+                survey: 0
+                for survey in (
+                    "PMPS",
+                    "HTRU_low_mid",
+                    "xray_flux_threshold",
+                    "xray_realistic",
+                )
+            },
+            n_detected_complete_sim={
                 survey: 0
                 for survey in (
                     "PMPS",
@@ -1479,6 +1506,9 @@ def test_case_11():
             },
             surveys_xray=None,
             n_detected_sim={survey: 0 for survey in ("PMPS", "HTRU_low_mid")},
+            n_detected_complete_sim={
+                survey: 0 for survey in ("PMPS", "HTRU_low_mid")
+            },
             percentage_detected={
                 survey: 0 for survey in ("PMPS", "HTRU_low_mid")
             },
@@ -1877,10 +1907,10 @@ def test_update_survey_data(test_case_8):
     logger.info.assert_has_calls(
         [
             call(
-                "Total number of neutron stars detected by xray_flux_threshold: 1"
+                "Total number of neutron stars detected by xray_flux_threshold: 1 (above completeness flux threshold: 1)"
             ),
             call(
-                "Total number of neutron stars detected by xray_realistic: 1"
+                "Total number of neutron stars detected by xray_realistic: 1 (above completeness flux threshold: 1)"
             ),
         ],
         any_order=True,
@@ -1942,8 +1972,8 @@ def test_adjust_n_batchsize(test_case_11):
 
     survey_data = test_case_11["SurveyData"]
 
-    survey_data.n_detected_sim["PMPS"] = 1
-    survey_data.n_detected_sim["HTRU_low-mid"] = 1
+    survey_data.n_detected_complete_sim["PMPS"] = 1
+    survey_data.n_detected_complete_sim["HTRU_low-mid"] = 1
 
     n_batchsize = sw.adjust_n_batchsize(survey_data)
 
@@ -1952,8 +1982,8 @@ def test_adjust_n_batchsize(test_case_11):
     assert survey_data.batchsize_adjust_flags[0.9] is False
     assert survey_data.batchsize_adjust_flags[0.95] is False
 
-    survey_data.n_detected_sim["PMPS"] = 950
-    survey_data.n_detected_sim["HTRU_low_mid"] = 950
+    survey_data.n_detected_complete_sim["PMPS"] = 950
+    survey_data.n_detected_complete_sim["HTRU_low_mid"] = 950
 
     n_batchsize = sw.adjust_n_batchsize(survey_data)
 
@@ -1962,8 +1992,8 @@ def test_adjust_n_batchsize(test_case_11):
     assert survey_data.batchsize_adjust_flags[0.9] is True
     assert survey_data.batchsize_adjust_flags[0.95] is False
 
-    survey_data.n_detected_sim["PMPS"] = 1030
-    survey_data.n_detected_sim["HTRU_low_mid"] = 1030
+    survey_data.n_detected_complete_sim["PMPS"] = 1030
+    survey_data.n_detected_complete_sim["HTRU_low_mid"] = 1030
 
     n_batchsize = sw.adjust_n_batchsize(survey_data)
 
