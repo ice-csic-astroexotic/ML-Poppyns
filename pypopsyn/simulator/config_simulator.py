@@ -57,13 +57,13 @@ if cfg["path_to_software"] == "":
     )
 
 # Seed for the random number generation for simulate_population_full.py.
-cfg["seed_full"]: int = 0
+cfg["seed_full"]: int = None
 # Seed for the random number generation for simulate_population_dyn.py.
-cfg["seed_dyn"]: int = 0
+cfg["seed_dyn"]: int = None
 # Seed for the random number generation for simulate_population_magrot_det.py.
-cfg["seed_magrot"]: int = 0
+cfg["seed_magrot"]: int = None
 # Seed for the random number generation for memory_efficient_sampling.py
-cfg["seed_sampling"]: bool = 0
+cfg["seed_sampling"]: bool = None
 
 # Resolution for the parameter grid when performing random sampling for the neutron star properties from a pdf distribution.
 # This is used to sample the initial position in Galactocentric coordinates, the kick velocity, the initial magnetic field,
