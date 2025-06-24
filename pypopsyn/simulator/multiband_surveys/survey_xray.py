@@ -20,6 +20,7 @@ def sharp_flux_filter(
 ) -> np.ndarray:
     """
     Compute the pulsars detected by an X-ray survey with a given sharp flux threshold.
+    This is used if we are only interested to filter neutron stars above a given X-ray flux threshold.
 
     Args:
         S_x (np.ndarray): Array of observed X-ray fluxes in [erg s^-1 cm^-2].
@@ -89,7 +90,7 @@ class SurveyXray:
         # sharp_flux_threshold (float): sharp flux threshold value for a generic survey.
         self.sharp_flux_threshold = self.parameters["sharp_flux_threshold"]
         # S_x_threshold_log10_mean_long_exposure (float): mean for the log10 of the
-        # flux threshold distribution for a survey with shallow exposure.
+        # flux threshold distribution for a survey with short exposure.
         self.S_x_threshold_log10_mean_long_exposure = self.parameters[
             "S_x_threshold_log10_mean_long_exposure"
         ]
@@ -98,15 +99,15 @@ class SurveyXray:
         self.S_x_threshold_log10_sigma_long_exposure = self.parameters[
             "S_x_threshold_log10_sigma_long_exposure"
         ]
-        # S_x_threshold_log10_mean_shallow_exposure (float): mean for the log10 of the
-        # flux threshold distribution for a survey with shallow exposure.
-        self.S_x_threshold_log10_mean_shallow_exposure = self.parameters[
-            "S_x_threshold_log10_mean_shallow_exposure"
+        # S_x_threshold_log10_mean_short_exposure (float): mean for the log10 of the
+        # flux threshold distribution for a survey with short exposure.
+        self.S_x_threshold_log10_mean_short_exposure = self.parameters[
+            "S_x_threshold_log10_mean_short_exposure"
         ]
-        # S_x_threshold_log10_sigma_shallow_exposure (float): standard deviation for the log10 of the
-        # flux threshold distribution for a survey with shallow exposure.
-        self.S_x_threshold_log10_sigma_shallow_exposure = self.parameters[
-            "S_x_threshold_log10_sigma_shallow_exposure"
+        # S_x_threshold_log10_sigma_short_exposure (float): standard deviation for the log10 of the
+        # flux threshold distribution for a survey with short exposure.
+        self.S_x_threshold_log10_sigma_short_exposure = self.parameters[
+            "S_x_threshold_log10_sigma_short_exposure"
         ]
         # RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
         self.RA_range = self.parameters["RA_range"]
@@ -236,8 +237,8 @@ class SurveyXray:
             # or the slew mode in XMM that are more sensitive to brighter X-ray sources.
             detected_bright_mask = smooth_flux_filter(
                 S_x,
-                self.S_x_threshold_log10_mean_shallow_exposure,
-                self.S_x_threshold_log10_sigma_shallow_exposure,
+                self.S_x_threshold_log10_mean_short_exposure,
+                self.S_x_threshold_log10_sigma_short_exposure,
             )
             detected_xray_mask = (
                 outburst_mask & detected_outburst_mask

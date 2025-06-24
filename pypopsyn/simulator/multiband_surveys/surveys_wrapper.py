@@ -227,8 +227,8 @@ def apply_surveys_coverage(
     dist_cutoff: float,
 ) -> Tuple[dict, list]:
     """
-    Apply survey coverage criteria to filter a dynamic population dataset based on sky coverage,
-    distance, and age cutoffs, and update the indices of entries to be removed.
+    Apply survey coverage criteria to filter a dynamic population dataset based on sky coverage of all surveys and a
+    distance cutoff, and update the indices of entries to be removed.
 
     Args:
         surveys_radio (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
@@ -247,16 +247,15 @@ def apply_surveys_coverage(
     dist = dyn_database_dict["dist"]
     dist_mask = dist < dist_cutoff
 
-    # Evaluate the sky coverage for each radio survey.
     survey_radio_names = list(surveys_radio.keys())
     coverage_survey_radio = {}
 
     if surveys_xray is not None:
-        # Evaluate the sky coverage for each X-ray survey.
         survey_xray_names = list(surveys_xray.keys())
         coverage_survey_xray = {}
 
     for name in survey_radio_names:
+        # Evaluate the sky coverage for each radio survey.
         coverage_survey_radio[name] = surveys_radio[name].sky_coverage(
             dyn_database_dict["ra"],
             dyn_database_dict["dec"],
@@ -264,6 +263,10 @@ def apply_surveys_coverage(
             dyn_database_dict["b"],
         )
 
+    # Combines the coverage masks of all selected radio surveys into a single mask.
+    # It performs a logical OR (|) across all coverage arrays in coverage_survey_radio,
+    # for each survey name in survey_radio_names.
+    # The result is a single array where a position is True if it is covered by any survey.
     coverage_radio_tot = (
         functools.reduce(
             lambda a, b: a | b,
@@ -272,7 +275,7 @@ def apply_surveys_coverage(
     ) & dist_mask
 
     if surveys_xray is not None:
-
+        # Evaluate the sky coverage for each X-ray survey.
         for name in survey_xray_names:
             coverage_survey_xray[name] = surveys_xray[name].sky_coverage(
                 dyn_database_dict["ra"],
@@ -281,6 +284,10 @@ def apply_surveys_coverage(
                 dyn_database_dict["b"],
             )
 
+        # Combines the coverage masks of all selected X-ray surveys into a single mask.
+        # It performs a logical OR (|) across all coverage arrays in coverage_survey_xray,
+        # for each survey name in survey_xray_names.
+        # The result is a single array where a position is True if it is covered by any survey.
         coverage_xray_tot = (
             functools.reduce(
                 lambda a, b: a | b,
@@ -288,7 +295,7 @@ def apply_surveys_coverage(
             )
         ) & dist_mask
 
-    # Evaluate the total sky coverage for the radio and X-ray surveys together.
+    # Combine the total sky coverage for the radio and X-ray surveys together.
     if surveys_xray is not None:
         coverage_tot = coverage_radio_tot | coverage_xray_tot
 
@@ -563,7 +570,7 @@ def update_survey_data(
         elif survey_type == "X-ray":
             # For the X-ray survey we are not complete and we do not control well the observational biases, therefore
             # we consider a flux threshold above which we assume we are complete and try to match the number of observed
-            # sources above this flux threshold.
+            # sources above this flux threshold. See the config_simulator file for more details.
             n_detected_sim[survey] += len(
                 pop_detected_dict_update[survey]["age"]
             )
