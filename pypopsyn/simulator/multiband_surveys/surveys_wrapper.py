@@ -32,7 +32,7 @@ class SurveyData:
 
     # In this dictionary we save all survey information specified in the config_simulator file.
     surveys_cfg: Dict
-    # In this dictionary we save all the radio survey objects.
+    # In this dictionary we save all the radio survey class objects.
     surveys_radio: Dict
     # In these dictionaries we save how many stars we progressively detect in total in each survey, how many neutron
     # stars are detected in the flux ranges where we assume completeness and the percentage related to the real
@@ -52,7 +52,7 @@ class SurveyData:
     dictionary_detected_radio: Dict
     # In this dictionary we save all the properties of neutron stars detected in the X-ray surveys if cfg["xray_simulation"] = True.
     dictionary_detected_xray: Optional[Dict] = None
-    # In this dictionary we save all the X-ray survey objects if cfg["xray_simulation"] = True.
+    # In this dictionary we save all the X-ray survey class objects if cfg["xray_simulation"] = True.
     surveys_xray: Optional[Dict] = None
 
 
@@ -193,26 +193,16 @@ def initialize_all_surveys() -> SurveyData:
     # Initialize radio surveys.
     surveys_radio, dictionary_detected_radio = initialize_radio_surveys()
 
+    kwargs = {}
+
     if cfg["simulation_xray"]:
         surveys_cfg.update(cfg["surveys_xray"].copy())
 
         # Initialize X-ray surveys.
         surveys_xray, dictionary_detected_xray = initialize_xray_surveys()
 
-        return SurveyData(
-            surveys_cfg=surveys_cfg,
-            surveys_radio=surveys_radio,
-            surveys_xray=surveys_xray,
-            n_detected_sim={survey: 0 for survey in surveys_cfg},
-            n_detected_complete_sim={survey: 0 for survey in surveys_cfg},
-            percentage_detected={survey: 0 for survey in surveys_cfg},
-            n_created_at_match={survey: 0 for survey in surveys_cfg},
-            n_detected_sim_at_match={survey: 0 for survey in surveys_cfg},
-            batchsize_adjust_flags={0.9: False, 0.95: False},
-            stop_flags={survey: False for survey in surveys_cfg},
-            dictionary_detected_radio=dictionary_detected_radio,
-            dictionary_detected_xray=dictionary_detected_xray,
-        )
+        kwargs["surveys_xray"] = surveys_xray
+        kwargs["dictionary_detected_xray"] = dictionary_detected_xray
 
     return SurveyData(
         surveys_cfg=surveys_cfg,
@@ -225,6 +215,7 @@ def initialize_all_surveys() -> SurveyData:
         batchsize_adjust_flags={0.9: False, 0.95: False},
         stop_flags={survey: False for survey in surveys_cfg},
         dictionary_detected_radio=dictionary_detected_radio,
+        **kwargs,
     )
 
 
