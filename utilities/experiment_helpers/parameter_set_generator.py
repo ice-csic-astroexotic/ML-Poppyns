@@ -118,23 +118,6 @@ def check_parameter_compatibility(args_dict: dict) -> None:
             "The provided magnetic-field distribution parameters are not compatible with the model {} "
             "in the configuration file.".format(cfg["magnetic_field_model"])
         )
-    elif (
-        (cfg["radio_luminosity_model"] == "lum_radio_edot")
-        and (
-            (args_dict["L_radio_log10_mean"] is not None)
-            or (args_dict["epsilon_L"] is not None)
-        )
-    ) or (
-        (cfg["radio_luminosity_model"] == "lum_radio_ppdot")
-        and (
-            (args_dict["L_radio_log10_mean"] is not None)
-            or (args_dict["epsilon_L"] is not None)
-        )
-    ):
-        raise ValueError(
-            "The provided radio-luminosity distribution parameters are not compatible with the model {} "
-            "in the configuration file.".format(cfg["radio_luminosity_model"])
-        )
     else:
         log.info(
             "The provided parameters are compatible with the configuration file."

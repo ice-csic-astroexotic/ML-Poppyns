@@ -439,9 +439,9 @@ if __name__ == "__main__":
         type=float,
         default=None,
         help="In grid mode: range for the mean of the log-normally distributed radio luminosity normalization "
-        "factor with number of values [low, high, n_values] for model lum_radio_edot."
+        "factor with number of values [low, high, n_values]."
         "In random mode: range of the mean of the log-normally distributed radio luminosity normalization factor "
-        "[low, high] for model lum_radio_edot.",
+        "[low, high].",
     )
     args.add_argument(
         "--epsilon_L",
@@ -449,9 +449,8 @@ if __name__ == "__main__":
         type=float,
         default=None,
         help="In grid mode: range for the power-law slope of the intrinsic luminosity "
-        "with number of values [low, high, n_values] for model lum_radio_edot."
-        "In random mode: range of the power-law slope of the intrinsic luminosity [low, high] for model "
-        "lum_radio_edot.",
+        "with number of values [low, high, n_values]."
+        "In random mode: range of the power-law slope of the intrinsic luminosity [low, high].",
     )
     args = args.parse_args()
 

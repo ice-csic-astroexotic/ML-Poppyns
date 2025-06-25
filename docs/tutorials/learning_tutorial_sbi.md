@@ -517,17 +517,12 @@ located in `utilities/simulation_helper/run_simulation_set.py`.
     remote_initialdir = $(RUN_FOLDER)
     
     universe        = vanilla 
-    executable      = /data/magnesia/common/paper_pardo_araujo_etal_2025/exp_10__snle_1NN_7param_10rounds_30K_first_2K_allrounds_maf_observed/htcondor_submit/wrapper.sh
-    log             = /data/magnesia/common/paper_pardo_araujo_etal_2025/exp_10__snle_1NN_7param_10rounds_30K_first_2K_allrounds_maf_observed/htcondor_output/$(ProcId)-log.txt
-    output          = /data/magnesia/common/paper_pardo_araujo_etal_2025/exp_10__snle_1NN_7param_10rounds_30K_first_2K_allrounds_maf_observed/htcondor_output/$(ProcId)-out.txt 
-    error           = /data/magnesia/common/paper_pardo_araujo_etal_2025/exp_10__snle_1NN_7param_10rounds_30K_first_2K_allrounds_maf_observed/htcondor_output/$(ProcId)-error.txt 
+    executable      = htcondor_submit/wrapper.sh
+    log             = htcondor_output/$(ProcId)-log.txt
+    output          = htcondor_output/$(ProcId)-out.txt 
+    error           = htcondor_output/$(ProcId)-error.txt 
     
     request_gpus=1
-    
-    
-    request_memory = 16 GB
-    request_disk = 16 GB
-    +flavour = "long"
     
     Queue
     ```

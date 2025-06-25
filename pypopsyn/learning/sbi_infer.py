@@ -140,26 +140,14 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                 config["show_profiling"],
             ):
 
-                model_type = config["trainer"]["type"]
-
-                if model_type == "snle":
-                    inference_list = sbi_builder.load_inference(
-                        config, i, config["infer"]["load_dir"], ensemble
-                    )
-
-                elif model_type == "snpe":
+                if config["trainer"]["retrain_from_scratch"]:
                     inference_list = sbi_builder.initialize_inference(
                         config, device, prior, logger, ensemble
                     )
-
                 else:
-
-                    logger.exception(
-                        "The model type '{}' is not supported. ".format(
-                            model_type
-                        )
+                    inference_list = sbi_builder.load_inference(
+                        config, i, config["infer"]["load_dir"], ensemble
                     )
-                    sys.exit(1)
 
                 final_posterior = sbi_builder.load_posterior(
                     config, logger, inference_list, device, i
