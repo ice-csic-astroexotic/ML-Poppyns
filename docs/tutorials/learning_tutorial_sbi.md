@@ -535,6 +535,7 @@ located in `utilities/simulation_helper/run_simulation_set.py`.
 We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `exp_folder_path` directory where the
 `data` folder is located (see section [Folder Structure](#folder-structure)).
 
+To read more general documentation about HTCondor, refer to the [HTCondor documentation](HTCondor.md).
 #### Monitoring Dask Workers (HTCondor + GPU)
 
 If this is your first time using Dask on the PIC server, you must manually launch an empty Dask cluster via the Jupyter
