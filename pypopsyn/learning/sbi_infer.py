@@ -236,11 +236,11 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                 ut.corner_plot(
                     observed_samples_posterior,
                     dataset,
-                    f"{save_dir_round}/corner_plot_observed_sample_{i}.pdf",
+                    f"{save_dir_round}/corner_plot_observed_sample.pdf",
                 )
                 torch.save(
                     observed_samples_posterior,
-                    f"{save_dir_round}/samples_posterior_{i}.pt",
+                    f"{save_dir_round}/samples_posterior.pt",
                 )
 
         if config["enable_dask"]:

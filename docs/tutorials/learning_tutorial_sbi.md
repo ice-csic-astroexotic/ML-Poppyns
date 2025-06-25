@@ -222,7 +222,7 @@ to preprocess the data before passing it to the neural network. Unlike in Neural
 simultaneously with the density estimator. To address this, we provide two options for data compression: a Convolutional
 Neural Network (CNN) or Principal Component Analysis (PCA). The CNN is assumed to have been trained as part of a 
 previous NPE experiment. The PCA model can be trained separately using the
-`tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook.
+`tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook. 
 
 
 ```json
@@ -233,6 +233,9 @@ previous NPE experiment. The PCA model can be trained separately using the
     "pca_model_path":"/PCAs/1_pca_model_95_variance.pkl"
   },
 ```
+Note that when `use_compression` is set to False, it can only be used with NPE. In this case, an embedding network will 
+be trained simultaneously with the density estimator, and this embedding network will be responsible for compressing 
+the input data.
 
 #### Prior distribution
 We need to specify the labels and prior ranges for plotting purposes. Note that the order of the list must match
@@ -317,11 +320,12 @@ If standardized, the input channels and labels have values centred around 0 and 
 #### Testing data loader
 
 Inference on a test dataset can be performed either separately using the `sbi_infer.py` script after training has been
-completed, or simultaneously during training by setting `testing = true`. As with training, testing requires specifying
-the path to the test dataset in the `dataset_path_first_round` field. This directory must contain a `dataset_full.csv` 
-file. In the case of multi-round inference, the testing dataset will be saved at the path specified in `dataset_path`.
-Therefore, for the example above and following the recommended folder structure, the `test_data_loader` configurations 
-will look like this:
+completed, or simultaneously during training by setting `testing = true`. In the latter case, the testing dataset will
+be generated on the fly, producing as many simulations as specified in `num_sim`.
+As with training, testing requires specifying the path to the test dataset in the `dataset_path_first_round` field. 
+This directory must contain a `dataset_full.csv` file. In the case of multi-round inference, the testing dataset will be 
+saved at the path specified in `dataset_path`. Therefore, for the example above and following the recommended folder 
+structure, the `test_data_loader` configurations will look like this:
 
 
 ```json
@@ -331,8 +335,7 @@ will look like this:
     "dataset_path_first_round":"exp_folder_path/data/test_dataset/generated_dataset/round_0",
     "num_sim":300},
 ```
-Similar to the `training_data_loader`, for the multi-round case, `num_sim` specifies the number of simulations that
-will be generated for testing in each round.
+
 #### Observed sample
 The training script performs the inference for the observed sample specified by the `observed_sample` field. 
 As before, you must provide the `filter_inputs` and `filter_labels`, which must match those used during training. 
@@ -378,20 +381,19 @@ subfolders for each specific training experiment of the form `name/YYYYMMDD_HHMM
 the date and time when the experiment was launched. Within that folder there will be one folder per each round, in the 
 case of single round there will be just one folder called `round_0` 
 
-Moreover, each subfolder in the `logs` directory contains the following files:
+The `logs` directory contains the files `profile.json` and `profile.log`, which provide timing and profiling information for the inference script executed in each round.
+Additionally, within each `round_{i}` subfolder inside the logs directory, the following files are included:
 
-* `profile.json` and `profile.log` files with profiling information of the training experiment.
 * `training_statistics.json` with the training and validation loss evolution.
 * `training_stats.pdf` with a plot showing the training and validation loss evolution.
 
-
-Finally, each subfolder in the `models` directory contains:
+Finally, each subfolder `round_{i}` in the `models` directory contains:
 
 * `trained_model.pickle`: Contains the trained model. This object is needed to sample from the approximated posterior 
    distribution after the neural network has been trained.
 * `inference.pickle`: Contains the trained inference object, which stores the weights of the trained neural network. 
-* `samples_posterior_0.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
-* `corner_plot_observed_sample_0.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
+* `samples_posterior.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
+* `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
    the observed data.
 * `posterior_samples_test_data.npz`: A tensor containing the true values and the corresponding posterior samples for 
    each sample in the test dataset.
@@ -608,11 +610,12 @@ specified in the `save_dir` option. Specifically, inference will create a `logs`
 subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the inference
 was launched.
 
-Each subfolder named `round_{i}` in the `logs` directory contains the following information:
+The `logs` directory contains the files `profile.json` and `profile.log`, which provide timing and profiling information 
+for the inference script executed in each round. Additionally, within each `round_{i}` subfolder inside the logs 
+directory, the following files are included:
 
-* `profile.json` and `profile.log` files with the timing profiling of the inference script.
-* `samples_posterior_0.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
-* `corner_plot_observed_sample_0.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
+* `samples_posterior.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
+* `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
    the observed data.
 * `posterior_samples_test_data.npz`: A tensor containing the true values and the corresponding posterior samples for 
    each sample in the test dataset.
