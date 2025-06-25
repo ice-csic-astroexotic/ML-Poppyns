@@ -63,11 +63,44 @@ python pypopsyn/learning/train_sbi.py --configuration tutorials/tutorial_noteboo
 
 Here, the `config_sbi.json` file contains all the information required to optimize the neural network.
 
+#### Folder Structure
+First, we need to create the required folder structure for storing training and testing datasets 
+for each round. Although this is not strictly necessary for single-round inference, we recommend doing it for consistency. 
+You can do this by running the following command:
+
+```commandline
+python pypopsyn/learning/utils/data_folder_struct_sbi.py --base_path exp_folder_path
+```
+
+
+This will generate the following structure under `exp_folder_path`:
+
+```commandline
+exp_folder_path/
+└── data/
+    ├── test_dataset/
+    │   ├── generated_dataset/
+    │   │   └── round_0/
+    │   └── simulations/
+    └── training_dataset/
+        ├── generated_dataset/
+        │   └── round_0/
+        └── simulations/
+```
+
+We recommend placing all files under the same base path. Specifically:
+
+* Store the training statistics file (referred to in `training_data_loader > statistic_path`) in the `data/` directory.
+* Save the training and testing datasets for the first round in: `data/training_dataset/generated_dataset/round_0/` and 
+`data/test_dataset/generated_dataset/round_0/` respectively.
+
+
 ## General configuration options
 
 We now discuss the various options in the `config_sbi.json` training configuration file, which include the type of SBI 
 method, the type of compression if needed, the type of density estimator, the input shape of the dataset, and 
-other relevant training hyperparameters. These options are common for both single and multi-round inference.
+other relevant training hyperparameters.
+  
 
 #### General info
 
@@ -201,27 +234,45 @@ previous NPE experiment. The PCA model can be trained separately using the
   },
 ```
 
-
+#### Prior distribution
+We need to specify the labels and prior ranges for plotting purposes. Note that the order of the list must match
+the order of parameters in `dataset_full.csv`.
+```json
+"prior_ranges": {
+          "labels":["B_initial_log10_mean", "B_initial_log10_sigma","P_initial_log10_mean", "P_initial_log10_sigma", "a_late", "L_radio_log10_mean", "epsilon_L"],
+          "low": [12,0.1,-1.5,0.1,-3,24.6,0.1],
+          "high":[14,1,0.5,1,0,28.6,1] 
+          },
+```
 #### Training data loader
 
 We also require a training data loader, which is responsible for loading the dataset in a representation readable 
-by the network. The path to the directory containing the training dataset is specified in the `dataset_path_first_round`
+by the network. The path to the directory containing the training dataset for the first round is specified in the `dataset_path_first_round`
 field (specifically, a file named `dataset_full.csv`) and the JSON file characterizing the statistics of the training
-dataset, and the input channels used in building our (multichannel) input. Additionally, we set the ground truth labels 
-that we want to predict. 
+dataset, and the input channels used in building our (multichannel) input. 
+Additionally, we set the ground truth labels that we want to predict. For multi-round inference, the training datasets generated in each round will be saved in the directory specified by `dataset_path`.
+
+Therefore, for the example above and following the recommended folder structure, the `training_data_loader` will look like this:
 
 ```json
-{
-    "training_data_loader": {
-        "dataset_path_first_round":"data/example_generator_magrot",
-        "statistic_path": "data/example_generator_magrot/statistics_train.json",
-        "filter_inputs": [9, 10, 11],
-        "filter_labels": [15, 16],
-        "normalize": false,
-        "standardize": true
-    },
-}
+ "training_data_loader": {
+    "dataset_path": "exp_folder_path/data/training_dataset",
+    "statistic_path": "exp_folder_path/data/statistics_train.json",
+    "dataset_path_first_round":"exp_folder_path/data/training_dataset/generated_dataset/round_0",
+    "filter_inputs": [9, 10, 11, 12, 13, 14],
+    "filter_labels": [15, 16, 17, 18, 19, 20, 21],
+    "normalize": false,
+    "standardize": true,
+    "num_sim":1000
+  }
 ```
+
+You must also specify, for the multi-round case, how many simulations to run in each round using the `num_sim` field for training.
+In the example above, 1000 simulations are used for training.
+
+Note that the datasets for the first round are expected to exist already for both multi-round and single-round inference. This is because the prior distribution in the 
+first round is fixed, and these datasets can be reused across multiple experiments to save computational resources.
+
 
 !!! note 
 
@@ -268,26 +319,20 @@ If standardized, the input channels and labels have values centred around 0 and 
 Inference on a test dataset can be performed either separately using the `sbi_infer.py` script after training has been
 completed, or simultaneously during training by setting `testing = true`. As with training, testing requires specifying
 the path to the test dataset in the `dataset_path_first_round` field. This directory must contain a `dataset_full.csv` 
-file.
+file. In the case of multi-round inference, the testing dataset will be saved at the path specified in `dataset_path`.
+Therefore, for the example above and following the recommended folder structure, the `test_data_loader` configurations 
+will look like this:
 
 
 ```json
-{ "test_data_loader": {
+"test_data_loader": {
     "testing":false,
-    "dataset_path_first_round":"data/test_dataset/generated_dataset/round_0",
-   }
+    "dataset_path": "exp_folder_path/data/test_dataset",
+    "dataset_path_first_round":"exp_folder_path/data/test_dataset/generated_dataset/round_0",
+    "num_sim":300},
 ```
-  
-#### Prior distribution
-We need to specify the labels and prior ranges for plotting purposes. Note that the order of the list must match
-the order of parameters in `dataset_full.csv`.
-```json
-"prior_ranges": {
-          "labels":["B_initial_log10_mean", "B_initial_log10_sigma","P_initial_log10_mean", "P_initial_log10_sigma", "a_late", "L_radio_log10_mean", "epsilon_L"],
-          "low": [12,0.1,-1.5,0.1,-3,24.6,0.1],
-          "high":[14,1,0.5,1,0,28.6,1] 
-          },
-```
+Similar to the `training_data_loader`, for the multi-round case, `num_sim` specifies the number of simulations that
+will be generated for testing in each round.
 #### Observed sample
 The training script performs the inference for the observed sample specified by the `observed_sample` field. 
 As before, you must provide the `filter_inputs` and `filter_labels`, which must match those used during training. 
@@ -354,126 +399,8 @@ Finally, each subfolder in the `models` directory contains:
 If `ensemble` is enabled, there will be as many `inference.pickle` and `trained_model.pickle` files as there are neural 
 networks in the ensemble.
 
-
-## Inferring on a dataset
-
-Once our SBI pipeline has been trained, it can be used to infer on an unseen dataset of generated maps and extract 
-posterior distributions of the corresponding pulsar
-population parameters. The script `pypopsyn/learning/infer_sbi.py` allows us to take an experiment configuration file, 
-a pre-trained model, and a dataset, and run the inference.
-
-### Configuration options
-
-In addition to the training and testing data loaders specified above, we also need to define the directories for saving
-and loading inference results using the `save_dir` and `load_dir` parameters under the `infer` field in the configuration file. 
-The `load_dir` should point to the location where `inference.pickle` and `trained_model.pickle` are stored, as these 
-files are required to perform inference.
-You must also specify whether to compute the coverage probability using the `compute_coverage` flag.
-If `compute_coverage` is not enabled, the output will include a corner plot and samples from the posterior distribution 
-conditioned on the observed data. If it is enabled, additional outputs will be saved:
-
-* `posterior_samples_test_data.npz`: containing the true values and posterior samples for each sample of the test dataset.
-* `coverage_probability.npy`: a tensor of coverage probabilities.
-* `coverage_plot.pdf`: a plot visualizing the coverage probabilities.
-
-If `sim_dataset` is set to `True`, the test dataset will be generated in each round. Otherwise, it is assumed that the 
-directory specified in the `dataset_path` field under `test_dataset_loader` contains a pre-generated test dataset for each 
-round.
-
-```json
-{
-    "infer": {
-    "sim_dataset":false ,
-    "compute_coverage":true,
-    "load_dir": "exp_1/learning/models/SBI_ConvolutionMDN/20250403_192124",
-    "save_dir": "exp_1/inference"
-  }
-}
-```
-
-### Inference output
-
-Once the inference configuration is set up, we run the inference script by providing the configuration file 
-(`--configuration`) as follow:
-```commandline
-python pypopsyn/learning/infer_sbi.py --configuration tutorials/tutorial_notebooks/config_sbi.json 
-```
-
-If the inference is successful, the output of `pypopsyn/learning/infer_sbi.py` will be saved in the directory 
-specified in the `save_dir` option. Specifically, inference will create a `logs` folder in this directory containing
-subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the inference
-was launched.
-
-Each subfolder in the `logs` directory contains the following information:
-
-* `profile.json` and `profile.log` files with the timing profiling of the inference script.
-* `samples_posterior_0.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
-* `corner_plot_observed_sample_0.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
-   the observed data.
-* `posterior_samples_test_data.npz`: A tensor containing the true values and the corresponding posterior samples for 
-   each sample in the test dataset.
-* `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic test.
-
-## Multi-round inference
-If multi-round inference is chosen (i.e., num_rounds > 1 in the configuration file), training and testing simulations 
-will be run on-the-fly in each round. This requires some additional setup, which is described below.
-
-#### Folder Structure
-First, to create the required folder structure for storing training and testing datasets for each round, run the 
-following command:
-
-```commandline
-python pypopsyn/learning/utils/data_folder_struct_sbi.py --base_path exp_folder_path
-```
-
-
-This will generate the following structure under `exp_folder_path`:
-
-```commandline
-exp_folder_path/
-└── data/
-    ├── test_dataset/
-    │   ├── generated_dataset/
-    │   │   └── round_0/
-    │   └── simulations/
-    └── training_dataset/
-        ├── generated_dataset/
-        │   └── round_0/
-        └── simulations/
-```
-
-We recommend placing all files under the same base path. Specifically:
-
-* Store the training statistics file (referred to in `training_data_loader > statistic_path`) in the `data/` directory.
-* Save the training and testing datasets for the first round in: `data/training_dataset/generated_dataset/round_0/` and 
-`data/test_dataset/generated_dataset/round_0/` respectively.
-
-Therefore, for the above example, the `training_data_loader` and `test_data_loader` configurations will look like:
-
-```json
- "training_data_loader": {
-    "dataset_path": "exp_folder_path/data/training_dataset",
-    "statistic_path": "exp_folder_path/data/statistics_train.json",
-    "dataset_path_first_round":"exp_folder_path/data/training_dataset/generated_dataset/round_0",
-    "filter_inputs": [9, 10, 11, 12, 13, 14],
-    "filter_labels": [15, 16, 17, 18, 19, 20, 21],
-    "normalize": false,
-    "standardize": true,
-    "num_sim":1000
-  },
-  
-  "test_data_loader": {
-    "testing":false,
-    "dataset_path": "exp_folder_path/data/test_dataset",
-    "dataset_path_first_round":"exp_folder_path/data/test_dataset/generated_dataset/round_0",
-    "num_sim":300},
-```
-
-You must also specify how many simulations to run in each round using the `num_sim` field for both training and testing.
-In the example above, 1000 simulations are used for training and 300 for testing.
-
-Note that the datasets for the first round are expected to exist already. This is because the prior distribution in the 
-first round is fixed, and these datasets can be reused across multiple experiments to save computational resources.
+## Multi-round specific options
+This section describes configuration options specific to multi-round inference.
 
 ### Resume mode
 
@@ -509,7 +436,6 @@ An example of the configuration file:
 In this example, we will load the `inference.pickle` and `trained_model.pickle` from round 3 and compute the
 approximated posterior distribution at the observed sample, which will serve as the proposal prior for the next round.
 From round 4 onward, the computation will proceed as usual in a multi-round inference approach.
-
 
 
 ### Extra parameter for training
@@ -634,5 +560,66 @@ Dask workers through Jupyter following these steps:
       ```
       https://jupyter.pic.es/user/<your_username>/proxy/<port>
       ```
+   
 
+
+## Inferring on a dataset
+
+Once our SBI pipeline has been trained, it can be used to infer on an unseen dataset of generated maps and extract 
+posterior distributions of the corresponding pulsar
+population parameters. The script `pypopsyn/learning/infer_sbi.py` allows us to take an experiment configuration file, 
+a pre-trained model, and a dataset, and run the inference.
+
+### Configuration options
+
+In addition to the testing data loaders specified above, we also need to define the directories for saving
+and loading inference results using the `save_dir` and `load_dir` parameters under the `infer` field in the configuration file. 
+The `load_dir` should point to the location where `inference.pickle` and `trained_model.pickle` are stored, as these 
+files are required to perform inference.
+You must also specify whether to compute the coverage probability using the `compute_coverage` flag.
+If `compute_coverage` is not enabled, the output will include a corner plot and samples from the posterior distribution 
+conditioned on the observed data. If it is enabled, additional outputs will be saved:
+
+* `posterior_samples_test_data.npz`: containing the true values and posterior samples for each sample of the test dataset.
+* `coverage_probability.npy`: a tensor of coverage probabilities.
+* `coverage_plot.pdf`: a plot visualizing the coverage probabilities.
+
+If `sim_dataset` is set to `True`, the test dataset will be generated in each round. Otherwise, it is assumed that the 
+directory specified in the `dataset_path` field under `test_dataset_loader` contains a pre-generated test dataset for each 
+round.
+
+```json
+{
+    "infer": {
+    "sim_dataset":false ,
+    "compute_coverage":true,
+    "load_dir": "exp_1/learning/models/SBI_ConvolutionMDN/20250403_192124",
+    "save_dir": "exp_1/inference"
+  }
+}
+```
+!!! note
+    The `infer_sbi.py` script requires the folder structure explained above to function correctly and to properly load the test dataset.
+
+Once the inference configuration is set up, we run the inference script by providing the configuration file 
+(`--configuration`) as follow:
+```commandline
+python pypopsyn/learning/infer_sbi.py --configuration tutorials/tutorial_notebooks/config_sbi.json 
+```
+### Inference output
+
+If the inference is successful, the output of `pypopsyn/learning/infer_sbi.py` will be saved in the directory 
+specified in the `save_dir` option. Specifically, inference will create a `logs` folder in this directory containing
+subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the inference
+was launched.
+
+Each subfolder named `round_{i}` in the `logs` directory contains the following information:
+
+* `profile.json` and `profile.log` files with the timing profiling of the inference script.
+* `samples_posterior_0.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
+* `corner_plot_observed_sample_0.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
+   the observed data.
+* `posterior_samples_test_data.npz`: A tensor containing the true values and the corresponding posterior samples for 
+   each sample in the test dataset.
+* `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic test.
 
