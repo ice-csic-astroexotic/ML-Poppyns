@@ -223,7 +223,7 @@ class SurveyXray:
             # Swift or Fermi. Usually Swift XRT is able to detect if there is a periodicity during the outburst event, when the
             # flux is still high and recognize the presence of a magnetar.
             # After the flux goes back to the quiescent state for the sources that went on outburst we emulate a deep
-            # observations to see if the quiescent emission is detectable.
+            # observations with relatively long exposure time to see if the quiescent emission is detectable.
             # For this we consider a flux threshold around 10^-14 erg s^-1 cm^-2 with an intrinsic dispersion to mimic the
             # detection sensitivity of instruments like XMM-Newton or Chandra with relatively long exposure times.
             detected_outburst_mask = smooth_flux_filter(
@@ -233,7 +233,8 @@ class SurveyXray:
             )
 
             # To include sources that didn't go in outburst but have high quiescent fluxes we also include a filter with
-            # a higher flux threshold. This emulates all-sky surveys like the one performed by ROSAT
+            # a higher flux threshold which is related to lower exposure time.
+            # This emulates all-sky surveys like the one performed by ROSAT
             # or the slew mode in XMM that are more sensitive to brighter X-ray sources.
             detected_bright_mask = smooth_flux_filter(
                 S_x,

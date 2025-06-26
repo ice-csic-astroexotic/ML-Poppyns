@@ -441,7 +441,7 @@ def xray_detection(
     dict_xray_pop: dict,
 ) -> dict:
     """
-    This function detects neutron stars based on their X-ray luminosity and updates their properties.
+    This function detects neutron stars by modelling some observational biases and updates their properties.
 
     Args:
         xray_surveys (dict): Dictionary containing the X-ray survey objects.
