@@ -54,11 +54,11 @@ In the case of single-round inference, only steps 1 to 4 are performed.
     `tutorials/tutorial_notebooks/08_learning_sbi_tutorial.ipynb`.
 
 To perform our SBI using a dataset composed of heatmaps or 2D arrays of our synthetic pulsar populations (see 
-[Generating density maps](generator_tutorial.md) for details) we use the script `pypopsyn/learning/train_sbi.py` as 
+[Generating density maps](generator_tutorial.md) for details) we use the script `pypopsyn/learning/sbi_train.py` as 
 follows:
 
 ```commandline
-python pypopsyn/learning/train_sbi.py --configuration tutorials/tutorial_notebooks/config_sbi.json
+python pypopsyn/learning/sbi_train.py --configuration tutorials/tutorial_notebooks/config_sbi.json
 ```
 
 Here, the `config_sbi.json` file contains all the information required to optimize the neural network.
@@ -90,7 +90,7 @@ exp_folder_path/
 
 We recommend placing all files under the same base path. Specifically:
 
-* Store the training statistics file (referred to in `training_data_loader > statistic_path`) in the `data/` directory.
+* Store the training statistics file in the `data/` directory.
 * Save the training and testing datasets for the first round in: `data/training_dataset/generated_dataset/round_0/` and 
 `data/test_dataset/generated_dataset/round_0/` respectively.
 
@@ -384,8 +384,10 @@ case of single round there will be just one folder called `round_0`
 The `logs` directory contains the files `profile.json` and `profile.log`, which provide timing and profiling information for the inference script executed in each round.
 Additionally, within each `round_{i}` subfolder inside the logs directory, the following files are included:
 
-* `training_statistics.json` with the training and validation loss evolution.
-* `training_stats.pdf` with a plot showing the training and validation loss evolution.
+* `training_statistics_{j}.json` with the training and validation loss evolution.
+* `training_stats_{j}.pdf` with a plot showing the training and validation loss evolution.
+
+In this example, `j` indicates which neural network in the ensemble the file refers to.
 
 Finally, each subfolder `round_{i}` in the `models` directory contains:
 
@@ -512,6 +514,7 @@ located in `utilities/simulation_helper/run_simulation_set.py`.
 
 #### Running the Main Job on HTCondor
  To run the main job on HTCondor, add the following lines to your submit file:
+
     ```bash
     RUN_FOLDER = <experiment_folder>
     LOG_FOLDER = $(RUN_FOLDER)/logs
@@ -519,15 +522,16 @@ located in `utilities/simulation_helper/run_simulation_set.py`.
     remote_initialdir = $(RUN_FOLDER)
     
     universe        = vanilla 
-    executable      = htcondor_submit/wrapper.sh
-    log             = htcondor_output/$(ProcId)-log.txt
-    output          = htcondor_output/$(ProcId)-out.txt 
-    error           = htcondor_output/$(ProcId)-error.txt 
+    executable      = <experiment_folder>/htcondor_submit/wrapper.sh
+    log             = <experiment_folder>/htcondor_output/$(ProcId)-log.txt
+    output          = <experiment_folder>/htcondor_output/$(ProcId)-out.txt 
+    error           = <experiment_folder>/htcondor_output/$(ProcId)-error.txt 
     
     request_gpus=1
     
     Queue
     ```
+
 !!!Note 
     In the example above, we assume you have created `htcondor_submit` and `htcondor_output` folders. The first is used to store 
     the `job.submit` and  `wrapper.sh` files, and the second stores the `stdout` and `stderr` from the main job.
@@ -535,7 +539,7 @@ located in `utilities/simulation_helper/run_simulation_set.py`.
 We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `exp_folder_path` directory where the
 `data` folder is located (see section [Folder Structure](#folder-structure)).
 
-To read more general documentation about HTCondor, refer to the [HTCondor documentation](HTCondor.md).
+To read more general documentation about HTCondor, refer to the [HTCondor documentation](../basics/HTCondor.md).
 #### Monitoring Dask Workers (HTCondor + GPU)
 
 If this is your first time using Dask on the PIC server, you must manually launch an empty Dask cluster via the Jupyter
@@ -565,7 +569,7 @@ Dask workers through Jupyter following these steps:
 
 Once our SBI pipeline has been trained, it can be used to infer on an unseen dataset of generated maps and extract 
 posterior distributions of the corresponding pulsar
-population parameters. The script `pypopsyn/learning/infer_sbi.py` allows us to take an experiment configuration file, 
+population parameters. The script `pypopsyn/learning/sbi_infer.py` allows us to take an experiment configuration file, 
 a pre-trained model, and a dataset, and run the inference.
 
 ### Configuration options
@@ -597,16 +601,16 @@ round.
 }
 ```
 !!! note
-    The `infer_sbi.py` script requires the folder structure explained above to function correctly and to properly load the test dataset.
+    The `sbi_infer.py` script requires the folder structure explained above to function correctly and to properly load the test dataset.
 
 Once the inference configuration is set up, we run the inference script by providing the configuration file 
 (`--configuration`) as follow:
 ```commandline
-python pypopsyn/learning/infer_sbi.py --configuration tutorials/tutorial_notebooks/config_sbi.json 
+python pypopsyn/learning/sbi_infer.py --configuration tutorials/tutorial_notebooks/config_sbi.json 
 ```
 ### Inference output
 
-If the inference is successful, the output of `pypopsyn/learning/infer_sbi.py` will be saved in the directory 
+If the inference is successful, the output of `pypopsyn/learning/sbi_infer.py` will be saved in the directory 
 specified in the `save_dir` option. Specifically, inference will create a `logs` folder in this directory containing
 subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the inference
 was launched.
