@@ -441,6 +441,27 @@ def initialize_Lx_interpolator() -> RectBivariateSpline:
     return L_x_interpolator
 
 
+def initialize_crustal_failure_rate_interpolator() -> RectBivariateSpline:
+    """
+    Initialize the interpolator for the crust failure rates.
+
+    Returns:
+        (RectBivariateSpline): An interpolator function loaded from a pickled file to evaluate the rate of crustal failures.
+    """
+
+    # Get the path to the software directory.
+    base_path = pathlib.Path(cfg["path_to_software"])
+    # Load the interpolator function to evaluate the X-ray luminosity.
+    interpolator_path = base_path.joinpath(
+        cfg["magneto-thermal_path"], "interpolator_crust_failure_rate.pkl"
+    )
+
+    with open(interpolator_path, "rb") as f:
+        crust_failure_rate_interpolator = pickle.load(f)
+
+    return crust_failure_rate_interpolator
+
+
 def outburst_filter(B_initial: np.ndarray, age: np.ndarray) -> np.ndarray:
     """
     A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that goes in outburst
@@ -484,9 +505,44 @@ def outburst_filter(B_initial: np.ndarray, age: np.ndarray) -> np.ndarray:
     return outburst_mask
 
 
+def outburst_filter_from_crustal_failure_rate(
+    B_initial: np.ndarray,
+    age: np.ndarray,
+    crust_failure_rate_interpolator: RectBivariateSpline,
+) -> np.ndarray:
+    """
+    A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that goes in outburst
+    after some crustal failures due to magnetic stresses (see Dehman et al. 2020).
+    We compute the expected rate of failures from the result of magneto-thermal simulations for a neutron star
+    with a given initial magnetic field and age. From this rate we select only neutron stars that experiences an
+    outburst in the last 50 years which is roughly the time when X-ray survey missions were active.
+
+    Args:
+        B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
+        age (np.ndarray): Array of neutron star ages [yrs].
+        crust_failure_rate_interpolator (RectBivariateSpline): An interpolator function loaded from a pickled file
+            to evaluate the rate of crustal failures.
+
+    Returns:
+        (np.ndarray): Boolean mask to select the neutron stars that go in outburst.
+    """
+
+    # Interpolate the rate of crustal failures from the initial magnetic field value and the age.
+    rate_crust_failure = crust_failure_rate_interpolator.ev(age, B_initial)
+
+    # Select only the stars that have experienced an crustal failure event in the last 50 yrs.
+    # This is done in order to have an estimate of the outburst number that a neutron stars might have undergone during
+    # the period of activity of X-ray survey missions.
+    n_outburst_events = rate_crust_failure * 50
+    outburst_mask = n_outburst_events > 1.0
+
+    return outburst_mask
+
+
 def xray_population(
     dict_pop: dict,
     L_x_interpolator: RectBivariateSpline,
+    crustal_failure_rate_interpolator: RectBivariateSpline,
     L_x_threshold: float = 1.0e30,
 ) -> dict:
     """
@@ -496,6 +552,8 @@ def xray_population(
         dict_pop (dict): Dictionary containing the properties of a neutron star population.
         L_x_interpolator (RectBivariateSpline): Interpolator used to calculate the thermal X-ray luminosity based
             on age and magnetic field.
+        crustal_failure_rate_interpolator (RectBivariateSpline): An interpolator function loaded from a pickled file
+            to evaluate the rate of crustal failures.
         L_x_threshold (float): A lower limit for the X-ray luminosity.
 
     Returns:
@@ -535,7 +593,11 @@ def xray_population(
     outburst_mask = outburst_filter(
         dict_xray_pop["B_initial"], dict_xray_pop["age"]
     )
-
+    """
+    outburst_mask = outburst_filter_from_crustal_failure_rate(
+        dict_xray_pop["B_initial"], dict_xray_pop["age"], crustal_failure_rate_interpolator
+    )
+    """
     dict_xray_pop["L_x_therm"] = L_x_therm
     dict_xray_pop["S_x_rcs_abs"] = S_x_rcs_abs
     dict_xray_pop["S_x_bb_abs"] = S_x_bb_abs
