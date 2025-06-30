@@ -35,6 +35,7 @@ def generate_velocity_map(
     x_positions: np.array,
     y_positions: np.array,
     velocities: np.array,
+    velocity_avg_min: float,
     x_resolution: int,
     y_resolution: int,
     velocity_maps_dictionary: dict,
@@ -59,6 +60,7 @@ def generate_velocity_map(
         x_positions (np.array): Positions in the first axis (horizontal).
         y_positions (np.array): Positions in the second axis (vertical).
         velocities (np.array): Array of velocities to put in the map.
+        velocity_avg_min (float): Minimum average value of the velocities to put in the map in the empty bins.
         x_resolution (int): Resolution in the horizontal axis.
         y_resolution (int): Resolution in the vertical axis.
         velocity_maps_dictionary (dict): Dictionary of velocity maps.
@@ -80,6 +82,7 @@ def generate_velocity_map(
         y_positions,
         y_limits,
         velocities,
+        velocity_avg_min,
         velocity_map_filename,
         n_x_bins=x_resolution,
         n_y_bins=y_resolution,

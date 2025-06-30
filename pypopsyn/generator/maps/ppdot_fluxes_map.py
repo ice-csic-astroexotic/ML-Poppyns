@@ -19,8 +19,8 @@ import pypopsyn.generator.maps.maps2d_generator as mg
 # Initialize the various options we have to generate the different data
 # inputs which will be later selected at runtime depending on the arguments.
 ppdot_fluxes_map_generators = {
-    "array": mg.generate_avg_fluxes_matrix,
-    "image": mg.generate_avg_fluxes_map,
+    "array": mg.generate_avg_weight_matrix,
+    "image": mg.generate_avg_weight_map,
 }
 # Set the corresponding extensions for the types of velocity maps.
 extensions = {"array": "npy", "image": "png"}
@@ -36,6 +36,7 @@ def generate_ppdot_fluxes_map(
     x_positions: np.array,
     y_positions: np.array,
     fluxes: np.array,
+    flux_avg_min: float,
     x_resolution: int,
     y_resolution: int,
     ppdot_fluxes_maps_dictionary: dict,
@@ -59,6 +60,7 @@ def generate_ppdot_fluxes_map(
         x_positions (np.array): Positions in the first axis (horizontal).
         y_positions (np.array): Positions in the second axis (vertical).
         fluxes (np.array): Array of the logarithm of the fluxes to put in the map.
+        flux_avg_min (float): Minimum average value of the logarithm of the fluxes to put in the map in the empty bins.
         x_resolution (int): Resolution in the horizontal axis.
         y_resolution (int): Resolution in the vertical axis.
         ppdot_fluxes_maps_dictionary (dict): Dictionary of fluxes in the ppdot maps.
@@ -80,6 +82,7 @@ def generate_ppdot_fluxes_map(
         y_positions,
         y_limits,
         fluxes,
+        flux_avg_min,
         ppdot_fluxes_map_filename,
         x_log_scale=True,
         y_log_scale=True,
