@@ -1,8 +1,18 @@
 """
     Model for the pulsar X-ray surveys.
 
-    We consider here the detection of thermally emitting neutron stars.
+    We consider here the detection of thermally emitting neutron stars, by considering two type of surveys:
 
+    1) xray_flux_threshold: detect NSs that have fluxes above a given threshold flux without considering any other
+        detection bias.
+    2) xray_realistic: detect NSs taking into account the outburst probability and combining two flux filters to better
+        reproduce the observed flux distribution of magnetars and XDINSs all together.
+        The first flux filter has a lower average flux threshold and applies to neutron stars that go in outburst.
+        In the catalog of observed thermally emitting neutron stars we only consider sources with a detected quiescent
+        thermal emission. Some magnetars were discovered in outburst but their quiescent emission is too faint to be
+        detected. This is why we are including this flux filter as we are not including those neutron stars.
+        The second flux filter has an higher average flux threshold and applies to neutron stars that are bright
+        like XDINSs even if they didn't show any outburst activity.
 
     Authors:
 
