@@ -170,11 +170,11 @@ def create_survey_maps(
         dictionary_ppdot_map,
     )
 
+    # Create P-Pdot average flux maps.
     if survey_type == "radio":
-        # Since the TPA programe on Meerkat is not complete, we take a random subsample of the PMPS, SMPS, and HTRU surveys,
+        # Since the TPA program on Meerkat is not complete, we take a random subsample of the PMPS, SMPS, and HTRU surveys,
         # respectively, to match the number of objects in the TPA sample. This ensures that there is no bias in this
         # subsample.
-
         if int(cfg[f"detected_meerkat_{survey_name}"]) < len(df_survey["P"]):
             df_survey = df_survey.sample(
                 n=int(cfg[f"detected_meerkat_{survey_name}"])

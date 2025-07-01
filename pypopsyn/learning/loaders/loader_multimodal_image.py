@@ -1,16 +1,14 @@
 """
-    Loader for multichannel 2D map.
+    Loader for multichannel 2D image datasets for a multimodal training.
 
-    This loader creates a multichannel 2D image for each sample in the dataset by
-    sticking together different 2D density maps.
-
-    These images can be loaded as an input of the neural network together with
-    the related values of the labels (ground truth).
+    This loader imports the statistics to perform normalization or standardization on the targets
+    from an already existent statistics.json file.
 
     Authors:
 
         Michele Ronchi (ronchi@ice.csic.es)
         Alberto Garcia Garcia (garciagarcia@ice.csic.es)
+        Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
 import json
@@ -24,9 +22,14 @@ from PIL import Image
 from .loader_base import LoaderBase
 
 
-class DatasetMultichannelImage:
+class DatasetMultimodalArray:
     """
-    Dataset for a multichannel image input.
+    Dataset for a multi-channel and multi-modal array input.
+
+    This class represents a dataset of populations whose representation for any
+    of the inputs is a numpy array of numerical values stored in NPY format. All
+    those inputs will be treated as individual channels to generate an input
+    tensor for the loader. Labels will be generated as a vector.
     """
 
     def __import_statistics(self, statistic_path: str) -> None:
@@ -34,7 +37,7 @@ class DatasetMultichannelImage:
         Import dataset statistics for normalization and standardization.
 
         This routine import the training dataset statistics that might be needed for
-        targets normalization and standardization like mean, standard
+        input/targets normalization and standardization like mean, standard
         deviation, minimum and maximum.
 
         Args:
@@ -97,7 +100,7 @@ class DatasetMultichannelImage:
         transform: Optional[Callable] = None,
     ) -> None:
         """
-        Initialization or constructor function for the dataset.
+        Initialization or constructor routine for the dataset.
 
         Args:
             dataset_path (str): Path to the dataset.csv file containing all the
@@ -108,11 +111,11 @@ class DatasetMultichannelImage:
                 will be considered by the loader.
             filter_labels (list): Indices of the target/labels columns in the
                 dataset that will be considered by the loader.
-            normalize (bool): Whether to normalize targets or not on
+            normalize (bool): Whether to normalize inputs and targets or not on
                 the fly while loading samples.
-            standardize (bool): Whether or not to standardize targets
+            standardize (bool): Whether or not to standardize inputs and targets
                 on the fly while loading samples.
-            transform (Optional[Callable]): Transformations to apply to the images.
+            transform (Optional[Callable]): Transformations to apply to the arrays.
         """
 
         self.normalize = normalize
@@ -139,34 +142,43 @@ class DatasetMultichannelImage:
         """
         return len(self.dataset)
 
-    def __getitem__(self, index: int) -> Tuple[np.ndarray, np.ndarray]:
+    def __getitem__(
+        self, index: int
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        Read the dataset and extract the images and the corresponding labels.
+        Read the dataset and extract the arrays and the corresponding labels.
 
         Args:
-            index (int): Index running along the rows of the dataset.csv file.
+            index (int): Index running along the rows of the dataset CSV file.
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray]): Tuple consisting of a multi-channel 2D image
+            (Tuple[np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of a two multi-channel 2D image
                 with shape N x N x channels (where N is the number of entries
                 along a row or column of the array in the .npy file) composed by stacking
                 all input images specified in the dataset for the requested sample
                 and the corresponding labels for the requested sample.
         """
 
-        channels = []
+        channels_1 = []
+        channels_2 = []
         i = 0
 
-        # Loop over every input column of the dataset to collect all input channels
-        # in a list so we can stack them later. We assume that all columns must be
+        # Loop over the input column of the dataset to get all input channels in
+        # a list, so we can stack them later. We assume that all columns must be
         # ordered so "input:" columns go first then all the labels.
         for col in self.dataset.columns:
-            # All input channel headers are annotated with a prefix "input:" in the
-            # dataset CSV file. Find them and add them to the list.
+            # All input channel headers are annotated with a prefix "input:" in
+            # the dataset CSV file. Find them and add them to the list.
+            # If the channel name contains xray add it to the second multi-channel input in order to be processed by
+            # the second branch of the neural network.
             if "input:" in col:
                 channel_filename = self.dataset.iloc[index, i]
-                channel = np.array(Image.open(channel_filename))[:, :, 0]
-                channels.append(channel)
+                if "xray" in col:
+                    channel_2 = np.array(Image.open(channel_filename))[:, :, 0]
+                    channels_2.append(channel_2)
+                else:
+                    channel_1 = np.array(Image.open(channel_filename))[:, :, 0]
+                    channels_1.append(channel_1)
             # If an input prefix is not found, it is a label (ground truth) then
             # skip to directly stack them later based on the last index in which
             # we found the input prefix.
@@ -176,27 +188,30 @@ class DatasetMultichannelImage:
             i += 1
 
         # Stack all input channels.
-        image = np.dstack(channels)
+        image_1 = np.dstack(channels_1)
+        image_2 = np.dstack(channels_2)
         # Fetch all the labels from the last input channel column.
-        labels = np.array(self.dataset.iloc[index, i:], dtype=np.float32)
+        targets = np.array(self.dataset.iloc[index, i:], dtype=np.float32)
 
         # Normalization of labels.
         if self.normalize:
-            labels = (labels - self.target_min) / (
+            targets = (targets - self.target_min) / (
                 self.target_max - self.target_min
             )
 
-        # Standardization of the labels.
+        # Standardization of labels.
         elif self.standardize:
-            labels = (labels - self.target_mean) / self.target_std
+            targets = (targets - self.target_mean) / self.target_std
 
+        # Apply all requested transformations to input.
         if self.transform is not None:
-            image = self.transform(image)
+            image_1 = self.transform(image_1)
+            image_2 = self.transform(image_2)
 
-        return image, labels
+        return image_1, image_2, targets
 
 
-class LoaderMultichannelImage(LoaderBase):
+class LoaderMultimodalArray(LoaderBase):
     def __init__(
         self,
         dataset_path: str,
@@ -210,21 +225,20 @@ class LoaderMultichannelImage(LoaderBase):
         standardize: bool = False,
     ) -> None:
         """
-        Data loader for the density maps dataset. The dataset is expected to be
-        packed in dataset.csv file.
+        Data loader for a multi-channel and multi-modal image-based dataset. The dataset is
+        expected to be packed in a dataset.csv file and contain paths to .png
+        files to be loaded.
 
         Args:
             dataset_path (string): Path to the dataset.
             statistic_path (string): Path to the dataset.
             batch_size (int): Number of samples per batch.
-            filter_inputs (list): Indices of the input columns of the dataset that
-                will be considered by the loader.
-            filter_labels (list): Indices of the target/labels columns in the
-                dataset that will be considered by the loader.
+            filter_inputs (list): Indices of columns in the dataset to consider.
+            filter_labels (list): Indices of columns with labels to consider.
             num_workers (int): Workers to load the data.
             shuffle (bool): Shuffle the samples or not.
-            normalize (bool): Whether to normalize targets or not.
-            standardize (bool): Whether or not to standardize targets.
+            normalize (bool): Whether to normalize inputs and targets or not.
+            standardize (bool): Whether or not to standardize inputs and targets.
         """
 
         transformation = torchvision.transforms.ToTensor()
@@ -236,7 +250,7 @@ class LoaderMultichannelImage(LoaderBase):
         self.normalize = normalize
         self.standardize = standardize
 
-        self.dataset = DatasetMultichannelImage(
+        self.dataset = DatasetMultimodalArray(
             self.dataset_path,
             self.statistic_path,
             self.filter_inputs,
