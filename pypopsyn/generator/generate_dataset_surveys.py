@@ -43,7 +43,7 @@ import pandas as pd
 
 import pypopsyn.generator.compute_statistics as cs
 import pypopsyn.generator.maps.position_maps as pmaps
-import pypopsyn.generator.maps.ppdot_fluxes_map as ppdfmaps
+import pypopsyn.generator.maps.ppdot_fluxes_maps as ppdfmaps
 import pypopsyn.generator.maps.ppdot_maps as ppdmaps
 import pypopsyn.generator.maps.velocity_maps as vmaps
 from pypopsyn.simulator.config_simulator import cfg

@@ -80,7 +80,7 @@ def test_generate_avg_weight_map(temp_output_path, test_case_1):
 
     # Check if the .png map exists.
     generate_avg_weight_map(
-        x, test_case_1["x_range"], y, test_case_1["y_range"], w, filename
+        x, test_case_1["x_range"], y, test_case_1["y_range"], w, 0.0, filename
     )
     assert os.path.exists(filename)
 
@@ -119,6 +119,6 @@ def test_generate_avg_weight_matrix(temp_output_path, test_case_1):
 
     # Check if the .npy matrix exists.
     generate_avg_weight_matrix(
-        x, test_case_1["x_range"], y, test_case_1["y_range"], w, filename
+        x, test_case_1["x_range"], y, test_case_1["y_range"], w, 0.0, filename
     )
     assert os.path.exists(filename)
