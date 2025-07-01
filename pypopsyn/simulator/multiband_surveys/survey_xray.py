@@ -1,18 +1,19 @@
 """
     Model for the pulsar X-ray surveys.
 
-    We consider here the detection of thermally emitting neutron stars, by considering two type of surveys:
+    We consider here the detection of thermally emitting neutron stars, by considering two types of surveys:
 
-    1) xray_flux_threshold: detect NSs that have fluxes above a given threshold flux without considering any other
-        detection bias.
-    2) xray_realistic: detect NSs taking into account the outburst probability and combining two flux filters to better
-        reproduce the observed flux distribution of magnetars and XDINSs all together.
-        The first flux filter has a lower average flux threshold and applies to neutron stars that go in outburst.
-        In the catalog of observed thermally emitting neutron stars we only consider sources with a detected quiescent
-        thermal emission. Some magnetars were discovered in outburst but their quiescent emission is too faint to be
-        detected. This is why we are including this flux filter as we are not including those neutron stars.
-        The second flux filter has an higher average flux threshold and applies to neutron stars that are bright
-        like XDINSs even if they didn't show any outburst activity.
+    1) xray_flux_threshold: Detect neutron stars that have fluxes above a given threshold flux without considering
+        any other detection biases.
+    2) xray_realistic: Detect neutron stars taking into account their outburst probability and combining two flux
+        filters to better reproduce the observed flux distribution of magnetars and XDINSs together.
+        The first flux filter has a lower average flux threshold and applies to neutron stars that go into outburst.
+        In the catalog of observed thermally emitting neutron stars, we only consider sources with detected quiescent
+        thermal emission. I.e., we ignore those magnetars that were discovered in outburst but whose quiescent emission
+        is too faint to be detected. This is why we are including this flux filter as we are not including those
+        neutron stars.
+        The second flux filter has a higher average flux threshold and applies to neutron stars that are bright
+        like XDINSs even if they did not show any outburst activity.
 
     Authors:
 
@@ -81,7 +82,7 @@ class SurveyXray:
 
     def __import_parameters(self, parameters_path: str) -> None:
         """
-        This routine imports the parameters of a X-ray survey.
+        This routine imports the parameters of an X-ray survey.
 
         Args:
             parameters_path (str): Path to the survey_parameter.json file
