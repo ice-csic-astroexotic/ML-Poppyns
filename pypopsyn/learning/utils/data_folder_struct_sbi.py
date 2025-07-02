@@ -31,7 +31,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # Fixed folder structure (do not modify unless required for pipeline changes)
+    # Fixed folder structure (do not modify unless required for pipeline changes).
     folder_structure = {
         "data": {
             "test_dataset": {
