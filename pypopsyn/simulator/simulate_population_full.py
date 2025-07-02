@@ -247,7 +247,13 @@ def simulate_population(args: argparse.Namespace) -> None:
             log.info("Computing initial period derivatives...")
             period_derivative_vect = np.vectorize(pdv.period_derivative)
             P_dot_initial = (
-                period_derivative_vect(B_initial, chi_initial, P_initial)
+                period_derivative_vect(
+                    B_initial,
+                    chi_initial,
+                    P_initial,
+                    cfg["NS_mass"],
+                    cfg["NS_radius"],
+                )
                 / const.YR_TO_S
             )
 
@@ -507,6 +513,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                     B_final,
                     chi_final,
                     P_final,
+                    cfg["NS_mass"],
+                    cfg["NS_radius"],
                 )
                 / const.YR_TO_S
             )

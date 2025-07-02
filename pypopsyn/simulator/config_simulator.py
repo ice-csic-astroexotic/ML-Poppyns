@@ -34,7 +34,7 @@ cfg["show_profiling"]: bool = True
 
 # Save time evolution output.
 cfg["save_dyn_evolution"]: bool = False
-cfg["save_magrot_evolution"]: bool = False
+cfg["save_magrot_evolution"]: bool = True
 
 # Specify here the absolute path to the directory where the repository is saved.
 # If launching experiments on one of the PIC servers set cfg["server_run"] = True.
@@ -72,7 +72,7 @@ cfg["resolution"]: int = 10000
 
 # Total number of neutron stars to simulate.
 # Used only when running simulate_population_full.py and simulate_population_dyn.py.
-cfg["NS_number"]: int = 300000
+cfg["NS_number"]: int = 300
 
 # Minimum and maximum ages for the neutron stars in [yr].
 cfg["t_age_min"]: float = 1.0
@@ -481,7 +481,7 @@ cfg["ISM_abundances"]: List[float] = [
 # distribution and considers that many magnetars have been discovered during an outburst phase. For those we consider
 # a deeper survey to detect a quiescent emission. We then combine it with a shallower survey which detects only the
 # brightest sources.
-# Moreover since we do not have full control on the observational biases for X-ray surveys, we try to match only the number
+# Moreover, since we do not have full control on the observational biases for X-ray surveys, we try to match only the number
 # of sources above a flux threshold of 2e-12 erg s^-1 cm^-2 which defines the limit where we assume real surveys are complete
 # (by looking at the logN-lgS distribution).
 cfg["surveys_xray"]: dict = {

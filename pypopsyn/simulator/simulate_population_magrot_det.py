@@ -178,7 +178,7 @@ def simulate_population(args) -> None:
             ):
 
                 # Filter the population to include only pulsars whose radio beam intercepts our line of sight.
-                pop_radio = er.radio_population(pop_final)
+                pop_radio = er.radio_population_intercepted(pop_final)
                 if len(pop_radio["age"]) == 0:
                     break
 
