@@ -1,5 +1,5 @@
 """
-Tests for the x-ray emission module.
+Tests for the X-ray emission module.
 
     Authors:
 
@@ -13,6 +13,15 @@ from scipy.interpolate import RectBivariateSpline
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.multiband_emission.emission_xray as xem
+from pypopsyn.simulator.config_simulator import cfg
+
+# Set the neutron star radius for testing purposes.
+cfg["NS_radius"] = 1.1e6
+
+# Mock the gr_correction global variable to use the updated value of NS_radius for the test.
+value = (
+    1 - (2 * const.G * cfg["NS_mass"]) / (const.C**2 * cfg["NS_radius"])
+) ** 0.5
 
 TOL = 1e-5
 
@@ -145,10 +154,13 @@ def test_case_2():
     return data
 
 
-def test_T_from_Lx(test_case_1):
+def test_T_from_Lx(test_case_1, monkeypatch):
     """
-    Verifying that for a given x-ray luminosity the temperature is correctly calculated.
+    Verifying that for a given X-ray luminosity the temperature is correctly calculated.
     """
+
+    # Mock the gr_correction global variable to use the updated value of NS_radius for the test.
+    monkeypatch.setattr(xem, "gr_correction", value)
 
     T_out = xem.T_from_Lx(
         test_case_1["Lx"],
@@ -275,10 +287,13 @@ def test_resonant_optical_depth(test_case_1):
     ).all()
 
 
-def test_flux_xray_absorbed(test_case_1):
+def test_flux_xray_absorbed(test_case_1, monkeypatch):
     """
     Verifying that absorbed X-ray flux is correctly estimated.
     """
+
+    # Mock the gr_correction global variable to use the updated value of NS_radius for the test.
+    monkeypatch.setattr(xem, "gr_correction", value)
 
     flux_bb_out, flux_rcs_out, N_H_out = xem.flux_xray_absorbed(
         test_case_1["Lx"],

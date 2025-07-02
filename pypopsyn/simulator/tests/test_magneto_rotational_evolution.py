@@ -90,7 +90,9 @@ def test_combined_derivatives(test_case_1):
         ]
     )
 
-    dy_out = mre.combined_derivatives(0, y, test_case_1["B_initial"][0])
+    dy_out = mre.combined_derivatives(
+        0, y, test_case_1["B_initial"][0], cfg["NS_mass"], cfg["NS_radius"]
+    )
 
     assert np.isclose(
         dy_out,

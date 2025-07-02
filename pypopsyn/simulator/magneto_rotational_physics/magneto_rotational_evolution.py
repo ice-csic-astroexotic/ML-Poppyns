@@ -19,9 +19,9 @@ import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 from pypopsyn.simulator.config_simulator import cfg
 
 
-@jit(float64[:](float64, float64[:], float64))
+@jit(float64[:](float64, float64[:], float64, float64, float64))
 def combined_derivatives(
-    t: float, y: np.ndarray, B_initial: float
+    t: float, y: np.ndarray, B_initial: float, NS_mass: float, NS_radius: float
 ) -> np.ndarray:
     """
     Combining the three derivative functions for the magnetic field, the misalignment angle
@@ -33,6 +33,8 @@ def combined_derivatives(
         y (np.ndarray): Three magneto-rotational parameters, i.e., B in [G], chi in [rad]
             and P in [s] for a single pulsar at a given time.
         B_initial (float): Initial magnetic field magnitude for one pulsar, measured in [G].
+        NS_mass (float): Neutron star mass, measured in [g].
+        NS_radius (float): Neutron star radius, measured in [cm].
 
     Returns:
         (np.ndarray): Derivative of the three magneto-rotational parameters for one pulsar,
@@ -46,8 +48,8 @@ def combined_derivatives(
     dy = np.zeros(len(y), dtype=np.float64)
 
     dy[0] = mfdv.field_derivative(B, B_initial)
-    dy[1] = madv.misalignment_angle_derivative(B, chi, P)
-    dy[2] = pdv.period_derivative(B, chi, P)
+    dy[1] = madv.misalignment_angle_derivative(B, chi, P, NS_mass, NS_radius)
+    dy[2] = pdv.period_derivative(B, chi, P, NS_mass, NS_radius)
 
     return dy
 
@@ -118,7 +120,7 @@ def magneto_rotational_evolution(
                 combined_derivatives,
                 y0=y_initial[i],
                 t=time_grid,
-                args=(B_initial[i],),
+                args=(B_initial[i], cfg["NS_mass"], cfg["NS_radius"]),
                 tfirst=True,
             )
         )

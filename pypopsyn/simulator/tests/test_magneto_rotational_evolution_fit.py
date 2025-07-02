@@ -9,6 +9,7 @@
 import numpy as np
 import pytest
 
+import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
 from pypopsyn.simulator.config_simulator import cfg
 
@@ -17,11 +18,26 @@ TOL = 1e-5
 # Update the number of simulated objects for testing purposes.
 cfg["NS_number"] = 2
 
+# Update the neutron star radius in [cm] for testing purposes.
+cfg["NS_radius"] = 1.1e6
+
+# Update neutron star mass in solar masses for testing purposes.
+cfg["NS_mass"] = 1.4 * const.M_SUN
+
 # Update the logarithmic time step for testing purposes.
 cfg["magrot_time_step_log10"] = 1
 
 # Set to save the time evolution output for testing purposes.
 cfg["save_magrot_evolution"] = True
+
+# Set the fit parameters for the magnetic field evolution for testing purposes.
+cfg["a1"] = -0.13
+cfg["a2"] = -3.0
+cfg["A1"] = 1.0e14
+cfg["b1"] = -0.8
+cfg["A2"] = 6.0e8
+cfg["b2"] = -0.2
+cfg["tau_late"] = 2.0e6
 
 
 @pytest.fixture()
@@ -30,6 +46,13 @@ def test_case_1():
         "B_initial": 1e12,
         "t": 1.0e4,
         "B_asymptotic": 1e8,
+        "a1": -0.13,
+        "a2": -3.0,
+        "A1": 1.0e14,
+        "b1": -0.8,
+        "A2": 6.0e8,
+        "b2": -0.2,
+        "tau_late": 2.0e6,
         "a_late": -2.0,
         "B_expected": 948482242235.077,
     }
@@ -43,6 +66,13 @@ def test_case_2():
         "B_initial": 1e12,
         "t": np.array([1.0e4, 1.0e7]),
         "B_asymptotic": 1e8,
+        "a1": -0.13,
+        "a2": -3.0,
+        "A1": 1.0e14,
+        "b1": -0.8,
+        "A2": 6.0e8,
+        "b2": -0.2,
+        "tau_late": 2.0e6,
         "a_late": -2.0,
         "B_expected": np.array([948482242235.077, 1.60959095e10]),
     }
@@ -58,6 +88,13 @@ def test_case_3():
         "P_initial": np.array([1.0]),
         "t": 0.0,
         "B_asymptotic": 1e8,
+        "a1": -0.13,
+        "a2": -3.0,
+        "A1": 1.0e14,
+        "b1": -0.8,
+        "A2": 6.0e8,
+        "b2": -0.2,
+        "tau_late": 2.0e6,
         "a_late": -2.0,
         "dy_expected": np.array([-6.538793128119392e-9, 2.642621780886504e-8]),
     }
@@ -73,6 +110,13 @@ def test_case_4():
         "P_initial": np.array([1e-2, 1.0]),
         "t_age": np.array([10.0, 10.0]),
         "log_B_asymptotic": np.array([8.0, 8.5]),
+        "a1": -0.13,
+        "a2": -3.0,
+        "A1": 1.0e14,
+        "b1": -0.8,
+        "A2": 6.0e8,
+        "b2": -0.2,
+        "tau_late": 2.0e6,
         "a_late": -2.0,
         "B_final_expected": np.array([9.99989350e9, 9.99938908e11]),
         "chi_final_expected": np.array([0.0, 1.0471974923]),
@@ -95,6 +139,13 @@ def test_magnetic_field_evolution_fit(test_case_1):
         test_case_1["B_initial"],
         test_case_1["t"],
         test_case_1["B_asymptotic"],
+        test_case_1["a1"],
+        test_case_1["a2"],
+        test_case_1["A1"],
+        test_case_1["A2"],
+        test_case_1["b1"],
+        test_case_1["b2"],
+        test_case_1["tau_late"],
         test_case_1["a_late"],
     )
 
@@ -115,6 +166,13 @@ def test_magnetic_field_evolution_fit_numpy(test_case_2):
         test_case_2["B_initial"],
         test_case_2["t"],
         test_case_2["B_asymptotic"],
+        test_case_2["a1"],
+        test_case_2["a2"],
+        test_case_2["A1"],
+        test_case_2["A2"],
+        test_case_2["b1"],
+        test_case_2["b2"],
+        test_case_2["tau_late"],
         test_case_2["a_late"],
     )
 
@@ -142,7 +200,16 @@ def test_combined_derivatives(test_case_3):
         y,
         test_case_3["B_initial"][0],
         test_case_3["B_asymptotic"],
+        test_case_3["a1"],
+        test_case_3["a2"],
+        test_case_3["A1"],
+        test_case_3["A2"],
+        test_case_3["b1"],
+        test_case_3["b2"],
+        test_case_3["tau_late"],
         test_case_3["a_late"],
+        cfg["NS_mass"],
+        cfg["NS_radius"],
     )
 
     assert np.isclose(

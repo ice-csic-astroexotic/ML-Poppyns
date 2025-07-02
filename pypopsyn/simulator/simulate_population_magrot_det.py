@@ -129,6 +129,9 @@ def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
             - A dictionary for storing detected neutron star data for the X-ray survey.
             - An interpolator function loaded from a pickled file to evaluate the X-ray luminosity.
     """
+    # Get the path to the software directory.
+    base_path = pathlib.Path(cfg["path_to_software"])
+
     dictionary_detected_x = {
         "age": [],
         "ra": [],
@@ -151,10 +154,10 @@ def initialize_x_surveys() -> Tuple[dict, RectBivariateSpline]:
     }
 
     # Load the interpolator function to evaluate the X-ray luminosity.
-    interpolator_Lx_path = pathlib.Path().joinpath(
-        cfg["path_to_software"],
-        "pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/interpolator_Lx.pkl",
+    interpolator_Lx_path = base_path.joinpath(
+        cfg["magneto-thermal_path"], "interpolator_Lx.pkl"
     )
+
     with open(interpolator_Lx_path, "rb") as f:
         L_x_interpolator = pickle.load(f)
 
@@ -413,7 +416,11 @@ def evolve_population_magrot(
         P_final,
         magrot_evol_dict,
     ) = mre.magneto_rotational_evolution(
-        B_initial, chi_initial, P_initial, age, a_late
+        B_initial,
+        chi_initial,
+        P_initial,
+        age,
+        a_late,
     )
 
     if cfg["save_magrot_evolution"]:
@@ -437,6 +444,8 @@ def evolve_population_magrot(
         B_final,
         chi_final,
         P_final,
+        cfg["NS_mass"],
+        cfg["NS_radius"],
     )
 
     dictionary_final_pop_magrot = {
@@ -1130,7 +1139,7 @@ def simulate_population(args) -> None:
                 )
                 break
 
-        # Compute the neutron star birth rate for each survey.
+        # Compute the neutron star birth rate for each radio survey.
         birth_rates = {}
         for survey in dictionary_detected_radio:
             birth_rates[survey] = n_created_at_match[survey] / t_max
@@ -1145,6 +1154,9 @@ def simulate_population(args) -> None:
                 survey
             ]
             cfg[f"n_detected_sim_{survey}_tot"] = n_detected_sim[survey]
+
+        # Add the information on the number of detected neutron star in X-rays to the configuration file.
+        cfg["n_detected_sim_x_tot"] = n_detected_sim_x
 
         # ===================== EXPORT OUTPUT ========================
         with timewith.TimeWith(
