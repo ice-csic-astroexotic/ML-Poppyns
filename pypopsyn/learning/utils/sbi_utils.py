@@ -346,10 +346,18 @@ def save_training_statistics(
     )
     os.makedirs(log_dir_round_path, exist_ok=True)
 
-    training_statistics_path = (
-        f"{log_dir_round_path}/training_statistics_{index}.json"
+    training_statistics_json_path = (
+        os.path.join(log_dir_round_path, f"training_statistics_{index}.json")
+        if config["trainer"]["ensemble"]
+        else os.path.join(log_dir_round_path, "training_statistics.json")
     )
-    with open(training_statistics_path, "w") as f:
+    training_statistics_plot_path = (
+        os.path.join(log_dir_round_path, f"training_stats_{index}.pdf")
+        if config["trainer"]["ensemble"]
+        else os.path.join(log_dir_round_path, "training_stats.pdf")
+    )
+
+    with open(training_statistics_json_path, "w") as f:
         json.dump(training_statistics, f, indent=4, sort_keys=True)
 
     # Save the plot showing the evolution of the training and validation losses.
@@ -376,9 +384,7 @@ def save_training_statistics(
     )
     plt.legend(bbox_to_anchor=(1.05, 1), frameon=False, loc=0, fontsize=10)
 
-    f.savefig(
-        f"{log_dir_round_path}/training_stats_{index}.pdf", bbox_inches="tight"
-    )
+    f.savefig(training_statistics_plot_path, bbox_inches="tight")
 
 
 def compute_rank_coverage(
