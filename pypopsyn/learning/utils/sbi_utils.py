@@ -69,7 +69,8 @@ def calculate_smallest_hdr(
         device (torch.device): Device used to run the script.
 
     Returns:
-        (np.ndarray, np.ndarray): Smallest highest density region of the posterior that contains the true value, posterior samples for all test simulations.
+        (Tuple[np.ndarray, np.ndarray]): Smallest highest density region of the posterior that contains the true value,
+            posterior samples for all test simulations.
     """
     hdr = []
     # Counter for successful samples.
