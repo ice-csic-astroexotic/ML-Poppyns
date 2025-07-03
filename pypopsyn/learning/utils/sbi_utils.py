@@ -144,8 +144,8 @@ def wrapper_pypopsyn(
     device: torch.device,
 ) -> str:
     """
-    Simulating `num_sim` of mock neutron star populations given the `proposal` distribution. After simulating the
-    populations, we generate the compressed representations for the output.
+    Simulating `num_sim` of mock neutron star populations given the `proposal` distribution. After simulation, generate
+    density maps from the resulting populations.
 
     Args:
         proposal (Union[DirectPosterior,utils.RestrictedPrior]): Proposal distribution used for sampling the parameters.

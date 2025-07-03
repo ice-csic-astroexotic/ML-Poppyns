@@ -283,7 +283,7 @@ def train_posterior(
     training dataset.
 
     Note that the inference object should be different for each component of the ensemble to ensure independent weights
-    for each component. Moreover, if config['trainer']['model_type'] == 'snle', then an MCMC sampler is needed to sample
+    for each component. Moreover, if `config['trainer']['model_type'] == 'snle' or 'snre'`, then an MCMC sampler is needed to sample
     from the posterior distribution.
 
     Args:
@@ -370,7 +370,7 @@ def train_posterior(
                     "retrain_from_scratch": retrain_from_scratch,
                 }
 
-                # When using SNPE with a truncated prior, we set force_first_round_loss = True in the following to
+                # When using SNPE with a truncated prior, we set `force_first_round_loss = True` in the following to
                 # disable the loss-function correction. Otherwise, the loss would be corrected using the proposal prior
                 # during training. In the case where we do not truncate the prior and account for the correction, we
                 # then pass the proposal prior to the append_simulations function.

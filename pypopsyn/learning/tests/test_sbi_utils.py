@@ -90,7 +90,7 @@ def fake_posterior():
 def fake_sampler(monkeypatch):
     # Simulate successful posterior sampling.
     def sample_with_timeout(posterior, x, n_samples, timeout):
-        samples = torch.randn((n_samples, 3))
+        samples = torch.randn((n_samples, x.shape[1]))
         return samples, True
 
     monkeypatch.setattr(

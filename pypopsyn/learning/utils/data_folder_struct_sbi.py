@@ -1,3 +1,11 @@
+"""
+    Create data folder structure for running sbi.
+
+    Authors:
+
+        Celsa Pardo Araujo (pardo@ice.csic.es)
+"""
+
 import argparse
 import os
 from typing import Dict, Optional
@@ -11,8 +19,6 @@ def create_structure(base: str, structure: Dict[str, Optional[dict]]) -> None:
         base (str): Base directory path where the folder structure will be created.
         structure (Dict[str, Optional[dict]]): Nested dictionary representing the folder/file structure.
 
-    Returns:
-        None
     """
     for name, sub_structure in structure.items():
         path = os.path.join(base, name)

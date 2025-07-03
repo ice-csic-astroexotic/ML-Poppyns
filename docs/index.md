@@ -115,6 +115,9 @@ Each directory contains a `README.md` file with instructions on how to produce a
   and detection of a population of neutron stars obtained by running the script
   `pypopsyn/simulator/simulate_population_magrot_det.py`.
 
+* The `example_posterior_samples_harmonic` subfolder contains unnormalized posterior samples from snle training to use
+   with the Harmonic package for model comparison.
+
 * The `observations` subfolder contains catalogs with observed data.
 
 * The `paper_results` subfolder contains data results for our publications.
