@@ -127,7 +127,7 @@ def test_sky_coverage(test_case_3):
     """
     Verifying that the sky coverage of a survey is computed correctly.
     """
-
+    # Create a temporary .json file with some survey parameters to initialize an X-ray survey class object.
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".json", delete=False
     ) as tmpfile:

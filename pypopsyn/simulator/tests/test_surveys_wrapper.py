@@ -84,7 +84,7 @@ class MockSurveyRadio:
 
 
 class MockSurveyXray:
-    """Mock class to simulate a X-ray survey."""
+    """Mock class to simulate an X-ray survey."""
 
     def __init__(self, name):
         self.name = name
@@ -102,7 +102,7 @@ class MockSurveyXray:
     def detected_xray_population(self, S_x, outburst_mask):
         """Mock implementation of detected_xray_population."""
         # For simplicity, return the same output for all the surveys.
-        return (np.array([True, False]),)  # detected_radio
+        return (np.array([True, False]),)  # detected_xray
 
 
 @pytest.fixture()

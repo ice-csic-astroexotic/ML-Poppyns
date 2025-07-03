@@ -413,24 +413,24 @@ def test_initialize_Lx_interpolator(test_case_2, tmp_path):
     """
     Test that initialize_Lx_interpolator loads and returns a valid interpolator.
     """
-    # Create sub-directory for the pickle file
+    # Create sub-directory for the pickle file.
     subdir = tmp_path / "magneto-thermal"
     subdir.mkdir()
 
-    # Path to interpolator pickle inside subdir
+    # Path to interpolator pickle inside subdir.
     interpolator_path = subdir / "interpolator_Lx.pkl"
 
-    # Write the dummy interpolator to the file
+    # Write the dummy interpolator to the file.
     with open(interpolator_path, "wb") as f:
         pickle.dump(test_case_2["dummy_L_x_interpolator"], f)
 
-    # Define a fake cfg to point to this location
+    # Define a fake cfg to point to this location.
     fake_cfg = {
         "path_to_software": str(tmp_path),  # base dir is tmp_path
         "magneto-thermal_path": "magneto-thermal",  # subdir
     }
 
-    # Patch cfg with this fake_cfg
+    # Patch cfg with this fake_cfg.
     with mock.patch(
         "pypopsyn.simulator.multiband_emission.emission_xray.cfg", fake_cfg
     ):

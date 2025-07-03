@@ -368,7 +368,7 @@ def radio_detection(
     Returns:
         (dict): A dictionary containing the properties of detected pulsars for each survey.
     """
-    # Initialize variables for HTRU_low and HTRU_mid to avoid "referenced before assignment".
+    # Initialize variables for HTRU_low and HTRU_mid.
     detected_HTRU_low = np.array([])
     w_eff_low = None
     S_radio_obs_mean_low = None
@@ -444,7 +444,7 @@ def radio_detection(
             idx=dictionary_intercepted_radio["idx"],
         )
 
-        # Remove the single HTRU low and mid surveys.
+        # Remove the dictionaries containing the results for the separated HTRU low and mid surveys.
         del detected_dictionaries["HTRU_low"]
         del detected_dictionaries["HTRU_mid"]
 
@@ -488,7 +488,7 @@ def update_filtered_dictionary(
 
     Args:
         dict_to_update (dict): The original dictionary containing properties of neutron stars.
-        mask (np.ndarray): boolean mask indicating which elements for each key in `dict_to_update` have to be included.
+        mask (np.ndarray): Boolean mask indicating which elements for each key in `dict_to_update` have to be included.
         **kwargs (np.ndarray): Additional property values provided as keyword arguments.
             These properties will also be filtered using the `mask`.
 
@@ -583,7 +583,7 @@ def update_survey_data(
             idx_remove += idx_det
 
         elif survey_type == "X-ray":
-            # For the X-ray survey we are not complete and we do not control well the observational biases, therefore
+            # For the X-ray survey we are not complete and we do not control well the observational biases. Therefore
             # we consider a flux threshold above which we assume we are complete and try to match the number of observed
             # sources above this flux threshold. See the config_simulator file for more details.
             n_detected_sim[survey] += len(
@@ -601,7 +601,7 @@ def update_survey_data(
             logger.info(
                 f"Total number of neutron stars detected by {survey}: {n_detected_sim[survey]} (above completeness flux threshold: {n_detected_complete_sim[survey]})"
             )
-            # if the number of simulated detected pulsars above the completeness flux threshold matches the
+            # If the number of simulated detected pulsars above the completeness flux threshold matches the
             # real one, store the value of created neutron stars.
             if (
                 n_detected_complete_sim[survey]
@@ -788,8 +788,8 @@ def create_output_dataframe(
 def adjust_n_batchsize(survey_data_class) -> int:
     """
     To speed up the simulation, generate new neutron stars in batches.
-    The batchsize is adjusted depending if the simulation is close to reach the observed number of neutron stars in
-    real surveys. This guarantees a better fine tuning of the simulated detected numbers.
+    The batchsize is adjusted as the synthetic population approaches the observed number of neutron stars in the real surveys.
+    This guarantees a better fine tuning of the simulated detected numbers.
 
     Args:
         survey_data_class (SurveyData): The SurveyData dataclass containing the data of all neutron star surveys.
