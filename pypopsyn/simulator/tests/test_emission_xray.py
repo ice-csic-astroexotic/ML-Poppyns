@@ -8,7 +8,6 @@ Tests for the X-ray emission module.
 """
 
 import pickle
-import tempfile
 from unittest import mock
 
 import numpy as np

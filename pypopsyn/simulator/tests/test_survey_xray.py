@@ -7,13 +7,11 @@
 """
 
 import json
-import os
 import tempfile
 
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.multiband_emission.emission_xray as ex
 import pypopsyn.simulator.multiband_surveys.survey_xray as sx
 
 TOL = 1e-5
