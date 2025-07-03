@@ -284,21 +284,21 @@ class SurveyRadio:
             self.parameters = json.load(read_file)
 
         # Save the parameters.
-        # deg_factor (float): degradation factor.
-        # G0 (float): gain at the beam center [KJy ^ (-1)].
-        # t_obs (float): integration time [s].
-        # t_samp (float): sampling time [s].
-        # T_sys (float): system temperature [K].
-        # nu_central (float): central frequency of the bandwidth [Hz].
-        # BW (float): frequency bandwidth [Hz].
-        # channel_width (float): width of a single frequency channel [Hz].
-        # n_pol (float): number of polarizations.
+        # deg_factor (float): Degradation factor.
+        # G0 (float): Gain at the beam center [KJy ^ (-1)].
+        # t_obs (float): Integration time [s].
+        # t_samp (float): Sampling time [s].
+        # T_sys (float): System temperature [K].
+        # nu_central (float): Central frequency of the bandwidth [Hz].
+        # BW (float): Frequency bandwidth [Hz].
+        # channel_width (float): Width of a single frequency channel [Hz].
+        # n_pol (float): Number of polarizations.
         # FWHM (float): FWHM of the beam[arcmin].
-        # SNR_th (float): threshold signal-to-noise ratio.
-        # RA_range (np.ndarray): range of the sky covered by the survey in RA [deg].
-        # DEC_range(np.ndarray): range of the sky covered by the survey in DEC [deg].
-        # l_range(np.ndarray): range of the sky covered by the survey in Galactic longitude l[deg].
-        # b_range_abs(np.ndarray): absolute value of the range of the sky covered
+        # SNR_th (float): Threshold signal-to-noise ratio.
+        # RA_range (np.ndarray): Range of the sky covered by the survey in RA [deg].
+        # DEC_range(np.ndarray): Range of the sky covered by the survey in DEC [deg].
+        # l_range(np.ndarray): Range of the sky covered by the survey in Galactic longitude l[deg].
+        # b_range_abs(np.ndarray): Absolute value of the range of the sky covered
         #   by the survey in Galactic latitude b [deg].
         self.deg_factor = self.parameters["deg_factor"]
         self.G0 = self.parameters["G0"]

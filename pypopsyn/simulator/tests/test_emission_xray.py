@@ -8,7 +8,6 @@ Tests for the X-ray emission module.
 """
 
 import pickle
-import tempfile
 from unittest import mock
 
 import numpy as np
@@ -413,24 +412,24 @@ def test_initialize_Lx_interpolator(test_case_2, tmp_path):
     """
     Test that initialize_Lx_interpolator loads and returns a valid interpolator.
     """
-    # Create sub-directory for the pickle file
+    # Create sub-directory for the pickle file.
     subdir = tmp_path / "magneto-thermal"
     subdir.mkdir()
 
-    # Path to interpolator pickle inside subdir
+    # Path to interpolator pickle inside subdir.
     interpolator_path = subdir / "interpolator_Lx.pkl"
 
-    # Write the dummy interpolator to the file
+    # Write the dummy interpolator to the file.
     with open(interpolator_path, "wb") as f:
         pickle.dump(test_case_2["dummy_L_x_interpolator"], f)
 
-    # Define a fake cfg to point to this location
+    # Define a fake cfg to point to this location.
     fake_cfg = {
         "path_to_software": str(tmp_path),  # base dir is tmp_path
         "magneto-thermal_path": "magneto-thermal",  # subdir
     }
 
-    # Patch cfg with this fake_cfg
+    # Patch cfg with this fake_cfg.
     with mock.patch(
         "pypopsyn.simulator.multiband_emission.emission_xray.cfg", fake_cfg
     ):
@@ -509,7 +508,7 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
     ).all()
 
 
-def test_outburst_filter(test_case_3, monkeypatch):
+def test_outburst_filter_probabilistic(test_case_3, monkeypatch):
 
     # Fixed uniform return values based on age group logic.
     def mock_uniform(low, high, size):
@@ -531,7 +530,7 @@ def test_outburst_filter(test_case_3, monkeypatch):
     monkeypatch.setattr(np.random, "uniform", mock_uniform)
     monkeypatch.setattr(np.random, "rand", mock_rand)
 
-    outburst_mask_out = xem.outburst_filter(
+    outburst_mask_out = xem.outburst_filter_probabilistic(
         test_case_3["B_initial"], test_case_3["age"]
     )
 

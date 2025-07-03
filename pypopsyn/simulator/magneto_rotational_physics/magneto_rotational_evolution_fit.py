@@ -46,16 +46,16 @@ def magnetic_field_evolution_fit_numpy(
         B_initial (float): Initial magnetic field strength in [G].
         t (np.ndarray): Time in [s].
         B_asymptotic (float): Asymptotic magnetic field strength at late times in [G].
-        a1 (float): Power-law index for the first power-law component of the fit of the magnetic-field evolution.
-        a2 (float): Power-law index for the second power-law component of the fit of the magnetic-field evolution.
-        A1 (float): Normalization for the timescale parameter of the first power-law component of the fit of the
-            magnetic-field evolution.
-        A2 (float): Normalization for the timescale parameter of the second power-law component of the fit of the
-            magnetic-field evolution.
-        b1 (float): Power-law index for the timescale parameter of the first power-law component of the fit of the
-            magnetic-field evolution.
-        b2 (float): Power-law index for the timescale parameter of the second power-law component of the fit of the
-            magnetic-field evolution.
+        a1 (float): Power-law index for the first power-law component for the magnetic-field evolution fit.
+        a2 (float): Power-law index for the second power-law component for the magnetic-field evolution fit.
+        A1 (float): Normalization for the timescale parameter of the first power-law component for the
+            magnetic-field evolution fit.
+        A2 (float): Normalization for the timescale parameter of the second power-law component for the
+            magnetic-field evolution fit.
+        b1 (float): Power-law index for the timescale parameter of the first power-law component for the
+            magnetic-field evolution fit.
+        b2 (float): Power-law index for the timescale parameter of the second power-law component for the
+            magnetic-field evolution fit.
         tau_late (float): Timescale in [yr] when transitioning from the simulated curves to the simple late-time
             power-law evolution of the magnetic field strength.
         a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
@@ -143,16 +143,16 @@ def magnetic_field_evolution_fit(
         B_initial (float): Initial magnetic field strength in [G].
         t (float): Time in [s].
         B_asymptotic (float): Asymptotic magnetic field strength at late times in [G].
-        a1 (float): Power-law index for the first power-law component of the fit of the magnetic-field evolution.
-        a2 (float): Power-law index for the second power-law component of the fit of the magnetic-field evolution.
-        A1 (float): Normalization for the timescale parameter of the first power-law component of the fit of the
-            magnetic-field evolution.
-        A2 (float): Normalization for the timescale parameter of the second power-law component of the fit of the
-            magnetic-field evolution.
-        b1 (float): Power-law index for the timescale parameter of the first power-law component of the fit of the
-            magnetic-field evolution.
-        b2 (float): Power-law index for the timescale parameter of the second power-law component of the fit of the
-            magnetic-field evolution.
+        a1 (float): Power-law index for the first power-law component for the magnetic-field evolution fit.
+        a2 (float): Power-law index for the second power-law component for the magnetic-field evolution fit.
+        A1 (float): Normalization for the timescale parameter of the first power-law component for the
+            magnetic-field evolution fit.
+        A2 (float): Normalization for the timescale parameter of the second power-law component for the
+            magnetic-field evolution fit.
+        b1 (float): Power-law index for the timescale parameter of the first power-law component for the
+            magnetic-field evolution fit.
+        b2 (float): Power-law index for the timescale parameter of the second power-law component for the
+            magnetic-field evolution fit.
         tau_late (float): Timescale in [yr] when transitioning from the simulated curves to the simple late-time
             power-law evolution of the magnetic field strength.
         a_late (float): Power-law index for the late-time evolution of the magnetic field strength.
@@ -246,16 +246,16 @@ def combined_derivatives(
             and P in [s] for a single pulsar at a given time.
         B_initial (float): Initial magnetic field magnitude for one pulsar, measured in [G].
         B_asymptotic (float): Asymptotic magnetic field strength at late times in [G].
-        a1 (float): Power-law index for the first power-law component of the fit of the magnetic-field evolution.
-        a2 (float): Power-law index for the second power-law component of the fit of the magnetic-field evolution.
-        A1 (float): Normalization for the timescale parameter of the first power-law component of the fit of the
-            magnetic-field evolution.
-        A2 (float): Normalization for the timescale parameter of the second power-law component of the fit of the
-            magnetic-field evolution.
-        b1 (float): Power-law index for the timescale parameter of the first power-law component of the fit of the
-            magnetic-field evolution.
-        b2 (float): Power-law index for the timescale parameter of the second power-law component of the fit of the
-            magnetic-field evolution.
+        a1 (float): Power-law index for the first power-law component for the magnetic-field evolution fit.
+        a2 (float): Power-law index for the second power-law component for the magnetic-field evolution fit.
+        A1 (float): Normalization for the timescale parameter of the first power-law component for the
+            magnetic-field evolution fit.
+        A2 (float): Normalization for the timescale parameter of the second power-law component for the
+            magnetic-field evolution fit.
+        b1 (float): Power-law index for the timescale parameter of the first power-law component for the
+            magnetic-field evolution fit.
+        b2 (float): Power-law index for the timescale parameter of the second power-law component for the
+            magnetic-field evolution fit.
         tau_late (float): Timescale in [yr] when transitioning from the simulated curves to the simple late-time
             power-law evolution of the magnetic field strength.
         a_late (float): Power-law index for the late-time evolution of the magnetic field strength.

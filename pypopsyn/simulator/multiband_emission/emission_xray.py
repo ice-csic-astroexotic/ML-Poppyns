@@ -462,15 +462,18 @@ def initialize_crustal_failure_rate_interpolator() -> RectBivariateSpline:
     return crust_failure_rate_interpolator
 
 
-def outburst_filter(B_initial: np.ndarray, age: np.ndarray) -> np.ndarray:
+def outburst_filter_probabilistic(
+    B_initial: np.ndarray, age: np.ndarray
+) -> np.ndarray:
     """
     A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that goes in outburst
     after some crustal failures due to magnetic stresses (see Dehman et al. 2020).
     We associate the percentage of crustal failure events depending on the age as the probability to go in outburst,
     see section 3.2 in Dehman et al. (2020).
-    For simplification, we neglect any dependence of the failure rate on the magnetic energy in the crust
-    and assume that all neutron stars with initial magnetic field above 10^13 G have the same magnetic energy
-    in the crust.
+    In Dehman et al. (2020) they found a correlation between the magnetic energy in the crust and the number of failure
+    events. However, for simplification, we neglect any dependence of the failure rate on the magnetic energy in the crust
+    and assume that all neutron stars with initial magnetic field above 10^13 G are born with the same amount of
+    magnetic energy in the crust.
 
     Args:
         B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
@@ -480,6 +483,7 @@ def outburst_filter(B_initial: np.ndarray, age: np.ndarray) -> np.ndarray:
         (np.ndarray): Boolean mask to select the neutron stars that go in outburst.
     """
 
+    # Assigning different probabilities for a neutron star to go in outburst depending on its age.
     outburst_prob = np.zeros(len(B_initial))
     age_mask_1 = age <= 100
     outburst_prob[age_mask_1] = np.random.uniform(
@@ -493,9 +497,9 @@ def outburst_filter(B_initial: np.ndarray, age: np.ndarray) -> np.ndarray:
     outburst_prob[age_mask_3] = np.random.uniform(
         0.05, 0.2, size=len(age[age_mask_3])
     )
-    age_mask_3 = age > 1000
-    outburst_prob[age_mask_3] = np.random.uniform(
-        0.0, 0.05, size=len(age[age_mask_3])
+    age_mask_4 = age > 1000
+    outburst_prob[age_mask_4] = np.random.uniform(
+        0.0, 0.05, size=len(age[age_mask_4])
     )
 
     outburst_mask = (np.random.rand(len(outburst_prob)) < outburst_prob) & (
@@ -584,13 +588,14 @@ def xray_population(
         L_x_threshold,
     )
 
+    # Storing the properties of the X-ray bright neutron stars in a dictionary.
     dict_xray_pop = {
         key: value[xray_bright_mask]
         for key, value in dict_final_pop_filtered.items()
     }
 
-    # Apply the filter to see which neutron stars goes in outburst.
-    outburst_mask = outburst_filter(
+    # Apply the filter to see which neutron stars go in outburst.
+    outburst_mask = outburst_filter_probabilistic(
         dict_xray_pop["B_initial"], dict_xray_pop["age"]
     )
     """
@@ -598,6 +603,8 @@ def xray_population(
         dict_xray_pop["B_initial"], dict_xray_pop["age"], crustal_failure_rate_interpolator
     )
     """
+
+    # Adding the computed neutron star X-ray emission properties to the dictionary.
     dict_xray_pop["L_x_therm"] = L_x_therm
     dict_xray_pop["S_x_rcs_abs"] = S_x_rcs_abs
     dict_xray_pop["S_x_bb_abs"] = S_x_bb_abs
