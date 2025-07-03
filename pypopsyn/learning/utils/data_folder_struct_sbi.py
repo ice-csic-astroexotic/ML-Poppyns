@@ -18,7 +18,6 @@ def create_structure(base: str, structure: Dict[str, Optional[dict]]) -> None:
     Args:
         base (str): Base directory path where the folder structure will be created.
         structure (Dict[str, Optional[dict]]): Nested dictionary representing the folder/file structure.
-
     """
     for name, sub_structure in structure.items():
         path = os.path.join(base, name)
