@@ -509,7 +509,7 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
     ).all()
 
 
-def test_outburst_filter(test_case_3, monkeypatch):
+def test_outburst_filter_probabilistic(test_case_3, monkeypatch):
 
     # Fixed uniform return values based on age group logic.
     def mock_uniform(low, high, size):
@@ -531,7 +531,7 @@ def test_outburst_filter(test_case_3, monkeypatch):
     monkeypatch.setattr(np.random, "uniform", mock_uniform)
     monkeypatch.setattr(np.random, "rand", mock_rand)
 
-    outburst_mask_out = xem.outburst_filter(
+    outburst_mask_out = xem.outburst_filter_probabilistic(
         test_case_3["B_initial"], test_case_3["age"]
     )
 
