@@ -217,16 +217,17 @@ class SurveyXray:
             # with more sensitive instruments such as XMM-Newton or Chandra using deep observations with relatively long
             # exposure time to see if the quiescent emission is detectable.
             # For this purpose, we consider a flux threshold of around 10^-14 [erg s^-1 cm^-2] with an intrinsic dispersion.
+            # This choice has been made by eye to recover the low-flux part of the observed flux distribution.
             detected_outburst_mask = smooth_flux_filter(
                 S_x,
                 self.S_x_threshold_log10_mean_long_exposure,
                 self.S_x_threshold_log10_sigma_long_exposure,
             )
 
-            # To include sources that didn't go in outburst but have high quiescent fluxes we also include a filter with
+            # To include sources that didn't go into outburst but have high quiescent fluxes, we also include a filter with
             # a higher flux threshold which is related to lower exposure time.
-            # This emulates all-sky surveys like the one performed by ROSAT
-            # or the slew mode in XMM that are more sensitive to brighter X-ray sources.
+            # This emulates all-sky surveys like the one performed by ROSAT or the slew mode in XMM that are more
+            # sensitive to brighter X-ray sources and can detect sources like the XDINSs.
             detected_bright_mask = smooth_flux_filter(
                 S_x,
                 self.S_x_threshold_log10_mean_short_exposure,
