@@ -1,4 +1,4 @@
-# Unnormalized posterior samples to use with the Harmonic package for model comparison
+# Unnormalized posterior samples to be used with the Harmonic package for model comparison
 
 This is an example of samples from the unnormalized posterior distribution obtained by running an SBI inference using 
 SNLE as the model type. These samples can then be used for model comparison with the Harmonic package, as shown
