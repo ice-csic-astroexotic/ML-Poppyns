@@ -509,7 +509,7 @@ def outburst_filter_probabilistic(
     return outburst_mask
 
 
-def outburst_filter_from_crustal_failure_rate(
+def outburst_filter_from_crust_failure_rate(
     B_initial: np.ndarray,
     age: np.ndarray,
     crust_failure_rate_interpolator: RectBivariateSpline,
@@ -518,7 +518,8 @@ def outburst_filter_from_crustal_failure_rate(
     A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that goes in outburst
     after some crustal failures due to magnetic stresses (see Dehman et al. 2020).
     We compute the expected rate of failures from the result of magneto-thermal simulations for a neutron star
-    with a given initial magnetic field and age. From this rate we select only neutron stars that experiences an
+    with a given initial magnetic field and age (see the notebook tutorials/analysis_notebooks/crust_failure_rate.ipynb
+    for more details). From this rate we select only neutron stars that experiences an
     outburst in the last 50 years which is roughly the time when X-ray survey missions were active.
 
     Args:
@@ -531,10 +532,10 @@ def outburst_filter_from_crustal_failure_rate(
         (np.ndarray): Boolean mask to select the neutron stars that go in outburst.
     """
 
-    # Interpolate the rate of crustal failures from the initial magnetic field value and the age.
+    # Interpolate the rate of crust failures from the initial magnetic field value and the age.
     rate_crust_failure = crust_failure_rate_interpolator.ev(age, B_initial)
 
-    # Select only the stars that have experienced a crustal failure event in the last 50 yrs.
+    # Select only the stars that have experienced a crust failure event in the last 50 yrs.
     # This is done in order to have an estimate of the outburst number that a neutron stars might have undergone during
     # the period of activity of X-ray survey missions.
     # We also filter out events for neutron stars younger than 100 yr because at these young ages the outer crust is
@@ -602,7 +603,7 @@ def xray_population(
         dict_xray_pop["B_initial"], dict_xray_pop["age"]
     )
     """
-    outburst_mask = outburst_filter_from_crustal_failure_rate(
+    outburst_mask = outburst_filter_from_crust_failure_rate(
         dict_xray_pop["B_initial"], dict_xray_pop["age"], crustal_failure_rate_interpolator
     )
     """
