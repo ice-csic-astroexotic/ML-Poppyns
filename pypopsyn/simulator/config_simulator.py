@@ -482,18 +482,18 @@ cfg["ISM_abundances"]: List[float] = [
 # a deeper survey to detect a quiescent emission. We then combine it with a shallower survey which detects only the
 # brightest sources.
 # Moreover, since we do not have full control on the observational biases for X-ray surveys, we try to match only the number
-# of sources above a flux threshold of 2e-12 erg s^-1 cm^-2 which defines the limit where we assume real surveys are complete
+# of sources above a flux threshold of 2e-11 erg s^-1 cm^-2 which defines the limit where we assume real surveys are complete
 # (by looking at the logN-lgS distribution).
 cfg["surveys_xray"]: dict = {
     "xray_flux_threshold": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
-        "detected_real": 14,
-        "flux_threshold_completeness": 2.0e-12,
+        "detected_real": 4,
+        "flux_threshold_completeness": 2.0e-11,
     },
     "xray_realistic": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json",
-        "detected_real": 14,
-        "flux_threshold_completeness": 2.0e-12,
+        "detected_real": 4,
+        "flux_threshold_completeness": 2.0e-11,
     },
 }
 
