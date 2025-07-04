@@ -453,7 +453,7 @@ def initialize_crustal_failure_rate_interpolator() -> RectBivariateSpline:
     base_path = pathlib.Path(cfg["path_to_software"])
     # Load the interpolator function to evaluate the X-ray luminosity.
     interpolator_path = base_path.joinpath(
-        cfg["magneto-thermal_path"], "interpolator_crust_failure_rate.pkl"
+        cfg["magneto-thermal_path"], "interpolator_crust_failure_rate_fit.pkl"
     )
 
     with open(interpolator_path, "rb") as f:
@@ -534,11 +534,14 @@ def outburst_filter_from_crustal_failure_rate(
     # Interpolate the rate of crustal failures from the initial magnetic field value and the age.
     rate_crust_failure = crust_failure_rate_interpolator.ev(age, B_initial)
 
-    # Select only the stars that have experienced an crustal failure event in the last 50 yrs.
+    # Select only the stars that have experienced a crustal failure event in the last 50 yrs.
     # This is done in order to have an estimate of the outburst number that a neutron stars might have undergone during
     # the period of activity of X-ray survey missions.
+    # We also filter out events for neutron stars younger than 100 yr because at these young ages the outer crust is
+    # still solidifying (see Fig. 8 in Aguilera et al. 2008) and we are assuming that the crust should be solid to
+    # compute the stresses.
     n_outburst_events = rate_crust_failure * 50
-    outburst_mask = n_outburst_events > 1.0
+    outburst_mask = (n_outburst_events > 1.0) & (age > 100)
 
     return outburst_mask
 
