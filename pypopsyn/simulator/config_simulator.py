@@ -34,7 +34,7 @@ cfg["show_profiling"]: bool = True
 
 # Save time evolution output.
 cfg["save_dyn_evolution"]: bool = False
-cfg["save_magrot_evolution"]: bool = True
+cfg["save_magrot_evolution"]: bool = False
 
 # Specify here the absolute path to the directory where the repository is saved.
 # If launching experiments on one of the PIC servers set cfg["server_run"] = True.
