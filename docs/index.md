@@ -95,6 +95,9 @@ Each directory contains a `README.md` file with instructions on how to produce a
 
 * The `example_learning_sbi` subfolder contains the results of a training run with sbi on some training simulated data.
 
+* The `example_posterior_samples_harmonic` subfolder contains unnormalized posterior samples from SNLE training to be 
+   used with the Harmonic package for model comparison.
+
 * The `example_simulation_dyn` subfolder contains the results of the dynamical evolution of a population of neutron 
   stars obtained by running the script `pypopsyn/simulator/simulate_population_dyn.py`.
 
@@ -114,9 +117,6 @@ Each directory contains a `README.md` file with instructions on how to produce a
 * The `example_simulation_magrot_det` subfolder contains the results of a simulation of magneto-rotational evolution 
   and detection of a population of neutron stars obtained by running the script
   `pypopsyn/simulator/simulate_population_magrot_det.py`.
-
-* The `example_posterior_samples_harmonic` subfolder contains unnormalized posterior samples from snle training to be used
-   with the Harmonic package for model comparison.
 
 * The `observations` subfolder contains catalogs with observed data.
 
