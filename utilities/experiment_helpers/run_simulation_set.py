@@ -616,7 +616,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--B_initial_log10_mean1",
+        "--B_initial_log10_mean_comp1",
         nargs="*",
         type=float,
         default=None,
@@ -627,7 +627,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--B_initial_log10_sigma1",
+        "--B_initial_log10_sigma_comp1",
         nargs="*",
         type=float,
         default=None,
@@ -638,7 +638,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--B_initial_log10_mean2",
+        "--B_initial_log10_mean_comp2",
         nargs="*",
         type=float,
         default=None,
@@ -649,7 +649,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--B_initial_log10_sigma2",
+        "--B_initial_log10_sigma_comp2",
         nargs="*",
         type=float,
         default=None,
@@ -660,7 +660,7 @@ if __name__ == "__main__":
     )
 
     args.add_argument(
-        "--B_initial_weight",
+        "--B_initial_log10_weight_comp1",
         nargs="*",
         type=float,
         default=None,
