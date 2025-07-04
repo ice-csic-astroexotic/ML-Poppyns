@@ -115,7 +115,7 @@ Each directory contains a `README.md` file with instructions on how to produce a
   and detection of a population of neutron stars obtained by running the script
   `pypopsyn/simulator/simulate_population_magrot_det.py`.
 
-* The `example_posterior_samples_harmonic` subfolder contains unnormalized posterior samples from snle training to use
+* The `example_posterior_samples_harmonic` subfolder contains unnormalized posterior samples from snle training to be used
    with the Harmonic package for model comparison.
 
 * The `observations` subfolder contains catalogs with observed data.
@@ -133,6 +133,8 @@ The `paper_plots` folder contains the notebooks to generate the plots and figure
 * Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
 
 * Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
+
+* Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
 
 ### Tutorials
 
