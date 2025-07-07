@@ -151,8 +151,8 @@ def simulate_population(args) -> None:
 
                 if cfg["simulation_xray"]:
                     Lx_interpolator = ex.initialize_Lx_interpolator()
-                    crustal_failure_rate_interpolator = (
-                        ex.initialize_crustal_failure_rate_interpolator()
+                    crust_failure_rate_interpolator = (
+                        ex.initialize_crust_failure_rate_interpolator()
                     )
 
             # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
@@ -211,7 +211,7 @@ def simulate_population(args) -> None:
                     pop_xray = ex.xray_population(
                         pop_final,
                         L_x_interpolator=Lx_interpolator,
-                        crustal_failure_rate_interpolator=crustal_failure_rate_interpolator,
+                        crust_failure_rate_interpolator=crust_failure_rate_interpolator,
                     )
 
                     # Filter the population to include only pulsars detected by the X-ray surveys.

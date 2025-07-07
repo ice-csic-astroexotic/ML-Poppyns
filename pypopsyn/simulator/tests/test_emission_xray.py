@@ -222,6 +222,7 @@ def test_case_5():
         "S_x_rcs_abs": np.array([3.0e-12, 4.0e-16]),
         "S_x_bb_abs": np.array([2.0e-12, 3.0e-16]),
         "N_H": np.array([2.0e-21, 3.0e-21]),
+        "outburst_mask": np.array([True, False]),
         "expected_keys": [
             "age",
             "ra",
@@ -525,7 +526,7 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
     ).all()
 
 
-def test_initialize_crustal_failure_rate_interpolator(test_case_4, tmp_path):
+def test_initialize_crust_failure_rate_interpolator(test_case_4, tmp_path):
     """
     Test that initialize_Lx_interpolator loads and returns a valid interpolator.
     """
@@ -550,7 +551,7 @@ def test_initialize_crustal_failure_rate_interpolator(test_case_4, tmp_path):
     with mock.patch(
         "pypopsyn.simulator.multiband_emission.emission_xray.cfg", fake_cfg
     ):
-        interpolator = xem.initialize_crustal_failure_rate_interpolator()
+        interpolator = xem.initialize_crust_failure_rate_interpolator()
 
     # Assertions.
     assert isinstance(interpolator, RectBivariateSpline)
@@ -587,7 +588,7 @@ def test_outburst_filter_probabilistic(test_case_3, monkeypatch):
     assert np.all(outburst_mask_out == test_case_3["outburst_mask_expected"])
 
 
-def test_outburst_filter_from_crustal_failure_rate(test_case_4, monkeypatch):
+def test_outburst_filter_from_crust_failure_rate(test_case_4, monkeypatch):
     """
     Check that the outburst mask from interpolated crust failure rate is correctly returned.
     """
@@ -622,6 +623,29 @@ def test_xray_population(test_case_5, monkeypatch):
 
     monkeypatch.setattr(
         xem, "calculate_xray_emission", mock_calculate_xray_emission
+    )
+
+    cfg["use_crust_failure_rate_interpolator"] = False
+
+    out_dict = xem.xray_population(
+        test_case_5["dict_final_pop"],
+        test_case_5["dummy_L_x_interpolator"],
+        test_case_5["L_x_threshold"],
+    )
+    # Verify that the keys are correct.
+    assert set(out_dict.keys()) == set(test_case_5["expected_keys"])
+    # Verify that the output dictionary contains at most the same number of stars as the input one.
+    assert len(out_dict["age"]) <= len(test_case_5["dict_final_pop"]["age"])
+
+    cfg["use_crust_failure_rate_interpolator"] = True
+
+    def mock_outburst_filter_from_crust_failure_rate(*args, **kwargs):
+        return test_case_5["outburst_mask"]
+
+    monkeypatch.setattr(
+        xem,
+        "outburst_filter_from_crust_failure_rate",
+        mock_outburst_filter_from_crust_failure_rate,
     )
 
     out_dict = xem.xray_population(

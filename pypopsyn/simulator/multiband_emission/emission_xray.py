@@ -441,7 +441,7 @@ def initialize_Lx_interpolator() -> RectBivariateSpline:
     return L_x_interpolator
 
 
-def initialize_crustal_failure_rate_interpolator() -> RectBivariateSpline:
+def initialize_crust_failure_rate_interpolator() -> RectBivariateSpline:
     """
     Initialize the interpolator for the crust failure rates.
 
@@ -531,7 +531,7 @@ def outburst_filter_from_crust_failure_rate(
     Returns:
         (np.ndarray): Boolean mask to select the neutron stars that go in outburst.
     """
-
+    print(crust_failure_rate_interpolator)
     # Interpolate the rate of crust failures from the initial magnetic field value and the age.
     rate_crust_failure = crust_failure_rate_interpolator.ev(age, B_initial)
 
@@ -550,7 +550,7 @@ def outburst_filter_from_crust_failure_rate(
 def xray_population(
     dict_pop: dict,
     L_x_interpolator: RectBivariateSpline,
-    crustal_failure_rate_interpolator: RectBivariateSpline,
+    crust_failure_rate_interpolator: RectBivariateSpline,
     L_x_threshold: float = 1.0e30,
 ) -> dict:
     """
@@ -560,8 +560,8 @@ def xray_population(
         dict_pop (dict): Dictionary containing the properties of a neutron star population.
         L_x_interpolator (RectBivariateSpline): Interpolator used to calculate the thermal X-ray luminosity based
             on age and magnetic field.
-        crustal_failure_rate_interpolator (RectBivariateSpline): An interpolator function loaded from a pickled file
-            to evaluate the rate of crustal failures.
+        crust_failure_rate_interpolator (RectBivariateSpline): An interpolator function loaded from a pickled file
+            to evaluate the rate of crust failures.
         L_x_threshold (float): A lower limit for the X-ray luminosity.
 
     Returns:
@@ -599,14 +599,16 @@ def xray_population(
     }
 
     # Apply the filter to see which neutron stars go in outburst.
-    outburst_mask = outburst_filter_probabilistic(
-        dict_xray_pop["B_initial"], dict_xray_pop["age"]
-    )
-    """
-    outburst_mask = outburst_filter_from_crust_failure_rate(
-        dict_xray_pop["B_initial"], dict_xray_pop["age"], crustal_failure_rate_interpolator
-    )
-    """
+    if cfg["use_crust_failure_rate_interpolator"]:
+        outburst_mask = outburst_filter_from_crust_failure_rate(
+            dict_xray_pop["B_initial"],
+            dict_xray_pop["age"],
+            crust_failure_rate_interpolator,
+        )
+    else:
+        outburst_mask = outburst_filter_probabilistic(
+            dict_xray_pop["B_initial"], dict_xray_pop["age"]
+        )
 
     # Adding the computed neutron star X-ray emission properties to the dictionary.
     dict_xray_pop["L_x_therm"] = L_x_therm
