@@ -9,3 +9,4 @@ For the magneto-thermal simulations in `BSk24_dip-tor_light-envelope` we used th
 4. Superfluid and superconducting gap parametrizations are taken from Ho et al. (2015): SFB for crustal neutrons, TToa for core neutrons and CCDKp for core protons.
 5. The polar and toroidal magnetic field components with moment l=1 are set to have the same strength, but not same magnetic energy.
    With this configuration the polar dipole component contains 90% of the total magnetic energy, the remaining 10% is in the toroidal component.
+6. The model for computing the crust failure events is described in [Dehman et al. 2020](https://ui.adsabs.harvard.edu/abs/2020ApJ...902L..32D/abstract). 

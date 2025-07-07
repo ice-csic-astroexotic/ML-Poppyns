@@ -15,3 +15,4 @@ For the magneto-thermal simulations in `BSk24_multi_heavy-envelope` we used the 
    The remaining 90% of the energy is concentrated in the higher-order multipoles. 
    To reflect the latter, we make the simplifying assumption that all the energy in the multipolar components is concentrated in the polar quadrupolar component, 
    which is roughly achieved with the assumptions made above.
+6. The model for computing the crust failure events is described in [Dehman et al. 2020](https://ui.adsabs.harvard.edu/abs/2020ApJ...902L..32D/abstract). 
