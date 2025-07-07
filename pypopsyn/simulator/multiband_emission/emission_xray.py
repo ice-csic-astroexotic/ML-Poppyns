@@ -531,7 +531,6 @@ def outburst_filter_from_crust_failure_rate(
     Returns:
         (np.ndarray): Boolean mask to select the neutron stars that go in outburst.
     """
-    print(crust_failure_rate_interpolator)
     # Interpolate the rate of crust failures from the initial magnetic field value and the age.
     rate_crust_failure = crust_failure_rate_interpolator.ev(age, B_initial)
 
