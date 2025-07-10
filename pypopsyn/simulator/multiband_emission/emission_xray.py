@@ -541,7 +541,11 @@ def outburst_filter_from_crust_failure_rate(
     # still solidifying (see Fig. 8 in Aguilera et al. 2008) and we are assuming that the crust should be solid to
     # compute the stresses.
     n_outburst_events = rate_crust_failure * 50
-    outburst_mask = (n_outburst_events > 1.0) & (age > 100)
+    outburst_prob = np.where(n_outburst_events > 1, 1, n_outburst_events)
+
+    outburst_mask = (np.random.rand(len(outburst_prob)) < outburst_prob) & (
+        age > 100
+    )
 
     return outburst_mask
 

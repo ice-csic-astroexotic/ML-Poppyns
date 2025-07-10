@@ -179,7 +179,7 @@ def test_case_4():
             [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
         ),
         "mock_failure_rate": np.array([10.0, 1.0e-5, 10, 1.0e-2]),
-        "outburst_mask_expected": np.array([False, False, True, False]),
+        "outburst_mask_expected": np.array([False, False, True, True]),
     }
 
     return data
@@ -597,6 +597,12 @@ def test_outburst_filter_from_crust_failure_rate(test_case_4, monkeypatch):
         return test_case_4["mock_failure_rate"]
 
     monkeypatch.setattr(RectBivariateSpline, "ev", mock_interpolator)
+
+    # Fixed rand values: these simulate the draw to compare against probability.
+    def mock_rand(size):
+        return np.array([0.6, 0.3, 0.4, 0.02])
+
+    monkeypatch.setattr(np.random, "rand", mock_rand)
 
     outburst_mask_out = xem.outburst_filter_from_crust_failure_rate(
         test_case_4["B_initial"],
