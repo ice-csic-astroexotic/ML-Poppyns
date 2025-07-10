@@ -19,10 +19,17 @@ import pypopsyn.generator.maps.maps2d_generator as mg
 # inputs which will be later selected at runtime depending on the arguments.
 velocity_map_generators = {
     "array": mg.generate_avg_weight_matrix,
+    "array_kde": mg.generate_kde_weight_matrix,
     "image": mg.generate_avg_weight_map,
+    "image_kde": mg.generate_kde_weight_map,
 }
-# Set the corresponding extensions for the types of velocity maps.
-extensions = {"array": "npy", "image": "png"}
+# Set the corresponding extensions for the types of position maps.
+extensions = {
+    "array": "npy",
+    "array_kde": "npy",
+    "image": "png",
+    "image_kde": "png",
+}
 
 log = logging.getLogger(__name__)
 

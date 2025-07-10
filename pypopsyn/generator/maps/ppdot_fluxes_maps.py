@@ -16,14 +16,21 @@ import numpy as np
 
 import pypopsyn.generator.maps.maps2d_generator as mg
 
-# Initialize the various options we have to generate the different data
+# Initialize the multiple options we have to generate the different data
 # inputs which will be later selected at runtime depending on the arguments.
 ppdot_fluxes_map_generators = {
     "array": mg.generate_avg_weight_matrix,
+    "array_kde": mg.generate_kde_weight_matrix,
     "image": mg.generate_avg_weight_map,
+    "image_kde": mg.generate_kde_weight_map,
 }
-# Set the corresponding extensions for the types of velocity maps.
-extensions = {"array": "npy", "image": "png"}
+# Set the corresponding extensions for the types of position maps.
+extensions = {
+    "array": "npy",
+    "array_kde": "npy",
+    "image": "png",
+    "image_kde": "png",
+}
 
 log = logging.getLogger(__name__)
 

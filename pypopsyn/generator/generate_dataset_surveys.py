@@ -446,7 +446,7 @@ if __name__ == "__main__":
         "--data_type",
         nargs="?",
         type=str,
-        choices=["array", "image"],
+        choices=["array", "array_kde", "image", "image_kde"],
         default="array",
         help="Type of dataset to generate: array or image.",
     )
