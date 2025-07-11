@@ -112,7 +112,6 @@ of SBI method, the type of compression if needed, the type of density estimator,
 and other relevant training hyperparameters used. Note that several of these are equivalent to those outlined in 
 the tutorial [Learning pulsar parameters with NNs](learning_tutorial_nn.md), where we discuss point estimation.
 
-
 #### General info
 
 We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, 
@@ -180,14 +179,12 @@ neurons in the hidden layers is set to `16`.
 
 #### MCMC sampler
 
-For cases where NRE or NLE is used, an extra step is required to sample from the posterior. In this case, we use the 
-default MCMC-based sampling provided by the `sbi` package. For details on the different samplers in `sbi`, see
-[the sbi documentation](https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/).
+For cases where NRE or NLE is used, an extra step is required to obtain or sample from the posterior. In the following 
+case, we use the default MCMC-based sampling algorithms provided by the `sbi` package. For details on the different 
+samplers in `sbi`, see [the sbi documentation](https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/).
 
-To perform MCMC sampling, you need to specify: the number of parallel chains, the thinning factor, 
-and the MCMC sampler type.
-
-`sbi` supports the following MCMC samplers: `nuts`, `slice`, `hmc`, and `slice_np_vectorized`.
+When performing MCMC sampling, we need to specify the number of parallel chains, the thinning factor, and the MCMC 
+sampler type. `sbi` supports the following MCMC samplers: `nuts`, `slice`, `hmc`, and `slice_np_vectorized`.
 
 ```json
 { 
