@@ -13,70 +13,69 @@ For a discussion of how neural networks can be used to infer point estimates (wi
 
 ## SBI methods
 
-Using the `pypopsyn/learning/sbi_train.py` script, we support the following approaches for simulation-based inference:
+Using the `pypopsyn/learning/sbi_train.py` script, we support the following approaches for SBI:
 
- 1. Neural Posterior Estimation ([NPE](https://proceedings.neurips.cc/paper_files/paper/2016/file/6aca97005c68f1206823815f66102863-Paper.pdf)): A neural network is trained to approximate the posterior distribution directly, 
-    learning a mapping from model parameters **θ** to **P(θ | x)**.
+ 1. Neural Posterior Estimation ([NPE](https://proceedings.neurips.cc/paper_files/paper/2016/file/6aca97005c68f1206823815f66102863-Paper.pdf)): A neural network is trained to approximate the posterior distribution 
+    directly, learning a mapping from model parameters $\theta$ to $P(\theta | x)$.
 
  2. Neural Likelihood Estimation ([NLE](https://proceedings.mlr.press/v89/papamakarios19a/papamakarios19a.pdf)): A neural network emulates the simulator by approximating the likelihood 
-    **P(x | θ)**. Once trained, this model can be used with standard sampling algorithms (e.g., MCMC) to sample from 
-    the posterior.
+    $P(x | \theta)$. Once trained, this model can be used with standard sampling algorithms (e.g., MCMC) to compute or 
+    sample from the posterior.
 
  3. Neural Ratio Estimation ([NRE](https://proceedings.mlr.press/v119/hermans20a/hermans20a.pdf)): A classifier is trained to approximate the likelihood-to-evidence ratio
-    **r(θ, x) = P(x | θ) / P(x)**, which can be used to compute or sample from the posterior using methods like MCMC.
+    $r(\theta, x) = P(x | \theta) / P(x)$, which can be used to compute or sample from the posterior using methods 
+    like MCMC.
 
-## Amortized vs Sequential inference
+## Amortized vs. sequential inference
 
 SBI can be performed using either amortized or sequential strategies. While amortized inference enables fast posterior 
-estimates for any input after a single large training phase, sequential methods focus the simulation budget on regions 
-most relevant to a specific observation, making them more efficient for cases with a single dataset and expensive 
-simulations, as in our application. In the following, we will refer to amortized as **single-round** and sequential 
-as **multi-round** inference. All the methods above have their own sequential variants, which are named by adding an 'S'
-at the beginning. For example, SNPE stands for Sequential Neural Posterior Estimation. 
+estimates for any input after a single large training phase (because inference simply corresponds to a single forward
+pass through the network), sequential methods focus the simulation budget on regions most relevant to explaining a 
+specific observation. This advantage makes sequential methods more efficient for application cases where only a single 
+(or small) observed sample is present and the simulator is expensive, as is the case for our application. 
+
+In the following, we will refer to amortized as **single-round** and sequential as **multi-round** inference, with the 
+former being a limiting case of the multi-round approach. The three methods summarised above have their own sequential 
+variants, which are named by adding an 'S' at the beginning. For example, SNPE stands for Sequential Neural Posterior 
+Estimation. 
 
 For multi-round inference, the workflow is as follows:
 
 1. Sample the proposal prior distribution to obtain $\theta_i \sim P(\theta)$.
-2. Given the parameter samples from step 1, generate synthetic data $x \sim P(x|\theta_i)$ using the simulator.
-3. Train the neural network on the training dataset consisting of pairs $(\theta_i, x_i)$ obtained in the previous steps.
-4. Use the trained neural network to compute the approximated posterior distribution $P(\theta|x_0)$ at the observed data $x_0$.
-5. Compute the proposal prior:
-    - If it is **truncated**, restrict the prior distribution to the support of the approximated posterior computed in step 4.
-    - Otherwise, use this posterior distribution directly as the new proposal prior.
+2. Given the parameter samples from step 1, generate synthetic data $x_i \sim P(x|\theta_i)$ using the simulator.
+3. Train the neural network on the training dataset consisting of pairs $(\theta_i, x_i)$ obtained in the previous 
+   steps.
+4. Use the trained neural network to compute the approximated posterior distribution $P(\theta|x_0)$ at the observed 
+   data $x_0$.
+5. Compute a new proposal prior using the following options:
+    - If we opt for a **truncated approach**, restrict the prior distribution to the support of the approximated 
+      posterior computed in step 4.
+    - Otherwise, use the posterior distribution from step 4 directly as the new proposal prior.
 6. Update the prior distribution with the new proposal prior and return to step 1.
 
 In the case of single-round inference, only steps 1 to 4 are performed.
 
-
 !!! example
 
-    An example of the following training and inference scripts for a single-round SBI is presented in
-    `tutorials/tutorial_notebooks/08_learning_sbi_tutorial.ipynb`.
+    An example of NPE with single-round SBI using the training and inference scripts discussed in detail below
+    is presented in `tutorials/tutorial_notebooks/08_learning_sbi_tutorial.ipynb`.
 
-To perform our SBI using a dataset composed of heatmaps or 2D arrays of our synthetic pulsar populations (see 
-[Generating density maps](generator_tutorial.md) for details) we use the script `pypopsyn/learning/sbi_train.py` as 
-follows:
+## Training a SBI pipeline
+
+### Folder structure
+
+Before executing the SBI training, we need to create the required folder structure for storing training and testing 
+datasets for each round. Although this is not strictly necessary for single-round inference, we recommend doing it 
+for consistency. We obtain the relevant folder structure by running the following command:
 
 ```commandline
-python pypopsyn/learning/sbi_train.py --configuration tutorials/tutorial_notebooks/config_sbi.json
+python pypopsyn/learning/utils/data_folder_struct_sbi.py --base_path output/
 ```
 
-Here, the `config_sbi.json` file contains all the information required to optimize the neural network.
-
-#### Folder Structure
-First, we need to create the required folder structure for storing training and testing datasets 
-for each round. Although this is not strictly necessary for single-round inference, we recommend doing it for consistency. 
-You can do this by running the following command:
+This will generate the following structure under `output`:
 
 ```commandline
-python pypopsyn/learning/utils/data_folder_struct_sbi.py --base_path exp_folder_path
-```
-
-
-This will generate the following structure under `exp_folder_path`:
-
-```commandline
-exp_folder_path/
+output/
 └── data/
     ├── test_dataset/
     │   ├── generated_dataset/
@@ -88,14 +87,25 @@ exp_folder_path/
         └── simulations/
 ```
 
-We recommend placing all files under the same base path. Specifically:
+We recommend placing all files relevant for training in the same base path. Specifically,
 
 * Store the training statistics file in the `data/` directory.
-* Save the training and testing datasets for the first round in: `data/training_dataset/generated_dataset/round_0/` and 
-`data/test_dataset/generated_dataset/round_0/` respectively.
+* Save the training and testing datasets for the first round in `data/training_dataset/generated_dataset/round_0/` and 
+`data/test_dataset/generated_dataset/round_0/`, respectively.
 
+### Main training script
 
-## General configuration options
+To perform our SBI using a dataset composed of heatmaps or 2D arrays of our synthetic pulsar populations (see 
+the tutorial [Generating density maps](generator_tutorial.md) for details), we execute the script `pypopsyn/learning/sbi_train.py` as 
+follows:
+
+```commandline
+python pypopsyn/learning/sbi_train.py --configuration tutorials/tutorial_notebooks/config_train_sbi.json
+```
+
+Here, the `config_train_sbi.json` file contains all the information required to optimize the neural network.
+
+### General configuration options
 
 We now discuss the various options in the `config_sbi.json` training configuration file, which include the type of SBI 
 method, the type of compression if needed, the type of density estimator, the input shape of the dataset, and 
