@@ -59,7 +59,8 @@ def create_survey_maps(
     survey_type: str,
     sample_number: int,
     data_type: str,
-    resolution: int,
+    resolution_ppdot: int,
+    resolution_dyn: int,
     dictionary_position_map_radec: dict,
     dictionary_velocity_map_vra: dict,
     dictionary_velocity_map_vdec: dict,
@@ -78,9 +79,11 @@ def create_survey_maps(
         survey_type (str): Survey type, radio or X-ray.
         sample_number (int): Number to suffix this map in the dataset.
         data_type (str): Type of dataset to generate: array or image.
-        resolution (int): Resolution (number of bins per axis for the 2d
-            histograms) for the maps. In case of RA DEC maps the
-            DEC axis has half the number of bins with respect to the RA axis.
+        resolution_ppdot(int): Resolution (number of bins per axis for the 2d
+            histograms) for the P-Pdot maps.
+        resolution_dyn (int): Resolution (number of bins per axis for the 2d
+            histograms) for the dynamical maps. In case of RA DEC maps the DEC axis has half the number of bins
+            with respect to the RA axis.
         dictionary_position_map_radec (dict): Dictionary containing the path to the position maps in RA, DEC for
             all the simulated surveys.
         dictionary_velocity_map_vra (dict): Dictionary containing the path to the proper motion maps in RA for
@@ -116,8 +119,8 @@ def create_survey_maps(
         data_type,
         df_survey["RA"],
         df_survey["DEC"],
-        resolution,
-        int(resolution / 2),
+        resolution_dyn,
+        int(resolution_dyn / 2),
         dictionary_position_map_radec,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
@@ -133,8 +136,8 @@ def create_survey_maps(
         df_survey["DEC"],
         abs(df_survey["pm_RA"]),
         0.0,
-        resolution,
-        int(resolution / 2),
+        resolution_dyn,
+        int(resolution_dyn / 2),
         dictionary_velocity_map_vra,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
@@ -150,8 +153,8 @@ def create_survey_maps(
         df_survey["DEC"],
         abs(df_survey["pm_DEC"]),
         0.0,
-        resolution,
-        int(resolution / 2),
+        resolution_dyn,
+        int(resolution_dyn / 2),
         dictionary_velocity_map_vdec,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
@@ -165,8 +168,8 @@ def create_survey_maps(
         data_type,
         df_survey["P"],
         df_survey["P_dot"],
-        resolution,
-        resolution,
+        resolution_ppdot,
+        resolution_ppdot,
         dictionary_ppdot_map,
     )
 
@@ -189,8 +192,8 @@ def create_survey_maps(
             df_survey["P_dot"],
             np.log10(df_survey["S_radio_obs_mean_1400"]),
             -7,
-            resolution,
-            resolution,
+            resolution_ppdot,
+            resolution_ppdot,
             dictionary_ppdot_flux_map,
             x_limits=(1e-3, 1e2),
             y_limits=(1e-21, 1e-9),
@@ -207,8 +210,8 @@ def create_survey_maps(
             df_survey["P_dot"],
             np.log10(df_survey["S_x_rcs_abs"]),
             -15,
-            resolution,
-            resolution,
+            resolution_ppdot,
+            resolution_ppdot,
             dictionary_ppdot_flux_map,
             x_limits=(1e-3, 1e2),
             y_limits=(1e-21, 1e-9),
@@ -234,11 +237,15 @@ def generate_dataset(args: argparse.Namespace) -> None:
             - save_dir (str): Path to where the generated dataset will be saved.
             - data_type (str): Type of dataset to generate: array or image.
             - generate_xray (bool): Whether to generate X-ray survey maps or not.
-            - resolution_radio (int): Resolution (number of bins per axis for the 2d
-                histograms) for the maps related to the radio surveys. In case of RA DEC maps the
+            - resolution_ppdot_radio (int): Resolution (number of bins per axis for the 2d
+                histograms) for the P-Pdot maps related to the radio surveys.
+            - resolution_dyn_radio (int): Resolution (number of bins per axis for the 2d
+                histograms) for the dynamical maps related to the radio surveys. In case of RA DEC maps the
                 DEC axis has half the number of bins with respect to the RA axis.
-            - resolution_xray (int): Resolution (number of bins per axis for the 2d
-                histograms) for the maps related to the X-ray survey. In case of RA DEC maps the
+            - resolution_ppdot_xray (int): Resolution (number of bins per axis for the 2d
+                histograms) for the P-Pdot maps related to the X-ray survey.
+            - resolution_dyn_xray (int): Resolution (number of bins per axis for the 2d
+                histograms) for the dynamical maps related to the X-ray surveys. In case of RA DEC maps the
                 DEC axis has half the number of bins with respect to the RA axis.
     """
 
@@ -307,7 +314,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
             "radio",
             s,
             args.data_type,
-            args.resolution_radio,
+            args.resolution_ppdot_radio,
+            args.resolution_dyn_radio,
             survey_PMPS_position_map_radec_dictionary,
             survey_PMPS_velocity_map_vra_dictionary,
             survey_PMPS_velocity_map_vdec_dictionary,
@@ -323,7 +331,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
             "radio",
             s,
             args.data_type,
-            args.resolution_radio,
+            args.resolution_ppdot_radio,
+            args.resolution_dyn_radio,
             survey_SMPS_position_map_radec_dictionary,
             survey_SMPS_velocity_map_vra_dictionary,
             survey_SMPS_velocity_map_vdec_dictionary,
@@ -339,7 +348,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
             "radio",
             s,
             args.data_type,
-            args.resolution_radio,
+            args.resolution_ppdot_radio,
+            args.resolution_dyn_radio,
             survey_HTRU_position_map_radec_dictionary,
             survey_HTRU_velocity_map_vra_dictionary,
             survey_HTRU_velocity_map_vdec_dictionary,
@@ -356,7 +366,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
                 "X-ray",
                 s,
                 args.data_type,
-                args.resolution_xray,
+                args.resolution_ppdot_xray,
+                args.resolution_dyn_xray,
                 survey_xray_position_map_radec_dictionary,
                 survey_xray_velocity_map_vra_dictionary,
                 survey_xray_velocity_map_vdec_dictionary,
@@ -448,7 +459,7 @@ if __name__ == "__main__":
         type=str,
         choices=["array", "array_kde", "image", "image_kde"],
         default="array",
-        help="Type of dataset to generate: array or image.",
+        help="Type of dataset to generate: array, array_kde, or image, image_kde.",
     )
     parser.add_argument(
         "--generate_xray",
@@ -456,18 +467,32 @@ if __name__ == "__main__":
         help="Whether to generate the maps for the X-ray survey or not.",
     )
     parser.add_argument(
-        "--resolution_radio",
+        "--resolution_ppdot_radio",
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the maps that will be generated for the radio surveys (in number of bins).",
+        help="Resolution of the P-Pdot maps that will be generated for the radio surveys (in number of bins).",
     )
     parser.add_argument(
-        "--resolution_xray",
+        "--resolution_dyn_radio",
+        nargs="?",
+        type=int,
+        default=64,
+        help="Resolution of the dynamical maps that will be generated for the radio surveys (in number of bins).",
+    )
+    parser.add_argument(
+        "--resolution_ppdot_xray",
         nargs="?",
         type=int,
         default=64,
         help="Resolution of the P-Pdot maps that will be generated for the X-ray survey (in number of bins).",
+    )
+    parser.add_argument(
+        "--resolution_dyn_xray",
+        nargs="?",
+        type=int,
+        default=64,
+        help="Resolution of the dynamical maps that will be generated for the X-ray survey (in number of bins).",
     )
 
     args = parser.parse_args()

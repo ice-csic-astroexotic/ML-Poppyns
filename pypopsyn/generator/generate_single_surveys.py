@@ -2,10 +2,7 @@
     Generator for a single simulation.
 
     This module creates a dataset of compressed representations for the output of
-    a single simulated populations from the simulator `simulate_population_magrot_det.py`
-    where the following initial parameters were modified:  B_initial_log10_mean`,
-    `B_initial_log10_sigma`, `P_initial_log10_mean`, `P_initial_log10_sigma`, `a_late`,
-    `L_radio_log10_mean`, `epsilon_L`, h_c, sigma_k.
+    a single simulated populations from the simulator `simulate_population_magrot_det.py`.
 
     These compressed representations will encode both the dynamical properties,
     the magneto-rotational properties and the fluxes of detected synthetic pulsars.
@@ -39,7 +36,7 @@ import numpy as np
 import pandas as pd
 
 import pypopsyn.generator.maps.position_maps as pmaps
-import pypopsyn.generator.maps.ppdot_fluxes_map as ppdfmaps
+import pypopsyn.generator.maps.ppdot_fluxes_maps as ppdfmaps
 import pypopsyn.generator.maps.ppdot_maps as ppdmaps
 import pypopsyn.generator.maps.velocity_maps as vmaps
 from pypopsyn.simulator.config_simulator import cfg
@@ -52,9 +49,10 @@ def create_survey_maps(
     dataset_path: str,
     survey_name: str,
     survey_filename: str,
+    survey_type: str,
     data_type: str,
-    resolution_dyn: int,
     resolution_ppdot: int,
+    resolution_dyn: int,
     dictionary_position_map_radec: dict,
     dictionary_velocity_map_vra: dict,
     dictionary_velocity_map_vdec: dict,
@@ -70,12 +68,13 @@ def create_survey_maps(
         dataset_path (str): Path to where the generated dataset will be saved.
         survey_name (str): Survey acronym.
         survey_filename (str): Survey filename.
+        survey_type (str): Survey type, radio or X-ray.
         data_type (str): Type of dataset to generate: array or image.
+        resolution_ppdot (int): Resolution (number of bins per axis for the 2d
+            histograms) for the P-Pdot density maps to generate.
         resolution_dyn (int): Resolution (number of bins per axis for the 2d
             histograms) for the position and velocity maps to generate. In case of RA DEC maps the
             DEC axis has half the number of bins with respect to the RA axis.
-        resolution_ppdot (int): Resolution (number of bins per axis for the 2d
-            histograms) for the P-Pdot density maps to generate.
         dictionary_position_map_radec (dict): Dictionary containing the path to the position maps in RA, DEC for
             all the simulated surveys.
         dictionary_velocity_map_vra (dict): Dictionary containing the path to the proper motion maps in RA for
@@ -166,27 +165,54 @@ def create_survey_maps(
         dictionary_ppdot_map,
     )
 
-    # Since the TPA program on Meerkat is not complete, we will take a random subsample of the PMPS, SMPS, and HTRU
-    # surveys that match the numbers in the TPA program, ensuring there is no bias in this subsample.
-    if int(cfg[f"detected_meerkat_{survey_name}"]) < len(df_survey["P"]):
-        df_survey = df_survey.sample(
-            n=int(cfg[f"detected_meerkat_{survey_name}"])
+    # Create P-Pdot average flux maps.
+    if survey_type == "radio":
+        # Since the TPA program on Meerkat is not complete, we take a random subsample of the PMPS, SMPS, and HTRU surveys,
+        # respectively, to match the number of objects in the TPA sample. This ensures that there is no bias in this
+        # subsample.
+        if int(cfg[f"detected_meerkat_{survey_name}"]) < len(df_survey["P"]):
+            df_survey = df_survey.sample(
+                n=int(cfg[f"detected_meerkat_{survey_name}"])
+            )
+
+        ppdfmaps.generate_ppdot_fluxes_map(
+            dataset_path,
+            f"survey_{survey_name}_ppdot_map_fluxes",
+            sample_number,
+            data_type,
+            df_survey["P"],
+            df_survey["P_dot"],
+            np.log10(df_survey["S_radio_obs_mean_1400"]),
+            -7,
+            resolution_ppdot,
+            resolution_ppdot,
+            dictionary_ppdot_flux_map,
+            x_limits=(1e-3, 1e2),
+            y_limits=(1e-21, 1e-9),
         )
 
-    ppdfmaps.generate_ppdot_fluxes_map(
-        dataset_path,
-        f"survey_{survey_name}_ppdot_map_fluxes",
-        sample_number,
-        data_type,
-        df_survey["P"],
-        df_survey["P_dot"],
-        np.log10(df_survey["S_radio_obs_mean_1400"]),
-        resolution_ppdot,
-        resolution_ppdot,
-        dictionary_ppdot_flux_map,
-        x_limits=(1e-3, 1e2),
-        y_limits=(1e-21, 1e-9),
-    )
+    elif survey_type == "X-ray":
+
+        ppdfmaps.generate_ppdot_fluxes_map(
+            dataset_path,
+            f"survey_{survey_name}_ppdot_map_fluxes",
+            sample_number,
+            data_type,
+            df_survey["P"],
+            df_survey["P_dot"],
+            np.log10(df_survey["S_x_rcs_abs"]),
+            -15,
+            resolution_ppdot,
+            resolution_ppdot,
+            dictionary_ppdot_flux_map,
+            x_limits=(1e-3, 1e2),
+            y_limits=(1e-21, 1e-9),
+        )
+
+    else:
+        log.error(
+            f"The specified {survey_type} is not supported. Choose between 'radio' and 'X-ray'."
+        )
 
 
 def generate_dataset(args: argparse.Namespace) -> None:
@@ -202,11 +228,16 @@ def generate_dataset(args: argparse.Namespace) -> None:
             - data (str): Path to where the simulated populations are located.
             - save_dir (str): Path to where the generated dataset will be saved.
             - data_type (str): Type of dataset to generate: array or image.
-            - resolution_dyn (int): Resolution (number of bins per axis for the 2d
-                histograms) for the position and velocity maps to generate. In case of RA DEC maps the
-                DEC axis has half the number of bins with respect to the RA axis.
-            - resolution_ppdot (int): Resolution (number of bins per axis for the 2d
-                histograms) for the P-Pdot density maps to generate.
+            - resolution_ppdot_radio (int): Resolution (number of bins per axis for the 2d
+                histograms) for the P-Pdot density maps related to the radio surveys to generate.
+            - resolution_dyn_radio (int): Resolution (number of bins per axis for the 2d
+                histograms) for the position and velocity maps related to the radio surveys to generate.
+                In case of RA DEC maps the DEC axis has half the number of bins with respect to the RA axis.
+            - resolution_ppdot_xray (int): Resolution (number of bins per axis for the 2d
+                histograms) for the P-Pdot density maps related to the X-ray surveys to generate.
+            - resolution_dyn_xray (int): Resolution (number of bins per axis for the 2d
+                histograms) for the position and velocity maps related to the X-ray surveys to generate.
+                In case of RA DEC maps the DEC axis has half the number of bins with respect to the RA axis.
     """
 
     # Create the dataset directory path.
@@ -233,6 +264,12 @@ def generate_dataset(args: argparse.Namespace) -> None:
     survey_HTRU_ppdot_map_dictionary = {}
     survey_HTRU_ppdot_fluxes_map_dictionary = {}
 
+    survey_xray_position_map_radec_dictionary = {}
+    survey_xray_velocity_map_vra_dictionary = {}
+    survey_xray_velocity_map_vdec_dictionary = {}
+    survey_xray_ppdot_map_dictionary = {}
+    survey_xray_ppdot_fluxes_map_dictionary = {}
+
     param_dictionary = {}
 
     # Check if the parsed simulated population directory exists.
@@ -243,15 +280,16 @@ def generate_dataset(args: argparse.Namespace) -> None:
 
     log.info("Generating sample...")
 
-    # Create a set of maps for each survey.
+    # Create a set of maps for each radio survey.
     create_survey_maps(
         root_path,
         dataset_path,
         "PMPS",
         "survey_PMPS_results",
+        "radio",
         args.data_type,
-        args.resolution_dyn,
-        args.resolution_ppdot,
+        args.resolution_ppdot_radio,
+        args.resolution_dyn_radio,
         survey_PMPS_position_map_radec_dictionary,
         survey_PMPS_velocity_map_vra_dictionary,
         survey_PMPS_velocity_map_vdec_dictionary,
@@ -264,9 +302,10 @@ def generate_dataset(args: argparse.Namespace) -> None:
         dataset_path,
         "SMPS",
         "survey_SMPS_results",
+        "radio",
         args.data_type,
-        args.resolution_dyn,
-        args.resolution_ppdot,
+        args.resolution_ppdot_radio,
+        args.resolution_dyn_radio,
         survey_SMPS_position_map_radec_dictionary,
         survey_SMPS_velocity_map_vra_dictionary,
         survey_SMPS_velocity_map_vdec_dictionary,
@@ -279,15 +318,33 @@ def generate_dataset(args: argparse.Namespace) -> None:
         dataset_path,
         "HTRU",
         "survey_HTRU_low_mid_results",
+        "radio",
         args.data_type,
-        args.resolution_dyn,
-        args.resolution_ppdot,
+        args.resolution_ppdot_radio,
+        args.resolution_dyn_radio,
         survey_HTRU_position_map_radec_dictionary,
         survey_HTRU_velocity_map_vra_dictionary,
         survey_HTRU_velocity_map_vdec_dictionary,
         survey_HTRU_ppdot_map_dictionary,
         survey_HTRU_ppdot_fluxes_map_dictionary,
     )
+
+    if args.generate_xray:
+        create_survey_maps(
+            root_path,
+            dataset_path,
+            "xray",
+            "survey_xray_realistic_results",
+            "X-ray",
+            args.data_type,
+            args.resolution_ppdot_xray,
+            args.resolution_dyn_xray,
+            survey_xray_position_map_radec_dictionary,
+            survey_xray_velocity_map_vra_dictionary,
+            survey_xray_velocity_map_vdec_dictionary,
+            survey_xray_ppdot_map_dictionary,
+            survey_xray_ppdot_fluxes_map_dictionary,
+        )
 
     # Check if files containing labels exists as a precondition.
     label_path = pathlib.Path(f"{root_path}/override.json")
@@ -302,8 +359,6 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # dictionary.
         param_dictionary.update(
             {
-                "B_initial_log10_mean": config_json["B_initial_log10_mean"],
-                "B_initial_log10_sigma": config_json["B_initial_log10_sigma"],
                 "P_initial_log10_mean": config_json["P_initial_log10_mean"],
                 "P_initial_log10_sigma": config_json["P_initial_log10_sigma"],
                 "a_late": config_json["a_late"],
@@ -313,6 +368,58 @@ def generate_dataset(args: argparse.Namespace) -> None:
                 "sigma_k": config_json["sigma_k"],
             }
         )
+
+        if config_json["magnetic_field_model"] == "log-normal":
+            param_dictionary.update(
+                {
+                    "B_initial_log10_mean": config_json[
+                        "B_initial_log10_mean"
+                    ],
+                    "B_initial_log10_sigma": config_json[
+                        "B_initial_log10_sigma"
+                    ],
+                }
+            )
+        elif config_json["magnetic_field_model"] == "double_log-normal":
+            param_dictionary.update(
+                {
+                    "B_initial_log10_mean_comp1": config_json[
+                        "B_initial_log10_mean_comp1"
+                    ],
+                    "B_initial_log10_sigma_comp1": config_json[
+                        "B_initial_log10_sigma_comp1"
+                    ],
+                    "B_initial_log10_mean_comp2": config_json[
+                        "B_initial_log10_mean_comp2"
+                    ],
+                    "B_initial_log10_sigma_comp2": config_json[
+                        "B_initial_log10_sigma_comp2"
+                    ],
+                    "B_initial_log10_weight_comp1": config_json[
+                        "B_initial_log10_weight_comp1"
+                    ],
+                }
+            )
+        elif config_json["magnetic_field_model"] == "smooth_tophat":
+            param_dictionary.update(
+                {
+                    "B_initial_log10_rise_mean": config_json[
+                        "B_initial_log10_rise_mean"
+                    ],
+                    "B_initial_log10_rise_sigma": config_json[
+                        "B_initial_log10_rise_sigma"
+                    ],
+                    "B_initial_log10_decay_mean": config_json[
+                        "B_initial_log10_decay_mean"
+                    ],
+                    "B_initial_log10_decay_sigma": config_json[
+                        "B_initial_log10_decay_sigma"
+                    ],
+                    "B_initial_log10_slope": config_json[
+                        "B_initial_log10_slope"
+                    ],
+                }
+            )
     else:
         # Save the parameter values as a dictionary.
         with open(label_path) as file:
@@ -325,18 +432,23 @@ def generate_dataset(args: argparse.Namespace) -> None:
         **survey_PMPS_position_map_radec_dictionary,
         **survey_SMPS_position_map_radec_dictionary,
         **survey_HTRU_position_map_radec_dictionary,
+        **survey_xray_position_map_radec_dictionary,
         **survey_PMPS_velocity_map_vra_dictionary,
         **survey_SMPS_velocity_map_vra_dictionary,
         **survey_HTRU_velocity_map_vra_dictionary,
+        **survey_xray_velocity_map_vra_dictionary,
         **survey_PMPS_velocity_map_vdec_dictionary,
         **survey_SMPS_velocity_map_vdec_dictionary,
         **survey_HTRU_velocity_map_vdec_dictionary,
+        **survey_xray_velocity_map_vdec_dictionary,
         **survey_PMPS_ppdot_map_dictionary,
         **survey_SMPS_ppdot_map_dictionary,
         **survey_HTRU_ppdot_map_dictionary,
+        **survey_xray_ppdot_map_dictionary,
         **survey_PMPS_ppdot_fluxes_map_dictionary,
         **survey_SMPS_ppdot_fluxes_map_dictionary,
         **survey_HTRU_ppdot_fluxes_map_dictionary,
+        **survey_xray_ppdot_fluxes_map_dictionary,
         **param_dictionary,
     }
 
@@ -372,23 +484,42 @@ if __name__ == "__main__":
         "--data_type",
         nargs="?",
         type=str,
-        choices=["array", "image"],
+        choices=["array", "array_kde", "image", "image_kde"],
         default="array",
-        help="Type of dataset to generate: array or image.",
+        help="Type of dataset to generate: array, array_kde, or image, image_kde.",
     )
     parser.add_argument(
-        "--resolution_dyn",
+        "--generate_xray",
+        action="store_true",
+        help="Whether to generate the maps for the X-ray survey or not.",
+    )
+    parser.add_argument(
+        "--resolution_ppdot_radio",
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the position and velocity maps that will be generated (in number of bins).",
+        help="Resolution of the P-Pdot maps that will be generated for the radio surveys (in number of bins).",
     )
     parser.add_argument(
-        "--resolution_ppdot",
+        "--resolution_dyn_radio",
         nargs="?",
         type=int,
         default=64,
-        help="Resolution of the P-Pdot maps that will be generated (in number of bins).",
+        help="Resolution of the dynamical maps that will be generated for the radio surveys (in number of bins).",
+    )
+    parser.add_argument(
+        "--resolution_ppdot_xray",
+        nargs="?",
+        type=int,
+        default=64,
+        help="Resolution of the P-Pdot maps that will be generated for the X-ray survey (in number of bins).",
+    )
+    parser.add_argument(
+        "--resolution_dyn_xray",
+        nargs="?",
+        type=int,
+        default=64,
+        help="Resolution of the dynamical maps that will be generated for the X-ray survey (in number of bins).",
     )
 
     args = parser.parse_args()
