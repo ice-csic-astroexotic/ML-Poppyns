@@ -105,12 +105,13 @@ python pypopsyn/learning/sbi_train.py --configuration tutorials/tutorial_noteboo
 
 Here, the `config_train_sbi.json` file contains all the information required to optimize the neural network.
 
-### General configuration options
+### Configuration options
 
-We now discuss the various options in the `config_sbi.json` training configuration file, which include the type of SBI 
-method, the type of compression if needed, the type of density estimator, the input shape of the dataset, and 
-other relevant training hyperparameters.
-  
+We now discuss the various options in the `config_train_sbi.json` SBI configuration file, which include the type 
+of SBI method, the type of compression if needed, the type of density estimator, the input shape of the dataset, 
+and other relevant training hyperparameters used. Note that several of these are equivalent to those outlined in 
+the tutorial [Learning pulsar parameters with NNs](learning_tutorial_nn.md), where we discuss point estimation.
+
 
 #### General info
 
@@ -127,7 +128,7 @@ for the code and whether this timing information is displayed in the terminal or
     "manual_seed": 42,
     "profile_log": "profile.log",
     "profile_json": "profile.json",
-    "show_profiling": true,
+    "show_profiling": true
 }
 ```
 
@@ -135,12 +136,13 @@ for the code and whether this timing information is displayed in the terminal or
 
 We also specify a scheme to initialize the weights and biases of the network. 
 Here, we show an example using the Kaiming initializer denoted by `InitializerKaiming`.
+
 ```json
 {
     "weights_initializer": {
         "type": "InitializerKaiming",
         "args": {}
-    },
+    }
 }
 ```
 Here is a list with the different initialization procedures available:
@@ -172,13 +174,15 @@ neurons in the hidden layers is set to `16`.
             "num_components": 10,
             "hidden_features":16
         }
-    },
+    }
 }
 ```
+
 #### MCMC sampler
-For cases where Neural Ratio Estimation (NRE) or Neural Likelihood Estimation (NLE) is used, an extra step is required 
-to sample from the posterior. In this case, we use the default MCMC-based sampling provided by the `sbi` package. 
-For details on the different samplers in `sbi`, see [the sbi documentation](https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/).
+
+For cases where NRE or NLE is used, an extra step is required to sample from the posterior. In this case, we use the 
+default MCMC-based sampling provided by the `sbi` package. For details on the different samplers in `sbi`, see
+[the sbi documentation](https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/).
 
 To perform MCMC sampling, you need to specify: the number of parallel chains, the thinning factor, 
 and the MCMC sampler type.
@@ -186,11 +190,12 @@ and the MCMC sampler type.
 `sbi` supports the following MCMC samplers: `nuts`, `slice`, `hmc`, and `slice_np_vectorized`.
 
 ```json
-{ "mcmc_sampler": {
+{ 
+  "mcmc_sampler": {
     "type": "slice_np_vectorized",
     "num_chains": 20,
     "thin": 5
-  },
+  }
 }
 ```
 #### Model architecture
@@ -207,6 +212,7 @@ In this specific example the CNN receives an array of shape $32 \times 32$ with 
 a compressed representation of the input feature maps.
 
 The configuration file then looks as follows:
+
 ```json
 {
     "arch": {
@@ -215,7 +221,7 @@ The configuration file then looks as follows:
             "input_shape": [3, 32, 32],
             "len_output_layer": 32
         }
-    },
+    }
 }
 ```
 The models that have been predefined are the following ones:
@@ -223,31 +229,35 @@ The models that have been predefined are the following ones:
 * `ModelConv` based on a CNN.
 * `ModelLinear` based on a multi-layer perceptron (MPL) architecture.
 
-If you would like to design your own network architecture, you need to implement a new model class in `pypopsyn/learning/models` and import this model in the file `models.py`.
+If you would like to design your own network architecture, you need to implement a new model class in 
+`pypopsyn/learning/models` and import this model in the file `models.py`.
 
 
 #### Compression of input data
-For cases where Neural Ratio Estimation (NRE) or Neural Likelihood Estimation (NLE) is used, an extra step is required 
-to preprocess the data before passing it to the neural network. Unlike in Neural Posterior Estimation (NPE), you cannot train an embedding network 
-simultaneously with the density estimator. To address this, we provide two options for data compression: a Convolutional
-Neural Network (CNN) or Principal Component Analysis (PCA). The CNN is assumed to have been trained as part of a 
-previous NPE experiment. The PCA model can be trained separately using the
-`tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook. 
 
+For cases where NRE or NLE is used, an extra step is required to preprocess the data before passing it to the neural 
+network. Unlike in NPE, we cannot train an embedding network simultaneously with the density estimator. To address 
+this, we provide two options for data compression: a Convolutional Neural Network (CNN) or Principal Component Analysis 
+(PCA). The CNN is assumed to have been trained as part of a previous NPE experiment. The PCA model can be trained 
+separately using the `tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook. 
 
 ```json
-"compression_input": {
+{
+  "compression_input": {
     "use_compression": true,
     "compression_type": "cnn",
     "cnn_model_path": "exp/models/SBI_ConvolutionMDNshallow/20250127_144110/round_0/trained_model.pickle",
-    "pca_model_path":"/PCAs/1_pca_model_95_variance.pkl"
-  },
+    "pca_model_path": "/PCAs/1_pca_model_95_variance.pkl"
+  }
+}
 ```
+
 Note that when `use_compression` is set to False, it can only be used with NPE. In this case, an embedding network will 
 be trained simultaneously with the density estimator, and this embedding network will be responsible for compressing 
 the input data.
 
 #### Prior distribution
+
 We need to specify the labels and prior ranges for plotting purposes. Note that the order of the list must match
 the order of parameters in `dataset_full.csv`.
 ```json
@@ -255,7 +265,7 @@ the order of parameters in `dataset_full.csv`.
           "labels":["B_initial_log10_mean", "B_initial_log10_sigma","P_initial_log10_mean", "P_initial_log10_sigma", "a_late", "L_radio_log10_mean", "epsilon_L"],
           "low": [12,0.1,-1.5,0.1,-3,24.6,0.1],
           "high":[14,1,0.5,1,0,28.6,1] 
-          },
+}
 ```
 #### Training data loader
 
@@ -379,7 +389,7 @@ initialization of their weights.
         "size_ensemble":5, 
         "num_rounds":1,
         "save_dir": "data/example_learning_sbi"
-    },
+    }
 }
 ```
 
@@ -414,6 +424,7 @@ If `ensemble` is enabled, there will be as many `inference.pickle` and `trained_
 networks in the ensemble.
 
 ## Multi-round specific options
+
 This section describes configuration options specific to multi-round inference.
 
 ### Resume mode
@@ -434,7 +445,7 @@ completed round. This is necessary to:
 
 * Compute the proposal prior distribution for the next round.
 * Load the training dataset, since simulations from previous rounds are reused in subsequent rounds 
-  when `append_simulations` is enable.
+  when `append_simulations` is enabled.
 
 An example of the configuration file:
 
@@ -444,7 +455,7 @@ An example of the configuration file:
     "last_round": 3,
     "save_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828",
     "log_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828"
-  },
+}
 ```
 
 In this example, we will load the `inference.pickle` and `trained_model.pickle` from round 3 and compute the
@@ -452,7 +463,8 @@ approximated posterior distribution at the observed sample, which will serve as 
 From round 4 onward, the computation will proceed as usual in a multi-round inference approach.
 
 
-### Extra parameter for training
+### Extra parameters for training
+
 Several additional parameters control how training behaves across rounds:
 
 * `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round.
@@ -488,7 +500,7 @@ Example trainer block:
     "sir":true,
     "plot_proposal": false,
     "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2025/exp_constant_mag_cnn_embedding/learning"
-  },
+}
 ```
 
 
@@ -503,11 +515,12 @@ There are two methods to parallelize the simulation process: using either the [`
 - If Dask is not enabled, the `multiprocessing` package will be used instead. You can specify the number of parallel
   processes via: `"n_processes": <num_processes>`
 
-### Notes on Running with Dask on the PIC Server
+### Notes on running with Dask on the PIC server
 
 There are some important considerations for MAGNESIA users when running simulations with Dask on the PIC server:
 
-#### Folder Handling
+#### Folder handling
+
 - The script copies the `MAGNESIA_population_synthesis` folder to each node to avoid redundant reads and reduce server load.
 - You must update the following in `pypopsyn/simulator/config_simulator.py`:
     ```python
@@ -516,14 +529,16 @@ There are some important considerations for MAGNESIA users when running simulati
     ```
   Each node will have its own copy of this folder and will access files locally.
 
-#### Dask Usage on the PIC Server
+#### Dask usage on the PIC server
+
 To reduce file system load, the simulation output folder is created and saved locally on each node.  After the 
 simulation completes, the output folder is copied back to the original dataset path, specified in
 `config["training_data_loader"]["dataset_path"]`.  This logic is implemented in the function `run_simulation_dask` 
 located in `utilities/simulation_helper/run_simulation_set.py`.
 
-#### Running the Main Job on HTCondor
- To run the main job on HTCondor, add the following lines to your submit file:
+#### Running the main job using HTCondor
+
+To run the main job on HTCondor, add the following lines to your submit file:
 
     ```bash
     RUN_FOLDER = <experiment_folder>
@@ -550,7 +565,8 @@ We recommend saving the `htcondor_submit` and `htcondor_output` folders within t
 `data` folder is located (see section [Folder Structure](#folder-structure)).
 
 To read more general documentation about HTCondor, refer to the [HTCondor documentation](../basics/HTCondor.md).
-#### Monitoring Dask Workers (HTCondor + GPU)
+
+#### Monitoring Dask workers (HTCondor + GPU)
 
 If this is your first time using Dask on the PIC server, you must manually launch an empty Dask cluster via the Jupyter
 dashboard (located in the left sidebar on the PIC Jupyter interface) to ensure correct functionality. If you're running the main job on HTCondor with GPU, you can monitor the 
@@ -573,7 +589,6 @@ Dask workers through Jupyter following these steps:
       https://jupyter.pic.es/user/<your_username>/proxy/<port>
       ```
    
-
 
 ## Inferring on a dataset
 
@@ -614,10 +629,12 @@ round.
     The `sbi_infer.py` script requires the folder structure explained above to function correctly and to properly load the test dataset.
 
 Once the inference configuration is set up, we run the inference script by providing the configuration file 
-(`--configuration`) as follow:
+(`--configuration`) as follows:
+
 ```commandline
 python pypopsyn/learning/sbi_infer.py --configuration tutorials/tutorial_notebooks/config_sbi.json 
 ```
+
 ### Inference output
 
 If the inference is successful, the output of `pypopsyn/learning/sbi_infer.py` will be saved in the directory 
