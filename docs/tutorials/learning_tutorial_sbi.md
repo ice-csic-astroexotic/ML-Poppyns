@@ -195,18 +195,20 @@ sampler type. `sbi` supports the following MCMC samplers: `nuts`, `slice`, `hmc`
   }
 }
 ```
+
 #### Model architecture
 
 Next, we specify the architecture for the so-called embedding neural network. This embedding net is used to extract
 features from the input data and compress the input into a latent vector that is then passed to the density estimator.
+
 !!! note 
     This is only supported for SNPE, not for SNRE or SNLE.
 
 In the following example, we will be using 2D maps as input and, hence, opt for a convolutional neural network (CNN) 
-as the embedding net. This CNN is designed to adapt to any input size specified by the `input_shape` parameter and produce an output with a length specified by `len_output_layer`.
-In this specific example the CNN receives an array of shape $32 \times 32$ with `3` different input channels 
-(three of our density maps with a 32 resolution) as input and outputs a latent vector of size 32, which contains 
-a compressed representation of the input feature maps.
+as the embedding net. This CNN is designed to adapt to any input size specified by the `input_shape` parameter and 
+produce an output with a length specified by `len_output_layer`. In this specific example the CNN receives an array of 
+shape $32 \times 32$ with `3` different input channels (three of our density maps with a 32 resolution) as input and 
+outputs a latent vector of size 32, which contains a compressed representation of the input feature maps.
 
 The configuration file then looks as follows:
 
@@ -221,6 +223,7 @@ The configuration file then looks as follows:
     }
 }
 ```
+
 The models that have been predefined are the following ones:
 
 * `ModelConv` based on a CNN.
@@ -228,7 +231,6 @@ The models that have been predefined are the following ones:
 
 If you would like to design your own network architecture, you need to implement a new model class in 
 `pypopsyn/learning/models` and import this model in the file `models.py`.
-
 
 #### Compression of input data
 
@@ -257,13 +259,41 @@ the input data.
 
 We need to specify the labels and prior ranges for plotting purposes. Note that the order of the list must match
 the order of parameters in `dataset_full.csv`.
+
 ```json
-"prior_ranges": {
-          "labels":["B_initial_log10_mean", "B_initial_log10_sigma","P_initial_log10_mean", "P_initial_log10_sigma", "a_late", "L_radio_log10_mean", "epsilon_L"],
-          "low": [12,0.1,-1.5,0.1,-3,24.6,0.1],
-          "high":[14,1,0.5,1,0,28.6,1] 
+{
+  "prior_ranges": {
+    "labels": [
+      "B_initial_log10_mean",
+      "B_initial_log10_sigma",
+      "P_initial_log10_mean",
+      "P_initial_log10_sigma",
+      "a_late",
+      "L_radio_log10_mean",
+      "epsilon_L"
+    ],
+    "low": [
+      12,
+      0.1,
+      -1.5,
+      0.1,
+      -3,
+      24.6,
+      0.1
+    ],
+    "high": [
+      14,
+      1,
+      0.5,
+      1,
+      0,
+      28.6,
+      1
+    ]
+  }
 }
 ```
+
 #### Training data loader
 
 We also require a training data loader, which is responsible for loading the dataset in a representation readable 
@@ -275,6 +305,7 @@ Additionally, we set the ground truth labels that we want to predict. For multi-
 Therefore, for the example above and following the recommended folder structure, the `training_data_loader` will look like this:
 
 ```json
+{
  "training_data_loader": {
     "dataset_path": "exp_folder_path/data/training_dataset",
     "statistic_path": "exp_folder_path/data/statistics_train.json",
@@ -285,6 +316,7 @@ Therefore, for the example above and following the recommended folder structure,
     "standardize": true,
     "num_sim":1000
   }
+}
 ```
 
 You must also specify, for the multi-round case, how many simulations to run in each round using the `num_sim` field for training.
@@ -304,6 +336,7 @@ first round is fixed, and these datasets can be reused across multiple experimen
 
 The available input channels and labels are specified in the `dataset_full.csv` file, where they are identified with 
 an index starting from 0. Let us assume that our `dataset_full.csv` file looks as follows:
+
 ```commandline
 input:survey_PMPS_position_map_radec,input:survey_SMPS_position_map_radec,input:survey_HTRU_position_map_radec,input:survey_PMPS_velocity_map_vra,input:survey_SMPS_velocity_map_vra,input:survey_HTRU_velocity_map_vra,input:survey_PMPS_velocity_map_vdec,input:survey_SMPS_velocity_map_vdec,input:survey_HTRU_velocity_map_vdec,input:survey_PMPS_ppdot_map,input:survey_SMPS_ppdot_map,input:survey_HTRU_ppdot_map,input:survey_PMPS_ppdot_map_fluxes,input:survey_SMPS_ppdot_map_fluxes,input:survey_HTRU_ppdot_map_fluxes,B_initial_log10_mean,P_initial_log10_mean
 data/example_generator_magrot/survey_PMPS_position_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_0.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_0.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_0.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_0.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_0.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_0.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_0.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_0.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_0.npy,12.586280501149703,-1.3096012845994798
@@ -346,11 +379,13 @@ structure, the `test_data_loader` configurations will look like this:
 
 
 ```json
-"test_data_loader": {
-    "testing":false,
+{
+  "test_data_loader": {
+    "testing": false,
     "dataset_path": "exp_folder_path/data/test_dataset",
-    "dataset_path_first_round":"exp_folder_path/data/test_dataset/generated_dataset/round_0",
-    "num_sim":300},
+    "dataset_path_first_round": "exp_folder_path/data/test_dataset/generated_dataset/round_0",
+    "num_sim": 300}
+}
 ```
 
 #### Observed sample
@@ -358,11 +393,13 @@ The training script performs the inference for the observed sample specified by 
 As before, you must provide the `filter_inputs` and `filter_labels`, which must match those used during training. 
 
 ```json
- "observed_sample":{
+{
+  "observed_sample": {
       "dataset_path": "data/example_generator_observed",
       "filter_inputs": [9, 10, 11, 12, 13, 14],
       "filter_labels": [15, 16, 17, 18, 19, 20, 21]
-  },
+  }
+}
 ```
 #### Training parameters
 
@@ -447,11 +484,13 @@ completed round. This is necessary to:
 An example of the configuration file:
 
 ```json
- "resume_training": {
-    "resume": false,
-    "last_round": 3,
-    "save_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828",
-    "log_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828"
+{
+  "resume_training": {
+  "resume": false,
+  "last_round": 3,
+  "save_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828",
+  "log_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828"
+  }
 }
 ```
 
@@ -483,13 +522,14 @@ Note: For SNPE, you cannot enable both `truncated_prior = false` and `append_sim
 Example trainer block:
 
 ```json
-"trainer": {
+{
+  "trainer": {
     "type": "snle",
     "append_simulations":true,
     "truncated_prior": false,
     "retrain_from_scratch": true,
     "ensemble":true,
-    "size_ensemble":5, 
+    "size_ensemble":5,
     "validation_fraction": 0.1,
     "batch_size": 16,
     "lr": 1e-4,
@@ -497,6 +537,7 @@ Example trainer block:
     "sir":true,
     "plot_proposal": false,
     "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2025/exp_constant_mag_cnn_embedding/learning"
+  }
 }
 ```
 
@@ -521,8 +562,8 @@ There are some important considerations for MAGNESIA users when running simulati
 - The script copies the `MAGNESIA_population_synthesis` folder to each node to avoid redundant reads and reduce server load.
 - You must update the following in `pypopsyn/simulator/config_simulator.py`:
     ```python
-    cfg["server_run"] = False
-    path_to_software = "MAGNESIA_population_synthesis"
+        cfg["server_run"] = False
+        path_to_software = "MAGNESIA_population_synthesis"
     ```
   Each node will have its own copy of this folder and will access files locally.
 
