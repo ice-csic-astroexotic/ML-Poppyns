@@ -359,11 +359,11 @@ the range between 0 and 1. If standardized, the input channels and labels have v
 #### Testing data loader
 
 Inference on a test dataset can be performed either separately using the `sbi_infer.py` script after training has been
-completed, or simultaneously during training by setting `testing = true`. In the latter case, the testing dataset will
-be generated on the fly, producing as many simulations as specified in `num_sim`.
-As with training, testing requires specifying the path to the test dataset in the `dataset_path_first_round` field. 
-This directory must contain a `dataset_full.csv` file. In the case of multi-round inference, the testing dataset will be 
-saved at the path specified in `dataset_path`. Therefore, for the example above and following the recommended folder 
+completed, or simultaneously during training by setting `testing` to `true`. In the latter case, the testing dataset 
+will be generated on the fly, producing as many simulations as specified in `num_sim`. As with training, testing 
+requires specifying the path to the test dataset in the `dataset_path_first_round` field. This directory must contain 
+a `dataset_full.csv` file. In the case of multi-round inference, the testing dataset will be saved at the path 
+specified in `dataset_path`. Therefore, for the example above and following the recommended folder 
 structure, the `test_data_loader` configurations will look like this:
 
 
@@ -371,9 +371,10 @@ structure, the `test_data_loader` configurations will look like this:
 {
   "test_data_loader": {
     "testing": false,
-    "dataset_path": "exp_folder_path/data/test_dataset",
-    "dataset_path_first_round": "exp_folder_path/data/test_dataset/generated_dataset/round_0",
-    "num_sim": 300}
+    "dataset_path": "output/data/test_dataset",
+    "dataset_path_first_round": "output/data/test_dataset/generated_dataset/round_0",
+    "num_sim": 300
+  }
 }
 ```
 
