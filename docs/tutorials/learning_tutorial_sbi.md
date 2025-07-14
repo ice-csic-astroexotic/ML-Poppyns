@@ -283,33 +283,36 @@ the order of parameters in the `dataset_full.csv` file that contains information
 #### Training data loader
 
 We also require a training data loader, which is responsible for loading the dataset in a representation readable 
-by the network. The path to the directory containing the training dataset for the first round is specified in the `dataset_path_first_round`
-field (specifically, a file named `dataset_full.csv`) and the JSON file characterizing the statistics of the training
-dataset, and the input channels used in building our (multichannel) input. 
-Additionally, we set the ground truth labels that we want to predict. For multi-round inference, the training datasets generated in each round will be saved in the directory specified by `dataset_path`.
+by the network. The path to the directory containing the training dataset (in particular the file `dataset_full.csv`) 
+for the first round is specified in the `dataset_path_first_round` field. We also specify the location for the JSON
+file characterizing the statistics of the training dataset in `statistic_path`, and the input channels used in 
+building our (multichannel) input. Additionally, we set the ground truth labels that we want to predict and provide
+information on whether our data and labels are normalized or standardised. For multi-round inference, the training
+datasets generated in each round will be saved in the directory specified by `dataset_path`.
 
-Therefore, for the example above and following the recommended folder structure, the `training_data_loader` will look like this:
+For the example above and following the recommended folder structure, the `training_data_loader` will look like this:
 
 ```json
 {
  "training_data_loader": {
     "dataset_path": "exp_folder_path/data/training_dataset",
     "statistic_path": "exp_folder_path/data/statistics_train.json",
-    "dataset_path_first_round":"exp_folder_path/data/training_dataset/generated_dataset/round_0",
+    "dataset_path_first_round": "exp_folder_path/data/training_dataset/generated_dataset/round_0",
     "filter_inputs": [9, 10, 11, 12, 13, 14],
     "filter_labels": [15, 16, 17, 18, 19, 20, 21],
     "normalize": false,
     "standardize": true,
-    "num_sim":1000
+    "num_sim": 1000
   }
 }
 ```
 
-You must also specify, for the multi-round case, how many simulations to run in each round using the `num_sim` field for training.
-In the example above, 1000 simulations are used for training.
+For the multi-round case, we must also specify, how many simulations we want to run in each round using the `num_sim` 
+field for training. In the example above, 1000 simulations are generated per round and then used for training.
 
-Note that the datasets for the first round are expected to exist already for both multi-round and single-round inference. This is because the prior distribution in the 
-first round is fixed, and these datasets can be reused across multiple experiments to save computational resources.
+We also note that our workflow for both multi-round and single-round inference assumes that the dataset for the first 
+round already exist. This is because the prior distribution in the first round is fixed, and these datasets can be 
+reused across multiple experiments to save computational resources.
 
 
 !!! note 
