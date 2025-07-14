@@ -239,8 +239,6 @@ def generate_dataset(args: argparse.Namespace) -> None:
     survey_xray_ppdot_map_dictionary = {}
     survey_xray_ppdot_fluxes_map_dictionary = {}
 
-    param_dictionary = {}
-
     log.info("Generating sample...")
 
     # Create a set of maps for each survey.
@@ -312,22 +310,6 @@ def generate_dataset(args: argparse.Namespace) -> None:
         survey_xray_ppdot_fluxes_map_dictionary,
     )
 
-    # Save the initial simulation parameter values as a dictionary.
-    # Because we do not know these for the observed values, we set them to NaN.
-    param_dictionary.update(
-        {
-            "B_initial_log10_mean": [np.nan],
-            "B_initial_log10_sigma": [np.nan],
-            "P_initial_log10_mean": [np.nan],
-            "P_initial_log10_sigma": [np.nan],
-            "a_late": [np.nan],
-            "L_radio_log10_mean": [np.nan],
-            "epsilon_L": [np.nan],
-            "h_c": [np.nan],
-            "sigma_k": [np.nan],
-        }
-    )
-
     # Merge the filename and parameter dictionaries into a single dictionary.
     dataset_dictionary = {
         **survey_PMPS_position_map_radec_dictionary,
@@ -350,7 +332,6 @@ def generate_dataset(args: argparse.Namespace) -> None:
         **survey_SMPS_ppdot_fluxes_map_dictionary,
         **survey_HTRU_ppdot_fluxes_map_dictionary,
         **survey_xray_ppdot_fluxes_map_dictionary,
-        **param_dictionary,
     }
 
     # Write the whole dataset dictionary into a .csv file.
