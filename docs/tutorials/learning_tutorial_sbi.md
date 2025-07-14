@@ -233,7 +233,7 @@ The models that have been predefined are the following ones:
 If you would like to design your own network architecture, you need to implement a new model class in 
 `pypopsyn/learning/models` and import this model in the file `models.py`.
 
-#### Compression of input data
+#### Alternative input compression options
 
 For learning approaches where NRE or NLE are applied, we do not require an embedding net but instead another step is 
 required to preprocess the data before passing it to the neural network. Unlike in NPE, we cannot train an embedding 
@@ -253,14 +253,14 @@ been trained as part of a previous NPE experiment. The PCA model can be trained 
 }
 ```
 
-Note that when `use_compression` is set to False, it can only be used with NPE. In this case, an embedding network will 
-be trained simultaneously with the density estimator, and this embedding network will be responsible for compressing 
-the input data.
+Note that when `use_compression` is set to False, the training configuration can only be used with NPE. In this case, 
+an embedding network will be trained simultaneously with the density estimator as outlined in the previous section, and 
+this embedding network is responsible for compressing the input data.
 
-#### Prior distribution
+#### Prior distribution for training data
 
 We need to specify the labels and prior ranges for plotting purposes. Note that the order of the list must match
-the order of parameters in `dataset_full.csv`.
+the order of parameters in the `dataset_full.csv` file that contains information on the training data.
 
 ```json
 {
@@ -274,24 +274,8 @@ the order of parameters in `dataset_full.csv`.
       "L_radio_log10_mean",
       "epsilon_L"
     ],
-    "low": [
-      12,
-      0.1,
-      -1.5,
-      0.1,
-      -3,
-      24.6,
-      0.1
-    ],
-    "high": [
-      14,
-      1,
-      0.5,
-      1,
-      0,
-      28.6,
-      1
-    ]
+    "low": [12, 0.1, -1.5, 0.1, -3, 24.6, 0.1],
+    "high": [14, 1, 0.5, 1, 0, 28.6, 1]
   }
 }
 ```
