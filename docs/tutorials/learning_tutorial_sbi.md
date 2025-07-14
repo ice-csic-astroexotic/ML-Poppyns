@@ -285,19 +285,26 @@ the order of parameters in the `dataset_full.csv` file that contains information
 We also require a training data loader, which is responsible for loading the dataset in a representation readable 
 by the network. The path to the directory containing the training dataset (in particular the file `dataset_full.csv`) 
 for the first round is specified in the `dataset_path_first_round` field. We also specify the location for the JSON
-file characterizing the statistics of the training dataset in `statistic_path`, and the input channels used in 
-building our (multichannel) input. Additionally, we set the ground truth labels that we want to predict and provide
-information on whether our data and labels are normalized or standardised. For multi-round inference, the training
-datasets generated in each round will be saved in the directory specified by `dataset_path`.
+file characterizing the statistics of the training dataset in `statistic_path`, and the input channels `filter_inputs`
+used in building our (multichannel) input. Additionally, we set the ground truth labels `filter_labels` that we want 
+to predict and provide information on whether our data and labels are normalized or standardized. For multi-round
+inference, the training datasets generated in each round will be saved in the directory specified by `dataset_path`.
+
+For the multi-round case, we must also specify, how many simulations we want to run in each round using the `num_sim` 
+field for training. In the example below, 1000 simulations are generated per round and then used for training.
+
+We also note that our workflow for both multi-round and single-round inference assumes that the dataset for the first 
+round already exist. This is possible because the prior distribution in the first round is fixed, and these datasets
+can be reused across multiple experiments to save computational resources.
 
 For the example above and following the recommended folder structure, the `training_data_loader` will look like this:
 
 ```json
 {
  "training_data_loader": {
-    "dataset_path": "exp_folder_path/data/training_dataset",
-    "statistic_path": "exp_folder_path/data/statistics_train.json",
-    "dataset_path_first_round": "exp_folder_path/data/training_dataset/generated_dataset/round_0",
+    "dataset_path": "output/data/training_dataset",
+    "statistic_path": "output/data/statistics_train.json",
+    "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0",
     "filter_inputs": [9, 10, 11, 12, 13, 14],
     "filter_labels": [15, 16, 17, 18, 19, 20, 21],
     "normalize": false,
@@ -306,14 +313,6 @@ For the example above and following the recommended folder structure, the `train
   }
 }
 ```
-
-For the multi-round case, we must also specify, how many simulations we want to run in each round using the `num_sim` 
-field for training. In the example above, 1000 simulations are generated per round and then used for training.
-
-We also note that our workflow for both multi-round and single-round inference assumes that the dataset for the first 
-round already exist. This is because the prior distribution in the first round is fixed, and these datasets can be 
-reused across multiple experiments to save computational resources.
-
 
 !!! note 
 
@@ -334,10 +333,11 @@ data/example_generator_magrot/survey_PMPS_position_map_radec_2.npy,data/example_
 data/example_generator_magrot/survey_PMPS_position_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_3.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_3.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_3.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_3.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_3.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_3.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_3.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_3.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_3.npy,12.299076654328934,-1.4327208843495762
 data/example_generator_magrot/survey_PMPS_position_map_radec_4.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_4.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_4.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_4.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_4.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_4.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_4.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_4.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_4.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_4.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_4.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_4.npy,13.286135700678276,-1.1544136490794008
 ```
+
 To select certain input channels, we specify a list containing the indices corresponding to 
 the input channels we would like to consider. In the data loader example above, we opt for the input channels 
-`survey_PMPS_ppdot_map`, `survey_SMPS_ppdot_map`, `survey_HTRU_ppdot_map` (indices 9, 10, 11) and the labels 
-`B_initial_log10_mean` and `P_initial_log10_mean` (indices 15, 16).
+`survey_PMPS_ppdot_map`, `survey_SMPS_ppdot_map`, `survey_HTRU_ppdot_map` (indices 9, 10, 11) and want to predict
+the labels `B_initial_log10_mean` and `P_initial_log10_mean` (indices 15, 16).
 
 !!! warning
     
@@ -345,10 +345,10 @@ the input channels we would like to consider. In the data loader example above, 
     match the channel input dimension and number of output dimension of the neural network.
     Otherwise an error is produced.
 
-Finally, our training data loader enables us to activate on-the-fly normalization or standardization (both are mutually 
-exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information contained 
-in the `statistics_train.json` file. For normalization, the input channels and labels will have values in the range between 0 and 1.
-If standardized, the input channels and labels have values centred around 0 and range approximately between -1 and 1.
+Finally, our training data loader enables us to activate on-the-fly normalization or standardization (both are 
+mutually exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information 
+contained in the `statistics_train.json` file. For normalization, the input channels and labels will have values in 
+the range between 0 and 1. If standardized, the input channels and labels have values centred around 0 and range approximately between -1 and 1.
 
 !!! note
 
