@@ -379,7 +379,8 @@ structure, the `test_data_loader` configurations will look like this:
 ```
 
 #### Observed sample
-The training script performs the inference for the observed sample specified by the `observed_sample` field. 
+
+The inference script performs the inference for an observed sample specified in the `observed_sample` field. 
 As before, you must provide the `filter_inputs` and `filter_labels`, which must match those used during training. 
 
 ```json
@@ -391,6 +392,7 @@ As before, you must provide the `filter_inputs` and `filter_labels`, which must 
   }
 }
 ```
+
 #### Training parameters
 
 Finally, we specify some general options for our machine learning experiment. First, we choose the SBI method to use, 
