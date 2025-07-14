@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.ndimage
 
-import pypopsyn.generator.maps.axes_scaling as axs
+import pypopsyn.generator.maps.maps_utils as mu
 
 
 def generate_density_map(
@@ -50,33 +50,18 @@ def generate_density_map(
         colormap (str): Colormap to use for the image.
     """
 
-    DPI = 512
-    fig = plt.figure(dpi=DPI, frameon=False)
-    fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
-    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
-    ax.set_axis_off()
-    fig.add_axes(ax)
+    x, y = mu.remove_nan_entries(x, y)
 
-    # Apply log scaling if requested.
-    if x_log_scale:
-        x_edges = np.linspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        x = np.log10(x)
-        ax.set_xlim(np.log10(x_range[0]), np.log10(x_range[1]))
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        ax.set_xlim(x_range[0], x_range[1])
-
-    if y_log_scale:
-        y_edges = np.linspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-        y = np.log10(y)
-        ax.set_ylim(np.log10(y_range[0]), np.log10(y_range[1]))
-    else:
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
-        ax.set_ylim(y_range[0], y_range[1])
+    x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
+        x,
+        y,
+        x_range=x_range,
+        y_range=y_range,
+        n_x_bins=n_x_bins,
+        n_y_bins=n_y_bins,
+        x_log_scale=x_log_scale,
+        y_log_scale=y_log_scale,
+    )
 
     # Generating a 2D histogram that counts the number of objects contained
     # in each respective pixel; following the discrete count, we apply a
@@ -86,10 +71,29 @@ def generate_density_map(
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     density = scipy.ndimage.gaussian_filter(density, sigma=1)
 
+    DPI = 512
+    fig = plt.figure(dpi=DPI, frameon=False)
+    fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
+    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
+
     # Generating a pseudocolor plot of the smeared out density distribution;
     # we transpose the array as pcolormesh is indexed starting from the lower
     # left , i.e., the column (row) index corresponds to the x (y) coordinate.
     ax.pcolormesh(x_edges, y_edges, density.T, cmap=colormap)
+
+    # Apply log limits if log scale is enabled.
+    if x_log_scale:
+        ax.set_xlim(np.log10(x_range[0]), np.log10(x_range[1]))
+    else:
+        ax.set_xlim(x_range[0], x_range[1])
+
+    if y_log_scale:
+        ax.set_ylim(np.log10(y_range[0]), np.log10(y_range[1]))
+    else:
+        ax.set_ylim(y_range[0], y_range[1])
+
+    ax.set_axis_off()
+    fig.add_axes(ax)
 
     fig.savefig(filename, dpi=DPI)
     plt.close(fig)
@@ -131,33 +135,18 @@ def generate_avg_weight_map(
         colormap (str): Colormap to use for the image.
     """
 
-    DPI = 512
-    fig = plt.figure(dpi=DPI, frameon=False)
-    fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
-    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
-    ax.set_axis_off()
-    fig.add_axes(ax)
+    x, y, w = mu.remove_nan_entries(x, y, w)
 
-    # Apply log scaling if requested.
-    if x_log_scale:
-        x_edges = np.linspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        x = np.log10(x)
-        ax.set_xlim(np.log10(x_range[0]), np.log10(x_range[1]))
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        ax.set_xlim(x_range[0], x_range[1])
-
-    if y_log_scale:
-        y_edges = np.linspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-        y = np.log10(y)
-        ax.set_ylim(np.log10(y_range[0]), np.log10(y_range[1]))
-    else:
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
-        ax.set_ylim(y_range[0], y_range[1])
+    x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
+        x,
+        y,
+        x_range=x_range,
+        y_range=y_range,
+        n_x_bins=n_x_bins,
+        n_y_bins=n_y_bins,
+        x_log_scale=x_log_scale,
+        y_log_scale=y_log_scale,
+    )
 
     # If the quantity desired as the weight can become negative, e.g.,
     # one of the velocity components, take the absolute value and use that
@@ -181,10 +170,29 @@ def generate_avg_weight_map(
     # To avoid potential sharp edges, we apply a Gaussian filter.
     avg_weight = scipy.ndimage.gaussian_filter(avg_weight, sigma=1)
 
+    DPI = 512
+    fig = plt.figure(dpi=DPI, frameon=False)
+    fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
+    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
+
     # Generating a pseudocolor plot of the smeared out average distribution;
     # we transpose the array as pcolormesh is indexed starting from the lower
     # left , i.e., the column (row) index corresponds to the x (y) coordinate.
     ax.pcolormesh(x_edges, y_edges, avg_weight.T, cmap=colormap)
+
+    # Apply log limits if log scale is enabled.
+    if x_log_scale:
+        ax.set_xlim(np.log10(x_range[0]), np.log10(x_range[1]))
+    else:
+        ax.set_xlim(x_range[0], x_range[1])
+
+    if y_log_scale:
+        ax.set_ylim(np.log10(y_range[0]), np.log10(y_range[1]))
+    else:
+        ax.set_ylim(y_range[0], y_range[1])
+
+    ax.set_axis_off()
+    fig.add_axes(ax)
 
     fig.savefig(filename, dpi=DPI)
 
@@ -221,32 +229,19 @@ def generate_kde_density_map(
         n_y_bins (int): number of vertical bins for the density map.
         colormap (str): colormap to use for the image.
     """
-    DPI = 512
-    fig = plt.figure(dpi=DPI, frameon=False)
-    fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
-    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
-    ax.set_axis_off()
-    fig.add_axes(ax)
 
-    if x_log_scale:
-        x_edges = np.linspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        x = np.log10(x)
-        ax.set_xlim(np.log10(x_range[0]), np.log10(x_range[1]))
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        ax.set_xlim(x_range[0], x_range[1])
+    x, y = mu.remove_nan_entries(x, y)
 
-    if y_log_scale:
-        y_edges = np.linspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-        y = np.log10(y)
-        ax.set_ylim(np.log10(y_range[0]), np.log10(y_range[1]))
-    else:
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
-        ax.set_ylim(y_range[0], y_range[1])
+    x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
+        x,
+        y,
+        x_range=x_range,
+        y_range=y_range,
+        n_x_bins=n_x_bins,
+        n_y_bins=n_y_bins,
+        x_log_scale=x_log_scale,
+        y_log_scale=y_log_scale,
+    )
 
     # Create a meshgrid where to compute the KDE.
     x_centers = 0.5 * (x_edges[:-1] + x_edges[1:])
@@ -262,8 +257,27 @@ def generate_kde_density_map(
     # that corresponds to the x-y coordinate grid.
     density = kde(positions).reshape(len(y_centers), len(x_centers))
 
+    DPI = 512
+    fig = plt.figure(dpi=DPI, frameon=False)
+    fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
+    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
+
     # Generating a pseudocolor plot of the density distribution.
     ax.pcolormesh(x_edges, y_edges, density, cmap=colormap)
+
+    # Apply log limits if log scale is enabled.
+    if x_log_scale:
+        ax.set_xlim(np.log10(x_range[0]), np.log10(x_range[1]))
+    else:
+        ax.set_xlim(x_range[0], x_range[1])
+
+    if y_log_scale:
+        ax.set_ylim(np.log10(y_range[0]), np.log10(y_range[1]))
+    else:
+        ax.set_ylim(y_range[0], y_range[1])
+
+    ax.set_axis_off()
+    fig.add_axes(ax)
 
     fig.savefig(filename, dpi=DPI)
 
@@ -304,35 +318,21 @@ def generate_kde_weight_map(
         n_y_bins (int): number of vertical bins for the density map.
         colormap (str): colormap to use for the image.
     """
-    DPI = 512
-    fig = plt.figure(dpi=DPI, frameon=False)
-    fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
-    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
-    ax.set_axis_off()
-    fig.add_axes(ax)
 
-    # Apply log scaling if requested
-    if x_log_scale:
-        x_edges = np.linspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        x = np.log10(x)
-        ax.set_xlim(np.log10(x_range[0]), np.log10(x_range[1]))
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
-        ax.set_xlim(x_range[0], x_range[1])
+    x, y, w = mu.remove_nan_entries(x, y, w)
 
-    if y_log_scale:
-        y_edges = np.linspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-        y = np.log10(y)
-        ax.set_ylim(np.log10(y_range[0]), np.log10(y_range[1]))
-    else:
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
-        ax.set_ylim(y_range[0], y_range[1])
+    x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
+        x,
+        y,
+        x_range=x_range,
+        y_range=y_range,
+        n_x_bins=n_x_bins,
+        n_y_bins=n_y_bins,
+        x_log_scale=x_log_scale,
+        y_log_scale=y_log_scale,
+    )
 
-    # Rescale weights to be strictly positive
+    # Rescale weights to be strictly positive.
     positive_w = w - w_min
 
     # Create a meshgrid where to compute the KDE.
@@ -349,8 +349,29 @@ def generate_kde_weight_map(
     # that corresponds to the x-y coordinate grid.
     weighted_density = kde(positions).reshape(n_y_bins, n_x_bins)
 
+    DPI = 512
+    fig = plt.figure(dpi=DPI, frameon=False)
+    fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
+    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
+    ax.set_axis_off()
+    fig.add_axes(ax)
+
     # Generating a pseudocolor plot of the weighted density distribution.
     ax.pcolormesh(x_edges, y_edges, weighted_density, cmap=colormap)
+
+    # Apply log limits if log scale is enabled.
+    if x_log_scale:
+        ax.set_xlim(np.log10(x_range[0]), np.log10(x_range[1]))
+    else:
+        ax.set_xlim(x_range[0], x_range[1])
+
+    if y_log_scale:
+        ax.set_ylim(np.log10(y_range[0]), np.log10(y_range[1]))
+    else:
+        ax.set_ylim(y_range[0], y_range[1])
+
+    ax.set_axis_off()
+    fig.add_axes(ax)
 
     fig.savefig(filename, dpi=DPI)
 
@@ -386,22 +407,18 @@ def generate_density_matrix(
         n_y_bins (int): Number of vertical bins for the density matrix.
     """
 
-    # Apply log scaling if requested.
-    if x_log_scale:
-        x_edges = np.linspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        x = np.log10(x)
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
+    x, y = mu.remove_nan_entries(x, y)
 
-    if y_log_scale:
-        y_edges = np.linspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-        y = np.log10(y)
-    else:
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
+    x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
+        x,
+        y,
+        x_range=x_range,
+        y_range=y_range,
+        n_x_bins=n_x_bins,
+        n_y_bins=n_y_bins,
+        x_log_scale=x_log_scale,
+        y_log_scale=y_log_scale,
+    )
 
     # Generating a 2D histogram that counts the number of objects contained
     # in each respective bin; x (y) values are histogrammed along first
@@ -446,22 +463,18 @@ def generate_avg_weight_matrix(
         n_y_bins (int): Number of vertical bins for the density matrix.
     """
 
-    # Apply log scaling if requested.
-    if x_log_scale:
-        x_edges = np.linspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        x = np.log10(x)
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
+    x, y, w = mu.remove_nan_entries(x, y, w)
 
-    if y_log_scale:
-        y_edges = np.linspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-        y = np.log10(y)
-    else:
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
+    x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
+        x,
+        y,
+        x_range=x_range,
+        y_range=y_range,
+        n_x_bins=n_x_bins,
+        n_y_bins=n_y_bins,
+        x_log_scale=x_log_scale,
+        y_log_scale=y_log_scale,
+    )
 
     # If the quantity desired as the weight can become negative, e.g.,
     # one of the velocity components, take the absolute value and use that
@@ -517,22 +530,18 @@ def generate_kde_density_matrix(
         n_y_bins (int): Number of vertical bins for the density matrix.
     """
 
-    # Apply log scaling if requested.
-    if x_log_scale:
-        x_edges = np.linspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        x = np.log10(x)
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
+    x, y = mu.remove_nan_entries(x, y)
 
-    if y_log_scale:
-        y_edges = np.linspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-        y = np.log10(y)
-    else:
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
+    x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
+        x,
+        y,
+        x_range=x_range,
+        y_range=y_range,
+        n_x_bins=n_x_bins,
+        n_y_bins=n_y_bins,
+        x_log_scale=x_log_scale,
+        y_log_scale=y_log_scale,
+    )
 
     # Create a meshgrid where to compute the KDE.
     x_centers = 0.5 * (x_edges[:-1] + x_edges[1:])
@@ -584,22 +593,18 @@ def generate_kde_weight_matrix(
         n_y_bins (int): Number of vertical bins for the density matrix.
     """
 
-    # Apply log scaling if requested.
-    if x_log_scale:
-        x_edges = np.linspace(
-            np.log10(x_range[0]), np.log10(x_range[1]), n_x_bins + 1
-        )
-        x = np.log10(x)
-    else:
-        x_edges = np.linspace(x_range[0], x_range[1], n_x_bins + 1)
+    x, y, w = mu.remove_nan_entries(x, y, w)
 
-    if y_log_scale:
-        y_edges = np.linspace(
-            np.log10(y_range[0]), np.log10(y_range[1]), n_y_bins + 1
-        )
-        y = np.log10(y)
-    else:
-        y_edges = np.linspace(y_range[0], y_range[1], n_y_bins + 1)
+    x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
+        x,
+        y,
+        x_range=x_range,
+        y_range=y_range,
+        n_x_bins=n_x_bins,
+        n_y_bins=n_y_bins,
+        x_log_scale=x_log_scale,
+        y_log_scale=y_log_scale,
+    )
 
     # Rescale weights to be strictly positive
     positive_w = w - w_min

@@ -354,14 +354,14 @@ def generate_dataset(args: argparse.Namespace) -> None:
     }
 
     # Write the whole dataset dictionary into a .csv file.
-    dataset_filename = f"{dataset_path}/dataset_atnf.csv"
+    dataset_filename = f"{dataset_path}/dataset_observed.csv"
 
     df = pd.DataFrame(
         {key: pd.Series(value) for key, value in dataset_dictionary.items()}
     )
     df.to_csv(dataset_filename, encoding="utf-8", index=False)
 
-    log.info("File dataset_atnf.csv generated")
+    log.info("File dataset_observed.csv generated")
 
 
 if __name__ == "__main__":
