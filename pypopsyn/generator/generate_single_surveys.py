@@ -129,6 +129,7 @@ def create_survey_maps(
         df_survey["RA"],
         df_survey["DEC"],
         abs(df_survey["pm_RA"]),
+        0.0,
         resolution_dyn,
         int(resolution_dyn / 2),
         dictionary_velocity_map_vra,
@@ -145,6 +146,7 @@ def create_survey_maps(
         df_survey["RA"],
         df_survey["DEC"],
         abs(df_survey["pm_DEC"]),
+        0.0,
         resolution_dyn,
         int(resolution_dyn / 2),
         dictionary_velocity_map_vdec,
@@ -357,18 +359,6 @@ def generate_dataset(args: argparse.Namespace) -> None:
         )
         # If the override.json is not found we save the parameter values from the configuration.json file as a
         # dictionary.
-        param_dictionary.update(
-            {
-                "P_initial_log10_mean": config_json["P_initial_log10_mean"],
-                "P_initial_log10_sigma": config_json["P_initial_log10_sigma"],
-                "a_late": config_json["a_late"],
-                "L_radio_log10_mean": config_json["L_radio_log10_mean"],
-                "epsilon_L": config_json["epsilon_L"],
-                "h_c": config_json["h_c"],
-                "sigma_k": config_json["sigma_k"],
-            }
-        )
-
         if config_json["magnetic_field_model"] == "log-normal":
             param_dictionary.update(
                 {
@@ -420,6 +410,18 @@ def generate_dataset(args: argparse.Namespace) -> None:
                     ],
                 }
             )
+
+        param_dictionary.update(
+            {
+                "P_initial_log10_mean": config_json["P_initial_log10_mean"],
+                "P_initial_log10_sigma": config_json["P_initial_log10_sigma"],
+                "a_late": config_json["a_late"],
+                "L_radio_log10_mean": config_json["L_radio_log10_mean"],
+                "epsilon_L": config_json["epsilon_L"],
+                "h_c": config_json["h_c"],
+                "sigma_k": config_json["sigma_k"],
+            }
+        )
     else:
         # Save the parameter values as a dictionary.
         with open(label_path) as file:
