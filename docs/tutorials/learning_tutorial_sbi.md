@@ -196,17 +196,18 @@ sampler type. `sbi` supports the following MCMC samplers: `nuts`, `slice`, `hmc`
 }
 ```
 
-#### Model architecture
+#### Embedding network
 
 Next, we specify the architecture for the so-called embedding neural network. This embedding net is used to extract
 features from the input data and compress the input into a latent vector that is then passed to the density estimator.
+This neural network is optimised at the same time as the parameters of the neural density estimator.
 
 !!! note 
-    This is only supported for SNPE, not for SNRE or SNLE.
+    This functionality is only supported for SNPE, not for SNRE or SNLE.
 
 In the following example, we will be using 2D maps as input and, hence, opt for a convolutional neural network (CNN) 
 as the embedding net. This CNN is designed to adapt to any input size specified by the `input_shape` parameter and 
-produce an output with a length specified by `len_output_layer`. In this specific example the CNN receives an array of 
+produce an output with a length specified by `len_output_layer`. In this specific example, the CNN receives an array of 
 shape $32 \times 32$ with `3` different input channels (three of our density maps with a 32 resolution) as input and 
 outputs a latent vector of size 32, which contains a compressed representation of the input feature maps.
 
@@ -234,11 +235,12 @@ If you would like to design your own network architecture, you need to implement
 
 #### Compression of input data
 
-For cases where NRE or NLE is used, an extra step is required to preprocess the data before passing it to the neural 
-network. Unlike in NPE, we cannot train an embedding network simultaneously with the density estimator. To address 
-this, we provide two options for data compression: a Convolutional Neural Network (CNN) or Principal Component Analysis 
-(PCA). The CNN is assumed to have been trained as part of a previous NPE experiment. The PCA model can be trained 
-separately using the `tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook. 
+For learning approaches where NRE or NLE are applied, we do not require an embedding net but instead another step is 
+required to preprocess the data before passing it to the neural network. Unlike in NPE, we cannot train an embedding 
+network simultaneously with the density estimator. To address this, we provide two options for separate data 
+compression: a Convolutional Neural Network (CNN) or Principal Component Analysis (PCA). The CNN is assumed to have 
+been trained as part of a previous NPE experiment. The PCA model can be trained separately using the 
+`tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook. 
 
 ```json
 {
