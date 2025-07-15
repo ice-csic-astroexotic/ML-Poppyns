@@ -573,7 +573,9 @@ located in `utilities/simulation_helper/run_simulation_set.py`.
 
 #### Running the main job using HTCondor
 
-To run the main job on HTCondor, add the following lines to your submit file:
+While we refer to the [HTCondor documentation](../basics/HTCondor.md) for general information about HTCondor, we highlight a special
+aspect of multi-round inference run using HTCondor here. To execute the main job on HTCondor, the submit file has to
+have the following content:
 
     ```bash
     RUN_FOLDER = <experiment_folder>
@@ -593,13 +595,12 @@ To run the main job on HTCondor, add the following lines to your submit file:
     ```
 
 !!!Note 
-    In the example above, we assume you have created `htcondor_submit` and `htcondor_output` folders. The first is used to store 
-    the `job.submit` and  `wrapper.sh` files, and the second stores the `stdout` and `stderr` from the main job.
+    In the example above, we assume that we have created `htcondor_submit` and `htcondor_output` folders. 
+    The first is used to store the `job.submit` and  `wrapper.sh` files, and the second stores the `stdout` 
+    and `stderr` from the main job.
 
-We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `exp_folder_path` directory where the
-`data` folder is located (see section [Folder Structure](#folder-structure)).
-
-To read more general documentation about HTCondor, refer to the [HTCondor documentation](../basics/HTCondor.md).
+We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `output` directory where 
+the `data` folder is located (see [Folder Structure](#folder-structure) above for details).
 
 #### Monitoring Dask workers (HTCondor + GPU)
 
