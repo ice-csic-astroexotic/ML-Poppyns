@@ -749,8 +749,8 @@ if __name__ == "__main__":
         nargs="*",
         type=float,
         default=None,
-        help="In grid mode: range for the power-law slope of the intrinsic luminosity with number of "
-        "values [low, high, n_values]."
+        help="In grid mode: range for the power-law slope of the intrinsic luminosity "
+        "with number of values [low, high, n_values]."
         "In random mode: range of the power-law slope of the intrinsic luminosity [low, high].",
     )
 

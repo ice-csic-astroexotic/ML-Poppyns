@@ -408,11 +408,11 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                 ut.corner_plot(
                     observed_samples_posterior,
                     dataset,
-                    f"{save_dir_round}/corner_plot_observed_sample_{effective_round}.pdf",
+                    f"{save_dir_round}/corner_plot_observed_sample.pdf",
                 )
                 torch.save(
                     observed_samples_posterior,
-                    f"{save_dir_round}/samples_posterior_{effective_round}.pt",
+                    f"{save_dir_round}/samples_posterior.pt",
                 )
 
                 # If retrain_from_scratch is set to True, initialize the inference object to reset the weights

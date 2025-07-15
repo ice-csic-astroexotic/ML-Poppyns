@@ -428,6 +428,7 @@ if __name__ == "__main__":
         "with number of values [low, high, n_values]."
         "In random mode: range of the power-law slope of the late time magnetic field evolution [low, high].",
     )
+
     args.add_argument(
         "--L_radio_log10_mean",
         nargs="*",
@@ -439,12 +440,12 @@ if __name__ == "__main__":
         "[low, high].",
     )
     args.add_argument(
-        "--epsilon_L_ppdot",
+        "--epsilon_L",
         nargs="*",
         type=float,
         default=None,
-        help="In grid mode: range for the power-law slope of the intrinsic luminosity with number of "
-        "values [low, high, n_values]."
+        help="In grid mode: range for the power-law slope of the intrinsic luminosity "
+        "with number of values [low, high, n_values]."
         "In random mode: range of the power-law slope of the intrinsic luminosity [low, high].",
     )
     args = args.parse_args()

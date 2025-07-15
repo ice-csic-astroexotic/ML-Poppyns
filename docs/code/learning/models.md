@@ -8,6 +8,8 @@
 
 ::: pypopsyn.learning.models.model_conv_sbi_deep
 
+::: pypopsyn.learning.models.model_conv_sbi_shallow
+
 ::: pypopsyn.learning.models.model_linear
 
 ::: pypopsyn.learning.models.models
