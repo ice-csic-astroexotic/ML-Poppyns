@@ -453,7 +453,7 @@ def initialize_crust_failure_rate_interpolator() -> RectBivariateSpline:
     base_path = pathlib.Path(cfg["path_to_software"])
     # Load the interpolator function to evaluate the X-ray luminosity.
     interpolator_path = base_path.joinpath(
-        cfg["magneto-thermal_path"], "interpolator_crust_failure_rate_fit.pkl"
+        cfg["magneto-thermal_path"], "interpolator_crust_failure_rate.pkl"
     )
 
     with open(interpolator_path, "rb") as f:
