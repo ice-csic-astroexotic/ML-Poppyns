@@ -431,7 +431,7 @@ Within these folders, the training experiment will result in the creation of one
 In the case of single-round inference, we would only obtain one folder named `round_0`. 
 
 The `logs` subdirectories contain the files `profile.json` and `profile.log`, which provide timing and profiling 
-information for the inference script executed across all rounds. Additionally, each `round_{i}` subfolder inside the 
+information for the training script executed across all rounds. Additionally, each `round_{i}` subfolder inside the 
 logs directory contains the following files:
 
 * `training_statistics_{j}.json` with the training and validation loss evolution.
