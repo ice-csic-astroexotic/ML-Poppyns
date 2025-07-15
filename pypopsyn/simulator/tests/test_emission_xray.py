@@ -535,7 +535,7 @@ def test_initialize_crust_failure_rate_interpolator(test_case_4, tmp_path):
     subdir.mkdir()
 
     # Path to interpolator pickle inside subdir.
-    interpolator_path = subdir / "interpolator_crust_failure_rate_fit.pkl"
+    interpolator_path = subdir / "interpolator_crust_failure_rate.pkl"
 
     # Write the dummy interpolator to the file.
     with open(interpolator_path, "wb") as f:
