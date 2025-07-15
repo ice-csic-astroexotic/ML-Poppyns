@@ -395,14 +395,16 @@ As before, you must provide the `filter_inputs` and `filter_labels`, which must 
 
 #### Training parameters
 
-Finally, we specify some general options for our machine learning experiment. First, we choose the SBI method to use, 
-such as `snpe`, `snle`, or `snre`. For single-round inference, set `num_rounds = 1`. Additionally, you can configure 
-the fraction of the training dataset reserved for validation, the training batch size, and the initial learning rate 
-for the `Adam` optimizer (the default optimizer in the `sbi` library). 
-You must also specify the directory path where the trained model will be saved. There is an option to train multiple
-networks per round and create an ensemble of posteriors by setting `ensemble = true` and specifying the ensemble size 
-with `size_ensemble`. Note that the difference between the networks in the ensemble comes only from the randomized
-initialization of their weights.
+Finally, we specify general options for our machine learning experiment. First, we select the SBI method we want
+to use choosing from the options `snpe`, `snle`, or `snre` (including the `s` for the sequential approach even in the
+case of single-round inference). For single-round inference, we set `num_rounds = 1`. Otherwise, this parameter 
+denotes the number of rounds we want to learn sequentially. Additionally, we can configure the fraction of the 
+training dataset reserved for validation, the training batch size, and the initial learning rate for the `Adam`
+optimizer, which is the default optimizer in the `sbi` library. We must also specify the directory path where the
+trained model will be saved using the `save_dir` parameter. We also have the option to train multiple networks per
+round and create an ensemble of posteriors by setting `ensemble = true` and specifying the ensemble size 
+with `size_ensemble`. Note that the difference between the networks in the ensemble is only due to the randomized
+initialization of their weights, i.e., the architecture of each network in the ensemble is the same.
 
 ```json
 {
