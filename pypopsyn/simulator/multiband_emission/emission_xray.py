@@ -515,12 +515,15 @@ def outburst_filter_from_crust_failure_rate(
     crust_failure_rate_interpolator: RectBivariateSpline,
 ) -> np.ndarray:
     """
-    A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that goes in outburst
-    after some crustal failures due to magnetic stresses (see Dehman et al. 2020).
+    A mask that filters neutron stars that goes in outburst after some crustal failures due to magnetic stresses
+    (see Dehman et al. 2020).
     We compute the expected rate of failures from the result of magneto-thermal simulations for a neutron star
     with a given initial magnetic field and age (see the notebook tutorials/analysis_notebooks/crust_failure_rate.ipynb
-    for more details). From this rate we select only neutron stars that experiences an
-    outburst in the last 50 years which is roughly the time when X-ray survey missions were active.
+    for more details). From this rate we select only neutron stars that experiences a failure event in the last 50 years
+    which is roughly the time when X-ray survey missions were active.
+    Note that we assume that each failure event is associated to a detected outburst.
+    This leads to an overestimate of the number of neutron stars that are detected through an outburst events as lees
+    energetic events might have been missed or not identified with neutron star activity.
 
     Args:
         B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
