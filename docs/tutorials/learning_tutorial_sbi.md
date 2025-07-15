@@ -628,46 +628,50 @@ these steps:
 ## Inferring on a dataset
 
 Once our SBI pipeline has been trained, it can be used to infer on an unseen dataset of generated maps and extract 
-posterior distributions of the corresponding pulsar
-population parameters. The script `pypopsyn/learning/sbi_infer.py` allows us to take an experiment configuration file, 
-a pre-trained model, and a dataset, and run the inference.
+posterior distributions of the corresponding pulsar population parameters. The script `pypopsyn/learning/sbi_infer.py`
+allows us to take an experiment configuration file, a pretrained model, and a dataset, and run the inference.
 
 ### Configuration options
 
-In addition to the testing data loaders specified above, we also need to define the directories for saving
-and loading inference results using the `save_dir` and `load_dir` parameters under the `infer` field in the configuration file. 
-The `load_dir` should point to the location where `inference.pickle` and `trained_model.pickle` are stored, as these 
-files are required to perform inference.
-You must also specify whether to compute the coverage probability using the `compute_coverage` flag.
-If `compute_coverage` is not enabled, the output will include a corner plot and samples from the posterior distribution 
-conditioned on the observed data. If it is enabled, additional outputs will be saved:
+In addition to the testing data loader specified above, we also need to define the directories for saving and loading
+inference results using the `save_dir` and `load_dir` parameters under the `infer` field in the configuration file. 
+The `load_dir` parameter should point to the location where the `inference.pickle` and `trained_model.pickle` objects
+are stored, as these files are required to perform inference. We must also specify whether to compute the coverage 
+probability using the `compute_coverage` flag. If this functionality is disabled, the output will include a corner 
+plot `corner_plot_observed_sample.pdf` and samples from the posterior distribution conditioned on the observed data
+`samples_posterior.pt` only. If the coverage calculation is enabled, additional outputs will be saved. These are as
+follows:
 
-* `posterior_samples_test_data.npz`: containing the true values and posterior samples for each sample of the test dataset.
-* `coverage_probability.npy`: a tensor of coverage probabilities.
-* `coverage_plot.pdf`: a plot visualizing the coverage probabilities.
+* `coverage_plot.pdf`: A plot visualizing the coverage probability.
+* `coverage_probability.npy`: A matrix of the corresponding coverage probabilities.
+* `posterior_samples_test_data.npz`: A NumPy array containing the ground truths and posterior samples for each sample 
+   in the test dataset.
 
-If `sim_dataset` is set to `True`, the test dataset will be generated in each round. Otherwise, it is assumed that the 
-directory specified in the `dataset_path` field under `test_dataset_loader` contains a pre-generated test dataset for each 
-round.
+Moreover, if `sim_dataset` in the configuration file is set to `True`, the test dataset will be generated in each
+round. Otherwise, it is assumed that the directory specified in the `dataset_path` field under `test_dataset_loader` 
+contains a pre-generated test dataset for each round.
+
+An example of the inference information looks as follows:
 
 ```json
 {
     "infer": {
-    "sim_dataset":false ,
-    "compute_coverage":true,
+    "sim_dataset": false ,
+    "compute_coverage": true,
     "load_dir": "exp_1/learning/models/SBI_ConvolutionMDN/20250403_192124",
     "save_dir": "exp_1/inference"
   }
 }
 ```
 !!! note
-    The `sbi_infer.py` script requires the folder structure explained above to function correctly and to properly load the test dataset.
+    The `sbi_infer.py` script requires the folder structure explained above to function correctly and to properly load 
+    the test dataset.
 
 Once the inference configuration is set up, we run the inference script by providing the configuration file 
 (`--configuration`) as follows:
 
 ```commandline
-python pypopsyn/learning/sbi_infer.py --configuration tutorials/tutorial_notebooks/config_sbi.json 
+python pypopsyn/learning/sbi_infer.py --configuration tutorials/tutorial_notebooks/config_train_sbi.json 
 ```
 
 ### Inference output
