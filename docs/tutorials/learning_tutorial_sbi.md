@@ -432,7 +432,7 @@ In the case of single-round inference, we would only obtain one folder named `ro
 
 The `logs` subdirectories contain the files `profile.json` and `profile.log`, which provide timing and profiling 
 information for the training script executed across all rounds. Additionally, each `round_{i}` subfolder inside the 
-logs directory contains the following files:
+`logs` directory contains the following files:
 
 * `training_statistics_{j}.json` with the training and validation loss evolution.
 * `training_stats_{j}.pdf` with a plot showing the training and validation loss evolution.
@@ -459,25 +459,27 @@ This section describes configuration options specific to multi-round inference.
 
 ### Resume mode
 
-Resume mode allows training to continue from a previous round if it was interrupted before completion. To use resume 
-mode:
+Resume mode allows us to continue the SBI training from a previous round, as might, e.g., be necessary if the training
+was interrupted in an earlier run before it was completed. The following set-up will ensure continuity in the output 
+files and prevents the creation of a new directory for resumed runs. However, we recommend making a copy of the 
+existing `learning` directory to avoid overwriting data from previous rounds and to verify the consistency of 
+resumed runs.
+
+To use the resume mode we first need to:
 
 * Set `config["resume_training"]["resume"] = true`.
-* Specify the last completed round to resume from using `config["resume_training"]["last_round"] = 2`.
-* Provide the paths to the previously saved model and logs using: `config["resume_training"]["save_dir"]` and 
-  `config["resume_training"]["log_dir"]` respectively.
+* Specify the last completed round to resume from, e.g., using `config["resume_training"]["last_round"] = 2`.
+* Provide the paths to the previously saved model and logs using `config["resume_training"]["save_dir"]` and 
+  `config["resume_training"]["log_dir"]`, respectively.
 
-This setup ensures continuity in output files and prevents the creation of a new directory for resumed runs.  
-We recommend making a copy of the learning directory to avoid overwriting data from previous rounds and to verify 
-the consistency of the resume mode.
-When resuming, in the first iteration, you need to load the trained model and the training dataset from the last 
-completed round. This is necessary to:
+When resuming, the first (new) iteration requires loading the trained model and the training dataset from the last 
+successfully completed round of an earlier experiment. This is necessary to:
 
-* Compute the proposal prior distribution for the next round.
+* Compute the proposal prior distribution for the next (first new) round.
 * Load the training dataset, since simulations from previous rounds are reused in subsequent rounds 
   when `append_simulations` is enabled.
 
-An example of the configuration file:
+An example of the configuration file would look as follows:
 
 ```json
 {
