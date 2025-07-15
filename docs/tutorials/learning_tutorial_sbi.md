@@ -423,14 +423,16 @@ initialization of their weights, i.e., the architecture of each network in the e
 
 ### Training output
 
-The results of the training experiment are saved in the directory specified by the `save_dir` option. Specifically, 
-training will create two folders in this directory, namely a `logs` folder and a `models` folder. Both contain 
-subfolders for each specific training experiment of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes 
-the date and time when the experiment was launched. Within that folder there will be one folder per each round, in the 
-case of single round there will be just one folder called `round_0` 
+The results of the training experiment are saved in the directory specified by the `save_dir` option outlined under
+[Training Parameters](#training-parameters) above. Specifically, training will create two folders in this directory, 
+namely a `logs` folder and a `models` folder. Both contain subfolders for each specific training experiment of the
+form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was launched.
+Within these folders, the training experiment will result in the creation of one subfolder for each round of training.
+In the case of single-round inference, we would only obtain one folder named `round_0`. 
 
-The `logs` directory contains the files `profile.json` and `profile.log`, which provide timing and profiling information for the inference script executed in each round.
-Additionally, within each `round_{i}` subfolder inside the logs directory, the following files are included:
+The `logs` subdirectories contain the files `profile.json` and `profile.log`, which provide timing and profiling 
+information for the inference script executed across all rounds. Additionally, each `round_{i}` subfolder inside the 
+logs directory contains the following files:
 
 * `training_statistics_{j}.json` with the training and validation loss evolution.
 * `training_stats_{j}.pdf` with a plot showing the training and validation loss evolution.
@@ -439,17 +441,17 @@ In this example, `j` indicates which neural network in the ensemble the file ref
 
 Finally, each subfolder `round_{i}` in the `models` directory contains:
 
-* `trained_model.pickle`: Contains the trained model. This object is needed to sample from the approximated posterior 
+* `trained_model.pickle`: The trained model. This object is needed to sample from the approximated posterior 
    distribution after the neural network has been trained.
-* `inference.pickle`: Contains the trained inference object, which stores the weights of the trained neural network. 
+* `inference.pickle`: The trained inference object, which stores the weights of the trained neural network. 
 * `samples_posterior.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
 * `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
    the observed data.
 * `posterior_samples_test_data.npz`: A tensor containing the true values and the corresponding posterior samples for 
    each sample in the test dataset.
 
-If `ensemble` is enabled, there will be as many `inference.pickle` and `trained_model.pickle` files as there are neural 
-networks in the ensemble.
+If `ensemble` is enabled, there will be as many `inference.pickle` and `trained_model.pickle` files as there are 
+neural networks in the ensemble.
 
 ## Multi-round specific options
 
