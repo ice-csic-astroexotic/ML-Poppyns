@@ -557,12 +557,12 @@ There are some important considerations for MAGNESIA users when running simulati
 #### Folder handling
 
 - The script copies the `MAGNESIA_population_synthesis` folder to each node to avoid redundant reads and reduce server load.
-- You must update the following in `pypopsyn/simulator/config_simulator.py`:
+- You must update the following in `pypopsyn/simulator/config_simulator.py` as each node will have its own copy of 
+   the full code repository and will access files locally:
     ```python
         cfg["server_run"] = False
         path_to_software = "MAGNESIA_population_synthesis"
     ```
-  Each node will have its own copy of this folder and will access files locally.
 
 #### Dask usage on the PIC server
 
