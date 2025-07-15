@@ -540,17 +540,15 @@ An example of the multi-round training information could look as follows:
 }
 ```
 
-
-
 ### Running simulation in parallel for each round
 
-There are two methods to parallelize the simulation process: using either the [`dask`](https://www.dask.org/) or the
-[`multiprocessing`](https://docs.python.org/3/library/multiprocessing.html) packages.
+We have implemented two ways to parallelize the simulation process to optimise computation time: using either the 
+[`Dask`](https://www.dask.org/) or the [`multiprocessing`](https://docs.python.org/3/library/multiprocessing.html) packages.
 
-- To use Dask, set `enable_dask` to `true` in the configuration file and specify the number of workers with `n_workers`
-  (this corresponds to the number of HTCondor jobs on the PIC server).
-- If Dask is not enabled, the `multiprocessing` package will be used instead. You can specify the number of parallel
-  processes via: `"n_processes": <num_processes>`
+- To use Dask, we set `enable_dask` to `true` in the configuration file and specify the number of workers with
+   `n_workers`, which corresponds to the number of HTCondor jobs on the PIC server.
+- If Dask is not enabled, the `multiprocessing` package will be automatically used instead. We can specify the 
+   number of parallel processes via: `n_processes`.
 
 ### Notes on running with Dask on the PIC server
 
