@@ -447,8 +447,8 @@ Finally, each subfolder `round_{i}` in the `models` directory contains:
 * `samples_posterior.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
 * `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
    the observed data.
-* `posterior_samples_test_data.npz`: A tensor containing the true values and the corresponding posterior samples for 
-   each sample in the test dataset.
+* `posterior_samples_test_data.npz`: A NumPy array containing the true values and the corresponding posterior samples
+   for each sample in the test dataset.
 
 If `ensemble` is enabled, there will be as many `inference.pickle` and `trained_model.pickle` files as there are 
 neural networks in the ensemble.
@@ -636,11 +636,11 @@ allows us to take an experiment configuration file, a pretrained model, and a da
 In addition to the testing data loader specified above, we also need to define the directories for saving and loading
 inference results using the `save_dir` and `load_dir` parameters under the `infer` field in the configuration file. 
 The `load_dir` parameter should point to the location where the `inference.pickle` and `trained_model.pickle` objects
-are stored, as these files are required to perform inference. We must also specify whether to compute the coverage 
+are stored, as these files are required to perform the inference. We must also specify whether to compute the coverage 
 probability using the `compute_coverage` flag. If this functionality is disabled, the output will include a corner 
-plot `corner_plot_observed_sample.pdf` and samples from the posterior distribution conditioned on the observed data
-`samples_posterior.pt` only. If the coverage calculation is enabled, additional outputs will be saved. These are as
-follows:
+plot `corner_plot_observed_sample.pdf` and samples drawn from the posterior distribution conditioned on the observed
+data `samples_posterior.pt` only. If the coverage calculation is enabled, additional outputs will be saved. These 
+are as follows:
 
 * `coverage_plot.pdf`: A plot visualizing the coverage probability.
 * `coverage_probability.npy`: A matrix of the corresponding coverage probabilities.
@@ -676,19 +676,20 @@ python pypopsyn/learning/sbi_infer.py --configuration tutorials/tutorial_noteboo
 
 ### Inference output
 
-If the inference is successful, the output of `pypopsyn/learning/sbi_infer.py` will be saved in the directory 
-specified in the `save_dir` option. Specifically, inference will create a `logs` folder in this directory containing
-subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the inference
-was launched.
+If the inference has been performed successfully, the output of `pypopsyn/learning/sbi_infer.py` will be saved in the 
+directory specified in the `save_dir` option. Specifically, inference will create a `logs` folder in this directory 
+containing subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the
+inference was launched.
 
-The `logs` directory contains the files `profile.json` and `profile.log`, which provide timing and profiling information 
-for the inference script executed in each round. Additionally, within each `round_{i}` subfolder inside the logs 
-directory, the following files are included:
+The `logs` subdirectories contain the files `profile.json` and `profile.log`, which provide timing and profiling 
+information for the inference script executed across all round. Additionally, each `round_{i}` subfolder inside 
+the logs directory contains the following files:
 
 * `samples_posterior.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
 * `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
    the observed data.
-* `posterior_samples_test_data.npz`: A tensor containing the true values and the corresponding posterior samples for 
-   each sample in the test dataset.
-* `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic test.
+* `posterior_samples_test_data.npz`: A NumPy array containing the ground truths and the corresponding posterior
+   samples for each sample in the test dataset.
+* `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic
+   test if the coverage calculation was enabled.
 
