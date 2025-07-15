@@ -605,26 +605,25 @@ the `data` folder is located (see [Folder Structure](#folder-structure) above fo
 #### Monitoring Dask workers (HTCondor + GPU)
 
 If this is your first time using Dask on the PIC server, you must manually launch an empty Dask cluster via the Jupyter
-dashboard (located in the left sidebar on the PIC Jupyter interface) to ensure correct functionality. If you're running the main job on HTCondor with GPU, you can monitor the 
-Dask workers through Jupyter following these steps:
+dashboard (located in the left sidebar on the PIC Jupyter interface) to ensure correct functionality. If you are
+running the main SBI training job on HTCondor with GPUs, you can monitor the Dask workers through Jupyter following
+these steps:
 
    1. Open the Jupyter interface on a GPU node.
-   2. Access the stdout log of the main job:
+   2. Access the stdout log of the main job as follows:
       - Run `condor_q` to find the `job_id`. This job should **not** have `HTCondorCluster` as the batch name.
       - Use `condor_ssh_to_job <job_id>` to SSH into the job.
       - Navigate to the home directory (`cd`) and run `cat _condor_stdout` to view the stdout log.
    3. Look for a line similar to:
-     ```
-     INFO:distributed.scheduler: dashboard at: http://192.168.100.78:8787/status
-     ```
-4. Extract the port number (e.g., `8787`) and open the Dask dashboard via the Jupyter interface (left sidebar on the PIC 
-   Jupyter interface) by pasting the following URL into your browser (replace `<your_username>` and `<port>` 
-   accordingly):
-
+      ```
+      INFO:distributed.scheduler: dashboard at: http://192.168.100.78:8787/status
+      ```
+   4. Extract the port number (e.g., `8787`) and open the Dask dashboard via the Jupyter interface (left sidebar on 
+      the PIC Jupyter interface) by pasting the following URL into your browser (replace `<your_username>` and
+      `<port>` accordingly):
       ```
       https://jupyter.pic.es/user/<your_username>/proxy/<port>
       ```
-   
 
 ## Inferring on a dataset
 
