@@ -493,9 +493,8 @@ An example of the configuration file would look as follows:
 ```
 
 In this example, we will load the `inference.pickle` and `trained_model.pickle` from round 3 and compute the
-approximated posterior distribution at the observed sample, which will serve as the proposal prior for the next round.
-From round 4 onward, the computation will proceed as usual in a multi-round inference approach.
-
+approximated posterior distribution at an observed sample, which will then serve as the proposal prior for the next 
+round. From round 4 onward, the computation will proceed as usual in our multi-round inference approach.
 
 ### Extra parameters for training
 
@@ -503,36 +502,38 @@ Several additional parameters control how training behaves across rounds:
 
 * `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round.
 
-* `truncated_prior`: If set to `true`, the proposal prior is obtained by truncating the initial prior with the posterior
-  from the previous round (evaluated at the observed data). Otherwise, the proposal prior is simply the 
- approximated posterior distribution from the previous round.
+* `truncated_prior`: If set to `true`, the proposal prior is obtained by truncating the initial prior with the
+   posterior from the previous round (evaluated at the observed data). Otherwise, the proposal prior is simply the 
+   approximated posterior distribution from the previous round.
 
 * `sir`: If set to `true`, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, 
- rejection sampling is used. For an explanation of these two methods, we refer the user to [Liu, J. S. (2001), Monte Carlo Strategies in Scientific Computing.](https://github.com/szcf-weiya/MonteCarlo/blob/master/References/Monte-Carlo-Strategies-in-Scientific-Computing.pdf)
+   rejection sampling is used. For an explanation of these two methods, we refer the user to
+   [Liu, J. S. (2001), Monte Carlo Strategies in Scientific Computing.](https://github.com/szcf-weiya/MonteCarlo/blob/master/References/Monte-Carlo-Strategies-in-Scientific-Computing.pdf)
 
-* `retrain_from_scratch`: If set to `true`, the model is retrained from scratch in each round, i.e., the model weights are re-initialized in each round. 
-  Otherwise, training continues updating the weights trained in the previous rounds.
+* `retrain_from_scratch`: If set to `true`, the neural network is retrained from scratch in each round, i.e., the 
+   model weights are re-initialized in each round. Otherwise, training continues updating the weights trained in the
+   previous rounds.
 
 * `plot_proposal`: If set to `true`, a corner plot of the proposal prior will be saved.
 
 Note: For SNPE, you cannot enable both `truncated_prior = false` and `append_simulations = true`. 
 
-Example trainer block:
+An example of the multi-round training information could look as follows:
 
 ```json
 {
   "trainer": {
     "type": "snle",
-    "append_simulations":true,
+    "append_simulations": true,
     "truncated_prior": false,
     "retrain_from_scratch": true,
-    "ensemble":true,
-    "size_ensemble":5,
+    "ensemble": true,
+    "size_ensemble": 5,
     "validation_fraction": 0.1,
     "batch_size": 16,
     "lr": 1e-4,
-    "num_rounds":10,
-    "sir":true,
+    "num_rounds": 10,
+    "sir": true,
     "plot_proposal": false,
     "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2025/exp_constant_mag_cnn_embedding/learning"
   }
