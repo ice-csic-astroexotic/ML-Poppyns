@@ -1611,7 +1611,7 @@ def test_initialize_radio_surveys(test_case_1, monkeypatch):
 
 def test_initialize_xray_surveys(test_case_2, monkeypatch):
     """
-    Check that the xray surveys and the dictionaries containing the detected stars are properly initialized.
+    Check that the X-ray surveys and the dictionaries containing the detected stars are properly initialized.
     """
     monkeypatch.setattr(sx, "SurveyXray", MockSurveyXray)
     (
@@ -1620,7 +1620,7 @@ def test_initialize_xray_surveys(test_case_2, monkeypatch):
     ) = sw.initialize_xray_surveys()
 
     # Verify the structure of returned dictionaries.
-    # Assertions for radio_surveys.
+    # Assertions for xray_surveys.
     assert len(xray_surveys_out) == 2  # xray_flux_threshold, xray_realistic
     assert isinstance(xray_surveys_out["xray_flux_threshold"], MockSurveyXray)
     assert isinstance(xray_surveys_out["xray_realistic"], MockSurveyXray)
@@ -1732,6 +1732,7 @@ def test_apply_surveys_coverage(test_case_4):
     assert len(updated_idx_remove) == len(
         test_case_4["dyn_database_dict"]["idx"]
     ) - len(dictionary_coverage_database["idx"])
+
     # Check that dictionary keys match expectations.
     for key in test_case_4["expected_keys_without_xray"]:
         assert key in dictionary_coverage_database
@@ -1758,6 +1759,7 @@ def test_apply_surveys_coverage(test_case_4):
     assert len(updated_idx_remove) == len(
         test_case_4["dyn_database_dict"]["idx"]
     ) - len(dictionary_coverage_database["idx"])
+
     # Check that dictionary keys match expectations.
     for key in test_case_4["expected_keys_with_xray"]:
         assert key in dictionary_coverage_database
@@ -1816,7 +1818,7 @@ def test_xray_detection(test_case_6):
 
 def test_update_filtered_dictionary(test_case_7):
     """
-    Check that the method to update the dictionary of detected neutron stars work properly.
+    Check that the method to update the dictionary of detected neutron stars works properly.
     """
 
     result = sw.update_filtered_dictionary(
@@ -1938,7 +1940,7 @@ def test_build_dataframe(test_case_9):
 
 def test_create_output_dataframe(test_case_10):
     """
-    Check that the dataframe with the output of the survey detection are correct.
+    Check that the dataframe with the output of the survey detection is correct.
     """
     output_dfs_without_xray = sw.create_output_dataframe(
         test_case_10["dictionary_detected_radio"],
@@ -1967,9 +1969,8 @@ def test_create_output_dataframe(test_case_10):
 
 def test_adjust_n_batchsize(test_case_11):
     """
-    Check the the batch size for the simulation is correctly adjusted.
+    Check that the batch size for the simulation is correctly adjusted.
     """
-
     survey_data = test_case_11["SurveyData"]
 
     survey_data.n_detected_complete_sim["PMPS"] = 1
