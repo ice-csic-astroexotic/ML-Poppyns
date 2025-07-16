@@ -1303,6 +1303,7 @@ def test_case_10():
                 "L_x_therm": np.array([1.0e34]),
                 "S_x_rcs_abs": np.array([3.0e-12]),
                 "S_x_bb_abs": np.array([2.0e-12]),
+                "outburst": np.array([True]),
                 "idx": np.array([0]),
             },
             "xray_realistic": {
@@ -1324,6 +1325,7 @@ def test_case_10():
                 "L_x_therm": np.array([1.0e34]),
                 "S_x_rcs_abs": np.array([3.0e-12]),
                 "S_x_bb_abs": np.array([2.0e-12]),
+                "outburst": np.array([True]),
                 "idx": np.array([0]),
             },
         },
@@ -1400,6 +1402,7 @@ def test_case_10():
                     ("L_x_therm", "[erg s^-1]"): np.array([1.0e34]),
                     ("S_x_rcs_abs", "[erg s^-1 cm^-2]"): np.array([3.0e-12]),
                     ("S_x_bb_abs", "[erg s^-1 cm^-2]"): np.array([2.0e-12]),
+                    ("outburst", ""): np.array([True]),
                 },
             ),
             "xray_realistic": pd.DataFrame(
@@ -1422,6 +1425,7 @@ def test_case_10():
                     ("L_x_therm", "[erg s^-1]"): np.array([1.0e34]),
                     ("S_x_rcs_abs", "[erg s^-1 cm^-2]"): np.array([3.0e-12]),
                     ("S_x_bb_abs", "[erg s^-1 cm^-2]"): np.array([2.0e-12]),
+                    ("outburst", ""): np.array([True]),
                 }
             ),
         },
