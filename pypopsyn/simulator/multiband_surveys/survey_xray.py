@@ -31,12 +31,13 @@ def sharp_flux_filter(
 ) -> np.ndarray:
     """
     Compute the pulsars detected by an X-ray survey with a given sharp flux threshold.
-    This is used if we are only interest to filter neutron stars above a given X-ray flux threshold.
+    This is used if we are only interested in filtering neutron stars above a given X-ray flux threshold.
+
     As a default, the S_x_threshold parameter is set to be 1e-15 erg s^-1 cm^-2 (see Gullón et al. 2015).
 
     Args:
         S_x (np.ndarray): Array of observed X-ray fluxes in [erg s^-1 cm^-2].
-        S_x_threshold (float): The flux threshold for X-ray detection in [erg s^-1 cm^-2].
+        S_x_threshold (float): The flux threshold for X-ray detections in [erg s^-1 cm^-2].
 
     Returns:
         (np.ndarray): Boolean mask to select the pulsars detected above a given flux threshold.
@@ -55,17 +56,20 @@ def smooth_flux_filter(
 ) -> np.ndarray:
     """
     Compute the pulsars detected by an X-ray survey with a given flux threshold drawn from a Gaussian distribution
-    in log10 for each source, to mimic uncertainties inherent to a detection with an X-ray telescope.
+    in log10 for each source, to mimic uncertainties inherent to detections with an X-ray telescope.
+
     As a default, the S_x_threshold_log10_mean parameter is set to be 1e-15 erg s^-1 cm^-2 (see Gullón et al. 2015).
+
     The value of S_x_threshold_log10_sigma is chosen to mimic the variation in the flux threshold due to different
-    exposure times, background levels and instrument sensitivity (see for example Fig. 3 in Watson et al. 2001
+    exposure times, background levels and instrument sensitivity (see for example Fig. 3 in Watson et al. 2001;
     The XMM-Newton Serendipitous Survey I. The role of XMM-Newton Survey Science Centre).
 
     Args:
         S_x (np.ndarray): Array of observed X-ray fluxes in [erg s^-1 cm^-2].
-        S_x_threshold_log10_mean (float): The mean of the flux threshold distribution for X-ray detection in [erg s^-1 cm^-2].
-        S_x_threshold_log10_sigma (float): The standard deviation of the flux threshold distribution for X-ray detection in
-            [erg s^-1 cm^-2].
+        S_x_threshold_log10_mean (float): The mean of the flux threshold distribution for X-ray detection
+            in [erg s^-1 cm^-2].
+        S_x_threshold_log10_sigma (float): The standard deviation of the flux threshold distribution for X-ray
+            detections in [erg s^-1 cm^-2].
 
     Returns:
         (np.ndarray): Boolean mask to select the pulsars detected above a given flux threshold.
@@ -81,7 +85,8 @@ def smooth_flux_filter(
 
 class SurveyXray:
     """
-    Class for any Xray survey.
+    Class for any X-ray survey.
+
     The parameters for the survey are imported from a JSON file.
     """
 
