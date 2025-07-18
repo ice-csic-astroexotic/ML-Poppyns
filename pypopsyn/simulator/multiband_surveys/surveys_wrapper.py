@@ -444,7 +444,8 @@ def radio_detection(
             idx=dictionary_intercepted_radio["idx"],
         )
 
-        # Remove the dictionaries containing the results for the separated HTRU low and mid surveys.
+        # Remove the dictionaries containing the results for the individual HTRU low and mid surveys,
+        # as we only require the combined detections determined above.
         del detected_dictionaries["HTRU_low"]
         del detected_dictionaries["HTRU_mid"]
 
