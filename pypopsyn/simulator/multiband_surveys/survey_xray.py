@@ -199,7 +199,7 @@ class SurveyXray:
 
         Args:
             S_x (np.ndarray): Array of observed X-ray fluxes in [erg s^-1 cm^-2].
-            outburst_mask (np.ndarray): Boolean mask for outbursts events.
+            outburst_mask (np.ndarray): Boolean mask for outburst events.
 
         Returns:
             (np.ndarray): Boolean mask to select the neutron stars detected by the survey.
