@@ -507,7 +507,7 @@ def xray_population(
         (dict): A dictionary containing properties of the neutron stars that emits thermally in X-rays.
     """
 
-    # Select only the stars that can be detected in X-rays.
+    # Select only the stars that can, in principle, be detected in the X-rays as they lie within the observed region .
     coverage_x = dict_pop["coverage_xray"]
     dict_final_pop_filtered = {
         key: value[coverage_x] for key, value in dict_pop.items()
