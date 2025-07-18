@@ -211,16 +211,17 @@ class SurveyXray:
                 S_x,
                 self.sharp_flux_threshold,
             )
+
         else:
-            # If we do not apply a sharp flux threshold, we instead consider a detection bias towards neutron stars that go in outburst.
-            # This is justified because many magnetars are discovered during outburst events.
-            # While in outburst fluxes increase, triggering X-ray and soft gamma-ray satellites like Swift or Fermi.
-            # Usually Swift XRT detects the presence of a magnetar, if the high-flux state during the outburst event
-            # shows a periodicity.
-            # Once the flux reduces back to quiescent levels following the outburst, we emulate follow-up of these sources
-            # with more sensitive instruments such as XMM-Newton or Chandra using deep observations with relatively long
-            # exposure time to see if the quiescent emission is detectable.
-            # For this purpose, we consider a flux threshold of around 10^-14 [erg s^-1 cm^-2] with an intrinsic dispersion.
+            # If we do not apply a sharp flux threshold, we instead consider a detection bias towards neutron stars
+            # that go in outburst. This is justified because many magnetars are discovered during outburst events,
+            # which cause their fluxes to increase, triggering X-ray and soft gamma-ray satellites like Swift or Fermi.
+            # I.e., usually Swift XRT detects the presence of a magnetar, if the high-flux state during an outburst
+            # event shows a periodicity. Once the flux reduces back to quiescent levels following the outburst, we
+            # emulate the observational follow-up of these sources with more sensitive instruments such as XMM-Newton
+            # or Chandra using deeper observations with relatively long exposure times to see if the quiescent emission
+            # is detectable. We only count those sources as detected that have measurable quiescent emission. For this
+            # purpose, we consider a flux threshold of around 10^-14 [erg s^-1 cm^-2] with an intrinsic dispersion.
             # This choice has been made by eye to recover the low-flux part of the observed flux distribution.
             detected_outburst_mask = smooth_flux_filter(
                 S_x,
@@ -228,15 +229,17 @@ class SurveyXray:
                 self.S_x_threshold_log10_sigma_long_exposure,
             )
 
-            # To include sources that didn't go into outburst but have high quiescent fluxes, we also include a filter with
-            # a higher flux threshold which is related to lower exposure time.
-            # This emulates all-sky surveys like the one performed by ROSAT or the slew mode in XMM that are more
-            # sensitive to brighter X-ray sources and can detect sources like the XDINSs.
+            # To include sources that did not go into outburst but have high quiescent fluxes, we also include a filter
+            # with a higher flux threshold which is related to lower exposure time. This emulates all-sky surveys like
+            # the one performed by ROSAT or the slew mode in XMM that are more sensitive to brighter X-ray sources and
+            # can detect sources like the XDINSs.
             detected_bright_mask = smooth_flux_filter(
                 S_x,
                 self.S_x_threshold_log10_mean_short_exposure,
                 self.S_x_threshold_log10_sigma_short_exposure,
             )
+
+            # Combining the different masks.
             detected_xray_mask = (
                 outburst_mask & detected_outburst_mask
             ) | detected_bright_mask
