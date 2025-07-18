@@ -5,15 +5,14 @@
 
     1) xray_flux_threshold: Detect neutron stars that have fluxes above a given threshold flux without considering
         any other detection biases.
-    2) xray_realistic: Detect neutron stars taking into account their outburst probability and combining two flux
+    2) xray_realistic: Detect neutron stars taking into account their outburst probability and combine two flux
         filters to better reproduce the observed flux distribution of magnetars and XDINSs together.
-        The first flux filter has a lower average flux threshold and applies to neutron stars that go into outburst.
-        In the catalog of observed thermally emitting neutron stars, we only consider sources with detected quiescent
-        thermal emission. I.e., we ignore those magnetars that were discovered in outburst but whose quiescent emission
-        is too faint to be detected. This flux filter removes simulated neutron stars that despite going outburst have a
-        quiescent emission that is too faint.
-        The second flux filter has a higher average flux threshold and applies to neutron stars that are bright
-        like XDINSs even if they did not show any outburst activity.
+        Note that when comparing to observations, in the catalog of observed thermally emitting neutron stars, we
+        only consider sources with detected quiescent thermal emission. I.e., we ignore those magnetars that were
+        discovered as bright sources in outburst but whose quiescent emission is too faint to be detected. The first
+        flux filter reflects this and removes simulated neutron stars that despite going into outburst have a quiescent
+        emission that is too faint. The second flux filter has a higher average flux threshold and applies to neutron
+        stars that are bright like XDINSs even if they did not show any outburst activity.
 
     Authors:
 
