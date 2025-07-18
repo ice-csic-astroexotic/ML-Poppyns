@@ -41,7 +41,7 @@ class SurveyData:
         n_detected_sim_at_match (Dict): A dictionary storing how many stars we have detected when we reach the desirable
             number in each survey.
         batchsize_adjust_flags (Dict): A dictionary storing the flags for adjusting batch size as we approach the target
-            detection number for all surveys..
+            detection number for all surveys.
         stop_flags (Dict): A dictionary storing the flags for stopping the simulation as we reach the target detection
             number for all surveys.
         dictionary_detected_radio (Dict): A dictionary storing all the properties of neutron stars detected in the radio
@@ -583,7 +583,7 @@ def update_survey_data(
             idx_remove += idx_det
 
         elif survey_type == "X-ray":
-            # For the X-ray survey we are not complete and we do not control well the observational biases. Therefore
+            # For the X-ray survey we are not complete, and we do not control well the observational biases. Therefore,
             # we consider a flux threshold above which we assume we are complete and try to match the number of observed
             # sources above this flux threshold. See the config_simulator file for more details.
             n_detected_sim[survey] += len(
@@ -789,7 +789,7 @@ def adjust_n_batchsize(survey_data_class) -> int:
     """
     To speed up the simulation, generate new neutron stars in batches.
     The batchsize is adjusted as the synthetic population approaches the observed number of neutron stars in the real surveys.
-    This guarantees a better fine tuning of the simulated detected numbers.
+    This guarantees a better fine-tuning of the simulated detected numbers.
 
     Args:
         survey_data_class (SurveyData): The SurveyData dataclass containing the data of all neutron star surveys.
