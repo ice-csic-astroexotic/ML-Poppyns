@@ -52,7 +52,7 @@ else:
 
 if cfg["path_to_software"] == "":
     log.warning(
-        "path_to_software variable not set. Remember to set the right absolute path_to_software in the "
+        "path_to_software variable not set. Remember to set the right absolute path_to_software in the"
         "pypopsyn/simulator/config_simulator.py file."
     )
 
@@ -143,7 +143,7 @@ elif cfg["kick_model"] == "km_2maxwell":
 
 else:
     log.error(
-        "The specified model for the kick velocity distribution is not supported. "
+        "The specified model for the kick velocity distribution is not supported."
         "Please choose between km_maxwell, km_exp or km_2maxwell."
     )
 
@@ -168,7 +168,7 @@ elif cfg["spin_period_model"] == "log-normal":
 
 else:
     log.error(
-        "The specified model for the initial spin period distribution is not supported. "
+        "The specified model for the initial spin period distribution is not supported."
         "Please choose between normal or log-normal."
     )
 
@@ -205,7 +205,7 @@ elif cfg["magnetic_field_model"] == "smooth_tophat":
 
 else:
     log.error(
-        "The specified model for the initial magnetic-field distribution is not supported. "
+        "The specified model for the initial magnetic-field distribution is not supported."
         "Please choose between log-normal, double_log-normal, or smooth_tophat."
     )
 
@@ -226,7 +226,6 @@ cfg["n_e"]: float = 1e35
 
 # Time step for the magneto-rotational evolution [yr].
 cfg["magrot_time_step_log10"]: float = 1e-2
-
 
 # ===================== FIT PARAMETERS FOR MAGNETO-THERMAL SIMULATIONS ========================
 
@@ -337,8 +336,8 @@ elif (cfg["magneto-thermal_model"] == "BSk24_multi_heavy") or (
         )
 else:
     log.error(
-        "The specified model for the magneto-thermal evolution is not supported. "
-        "Please choose between SLy4_dip-tor_heavy, BSk24_dip-tor_heavy, BSk24_dip-tor_light, BSk24_multi_heavy or "
+        "The specified model for the magneto-thermal evolution is not supported."
+        "Please choose between SLy4_dip-tor_heavy, BSk24_dip-tor_heavy, BSk24_dip-tor_light, BSk24_multi_heavy or"
         "BSk24_multi_light."
     )
 
@@ -368,7 +367,7 @@ elif cfg["radio_beam_model"] == "power-law_period_cone":
 
 else:
     log.error(
-        "The specified model for radio-beam geometry is not supported. "
+        "The specified model for radio-beam geometry is not supported."
         "Please choose between standard_period_cone or power-law_period_cone."
     )
 
@@ -399,7 +398,7 @@ if cfg["radio_luminosity_model"] == "lum_radio_edot":
 
 else:
     log.error(
-        "The specified model for radio luminosity is not supported. "
+        "The specified model for radio luminosity is not supported."
         "Please choose between lum_radio_ppdot or lum_radio_edot."
     )
 
