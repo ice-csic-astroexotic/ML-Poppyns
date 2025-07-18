@@ -457,7 +457,7 @@ def xray_detection(
     dict_xray_pop: dict,
 ) -> dict:
     """
-    This function detects neutron stars by modelling some observational biases and updates their properties.
+    This function detects neutron stars by modeling some observational biases and updates their properties.
 
     Args:
         xray_surveys (dict): Dictionary containing the X-ray survey objects.
@@ -485,7 +485,7 @@ def update_filtered_dictionary(
     dict_to_update: dict, mask: np.ndarray, **kwargs: np.ndarray
 ) -> dict:
     """
-    This function updates a dictionary to include for each key only the values corresponding to a given boolean mask.
+    This function updates a dictionary to include for each key only the values corresponding to a given Boolean mask.
 
     Args:
         dict_to_update (dict): The original dictionary containing properties of neutron stars.
