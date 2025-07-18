@@ -452,8 +452,8 @@ def outburst_filter_probabilistic(
 
     Note that Dehman et al. (2020) also found a correlation between the magnetic energy in the crust and the number
     of failure events. However, for simplification, we neglect any dependence of the failure rate on the crustal
-    magnetic energy and assume that all neutron stars with initial magnetic field above 10^13 G are born with the
-    same amount of magnetic energy in the crust.
+    magnetic energy, effectively assuming that all neutron stars with initial fields above 10^13 G are born with the
+    same magnetic energy in the crust, resulting in the same number of outbursts.
 
     Args:
         B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
