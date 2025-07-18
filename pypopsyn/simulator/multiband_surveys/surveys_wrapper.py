@@ -789,8 +789,9 @@ def create_output_dataframe(
 def adjust_n_batchsize(survey_data_class) -> int:
     """
     To speed up the simulation, generate new neutron stars in batches.
-    The batchsize is adjusted as the synthetic population approaches the observed number of neutron stars in the real surveys.
-    This guarantees a better fine-tuning of the simulated detected numbers.
+
+    The batchsize is adjusted as the synthetic population approaches the observed number of neutron stars in the real
+    surveys. This guarantees a better fine-tuning of the simulated detected numbers.
 
     Args:
         survey_data_class (SurveyData): The SurveyData dataclass containing the data of all neutron star surveys.
