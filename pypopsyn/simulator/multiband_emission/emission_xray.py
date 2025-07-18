@@ -445,14 +445,15 @@ def outburst_filter_probabilistic(
     B_initial: np.ndarray, age: np.ndarray
 ) -> np.ndarray:
     """
-    A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that goes in outburst
-    after some crustal failures due to magnetic stresses (see Dehman et al. 2020).
-    We associate the percentage of crustal failure events depending on the age as the probability to go in outburst,
-    see section 3.2 in Dehman et al. (2020).
-    In Dehman et al. (2020) they found a correlation between the magnetic energy in the crust and the number of failure
-    events. However, for simplification, we neglect any dependence of the failure rate on the magnetic energy in the crust
-    and assume that all neutron stars with initial magnetic field above 10^13 G are born with the same amount of
-    magnetic energy in the crust.
+    A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that go in outburst
+    following a crustal failure due to the build up of magnetic stresses as the field evolves (Dehman et al. 2020).
+    We associate the percentage of crustal failure events for a given age with the probability for a star of that
+    age to go in outburst as described in Section 3.2 of Dehman et al. (2020).
+
+    Note that Dehman et al. (2020) also found a correlation between the magnetic energy in the crust and the number
+    of failure events. However, for simplification, we neglect any dependence of the failure rate on the crustal
+    magnetic energy and assume that all neutron stars with initial magnetic field above 10^13 G are born with the
+    same amount of magnetic energy in the crust.
 
     Args:
         B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
