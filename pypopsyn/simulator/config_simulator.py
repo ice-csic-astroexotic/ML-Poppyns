@@ -83,7 +83,7 @@ cfg["birth_rate_max"]: float = 5.0
 
 # Flag indicating whether to perform the X-ray simulation or not. If set to True then radio and X-ray emissions
 # will be simulated; if False then only the radio population synthesis will be performed.
-cfg["simulation_xray"]: bool = True
+cfg["simulation_xray"]: bool = False
 
 # ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
 
@@ -214,33 +214,40 @@ else:
 # For comparison, in vacuum k_0 = 0 and k_1 = k_2 = 2/3.
 cfg["k_coefficients"]: List[float] = [1.0, 1.0, 1.0]
 
-# Dominant conductivity based on phonon or impurity scattering, in [1/s].
-# For details see Cumming et al. (2004) or Gourgouliatos and Cumming (2014).
-cfg["sigma"]: float = 1e24
-
-# Characteristic length scale of the magnetic field in [cm].
-cfg["L"]: float = 1e5
-
-# Characteristic electron density in [g/cm^3].
-cfg["n_e"]: float = 1e35
-
 # Time step for the magneto-rotational evolution [yr].
 cfg["magrot_time_step_log10"]: float = 1e-2
 
 # ===================== FIT PARAMETERS FOR MAGNETO-THERMAL SIMULATIONS ========================
 
-# We fit a functional equation of the magnetic field evolution curves (more information can be found in
-# pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/README.md):
+# Model for the magneto-thermal simulations. Choose between "analytical", "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy",
+# "BSk24_dip-tor_light", "BSk24_multi_heavy" and "BSk24_multi_light".
+cfg["magneto-thermal_model"]: str = "BSk24_dip-tor_heavy"
+
+# If the model "analytical" is chosen we use the approximated solution of Aguilera et al. (2008) for the evolution of
+# the magnetic field.
+
+# In the case of all other models, we fit a functional equation of the magnetic field evolution curves
+# (more information can be found in pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/README.md):
 # B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**(a2-a1) * (1 + t/tau_late)**(a_late-a2)
 # with tau1 = A1 * B_initial**b1 and tau2 = A2 * B_initial**b2.
 # The fit parameters for each model were adjusted by hand (see the notebook
 # tutorials/analysis_notebooks/magnetic_field_evolution_fit.ipynb for more details).
 
-# Model for the magneto-thermal simulations. Choose between "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy",
-# "BSk24_dip-tor_light", "BSk24_multi_heavy" and "BSk24_multi_light".
-cfg["magneto-thermal_model"]: str = "BSk24_dip-tor_heavy"
+if cfg["magneto-thermal_model"] == "analytical":
+    # Set the characteristic neutron star radius in [cm] for a mass of 1.4 Msun.
+    cfg["NS_radius"]: float = 1.2e6
 
-if cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
+    # Dominant conductivity based on phonon or impurity scattering, in [1/s].
+    # For details see Cumming et al. (2004) or Gourgouliatos and Cumming (2014).
+    cfg["sigma"]: float = 1e24
+
+    # Characteristic length scale of the magnetic field in [cm].
+    cfg["L"]: float = 1e5
+
+    # Characteristic electron density in [g/cm^3].
+    cfg["n_e"]: float = 1e35
+
+elif cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
     # Set the characteristic neutron star radius in [cm] for a mass of 1.4 Msun.
     cfg["NS_radius"]: float = 1.170e6
 
@@ -337,7 +344,7 @@ elif (cfg["magneto-thermal_model"] == "BSk24_multi_heavy") or (
 else:
     log.error(
         "The specified model for the magneto-thermal evolution is not supported."
-        "Please choose between SLy4_dip-tor_heavy, BSk24_dip-tor_heavy, BSk24_dip-tor_light, BSk24_multi_heavy or"
+        "Please choose between analytical, SLy4_dip-tor_heavy, BSk24_dip-tor_heavy, BSk24_dip-tor_light, BSk24_multi_heavy or"
         "BSk24_multi_light."
     )
 

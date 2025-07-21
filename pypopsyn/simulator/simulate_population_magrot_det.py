@@ -26,7 +26,7 @@ import time
 import numpy as np
 
 import pypopsyn.simulator.config_simulator as configuration
-import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
+import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_emission.emission_xray as ex
 import pypopsyn.simulator.multiband_surveys.surveys_wrapper as sw
