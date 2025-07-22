@@ -130,6 +130,7 @@ for the code and whether this timing information is displayed in the terminal or
 }
 ```
 
+
 #### Initialization
 
 We also specify a scheme to initialize the weights and biases of the network. 
