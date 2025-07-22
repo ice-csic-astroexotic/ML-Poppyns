@@ -16,7 +16,7 @@ import orjson
 from numba import float64, jit
 from scipy.integrate import odeint
 
-import pypopsyn.simulator.initial_population_edm as ipop
+import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.magneto_rotational_physics.magnetic_field_evolution as mfev
 import pypopsyn.simulator.magneto_rotational_physics.misalignment_angle_derivative as madv
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv

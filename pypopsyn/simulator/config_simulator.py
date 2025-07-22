@@ -95,20 +95,25 @@ cfg["NS_mass"]: float = 1.4 * const.M_SUN
 # Galactic potential model used in the simulation. Choose between gmM19 or gmFK06.
 cfg["galactic_model"]: str = "gmM19"
 
-# Spiral arms model used in the simulation. Choose between saYMW17 or saFK06.
-cfg["spiral_arms"]: str = "saYMW17"
+# Flag indicating whether to use the electron density model of Yao et al. (2017) to sample the initial positions
+# of neutron stars.
+cfg["sample_edm"]: bool = False
 
-# Number of spiral arms in the Galaxy. If set to 5 the Local arm is included.
-cfg["arm_number"]: int = 5
+if not cfg["sample_edm"]:
+    # Spiral arms model used in the simulation. Choose between saYMW17 or saFK06.
+    cfg["spiral_arms"]: str = "saYMW17"
+
+    # Number of spiral arms in the Galaxy. If set to 5 the Local arm is included.
+    cfg["arm_number"]: int = 5
+
+    # Model pdf for the radial density distribution of neutron star progenitors. Choose between "rmYK04" or "rmVV21".
+    cfg["radial_model"]: str = "rmYK04"
 
 # Sun's distance from the galactocentric axis in [kpc].
 cfg["R_sun"]: float = 8.3
 
 # Sun's distance from the galactic plane in [kpc].
 cfg["z_sun"]: float = 0.02
-
-# Model pdf for the radial density distribution of neutron star progenitors. Choose between "rmYK04" or "rmVV21".
-cfg["radial_model"]: str = "rmYK04"
 
 # Total radial extent of the initial distribution of neutron star progenitors from the galactic center in [kpc].
 cfg["r_extent"]: float = 20.0

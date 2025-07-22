@@ -10,7 +10,6 @@
 """
 
 import logging
-import pathlib
 from typing import Tuple
 
 import numpy as np
@@ -21,6 +20,7 @@ import pypopsyn.simulator.magneto_rotational_physics.initial_period as ipd
 import pypopsyn.simulator.stellar_dynamics.coordinate_conversions as coco
 import pypopsyn.simulator.stellar_dynamics.initial_position as ip
 import pypopsyn.simulator.stellar_dynamics.initial_velocity as iv
+import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 import utilities.benchmark.pyinstrument as benchmark
 import utilities.samplers.random_sampler as rs
 from pypopsyn.simulator.config_simulator import cfg
@@ -78,11 +78,9 @@ class InitialNeutronStarPopulation:
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Calculating the position at birth of each random neutron star in
-        cylindrical reference frame according to the Galactic electron density
-        distribution ymw16 (see Yao et al. 2017).
-        Using the notebook ns_distribution_ne_model.ipynb we create a 2D numpy array containing the
-        electron density distribution in polar coordinates (r, phi).
-        This 2D array is used to sample the neutron star positions in the Galaxy.
+        cylindrical reference frame according either to the Galactic electron density
+        distribution ymw16 (see Yao et al. 2017) if cfg["sample_edm"] = True, or using a spiral model and a radial model
+        specified in the configuration file.
 
         Args:
             t_age (np.ndarray): Array of neutron star ages in [yr].
@@ -92,33 +90,12 @@ class InitialNeutronStarPopulation:
                 respectively for each generated neutron star.
         """
 
-        # Load the neutron star density model table.
-        # The model table has been generated through the Jupyter notebook located in
-        # tutorials/analysis_notebooks/ns_distribution_ne_model.ipynb.
-        # It contains an 2D array of density rho in cylindrical coordinates (r, phi).
-        # The density in the table is already multiplied by the galactocentric distance r
-        # to take into account the element of area correction.
-
-        file = pathlib.Path().joinpath(
-            cfg["path_to_software"],
-            "pypopsyn/simulator/stellar_dynamics/YMW16_density_model.npy",
-        )
-        NS_density_model = np.load(file)
-
-        # Define the grid of coordinates.
-        r_grid = np.linspace(0.0, cfg["r_extent"], NS_density_model.shape[0])
-        phi_grid = np.linspace(0.0, 2.0 * np.pi, NS_density_model.shape[1])
-
-        # Drawing a random distance from the galactic center in [kpc] and a random
-        # azimuthal angle in [rad] according to the 2d density model.
-        r_rand, phi_rand = rs.random_from_pdf_2d(
-            r_grid, phi_grid, NS_density_model, self.NS_number
-        )
-
-        # Propagating the azimuthal coordinate of each object backwards in time
-        # (according to its age) to account for the rotation of the galactic arms;
-        # we assume that the density structure itself remains rigid.
-        phi_rand = ip.spiral_arm_time_evol(phi_rand, t_age)
+        if cfg["sample_edm"]:
+            r_rand, phi_rand = ip.calculate_r_phi_electron_density(t_age)
+        else:
+            r_rand, phi_rand = ip.calculate_r_phi_spiral_model(
+                t_age, sm.spiral_model
+            )
 
         # Drawing a random distance from the galactic plane in [kpc] for each neutron
         # star according to the probability density function for the height.

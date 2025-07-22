@@ -31,7 +31,7 @@ import pandas as pd
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
-import pypopsyn.simulator.initial_population_edm as ipop
+import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
@@ -97,7 +97,8 @@ def simulate_population(args: argparse.Namespace) -> None:
 
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
-    sm.initialize_spiral_model()
+    if not cfg["sample_edm"]:
+        sm.initialize_spiral_model()
 
     with timewith.TimeWith(
         "[TotalSimulation]",
