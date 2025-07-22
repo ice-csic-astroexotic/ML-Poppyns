@@ -219,8 +219,10 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 
 # ===================== FIT PARAMETERS FOR MAGNETO-THERMAL SIMULATIONS ========================
 
-# Model for the magneto-thermal simulations. Choose between "analytical", "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy",
-# "BSk24_dip-tor_light", "BSk24_multi_heavy" and "BSk24_multi_light".
+# Model for the magneto-thermal simulations. Choose between "analytical" (in which case the magnetic field evolution
+# is determined analytically from the evolution of a generalised induction equation), or fits to numerical simulations,
+# specifically "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy", "BSk24_dip-tor_light", "BSk24_multi_heavy" and
+# "BSk24_multi_light".
 cfg["magneto-thermal_model"]: str = "BSk24_dip-tor_heavy"
 
 # If the model "analytical" is chosen we use the approximated solution of Aguilera et al. (2008) for the evolution of
