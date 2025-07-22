@@ -65,7 +65,7 @@
     },
     "training_data_loader": {
         "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0",
-        "dataset_path": "output/generator/",
+        "dataset_path": "output/data/training_dataset/generated_dataset",
         "statistic_path": "output/generator/statistics_train.json",
         "filter_inputs": [
             9,
@@ -82,8 +82,8 @@
     },
     "test_data_loader": {
         "testing": false,
-        "dataset_path": "output/generator/dataset_test.csv",
-        "statistic_path": "output/generator/statistics_train.json",
+        "dataset_path": "output/data/test_dataset/generated_dataset",
+        "statistic_path": "output/data/statistics_train.json",
         "filter_inputs": [
             9,
             10,
@@ -96,7 +96,7 @@
         "normalize": false,
         "standardize": true,
         "num_sim": 10,
-        "dataset_path_first_round": "output/data/test_dataset/generated_dataset/round_0"
+        "dataset_path_first_round": "output/data/test_dataset/generated_dataset"
     },
     "resume_training": {
         "resume": false,
@@ -119,7 +119,7 @@
     },
     "infer": {
         "save_dir": "output/inference_sbi",
-        "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20250530_135402/",
+        "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20250720_112852/",
         "compute_coverage": true,
         "sim_dataset": false,
         "dataset_path": "output/generator/"
