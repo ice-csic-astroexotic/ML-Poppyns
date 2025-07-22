@@ -51,9 +51,10 @@ def combined_derivatives_analytical(
     NS_radius: float,
 ) -> np.ndarray:
     """
-    Combining the two derivative functions for the misalignment angle
-    and the spin period (combined into a single two-component vector y) into a single
-    function to allow combined integration.
+    Combining the two derivative functions for the misalignment angle and the spin period (combined into a single
+    two-component vector y) into a single function to allow combined integration.
+
+    This function is applicable for the case, where the magnetic field is prescribed analytically.
 
     Args:
         t (float): Unused time variable, required for the integration below.
@@ -126,9 +127,10 @@ def combined_derivatives_fit(
     NS_radius: float,
 ) -> np.ndarray:
     """
-    Combining the two derivative functions for the misalignment angle
-    and the spin period (combined into a single two-component vector y) into a single
-    function to allow combined integration.
+    Combining the two derivative functions for the misalignment angle and the spin period (combined into a single
+    two-component vector y) into a single function to allow combined integration.
+
+    This function is applicable for the case, where the magnetic field is prescribed as a numerical fit.
 
     Args:
         t (float): Unused time variable, required for the integration below.
@@ -180,11 +182,9 @@ def magneto_rotational_evolution(
     t_age: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, dict]:
     """
-    Evolving the neutron stars' magnetic fields, misalignment angles and periods
-    according to their respective ages forward in time to obtain their current
-    magnetic field strengths, misalignment angles and periods. Note that right
-    now the times at which these three parameters are evaluated (apart from the
-    current time) do not agree for pulsars.
+    Evolving the neutron stars' magnetic fields, misalignment angles and periods according to their respective ages
+    forward in time to obtain their current magnetic field strengths, misalignment angles and periods. Note that right
+    now the times at which these three parameters are evaluated (apart from the current time) do not agree for pulsars.
 
     Args:
         B_initial (np.ndarray): Pulsars' initial magnetic field magnitudes, measured in [G].
