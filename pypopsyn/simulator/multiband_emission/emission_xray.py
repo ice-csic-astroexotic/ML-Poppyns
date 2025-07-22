@@ -483,9 +483,9 @@ def outburst_filter_probabilistic(
     )
 
     # Generate random numbers from a uniform distribution between 0 and 1 with length equal to len(outburst_prob) and
-    # compare this random numbers with the actual probabilities stored in outburst_prob.
-    # For the stars where outburst_prob is high there is a high chance that the generated random number will be lower
-    # and therefore an higher chance for the mask to be true.
+    # compare these random numbers with the actual probabilities stored in outburst_prob. For the stars where
+    # outburst_prob is high, there is a high chance that the generated random number will be lower than the outburst
+    # probability, leading to a higher chance of the outburst mask value to be true.
     outburst_mask = (np.random.rand(len(outburst_prob)) < outburst_prob) & (
         B_initial >= 1.0e13
     )
