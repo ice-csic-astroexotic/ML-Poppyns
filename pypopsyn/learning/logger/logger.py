@@ -17,7 +17,7 @@ import logging
 import logging.config
 import pathlib
 
-import pypopsyn.learning.utils as learning_utils
+import pypopsyn.learning.utils.json_utils as json_utils
 from pypopsyn.simulator.config_simulator import cfg
 
 LOG_LEVELS = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
@@ -47,7 +47,7 @@ def setup_logging(
 
     if log_config_file.is_file():
 
-        log_config = learning_utils.json.read_json(log_config_file)
+        log_config = json_utils.read_json(log_config_file)
 
         # Modify logging paths based on run configuration.
         for _, handler in log_config["handlers"].items():

@@ -397,7 +397,7 @@ if cfg["radio_luminosity_model"] == "lum_radio_ppdot":
     cfg["L_radio_log10_sigma"]: float = 0.8
     cfg["epsilon_L"]: float = 0.5
 
-if cfg["radio_luminosity_model"] == "lum_radio_edot":
+elif cfg["radio_luminosity_model"] == "lum_radio_edot":
     # Parameters for the "lum_radio_edot" model (Pardo-Araujo et al. 2025).
     # These best parameters assume a mean_spectral_index = -1.8 (see Posselt et al. 2023).
     cfg["L_radio_log10_mean"]: float = 26.17  # [erg s^(- 1)]

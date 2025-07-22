@@ -4,6 +4,6 @@ This is an example of how to train the simulation-based inference framework usin
 
 To run this example, we use the following command:
 ```commandline
-python pypopsyn/learning/train_sbi.py
+python pypopsyn/learning/sbi_train.py
 ```
 By default, this script will use the configuration specified in `pypopsyn/learning/config_sbi.json`.
