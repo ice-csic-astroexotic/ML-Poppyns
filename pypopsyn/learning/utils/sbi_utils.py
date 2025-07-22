@@ -22,6 +22,7 @@ from logging import Logger
 from typing import List, Optional, Tuple, Union
 
 import corner
+import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -52,11 +53,11 @@ def calculate_smallest_hdr(
     n_samples: int,
     logger: Logger,
     device: torch.device,
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Calculating the smallest highest density region of the posterior distribution, that contains the true value for the
     test dataset produced with the ground truths and simulation output stored in the arguments theta and matrix,
-    respectively.
+    respectively. Additionally, it returns the posterior samples for each test case to enable further analysis.
 
     Args:
         posterior (DirectPosterior): Posterior distribution.
@@ -68,11 +69,15 @@ def calculate_smallest_hdr(
         device (torch.device): Device used to run the script.
 
     Returns:
-        (np.ndarray): Smallest highest density region of the posterior that contains the true value.
+        (Tuple[np.ndarray, np.ndarray]): Smallest highest density region of the posterior that contains the true value,
+            posterior samples for all test simulations.
     """
     hdr = []
     # Counter for successful samples.
     successful_samples = 0
+    posterior_samples_array = np.zeros(
+        (theta.size(0), n_samples, theta.size(1))
+    )
 
     for index in tqdm(
         range(theta.size(0)), desc="Computing Coverage Probability"
@@ -84,9 +89,9 @@ def calculate_smallest_hdr(
         simulation_output = simulation_output.unsqueeze(0)
         true_value = theta[index]
 
-        # Perform sampling with a timeout of 180 seconds.
+        # Perform sampling with a timeout of 6000 seconds.
         posterior_samples, success = sampler.sample_with_timeout(
-            posterior, simulation_output, n_samples, timeout=180
+            posterior, simulation_output, n_samples, timeout=6000
         )
 
         if not success:
@@ -95,6 +100,8 @@ def calculate_smallest_hdr(
                 f"Skipping test sample with index {index} due to timeout."
             )
             continue
+
+        posterior_samples_array[index] = posterior_samples.cpu().numpy()
 
         # Increment the successful samples counter.
         successful_samples += 1
@@ -125,7 +132,7 @@ def calculate_smallest_hdr(
         f"Percentage of successful samples used to compute coverage: {percentage_successful}"
     )
 
-    return np.array(hdr)
+    return np.array(hdr), posterior_samples_array
 
 
 def wrapper_pypopsyn(
@@ -138,8 +145,8 @@ def wrapper_pypopsyn(
     device: torch.device,
 ) -> str:
     """
-    Simulating `num_sim` of mock neutron star populations given the `proposal` distribution. After simulating the
-    populations, we generate the compressed representations for the output.
+    Simulating `num_sim` of mock neutron star populations given the `proposal` distribution. After simulation, generate
+    density maps from the resulting populations.
 
     Args:
         proposal (Union[DirectPosterior,utils.RestrictedPrior]): Proposal distribution used for sampling the parameters.
@@ -340,10 +347,18 @@ def save_training_statistics(
     )
     os.makedirs(log_dir_round_path, exist_ok=True)
 
-    training_statistics_path = (
-        f"{log_dir_round_path}/training_statistics_{index}.json"
+    training_statistics_json_path = (
+        os.path.join(log_dir_round_path, f"training_statistics_{index}.json")
+        if config["trainer"]["ensemble"]
+        else os.path.join(log_dir_round_path, "training_statistics.json")
     )
-    with open(training_statistics_path, "w") as f:
+    training_statistics_plot_path = (
+        os.path.join(log_dir_round_path, f"training_stats_{index}.pdf")
+        if config["trainer"]["ensemble"]
+        else os.path.join(log_dir_round_path, "training_stats.pdf")
+    )
+
+    with open(training_statistics_json_path, "w") as f:
         json.dump(training_statistics, f, indent=4, sort_keys=True)
 
     # Save the plot showing the evolution of the training and validation losses.
@@ -370,9 +385,7 @@ def save_training_statistics(
     )
     plt.legend(bbox_to_anchor=(1.05, 1), frameon=False, loc=0, fontsize=10)
 
-    f.savefig(
-        f"{log_dir_round_path}/training_stats_{index}.pdf", bbox_inches="tight"
-    )
+    f.savefig(training_statistics_plot_path, bbox_inches="tight")
 
 
 def compute_rank_coverage(
@@ -404,7 +417,7 @@ def compute_rank_coverage(
         f"Computing coverage probability for the test dataset for round {effective_round}..."
     )
     num_posterior_samples = 10000
-    hdr = calculate_smallest_hdr(
+    hdr, posterior_samples_test_dataset = calculate_smallest_hdr(
         posterior,
         parameter.to(device),
         matrix.to(device),
@@ -415,6 +428,12 @@ def compute_rank_coverage(
 
     coverage_prob(hdr, n_betas=12, save_dir=save_dir)
 
+    np.savez(
+        f"{save_dir}/posterior_samples_test_data.npz",
+        true_values=parameter.cpu().numpy(),
+        posterior_samples=posterior_samples_test_dataset,
+    )
+
     ranks, dap_samples = run_sbc(
         parameter.to(device),
         matrix.to(device),
@@ -422,60 +441,69 @@ def compute_rank_coverage(
         num_posterior_samples=num_posterior_samples,
     )
 
-    # Saving the ranks and the number of posterior samples to reproduce the plot.
-    torch.save(ranks, f"{save_dir}/ranks.pt")
-    logger.info(
-        f"Number of posterior samples to generate the plot of the ranks is {num_posterior_samples}"
-    )
+    if len(parameter) > 100:
 
-    logger.info("Check the rank statistics...")
-    # Check if the rank distributions follow a uniform distribution with three different tests
-    # (see [here](https://www.mackelab.org/sbi/tutorial/13_diagnostics_simulation_based_calibration/)
-    # for more details on these tests).
-    check_stats = check_sbc(
-        ranks,
-        parameter.to(device),
-        dap_samples.to(device),
-        num_posterior_samples=num_posterior_samples,
-        num_c2st_repetitions=5,
-    )
+        # Saving the ranks and the number of posterior samples to reproduce the plot.
+        torch.save(ranks, f"{save_dir}/ranks.pt")
+        logger.info(
+            f"Number of posterior samples to generate the plot of the ranks is {num_posterior_samples}"
+        )
 
-    logger.info(
-        f"kolmogorov-smirnov p-values \n - check_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
-    )
+        logger.info("Check the rank statistics...")
+        # Check if the rank distributions follow a uniform distribution with three different tests
+        # (see [here](https://www.mackelab.org/sbi/tutorial/13_diagnostics_simulation_based_calibration/)
+        # for more details on these tests).
+        check_stats = check_sbc(
+            ranks,
+            parameter.to(device),
+            dap_samples.to(device),
+            num_posterior_samples=num_posterior_samples,
+            num_c2st_repetitions=5,
+        )
 
-    logger.info(
-        f"c2st accuracies \n - check_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()} "
-        f"\n - check_stats['c2st_dap'] = {check_stats['c2st_dap'].numpy()}"
-    )
+        logger.info(
+            f"kolmogorov-smirnov p-values \n - check_stats['ks_pvals'] = {check_stats['ks_pvals'].numpy()}"
+        )
 
-    # Visually check if the ranks follow a uniform distribution.
-    # The gray band represents the 99% credibility interval around the mean for a uniform distribution.
-    f, ax = sbc_rank_plot(
-        ranks=ranks,
-        num_posterior_samples=num_posterior_samples,
-        plot_type="hist",
-        num_bins=30,  # When passing None the default is len(dataset_test) / 20.
-        parameter_labels=parameter_labels,
-    )
+        logger.info(
+            f"c2st accuracies \n - check_stats['c2st_ranks'] = {check_stats['c2st_ranks'].numpy()} "
+            f"\n - check_stats['c2st_dap'] = {check_stats['c2st_dap'].numpy()}"
+        )
 
-    f.savefig(
-        f"{save_dir}/ranks_histograms.pdf",
-        bbox_inches="tight",
-    )
-    plt.close()
-    f, ax = sbc_rank_plot(
-        ranks=ranks,
-        num_posterior_samples=num_posterior_samples,
-        plot_type="cdf",
-        parameter_labels=parameter_labels,
-    )
+        # Visually check if the ranks follow a uniform distribution.
+        # The gray band represents the 99% credibility interval around the mean for a uniform distribution.
+        f, ax = sbc_rank_plot(
+            ranks=ranks,
+            num_posterior_samples=num_posterior_samples,
+            plot_type="hist",
+            num_bins=30,  # When passing None the default is len(dataset_test) / 20.
+            parameter_labels=parameter_labels,
+        )
 
-    f.savefig(
-        f"{save_dir}/ranks_cumulative.pdf",
-        bbox_inches="tight",
-    )
-    plt.close()
+        f.savefig(
+            f"{save_dir}/ranks_histograms.pdf",
+            bbox_inches="tight",
+        )
+        plt.close()
+        f, ax = sbc_rank_plot(
+            ranks=ranks,
+            num_posterior_samples=num_posterior_samples,
+            plot_type="cdf",
+            parameter_labels=parameter_labels,
+        )
+
+        f.savefig(
+            f"{save_dir}/ranks_cumulative.pdf",
+            bbox_inches="tight",
+        )
+        plt.close()
+
+    else:
+        logger.warning(
+            "WARNING: Simulation-based Calibration cannot be performed due to the limited number of test samples."
+            "For SBC, the number of test samples should be on the order of 1000s to give reliable results. "
+            "We recommend using 10000."
+        )
 
 
 def prepare_dataset_sbi(
@@ -485,7 +513,8 @@ def prepare_dataset_sbi(
     atnf: Optional[bool] = False,
 ) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
     """
-    Prepare dataset for use in sbi.
+    Prepare dataset for use in SBI. If compression is enabled, either PCA or CNN compression will be applied to the input
+    matrix tensor.
 
     Args:
         dataset_folder (str): Path to the folder where the dataset is saved.
@@ -496,7 +525,7 @@ def prepare_dataset_sbi(
             observed ATNF population. The default is False.
 
     Returns:
-        (dl.DatasetMultichannelArray, torch.tensor, torch.tensor): A tuple containing the dataset containing the statistics, parameter tensor and input matrix tensor.
+        (Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]): A tuple containing the dataset containing the statistics, parameter tensor and input matrix tensor.
     """
 
     # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
@@ -505,7 +534,6 @@ def prepare_dataset_sbi(
         if atnf
         else dataset_folder + "/dataset_full.csv"
     )
-
     dataset_stat_path = config["training_data_loader"]["statistic_path"]
 
     if atnf:
@@ -519,8 +547,7 @@ def prepare_dataset_sbi(
     standardize = config["training_data_loader"]["standardize"]
     input_shape = config["arch"]["args"]["input_shape"]
     n_parameters = len(filter_labels)
-
-    # Loading the training dataset.
+    # Load the density maps and parameters, and normalize or standardize them depending on the configuration file.
     try:
         dataset = dl.DatasetMultichannelArray(
             dataset_path=dataset_path,
@@ -534,53 +561,216 @@ def prepare_dataset_sbi(
         logger.exception("Error: an error occurred when loading the dataset.")
         sys.exit(1)
 
-    parameter = np.zeros((len(dataset), n_parameters))
+    n_samples = len(dataset)
+    parameter = np.zeros((n_samples, n_parameters))
 
-    if config["trainer"]["embedding"]:
-        matrix = np.zeros(
-            (len(dataset), config["arch"]["args"]["len_output_layer"])
+    use_compression_input = config["compression_input"]["use_compression"]
+    compression_type = config["compression_input"]["compression_type"]
+
+    if not use_compression_input:
+        parameter, matrix = raw_vector(
+            n_samples, input_shape, dataset, logger, parameter
         )
-        # Load the pre-trained embedding network to encode each dataset sample into a latent vector.
-        embedding_model_path = config["trainer"]["trained_embedding"]
-        with open(embedding_model_path, "rb") as f:
-            emb_neural_net = pickle.load(f)
+
+    elif use_compression_input and compression_type == "cnn":
+        parameter, matrix = cnn_compression(
+            n_samples,
+            parameter,
+            config,
+            dataset,
+            input_shape,
+            logger,
+            normalize,
+            standardize,
+        )
+
+    elif use_compression_input and compression_type == "pca":
+        parameter, matrix = pca_compression(
+            n_samples,
+            input_shape,
+            dataset,
+            logger,
+            config,
+            parameter,
+            normalize,
+            standardize,
+        )
+
     else:
-        matrix = np.zeros(
-            (len(dataset), input_shape[0], input_shape[1], input_shape[2])
+        logger.error(
+            "Invalid compression configuration: 'compression_input' enabled but 'compression_type' not recognized"
         )
+        sys.exit(1)
+
+    parameter = torch.from_numpy(parameter).float()
+    matrix = torch.from_numpy(matrix).float()
+
+    return dataset, parameter, matrix
+
+
+def pca_compression(
+    n_samples: int,
+    input_shape: Tuple[int, int, int],
+    dataset: dl.DatasetMultichannelArray,
+    logger: Logger,
+    config: configuration_parser.ConfigurationParser,
+    parameter: np.ndarray,
+    normalize: bool,
+    standardize: bool,
+) -> Tuple[np.ndarray, np.ndarray]:
+
+    """
+    Compresses input samples using a pre-trained PCA model.
+
+    Args:
+        n_samples (int): Number of samples in the dataset.
+        input_shape (Tuple[int, int, int]): Expected shape of each input sample.
+        dataset (DatasetMultichannelArray): Dataset object.
+        logger (Logger): Logger object for error reporting.
+        config (ConfigurationParser): Configuration containing the PCA model path.
+        parameter (np.ndarray): Array to store extracted physical parameters.
+        normalize (bool): Whether to normalize compressed values between 0 and 1.
+        standardize (bool): Whether to standardize compressed values to zero mean and unit variance.
+
+    Returns:
+        (Tuple[np.ndarray, np.ndarray]): Parameter array (theta) of shape (n_samples, n_parameters), PCA-compressed input array of shape (n_samples, n_pca_components)
+    """
+
+    matrix_raw = np.zeros(
+        (n_samples, input_shape[0] * input_shape[1] * input_shape[2])
+    )
+    for i, (x, theta) in enumerate(dataset):
+        x = np.moveaxis(x, -1, 0)
+        if list(x.shape) != list(input_shape):
+            logger.error(
+                f"Input shape mismatch: got {x.shape}, expected {input_shape}"
+            )
+            sys.exit(1)
+
+        matrix_raw[i] = x.reshape(-1)
+        parameter[i] = theta
+
+    pca_model_path = config["compression_input"]["pca_model_path"]
+    if pca_model_path is None:
+        logger.error(
+            "PCA model path not provided in configuration under compression_input -> pca_model_path."
+        )
+        sys.exit(1)
+
+    pca_model = joblib.load(pca_model_path)
+    matrix_compressed = pca_model.transform(matrix_raw)
+
+    if normalize:
+        min_vals = matrix_compressed.min(axis=1, keepdims=True)
+        max_vals = matrix_compressed.max(axis=1, keepdims=True)
+        denom = max_vals - min_vals
+        denom[denom == 0] = 1e-8
+        matrix_compressed = (matrix_compressed - min_vals) / denom
+    elif standardize:
+        mean_vals = matrix_compressed.mean(axis=1, keepdims=True)
+        std_vals = matrix_compressed.std(axis=1, keepdims=True)
+        std_vals[std_vals == 0] = 1e-8
+        matrix_compressed = (matrix_compressed - mean_vals) / std_vals
+
+    return parameter, matrix_compressed
+
+
+def cnn_compression(
+    n_samples: int,
+    parameter: np.ndarray,
+    config: configuration_parser.ConfigurationParser,
+    dataset: dl.DatasetMultichannelArray,
+    input_shape: Tuple[int, int, int],
+    logger: Logger,
+    normalize: bool,
+    standardize: bool,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Applies CNN-based compression to compress input samples using a trained compression model.
+
+    Args:
+        n_samples (int): Number of samples in the dataset.
+        parameter (np.ndarray): Array to store physical parameters (theta).
+        config (ConfigurationParser): Configuration including the CNN compression model path.
+        dataset (DatasetMultichannelArray): Dataset object.
+        input_shape (Tuple[int, int, int]): Expected input shape.
+        logger (Logger): Logger for reporting.
+        normalize (bool): Whether to normalize embedded values.
+        standardize (bool): Whether to standardize embedded values.
+
+    Returns:
+        (Tuple[np.ndarray, np.ndarray]): Parameter array (theta) of shape (n_samples, n_parameters), CNN-compressed input array of shape (n_samples, len_output_layer)
+    """
+
+    matrix_embedded = np.zeros(
+        (n_samples, config["arch"]["args"]["len_output_layer"])
+    )
+    embedding_model_path = config["compression_input"]["cnn_model_path"]
+
+    with open(embedding_model_path, "rb") as f:
+        emb_neural_net = pickle.load(f)
 
     for i, (x, theta) in enumerate(dataset):
-        # Reshaping the matrix to have the channel number at the beginning.
         x = np.moveaxis(x, -1, 0)
-
-        if list(x.shape) != input_shape:
+        if list(x.shape) != list(input_shape):
             logger.error(
-                "Mismatch between the shape of the input data x {} and the input shape specified "
-                "in the configuration file {}".format(x.shape, input_shape)
+                f"Input shape mismatch: got {x.shape}, expected {input_shape}"
             )
-            sys.exit()
+            sys.exit(1)
 
-        if config["trainer"]["embedding"]:
-            x_embedded = (
-                emb_neural_net._embedding_net(torch.tensor(x)).detach().numpy()
-            )
-            if normalize:
-                matrix[i] = (x_embedded - x_embedded.min()) / (
-                    x_embedded.max() - x_embedded.min()
-                )
-            if standardize:
-                matrix[i] = (x_embedded - x_embedded.mean()) / (
-                    x_embedded.std() + 1e-8
-                )
-            else:
-                matrix[i] = x
+        x_embedded = (
+            emb_neural_net._embedding_net(torch.tensor(x)).detach().numpy()
+        )
+
+        if normalize:
+            min_val = x_embedded.min()
+            max_val = x_embedded.max()
+            denom = max_val - min_val
+            denom = denom if denom != 0 else 1e-8
+            matrix_embedded[i] = (x_embedded - min_val) / denom
+        elif standardize:
+            mean_val = x_embedded.mean()
+            std_val = x_embedded.std()
+            std_val = std_val if std_val != 0 else 1e-8
+            matrix_embedded[i] = (x_embedded - mean_val) / std_val
         else:
-            matrix[i] = x
+            matrix_embedded[i] = x_embedded
 
         parameter[i] = theta
 
-    # Transforming the maps and labels into torch.tensors.
-    parameter = torch.from_numpy(parameter).type(torch.float32)
-    matrix = torch.from_numpy(matrix).type(torch.float32)
+    return parameter, matrix_embedded
 
-    return dataset, parameter, matrix
+
+def raw_vector(
+    n_samples: int,
+    input_shape: np.ndarray,
+    dataset: dl.DatasetMultichannelArray,
+    logger: Logger,
+    parameter: np.ndarray,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Loads raw data vectors without compression for use as input to the model.
+
+    Args:
+        n_samples (int): Number of samples in the dataset.
+        input_shape (np.ndarray): Shape of input sample.
+        dataset (DatasetMultichannelArray): Dataset to extract raw vectors from.
+        logger (Logger): Logger for error reporting.
+        parameter (np.ndarray): Array with the physical parameters.
+
+    Returns:
+        (tuple): Tensor of physical parameters (theta), Tensor of raw input vectors with shape (n_samples, *input_shape)
+    """
+    matrix_raw = np.zeros((n_samples, *input_shape))
+
+    for i, (x, theta) in enumerate(dataset):
+        x = np.moveaxis(x, -1, 0)  # channel-first
+        if list(x.shape) != list(input_shape):
+            logger.error(
+                f"Input shape mismatch: got {x.shape}, expected {input_shape}"
+            )
+            sys.exit(1)
+        matrix_raw[i] = x
+        parameter[i] = theta
+
+    return parameter, matrix_raw

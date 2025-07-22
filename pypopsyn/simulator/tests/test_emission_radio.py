@@ -94,6 +94,67 @@ def test_case_3():
     return data
 
 
+@pytest.fixture()
+def test_case_4():
+    data = {
+        "dict_final_pop": {
+            "age": np.array([1e6, 2e6]),
+            "l": np.array([-50.0, 50.0]),
+            "b": np.array([-20.0, 10.0]),
+            "ra": np.array([50.0, 250.0]),
+            "dec": np.array([-50.0, 50.0]),
+            "dist": np.array([2.0, 10.0]),
+            "pm_ra": np.array([-50.0, 50.0]),
+            "pm_dec": np.array([-50.0, 50.0]),
+            "v_ls": np.array([-50.0, 50.0]),
+            "P": np.array([0.01, 0.5]),
+            "P_dot": np.array([1.0e-11, 1.0e-12]),
+            "B": np.array([1e12, 1e14]),
+            "chi": np.array([1.0, 2.0]),
+            "idx": np.array([0, 1]),
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
+            "coverage_radio": np.array([True, False]),
+        },
+        "w_int_s": np.array([0.001]),
+        "L_radio_bol": np.array([1.0e26]),
+        "S_radio_bol": np.array([1.0e-6]),
+        "spectral_index": np.array([-1.8]),
+        "DM": np.array([100]),
+        "tau_sc": np.array([0.001]),
+        "intercepted_radio": np.array([True]),
+        "expected_keys": [
+            "age",
+            "l",
+            "b",
+            "ra",
+            "dec",
+            "dist",
+            "pm_ra",
+            "pm_dec",
+            "v_ls",
+            "B",
+            "chi",
+            "P",
+            "P_dot",
+            "w_int",
+            "DM",
+            "idx",
+            "L_radio_bol",
+            "S_radio_bol",
+            "spectral_index",
+            "tau_sc",
+            "coverage_radio_PMPS",
+            "coverage_radio_HTRU_low",
+            "coverage_radio_HTRU_mid",
+            "coverage_radio",
+        ],
+    }
+
+    return data
+
+
 def test_beam_aperture_standard(test_case_1):
     """
     Verifying that for a given choice of spin period and emission radius the
@@ -431,3 +492,31 @@ def test_calculate_radio_emission_full(monkeypatch, test_case_3):
         rtol=TOL,
         atol=1.0e-5,
     ).all()
+
+
+def test_radio_population_intercepted(monkeypatch, test_case_4):
+    """
+    Check that the dictionary with the properties of the neutron stars that intercept our line of sight with their
+    radio beams is properly returned.
+    """
+
+    def mock_calculate_radio_emission(*args, **kwargs):
+        return (
+            test_case_4["intercepted_radio"],
+            test_case_4["w_int_s"],
+            test_case_4["L_radio_bol"],
+            test_case_4["S_radio_bol"],
+            test_case_4["spectral_index"],
+            test_case_4["DM"],
+            test_case_4["tau_sc"],
+        )
+
+    monkeypatch.setattr(
+        er, "calculate_radio_emission", mock_calculate_radio_emission
+    )
+    out_dict = er.radio_population_intercepted(test_case_4["dict_final_pop"])
+
+    # Verify that the keys are correct.
+    assert set(out_dict.keys()) == set(test_case_4["expected_keys"])
+    # Verify that the output dictionary contains at most the same number of stars as the input one.
+    assert len(out_dict["age"]) <= len(test_case_4["dict_final_pop"]["age"])

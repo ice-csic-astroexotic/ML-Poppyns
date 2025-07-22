@@ -37,7 +37,7 @@ import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population_edm as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
-import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
+import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
@@ -247,7 +247,13 @@ def simulate_population(args: argparse.Namespace) -> None:
             log.info("Computing initial period derivatives...")
             period_derivative_vect = np.vectorize(pdv.period_derivative)
             P_dot_initial = (
-                period_derivative_vect(B_initial, chi_initial, P_initial)
+                period_derivative_vect(
+                    B_initial,
+                    chi_initial,
+                    P_initial,
+                    cfg["NS_mass"],
+                    cfg["NS_radius"],
+                )
                 / const.YR_TO_S
             )
 
@@ -507,6 +513,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                     B_final,
                     chi_final,
                     P_final,
+                    cfg["NS_mass"],
+                    cfg["NS_radius"],
                 )
                 / const.YR_TO_S
             )

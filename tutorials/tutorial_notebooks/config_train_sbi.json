@@ -1,62 +1,127 @@
 {
-  "name": "SBI_ConvolutionMDN",
-  "n_gpu": 1,
-  "set_manual_seed": false,
-  "manual_seed": 42,
-  "profile_log": "profile.log",
-  "profile_json": "profile.json",
-  "show_profiling": true,
-
-  "arch": {
-    "type": "ModelConvSBI",
-    "args": {
-        "input_shape": [3, 32, 32],
-        "len_output_layer": 32
-    }
-  },
-
-  "weights_initializer": {
-      "type": "InitializerKaiming",
-      "args": {}
-  },
-
-  "density_estimator": {
-    "type": "mdn",
-    "args": {
-      "num_components": 10
-       }
-  },
-
-  "training_data_loader": {
-    "dataset_path": "output/generator/dataset_train.csv",
-    "statistic_path": "output/generator/statistics_train.json",
-    "filter_inputs": [9, 10, 11],
-    "filter_labels": [15, 16],
-    "normalize": false,
-    "standardize": true
-  },
-
-  "test_data_loader": {
-    "dataset_path": "output/generator/dataset_test.csv",
-    "statistic_path": "output/generator/statistics_train.json",
-    "filter_inputs": [9, 10, 11],
-    "filter_labels": [15, 16],
-    "normalize": false,
-    "standardize": true
-  },
-
-  "resume_training": {
-    "resume": false
+    "name": "SBI_ConvolutionMDN",
+    "n_gpu": 1,
+    "enable_dask": false,
+    "n_processes": 4,
+    "workers_dask": 4,
+    "set_manual_seed": false,
+    "manual_seed": 42,
+    "profile_log": "profile.log",
+    "profile_json": "profile.json",
+    "show_profiling": true,
+    "arch": {
+        "type": "ModelConvSBI",
+        "args": {
+            "input_shape": [
+                3,
+                32,
+                32
+            ],
+            "len_output_layer": 32
+        }
     },
-
-  "trainer": {
-    "validation_fraction": 0.1,
-    "batch_size": 8,
-    "lr": 5e-4,
-    "save_dir": "output/learning_sbi"
-  },
-
-  "infer": {
-    "save_dir": "output/inference_sbi"
-  }
+    "prior_ranges": {
+        "labels": [
+            "B_initial_log10_mean",
+            "P_initial_log10_mean"
+        ],
+        "low": [
+            12,
+            -1.5
+        ],
+        "high": [
+            14,
+            -0.3
+        ]
+    },
+    "compression_input": {
+        "use_compression": false,
+        "compression_type": "cnn",
+        "cnn_model_path": "exp_4/round_9/trained_model_ensemble_0.pickle",
+        "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
+    },
+    "weights_initializer": {
+        "type": "InitializerKaiming",
+        "args": {}
+    },
+    "density_estimator": {
+        "type": "mdn",
+        "args": {
+            "num_components": 10,
+            "hidden_features": 32
+        }
+    },
+    "observed_sample": {
+        "dataset_path": "output/generator_observed/",
+        "filter_inputs": [
+            9,
+            10,
+            11
+        ],
+        "filter_labels": [
+            15,
+            17
+        ]
+    },
+    "training_data_loader": {
+        "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0",
+        "dataset_path": "output/generator/",
+        "statistic_path": "output/generator/statistics_train.json",
+        "filter_inputs": [
+            9,
+            10,
+            11
+        ],
+        "filter_labels": [
+            15,
+            16
+        ],
+        "normalize": false,
+        "standardize": true,
+        "num_sim": 10
+    },
+    "test_data_loader": {
+        "testing": false,
+        "dataset_path": "output/generator/dataset_test.csv",
+        "statistic_path": "output/generator/statistics_train.json",
+        "filter_inputs": [
+            9,
+            10,
+            11
+        ],
+        "filter_labels": [
+            15,
+            16
+        ],
+        "normalize": false,
+        "standardize": true,
+        "num_sim": 10,
+        "dataset_path_first_round": "output/data/test_dataset/generated_dataset/round_0"
+    },
+    "resume_training": {
+        "resume": false,
+        "last_round": 0
+    },
+    "trainer": {
+        "type": "snpe",
+        "truncated_prior": false,
+        "retrain_from_scratch": false,
+        "ensemble": false,
+        "size_ensemble": 5,
+        "validation_fraction": 0.1,
+        "batch_size": 8,
+        "lr": 0.0005,
+        "num_rounds": 1,
+        "sir": true,
+        "append_simulations": true,
+        "plot_proposal": false,
+        "save_dir": "output/learning_sbi"
+    },
+    "infer": {
+        "save_dir": "output/inference_sbi",
+        "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20250530_135402/",
+        "compute_coverage": true,
+        "sim_dataset": false,
+        "dataset_path": "output/generator/"
+    }
 }
