@@ -49,7 +49,9 @@ For multi-round inference, the workflow is as follows:
    data $x_0$.
 5. Compute a new proposal prior using the following options:
     - If we opt for a **truncated approach**, restrict the prior distribution to the support of the approximated 
-      posterior computed in step 4.
+      posterior computed in step 4 (For more information about the truncated proposal, see 
+      [Deistler et al 2022](https://arxiv.org/abs/2210.04815) and 
+      [Pardo-Araujo et al 2025](https://www.aanda.org/articles/aa/pdf/2025/04/aa53314-24.pdf)).
     - Otherwise, use the posterior distribution from step 4 directly as the new proposal prior.
 6. Update the prior distribution with the new proposal prior and return to step 1.
 
@@ -114,8 +116,7 @@ the tutorial [Learning pulsar parameters with NNs](learning_tutorial_nn.md), whe
 
 #### General info
 
-We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, 
-a manual seed for the initialization of the network weights (assuming that `set_manual_seed` is set to true) 
+We first specify general settings for the experiment such as the experiment's name, the number of GPUs used
 and some additional profiling options. The latter specify the names of the files containing run time information
 for the code and whether this timing information is displayed in the terminal or not.
 
@@ -123,8 +124,6 @@ for the code and whether this timing information is displayed in the terminal or
 {
     "name": "SBI_ConvolutionMDN",
     "n_gpu": 1,
-    "set_manual_seed": false,
-    "manual_seed": 42,
     "profile_log": "profile.log",
     "profile_json": "profile.json",
     "show_profiling": true
