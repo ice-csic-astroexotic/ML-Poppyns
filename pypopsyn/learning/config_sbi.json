@@ -10,14 +10,6 @@
   "profile_json": "profile.json",
   "show_profiling": true,
 
-  "arch": {
-    "type": "ModelConvSBI",
-    "args": {
-        "input_shape": [6, 32, 32],
-        "len_output_layer": 32
-    }
-  },
-
   "weights_initializer": {
       "type": "InitializerKaiming",
       "args": {}
@@ -32,11 +24,20 @@
   "density_estimator": {
     "type": "mdn",
     "classifier_nre": "resnet",
-    "args": {
+    "args_mdn_npe": {
       "hidden_features": 16,
       "num_components": 10
        }
   },
+
+   "arch": {
+    "type": "ModelConvSBI",
+    "args": {
+        "input_shape": [6, 32, 32],
+        "len_output_layer": 32
+    }
+  },
+
   "compression_input": {
     "use_compression": false,
     "compression_type": "cnn",
