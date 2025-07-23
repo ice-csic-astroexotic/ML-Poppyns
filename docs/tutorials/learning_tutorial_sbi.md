@@ -129,48 +129,34 @@ for the code and whether this timing information is displayed in the terminal or
     "show_profiling": true
 }
 ```
+#### Training parameters
 
+General options for the machine learning experiment are specified in the trainer section. First, we select the SBI 
+method to use by choosing from `snpe`, `snle`, or `snre` (including the s for the sequential approach, even in the case of 
+single-round inference). For single-round inference, we set `num_rounds = 1`; otherwise, this parameter defines the 
+number of rounds to perform.
+We must also specify the directory where the trained model will be saved using the `save_dir` parameter. Additional 
+configuration options include the fraction of the training dataset reserved for validation, the training batch size, 
+and the initial learning rate for the Adam optimizer, which is the default in the `sbi` library.
 
-#### Initialization
-
-We also specify a scheme to initialize the weights and biases of the network. 
-Here, we show an example using the Kaiming initializer denoted by `InitializerKaiming`.
+To create an ensemble of posteriors, we can train multiple networks per round by setting `ensemble = true` and specifying
+the ensemble size using `size_ensemble`. Note that the networks in the ensemble share the same architecture and differ 
+only due to the random initialization of their weights.
+This section contains additional parameters specific to multi-round inference, which are explained below in the
+[Multi-round specific options](#multi-round-specific-options) section.
 
 ```json
 {
-    "weights_initializer": {
-        "type": "InitializerKaiming",
-        "args": {}
+    "trainer": {
+        "type": "snle",
+        "num_rounds":1,
+        "save_dir": "data/example_learning_sbi",
+        "validation_fraction": 0.1,
+        "batch_size": 8,
+        "lr": 5e-4,
+        "ensemble":true,
+        "size_ensemble":5
     }
-}
-```
-Here is a list with the different initialization procedures available:
-
-* `InitializerKaiming` uses the Kaiming initialization approach introduced in [He et al. (2015)](https://arxiv.org/abs/1502.01852).
-* `InitializerNormal` samples the weights from a Normal distribution $N(0, \sigma^2)$ whilst biases are filled 
- with a constant zero value. In this case, $\sigma = 1 / \sqrt{n}$ where $n$ is the number of input features.
-* `InitializerUniform` samples the weights from a uniform distribution $U(0,1)$ whilst biases are filled with 
- a constant zero value.
-* `InitializerUniformRule` samples the weights from a uniform distribution $U(-y, y)$. Here, $y = 1 / \sqrt{n}$ 
- with $n$ being the number of input features and biases are filled with a constant zero value.
-* `InitializerXavier` uses the Xavier initialization approach introduced in [Xavier et al. (2010)](https://proceedings.mlr.press/v9/glorot10a.html).
-
-#### MCMC sampler
-
-For cases where NRE or NLE is used, an extra step is required to obtain or sample from the posterior. In the following 
-case, we use the default MCMC-based sampling algorithms provided by the `sbi` package. For details on the different 
-samplers in `sbi`, see [the sbi documentation](https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/).
-
-When performing MCMC sampling, we need to specify the number of parallel chains, the thinning factor, and the MCMC 
-sampler type. `sbi` supports the following MCMC samplers: `nuts`, `slice`, `hmc`, and `slice_np_vectorized`.
-
-```json
-{ 
-  "mcmc_sampler": {
-    "type": "slice_np_vectorized",
-    "num_chains": 20,
-    "thin": 5
-  }
 }
 ```
 
@@ -195,6 +181,25 @@ neurons in the hidden layers is set to `16`.
       "num_components": 10
        }
   
+```
+
+#### MCMC sampler
+
+For cases where NRE or NLE is used, an extra step is required to obtain or sample from the posterior. In the following 
+case, we use the default MCMC-based sampling algorithms provided by the `sbi` package. For details on the different 
+samplers in `sbi`, see [the sbi documentation](https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/).
+
+When performing MCMC sampling, we need to specify the number of parallel chains, the thinning factor, and the MCMC 
+sampler type. `sbi` supports the following MCMC samplers: `nuts`, `slice`, `hmc`, and `slice_np_vectorized`.
+
+```json
+{ 
+  "mcmc_sampler": {
+    "type": "slice_np_vectorized",
+    "num_chains": 20,
+    "thin": 5
+  }
+}
 ```
 
 #### Embedding network
@@ -238,6 +243,30 @@ The models that have been predefined are the following ones:
 
 If you would like to design your own network architecture, you need to implement a new model class in 
 `pypopsyn/learning/models` and import this model in the file `models.py`.
+
+#### Initialization
+
+We also specify a scheme to initialize the weights and biases of the convolutional neural network. 
+Here, we show an example using the Kaiming initializer denoted by `InitializerKaiming`.
+
+```json
+{
+    "weights_initializer": {
+        "type": "InitializerKaiming",
+        "args": {}
+    }
+}
+```
+Here is a list with the different initialization procedures available:
+
+* `InitializerKaiming` uses the Kaiming initialization approach introduced in [He et al. (2015)](https://arxiv.org/abs/1502.01852).
+* `InitializerNormal` samples the weights from a Normal distribution $N(0, \sigma^2)$ whilst biases are filled 
+ with a constant zero value. In this case, $\sigma = 1 / \sqrt{n}$ where $n$ is the number of input features.
+* `InitializerUniform` samples the weights from a uniform distribution $U(0,1)$ whilst biases are filled with 
+ a constant zero value.
+* `InitializerUniformRule` samples the weights from a uniform distribution $U(-y, y)$. Here, $y = 1 / \sqrt{n}$ 
+ with $n$ being the number of input features and biases are filled with a constant zero value.
+* `InitializerXavier` uses the Xavier initialization approach introduced in [Xavier et al. (2010)](https://proceedings.mlr.press/v9/glorot10a.html).
 
 #### Alternative input compression options
 
@@ -290,11 +319,13 @@ the order of parameters in the `dataset_full.csv` file that contains information
 
 We also require a training data loader, which is responsible for loading the dataset in a representation readable 
 by the network. The path to the directory containing the training dataset (in particular the file `dataset_full.csv`) 
-for the first round is specified in the `dataset_path_first_round` field. We also specify the location for the JSON
-file characterizing the statistics of the training dataset in `statistic_path`, and the input channels `filter_inputs`
-used in building our (multichannel) input. Additionally, we set the ground truth labels `filter_labels` that we want 
-to predict and provide information on whether our data and labels are normalized or standardized. For multi-round
-inference, the training datasets generated in each round will be saved in the directory specified by `dataset_path`.
+for the first round is specified in the `dataset_path_first_round` field. For multi-round inference, the training
+datasets generated in each of the following rounds will be saved in the directory specified by `dataset_path`.
+We also specify the location for the JSON file characterizing the statistics of the training dataset in `statistic_path`. 
+and the input channels `filter_inputs` used in building our (multichannel) input. Additionally, we set the ground truth
+labels `filter_labels` that we want to predict and provide information on whether our data and labels are normalized or
+standardized. The `filter_labels` and `filter_inputs` arguments are explained in more detail below, along with an 
+example.
 
 For the multi-round case, we must also specify, how many simulations we want to run in each round using the `num_sim` 
 field for training. In the example below, 1000 simulations are generated per round and then used for training.
@@ -312,7 +343,7 @@ For the example above and following the recommended folder structure, the `train
     "statistic_path": "output/data/statistics_train.json",
     "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0",
     "filter_inputs": [9, 10, 11, 12, 13, 14],
-    "filter_labels": [15, 16, 17, 18, 19, 20, 21],
+    "filter_labels": [15, 17],
     "normalize": false,
     "standardize": true,
     "num_sim": 1000
@@ -347,9 +378,9 @@ the labels `B_initial_log10_mean` and `P_initial_log10_mean` (indices 15, 16).
 
 !!! warning
     
-    The length of the two lists for `filter_inputs` and `filter_labels` in the dataset loader configuration have to 
-    match the channel input dimension and number of output dimension of the neural network.
-    Otherwise an error is produced.
+    If an embedding network is used to compress the 2D maps, the length of `filter_inputs` in the dataset loader 
+    configuration must match the network’s expected input channel dimension specified in `input_shape` in the arch 
+    section.
 
 Finally, our training data loader enables us to activate on-the-fly normalization or standardization (both are 
 mutually exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information 
@@ -364,13 +395,14 @@ the range between 0 and 1. If standardized, the input channels and labels have v
 
 #### Testing data loader
 
-Inference on a test dataset can be performed either separately using the `sbi_infer.py` script after training has been
-completed, or simultaneously during training by setting `testing` to `true`. In the latter case, the testing dataset 
-will be generated on the fly, producing as many simulations as specified in `num_sim`. As with training, testing 
-requires specifying the path to the test dataset in the `dataset_path_first_round` field. This directory must contain 
-a `dataset_full.csv` file. In the case of multi-round inference, the testing dataset will be saved at the path 
-specified in `dataset_path`. Therefore, for the example above and following the recommended folder 
-structure, the `test_data_loader` configurations will look like this:
+Inference on a test dataset can be performed either separately using the `sbi_infer.py` script after training, or 
+simultaneously during training by setting testing to true. As with training, testing requires specifying the path to
+the test dataset for the first round in the `dataset_path_first_round` field, which must contain a `dataset_full.csv`
+file.
+In multi-round inference, the test dataset for subsequent rounds is generated on the fly and saved to the path specified
+in dataset_path, with the number of simulations defined by num_sim.
+
+Following the recommended folder structure, the test_data_loader configuration for the example above will look like this:
 
 
 ```json
@@ -379,51 +411,24 @@ structure, the `test_data_loader` configurations will look like this:
     "testing": false,
     "dataset_path": "output/data/test_dataset",
     "dataset_path_first_round": "output/data/test_dataset/generated_dataset/round_0",
-    "num_sim": 300
+    "num_sim": 10
   }
 }
 ```
 
 #### Observed sample
 
-The inference script performs the inference for an observed sample specified in the `observed_sample` field. 
-As before, you must provide the `filter_inputs` and `filter_labels`, which must match those used during training. 
+The inference script performs inference on a sample specified in the `observed_sample` field, assuming that the folder 
+contains a CSV file named `dataset_atnf.csv`.
+As before, you must provide `filter_inputs` and `filter_labels`, which must match those used during training.
 
 ```json
 {
   "observed_sample": {
       "dataset_path": "data/example_generator_observed",
       "filter_inputs": [9, 10, 11, 12, 13, 14],
-      "filter_labels": [15, 16, 17, 18, 19, 20, 21]
+      "filter_labels": [15, 17]
   }
-}
-```
-
-#### Training parameters
-
-Finally, we specify general options for our machine learning experiment. First, we select the SBI method we want
-to use choosing from the options `snpe`, `snle`, or `snre` (including the `s` for the sequential approach even in the
-case of single-round inference). For single-round inference, we set `num_rounds = 1`. Otherwise, this parameter 
-denotes the number of rounds we want to learn sequentially. Additionally, we can configure the fraction of the 
-training dataset reserved for validation, the training batch size, and the initial learning rate for the `Adam`
-optimizer, which is the default optimizer in the `sbi` library. We must also specify the directory path where the
-trained model will be saved using the `save_dir` parameter. We also have the option to train multiple networks per
-round and create an ensemble of posteriors by setting `ensemble = true` and specifying the ensemble size 
-with `size_ensemble`. Note that the difference between the networks in the ensemble is only due to the randomized
-initialization of their weights, i.e., the architecture of each network in the ensemble is the same.
-
-```json
-{
-    "trainer": {
-        "type": "snle",
-        "validation_fraction": 0.1,
-        "batch_size": 8,
-        "lr": 5e-4,
-        "ensemble":true,
-        "size_ensemble":5, 
-        "num_rounds":1,
-        "save_dir": "data/example_learning_sbi"
-    }
 }
 ```
 
@@ -530,18 +535,18 @@ An example of the multi-round training information could look as follows:
 {
   "trainer": {
     "type": "snle",
+    "num_rounds": 10,
+    "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2025/exp_constant_mag_cnn_embedding/learning",
+    "batch_size": 16,
+    "lr": 1e-4,
+    "ensemble": true,
+    "size_ensemble": 5,
     "append_simulations": true,
     "truncated_prior": false,
     "retrain_from_scratch": true,
-    "ensemble": true,
-    "size_ensemble": 5,
     "validation_fraction": 0.1,
-    "batch_size": 16,
-    "lr": 1e-4,
-    "num_rounds": 10,
     "sir": true,
-    "plot_proposal": false,
-    "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2025/exp_constant_mag_cnn_embedding/learning"
+    "plot_proposal": false
   }
 }
 ```

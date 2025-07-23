@@ -10,15 +10,20 @@
   "profile_json": "profile.json",
   "show_profiling": true,
 
-  "weights_initializer": {
-      "type": "InitializerKaiming",
-      "args": {}
-  },
-
-  "mcmc_sampler": {
-    "type": "slice_np_vectorized",
-    "num_chains": 20,
-    "thin": 5
+  "trainer": {
+    "type": "snle",
+    "num_rounds": 3,
+    "save_dir": "toremove/learning_snle",
+    "ensemble": true,
+    "size_ensemble": 5,
+    "validation_fraction": 0.1,
+    "batch_size": 8,
+    "lr": 5e-4,
+    "truncated_prior": false,
+    "sir": true,
+    "retrain_from_scratch": false,
+    "append_simulations": true,
+    "plot_proposal": false
   },
 
   "density_estimator": {
@@ -30,7 +35,7 @@
        }
   },
 
-   "arch": {
+  "arch": {
     "type": "ModelConvSBI",
     "args": {
         "input_shape": [6, 32, 32],
@@ -38,11 +43,22 @@
     }
   },
 
+  "weights_initializer": {
+      "type": "InitializerKaiming",
+      "args": {}
+  },
+
   "compression_input": {
     "use_compression": false,
     "compression_type": "cnn",
     "cnn_model_path": "../../data/paper_results/pardo_etal_2025/experiments/exp_4/round_9/trained_model_ensemble_0.pickle",
     "pca_model_path":"PCAs/1_PCA_95_new/pca_model_combined.pkl"
+  },
+
+  "mcmc_sampler": {
+    "type": "slice_np_vectorized",
+    "num_chains": 20,
+    "thin": 5
   },
 
  "prior_ranges": {
@@ -57,7 +73,7 @@
     "statistic_path": "../../data/example_generator_magrot/statistics_train.json",
     "dataset_path_first_round": "../../data/example_generator_magrot",
     "filter_inputs": [9, 10, 11, 12, 13, 14],
-    "filter_labels": [15,16],
+    "filter_labels": [15,17],
     "normalize": false,
     "standardize": true,
     "num_sim": 2
@@ -70,37 +86,21 @@
     "num_sim": 3
   },
 
-  "dyn_data_loader": {
-      "dataset_path": "../../data/example_simulation_dyn"
-  },
-
-  "observed_sample": {
+   "observed_sample": {
       "dataset_path": "data/paper_results/pardo_etal_2025/observed_data_res32_updated_atnf",
       "filter_inputs": [9, 10, 11, 12, 13, 14],
       "filter_labels": [15,17]
   },
 
-  "resume_training": {
-    "resume": false,
-    "last_round": 7,
-    "save_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828",
-    "log_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828"
+    "dyn_data_loader": {
+      "dataset_path": "../../data/example_simulation_dyn"
   },
 
-  "trainer": {
-    "type": "snle",
-    "truncated_prior": false,
-    "retrain_from_scratch": false,
-    "ensemble": true,
-    "size_ensemble": 5,
-    "validation_fraction": 0.1,
-    "batch_size": 8,
-    "lr": 5e-4,
-    "num_rounds": 3,
-    "sir": true,
-    "append_simulations": true,
-    "plot_proposal": false,
-    "save_dir": "toremove/learning_snle"
+  "resume_training": {
+      "resume": false,
+      "last_round": 7,
+      "save_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828",
+      "log_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828"
   },
 
   "infer": {
