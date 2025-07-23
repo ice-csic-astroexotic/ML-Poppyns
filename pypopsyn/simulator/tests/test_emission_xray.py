@@ -1,5 +1,5 @@
 """
-Tests for the x-ray emission module.
+Tests for the X-ray emission module.
 
     Authors:
 
@@ -7,12 +7,24 @@ Tests for the x-ray emission module.
 
 """
 
+import pickle
+from unittest import mock
+
 import numpy as np
 import pytest
 from scipy.interpolate import RectBivariateSpline
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.multiband_emission.emission_xray as xem
+from pypopsyn.simulator.config_simulator import cfg
+
+# Set the neutron star radius for testing purposes.
+cfg["NS_radius"] = 1.1e6
+
+# Mock the gr_correction global variable to use the updated value of NS_radius for the test.
+value = (
+    1 - (2 * const.G * cfg["NS_mass"]) / (const.C**2 * cfg["NS_radius"])
+) ** 0.5
 
 TOL = 1e-5
 
@@ -145,10 +157,93 @@ def test_case_2():
     return data
 
 
-def test_T_from_Lx(test_case_1):
+@pytest.fixture()
+def test_case_3():
+    data = {
+        "age": np.array([50, 200, 800, 2000]),
+        "B_initial": np.array([1e14, 5e12, 2e13, 9e12]),
+        "outburst_mask_expected": np.array([True, False, False, False]),
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_4():
+    data = {
+        "dict_final_pop": {
+            "age": np.array([1e6, 2e6]),
+            "l": np.array([-50.0, 50.0]),
+            "b": np.array([-20.0, 10.0]),
+            "ra": np.array([50.0, 250.0]),
+            "dec": np.array([-50.0, 50.0]),
+            "dist": np.array([2.0, 10.0]),
+            "pm_ra": np.array([-50.0, 50.0]),
+            "pm_dec": np.array([-50.0, 50.0]),
+            "v_ls": np.array([-50.0, 50.0]),
+            "P": np.array([0.01, 0.5]),
+            "P_dot": np.array([1.0e-11, 1.0e-12]),
+            "B_initial": np.array([1e12, 1e14]),
+            "B": np.array([1e12, 1e14]),
+            "chi": np.array([1.0, 2.0]),
+            "idx": np.array([0, 1]),
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
+            "coverage_radio": np.array([True, False]),
+            "coverage_xray": np.array([True, True]),
+        },
+        "L_x_threshold": 1e29,
+        "S_x_abs_threshold": 1e-15,
+        "dummy_L_x_interpolator": RectBivariateSpline(
+            [0, 1, 2, 3],
+            [0, 1, 2, 3],
+            [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
+        ),
+        "xray_bright_mask": np.array([True, True]),
+        "L_x_therm": np.array([1e33, 1e34]),
+        "S_x_rcs_abs": np.array([3.0e-12, 4.0e-16]),
+        "S_x_bb_abs": np.array([2.0e-12, 3.0e-16]),
+        "N_H": np.array([2.0e-21, 3.0e-21]),
+        "expected_keys": [
+            "age",
+            "ra",
+            "dec",
+            "l",
+            "b",
+            "N_H",
+            "dist",
+            "pm_ra",
+            "pm_dec",
+            "v_ls",
+            "B_initial",
+            "B",
+            "chi",
+            "P",
+            "P_dot",
+            "L_x_therm",
+            "S_x_rcs_abs",
+            "S_x_bb_abs",
+            "idx",
+            "coverage_radio",
+            "coverage_radio_HTRU_low",
+            "coverage_radio_HTRU_mid",
+            "coverage_radio_PMPS",
+            "coverage_xray",
+            "outburst",
+        ],
+    }
+
+    return data
+
+
+def test_T_from_Lx(test_case_1, monkeypatch):
     """
-    Verifying that for a given x-ray luminosity the temperature is correctly calculated.
+    Verifying that for a given X-ray luminosity the temperature is correctly calculated.
     """
+
+    # Mock the gr_correction global variable to use the updated value of NS_radius for the test.
+    monkeypatch.setattr(xem, "gr_correction", value)
 
     T_out = xem.T_from_Lx(
         test_case_1["Lx"],
@@ -275,10 +370,13 @@ def test_resonant_optical_depth(test_case_1):
     ).all()
 
 
-def test_flux_xray_absorbed(test_case_1):
+def test_flux_xray_absorbed(test_case_1, monkeypatch):
     """
-    Verifying that absorbed X-ray flux is correctly estimated.
+    Verifying that the absorbed X-ray flux is correctly estimated.
     """
+
+    # Mock the gr_correction global variable to use the updated value of NS_radius for the test.
+    monkeypatch.setattr(xem, "gr_correction", value)
 
     flux_bb_out, flux_rcs_out, N_H_out = xem.flux_xray_absorbed(
         test_case_1["Lx"],
@@ -308,6 +406,37 @@ def test_flux_xray_absorbed(test_case_1):
         rtol=TOL,
         atol=1.0e-14,
     ).all()
+
+
+def test_initialize_Lx_interpolator(test_case_2, tmp_path):
+    """
+    Test that initialize_Lx_interpolator loads and returns a valid interpolator.
+    """
+    # Create subdirectory for the pickle file.
+    subdir = tmp_path / "magneto-thermal"
+    subdir.mkdir()
+
+    # Define path to interpolator pickle inside subdir.
+    interpolator_path = subdir / "interpolator_Lx.pkl"
+
+    # Write the dummy interpolator to the file.
+    with open(interpolator_path, "wb") as f:
+        pickle.dump(test_case_2["dummy_L_x_interpolator"], f)
+
+    # Define a fake cfg to point to this location.
+    fake_cfg = {
+        "path_to_software": str(tmp_path),  # base dir is tmp_path
+        "magneto-thermal_path": "magneto-thermal",  # subdir
+    }
+
+    # Create patch cfg with this fake_cfg.
+    with mock.patch(
+        "pypopsyn.simulator.multiband_emission.emission_xray.cfg", fake_cfg
+    ):
+        interpolator = xem.initialize_Lx_interpolator()
+
+    # Assertions.
+    assert isinstance(interpolator, RectBivariateSpline)
 
 
 def test_calculate_xray_emission(test_case_2, monkeypatch):
@@ -377,3 +506,62 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
         rtol=TOL,
         atol=1.0e-14,
     ).all()
+
+
+def test_outburst_filter_probabilistic(test_case_3, monkeypatch):
+
+    # Fixed uniform return values based on age group logic.
+    def mock_uniform(low, high, size):
+        if low == 0.40 and high == 0.85:
+            return np.full(size, 0.7)
+        elif low == 0.1 and high == 0.4:
+            return np.full(size, 0.2)
+        elif low == 0.05 and high == 0.2:
+            return np.full(size, 0.1)
+        elif low == 0.0 and high == 0.05:
+            return np.full(size, 0.03)
+        else:
+            raise ValueError("Unexpected uniform call")
+
+    # Fixed rand values: these simulate the draw to compare against the probability.
+    def mock_rand(size):
+        return np.array([0.6, 0.3, 0.4, 0.02])
+
+    monkeypatch.setattr(np.random, "uniform", mock_uniform)
+    monkeypatch.setattr(np.random, "rand", mock_rand)
+
+    outburst_mask_out = xem.outburst_filter_probabilistic(
+        test_case_3["B_initial"], test_case_3["age"]
+    )
+
+    assert np.all(outburst_mask_out == test_case_3["outburst_mask_expected"])
+
+
+def test_xray_population(test_case_4, monkeypatch):
+    """
+    Check that the dictionary with the properties of the neutron stars that are detected in X-rays is properly returned.
+    """
+
+    def mock_calculate_xray_emission(*args, **kwargs):
+        return (
+            test_case_4["xray_bright_mask"],
+            test_case_4["L_x_therm"],
+            test_case_4["S_x_bb_abs"],
+            test_case_4["S_x_rcs_abs"],
+            test_case_4["N_H"],
+        )
+
+    monkeypatch.setattr(
+        xem, "calculate_xray_emission", mock_calculate_xray_emission
+    )
+
+    out_dict = xem.xray_population(
+        test_case_4["dict_final_pop"],
+        test_case_4["dummy_L_x_interpolator"],
+        test_case_4["L_x_threshold"],
+    )
+    # Verify that the keys are correct.
+    assert set(out_dict.keys()) == set(test_case_4["expected_keys"])
+
+    # Verify that the output dictionary contains at most the same number of stars as the input one.
+    assert len(out_dict["age"]) <= len(test_case_4["dict_final_pop"]["age"])

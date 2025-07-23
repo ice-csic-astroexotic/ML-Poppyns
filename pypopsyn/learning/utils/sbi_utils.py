@@ -546,6 +546,8 @@ def prepare_dataset_sbi(
     normalize = config["training_data_loader"]["normalize"]
     standardize = config["training_data_loader"]["standardize"]
     input_shape = config["arch"]["args"]["input_shape"]
+    model_type = config["arch"]["args"]["model_type"]
+
     n_parameters = len(filter_labels)
     # Load the density maps and parameters, and normalize or standardize them depending on the configuration file.
     try:
@@ -567,11 +569,17 @@ def prepare_dataset_sbi(
     use_compression_input = config["compression_input"]["use_compression"]
     compression_type = config["compression_input"]["compression_type"]
 
-    if not use_compression_input:
-        parameter, matrix = raw_vector(
-            n_samples, input_shape, dataset, logger, parameter
-        )
-
+    if not use_compression_input and model_type == "snpe":
+        if model_type == "snpe":
+            parameter, matrix = raw_vector(
+                n_samples, input_shape, dataset, logger, parameter
+            )
+        else:
+            logger.error(
+                f"Model type '{model_type}' requires compressed input. "
+                "Set 'use_compression_input' to True and specify a valid 'compression_type'."
+            )
+            sys.exit(1)
     elif use_compression_input and compression_type == "cnn":
         parameter, matrix = cnn_compression(
             n_samples,

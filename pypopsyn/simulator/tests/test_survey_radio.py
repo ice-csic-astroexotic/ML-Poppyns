@@ -7,23 +7,39 @@
         Celsa Pardo Araujo (pardo@ice.csic.es)
 """
 
-from unittest import mock
+import json
+import tempfile
 
 import numpy as np
 import pytest
 
-import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 
 TOL = 1e-5
-
-PMPS_par_path = "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
-PMPS = sr.SurveyRadio(PMPS_par_path)
 
 
 @pytest.fixture()
 def test_case_1():
     data = {
+        "dummy_survey_params": {
+            "name": "Parkes multibeam",
+            "ref": "Manchester+2001, Lorimer+2006",
+            "deg_factor": 1.5,
+            "G0": 0.735,
+            "t_obs": 2100.0,
+            "t_samp": 250.0e-6,
+            "T_sys": 21.0,
+            "f_central": 1.374e9,
+            "BW": 288.0e6,
+            "channel_width": 3.0e6,
+            "n_pol": 2,
+            "FWHM": 14.0,
+            "SNR_th": 9.0,
+            "RA_range": [0.0, 360.0],
+            "DEC_range": [-90.0, 90.0],
+            "l_range": [-100.0, 50.0],
+            "b_range_abs": [0.0, 5.0],
+        },
         "w_int": np.array([1.0e-3, 1.0e-4]),
         "w_int_s": np.array([1.59e-05, 1.59e-07]),
         "DM": np.array([100, 1000]),
@@ -143,6 +159,14 @@ def test_sky_coverage(test_case_1):
     """
     Verifying that the sky coverage of a survey is computed correctly.
     """
+    # Create a temporary .json file with some survey parameters to initialize a radio survey class object.
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False
+    ) as tmpfile:
+        json.dump(test_case_1["dummy_survey_params"], tmpfile)
+        tmpfile_path = tmpfile.name
+
+    PMPS = sr.SurveyRadio(parameters_path=tmpfile_path)
 
     coverage_out = PMPS.sky_coverage(
         test_case_1["RA"],
@@ -158,6 +182,14 @@ def test_gain_gaussian_beam(test_case_1):
     """
     Verifying that the Gaussian beam gain for an offset observation is computed correctly.
     """
+    # Create a temporary .json file with some survey parameters to initialize a radio survey class object.
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False
+    ) as tmpfile:
+        json.dump(test_case_1["dummy_survey_params"], tmpfile)
+        tmpfile_path = tmpfile.name
+
+    PMPS = sr.SurveyRadio(parameters_path=tmpfile_path)
 
     G_out = PMPS.gain_gaussian_beam(test_case_1["offset2"])
 
@@ -170,6 +202,14 @@ def test_radiometer_equation(test_case_1):
     """
     Verifying that the signal-to-noise values are computed correctly using the radiometer equation.
     """
+    # Create a temporary .json file with some survey parameters to initialize a radio survey class object.
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False
+    ) as tmpfile:
+        json.dump(test_case_1["dummy_survey_params"], tmpfile)
+        tmpfile_path = tmpfile.name
+
+    PMPS = sr.SurveyRadio(parameters_path=tmpfile_path)
 
     SNR_out = PMPS.radiometer_equation(
         test_case_1["S_radio_obs_expected"],
@@ -188,12 +228,19 @@ def test_simulate_detection(monkeypatch, test_case_1):
     """
     Verifying that a pulsar is correctly detected by the survey.
     """
-
     # Mocking the sky temperature.
     def mock_T_sky(*args, **kwargs):
         return test_case_1["T_sky_expected"]
 
     monkeypatch.setattr(sr, "sky_temperature_H81refined", mock_T_sky)
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False
+    ) as tmpfile:
+        json.dump(test_case_1["dummy_survey_params"], tmpfile)
+        tmpfile_path = tmpfile.name
+
+    PMPS = sr.SurveyRadio(parameters_path=tmpfile_path)
 
     detected_out = PMPS.simulate_detection(
         test_case_1["S_radio_obs_expected"],
@@ -210,6 +257,14 @@ def test_detect_radio_population(test_case_1):
     """
     Verifying that a population of pulsars is correctly detected by the survey.
     """
+    # Create a temporary .json file with some survey parameters to initialize a radio survey class object.
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False
+    ) as tmpfile:
+        json.dump(test_case_1["dummy_survey_params"], tmpfile)
+        tmpfile_path = tmpfile.name
+
+    PMPS = sr.SurveyRadio(parameters_path=tmpfile_path)
 
     (
         detected_out,
