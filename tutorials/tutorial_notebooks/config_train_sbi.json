@@ -98,8 +98,7 @@
         "testing": false,
         "dataset_path_first_round": "output/data/test_dataset/generated_dataset",
         "dataset_path": "output/data/test_dataset/generated_dataset",
-        "num_sim": 10,
-        "statistic_path": "output/data/statistics_train.json"
+        "num_sim": 10
     },
 
     "observed_sample": {
