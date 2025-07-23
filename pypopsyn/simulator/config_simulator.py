@@ -97,7 +97,7 @@ cfg["galactic_model"]: str = "gmM19"
 
 # Flag indicating whether to use the electron density model of Yao et al. (2017) to sample the initial positions
 # of neutron stars.
-cfg["sample_edm"]: bool = False
+cfg["sample_edm"]: bool = True
 
 if not cfg["sample_edm"]:
     # Spiral arms model used in the simulation. Choose between saYMW17 or saFK06.
