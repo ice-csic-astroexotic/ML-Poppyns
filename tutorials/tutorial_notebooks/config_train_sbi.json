@@ -53,7 +53,7 @@
     },
     "density_estimator": {
         "type": "mdn",
-        "args": {
+        "args_mdn_npe": {
             "num_components": 10,
             "hidden_features": 32
         }
