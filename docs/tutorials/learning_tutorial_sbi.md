@@ -155,28 +155,6 @@ Here is a list with the different initialization procedures available:
  with $n$ being the number of input features and biases are filled with a constant zero value.
 * `InitializerXavier` uses the Xavier initialization approach introduced in [Xavier et al. (2010)](https://proceedings.mlr.press/v9/glorot10a.html).
 
-#### Density estimator
-
-Next, we decide on the type of density estimator used to approximate the posterior distribution. The 
-preconfigured options in the sbi library include so-called masked autoregressive flows `maf` or Gaussian mixture 
-density networks `mdn`. For more details on these methods and relevant hyperparameters as well as custom density 
-estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
-
-In the following example, we are setting a mixture density network with `10` Gaussian components, and the number of 
-neurons in the hidden layers is set to `16`.
-
-```json
-{
-    "density_estimator": {
-        "type": "mdn",
-        "args": {
-            "num_components": 10,
-            "hidden_features":16
-        }
-    }
-}
-```
-
 #### MCMC sampler
 
 For cases where NRE or NLE is used, an extra step is required to obtain or sample from the posterior. In the following 
@@ -196,6 +174,29 @@ sampler type. `sbi` supports the following MCMC samplers: `nuts`, `slice`, `hmc`
 }
 ```
 
+#### Density estimator
+
+Next, we decide on the type of density estimator used to approximate the posterior distribution. The 
+preconfigured options in the sbi library include so-called masked autoregressive flows `maf` or Gaussian mixture 
+density networks `mdn`.In the case of SNPR, when using mdn, you can also set the number of hidden features and the
+number of components in the mixture. On the other hand, for SNRE, you can specify the type of classifier to use,
+such as: linear, mlp, or resnet. For more details on these methods and relevant hyperparameters as well as custom density 
+estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
+
+In the following example, we are setting a mixture density network with `10` Gaussian components, and the number of 
+neurons in the hidden layers is set to `16`.
+
+```json
+"density_estimator": {
+    "type": "mdn",
+    "classifier_nre": "resnet",
+    "args_mdn_npe": {
+      "hidden_features": 16,
+      "num_components": 10
+       }
+  
+```
+
 #### Embedding network
 
 Next, we specify the architecture for the so-called embedding neural network. This embedding net is used to extract
@@ -203,13 +204,18 @@ features from the input data and compress the input into a latent vector that is
 This neural network is optimised at the same time as the parameters of the neural density estimator.
 
 !!! note 
-    This functionality is only supported for SNPE, not for SNRE or SNLE.
+    This functionality is only supported in SNPE, not in SNRE or SNLE. In SNRE and SNLE, the output of the neural
+    network corresponds directly to the output of the simulator, in this case, 2D density maps. This contrasts with SNPE,
+    where the input to the neural network is the output of the simulator, allowing for simultaneous compression using a
+    CNN.
 
 In the following example, we will be using 2D maps as input and, hence, opt for a convolutional neural network (CNN) 
 as the embedding net. This CNN is designed to adapt to any input size specified by the `input_shape` parameter and 
-produce an output with a length specified by `len_output_layer`. In this specific example, the CNN receives an array of 
-shape $32 \times 32$ with `3` different input channels (three of our density maps with a 32 resolution) as input and 
-outputs a latent vector of size 32, which contains a compressed representation of the input feature maps.
+produce an output with a length specified by `len_output_layer`. There are currently three possible options for the CNN:
+ModelConvSBI, ModelConvSBIdeep, and ModelConvSBIshallow. The difference is that the former has three convolutional
+layers, while the deep and shallow versions have four and two, respectively. In this specific example, the CNN receives 
+an array of shape $32 \times 32$ with `3` different input channels (three of our density maps with a 32 resolution) as
+input and outputs a latent vector of size 32, which contains a compressed representation of the input feature maps.
 
 The configuration file then looks as follows:
 
@@ -239,7 +245,8 @@ For learning approaches where NRE or NLE are applied, we do not require an embed
 required to preprocess the data before passing it to the neural network. Unlike in NPE, we cannot train an embedding 
 network simultaneously with the density estimator. To address this, we provide two options for separate data 
 compression: a Convolutional Neural Network (CNN) or Principal Component Analysis (PCA). The CNN is assumed to have 
-been trained as part of a previous NPE experiment. The PCA model can be trained separately using the 
+been trained as part of a previous NPE experiment. For both PCA and CNN, the code expects a pickle file containing the
+pretrained model. The PCA model can be trained separately using the
 `tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook. 
 
 ```json
@@ -252,14 +259,13 @@ been trained as part of a previous NPE experiment. The PCA model can be trained 
   }
 }
 ```
-
 Note that when `use_compression` is set to False, the training configuration can only be used with NPE. In this case, 
 an embedding network will be trained simultaneously with the density estimator as outlined in the previous section, and 
 this embedding network is responsible for compressing the input data.
 
 #### Prior distribution for training data
 
-We need to specify the labels and prior ranges for plotting purposes. Note that the order of the list must match
+We need to specify the labels and prior ranges for the first round. Note that the order of the list must match
 the order of parameters in the `dataset_full.csv` file that contains information on the training data.
 
 ```json

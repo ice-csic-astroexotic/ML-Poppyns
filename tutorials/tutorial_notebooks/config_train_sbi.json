@@ -20,6 +20,23 @@
             "len_output_layer": 32
         }
     },
+    "weights_initializer": {
+        "type": "InitializerKaiming",
+        "args": {}
+    },
+
+    "mcmc_sampler": {
+    "type": "slice_np_vectorized",
+    "num_chains": 20,
+    "thin": 5
+    },
+
+    "compression_input": {
+        "use_compression": false,
+        "compression_type": "cnn",
+        "cnn_model_path": "exp_4/round_9/trained_model_ensemble_0.pickle",
+        "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
+    },
     "prior_ranges": {
         "labels": [
             "B_initial_log10_mean",
@@ -33,16 +50,6 @@
             14,
             -0.3
         ]
-    },
-    "compression_input": {
-        "use_compression": false,
-        "compression_type": "cnn",
-        "cnn_model_path": "exp_4/round_9/trained_model_ensemble_0.pickle",
-        "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
-    },
-    "weights_initializer": {
-        "type": "InitializerKaiming",
-        "args": {}
     },
     "density_estimator": {
         "type": "mdn",

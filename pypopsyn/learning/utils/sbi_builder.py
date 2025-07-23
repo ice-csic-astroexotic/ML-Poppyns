@@ -165,10 +165,10 @@ def build_inference_network(
 
         posterior_nn_args = {
             "model": config["density_estimator"]["type"],
-            "hidden_features": config["density_estimator"]["args"][
+            "hidden_features": config["density_estimator"]["args_mdn_npe"][
                 "hidden_features"
             ],
-            "num_components": config["density_estimator"]["args"][
+            "num_components": config["density_estimator"]["args_mdn_npe"][
                 "num_components"
             ],
             "device": device,
