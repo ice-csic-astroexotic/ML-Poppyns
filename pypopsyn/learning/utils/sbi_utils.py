@@ -546,7 +546,7 @@ def prepare_dataset_sbi(
     normalize = config["training_data_loader"]["normalize"]
     standardize = config["training_data_loader"]["standardize"]
     input_shape = config["arch"]["args"]["input_shape"]
-    model_type = config["arch"]["args"]["model_type"]
+    model_type = config["trainer"]["type"]
 
     n_parameters = len(filter_labels)
     # Load the density maps and parameters, and normalize or standardize them depending on the configuration file.
