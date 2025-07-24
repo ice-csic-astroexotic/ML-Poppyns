@@ -256,7 +256,7 @@ def test_prepare_dataset_sbi(dummy_logger):
         config = json.load(f)
 
     config["compression_input"]["use_compression"] = False
-
+    config["trainer"]["type"] = "snpe"
     dataset, parameter, matrix = sbi_utils.prepare_dataset_sbi(
         dataset_folder=dataset_folder,
         config=config,
