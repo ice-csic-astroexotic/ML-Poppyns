@@ -92,9 +92,11 @@ output/
 We recommend placing all files relevant for training in the same base path. Specifically,
 
 * Store the training statistics file in the `data/` directory.
-* Save the training and testing datasets for the first round in `data/training_dataset/generated_dataset/round_0/` and 
-`data/test_dataset/generated_dataset/round_0/`, respectively.
-
+  * Save the training and testing datasets for the first round in `data/training_dataset/generated_dataset/round_0/` and 
+  `data/test_dataset/generated_dataset/round_0/`, respectively.
+!!! note
+    When running training or inference in single-round mode, the output is still saved using the multi-round structure. 
+    That is, results will be stored in a folder named round_0.
 ### Main training script
 
 To perform our SBI using a dataset composed of heatmaps or 2D arrays of our synthetic pulsar populations (see 
