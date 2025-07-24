@@ -9,6 +9,7 @@
         Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
         Celsa Pardo Araujo (pardo @ ice.csic.es)
 """
+
 import functools
 import logging
 import pathlib
@@ -17,10 +18,10 @@ from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
 import numpy as np
-import pandas as pd
 
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.multiband_surveys.survey_xray as sx
+import utilities.dataframe_builder as dfb
 from pypopsyn.simulator.config_simulator import cfg
 
 
@@ -625,33 +626,7 @@ def update_survey_data(
             sys.exit(1)
 
 
-def build_dataframe(
-    data_dict: dict, parameters: list, units: list
-) -> pd.DataFrame:
-    """
-    Helper function to create a DataFrame with a MultiIndex header.
-
-    Args:
-        data_dict (dict): A dictionary containing the data to be saved in the dataframe.
-        parameters (list): A list of parameter names, used as the first level of the MultiIndex header.
-        units (list): A list of physical units, used as the second level of the MultiIndex header.
-
-    Returns:
-        (pd.DataFrame): A Pandas DataFrame with a MultiIndex header, where columns are
-            indexed by parameters and units.
-    """
-    # If the key `"idx"` is present, it is removed.
-    data_dict.pop("idx", None)
-
-    header = pd.MultiIndex.from_arrays([parameters, units])
-
-    df = pd.DataFrame.from_dict(data=data_dict)
-    df.columns = header
-
-    return df
-
-
-def create_output_dataframe(
+def create_output_dataframe_surveys(
     dictionary_detected_radio: dict,
     dictionary_detected_xray: dict,
 ) -> dict:
@@ -728,7 +703,7 @@ def create_output_dataframe(
             units_survey = units_radio
 
         # Build the DataFrame using the appropriate parameters and units.
-        df = build_dataframe(survey_data, parameters_survey, units_survey)
+        df = dfb.build_dataframe(survey_data, parameters_survey, units_survey)
         dfs[
             survey_name
         ] = df  # Store the DataFrame in the dictionary with survey_name as key.
@@ -778,7 +753,7 @@ def create_output_dataframe(
         # Loop over each survey's detected dictionary and generate the corresponding DataFrame.
         for survey_name, survey_data in dictionary_detected_xray.items():
             # Build the DataFrame using the appropriate parameters and units.
-            df = build_dataframe(survey_data, parameters_xray, units_xray)
+            df = dfb.build_dataframe(survey_data, parameters_xray, units_xray)
             dfs[
                 survey_name
             ] = df  # Store the DataFrame in the dictionary with survey_name as key.

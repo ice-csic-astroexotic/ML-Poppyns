@@ -1203,36 +1203,6 @@ def test_case_8():
 @pytest.fixture()
 def test_case_9():
     data = {
-        "data_dict": {
-            "mass": [1.4, 1.3],
-            "radius": [10.0, 9.5],
-        },
-        "parameters": ["mass", "radius"],
-        "units": ["[Msun]", "[kpc]"],
-        "expected_columns": pd.MultiIndex.from_arrays(
-            [
-                ["mass", "radius"],
-                ["[Msun]", "[kpc]"],
-            ]
-        ),
-        "expected_data": {
-            ("mass", "[Msun]"): [1.4, 1.3],
-            ("radius", "[kpc]"): [10.0, 9.5],
-        },
-        "expected_df": pd.DataFrame(
-            {
-                ("mass", "[Msun]"): [1.4, 1.3],
-                ("radius", "[kpc]"): [10.0, 9.5],
-            }
-        ),
-    }
-
-    return data
-
-
-@pytest.fixture()
-def test_case_10():
-    data = {
         "dictionary_detected_radio": {
             "PMPS": {
                 "age": [1e6, 2e6],
@@ -1485,7 +1455,7 @@ def test_case_10():
 
 
 @pytest.fixture()
-def test_case_11():
+def test_case_10():
     data = {
         "SurveyData": sw.SurveyData(
             surveys_cfg={
@@ -1924,26 +1894,12 @@ def test_update_survey_data(test_case_8):
     assert survey_data.n_created_at_match["xray_realistic"] == 0
 
 
-def test_build_dataframe(test_case_9):
-    """
-    Check that the function to create a dataframe is properly working.
-    """
-    result_df = sw.build_dataframe(
-        test_case_9["data_dict"],
-        test_case_9["parameters"],
-        test_case_9["units"],
-    )
-
-    # Assert the result matches the expected output.
-    pd.testing.assert_frame_equal(result_df, test_case_9["expected_df"])
-
-
-def test_create_output_dataframe(test_case_10):
+def test_create_output_dataframe(test_case_9):
     """
     Check that the dataframe with the output of the survey detection is correct.
     """
-    output_dfs_without_xray = sw.create_output_dataframe(
-        test_case_10["dictionary_detected_radio"],
+    output_dfs_without_xray = sw.create_output_dataframe_surveys(
+        test_case_9["dictionary_detected_radio"],
         None,
     )
 
@@ -1951,27 +1907,27 @@ def test_create_output_dataframe(test_case_10):
     for survey_name, expected_df in output_dfs_without_xray.items():
         pd.testing.assert_frame_equal(
             output_dfs_without_xray[survey_name],
-            test_case_10["expected_dfs_without_xrays"][survey_name],
+            test_case_9["expected_dfs_without_xrays"][survey_name],
         )
 
-    output_dfs_with_xray = sw.create_output_dataframe(
-        test_case_10["dictionary_detected_radio"],
-        test_case_10["dictionary_detected_xray"],
+    output_dfs_with_xray = sw.create_output_dataframe_surveys(
+        test_case_9["dictionary_detected_radio"],
+        test_case_9["dictionary_detected_xray"],
     )
 
     # Assert the result matches the expected output.
     for survey_name, expected_df in output_dfs_with_xray.items():
         pd.testing.assert_frame_equal(
             output_dfs_with_xray[survey_name],
-            test_case_10["expected_dfs_with_xrays"][survey_name],
+            test_case_9["expected_dfs_with_xrays"][survey_name],
         )
 
 
-def test_adjust_n_batchsize(test_case_11):
+def test_adjust_n_batchsize(test_case_10):
     """
     Check that the batch size for the simulation is correctly adjusted.
     """
-    survey_data = test_case_11["SurveyData"]
+    survey_data = test_case_10["SurveyData"]
 
     survey_data.n_detected_complete_sim["PMPS"] = 1
     survey_data.n_detected_complete_sim["HTRU_low-mid"] = 1

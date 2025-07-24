@@ -154,7 +154,7 @@ def simulate_population(args) -> None:
 
             # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
             with timewith.TimeWith(
-                "[SimulateMagnetoRotationalEvolution]",
+                "[MagnetoRotationalEvolution]",
                 cfg["profile_log"],
                 cfg["profile_json"],
                 cfg["show_profiling"],
@@ -171,7 +171,7 @@ def simulate_population(args) -> None:
 
             # ===================== RADIO DETECTION ========================
             with timewith.TimeWith(
-                "[SimulateRadioDetection]",
+                "[RadioDetection]",
                 cfg["profile_log"],
                 cfg["profile_json"],
                 cfg["show_profiling"],
@@ -199,7 +199,7 @@ def simulate_population(args) -> None:
             # ===================== X DETECTION ========================
             if cfg["simulation_xray"]:
                 with timewith.TimeWith(
-                    "[SimulateXrayDetection]",
+                    "[XrayDetection]",
                     cfg["profile_log"],
                     cfg["profile_json"],
                     cfg["show_profiling"],
@@ -269,7 +269,7 @@ def simulate_population(args) -> None:
             log.info("Creating data frame for exporting...")
 
             # Create output dataframes for each survey.
-            dfs = sw.create_output_dataframe(
+            dfs = sw.create_output_dataframe_surveys(
                 SurveyData.dictionary_detected_radio,
                 SurveyData.dictionary_detected_xray,
             )
