@@ -369,12 +369,16 @@ def initialize_population_magrot(age: np.ndarray) -> dict:
     B_initial = pop_initial.magnetic_field()
     chi_initial = pop_initial.misalignment_angle()
     P_initial = pop_initial.period()
+    P_dot_initial = pdv.period_derivative_numpy(
+        B_initial, chi_initial, P_initial, cfg["NS_mass"], cfg["NS_radius"]
+    )
 
     dictionary_initial_pop_magrot = {
         "age": age,
         "B_initial": B_initial,
         "chi_initial": chi_initial,
         "P_initial": P_initial,
+        "P_dot_initial": P_dot_initial,
     }
 
     return dictionary_initial_pop_magrot

@@ -355,6 +355,100 @@ def apply_surveys_coverage(
     return dictionary_coverage_database, idx_remove
 
 
+def apply_surveys_coverage_full(
+    surveys_radio: dict,
+    surveys_xray: dict,
+    pop_dict: dict,
+    dist_cutoff: float,
+) -> dict:
+    """
+    Apply survey coverage criteria to filter a dynamic population dataset based on sky coverage of all surveys and a
+    distance cutoff, and update the indices of entries to be removed.
+
+    Args:
+        surveys_radio (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
+        surveys_xray (dict): A dictionary of X-ray survey objects, containing the information on the sky coverage.
+        pop_dict (dict): A dictionary containing the data of a dynamical population.
+        dist_cutoff (float): The maximum heliocentric distance to include in the survey coverage.
+
+    Returns:
+        (dict): The input dictionary `pop_dict` with the coverage information for all surveys added.
+    """
+
+    dist = pop_dict["dist"]
+    dist_mask = dist < dist_cutoff
+
+    survey_radio_names = list(surveys_radio.keys())
+    survey_xray_names = []
+    coverage_survey_radio = {}
+    coverage_survey_xray = {}
+    coverage_xray_tot = {}
+
+    if surveys_xray is not None:
+        survey_xray_names = list(surveys_xray.keys())
+        coverage_survey_xray = {}
+
+    for name in survey_radio_names:
+        # Evaluate the sky coverage for each radio survey.
+        coverage_survey_radio[name] = surveys_radio[name].sky_coverage(
+            pop_dict["ra"],
+            pop_dict["dec"],
+            pop_dict["l"],
+            pop_dict["b"],
+        )
+
+    # Combine the coverage masks of all selected radio surveys into a single mask.
+    # It performs a logical OR (|) across all coverage arrays in coverage_survey_radio,
+    # for each survey name in survey_radio_names.
+    # The result is a single array where a position is True if it is covered by any survey.
+    coverage_radio_tot = (
+        functools.reduce(
+            lambda a, b: a | b,
+            (coverage_survey_radio[name] for name in survey_radio_names),
+        )
+    ) & dist_mask
+
+    if surveys_xray is not None:
+        # Evaluate the sky coverage for each X-ray survey.
+        for name in survey_xray_names:
+            coverage_survey_xray[name] = surveys_xray[name].sky_coverage(
+                pop_dict["ra"],
+                pop_dict["dec"],
+                pop_dict["l"],
+                pop_dict["b"],
+            )
+
+        # Combine the coverage masks of all selected X-ray surveys into a single mask.
+        # It performs a logical OR (|) across all coverage arrays in coverage_survey_xray,
+        # for each survey name in survey_xray_names.
+        # The result is a single array where a position is True if it is covered by any survey.
+        coverage_xray_tot = (
+            functools.reduce(
+                lambda a, b: a | b,
+                (coverage_survey_xray[name] for name in survey_xray_names),
+            )
+        ) & dist_mask
+
+    # Create a dictionary to save the coverage information.
+    coverage_dict = {}
+    coverage_dict["coverage_radio"] = coverage_radio_tot
+
+    for survey_name in survey_radio_names:
+        # Add the coverage data for each survey.
+        coverage_key = f"coverage_radio_{survey_name}"
+        coverage_dict[coverage_key] = coverage_survey_radio[survey_name]
+
+    if surveys_xray is not None:
+        coverage_dict["coverage_xray"] = coverage_xray_tot
+
+        for survey_name in survey_xray_names:
+            # Add the coverage data for each survey.
+            coverage_key = f"coverage_xray_{survey_name}"
+            coverage_dict[coverage_key] = coverage_survey_xray[survey_name]
+
+    return coverage_dict
+
+
 def radio_detection(
     radio_surveys: dict, dictionary_intercepted_radio: dict
 ) -> dict:
@@ -392,7 +486,6 @@ def radio_detection(
             dictionary_intercepted_radio["w_int"],
             dictionary_intercepted_radio["DM"],
             dictionary_intercepted_radio["P"],
-            dictionary_intercepted_radio["age"],
             dictionary_intercepted_radio[f"coverage_radio_{survey_name}"],
             dictionary_intercepted_radio["l"],
             dictionary_intercepted_radio["b"],
@@ -420,6 +513,116 @@ def radio_detection(
             w_eff_mid = w_eff
             S_radio_obs_mean_mid = S_radio_obs_mean
             S_radio_obs_mean_1400_mid = S_radio_obs_mean_1400
+
+    if (
+        "HTRU_low" in radio_surveys.keys()
+        and "HTRU_mid" in radio_surveys.keys()
+    ):
+        # Since the sky coverage of the HTRU mid and low surveys overlap, we remove those stars from the mid
+        # survey that are already in the low survey in order to not double count individual objects.
+        detected_HTRU_low_mid = detected_HTRU_low | detected_HTRU_mid
+        detected_dictionaries["HTRU_low_mid"] = update_filtered_dictionary(
+            dictionary_intercepted_radio,
+            detected_HTRU_low_mid,
+            w_eff=np.where(detected_HTRU_low, w_eff_low, w_eff_mid),
+            S_radio_obs_mean=np.where(
+                detected_HTRU_low, S_radio_obs_mean_low, S_radio_obs_mean_mid
+            ),
+            S_radio_obs_mean_1400=np.where(
+                detected_HTRU_low,
+                S_radio_obs_mean_1400_low,
+                S_radio_obs_mean_1400_mid,
+            ),
+            HTRU_low=detected_HTRU_low,
+            HTRU_mid=detected_HTRU_mid,
+            idx=dictionary_intercepted_radio["idx"],
+        )
+
+        # Remove the dictionaries containing the results for the individual HTRU low and mid surveys,
+        # as we only require the combined detections determined above.
+        del detected_dictionaries["HTRU_low"]
+        del detected_dictionaries["HTRU_mid"]
+
+    return detected_dictionaries
+
+
+def radio_detection_full(
+    radio_surveys: dict,
+    dictionary_intercepted_radio: dict,
+    dictionary_coverage: dict,
+    logger: logging.Logger,
+) -> dict:
+    """
+    Simulate radio detections for various surveys and update the dictionaries with the properties
+    of detected neutron stars.
+
+    Args:
+        radio_surveys (dict): Dictionary containing the radio survey objects.
+        dictionary_intercepted_radio (dict): Dictionary with properties of intercepted radio pulsars.
+        dictionary_coverage (dict): Dictionary containing boolean mask for the sky coverage of each survey.
+        logger (logging.Logger): Logger object for logging.
+
+    Returns:
+        (dict): A dictionary containing the properties of detected pulsars for each survey.
+    """
+    # Initialize variables for HTRU_low and HTRU_mid.
+    detected_HTRU_low = np.array([])
+    w_eff_low = None
+    S_radio_obs_mean_low = None
+    S_radio_obs_mean_1400_low = None
+
+    detected_HTRU_mid = np.array([])
+    w_eff_mid = None
+    S_radio_obs_mean_mid = None
+    S_radio_obs_mean_1400_mid = None
+
+    # Process each survey.
+    detected_dictionaries = {}
+    for survey_name in radio_surveys:
+        (
+            detected_mask,
+            w_eff,
+            S_radio_obs_mean,
+            S_radio_obs_mean_1400,
+        ) = radio_surveys[survey_name].detected_radio_population_full(
+            dictionary_intercepted_radio["w_int"],
+            dictionary_intercepted_radio["DM"],
+            dictionary_intercepted_radio["P"],
+            dictionary_intercepted_radio["intercepted_radio"],
+            dictionary_coverage[f"coverage_radio_{survey_name}"],
+            dictionary_intercepted_radio["l"],
+            dictionary_intercepted_radio["b"],
+            dictionary_intercepted_radio["S_radio_bol"],
+            dictionary_intercepted_radio["spectral_index"],
+            dictionary_intercepted_radio["tau_sc"],
+        )
+        detected_dictionaries[survey_name] = update_filtered_dictionary(
+            dictionary_intercepted_radio,
+            detected_mask,
+            w_eff=w_eff,
+            S_radio_obs_mean=S_radio_obs_mean,
+            S_radio_obs_mean_1400=S_radio_obs_mean_1400,
+        )
+
+        # Save the properties for the HTRU low and mid surveys separately.
+        if survey_name == "HTRU_low":
+            detected_HTRU_low = detected_mask
+            w_eff_low = w_eff
+            S_radio_obs_mean_low = S_radio_obs_mean
+            S_radio_obs_mean_1400_low = S_radio_obs_mean_1400
+
+        elif survey_name == "HTRU_mid":
+            detected_HTRU_mid = detected_mask
+            w_eff_mid = w_eff
+            S_radio_obs_mean_mid = S_radio_obs_mean
+            S_radio_obs_mean_1400_mid = S_radio_obs_mean_1400
+
+        fraction_detected = len(detected_mask[detected_mask]) / len(
+            detected_mask
+        )
+        logger.info(
+            f"Fraction of detected pulsars by {survey_name}: {fraction_detected}"
+        )
 
     if (
         "HTRU_low" in radio_surveys.keys()
@@ -646,15 +849,16 @@ def create_output_dataframe_surveys(
 
     # Defining the parameters and units that are common for all radio surveys.
     parameters_radio = [
+        "idx",
         "age",
-        "RA",
-        "DEC",
+        "ra",
+        "dec",
         "l",
         "b",
         "DM",
-        "d",
-        "pm_RA",
-        "pm_DEC",
+        "dist",
+        "pm_ra",
+        "pm_dec",
         "v_ls",
         "B",
         "chi",
@@ -669,6 +873,7 @@ def create_output_dataframe_surveys(
         "spectral_index",
     ]
     units_radio = [
+        " ",
         "[yr]",
         "[deg]",
         "[deg]",
@@ -710,15 +915,16 @@ def create_output_dataframe_surveys(
 
     if dictionary_detected_xray is not None:
         parameters_xray = [
+            "idx",
             "age",
-            "RA",
-            "DEC",
+            "ra",
+            "dec",
             "l",
             "b",
             "N_H",
-            "d",
-            "pm_RA",
-            "pm_DEC",
+            "dist",
+            "pm_ra",
+            "pm_dec",
             "v_ls",
             "B_initial",
             "B",
@@ -730,6 +936,7 @@ def create_output_dataframe_surveys(
             "S_x_bb_abs",
         ]
         units_xray = [
+            " ",
             "[yr]",
             "[deg]",
             "[deg]",

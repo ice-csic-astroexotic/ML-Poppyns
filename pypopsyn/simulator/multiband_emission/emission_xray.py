@@ -420,6 +420,72 @@ def calculate_xray_emission(
     return xray_bright_mask, L_x_therm, S_x_bb_abs, S_x_rcs_abs, N_H
 
 
+def calculate_xray_emission_full(
+    B: np.ndarray,
+    B_initial: np.ndarray,
+    age: np.ndarray,
+    ra: np.ndarray,
+    dec: np.ndarray,
+    dist: np.ndarray,
+    L_x_interpolator: RectBivariateSpline,
+    L_x_threshold: float = 1.0e30,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Compute the X-ray thermal luminosity, the absorbed X-ray flux and the N_H value for the pulsars that are X-ray
+    bright. Note that the interpolation of the luminosity is valid only up to 10^6 yrs as the magneto-thermal
+    cooling curves are reliable only until that time.
+
+    Args:
+        B (np.ndarray): Array of evolved magnetic fields of the pulsars in [G].
+        B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
+        age (np.ndarray): Array of neutron star ages [yrs].
+        ra (np.ndarray): Right ascension in [deg] defined between [0, 360] deg in ICRS frame.
+        dec (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
+        dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
+        L_x_interpolator (RectBivariateSpline): Interpolator used to calculate thermal X-ray luminosity based on age and magnetic field.
+        L_x_threshold (float): A lower limit for the X-ray luminosity. The default value of 10^30 erg s^-1 is chosen since
+            no observed thermally emitting neutron star has a luminosity lower than this.
+        coverage (np.ndarray): A boolean mask to select the neutron stars that fall in the sky-region covered by the X-ray surveys.
+
+    Returns:
+        (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]): Tuple containing the following arrays:
+
+            - Boolean mask to select the neutron stars that can be detected in X-rays.
+            - X-ray thermal luminosities in [erg/s].
+            - X-ray absorbed fluxes considering only black-body emission in [erg s^-1 cm^-2].
+            - X-ray absorbed fluxes considering black-body emission modified by the RCS process in [erg s^-1 cm^-2].
+            - N_H column density in [cm^-2].
+    """
+
+    # Interpolate the thermal luminosity from the initial magnetic field value and the age.
+    L_x_therm = L_x_interpolator.ev(age, B_initial)
+
+    # Select only the stars that have sufficiently high luminosity.
+    # This is done in order to remove luminosity values that are too small or even negative due to the unreliable
+    # results of the interpolation at late times. This helps to avoid computing the RCS spectra for those stars
+    # whose luminosity is too low to be detectable and save computational resources.
+    xray_bright_mask = L_x_therm > L_x_threshold
+
+    # Compute the absorbed fluxes computing the RCS spectra and the N_H column density.
+    S_x_bb_abs = np.zeros_like(L_x_therm)
+    S_x_rcs_abs = np.zeros_like(L_x_therm)
+    N_H = np.zeros_like(L_x_therm)
+
+    (
+        S_x_bb_abs[xray_bright_mask],
+        S_x_rcs_abs[xray_bright_mask],
+        N_H[xray_bright_mask],
+    ) = flux_xray_absorbed(
+        L_x_therm[xray_bright_mask],
+        B[xray_bright_mask],
+        ra[xray_bright_mask],
+        dec[xray_bright_mask],
+        dist[xray_bright_mask],
+    )
+
+    return xray_bright_mask, L_x_therm, S_x_bb_abs, S_x_rcs_abs, N_H
+
+
 def initialize_Lx_interpolator() -> RectBivariateSpline:
     """
     Initialize the interpolator for the X-ray luminosity.
@@ -540,6 +606,59 @@ def xray_population(
         key: value[xray_bright_mask]
         for key, value in dict_final_pop_filtered.items()
     }
+
+    # Apply the filter to see which neutron stars go in outburst.
+    outburst_mask = outburst_filter_probabilistic(
+        dict_xray_pop["B_initial"], dict_xray_pop["age"]
+    )
+
+    # Adding the computed neutron star X-ray emission properties to the dictionary.
+    dict_xray_pop["L_x_therm"] = L_x_therm
+    dict_xray_pop["S_x_rcs_abs"] = S_x_rcs_abs
+    dict_xray_pop["S_x_bb_abs"] = S_x_bb_abs
+    dict_xray_pop["N_H"] = N_H
+    dict_xray_pop["outburst"] = outburst_mask
+
+    return dict_xray_pop
+
+
+def xray_population_full(
+    dict_pop: dict,
+    L_x_interpolator: RectBivariateSpline,
+    L_x_threshold: float = 1.0e30,
+) -> dict:
+    """
+    Filter and compute properties of a population of neutron stars that emits thermally in X-rays.
+
+    Args:
+        dict_pop (dict): Dictionary containing the properties of a neutron star population.
+        L_x_interpolator (RectBivariateSpline): Interpolator used to calculate the thermal X-ray luminosity based
+            on age and magnetic field.
+        L_x_threshold (float): A lower limit for the X-ray luminosity.
+
+    Returns:
+        (dict): A dictionary containing properties of the neutron stars that emits thermally in X-rays.
+    """
+    # Compute the properties of the X-ray bright neutron stars.
+    (
+        xray_bright_mask,
+        L_x_therm,
+        S_x_bb_abs,
+        S_x_rcs_abs,
+        N_H,
+    ) = calculate_xray_emission_full(
+        dict_pop["B"],
+        dict_pop["B_initial"],
+        dict_pop["age"],
+        dict_pop["ra"],
+        dict_pop["dec"],
+        dict_pop["dist"],
+        L_x_interpolator,
+        L_x_threshold,
+    )
+
+    # Storing the properties of the X-ray bright neutron stars in a dictionary.
+    dict_xray_pop = {key: value for key, value in dict_pop.items()}
 
     # Apply the filter to see which neutron stars go in outburst.
     outburst_mask = outburst_filter_probabilistic(

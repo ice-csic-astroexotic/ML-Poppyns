@@ -304,12 +304,12 @@ def evolve_population_dyn(
 
     dictionary_final_pop_dyn = {
         "age": age,
-        "r_final": r_final,
-        "phi_final": phi_final,
-        "z_final": z_final,
-        "v_r_final": v_r_final,
-        "v_phi_final": v_phi_final,
-        "v_z_final": v_z_final,
+        "r": r_final,
+        "phi": phi_final,
+        "z": z_final,
+        "v_r": v_r_final,
+        "v_phi": v_phi_final,
+        "v_z": v_z_final,
     }
 
     return dictionary_final_pop_dyn
@@ -357,11 +357,11 @@ def check_angular_momentum_energy_conservation(
         v_phi_initial * const.KPC_TO_KM / const.YR_TO_S, r_initial
     )
 
-    r_final = dict_pop_final_dyn["r_final"]
-    z_final = dict_pop_final_dyn["z_final"]
-    v_r_final = dict_pop_final_dyn["v_r_final"]
-    v_phi_final = dict_pop_final_dyn["v_phi_final"]
-    v_z_final = dict_pop_final_dyn["v_z_final"]
+    r_final = dict_pop_final_dyn["r"]
+    z_final = dict_pop_final_dyn["z"]
+    v_r_final = dict_pop_final_dyn["v_r"]
+    v_phi_final = dict_pop_final_dyn["v_phi"]
+    v_z_final = dict_pop_final_dyn["v_z"]
 
     # Compute the magnitude of the final velocity vector for each star.
     v_final = np.sqrt(v_r_final**2 + v_phi_final**2 + v_z_final**2)

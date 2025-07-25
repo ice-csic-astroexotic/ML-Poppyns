@@ -13,6 +13,7 @@ import logging
 from typing import Tuple
 
 import numpy as np
+import pandas as pd
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.magneto_rotational_physics.initial_magnetic_field as imf
@@ -22,6 +23,7 @@ import pypopsyn.simulator.stellar_dynamics.initial_position as ip
 import pypopsyn.simulator.stellar_dynamics.initial_velocity as iv
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 import utilities.benchmark.pyinstrument as benchmark
+import utilities.dataframe_builder as dfb
 import utilities.samplers.random_sampler as rs
 from pypopsyn.simulator.config_simulator import cfg
 
@@ -261,3 +263,137 @@ class InitialNeutronStarPopulation:
         chi_rand = rs.random_from_pdf(chi_grid, np.sin, self.NS_number)
 
         return chi_rand
+
+
+def create_output_dataframe_initial_pop(
+    dictionary_initial_pop: dict,
+) -> pd.DataFrame:
+    """
+    Creates Pandas DataFrames containing the properties on the dynamically evolved neutron stars.
+
+    Args:
+        dictionary_final_pop_dyn (dict): Dictionary containing evolved neutron star properties.
+
+    Returns:
+        (pd.DataFrame): A DataFrame containing the neutron stars' properties.
+    """
+
+    # Generating two header lines and merging them using MultiIndex.
+    parameters = [
+        "idx",
+        "age",
+        "r",
+        "phi",
+        "z",
+        "vk_r",
+        "vk_phi",
+        "vk_z",
+        "v_orb",
+        "B",
+        "chi",
+        "P",
+        "P_dot",
+    ]
+    units = [
+        " ",
+        "[yr]",
+        "[kpc]",
+        "[rad]",
+        "[kpc]",
+        "[kpc yr^-1]",
+        "[kpc yr^-1]",
+        "[kpc yr^-1]",
+        "[kpc yr^-1]",
+        "[G]",
+        "[rad]",
+        "[s]",
+        "[s s^-1]",
+    ]
+
+    # Build the DataFrame using the appropriate parameters and units.
+    df = dfb.build_dataframe(dictionary_initial_pop, parameters, units)
+
+    return df
+
+
+def create_output_dataframe_final_pop(
+    dictionary_final_pop: dict,
+) -> pd.DataFrame:
+    """
+    Creates Pandas DataFrames containing the properties on the dynamically evolved neutron stars.
+
+    Args:
+        dictionary_final_pop_dyn (dict): Dictionary containing evolved neutron star properties.
+
+    Returns:
+        (pd.DataFrame): A DataFrame containing the neutron stars' properties.
+    """
+
+    dictionary_final_pop.pop("coverage_radio", None)
+
+    # Generating two header lines and merging them using MultiIndex.
+    parameters = [
+        "idx",
+        "age",
+        "r",
+        "phi",
+        "z",
+        "ra",
+        "dec",
+        "l",
+        "b",
+        "dist",
+        "v_r",
+        "v_phi",
+        "v_z",
+        "pm_RA",
+        "pm_DEC",
+        "v_ls",
+        "B",
+        "B_initial",
+        "chi",
+        "P",
+        "P_dot",
+        "L_radio_bol",
+        "S_radio_bol",
+        "w_int",
+        "DM",
+        "tau_sc",
+        "intercepted_radio",
+        "spectral_index",
+    ]
+    units = [
+        " ",
+        "[yr]",
+        "[kpc]",
+        "[kpc]",
+        "[kpc]",
+        "[deg]",
+        "[deg]",
+        "[deg]",
+        "[deg]",
+        "[kpc]",
+        "[km s^-1]",
+        "[km s^-1]",
+        "[km s^-1]",
+        "[mas yr^-1]",
+        "[mas yr^-1]",
+        "[km s^-1]",
+        "[G]",
+        "[G]",
+        "[rad]",
+        "[s]",
+        "[s s^-1]",
+        "[erg s^-1]",
+        "[erg s^-1 cm^(-2)]",
+        "[s]",
+        "[pc cm^-3]",
+        "[s]",
+        " ",
+        " ",
+    ]
+
+    # Build the DataFrame using the appropriate parameters and units.
+    df = dfb.build_dataframe(dictionary_final_pop, parameters, units)
+
+    return df

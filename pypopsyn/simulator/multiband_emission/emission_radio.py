@@ -300,11 +300,11 @@ def compute_spectral_index(
 def calculate_radio_emission(
     P: np.ndarray,
     P_dot: np.ndarray,
+    chi: np.ndarray,
     age: np.ndarray,
     l_gal: np.ndarray,
     b_gal: np.ndarray,
     dist: np.ndarray,
-    chi: np.ndarray,
 ) -> Tuple[
     np.ndarray,
     np.ndarray,
@@ -322,11 +322,11 @@ def calculate_radio_emission(
     Args:
         P (np.ndarray): Array of spin periods of the pulsars in [s].
         P_dot (np.ndarray): Array of neutron star spin period derivatives in [s s^-1].
+        chi (np.ndarray): Array of the misalignment angles in [rad].
         age (np.ndarray): Array of neutron star ages [yrs].
         l_gal (np.ndarray): Array of galactic longitudes in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): Array of galactic latitudes in [deg] defined between [-90, 90] deg.
         dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
-        chi (np.ndarray): Array of the misalignment angles in [rad].
 
     Returns:
         (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): A Tuple
@@ -430,26 +430,27 @@ def calculate_radio_emission(
 
 
 def calculate_radio_emission_full(
-    P: np.ndarray,
-    P_dot: np.ndarray,
-    dist: np.ndarray,
-    chi: np.ndarray,
+    P: np.ndarray, P_dot: np.ndarray, chi: np.ndarray, dist: np.ndarray
 ):
     """
-    Compute the radio beam geometry and the intrinsic bolometric radio flux. This function is only used in the
-    simulate_population_full.py script, where we perform the dynamical and magneto-rotational evolution together.
+     Compute the radio beam geometry and the intrinsic bolometric radio flux. This function is only used in the
+     simulate_population_full.py script, where we perform the dynamical and magneto-rotational evolution together.
 
-    Args:
-        P (np.ndarray): Array of spin periods of the pulsars in [s].
-        P_dot (np.ndarray): Array of spin period derivatives of the pulsars in [s/s].
-        dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
-        chi (np.ndarray): Array of the misalignment angles in [rad].
+     Args:
+         P (np.ndarray): Array of spin periods of the pulsars in [s].
+         P_dot (np.ndarray): Array of neutron star spin period derivatives in [s s^-1].
+         chi (np.ndarray): Array of the misalignment angles in [rad].
+         dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
 
     Returns:
-        intercepted_radio (np.ndarray): Array of Booleans with the pulsars whose beams cross our line of sight.
-        S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
-        w_int_s (np.ndarray): Intrinsic pulse widths in [s].
-        L_radio_bol (np.ndarray): Pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.
+         (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): A Tuple
+         containing the following information:
+
+             - Boolean mask to select the pulsars whose radio beam crosses our line of sight.
+             - Intrinsic pulse widths in [s].
+             - Bolometric radio luminosity [erg s^-1].
+             - Bolometric radio flux in [erg s^-1 cm^-2].
+             - Spectral index.
     """
 
     # Determining the bolometric radio luminosity.
@@ -503,12 +504,20 @@ def calculate_radio_emission_full(
         solid_angle_beam[intercepted_radio],
     )
 
-    return intercepted_radio, S_radio_bol, w_int_s, L_radio_bol
+    # Computing the spectral index of each star.
+    spectral_index = compute_spectral_index(
+        cfg["mean_spectral_index"],
+        cfg["std_spectral_index"],
+        len(S_radio_bol),
+    )
+
+    return intercepted_radio, S_radio_bol, w_int_s, L_radio_bol, spectral_index
 
 
 def radio_population_intercepted(dict_pop: dict) -> dict:
     """
-    Filter and compute properties of a population of neutron stars whose radio beams intercept our line of sight.
+    Filter and compute properties of a population of neutron stars whose radio beams intercept our line of sight
+    and that fall in the survey sky coverage.
 
     Args:
         dict_pop (dict): Dictionary containing the properties of a neutron star population.
@@ -536,11 +545,11 @@ def radio_population_intercepted(dict_pop: dict) -> dict:
     ) = calculate_radio_emission(
         dict_pop_filtered["P"],
         dict_pop_filtered["P_dot"],
+        dict_pop_filtered["chi"],
         dict_pop_filtered["age"],
         dict_pop_filtered["l"],
         dict_pop_filtered["b"],
         dict_pop_filtered["dist"],
-        dict_pop_filtered["chi"],
     )
 
     dictionary_radio_pop = {
@@ -551,6 +560,68 @@ def radio_population_intercepted(dict_pop: dict) -> dict:
     dictionary_radio_pop["L_radio_bol"] = L_radio_bol
     dictionary_radio_pop["S_radio_bol"] = S_radio_bol
     dictionary_radio_pop["spectral_index"] = spectral_index
+    dictionary_radio_pop["DM"] = DM
+    dictionary_radio_pop["tau_sc"] = tau_sc
+
+    return dictionary_radio_pop
+
+
+def radio_population_intercepted_full(
+    dict_pop: dict, dict_coverage: dict
+) -> dict:
+    """
+    Filter and compute properties of a population of neutron stars whose radio beams intercept our line of sight.
+
+    Args:
+        dict_pop (dict): Dictionary containing the properties of a neutron star population.
+        dict_coverage (dict): Dictionary containing boolean mask for the sky coverage of each survey.
+
+    Returns:
+        (dict): A dictionary containing properties of the neutron stars whose radio beams intercept our line of sight.
+    """
+    # Select only the stars that can be detected in radio by the considered surveys.
+    coverage_radio = dict_coverage["coverage_radio"]
+
+    # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
+    # of their radio emission.
+    (
+        intercepted_radio,
+        w_int_s,
+        L_radio_bol,
+        S_radio_bol,
+        spectral_index,
+    ) = calculate_radio_emission_full(
+        dict_pop["P"],
+        dict_pop["P_dot"],
+        dict_pop["age"],
+        dict_pop["dist"],
+    )
+
+    dictionary_radio_pop = {key: value for key, value in dict_pop.items()}
+    dictionary_radio_pop["w_int"] = w_int_s
+    dictionary_radio_pop["L_radio_bol"] = L_radio_bol
+    dictionary_radio_pop["S_radio_bol"] = S_radio_bol
+    dictionary_radio_pop["spectral_index"] = spectral_index
+    dictionary_radio_pop["intercepted_radio"] = intercepted_radio
+
+    # Determine which stars could in principle be detected.
+    detectable_radio = intercepted_radio & coverage_radio
+
+    # Computing the DM for the stars that fall into the surveys' sky coverage and whose
+    # radio beam intercepts our line of sight.
+    DM = np.zeros(cfg["NS_number"])
+    DM[detectable_radio] = edm.compute_DM(
+        dictionary_radio_pop["l"][detectable_radio],
+        dictionary_radio_pop["b"][detectable_radio],
+        dictionary_radio_pop["dist"][detectable_radio],
+        cfg["ed_model"],
+    )
+
+    # Computing the scattering timescale at 327 MHz of these stars.
+    tau_sc = np.zeros(cfg["NS_number"])
+    tau_sc[DM != 0] = edm.compute_tau_sc_327(DM[DM != 0])
+
+    # Add the DM and tau_sc information in the dictionary.
     dictionary_radio_pop["DM"] = DM
     dictionary_radio_pop["tau_sc"] = tau_sc
 

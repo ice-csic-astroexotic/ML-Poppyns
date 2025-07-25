@@ -25,8 +25,6 @@ def build_dataframe(
         (pd.DataFrame): A Pandas DataFrame with a MultiIndex header, where columns are
             indexed by parameters and units.
     """
-    # If the key `"idx"` is present, it is removed.
-    data_dict.pop("idx", None)
 
     header = pd.MultiIndex.from_arrays([parameters, units])
 

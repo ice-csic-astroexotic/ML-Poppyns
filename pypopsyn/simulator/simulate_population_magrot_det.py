@@ -159,6 +159,9 @@ def simulate_population(args) -> None:
                 cfg["profile_json"],
                 cfg["show_profiling"],
             ):
+                log.info(
+                    "Evolving magnetic field, misalignment angle and rotation period..."
+                )
 
                 # Evolve in time the magneto-rotational properties.
                 pop_magrot_final = mre.evolve_population_magrot(
