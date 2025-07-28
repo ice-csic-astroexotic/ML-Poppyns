@@ -20,7 +20,7 @@ TOL = 1e-5
 cfg["NS_number"] = 5
 # Set a predefined seed for the tests.
 cfg["seed"] = 42
-
+# Select a spiral arm model to populate the Galaxy, not the electron density prescription.
 cfg["sample_edm"]: bool = False
 # For the tests, set the spiral arm pattern in the configuration file to
 # the one from Faucher-Giguère & Kaspi (2006).
@@ -32,6 +32,7 @@ cfg["kick_model"] = "km_maxwell"
 # Select the Yusifov & Küçük (2004) radial density model for the test.
 cfg["radial_model"] = "rmYK04"
 
+# Initialize the spiral arm model.
 sm.initialize_spiral_model()
 
 

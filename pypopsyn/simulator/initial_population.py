@@ -77,10 +77,10 @@ class InitialNeutronStarPopulation:
         self, t_age: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        Calculating the position at birth of each random neutron star in
-        cylindrical reference frame according either to the Galactic electron density
-        distribution ymw16 (see Yao et al. 2017) if cfg["sample_edm"] = True, or using a spiral model and a radial model
-        specified in the configuration file.
+        Calculating the position at birth of each random neutron star in a cylindrical reference frame according
+        either to the Galactic electron density distribution ymw16 (see Yao et al. 2017) when cfg["sample_edm"] = True
+        in the `config_simulator.py` file, or using a spiral model and a radial model as specified in the configuration
+        file when cfg["sample_edm"] = False.
 
         Args:
             t_age (np.ndarray): Array of neutron star ages in [yr].
