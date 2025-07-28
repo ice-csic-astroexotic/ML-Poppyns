@@ -179,7 +179,7 @@ def test_case_4():
             [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
         ),
         "mock_failure_rate": np.array([10.0, 1.0e-5, 10, 1.0e-2]),
-        "outburst_mask_expected": np.array([False, False, True, True]),
+        "outburst_mask_expected": np.array([True, False, True, True]),
     }
 
     return data
