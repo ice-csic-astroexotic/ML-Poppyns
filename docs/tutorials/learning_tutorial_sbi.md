@@ -122,14 +122,21 @@ additional parameters specific to multi-round inference further below in [Multi-
 
 #### General info
 
-We first specify general settings for the experiment such as the experiment's name, the number of GPUs used
-and some additional profiling options. The latter specify the names of the files containing run time information
-for the code and whether this timing information is displayed in the terminal or not.
+We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, whether 
+to fix the random seed (and its value) and some additional profiling options. The latter specify the names of the files
+containing run time information for the code and whether this timing information is displayed in the terminal or not. 
+We discuss the multi-processing options in detail in the 
+[Running simulation in parallel for each round](#running-simulation-in-parallel-for-each-round) Section below.
 
 ```json
 {
-    "name": "SBI_ConvolutionMDN",
+"name": "SBI_ConvolutionMDN",
     "n_gpu": 1,
+    "enable_dask": false,
+    "n_processes": 4,
+    "workers_dask": 4,
+    "set_manual_seed": false,
+    "manual_seed": 42,
     "profile_log": "profile.log",
     "profile_json": "profile.json",
     "show_profiling": true
@@ -148,34 +155,41 @@ and the initial learning rate for the Adam optimizer, which is the default in th
 
 To create an ensemble of posteriors, we can train multiple networks per round by setting `ensemble = true` and specifying
 the ensemble size using `size_ensemble`. Note that the networks in the ensemble share the same architecture and differ 
-only due to the random initialization of their weights. See [Multi-round specific options](#multi-round-specific-options) below for further info.
+only due to the random initialization of their weights. See [Multi-round specific options](#multi-round-specific-options)
+section below for more information on the last parameters, which are specific to multi-round inference.
 
 ```json
 {
     "trainer": {
-        "type": "snle",
+        "type": "snpe",
         "num_rounds": 1,
-        "save_dir": "data/example_learning_sbi",
+        "save_dir": "output/learning_sbi",
         "validation_fraction": 0.1,
         "batch_size": 8,
-        "lr": 5e-4,
-        "ensemble": true,
-        "size_ensemble": 5
+        "lr": 0.0005,
+        "ensemble": false,
+        "size_ensemble": 5,
+        "truncated_prior": false,
+        "retrain_from_scratch": false,
+        "sir": true,
+        "append_simulations": true,
+        "plot_proposal": false
+      
     }
 }
 ```
-
 #### Density estimator
 
 Next, we decide on the type of density estimator used to approximate the posterior distribution. The 
 preconfigured options in the `sbi` library include so-called masked autoregressive flows `maf` or Gaussian mixture 
-density networks `mdn`. In the case of SNPE, when using `mdn`, we can also set the number of hidden features and the
-number of components in the mixture. On the other hand, for SNRE, we can specify the type of classifier to use,
-such as: `linear`, `mlp`, or `resnet`. For more details on these methods and relevant hyperparameters as well as 
-custom density estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
+density networks `mdn`. In the case of SNPE, we can also set the number of hidden features for the density estimator.
+When using `mdn` or `maf`, we can set the number of components in the mixture or the number of transformations in the 
+flow, respectively, using the `num_components` and `num_transforms` parameters. On the other hand, for SNRE, we can 
+specify the type of classifier to use, such as: `linear`, `mlp`, or `resnet`. For more details on these methods and 
+relevant hyperparameters as well as custom density estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
 
 In the following example, we are setting a mixture density network with `10` Gaussian components, and the number of 
-neurons in the hidden layers is set to `16`.
+neurons in the hidden layers is set to `32`.
 
 ```json
 {
@@ -183,12 +197,14 @@ neurons in the hidden layers is set to `16`.
     "type": "mdn",
     "classifier_nre": "resnet",
     "args_mdn_npe": {
-      "hidden_features": 16,
-      "num_components": 10
+      "hidden_features": 32,
+      "num_components": 10, 
+      "num_transforms": 5
     }
   }
 }
 ```
+If the model type chosen in the training options is not `snre`, then the classifier specified here will be ignored.
 
 #### MCMC sampler
 
@@ -223,13 +239,21 @@ This neural network is optimised at the same time as the parameters of the neura
 
 In the following example, we will be using 2D maps as input and, hence, opt for a convolutional neural network (CNN) 
 as the embedding net. This CNN is designed to adapt to any input size specified by the `input_shape` parameter and 
-produce an output with a length specified by `len_output_layer`. There are currently three possible options for the CNN:
-ModelConvSBI, ModelConvSBIdeep, and ModelConvSBIshallow. The difference is that the former has three convolutional
-layers, while the deep and shallow versions have four and two, respectively. In this specific example, the CNN receives 
-an array of shape $32 \times 32$ with `3` different input channels (three of our density maps with a 32 resolution) as
-input and outputs a latent vector of size 32, which contains a compressed representation of the input feature maps.
+produce an output with a length specified by `len_output_layer`. 
 
-The configuration file then looks as follows:
+There are currently three predefined models available for the embedding network:
+
+1. `ModelConvSBI`: a CNN with three convolutional layers.
+
+2. `ModelConvSBIdeep`: a deeper CNN with four convolutional layers.
+
+3. `ModelConvSBIshallow`: a shallower CNN with two convolutional layers.
+
+
+If you would like to design your own network architecture, you need to implement a new model class in 
+`pypopsyn/learning/models` and import this model in the file `models.py`.
+
+Therefore, when using ModelConvSBI, the configuration file looks as follows:
 
 ```json
 {
@@ -242,14 +266,6 @@ The configuration file then looks as follows:
     }
 }
 ```
-
-The models that have been predefined are the following ones:
-
-* `ModelConv` based on a CNN.
-* `ModelLinear` based on a multi-layer perceptron (MPL) architecture.
-
-If you would like to design your own network architecture, you need to implement a new model class in 
-`pypopsyn/learning/models` and import this model in the file `models.py`.
 
 #### Initialization
 
@@ -278,7 +294,10 @@ Here is a list with the different initialization procedures available:
 #### Alternative input compression options
 
 For learning approaches where NRE or NLE are applied, we cannot train an embedding network simultaneously with the 
-density estimator but instead apply another step to preprocess the data before passing it to the neural network. 
+density estimator but instead apply another step to preprocess the data before passing it to the neural network.  
+This is because, unlike in NPE, the neural network in NRE and NLE approximates the likelihood or the likelihood ratio
+directly. As a result, the output of the neural network must match those of the simulator, meaning the 
+compression step would have to occur after the density estimator, which is not possible.
 For this purpose, we provide two options for separate data compression: a Convolutional Neural Network (CNN) or 
 Principal Component Analysis (PCA). Note that our implementation assumes that the CNN corresponds to a fully optimised
 (i.e., fixed) embedding network that has been trained as part of a previous NPE experiment. For both PCA and CNN, the 
@@ -290,8 +309,8 @@ code expects a pickle file containing the pretrained model. The PCA model can be
   "compression_input": {
     "use_compression": true,
     "compression_type": "cnn",
-    "cnn_model_path": "exp/models/SBI_ConvolutionMDNshallow/20250127_144110/round_0/trained_model.pickle",
-    "pca_model_path": "/PCAs/1_pca_model_95_variance.pkl"
+    "cnn_model_path": "exp_4/round_9/trained_model_ensemble_0.pickle",
+    "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
   }
 }
 ```
@@ -311,15 +330,10 @@ in the `dataset_full.csv` file that contains information on the training data.
   "prior_ranges": {
     "labels": [
       "B_initial_log10_mean",
-      "B_initial_log10_sigma",
-      "P_initial_log10_mean",
-      "P_initial_log10_sigma",
-      "a_late",
-      "L_radio_log10_mean",
-      "epsilon_L"
+      "P_initial_log10_mean"
     ],
-    "low": [12, 0.1, -1.5, 0.1, -3, 24.6, 0.1],
-    "high": [14, 1, 0.5, 1, 0, 28.6, 1]
+    "low": [12, -1.5],
+    "high": [14, 0.5]
   }
 }
 ```
@@ -348,10 +362,10 @@ For the example above and following the recommended folder structure, the `train
 ```json
 {
  "training_data_loader": {
+    "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0",
     "dataset_path": "output/data/training_dataset",
     "statistic_path": "output/data/statistics_train.json",
-    "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0",
-    "filter_inputs": [9, 10, 11, 12, 13, 14],
+    "filter_inputs": [9, 10, 11],
     "filter_labels": [15, 17],
     "normalize": false,
     "standardize": true,
@@ -418,8 +432,8 @@ Following the recommended folder structure, the `test_data_loader` configuration
 {
   "test_data_loader": {
     "testing": false,
-    "dataset_path": "output/data/test_dataset",
     "dataset_path_first_round": "output/data/test_dataset/generated_dataset/round_0",
+    "dataset_path": "output/data/test_dataset/generated_dataset",
     "num_sim": 10
   }
 }
@@ -435,9 +449,23 @@ must match those used during training.
 {
   "observed_sample": {
       "dataset_path": "data/example_generator_observed",
-      "filter_inputs": [9, 10, 11, 12, 13, 14],
+      "filter_inputs": [9, 10, 11],
       "filter_labels": [15, 17]
   }
+}
+```
+#### Dynamical database
+
+To perform the magneto-rotational evolution, we first need to sample stars from a dynamical database and then carry out 
+the magneto-rotational evolution. In the `dyn_data_loader`, we specify the path to the dynamical database, assuming that 
+it contains a file named `final_pop_dyn.csv`. This file can be generated using the tutorial notebook located at 
+`tutorials/tutorial_notebooks/02_simulator_dyn_tutorial.ipynb`.
+
+```json
+{
+  "dyn_data_loader": {
+      "dataset_path": "../../data/example_simulation_dyn"
+    }
 }
 ```
 
@@ -486,13 +514,15 @@ This section describes configuration options specific to multi-round inference.
 
 Several additional parameters control how training behaves across different rounds:
 
-* `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round. 
-   ([Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
 
 * `truncated_prior`: If set to `true`, the proposal prior is obtained by truncating the initial prior with the
    posterior from the previous round (evaluated at the observed data, 
     [Deistler et al. 2022](https://arxiv.org/abs/2210.04815)). Otherwise, the proposal prior is simply the 
-   approximated posterior distribution from the previous round. 
+   approximated posterior distribution from the previous round.
+
+* `retrain_from_scratch`: If set to `true`, the neural network is retrained from scratch in each round, i.e., the 
+   model weights are re-initialized in each round. Otherwise, training continues updating the weights trained in the
+   previous rounds.
 
 * `sir`: If set to `true`, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, 
    rejection sampling is used. Note that rejection sampling can be significantly more computationally expensive if the 
@@ -500,9 +530,8 @@ Several additional parameters control how training behaves across different roun
    we refer the user to
    [Liu, J. S. (2001), Monte Carlo Strategies in Scientific Computing.](https://github.com/szcf-weiya/MonteCarlo/blob/master/References/Monte-Carlo-Strategies-in-Scientific-Computing.pdf)
 
-* `retrain_from_scratch`: If set to `true`, the neural network is retrained from scratch in each round, i.e., the 
-   model weights are re-initialized in each round. Otherwise, training continues updating the weights trained in the
-   previous rounds.
+* `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round. 
+   ([Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
 
 * `plot_proposal`: If set to `true`, a corner plot of the proposal prior will be saved.
 
@@ -516,20 +545,20 @@ An example of the multi-round training information could look as follows:
 ```json
 {
   "trainer": {
-    "type": "snle",
-    "num_rounds": 10,
-    "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2025/exp_constant_mag_cnn_embedding/learning",
-    "batch_size": 16,
-    "lr": 1e-4,
-    "ensemble": true,
-    "size_ensemble": 5,
-    "append_simulations": true,
-    "truncated_prior": false,
-    "retrain_from_scratch": true,
-    "validation_fraction": 0.1,
-    "sir": true,
-    "plot_proposal": false
-  }
+        "type": "snpe",
+        "num_rounds": 2,
+        "save_dir": "output/learning_sbi",
+        "validation_fraction": 0.1,
+        "batch_size": 8,
+        "lr": 0.0005,
+        "ensemble": false,
+        "size_ensemble": 5,
+        "truncated_prior": false,
+        "retrain_from_scratch": false,
+        "sir": true,
+        "append_simulations": true,
+        "plot_proposal": false
+}
 }
 ```
 #### Resume mode
@@ -547,11 +576,11 @@ To use the resume mode we first need to:
 * Provide the paths to the previously saved model and logs using `config["resume_training"]["save_dir"]` and 
   `config["resume_training"]["log_dir"]`, respectively.
 
-When resuming, the first (new) iteration requires loading the trained model and the training datasets from all 
-previously completed rounds of an earlier experiment. This is necessary to compute the proposal prior distribution 
+When resuming, the first (new) iteration requires loading the trained model from the 
+previously completed round of an earlier experiment. This is necessary to compute the proposal prior distribution 
 for the next (first new) round. Note that if `append_simulations` is set to true, simulations from all previous rounds 
-are reused at every round. Therefore, when resuming, we need to load the training datasets from all previously completed 
-rounds.
+are reused at every round. Therefore, when resuming, it's essential to load the training datasets
+from all completed rounds.
 
 An example of the configuration file that enables resuming would look as follows:
 
@@ -559,16 +588,16 @@ An example of the configuration file that enables resuming would look as follows
 {
   "resume_training": {
   "resume": true,
-  "last_round": 2,
+  "last_round": 7,
   "save_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828",
   "log_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828"
   }
 }
 ```
 
-In this example, we will load the `inference.pickle` and `trained_model.pickle` from round 3 saved in the `save_dir`
+In this example, we will load the `inference.pickle` and `trained_model.pickle` from round 7 saved in the `save_dir`
 folder and compute the approximated posterior distribution at an observed sample, which will then serve as the proposal 
-prior for the next round. From round 4 onward, the computation will proceed as usual in our multi-round inference 
+prior for the next round. From round 8 onward, the computation will proceed as usual in our multi-round inference 
 approach. The `inference.pickle` and the `trained_model.pickle` files for the `last_round` and onward will be saved in 
 the same folder specify in `save_dir`. The logs and training statistics are saved in the `log_dir` folder.
 
