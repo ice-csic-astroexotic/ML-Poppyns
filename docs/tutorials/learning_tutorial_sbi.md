@@ -327,8 +327,8 @@ in the `dataset_full.csv` file that contains information on the training data.
 We also require a training data loader, which is responsible for loading the dataset in a representation readable 
 by the network. The path to the directory containing the training dataset (in particular the file `dataset_full.csv`) 
 for the first round is specified in the `dataset_path_first_round` field. For multi-round inference, the training
-datasets generated in each of the following rounds will be saved in the directory specified by `dataset_path`.
-We also specify the location for the JSON file characterizing the statistics of the training dataset in `statistic_path`. 
+datasets generated in each of the following rounds will then be saved in the directory specified by `dataset_path`.
+We also specify the location for the JSON file characterizing the statistics of the training dataset in `statistic_path`
 and the input channels `filter_inputs` used in building our (multichannel) input. Additionally, we set the ground truth
 labels `filter_labels` that we want to predict and provide information on whether our data and labels are normalized or
 standardized. The `filter_labels` and `filter_inputs` arguments are explained in more detail below, along with an 
@@ -386,13 +386,14 @@ the labels `B_initial_log10_mean` and `P_initial_log10_mean` (indices 15, 16).
 !!! warning
     
     If an embedding network is used to compress the 2D maps, the length of `filter_inputs` in the dataset loader 
-    configuration must match the network’s expected input channel dimension specified in `input_shape` in the arch 
+    configuration must match the network’s expected input channel dimension specified in `input_shape` in the `arch` 
     section.
 
 Finally, our training data loader enables us to activate on-the-fly normalization or standardization (both are 
 mutually exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information 
 contained in the `statistics_train.json` file. For normalization, the input channels and labels will have values in 
-the range between 0 and 1. If standardized, the input channels and labels have values centred around 0 and range approximately between -1 and 1.
+the range between 0 and 1. If standardized, the input channels and labels have values centred around 0 and range 
+approximately between -1 and 1.
 
 !!! note
 
@@ -403,14 +404,13 @@ the range between 0 and 1. If standardized, the input channels and labels have v
 #### Testing data loader
 
 Inference on a test dataset can be performed either separately using the `sbi_infer.py` script after training, or 
-simultaneously during training by setting testing to true. As with training, testing requires specifying the path to
-the test dataset for the first round in the `dataset_path_first_round` field, which must contain a `dataset_full.csv`
-file.
-In multi-round inference, the test dataset for subsequent rounds is generated on the fly and saved to the path specified
-in dataset_path, with the number of simulations defined by num_sim.
+simultaneously during training by setting the `testing` field to true. As with training, testing requires specifying 
+the path to the test dataset for the first round in the `dataset_path_first_round` field, which must contain a 
+`dataset_full.csv` file. In multi-round inference, the test dataset for subsequent rounds is generated on the fly and 
+saved to the path specified in `dataset_path`, with the number of simulations defined by `num_sim`.
 
-Following the recommended folder structure, the test_data_loader configuration for the example above will look like this:
-
+Following the recommended folder structure, the `test_data_loader` configuration for the example above will look like 
+this:
 
 ```json
 {
