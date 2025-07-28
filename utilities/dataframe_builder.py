@@ -28,7 +28,8 @@ def build_dataframe(
 
     header = pd.MultiIndex.from_arrays([parameters, units])
 
-    df = pd.DataFrame.from_dict(data=data_dict)
+    # Force column order to match `parameters`
+    df = pd.DataFrame({key: data_dict[key] for key in parameters})
     df.columns = header
 
     return df

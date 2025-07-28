@@ -593,7 +593,7 @@ def radio_population_intercepted_full(
     ) = calculate_radio_emission_full(
         dict_pop["P"],
         dict_pop["P_dot"],
-        dict_pop["age"],
+        dict_pop["chi"],
         dict_pop["dist"],
     )
 

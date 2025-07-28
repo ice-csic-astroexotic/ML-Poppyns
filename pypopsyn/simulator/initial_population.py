@@ -309,7 +309,7 @@ def create_output_dataframe_initial_pop(
         "[s]",
         "[s s^-1]",
     ]
-
+    print(dictionary_initial_pop.keys())
     # Build the DataFrame using the appropriate parameters and units.
     df = dfb.build_dataframe(dictionary_initial_pop, parameters, units)
 
@@ -346,8 +346,8 @@ def create_output_dataframe_final_pop(
         "v_r",
         "v_phi",
         "v_z",
-        "pm_RA",
-        "pm_DEC",
+        "pm_ra",
+        "pm_dec",
         "v_ls",
         "B",
         "B_initial",
@@ -361,12 +361,17 @@ def create_output_dataframe_final_pop(
         "tau_sc",
         "intercepted_radio",
         "spectral_index",
+        "L_x_therm",
+        "S_x_rcs_abs",
+        "S_x_bb_abs",
+        "N_H",
+        "outburst",
     ]
     units = [
         " ",
         "[yr]",
         "[kpc]",
-        "[kpc]",
+        "[rad]",
         "[kpc]",
         "[deg]",
         "[deg]",
@@ -390,6 +395,11 @@ def create_output_dataframe_final_pop(
         "[pc cm^-3]",
         "[s]",
         " ",
+        " ",
+        "[erg s^-1]",
+        "[erg s^-1 cm^(-2)]",
+        "[erg s^-1 cm^(-2)]",
+        "[cm^-2]",
         " ",
     ]
 

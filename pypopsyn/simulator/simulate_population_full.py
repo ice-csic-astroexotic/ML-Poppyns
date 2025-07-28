@@ -212,8 +212,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                 pop_magrot_initial, output_path
             )
 
-            pop_full_final = pop_dyn_final | pop_magrot_final
-            pop_full_final["idx"] = NS_idx
+            pop_final = pop_dyn_final | pop_magrot_final
+            pop_final["idx"] = NS_idx
 
         # ===================== RADIO EMISSION AND DETECTION ========================
 
@@ -227,16 +227,28 @@ def simulate_population(args: argparse.Namespace) -> None:
             coverage_dict = sw.apply_surveys_coverage_full(
                 surveys_radio,
                 surveys_xray,
-                pop_full_final,
+                pop_final,
                 dist_cutoff=35.0,
             )
+            print(pop_final["idx"])
 
             # Compute the properties of pulsars whose radio beam intercepts our line of sight.
             pop_radio = er.radio_population_intercepted_full(
-                pop_full_final, coverage_dict
+                pop_final, coverage_dict
             )
+            print(pop_radio["idx"])
 
-            print(pop_radio.keys())
+            # Compute X-ray emission of neutron stars.
+            pop_xray = ex.xray_population_full(
+                pop_final, L_x_interpolator=Lx_interpolator
+            )
+            print(pop_radio["idx"])
+
+            pop_full_final = pop_radio | pop_xray
+            print(pop_full_final["idx"])
+            # pop_full_final["idx"] = NS_idx
+
+            print(pop_full_final.keys())
 
             # Determine fraction of pulsars beamed towards us.
             fraction_intercepted = len(
@@ -250,7 +262,7 @@ def simulate_population(args: argparse.Namespace) -> None:
             # Adding the parameters to a data frame for export.
             log.info("Creating data frame for exporting...")
 
-            df_final = ipop.create_output_dataframe_final_pop(pop_radio)
+            df_final = ipop.create_output_dataframe_final_pop(pop_full_final)
 
             # Save the data frame as compressed binary file.
             final_output_path = pathlib.Path().joinpath(
@@ -291,10 +303,6 @@ def simulate_population(args: argparse.Namespace) -> None:
             cfg["profile_json"],
             cfg["show_profiling"],
         ):
-            # Compute X-ray emission of neutron stars.
-            pop_xray = ex.xray_population_full(
-                pop_full_final, L_x_interpolator=Lx_interpolator
-            )
 
             # Filter the population to include only pulsars detected by the X-ray surveys.
             pop_detected_x_update = sw.xray_detection(
