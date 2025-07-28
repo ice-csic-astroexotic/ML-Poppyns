@@ -470,9 +470,9 @@ cfg["ISM_abundances"]: List[float] = [
     6.05,
 ]
 
-# Enabling the use of an interpolator for the rate of crust failures to estimate the number of outburst events for stars
-# with different initial magnetic fields and age.
-# If set to False a simpler probabilistic approach will be used that takes into account only the age.
+# Enabling the use of an interpolator for the rate of crust failures to estimate the number of outburst events for
+# neutron stars with different initial magnetic fields and ages. If set to False a simpler probabilistic approach
+# will be used that takes into account the age but neglects the dependence of the outburst rate on the field strength.
 cfg["use_crust_failure_rate_interpolator"]: bool = True
 
 # ===================== X-RAY DETECTION PARAMETERS ========================
