@@ -547,14 +547,11 @@ To use the resume mode we first need to:
 * Provide the paths to the previously saved model and logs using `config["resume_training"]["save_dir"]` and 
   `config["resume_training"]["log_dir"]`, respectively.
 
-When resuming, the first (new) iteration requires loading the trained model and the training dataset from all previously 
-completed rounds of an earlier experiment. This is necessary to:
-
-* Compute the proposal prior distribution for the next (first new) round.
-* If `append_simulations` is set to True, simulations from all previous rounds are reused at every round. Therefore, 
-  when resuming, we need to load the training datasets from all previously completed rounds.
-
-
+When resuming, the first (new) iteration requires loading the trained model and the training datasets from all 
+previously completed rounds of an earlier experiment. This is necessary to compute the proposal prior distribution 
+for the next (first new) round. Note that if `append_simulations` is set to true, simulations from all previous rounds 
+are reused at every round. Therefore, when resuming, we need to load the training datasets from all previously completed 
+rounds.
 
 An example of the configuration file would look as follows:
 
