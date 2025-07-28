@@ -275,13 +275,12 @@ Here is a list with the different initialization procedures available:
 
 #### Alternative input compression options
 
-For learning approaches where NRE or NLE are applied, we do not require an embedding net but instead another step is 
-required to preprocess the data before passing it to the neural network. Unlike in NPE, we cannot train an embedding 
-network simultaneously with the density estimator. To address this, we provide two options for separate data 
-compression: a Convolutional Neural Network (CNN) or Principal Component Analysis (PCA). The CNN is assumed to have 
-been trained as part of a previous NPE experiment. For both PCA and CNN, the code expects a pickle file containing the
-pretrained model. The PCA model can be trained separately using the
-`tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook. 
+For learning approaches where NRE or NLE are applied, we cannot train an embedding network simultaneously with the 
+density estimator but instead apply another step to preprocess the data before passing it to the neural network. 
+For this purpose, we provide two options for separate data compression: a Convolutional Neural Network (CNN) or 
+Principal Component Analysis (PCA). The CNN is assumed to have been trained as part of a previous NPE experiment. 
+For both PCA and CNN, the code expects a pickle file containing the pretrained model. The PCA model can be trained 
+separately using the `tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook. 
 
 ```json
 {
