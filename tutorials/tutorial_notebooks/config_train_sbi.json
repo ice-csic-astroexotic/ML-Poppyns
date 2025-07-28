@@ -39,17 +39,15 @@
         "num_chains": 20,
         "thin": 5
     },
+
     "arch": {
         "type": "ModelConvSBI",
         "args": {
-            "input_shape": [
-                3,
-                32,
-                32
-            ],
+            "input_shape": [3, 32, 32],
             "len_output_layer": 32
         }
     },
+
     "weights_initializer": {
         "type": "InitializerKaiming",
         "args": {}
@@ -67,33 +65,21 @@
             "B_initial_log10_mean",
             "P_initial_log10_mean"
         ],
-        "low": [
-            12,
-            -1.5
-        ],
-        "high": [
-            14,
-            -0.3
-        ]
+        "low": [12, -1.5],
+        "high": [14, -0.3]
     },
 
     "training_data_loader": {
         "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0",
         "dataset_path": "output/data/training_dataset/generated_dataset",
         "statistic_path": "output/generator/statistics_train.json",
-        "filter_inputs": [
-            9,
-            10,
-            11
-        ],
-        "filter_labels": [
-            15,
-            16
-        ],
+        "filter_inputs": [9, 10, 11],
+        "filter_labels": [15, 16],
         "normalize": false,
         "standardize": true,
         "num_sim": 10
     },
+
     "test_data_loader": {
         "testing": false,
         "dataset_path_first_round": "output/data/test_dataset/generated_dataset",
@@ -103,15 +89,8 @@
 
     "observed_sample": {
         "dataset_path": "output/generator_observed/",
-        "filter_inputs": [
-            9,
-            10,
-            11
-        ],
-        "filter_labels": [
-            15,
-            17
-        ]
+        "filter_inputs": [9, 10, 11],
+        "filter_labels": [15, 17]
     },
 
     "dyn_data_loader": {
