@@ -423,6 +423,7 @@ def calculate_xray_emission(
 def load_Lx_interpolator() -> RectBivariateSpline:
     """
     Load the interpolator for the X-ray luminosity.
+
     The interpolator function has been constructed in the notebook
     tutorials/analysis_notebooks/xray_luminosity_interpolation.ipynb.
 
@@ -446,16 +447,18 @@ def load_Lx_interpolator() -> RectBivariateSpline:
 def load_crust_failure_rate_interpolator() -> RectBivariateSpline:
     """
     Load the interpolator for the crust failure rates.
+
     The interpolator function has been constructed in the notebook
     tutorials/analysis_notebooks/crust_failure_rate_interpolation.ipynb.
 
     Returns:
-        (RectBivariateSpline): An interpolator function loaded from a pickled file to evaluate the rate of crustal failures.
+        (RectBivariateSpline): An interpolator function loaded from a pickled file to evaluate the rate of
+            crustal failures.
     """
 
     # Get the path to the software directory.
     base_path = pathlib.Path(cfg["path_to_software"])
-    # Load the interpolator function to evaluate the X-ray luminosity.
+    # Load the interpolator function to evaluate the crustal failure rate.
     interpolator_path = base_path.joinpath(
         cfg["magneto-thermal_path"], "interpolator_crust_failure_rate.pkl"
     )
@@ -470,13 +473,15 @@ def outburst_filter_probabilistic(
     B_initial: np.ndarray, age: np.ndarray
 ) -> np.ndarray:
     """
-    A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that goes in outburst
+    A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that go into outburst
     after some crustal failures due to magnetic stresses (see Dehman et al. 2020).
+
     We associate the percentage of crustal failure events depending on the age as the probability to go in outburst,
     see section 3.2 in Dehman et al. (2020).
-    In Dehman et al. (2020) they found a correlation between the magnetic energy in the crust and the number of failure
-    events. However, for simplification, we neglect any dependence of the failure rate on the magnetic energy in the crust
-    and assume that all neutron stars with initial magnetic field above 10^13 G are born with the same amount of
+
+    Dehman et al. (2020) found a correlation between the magnetic energy in the crust and the number of failure
+    events. However, for simplification, we neglect any dependence of the failure rate on the magnetic energy in the
+    crust and assume that all neutron stars with initial magnetic field above 10^13 G are born with the same amount of
     magnetic energy in the crust.
 
     Args:
@@ -519,15 +524,18 @@ def outburst_filter_from_crust_failure_rate(
     crust_failure_rate_interpolator: RectBivariateSpline,
 ) -> np.ndarray:
     """
-    A mask that filters neutron stars that goes in outburst after some crustal failures due to magnetic stresses
-    (see Dehman et al. 2020).
-    We compute the expected rate of failures from the result of magneto-thermal simulations for a neutron star
-    with a given initial magnetic field and age (see the notebook tutorials/analysis_notebooks/crust_failure_rate.ipynb
-    for more details). From this rate we select only neutron stars that experiences a failure event in the last 50 years
-    which is roughly the time when X-ray survey missions were active.
-    Note that we assume that each failure event is associated to a detected outburst.
-    This leads to an overestimate of the number of neutron stars that are detected through an outburst events as lees
-    energetic events might have been missed or not identified with neutron star activity.
+    A mask that filters neutron stars that go into outburst after some crustal failures due to magnetic stresses
+    (see Dehman et al. 2020). In comparison to outburst_filter_probabilistic this implementation is magnetic-field
+    dependent.
+
+    We compute the expected rate of failures from the outcomes of magneto-thermal simulations for neutron stars with
+    a given initial magnetic field and age (see the notebook tutorials/analysis_notebooks/crust_failure_rate.ipynb
+    for more details). Based on this rate, we then select only those neutron stars that experiences a failure event in
+    the last 50 years which is roughly the time when X-ray survey missions began taking data.
+
+    Note that we assume that each failure event is associated with a detected outburst. This will generally lead to an
+    overestimation of the number of neutron stars that are detected through outburst events as lees energetic events
+    might have been missed or not identified with neutron star activity.
 
     Args:
         B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
@@ -541,12 +549,11 @@ def outburst_filter_from_crust_failure_rate(
     # Interpolate the rate of crust failures from the initial magnetic field value and the age.
     rate_crust_failure = crust_failure_rate_interpolator.ev(age, B_initial)
 
-    # Select only the stars that have experienced a crust failure event in the last 50 yrs.
-    # This is done in order to have an estimate of the outburst number that a neutron stars might have undergone during
-    # the period of activity of X-ray survey missions.
-    # We also filter out events for neutron stars younger than 100 yr because at these young ages the outer crust is
-    # still solidifying (see Fig. 8 in Aguilera et al. 2008) and we are assuming that the crust should be solid to
-    # compute the stresses.
+    # Select only the stars that have experienced a crust failure event in the last 50 yrs. This way we determine an
+    # estimate of the number of outbursts that neutron stars will likely have undergone during the period of activity
+    # of X-ray survey missions. We also filter out events for neutron stars younger than 100 yr because for such young
+    # objects the outer crust is still solidifying (see Fig. 8 in Aguilera et al. 2008) and our following considerations
+    # require that the crust is solid to compute the stresses.
     n_outburst_events = rate_crust_failure * 50
 
     # We consider n_outburst_events to be a probability for having an outburst.
