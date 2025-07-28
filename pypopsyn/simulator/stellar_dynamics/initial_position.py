@@ -238,6 +238,7 @@ def calculate_r_phi_spiral_model(
             generated neutron star.
     """
 
+    # Initializing the radial density prescription.
     radial_model = cfg["radial_model"]
     if radial_model == "rmYK04":
         pdf_radial = pdf_radial_density_YK04
