@@ -494,7 +494,7 @@ def test_calculate_radio_emission_full(monkeypatch, test_case_3):
     ).all()
 
 
-def test_radio_population(monkeypatch, test_case_4):
+def test_radio_population_intercepted(monkeypatch, test_case_4):
     """
     Check that the dictionary with the properties of the neutron stars that intercept our line of sight with their
     radio beams is properly returned.
@@ -514,7 +514,7 @@ def test_radio_population(monkeypatch, test_case_4):
     monkeypatch.setattr(
         er, "calculate_radio_emission", mock_calculate_radio_emission
     )
-    out_dict = er.radio_population(test_case_4["dict_final_pop"])
+    out_dict = er.radio_population_intercepted(test_case_4["dict_final_pop"])
 
     # Verify that the keys are correct.
     assert set(out_dict.keys()) == set(test_case_4["expected_keys"])

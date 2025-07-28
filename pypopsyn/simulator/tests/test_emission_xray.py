@@ -8,7 +8,6 @@ Tests for the X-ray emission module.
 """
 
 import pickle
-import tempfile
 from unittest import mock
 
 import numpy as np
@@ -373,7 +372,7 @@ def test_resonant_optical_depth(test_case_1):
 
 def test_flux_xray_absorbed(test_case_1, monkeypatch):
     """
-    Verifying that absorbed X-ray flux is correctly estimated.
+    Verifying that the absorbed X-ray flux is correctly estimated.
     """
 
     # Mock the gr_correction global variable to use the updated value of NS_radius for the test.
@@ -413,30 +412,30 @@ def test_initialize_Lx_interpolator(test_case_2, tmp_path):
     """
     Test that initialize_Lx_interpolator loads and returns a valid interpolator.
     """
-    # Create sub-directory for the pickle file
+    # Create subdirectory for the pickle file.
     subdir = tmp_path / "magneto-thermal"
     subdir.mkdir()
 
-    # Path to interpolator pickle inside subdir
+    # Define path to interpolator pickle inside subdir.
     interpolator_path = subdir / "interpolator_Lx.pkl"
 
-    # Write the dummy interpolator to the file
+    # Write the dummy interpolator to the file.
     with open(interpolator_path, "wb") as f:
         pickle.dump(test_case_2["dummy_L_x_interpolator"], f)
 
-    # Define a fake cfg to point to this location
+    # Define a fake cfg to point to this location.
     fake_cfg = {
         "path_to_software": str(tmp_path),  # base dir is tmp_path
         "magneto-thermal_path": "magneto-thermal",  # subdir
     }
 
-    # Patch cfg with this fake_cfg
+    # Create patch cfg with this fake_cfg.
     with mock.patch(
         "pypopsyn.simulator.multiband_emission.emission_xray.cfg", fake_cfg
     ):
         interpolator = xem.initialize_Lx_interpolator()
 
-    # Assertions
+    # Assertions.
     assert isinstance(interpolator, RectBivariateSpline)
 
 
@@ -509,7 +508,7 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
     ).all()
 
 
-def test_outburst_filter(test_case_3, monkeypatch):
+def test_outburst_filter_probabilistic(test_case_3, monkeypatch):
 
     # Fixed uniform return values based on age group logic.
     def mock_uniform(low, high, size):
@@ -524,14 +523,14 @@ def test_outburst_filter(test_case_3, monkeypatch):
         else:
             raise ValueError("Unexpected uniform call")
 
-    # Fixed rand values: these simulate the draw to compare against probability.
+    # Fixed rand values: these simulate the draw to compare against the probability.
     def mock_rand(size):
         return np.array([0.6, 0.3, 0.4, 0.02])
 
     monkeypatch.setattr(np.random, "uniform", mock_uniform)
     monkeypatch.setattr(np.random, "rand", mock_rand)
 
-    outburst_mask_out = xem.outburst_filter(
+    outburst_mask_out = xem.outburst_filter_probabilistic(
         test_case_3["B_initial"], test_case_3["age"]
     )
 
@@ -563,5 +562,6 @@ def test_xray_population(test_case_4, monkeypatch):
     )
     # Verify that the keys are correct.
     assert set(out_dict.keys()) == set(test_case_4["expected_keys"])
+
     # Verify that the output dictionary contains at most the same number of stars as the input one.
     assert len(out_dict["age"]) <= len(test_case_4["dict_final_pop"]["age"])

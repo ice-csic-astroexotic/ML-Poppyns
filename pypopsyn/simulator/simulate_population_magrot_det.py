@@ -26,7 +26,7 @@ import time
 import numpy as np
 
 import pypopsyn.simulator.config_simulator as configuration
-import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution_fit as mre
+import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.multiband_emission.emission_radio as er
 import pypopsyn.simulator.multiband_emission.emission_xray as ex
 import pypopsyn.simulator.multiband_surveys.surveys_wrapper as sw
@@ -178,7 +178,7 @@ def simulate_population(args) -> None:
             ):
 
                 # Filter the population to include only pulsars whose radio beam intercepts our line of sight.
-                pop_radio = er.radio_population(pop_final)
+                pop_radio = er.radio_population_intercepted(pop_final)
                 if len(pop_radio["age"]) == 0:
                     break
 
@@ -231,7 +231,8 @@ def simulate_population(args) -> None:
             log.info(
                 f"Galactic neutron star birth rate per century: {birth_rate} neutron stars per century."
             )
-            # If the current birth rate exceeds the upper limit on the birth rate specified in the configuration file stop the simulation.
+            # If the current birth rate exceeds the upper limit on the birth rate specified in the configuration file
+            # stop the simulation.
             max_birth_rate = cfg["birth_rate_max"]
             if birth_rate > max_birth_rate:
                 cfg["birth_rate_excess"] = True

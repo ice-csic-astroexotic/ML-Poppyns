@@ -27,32 +27,42 @@ from pypopsyn.simulator.config_simulator import cfg
 @dataclass
 class SurveyData:
     """
-    A dataclass object to store all the survey data for a simulation
+    A dataclass object to store all the survey data for a simulation.
+
+    Attributes:
+        surveys_cfg (Dict): A dictionary to save all the survey information from config_simulator.
+        surveys_radio (Dict): A dictionary to store the radio survey class objects.
+        n_detected_sim (Dict): A dictionary to store the number of stars detected in each survey.
+        n_detected_complete_sim (Dict): A dictionary to store how many neutron stars are detected in the flux ranges
+            where we assume completeness.
+        percentage_detected (Dict): A dictionary storing the percentage of detections compared to real detected numbers.
+        n_created_at_match (Dict): A dictionary storing how many stars we have created to reach the desirable number in
+            each survey.
+        n_detected_sim_at_match (Dict): A dictionary storing how many stars we have detected when we reach the desirable
+            number in each survey.
+        batchsize_adjust_flags (Dict): A dictionary storing the flags for adjusting batch size as we approach the target
+            detection number for all surveys.
+        stop_flags (Dict): A dictionary storing the flags for stopping the simulation as we reach the target detection
+            number for all surveys.
+        dictionary_detected_radio (Dict): A dictionary storing all the properties of neutron stars detected in the radio
+            surveys.
+        dictionary_detected_xray (Optional[Dict]): A dictionary storing all the properties of neutron stars detected in
+            the X-ray surveys if cfg["xray_simulation"] = True.
+        surveys_xray (Optional[Dict]): A dictionary storing all the X-ray survey class objects if
+            cfg["xray_simulation"] = True.
     """
 
-    # In this dictionary we save all survey information specified in the config_simulator file.
     surveys_cfg: Dict
-    # In this dictionary we save all the radio survey class objects.
     surveys_radio: Dict
-    # In these dictionaries we save how many stars we progressively detect in total in each survey, how many neutron
-    # stars are detected in the flux ranges where we assume completeness and the percentage related to the real
-    # detected numbers.
     n_detected_sim: Dict
     n_detected_complete_sim: Dict
     percentage_detected: Dict
-    # In this dictionary we save how many stars we have created to reach the desirable number in each survey.
     n_created_at_match: Dict
-    # In this dictionary we save how many stars we have detected when we reach the desirable number in each survey.
     n_detected_sim_at_match: Dict
-    # Flags for adjusting batch size as we approach the target detection number for all surveys.
     batchsize_adjust_flags: Dict
-    # Flags for stopping the simulation as we reach the target detection number for all surveys.
     stop_flags: Dict
-    # In this dictionary we save all the properties of neutron stars detected in the radio surveys.
     dictionary_detected_radio: Dict
-    # In this dictionary we save all the properties of neutron stars detected in the X-ray surveys if cfg["xray_simulation"] = True.
     dictionary_detected_xray: Optional[Dict] = None
-    # In this dictionary we save all the X-ray survey class objects if cfg["xray_simulation"] = True.
     surveys_xray: Optional[Dict] = None
 
 
@@ -204,7 +214,7 @@ def initialize_all_surveys() -> SurveyData:
         kwargs["surveys_xray"] = surveys_xray
         kwargs["dictionary_detected_xray"] = dictionary_detected_xray
 
-    return SurveyData(
+    survey_data_class = SurveyData(
         surveys_cfg=surveys_cfg,
         surveys_radio=surveys_radio,
         n_detected_sim={survey: 0 for survey in surveys_cfg},
@@ -217,6 +227,8 @@ def initialize_all_surveys() -> SurveyData:
         dictionary_detected_radio=dictionary_detected_radio,
         **kwargs,
     )
+
+    return survey_data_class
 
 
 def apply_surveys_coverage(
@@ -248,7 +260,10 @@ def apply_surveys_coverage(
     dist_mask = dist < dist_cutoff
 
     survey_radio_names = list(surveys_radio.keys())
+    survey_xray_names = []
     coverage_survey_radio = {}
+    coverage_survey_xray = {}
+    coverage_xray_tot = {}
 
     if surveys_xray is not None:
         survey_xray_names = list(surveys_xray.keys())
@@ -263,7 +278,7 @@ def apply_surveys_coverage(
             dyn_database_dict["b"],
         )
 
-    # Combines the coverage masks of all selected radio surveys into a single mask.
+    # Combine the coverage masks of all selected radio surveys into a single mask.
     # It performs a logical OR (|) across all coverage arrays in coverage_survey_radio,
     # for each survey name in survey_radio_names.
     # The result is a single array where a position is True if it is covered by any survey.
@@ -284,7 +299,7 @@ def apply_surveys_coverage(
                 dyn_database_dict["b"],
             )
 
-        # Combines the coverage masks of all selected X-ray surveys into a single mask.
+        # Combine the coverage masks of all selected X-ray surveys into a single mask.
         # It performs a logical OR (|) across all coverage arrays in coverage_survey_xray,
         # for each survey name in survey_xray_names.
         # The result is a single array where a position is True if it is covered by any survey.
@@ -353,7 +368,7 @@ def radio_detection(
     Returns:
         (dict): A dictionary containing the properties of detected pulsars for each survey.
     """
-    # Initialize variables for HTRU_low and HTRU_mid to avoid "referenced before assignment".
+    # Initialize variables for HTRU_low and HTRU_mid.
     detected_HTRU_low = np.array([])
     w_eff_low = None
     S_radio_obs_mean_low = None
@@ -429,7 +444,8 @@ def radio_detection(
             idx=dictionary_intercepted_radio["idx"],
         )
 
-        # Remove the single HTRU low and mid surveys.
+        # Remove the dictionaries containing the results for the individual HTRU low and mid surveys,
+        # as we only require the combined detections determined above.
         del detected_dictionaries["HTRU_low"]
         del detected_dictionaries["HTRU_mid"]
 
@@ -441,7 +457,7 @@ def xray_detection(
     dict_xray_pop: dict,
 ) -> dict:
     """
-    This function detects neutron stars by modelling some observational biases and updates their properties.
+    This function detects neutron stars by modeling some observational biases and updates their properties.
 
     Args:
         xray_surveys (dict): Dictionary containing the X-ray survey objects.
@@ -469,11 +485,11 @@ def update_filtered_dictionary(
     dict_to_update: dict, mask: np.ndarray, **kwargs: np.ndarray
 ) -> dict:
     """
-    This function updates a dictionary to include for each key only the values corresponding to a given boolean mask.
+    This function updates a dictionary to include for each key only the values corresponding to a given Boolean mask.
 
     Args:
         dict_to_update (dict): The original dictionary containing properties of neutron stars.
-        mask (np.ndarray): boolean mask indicating which elements for each key in `dict_to_update` have to be included.
+        mask (np.ndarray): Boolean mask indicating which elements for each key in `dict_to_update` have to be included.
         **kwargs (np.ndarray): Additional property values provided as keyword arguments.
             These properties will also be filtered using the `mask`.
 
@@ -502,7 +518,7 @@ def update_filtered_dictionary(
 
 
 def update_survey_data(
-    SurveyData: SurveyData,
+    survey_data_class: SurveyData,
     pop_detected_dict_update: dict,
     survey_type: str,
     n_created: int,
@@ -514,7 +530,7 @@ def update_survey_data(
     detected in the surveys.
 
     Args:
-        SurveyData (SurveyData): The SurveyData dataclass containing the data of all neutron star surveys.
+        survey_data_class (SurveyData): The SurveyData dataclass containing the data of all neutron star surveys.
         pop_detected_dict_update (dict): A dictionary containing the properties of neutron stars that have been
             detected in the surveys.
         survey_type (str): A string specifying which survey to update, "Radio" or "X-ray".
@@ -524,14 +540,14 @@ def update_survey_data(
         logger (logging.Logger): A logger instance to log messages.
     """
 
-    surveys_cfg = SurveyData.surveys_cfg
-    n_detected_sim = SurveyData.n_detected_sim
-    n_detected_complete_sim = SurveyData.n_detected_complete_sim
-    stop_flags = SurveyData.stop_flags
-    n_detected_sim_at_match = SurveyData.n_detected_sim_at_match
-    n_created_at_match = SurveyData.n_created_at_match
-    dictionary_detected_radio = SurveyData.dictionary_detected_radio
-    dictionary_detected_xray = SurveyData.dictionary_detected_xray
+    surveys_cfg = survey_data_class.surveys_cfg
+    n_detected_sim = survey_data_class.n_detected_sim
+    n_detected_complete_sim = survey_data_class.n_detected_complete_sim
+    stop_flags = survey_data_class.stop_flags
+    n_detected_sim_at_match = survey_data_class.n_detected_sim_at_match
+    n_created_at_match = survey_data_class.n_created_at_match
+    dictionary_detected_radio = survey_data_class.dictionary_detected_radio
+    dictionary_detected_xray = survey_data_class.dictionary_detected_xray
 
     for survey in pop_detected_dict_update:
 
@@ -568,7 +584,7 @@ def update_survey_data(
             idx_remove += idx_det
 
         elif survey_type == "X-ray":
-            # For the X-ray survey we are not complete and we do not control well the observational biases, therefore
+            # For the X-ray survey we are not complete, and we do not control well the observational biases. Therefore,
             # we consider a flux threshold above which we assume we are complete and try to match the number of observed
             # sources above this flux threshold. See the config_simulator file for more details.
             n_detected_sim[survey] += len(
@@ -586,7 +602,7 @@ def update_survey_data(
             logger.info(
                 f"Total number of neutron stars detected by {survey}: {n_detected_sim[survey]} (above completeness flux threshold: {n_detected_complete_sim[survey]})"
             )
-            # if the number of simulated detected pulsars above the completeness flux threshold matches the
+            # If the number of simulated detected pulsars above the completeness flux threshold matches the
             # real one, store the value of created neutron stars.
             if (
                 n_detected_complete_sim[survey]
@@ -770,20 +786,21 @@ def create_output_dataframe(
     return dfs
 
 
-def adjust_n_batchsize(SurveyData) -> int:
+def adjust_n_batchsize(survey_data_class) -> int:
     """
     To speed up the simulation, generate new neutron stars in batches.
-    The batchsize is adjusted depending if the simulation is close to reach the observed number of neutron stars in
-    real surveys. This guarantees a better fine tuning of the simulated detected numbers.
+
+    The batchsize is adjusted as the synthetic population approaches the observed number of neutron stars in the real
+    surveys. This guarantees a better fine-tuning of the simulated detected numbers.
 
     Args:
-        SurveyData (SurveyData): The SurveyData dataclass containing the data of all neutron star surveys.
+        survey_data_class (SurveyData): The SurveyData dataclass containing the data of all neutron star surveys.
     """
 
-    surveys_cfg = SurveyData.surveys_cfg
-    n_detected_complete_sim = SurveyData.n_detected_complete_sim
-    percentage_detected = SurveyData.percentage_detected
-    batchsize_adjusting_flags = SurveyData.batchsize_adjust_flags
+    surveys_cfg = survey_data_class.surveys_cfg
+    n_detected_complete_sim = survey_data_class.n_detected_complete_sim
+    percentage_detected = survey_data_class.percentage_detected
+    batchsize_adjusting_flags = survey_data_class.batchsize_adjust_flags
 
     # Evaluate the percentage of neutron stars detected by the simulated
     # surveys with respect to the real surveys and adjust the batch size accordingly.

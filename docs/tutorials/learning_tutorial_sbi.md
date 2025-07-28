@@ -395,14 +395,16 @@ As before, you must provide the `filter_inputs` and `filter_labels`, which must 
 
 #### Training parameters
 
-Finally, we specify some general options for our machine learning experiment. First, we choose the SBI method to use, 
-such as `snpe`, `snle`, or `snre`. For single-round inference, set `num_rounds = 1`. Additionally, you can configure 
-the fraction of the training dataset reserved for validation, the training batch size, and the initial learning rate 
-for the `Adam` optimizer (the default optimizer in the `sbi` library). 
-You must also specify the directory path where the trained model will be saved. There is an option to train multiple
-networks per round and create an ensemble of posteriors by setting `ensemble = true` and specifying the ensemble size 
-with `size_ensemble`. Note that the difference between the networks in the ensemble comes only from the randomized
-initialization of their weights.
+Finally, we specify general options for our machine learning experiment. First, we select the SBI method we want
+to use choosing from the options `snpe`, `snle`, or `snre` (including the `s` for the sequential approach even in the
+case of single-round inference). For single-round inference, we set `num_rounds = 1`. Otherwise, this parameter 
+denotes the number of rounds we want to learn sequentially. Additionally, we can configure the fraction of the 
+training dataset reserved for validation, the training batch size, and the initial learning rate for the `Adam`
+optimizer, which is the default optimizer in the `sbi` library. We must also specify the directory path where the
+trained model will be saved using the `save_dir` parameter. We also have the option to train multiple networks per
+round and create an ensemble of posteriors by setting `ensemble = true` and specifying the ensemble size 
+with `size_ensemble`. Note that the difference between the networks in the ensemble is only due to the randomized
+initialization of their weights, i.e., the architecture of each network in the ensemble is the same.
 
 ```json
 {
@@ -421,14 +423,16 @@ initialization of their weights.
 
 ### Training output
 
-The results of the training experiment are saved in the directory specified by the `save_dir` option. Specifically, 
-training will create two folders in this directory, namely a `logs` folder and a `models` folder. Both contain 
-subfolders for each specific training experiment of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes 
-the date and time when the experiment was launched. Within that folder there will be one folder per each round, in the 
-case of single round there will be just one folder called `round_0` 
+The results of the training experiment are saved in the directory specified by the `save_dir` option outlined under
+[Training Parameters](#training-parameters) above. Specifically, training will create two folders in this directory, 
+namely a `logs` folder and a `models` folder. Both contain subfolders for each specific training experiment of the
+form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was launched.
+Within these folders, the training experiment will result in the creation of one subfolder for each round of training.
+In the case of single-round inference, we would only obtain one folder named `round_0`. 
 
-The `logs` directory contains the files `profile.json` and `profile.log`, which provide timing and profiling information for the inference script executed in each round.
-Additionally, within each `round_{i}` subfolder inside the logs directory, the following files are included:
+The `logs` subdirectories contain the files `profile.json` and `profile.log`, which provide timing and profiling 
+information for the training script executed across all rounds. Additionally, each `round_{i}` subfolder inside the 
+`logs` directory contains the following files:
 
 * `training_statistics_{j}.json` with the training and validation loss evolution.
 * `training_stats_{j}.pdf` with a plot showing the training and validation loss evolution.
@@ -437,17 +441,17 @@ In this example, `j` indicates which neural network in the ensemble the file ref
 
 Finally, each subfolder `round_{i}` in the `models` directory contains:
 
-* `trained_model.pickle`: Contains the trained model. This object is needed to sample from the approximated posterior 
+* `trained_model.pickle`: The trained model. This object is needed to sample from the approximated posterior 
    distribution after the neural network has been trained.
-* `inference.pickle`: Contains the trained inference object, which stores the weights of the trained neural network. 
+* `inference.pickle`: The trained inference object, which stores the weights of the trained neural network. 
 * `samples_posterior.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
 * `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
    the observed data.
-* `posterior_samples_test_data.npz`: A tensor containing the true values and the corresponding posterior samples for 
-   each sample in the test dataset.
+* `posterior_samples_test_data.npz`: A NumPy array containing the true values and the corresponding posterior samples
+   for each sample in the test dataset.
 
-If `ensemble` is enabled, there will be as many `inference.pickle` and `trained_model.pickle` files as there are neural 
-networks in the ensemble.
+If `ensemble` is enabled, there will be as many `inference.pickle` and `trained_model.pickle` files as there are 
+neural networks in the ensemble.
 
 ## Multi-round specific options
 
@@ -455,25 +459,27 @@ This section describes configuration options specific to multi-round inference.
 
 ### Resume mode
 
-Resume mode allows training to continue from a previous round if it was interrupted before completion. To use resume 
-mode:
+Resume mode allows us to continue the SBI training from a previous round, as might, e.g., be necessary if the training
+was interrupted in an earlier run before it was completed. The following set-up will ensure continuity in the output 
+files and prevents the creation of a new directory for resumed runs. However, we recommend making a copy of the 
+existing `learning` directory to avoid overwriting data from previous rounds and to verify the consistency of 
+resumed runs.
+
+To use the resume mode we first need to:
 
 * Set `config["resume_training"]["resume"] = true`.
-* Specify the last completed round to resume from using `config["resume_training"]["last_round"] = 2`.
-* Provide the paths to the previously saved model and logs using: `config["resume_training"]["save_dir"]` and 
-  `config["resume_training"]["log_dir"]` respectively.
+* Specify the last completed round to resume from, e.g., using `config["resume_training"]["last_round"] = 2`.
+* Provide the paths to the previously saved model and logs using `config["resume_training"]["save_dir"]` and 
+  `config["resume_training"]["log_dir"]`, respectively.
 
-This setup ensures continuity in output files and prevents the creation of a new directory for resumed runs.  
-We recommend making a copy of the learning directory to avoid overwriting data from previous rounds and to verify 
-the consistency of the resume mode.
-When resuming, in the first iteration, you need to load the trained model and the training dataset from the last 
-completed round. This is necessary to:
+When resuming, the first (new) iteration requires loading the trained model and the training dataset from the last 
+successfully completed round of an earlier experiment. This is necessary to:
 
-* Compute the proposal prior distribution for the next round.
+* Compute the proposal prior distribution for the next (first new) round.
 * Load the training dataset, since simulations from previous rounds are reused in subsequent rounds 
   when `append_simulations` is enabled.
 
-An example of the configuration file:
+An example of the configuration file would look as follows:
 
 ```json
 {
@@ -487,9 +493,8 @@ An example of the configuration file:
 ```
 
 In this example, we will load the `inference.pickle` and `trained_model.pickle` from round 3 and compute the
-approximated posterior distribution at the observed sample, which will serve as the proposal prior for the next round.
-From round 4 onward, the computation will proceed as usual in a multi-round inference approach.
-
+approximated posterior distribution at an observed sample, which will then serve as the proposal prior for the next 
+round. From round 4 onward, the computation will proceed as usual in our multi-round inference approach.
 
 ### Extra parameters for training
 
@@ -497,53 +502,53 @@ Several additional parameters control how training behaves across rounds:
 
 * `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round.
 
-* `truncated_prior`: If set to `true`, the proposal prior is obtained by truncating the initial prior with the posterior
-  from the previous round (evaluated at the observed data). Otherwise, the proposal prior is simply the 
- approximated posterior distribution from the previous round.
+* `truncated_prior`: If set to `true`, the proposal prior is obtained by truncating the initial prior with the
+   posterior from the previous round (evaluated at the observed data). Otherwise, the proposal prior is simply the 
+   approximated posterior distribution from the previous round.
 
 * `sir`: If set to `true`, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, 
- rejection sampling is used. For an explanation of these two methods, we refer the user to [Liu, J. S. (2001), Monte Carlo Strategies in Scientific Computing.](https://github.com/szcf-weiya/MonteCarlo/blob/master/References/Monte-Carlo-Strategies-in-Scientific-Computing.pdf)
+   rejection sampling is used. For an explanation of these two methods, we refer the user to
+   [Liu, J. S. (2001), Monte Carlo Strategies in Scientific Computing.](https://github.com/szcf-weiya/MonteCarlo/blob/master/References/Monte-Carlo-Strategies-in-Scientific-Computing.pdf)
 
-* `retrain_from_scratch`: If set to `true`, the model is retrained from scratch in each round, i.e., the model weights are re-initialized in each round. 
-  Otherwise, training continues updating the weights trained in the previous rounds.
+* `retrain_from_scratch`: If set to `true`, the neural network is retrained from scratch in each round, i.e., the 
+   model weights are re-initialized in each round. Otherwise, training continues updating the weights trained in the
+   previous rounds.
 
 * `plot_proposal`: If set to `true`, a corner plot of the proposal prior will be saved.
 
 Note: For SNPE, you cannot enable both `truncated_prior = false` and `append_simulations = true`. 
 
-Example trainer block:
+An example of the multi-round training information could look as follows:
 
 ```json
 {
   "trainer": {
     "type": "snle",
-    "append_simulations":true,
+    "append_simulations": true,
     "truncated_prior": false,
     "retrain_from_scratch": true,
-    "ensemble":true,
-    "size_ensemble":5,
+    "ensemble": true,
+    "size_ensemble": 5,
     "validation_fraction": 0.1,
     "batch_size": 16,
     "lr": 1e-4,
-    "num_rounds":10,
-    "sir":true,
+    "num_rounds": 10,
+    "sir": true,
     "plot_proposal": false,
     "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2025/exp_constant_mag_cnn_embedding/learning"
   }
 }
 ```
 
-
-
 ### Running simulation in parallel for each round
 
-There are two methods to parallelize the simulation process: using either the [`dask`](https://www.dask.org/) or the
-[`multiprocessing`](https://docs.python.org/3/library/multiprocessing.html) packages.
+We have implemented two ways to parallelize the simulation process to optimise computation time: using either the 
+[`Dask`](https://www.dask.org/) or the [`multiprocessing`](https://docs.python.org/3/library/multiprocessing.html) packages.
 
-- To use Dask, set `enable_dask` to `true` in the configuration file and specify the number of workers with `n_workers`
-  (this corresponds to the number of HTCondor jobs on the PIC server).
-- If Dask is not enabled, the `multiprocessing` package will be used instead. You can specify the number of parallel
-  processes via: `"n_processes": <num_processes>`
+- To use Dask, we set `enable_dask` to `true` in the configuration file and specify the number of workers with
+   `n_workers`, which corresponds to the number of HTCondor jobs on the PIC server.
+- If Dask is not enabled, the `multiprocessing` package will be automatically used instead. We can specify the 
+   number of parallel processes via: `n_processes`.
 
 ### Notes on running with Dask on the PIC server
 
@@ -552,12 +557,12 @@ There are some important considerations for MAGNESIA users when running simulati
 #### Folder handling
 
 - The script copies the `MAGNESIA_population_synthesis` folder to each node to avoid redundant reads and reduce server load.
-- You must update the following in `pypopsyn/simulator/config_simulator.py`:
+- You must update the following in `pypopsyn/simulator/config_simulator.py` as each node will have its own copy of 
+   the full code repository and will access files locally:
     ```python
         cfg["server_run"] = False
         path_to_software = "MAGNESIA_population_synthesis"
     ```
-  Each node will have its own copy of this folder and will access files locally.
 
 #### Dask usage on the PIC server
 
@@ -568,7 +573,9 @@ located in `utilities/simulation_helper/run_simulation_set.py`.
 
 #### Running the main job using HTCondor
 
-To run the main job on HTCondor, add the following lines to your submit file:
+While we refer to the [HTCondor documentation](../basics/HTCondor.md) for general information about HTCondor, we highlight a special
+aspect of multi-round inference run using HTCondor here. To execute the main job on HTCondor, the submit file has to
+have the following content:
 
     ```bash
     RUN_FOLDER = <experiment_folder>
@@ -588,98 +595,101 @@ To run the main job on HTCondor, add the following lines to your submit file:
     ```
 
 !!!Note 
-    In the example above, we assume you have created `htcondor_submit` and `htcondor_output` folders. The first is used to store 
-    the `job.submit` and  `wrapper.sh` files, and the second stores the `stdout` and `stderr` from the main job.
+    In the example above, we assume that we have created `htcondor_submit` and `htcondor_output` folders. 
+    The first is used to store the `job.submit` and  `wrapper.sh` files, and the second stores the `stdout` 
+    and `stderr` from the main job.
 
-We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `exp_folder_path` directory where the
-`data` folder is located (see section [Folder Structure](#folder-structure)).
-
-To read more general documentation about HTCondor, refer to the [HTCondor documentation](../basics/HTCondor.md).
+We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `output` directory where 
+the `data` folder is located (see [Folder Structure](#folder-structure) above for details).
 
 #### Monitoring Dask workers (HTCondor + GPU)
 
 If this is your first time using Dask on the PIC server, you must manually launch an empty Dask cluster via the Jupyter
-dashboard (located in the left sidebar on the PIC Jupyter interface) to ensure correct functionality. If you're running the main job on HTCondor with GPU, you can monitor the 
-Dask workers through Jupyter following these steps:
+dashboard (located in the left sidebar on the PIC Jupyter interface) to ensure correct functionality. If you are
+running the main SBI training job on HTCondor with GPUs, you can monitor the Dask workers through Jupyter following
+these steps:
 
    1. Open the Jupyter interface on a GPU node.
-   2. Access the stdout log of the main job:
+   2. Access the stdout log of the main job as follows:
       - Run `condor_q` to find the `job_id`. This job should **not** have `HTCondorCluster` as the batch name.
       - Use `condor_ssh_to_job <job_id>` to SSH into the job.
       - Navigate to the home directory (`cd`) and run `cat _condor_stdout` to view the stdout log.
    3. Look for a line similar to:
-     ```
-     INFO:distributed.scheduler: dashboard at: http://192.168.100.78:8787/status
-     ```
-4. Extract the port number (e.g., `8787`) and open the Dask dashboard via the Jupyter interface (left sidebar on the PIC 
-   Jupyter interface) by pasting the following URL into your browser (replace `<your_username>` and `<port>` 
-   accordingly):
-
+      ```
+      INFO:distributed.scheduler: dashboard at: http://192.168.100.78:8787/status
+      ```
+   4. Extract the port number (e.g., `8787`) and open the Dask dashboard via the Jupyter interface (left sidebar on 
+      the PIC Jupyter interface) by pasting the following URL into your browser (replace `<your_username>` and
+      `<port>` accordingly):
       ```
       https://jupyter.pic.es/user/<your_username>/proxy/<port>
       ```
-   
 
 ## Inferring on a dataset
 
 Once our SBI pipeline has been trained, it can be used to infer on an unseen dataset of generated maps and extract 
-posterior distributions of the corresponding pulsar
-population parameters. The script `pypopsyn/learning/sbi_infer.py` allows us to take an experiment configuration file, 
-a pre-trained model, and a dataset, and run the inference.
+posterior distributions of the corresponding pulsar population parameters. The script `pypopsyn/learning/sbi_infer.py`
+allows us to take an experiment configuration file, a pretrained model, and a dataset, and run the inference.
 
 ### Configuration options
 
-In addition to the testing data loaders specified above, we also need to define the directories for saving
-and loading inference results using the `save_dir` and `load_dir` parameters under the `infer` field in the configuration file. 
-The `load_dir` should point to the location where `inference.pickle` and `trained_model.pickle` are stored, as these 
-files are required to perform inference.
-You must also specify whether to compute the coverage probability using the `compute_coverage` flag.
-If `compute_coverage` is not enabled, the output will include a corner plot and samples from the posterior distribution 
-conditioned on the observed data. If it is enabled, additional outputs will be saved:
+In addition to the testing data loader specified above, we also need to define the directories for saving and loading
+inference results using the `save_dir` and `load_dir` parameters under the `infer` field in the configuration file. 
+The `load_dir` parameter should point to the location where the `inference.pickle` and `trained_model.pickle` objects
+are stored, as these files are required to perform the inference. We must also specify whether to compute the coverage 
+probability using the `compute_coverage` flag. If this functionality is disabled, the output will include a corner 
+plot `corner_plot_observed_sample.pdf` and samples drawn from the posterior distribution conditioned on the observed
+data `samples_posterior.pt` only. If the coverage calculation is enabled, additional outputs will be saved. These 
+are as follows:
 
-* `posterior_samples_test_data.npz`: containing the true values and posterior samples for each sample of the test dataset.
-* `coverage_probability.npy`: a tensor of coverage probabilities.
-* `coverage_plot.pdf`: a plot visualizing the coverage probabilities.
+* `coverage_plot.pdf`: A plot visualizing the coverage probability.
+* `coverage_probability.npy`: A matrix of the corresponding coverage probabilities.
+* `posterior_samples_test_data.npz`: A NumPy array containing the ground truths and posterior samples for each sample 
+   in the test dataset.
 
-If `sim_dataset` is set to `True`, the test dataset will be generated in each round. Otherwise, it is assumed that the 
-directory specified in the `dataset_path` field under `test_dataset_loader` contains a pre-generated test dataset for each 
-round.
+Moreover, if `sim_dataset` in the configuration file is set to `True`, the test dataset will be generated in each
+round. Otherwise, it is assumed that the directory specified in the `dataset_path` field under `test_dataset_loader` 
+contains a pre-generated test dataset for each round.
+
+An example of the inference information looks as follows:
 
 ```json
 {
     "infer": {
-    "sim_dataset":false ,
-    "compute_coverage":true,
+    "sim_dataset": false ,
+    "compute_coverage": true,
     "load_dir": "exp_1/learning/models/SBI_ConvolutionMDN/20250403_192124",
     "save_dir": "exp_1/inference"
   }
 }
 ```
 !!! note
-    The `sbi_infer.py` script requires the folder structure explained above to function correctly and to properly load the test dataset.
+    The `sbi_infer.py` script requires the folder structure explained above to function correctly and to properly load 
+    the test dataset.
 
 Once the inference configuration is set up, we run the inference script by providing the configuration file 
 (`--configuration`) as follows:
 
 ```commandline
-python pypopsyn/learning/sbi_infer.py --configuration tutorials/tutorial_notebooks/config_sbi.json 
+python pypopsyn/learning/sbi_infer.py --configuration tutorials/tutorial_notebooks/config_train_sbi.json 
 ```
 
 ### Inference output
 
-If the inference is successful, the output of `pypopsyn/learning/sbi_infer.py` will be saved in the directory 
-specified in the `save_dir` option. Specifically, inference will create a `logs` folder in this directory containing
-subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the inference
-was launched.
+If the inference has been performed successfully, the output of `pypopsyn/learning/sbi_infer.py` will be saved in the 
+directory specified in the `save_dir` option. Specifically, inference will create a `logs` folder in this directory 
+containing subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the
+inference was launched.
 
-The `logs` directory contains the files `profile.json` and `profile.log`, which provide timing and profiling information 
-for the inference script executed in each round. Additionally, within each `round_{i}` subfolder inside the logs 
-directory, the following files are included:
+The `logs` subdirectories contain the files `profile.json` and `profile.log`, which provide timing and profiling 
+information for the inference script executed across all round. Additionally, each `round_{i}` subfolder inside 
+the logs directory contains the following files:
 
 * `samples_posterior.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
 * `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
    the observed data.
-* `posterior_samples_test_data.npz`: A tensor containing the true values and the corresponding posterior samples for 
-   each sample in the test dataset.
-* `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic test.
+* `posterior_samples_test_data.npz`: A NumPy array containing the ground truths and the corresponding posterior
+   samples for each sample in the test dataset.
+* `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic
+   test if the coverage calculation was enabled.
 

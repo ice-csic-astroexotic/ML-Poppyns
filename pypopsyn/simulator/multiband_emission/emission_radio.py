@@ -506,7 +506,7 @@ def calculate_radio_emission_full(
     return intercepted_radio, S_radio_bol, w_int_s, L_radio_bol
 
 
-def radio_population(dict_pop: dict) -> dict:
+def radio_population_intercepted(dict_pop: dict) -> dict:
     """
     Filter and compute properties of a population of neutron stars whose radio beams intercept our line of sight.
 
