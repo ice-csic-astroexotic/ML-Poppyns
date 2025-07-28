@@ -150,9 +150,9 @@ def simulate_population(args) -> None:
                 )
 
                 if cfg["simulation_xray"]:
-                    Lx_interpolator = ex.initialize_Lx_interpolator()
+                    Lx_interpolator = ex.load_Lx_interpolator()
                     crust_failure_rate_interpolator = (
-                        ex.initialize_crust_failure_rate_interpolator()
+                        ex.load_crust_failure_rate_interpolator()
                     )
 
             # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================

@@ -420,9 +420,11 @@ def calculate_xray_emission(
     return xray_bright_mask, L_x_therm, S_x_bb_abs, S_x_rcs_abs, N_H
 
 
-def initialize_Lx_interpolator() -> RectBivariateSpline:
+def load_Lx_interpolator() -> RectBivariateSpline:
     """
-    Initialize the interpolator for the X-ray luminosity.
+    Load the interpolator for the X-ray luminosity.
+    The interpolator function has been constructed in the notebook
+    tutorials/analysis_notebooks/xray_luminosity_interpolation.ipynb.
 
     Returns:
         (RectBivariateSpline): An interpolator function loaded from a pickled file to evaluate the X-ray luminosity.
@@ -441,9 +443,11 @@ def initialize_Lx_interpolator() -> RectBivariateSpline:
     return L_x_interpolator
 
 
-def initialize_crust_failure_rate_interpolator() -> RectBivariateSpline:
+def load_crust_failure_rate_interpolator() -> RectBivariateSpline:
     """
-    Initialize the interpolator for the crust failure rates.
+    Load the interpolator for the crust failure rates.
+    The interpolator function has been constructed in the notebook
+    tutorials/analysis_notebooks/crust_failure_rate_interpolation.ipynb.
 
     Returns:
         (RectBivariateSpline): An interpolator function loaded from a pickled file to evaluate the rate of crustal failures.
@@ -544,11 +548,10 @@ def outburst_filter_from_crust_failure_rate(
     # still solidifying (see Fig. 8 in Aguilera et al. 2008) and we are assuming that the crust should be solid to
     # compute the stresses.
     n_outburst_events = rate_crust_failure * 50
-    outburst_prob = np.where(n_outburst_events > 1, 1, n_outburst_events)
 
-    outburst_mask = (np.random.rand(len(outburst_prob)) < outburst_prob) & (
-        age > 100
-    )
+    # We consider n_outburst_events to be a probability for having an outburst.
+    outburst_prob = np.where(n_outburst_events > 1, 1, n_outburst_events)
+    outburst_mask = np.random.rand(len(outburst_prob)) < outburst_prob
 
     return outburst_mask
 

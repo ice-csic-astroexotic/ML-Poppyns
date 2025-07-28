@@ -426,7 +426,7 @@ def test_flux_xray_absorbed(test_case_1, monkeypatch):
     ).all()
 
 
-def test_initialize_Lx_interpolator(test_case_2, tmp_path):
+def test_load_Lx_interpolator(test_case_2, tmp_path):
     """
     Test that initialize_Lx_interpolator loads and returns a valid interpolator.
     """
@@ -451,7 +451,7 @@ def test_initialize_Lx_interpolator(test_case_2, tmp_path):
     with mock.patch(
         "pypopsyn.simulator.multiband_emission.emission_xray.cfg", fake_cfg
     ):
-        interpolator = xem.initialize_Lx_interpolator()
+        interpolator = xem.load_Lx_interpolator()
 
     # Assertions.
     assert isinstance(interpolator, RectBivariateSpline)
@@ -526,7 +526,7 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
     ).all()
 
 
-def test_initialize_crust_failure_rate_interpolator(test_case_4, tmp_path):
+def test_load_crust_failure_rate_interpolator(test_case_4, tmp_path):
     """
     Test that initialize_Lx_interpolator loads and returns a valid interpolator.
     """
@@ -551,7 +551,7 @@ def test_initialize_crust_failure_rate_interpolator(test_case_4, tmp_path):
     with mock.patch(
         "pypopsyn.simulator.multiband_emission.emission_xray.cfg", fake_cfg
     ):
-        interpolator = xem.initialize_crust_failure_rate_interpolator()
+        interpolator = xem.load_crust_failure_rate_interpolator()
 
     # Assertions.
     assert isinstance(interpolator, RectBivariateSpline)
