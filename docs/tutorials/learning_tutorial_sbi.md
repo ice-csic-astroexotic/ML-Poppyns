@@ -299,8 +299,10 @@ this embedding network is responsible for compressing the input data.
 
 #### Prior distribution for training data
 
-We need to specify the labels and prior ranges for the first round. Note that the order of the list must match
-the order of parameters in the `dataset_full.csv` file that contains information on the training data.
+In order to perform multi-round inference with a truncated approach or visualise cornerplots for our inference results
+across all SBI methods, we need to specify the labels and prior ranges (corresponding to the initial prior ranges which
+are subsequently restricted in the TSNPE algorithm). Note that the order of the list must match the order of parameters 
+in the `dataset_full.csv` file that contains information on the training data.
 
 ```json
 {
