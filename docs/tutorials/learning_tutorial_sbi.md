@@ -507,9 +507,9 @@ Several additional parameters control how training behaves across different roun
 * `plot_proposal`: If set to `true`, a corner plot of the proposal prior will be saved.
 
 !!! warning
-    For SNPE, you cannot enable both `truncated_prior = false` and `append_simulations = true` as in that scenario the approximate 
-    posterior must be corrected using the proposal prior from the corresponding round (Appendix 6.2 of 
-    [Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
+    For SNPE, we cannot enable both `truncated_prior = false` and `append_simulations = true` simultaneously because in 
+    this scenario the approximate posterior must be corrected using the proposal prior from the corresponding round 
+    (Appendix 6.2 of [Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
 
 An example of the multi-round training information could look as follows:
 
@@ -553,13 +553,13 @@ for the next (first new) round. Note that if `append_simulations` is set to true
 are reused at every round. Therefore, when resuming, we need to load the training datasets from all previously completed 
 rounds.
 
-An example of the configuration file would look as follows:
+An example of the configuration file that enables resuming would look as follows:
 
 ```json
 {
   "resume_training": {
   "resume": true,
-  "last_round": 3,
+  "last_round": 2,
   "save_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828",
   "log_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828"
   }
@@ -577,8 +577,8 @@ the same folder specify in `save_dir`. The logs and training statistics are save
 We have implemented two ways to parallelize the simulation process to optimise computation time: using either the 
 [`Dask`](https://www.dask.org/) or the [`multiprocessing`](https://docs.python.org/3/library/multiprocessing.html) packages.
 
-The desired parallelization method is specified at the top of the `config_sbi.json` file in the general options section, 
-for example:
+The desired parallelization method is specified at the top of the `config_train_sbi.json` file in the 
+[General info](#general_info) section. It, for example, looks as follows:
 
 ```json
 {
@@ -590,18 +590,19 @@ for example:
 }
 ```
 
-- To use Dask, we set `enable_dask` to `true` and specify the number of workers with
-   `n_workers`, which corresponds to the number of HTCondor jobs on the PIC server.
+- To use Dask, we set `enable_dask` to true and specify the number of workers with `n_workers`, which corresponds to 
+   the number of HTCondor jobs on the PIC server.
 - If Dask is not enabled, the `multiprocessing` package will be automatically used instead. We can specify the 
-   number of parallel processes via: `n_processes`.
+   number of parallel processes via `n_processes`.
 
-#### Notes on running with Dask on the PIC server
+#### Notes on running Dask on the PIC
 
 There are some important considerations for MAGNESIA users when running simulations with Dask on the PIC server:
 
 ##### Folder handling
 
-- During training the `MAGNESIA_population_synthesis` folder is copied to each node to avoid redundant reads and reduce server load.
+- During training the `MAGNESIA_population_synthesis` folder is copied to each node to avoid redundant reads and reduce 
+   server load.
 - You must update the following in `pypopsyn/simulator/config_simulator.py` as each node will have its own copy of 
    the full code repository and will access files locally:
     ```python
@@ -618,26 +619,26 @@ located in `utilities/experiment_helpers/run_simulation_set_sbi.py`.
 
 ##### Running the main job using HTCondor
 
-While we refer to the [HTCondor documentation](../basics/HTCondor.md) for general information about HTCondor, we highlight a special
-aspect of multi-round inference run using HTCondor with dask here. To execute the main job on HTCondor, the submit file has to
-have the following content:
+While we refer to the [HTCondor documentation](../basics/HTCondor.md) for general information about HTCondor, we 
+highlight a special aspect of multi-round inference executed with HTCondor in combination with Dask here. To run the 
+main job on HTCondor, the submit file has to have the following content:
 
-    ```bash
-    RUN_FOLDER = <experiment_folder>
-    LOG_FOLDER = $(RUN_FOLDER)/logs
-    initialdir = $(RUN_FOLDER)
-    remote_initialdir = $(RUN_FOLDER)
+```bash
+RUN_FOLDER = <experiment_folder>
+LOG_FOLDER = $(RUN_FOLDER)/logs
+initialdir = $(RUN_FOLDER)
+remote_initialdir = $(RUN_FOLDER)
     
-    universe        = vanilla 
-    executable      = <experiment_folder>/htcondor_submit/wrapper.sh
-    log             = <experiment_folder>/htcondor_output/$(ProcId)-log.txt
-    output          = <experiment_folder>/htcondor_output/$(ProcId)-out.txt 
-    error           = <experiment_folder>/htcondor_output/$(ProcId)-error.txt 
+universe        = vanilla 
+executable      = <experiment_folder>/htcondor_submit/wrapper.sh
+log             = <experiment_folder>/htcondor_output/$(ProcId)-log.txt
+output          = <experiment_folder>/htcondor_output/$(ProcId)-out.txt 
+error           = <experiment_folder>/htcondor_output/$(ProcId)-error.txt 
     
-    request_gpus=1
+request_gpus=1
     
-    Queue
-    ```
+Queue
+```
 
 !!!Note 
     In the example above, we assume that we have created `htcondor_submit` and `htcondor_output` folders. 
@@ -645,7 +646,7 @@ have the following content:
     and `stderr` from the main job.
 
 We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `output` directory where 
-the `data` folder is located (see [Folder Structure](#folder-structure) above for details).
+the `data` folder is located (see [Folder structure](#folder-structure) above for details).
 
 ##### Monitoring Dask workers (HTCondor + GPU)
 
@@ -672,9 +673,10 @@ these steps:
 
 ## Inferring on a dataset
 
-Once our SBI pipeline has been trained, it can be used to infer on an unseen dataset of generated maps and extract 
-posterior distributions of the corresponding pulsar population parameters. The script `pypopsyn/learning/sbi_infer.py`
-allows us to take an experiment configuration file, a pretrained model, and a dataset, and run the inference.
+Once our SBI pipeline has been trained (irrespective of the specific algorithm considered), it can be used to infer 
+on an unseen dataset of generated maps and extract posterior distributions of the corresponding pulsar population 
+parameters. The script `pypopsyn/learning/sbi_infer.py` allows us to take an experiment configuration file, a
+pretrained model, and a dataset, and run the inference.
 
 ### Configuration options
 
@@ -727,9 +729,9 @@ containing subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS
 inference was launched.
 
 The `logs` subdirectories contain the files `profile.json` and `profile.log`, which provide timing and profiling 
-information for the inference script executed across all round. Additionally, each `round_{i}` subfolder inside the logs
-directory contains the same files as when testing is enabled while running the `sbi_train.py` script, i.e.:
- `samples_posterior.pt`, `corner_plot_observed_sample.pdf`, `coverage_plot.pdf`, `coverage_probability.npy`,
-`posterior_samples_test_data.npz` and `samples_posterior.pt`. For detailed information about each file, see:[Training output](#training-output)
+information for the inference script executed across all round. Additionally, each `round_{i}` subfolder inside the 
+logs directory contains the same files as when testing is enabled while running the `sbi_train.py` script, i.e., we
+are producing `corner_plot_observed_sample.pdf`, `coverage_plot.pdf`, `coverage_probability.npy`,
+`posterior_samples_test_data.npz`, and `samples_posterior.pt`. For detailed information about each file, see [Training output](#training-output).
 
 
