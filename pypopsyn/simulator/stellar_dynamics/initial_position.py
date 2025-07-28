@@ -227,16 +227,15 @@ def calculate_r_phi_spiral_model(
     t_age: np.ndarray, spiral_model: sm.SpiralModelBase
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Calculating the position at birth of each random neutron star in
-    cylindrical reference frame for a spiral model.
+    Calculating the position at birth of each random neutron star in a cylindrical reference frame for a spiral model.
 
     Args:
         t_age (np.ndarray): Array of neutron star ages in [yr].
         spiral_model (sm.SpiralModelBase): A class specifying the spiral arm structure model.
 
     Returns:
-        (Tuple[np.ndarray, np.ndarray, np.ndarray]): Polar r, phi and z coordinates in [kpc], [rad] and [kpc]
-            respectively for each generated neutron star.
+        (Tuple[np.ndarray, np.ndarray]): Polar r and phi coordinates in [kpc] and [rad], respectively, for each
+            generated neutron star.
     """
 
     radial_model = cfg["radial_model"]
@@ -295,19 +294,18 @@ def calculate_r_phi_electron_density(
     t_age: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Calculating the position at birth of each random neutron star in
-    cylindrical reference frame according to the Galactic electron density
-    distribution ymw16 (see Yao et al. 2017).
-    Using the notebook ns_distribution_ne_model.ipynb we create a 2D numpy array containing the
-    electron density distribution in polar coordinates (r, phi).
-    This 2D array is used to sample the neutron star positions in the Galaxy.
+    Calculating the position at birth of each random neutron star in a cylindrical reference frame according to the
+    Galactic electron density distribution ymw16 (see Yao et al. 2017).
+
+    Using the notebook ns_distribution_ne_model.ipynb, we create a 2D NumPy array containing the electron density
+    distribution in polar coordinates (r, phi). This 2D array is used to sample the neutron star positions in the Galaxy.
 
     Args:
         t_age (np.ndarray): Array of neutron star ages in [yr].
 
     Returns:
-        (Tuple[np.ndarray, np.ndarray]): Polar r, phi and z coordinates in [kpc], [rad] and [kpc]
-            respectively for each generated neutron star.
+        (Tuple[np.ndarray, np.ndarray]): Polar r and phi coordinates in [kpc] and [rad], respectively, for each
+            generated neutron star.
     """
 
     # Load the neutron star density model table.
