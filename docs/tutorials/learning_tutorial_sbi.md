@@ -49,9 +49,9 @@ For multi-round inference, the workflow is as follows:
    data $x_0$.
 5. Compute a new proposal prior using the following options:
     - If we opt for a **truncated approach**, restrict the prior distribution to the support of the approximated 
-      posterior computed in step 4 (For more information about the truncated proposal, see 
-      [Deistler et al 2022](https://arxiv.org/abs/2210.04815) and 
-      [Pardo-Araujo et al 2025](https://www.aanda.org/articles/aa/pdf/2025/04/aa53314-24.pdf)).
+      posterior computed in step 4. For more information about truncated proposal priors, see 
+      [Deistler et al. (2022)](https://arxiv.org/abs/2210.04815) and 
+      [Pardo-Araujo et al. (2025)](https://www.aanda.org/articles/aa/pdf/2025/04/aa53314-24.pdf).
     - Otherwise, use the posterior distribution from step 4 directly as the new proposal prior.
 6. Update the prior distribution with the new proposal prior and return to step 1.
 
@@ -480,16 +480,16 @@ This section describes configuration options specific to multi-round inference.
 Several additional parameters control how training behaves across rounds:
 
 * `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round. 
-   ([Deistler et al 2022](https://arxiv.org/abs/2210.04815)).
+   ([Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
 
 * `truncated_prior`: If set to `true`, the proposal prior is obtained by truncating the initial prior with the
    posterior from the previous round (evaluated at the observed data, 
-    [Deistler et al 2022](https://arxiv.org/abs/2210.04815)). Otherwise, the proposal prior is simply the 
+    [Deistler et al. 2022](https://arxiv.org/abs/2210.04815)). Otherwise, the proposal prior is simply the 
    approximated posterior distribution from the previous round. 
 
 * `sir`: If set to `true`, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, 
    rejection sampling is used. Note that rejection sampling can be significantly more computationally expensive if the 
-   posterior distribution is very narrow and the rejection region is large.. For an explanation of these two methods, 
+   posterior distribution is very narrow and the rejection region is large. For an explanation of these two methods, 
    we refer the user to
    [Liu, J. S. (2001), Monte Carlo Strategies in Scientific Computing.](https://github.com/szcf-weiya/MonteCarlo/blob/master/References/Monte-Carlo-Strategies-in-Scientific-Computing.pdf)
 
@@ -502,7 +502,7 @@ Several additional parameters control how training behaves across rounds:
 !!! warning
     For SNPE, you cannot enable both `truncated_prior = false` and `append_simulations = true` as in that scenario the approximate 
     posterior must be corrected using the proposal prior from the corresponding round (Appendix 6.2 of 
-    [Deistler et al 2022](https://arxiv.org/abs/2210.04815)).
+    [Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
 
 An example of the multi-round training information could look as follows:
 
@@ -565,7 +565,7 @@ An example of the configuration file would look as follows:
 In this example, we will load the `inference.pickle` and `trained_model.pickle` from round 3 saved in the `save_dir`
 folder and compute the approximated posterior distribution at an observed sample, which will then serve as the proposal 
 prior for the next round. From round 4 onward, the computation will proceed as usual in our multi-round inference 
-approach. The `inference.pickle` and the `trained_model.pickle` files for the `last_round` and onward will be save in 
+approach. The `inference.pickle` and the `trained_model.pickle` files for the `last_round` and onward will be saved in 
 the same folder specify in `save_dir`. The logs and training statistics are saved in the `log_dir` folder.
 
 #### Running simulation in parallel for each round
