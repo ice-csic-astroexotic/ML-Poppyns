@@ -94,9 +94,11 @@ We recommend placing all files relevant for training in the same base path. Spec
 * Store the training statistics file in the `data/` directory.
   * Save the training and testing datasets for the first round in `data/training_dataset/generated_dataset/round_0/` and 
   `data/test_dataset/generated_dataset/round_0/`, respectively.
+
 !!! note
-    When running training or inference in single-round mode, the output is still saved using the multi-round structure. 
-    That is, results will be stored in a folder named round_0.
+    When running training or inference in the single-round mode, the output is still saved using the multi-round
+    structure. That is, results will be stored in a folder named `round_0`.
+
 ### Main training script
 
 To perform our SBI using a dataset composed of heatmaps or 2D arrays of our synthetic pulsar populations (see 
@@ -131,6 +133,7 @@ for the code and whether this timing information is displayed in the terminal or
     "show_profiling": true
 }
 ```
+
 #### Training parameters
 
 General options for the machine learning experiment are specified in the trainer section. First, we select the SBI 
@@ -165,11 +168,11 @@ This section contains additional parameters specific to multi-round inference, w
 #### Density estimator
 
 Next, we decide on the type of density estimator used to approximate the posterior distribution. The 
-preconfigured options in the sbi library include so-called masked autoregressive flows `maf` or Gaussian mixture 
-density networks `mdn`.In the case of SNPR, when using mdn, you can also set the number of hidden features and the
-number of components in the mixture. On the other hand, for SNRE, you can specify the type of classifier to use,
-such as: linear, mlp, or resnet. For more details on these methods and relevant hyperparameters as well as custom density 
-estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
+preconfigured options in the `sbi` library include so-called masked autoregressive flows `maf` or Gaussian mixture 
+density networks `mdn`. In the case of SNPE, when using `mdn`, we can also set the number of hidden features and the
+number of components in the mixture. On the other hand, for SNRE, we can specify the type of classifier to use,
+such as: `linear`, `mlp`, or `resnet`. For more details on these methods and relevant hyperparameters as well as 
+custom density estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
 
 In the following example, we are setting a mixture density network with `10` Gaussian components, and the number of 
 neurons in the hidden layers is set to `16`.
@@ -189,7 +192,7 @@ neurons in the hidden layers is set to `16`.
 
 For cases where NRE or NLE is used, an extra step is required to obtain or sample from the posterior. In the following 
 case, we use the default MCMC-based sampling algorithms provided by the `sbi` package. For details on the different 
-samplers in `sbi`, see [the sbi documentation](https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/).
+samplers in `sbi`, see [the official documentation](https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/). In the case of NPE, the following options are simply ignored.
 
 When performing MCMC sampling, we need to specify the number of parallel chains, the thinning factor, and the MCMC 
 sampler type. `sbi` supports the following MCMC samplers: `nuts`, `slice`, `hmc`, and `slice_np_vectorized`.
@@ -356,7 +359,7 @@ For the example above and following the recommended folder structure, the `train
 !!! note 
 
      When loading the data for SBI, we do not need to specify the batch size and the shuffle parameter.
-     This is because the sbi library deals with shuffling the input dataset internally, while the batch size 
+     This is because the `sbi` library deals with shuffling the input dataset internally, while the batch size 
      is specified during the training procedure (see below). If we were to use the data loader as in the 
      [CNN learning tutorial](learning_tutorial_nn.md), it would load the dataset in a format that is not 
      compatible with sbi.
