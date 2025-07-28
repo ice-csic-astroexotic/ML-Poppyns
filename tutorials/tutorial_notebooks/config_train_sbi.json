@@ -14,11 +14,11 @@
         "type": "snpe",
         "num_rounds": 1,
         "save_dir": "output/learning_sbi",
-        "ensemble": false,
-        "size_ensemble": 5,
         "validation_fraction": 0.1,
         "batch_size": 8,
         "lr": 0.0005,
+        "ensemble": false,
+        "size_ensemble": 5,
         "truncated_prior": false,
         "retrain_from_scratch": false,
         "sir": true,
@@ -28,9 +28,11 @@
 
     "density_estimator": {
         "type": "mdn",
+        "classifier_nre": "resnet",
         "args_mdn_npe": {
+            "hidden_features": 32,
             "num_components": 10,
-            "hidden_features": 32
+            "num_transforms": 5
         }
     },
 
@@ -74,7 +76,7 @@
         "dataset_path": "output/data/training_dataset/generated_dataset",
         "statistic_path": "output/generator/statistics_train.json",
         "filter_inputs": [9, 10, 11],
-        "filter_labels": [15, 16],
+        "filter_labels": [15, 17],
         "normalize": false,
         "standardize": true,
         "num_sim": 10
@@ -82,7 +84,7 @@
 
     "test_data_loader": {
         "testing": false,
-        "dataset_path_first_round": "output/data/test_dataset/generated_dataset",
+        "dataset_path_first_round": "output/data/test_dataset/generated_dataset/round_0",
         "dataset_path": "output/data/test_dataset/generated_dataset",
         "num_sim": 10
     },
@@ -99,14 +101,15 @@
 
     "resume_training": {
         "resume": false,
-        "last_round": 0
+        "last_round": 7,
+        "save_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828",
+        "log_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828"
     },
 
     "infer": {
-        "save_dir": "output/inference_sbi",
-        "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20250720_112852/",
-        "compute_coverage": true,
         "sim_dataset": false,
-        "dataset_path": "output/generator/"
+        "compute_coverage": true,
+        "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20250720_112852/",
+        "save_dir": "output/inference_sbi"
     }
 }
