@@ -116,7 +116,9 @@ Here, the `config_train_sbi.json` file contains all the information required to 
 We now discuss the various options in the `config_train_sbi.json` SBI configuration file, which include the type 
 of SBI method, the type of compression if needed, the type of density estimator, the input shape of the dataset, 
 and other relevant training hyperparameters used. Note that several of these are equivalent to those outlined in 
-the tutorial [Learning pulsar parameters with NNs](learning_tutorial_nn.md), where we discuss point estimation.
+the tutorial [Learning pulsar parameters with NNs](learning_tutorial_nn.md), where we discuss point estimation. In the following, we
+primarily focus on single-round inference as outlined in the tutorial `08_learning_sbi_tutorial.ipynb`. We explain 
+additional parameters specific to multi-round inference further below in [Multi-round specific options](#multi-round-specific-options).
 
 #### General info
 
@@ -137,8 +139,8 @@ for the code and whether this timing information is displayed in the terminal or
 #### Training parameters
 
 General options for the machine learning experiment are specified in the trainer section. First, we select the SBI 
-method to use by choosing from `snpe`, `snle`, or `snre` (including the s for the sequential approach, even in the case of 
-single-round inference). For single-round inference, we set `num_rounds = 1`; otherwise, this parameter defines the 
+method to use by choosing from `snpe`, `snle`, or `snre` (including the s for the sequential approach, even in the case 
+of single-round inference). For single-round inference, we set `num_rounds = 1`; otherwise, this parameter defines the 
 number of rounds to perform.
 We must also specify the directory where the trained model will be saved using the `save_dir` parameter. Additional 
 configuration options include the fraction of the training dataset reserved for validation, the training batch size, 
@@ -146,21 +148,19 @@ and the initial learning rate for the Adam optimizer, which is the default in th
 
 To create an ensemble of posteriors, we can train multiple networks per round by setting `ensemble = true` and specifying
 the ensemble size using `size_ensemble`. Note that the networks in the ensemble share the same architecture and differ 
-only due to the random initialization of their weights.
-This section contains additional parameters specific to multi-round inference, which are explained below in the
-[Multi-round specific options](#multi-round-specific-options) section.
+only due to the random initialization of their weights. See [Multi-round specific options](#multi-round-specific-options) below for further info.
 
 ```json
 {
     "trainer": {
         "type": "snle",
-        "num_rounds":1,
+        "num_rounds": 1,
         "save_dir": "data/example_learning_sbi",
         "validation_fraction": 0.1,
         "batch_size": 8,
         "lr": 5e-4,
-        "ensemble":true,
-        "size_ensemble":5
+        "ensemble": true,
+        "size_ensemble": 5
     }
 }
 ```
@@ -178,14 +178,16 @@ In the following example, we are setting a mixture density network with `10` Gau
 neurons in the hidden layers is set to `16`.
 
 ```json
-"density_estimator": {
+{
+  "density_estimator": {
     "type": "mdn",
     "classifier_nre": "resnet",
     "args_mdn_npe": {
       "hidden_features": 16,
       "num_components": 10
-       }
-  
+    }
+  }
+}
 ```
 
 #### MCMC sampler
@@ -409,8 +411,8 @@ the path to the test dataset for the first round in the `dataset_path_first_roun
 `dataset_full.csv` file. In multi-round inference, the test dataset for subsequent rounds is generated on the fly and 
 saved to the path specified in `dataset_path`, with the number of simulations defined by `num_sim`.
 
-Following the recommended folder structure, the `test_data_loader` configuration for the example above will look like 
-this:
+Following the recommended folder structure, the `test_data_loader` configuration for the example above looks as follows
+(although we have opted to not perform testing simultaneously here and set `testing` to false:
 
 ```json
 {
@@ -426,8 +428,8 @@ this:
 #### Observed sample
 
 The inference script performs inference on a sample specified in the `observed_sample` field, assuming that the folder 
-contains a CSV file named `dataset_atnf.csv`.
-As before, you must provide `filter_inputs` and `filter_labels`, which must match those used during training.
+contains a CSV file named `dataset_atnf.csv`. As before, you must provide `filter_inputs` and `filter_labels`, which
+must match those used during training.
 
 ```json
 {
@@ -442,7 +444,7 @@ As before, you must provide `filter_inputs` and `filter_labels`, which must matc
 #### Training output
 
 The results of the training experiment are saved in the directory specified by the `save_dir` option outlined under
-[Training Parameters](#training-parameters) above. Specifically, training will create two folders in this directory, 
+[Training parameters](#training-parameters) above. Specifically, training will create two folders in this directory, 
 namely a `logs` folder and a `models` folder. Both contain subfolders for each specific training experiment of the
 form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was launched.
 Within these folders, the training experiment will result in the creation of one subfolder for each round of training.
@@ -455,8 +457,8 @@ information for the training script executed across all rounds. Additionally, ea
 * `training_statistics_{j}.json` with the training and validation loss evolution.
 * `training_stats_{j}.pdf` with a plot showing the training and validation loss evolution.
 
-In this example, `j` indicates which neural network in the ensemble the file refers to. In the case of single-round no 
-subscript is added. 
+In this (multi-round) example, `j` indicates which neural network in the ensemble the file refers to. In the case of 
+single-round inference no subscript is added to these two files. 
 
 Finally, each subfolder `round_{i}` in the `models` directory contains:
 
@@ -464,9 +466,9 @@ Finally, each subfolder `round_{i}` in the `models` directory contains:
    the observed data.
 * `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic
    test if testing was enabled.
-* `inference.pickle`: The trained inference object, which stores the weights of the trained neural network. This is 
-  necessary when resuming training in the multi-round case, where we don't want to start from scratch but continue from
-  the last trained network.
+* `inference.pickle`: The trained inference object, which stores the weights of the trained neural network. Knowledge
+   of these are required when resuming training in the multi-round case, where we do not want to start from scratch 
+   but continue from the last trained network.
 * `posterior_samples_test_data.npz`: A NumPy array containing the true values and the corresponding posterior samples
    for each sample in the test dataset if testing is enable .
 * `samples_posterior.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
@@ -480,9 +482,9 @@ neural networks in the ensemble.
 
 This section describes configuration options specific to multi-round inference.
 
-#### Training specific parameters for multi-round
+#### Training specific parameters for multi-round inference
 
-Several additional parameters control how training behaves across rounds:
+Several additional parameters control how training behaves across different rounds:
 
 * `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round. 
    ([Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
@@ -582,11 +584,13 @@ The desired parallelization method is specified at the top of the `config_sbi.js
 for example:
 
 ```json
+{
   "name": "SBI_ConvolutionMDN",
   "n_gpu": 1,
   "enable_dask": false,
   "n_processes": 4,
-  "workers_dask": 4,
+  "workers_dask": 4
+}
 ```
 
 - To use Dask, we set `enable_dask` to `true` and specify the number of workers with
