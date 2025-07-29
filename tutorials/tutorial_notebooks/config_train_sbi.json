@@ -9,7 +9,6 @@
     "profile_log": "profile.log",
     "profile_json": "profile.json",
     "show_profiling": true,
-
     "trainer": {
         "type": "snpe",
         "num_rounds": 1,
@@ -25,91 +24,104 @@
         "append_simulations": true,
         "plot_proposal": false
     },
-
     "density_estimator": {
         "type": "mdn",
         "classifier_nre": "resnet",
-        "args_mdn_npe": {
+        "args": {
             "hidden_features": 32,
             "num_components": 10,
             "num_transforms": 5
         }
     },
-
     "mcmc_sampler": {
         "type": "slice_np_vectorized",
         "num_chains": 20,
         "thin": 5
     },
-
     "arch": {
         "type": "ModelConvSBI",
         "args": {
-            "input_shape": [3, 32, 32],
+            "input_shape": [
+                3,
+                32,
+                32
+            ],
             "len_output_layer": 32
         }
     },
-
     "weights_initializer": {
         "type": "InitializerKaiming",
         "args": {}
     },
-
     "compression_input": {
         "use_compression": false,
         "compression_type": "cnn",
         "cnn_model_path": "exp_4/round_9/trained_model_ensemble_0.pickle",
         "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
     },
-
     "prior_ranges": {
         "labels": [
             "B_initial_log10_mean",
             "P_initial_log10_mean"
         ],
-        "low": [12, -1.5],
-        "high": [14, -0.3]
+        "low": [
+            12,
+            -1.5
+        ],
+        "high": [
+            14,
+            -0.3
+        ]
     },
-
     "training_data_loader": {
-        "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0",
-        "dataset_path": "output/data/training_dataset/generated_dataset",
+        "dataset_path_first_round": "../../tutorials/tutorial_notebooks/output/data/training_dataset/generated_dataset/round_0",
+        "dataset_path": "../../tutorials/tutorial_notebooks/output/data/training_dataset/generated_dataset",
         "statistic_path": "output/generator/statistics_train.json",
-        "filter_inputs": [9, 10, 11],
-        "filter_labels": [15, 17],
+        "filter_inputs": [
+            9,
+            10,
+            11
+        ],
+        "filter_labels": [
+            15,
+            16
+        ],
         "normalize": false,
         "standardize": true,
         "num_sim": 10
     },
-
     "test_data_loader": {
         "testing": false,
-        "dataset_path_first_round": "output/data/test_dataset/generated_dataset/round_0",
-        "dataset_path": "output/data/test_dataset/generated_dataset",
-        "num_sim": 10
+        "dataset_path_first_round": "../../tutorials/tutorial_notebooks/output/data/test_dataset/generated_dataset/round_0",
+        "dataset_path": "../../tutorials/tutorial_notebooks/output/data/test_dataset/generated_dataset",
+        "num_sim": 10,
+        "statistic_path": "../../tutorials/tutorial_notebooks/output/data/statistics_train.json"
     },
-
     "observed_sample": {
         "dataset_path": "output/generator_observed/",
-        "filter_inputs": [9, 10, 11],
-        "filter_labels": [15, 17]
+        "filter_inputs": [
+            9,
+            10,
+            11
+        ],
+        "filter_labels": [
+            15,
+            17
+        ]
     },
-
     "dyn_data_loader": {
-      "dataset_path": "../../data/example_simulation_dyn"
+        "dataset_path": "../../data/example_simulation_dyn"
     },
-
     "resume_training": {
         "resume": false,
         "last_round": 7,
         "save_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828",
         "log_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828"
     },
-
     "infer": {
         "sim_dataset": false,
         "compute_coverage": true,
-        "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20250720_112852/",
+        "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20250729_185034/",
         "save_dir": "output/inference_sbi"
     }
 }

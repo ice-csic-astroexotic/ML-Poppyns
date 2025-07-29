@@ -432,6 +432,8 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
             # Closing the cluster once the training has finished.
             cluster.close()
 
+        logger.info(f"Training results have been saved to: {config.save_dir}")
+
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser(description="SBI trainer")

@@ -247,6 +247,8 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
             # Closing the cluster once the training has finished.
             cluster.close()
 
+        logger.info(f"Inference results have been saved to: {config.log_dir}")
+
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser(description="Inference SBI")

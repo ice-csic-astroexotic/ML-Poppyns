@@ -29,7 +29,7 @@
   "density_estimator": {
     "type": "mdn",
     "classifier_nre": "resnet",
-    "args_mdn_npe": {
+    "args": {
       "hidden_features": 16,
       "num_components": 10,
       "num_transforms": 5
@@ -80,7 +80,7 @@
     "dataset_path": "../../data/example_generator_magrot",
     "statistic_path": "../../data/example_generator_magrot/statistics_train.json",
     "filter_inputs": [9, 10, 11, 12, 13, 14],
-    "filter_labels": [15, 17],
+    "filter_labels": [15, 16],
     "normalize": false,
     "standardize": true,
     "num_sim": 2
@@ -96,7 +96,7 @@
   "observed_sample": {
       "dataset_path": "data/paper_results/pardo_etal_2025/observed_data_res32_updated_atnf",
       "filter_inputs": [9, 10, 11, 12, 13, 14],
-      "filter_labels": [15, 17]
+      "filter_labels": [15, 16]
   },
 
   "dyn_data_loader": {
