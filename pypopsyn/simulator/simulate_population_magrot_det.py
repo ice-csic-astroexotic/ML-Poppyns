@@ -150,6 +150,8 @@ def simulate_population(args) -> None:
                 )
 
                 if cfg["simulation_xray"]:
+                    # Initializing luminosity and crust failure rate interpolators once for use across all different
+                    # detection loops in the simulation.
                     Lx_interpolator = ex.load_Lx_interpolator()
                     crust_failure_rate_interpolator = (
                         ex.load_crust_failure_rate_interpolator()

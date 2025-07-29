@@ -554,9 +554,7 @@ def outburst_filter_from_crust_failure_rate(
 
     # Select only the stars that have experienced a crust failure event in the last 50 yrs. This way we determine an
     # estimate of the number of outbursts that neutron stars will likely have undergone during the period of activity
-    # of X-ray survey missions. We also filter out events for neutron stars younger than 100 yr because for such young
-    # objects the outer crust is still solidifying (see Fig. 8 in Aguilera et al. 2008) and our following considerations
-    # require that the crust is solid to compute the stresses.
+    # of X-ray survey missions.
     n_outburst_events = rate_crust_failure * 50
 
     # We consider n_outburst_events to be a probability for having an outburst.
