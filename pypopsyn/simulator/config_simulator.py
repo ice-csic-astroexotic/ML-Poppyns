@@ -52,7 +52,7 @@ else:
 
 if cfg["path_to_software"] == "":
     log.warning(
-        "path_to_software variable not set. Remember to set the right absolute path_to_software in the "
+        "path_to_software variable not set. Remember to set the right absolute path_to_software in the"
         "pypopsyn/simulator/config_simulator.py file."
     )
 
@@ -143,7 +143,7 @@ elif cfg["kick_model"] == "km_2maxwell":
 
 else:
     log.error(
-        "The specified model for the kick velocity distribution is not supported. "
+        "The specified model for the kick velocity distribution is not supported."
         "Please choose between km_maxwell, km_exp or km_2maxwell."
     )
 
@@ -168,7 +168,7 @@ elif cfg["spin_period_model"] == "log-normal":
 
 else:
     log.error(
-        "The specified model for the initial spin period distribution is not supported. "
+        "The specified model for the initial spin period distribution is not supported."
         "Please choose between normal or log-normal."
     )
 
@@ -205,7 +205,7 @@ elif cfg["magnetic_field_model"] == "smooth_tophat":
 
 else:
     log.error(
-        "The specified model for the initial magnetic-field distribution is not supported. "
+        "The specified model for the initial magnetic-field distribution is not supported."
         "Please choose between log-normal, double_log-normal, or smooth_tophat."
     )
 
@@ -214,34 +214,42 @@ else:
 # For comparison, in vacuum k_0 = 0 and k_1 = k_2 = 2/3.
 cfg["k_coefficients"]: List[float] = [1.0, 1.0, 1.0]
 
-# Dominant conductivity based on phonon or impurity scattering, in [1/s].
-# For details see Cumming et al. (2004) or Gourgouliatos and Cumming (2014).
-cfg["sigma"]: float = 1e24
-
-# Characteristic length scale of the magnetic field in [cm].
-cfg["L"]: float = 1e5
-
-# Characteristic electron density in [g/cm^3].
-cfg["n_e"]: float = 1e35
-
 # Time step for the magneto-rotational evolution [yr].
 cfg["magrot_time_step_log10"]: float = 1e-2
 
-
 # ===================== FIT PARAMETERS FOR MAGNETO-THERMAL SIMULATIONS ========================
 
-# We fit a functional equation of the magnetic field evolution curves (more information can be found in
-# pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/README.md):
+# Model for the magneto-thermal simulations. Choose between "analytical" (in which case the magnetic field evolution
+# is determined analytically from the evolution of a generalised induction equation), or fits to numerical simulations,
+# specifically "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy", "BSk24_dip-tor_light", "BSk24_multi_heavy" and
+# "BSk24_multi_light".
+cfg["magneto-thermal_model"]: str = "BSk24_dip-tor_heavy"
+
+# If the model "analytical" is chosen we use the approximated solution of Aguilera et al. (2008) for the evolution of
+# the magnetic field.
+
+# In the case of all other models, we fit a functional equation of the magnetic field evolution curves
+# (more information can be found in pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/README.md):
 # B(t) = B_initial * (1 + t/tau1)**a1 * (1 + t/tau2)**(a2-a1) * (1 + t/tau_late)**(a_late-a2)
 # with tau1 = A1 * B_initial**b1 and tau2 = A2 * B_initial**b2.
 # The fit parameters for each model were adjusted by hand (see the notebook
 # tutorials/analysis_notebooks/magnetic_field_evolution_fit.ipynb for more details).
 
-# Model for the magneto-thermal simulations. Choose between "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy",
-# "BSk24_dip-tor_light", "BSk24_multi_heavy" and "BSk24_multi_light".
-cfg["magneto-thermal_model"]: str = "BSk24_dip-tor_heavy"
+if cfg["magneto-thermal_model"] == "analytical":
+    # Set the characteristic neutron star radius in [cm] for a mass of 1.4 Msun.
+    cfg["NS_radius"]: float = 1.2e6
 
-if cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
+    # Dominant conductivity based on phonon or impurity scattering, in [1/s].
+    # For details see Cumming et al. (2004) or Gourgouliatos and Cumming (2014).
+    cfg["sigma"]: float = 1e24
+
+    # Characteristic length scale of the magnetic field in [cm].
+    cfg["L"]: float = 1e5
+
+    # Characteristic electron density in [g/cm^3].
+    cfg["n_e"]: float = 1e35
+
+elif cfg["magneto-thermal_model"] == "SLy4_dip-tor_heavy":
     # Set the characteristic neutron star radius in [cm] for a mass of 1.4 Msun.
     cfg["NS_radius"]: float = 1.170e6
 
@@ -337,8 +345,8 @@ elif (cfg["magneto-thermal_model"] == "BSk24_multi_heavy") or (
         )
 else:
     log.error(
-        "The specified model for the magneto-thermal evolution is not supported. "
-        "Please choose between SLy4_dip-tor_heavy, BSk24_dip-tor_heavy, BSk24_dip-tor_light, BSk24_multi_heavy or "
+        "The specified model for the magneto-thermal evolution is not supported."
+        "Please choose between analytical, SLy4_dip-tor_heavy, BSk24_dip-tor_heavy, BSk24_dip-tor_light, BSk24_multi_heavy or"
         "BSk24_multi_light."
     )
 
@@ -368,7 +376,7 @@ elif cfg["radio_beam_model"] == "power-law_period_cone":
 
 else:
     log.error(
-        "The specified model for radio-beam geometry is not supported. "
+        "The specified model for radio-beam geometry is not supported."
         "Please choose between standard_period_cone or power-law_period_cone."
     )
 
@@ -389,7 +397,7 @@ if cfg["radio_luminosity_model"] == "lum_radio_ppdot":
     cfg["L_radio_log10_sigma"]: float = 0.8
     cfg["epsilon_L"]: float = 0.5
 
-if cfg["radio_luminosity_model"] == "lum_radio_edot":
+elif cfg["radio_luminosity_model"] == "lum_radio_edot":
     # Parameters for the "lum_radio_edot" model (Pardo-Araujo et al. 2025).
     # These best parameters assume a mean_spectral_index = -1.8 (see Posselt et al. 2023).
     cfg["L_radio_log10_mean"]: float = 26.17  # [erg s^(- 1)]
@@ -399,7 +407,7 @@ if cfg["radio_luminosity_model"] == "lum_radio_edot":
 
 else:
     log.error(
-        "The specified model for radio luminosity is not supported. "
+        "The specified model for radio luminosity is not supported."
         "Please choose between lum_radio_ppdot or lum_radio_edot."
     )
 
@@ -481,14 +489,13 @@ cfg["use_crust_failure_rate_interpolator"]: bool = True
 # To obtain the number of Galactic isolated neutron stars detected with a quiescent thermal emission in X-rays,
 # we only include magnetars and XDINSs, as young RPPs with quiescent X-ray emission are primarily discovered through the
 # detection of the supernova remnant emission and pulsar wind nebula contribution which we are not modeling in our code.
-# We currently implement two different kinds of surveys in the X-rays.
-# The first survey only takes into account a simple cut-off in flux. The second one tries to better match the observed
-# distribution and considers that many magnetars have been discovered during an outburst phase. For those we consider
-# a deeper survey to detect a quiescent emission. We then combine it with a shallower survey which detects only the
-# brightest sources.
-# Moreover, since we do not have full control on the observational biases for X-ray surveys, we try to match only the number
-# of sources above a flux threshold of 2e-11 erg s^-1 cm^-2 which defines the limit where we assume real surveys are complete
-# (by looking at the logN-lgS distribution).
+# We currently implement two different kinds of surveys in the X-rays. The first survey only takes into account a simple
+# cut-off in flux. The second one tries to better match the observed distribution and considers that many magnetars have
+# been discovered during an outburst phase. For those we consider a deeper survey to detect a quiescent emission. We
+# then combine it with a shallower survey which detects only the brightest sources. Moreover, since we do not have full
+# control over the observational biases for X-ray surveys, we try to match only the number of sources above a flux
+# threshold of 2e-11 [erg s^-1 cm^-2] which defines the limit where we assume real surveys are complete (by looking at
+# the logN-lgS distribution).
 cfg["surveys_xray"]: dict = {
     "xray_flux_threshold": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",

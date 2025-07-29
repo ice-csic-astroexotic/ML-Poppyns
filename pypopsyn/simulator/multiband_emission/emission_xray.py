@@ -473,16 +473,15 @@ def outburst_filter_probabilistic(
     B_initial: np.ndarray, age: np.ndarray
 ) -> np.ndarray:
     """
-    A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that go into outburst
-    after some crustal failures due to magnetic stresses (see Dehman et al. 2020).
+    A mask that filters neutron stars with initial magnetic fields stronger than 10^13 G that go in outburst
+    following a crustal failure due to the build up of magnetic stresses as the field evolves (Dehman et al. 2020).
+    We associate the percentage of crustal failure events for a given age with the probability for a star of that
+    age to go in outburst as described in Section 3.2 of Dehman et al. (2020).
 
-    We associate the percentage of crustal failure events depending on the age as the probability to go in outburst,
-    see section 3.2 in Dehman et al. (2020).
-
-    Dehman et al. (2020) found a correlation between the magnetic energy in the crust and the number of failure
-    events. However, for simplification, we neglect any dependence of the failure rate on the magnetic energy in the
-    crust and assume that all neutron stars with initial magnetic field above 10^13 G are born with the same amount of
-    magnetic energy in the crust.
+    Note that Dehman et al. (2020) also found a correlation between the magnetic energy in the crust and the number
+    of failure events. However, for simplification, we neglect any dependence of the failure rate on the crustal
+    magnetic energy, effectively assuming that all neutron stars with initial fields above 10^13 G are born with the
+    same magnetic energy in the crust, resulting in the same number of outbursts.
 
     Args:
         B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
@@ -511,6 +510,10 @@ def outburst_filter_probabilistic(
         0.0, 0.05, size=len(age[age_mask_4])
     )
 
+    # Generate random numbers from a uniform distribution between 0 and 1 with length equal to len(outburst_prob) and
+    # compare these random numbers with the actual probabilities stored in outburst_prob. For the stars where
+    # outburst_prob is high, there is a high chance that the generated random number will be lower than the outburst
+    # probability, leading to a higher chance of the outburst mask value to be true.
     outburst_mask = (np.random.rand(len(outburst_prob)) < outburst_prob) & (
         B_initial >= 1.0e13
     )
@@ -584,7 +587,7 @@ def xray_population(
         (dict): A dictionary containing properties of the neutron stars that emits thermally in X-rays.
     """
 
-    # Select only the stars that can be detected in X-rays.
+    # Select only the stars that can, in principle, be detected in the X-rays as they lie within the observed region .
     coverage_x = dict_pop["coverage_xray"]
     dict_final_pop_filtered = {
         key: value[coverage_x] for key, value in dict_pop.items()

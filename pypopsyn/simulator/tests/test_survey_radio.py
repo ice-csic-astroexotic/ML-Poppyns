@@ -182,6 +182,7 @@ def test_gain_gaussian_beam(test_case_1):
     """
     Verifying that the Gaussian beam gain for an offset observation is computed correctly.
     """
+    # Create a temporary .json file with some survey parameters to initialize a radio survey class object.
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".json", delete=False
     ) as tmpfile:
@@ -201,6 +202,7 @@ def test_radiometer_equation(test_case_1):
     """
     Verifying that the signal-to-noise values are computed correctly using the radiometer equation.
     """
+    # Create a temporary .json file with some survey parameters to initialize a radio survey class object.
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".json", delete=False
     ) as tmpfile:
@@ -226,7 +228,6 @@ def test_simulate_detection(monkeypatch, test_case_1):
     """
     Verifying that a pulsar is correctly detected by the survey.
     """
-
     # Mocking the sky temperature.
     def mock_T_sky(*args, **kwargs):
         return test_case_1["T_sky_expected"]
@@ -256,6 +257,7 @@ def test_detect_radio_population(test_case_1):
     """
     Verifying that a population of pulsars is correctly detected by the survey.
     """
+    # Create a temporary .json file with some survey parameters to initialize a radio survey class object.
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".json", delete=False
     ) as tmpfile:

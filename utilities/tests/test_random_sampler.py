@@ -95,7 +95,7 @@ def test_random_from_pdf(monkeypatch, test_case_2):
         return np.ones(len(x)) * 1.0 / 10.0
 
     def mock_cdf_rand(*args, **kwargs):
-        return 0.5
+        return np.array([0.5])
 
     monkeypatch.setattr(np.random, "uniform", mock_cdf_rand)
 
@@ -112,7 +112,7 @@ def test_random_from_pdf2d(monkeypatch, test_case_3):
     """
 
     def mock_cdf_rand(*args, **kwargs):
-        return 0.5
+        return np.array([0.5])
 
     monkeypatch.setattr(np.random, "uniform", mock_cdf_rand)
 

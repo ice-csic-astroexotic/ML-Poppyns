@@ -90,7 +90,7 @@ def fake_posterior():
 def fake_sampler(monkeypatch):
     # Simulate successful posterior sampling.
     def sample_with_timeout(posterior, x, n_samples, timeout):
-        samples = torch.randn((n_samples, x.shape[-1]))
+        samples = torch.randn((n_samples, x.shape[1]))
         return samples, True
 
     monkeypatch.setattr(
@@ -131,7 +131,7 @@ def test_calculate_smallest_hdr(fake_posterior, fake_sampler, dummy_logger):
     matrix = torch.randn((n_test_samples, 3, 32, 32))
     device = torch.device("cpu")
 
-    hdr = calculate_smallest_hdr(
+    hdr, _ = calculate_smallest_hdr(
         posterior=fake_posterior,
         theta=theta,
         matrix=matrix,
@@ -250,12 +250,12 @@ def test_prepare_dataset_sbi(dummy_logger):
         dummy_logger (MagicMock): Logger object that records info messages.
     """
     dataset_folder = "data/example_generator_magrot"
-    config_path = Path("pypopsyn/learning/config_npe.json")
+    config_path = Path("pypopsyn/learning/config_sbi.json")
 
     with open(config_path, "r") as f:
         config = json.load(f)
 
-    config["trainer"]["embedding"] = False
+    config["compression_input"]["use_compression"] = False
 
     dataset, parameter, matrix = sbi_utils.prepare_dataset_sbi(
         dataset_folder=dataset_folder,

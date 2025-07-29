@@ -18,7 +18,7 @@ from logging import Logger
 from typing import Any, Optional, Union
 
 import pypopsyn.learning.logger.logger as learning_logger
-import pypopsyn.learning.utils.json_utils as learning_utils_json
+import pypopsyn.learning.utils.json_utils as json_utils
 
 
 class ConfigurationParser:
@@ -112,9 +112,7 @@ class ConfigurationParser:
             parsed_args = args
 
         # Load configuration from JSON file.
-        configuration = learning_utils_json.read_json(
-            parsed_args.configuration
-        )
+        configuration = json_utils.read_json(parsed_args.configuration)
 
         # Parse custom CLI arguments.
         modification = {
