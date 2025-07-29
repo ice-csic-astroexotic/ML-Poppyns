@@ -125,8 +125,7 @@ additional parameters specific to multi-round inference further below in [Multi-
 We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, whether 
 to fix the random seed (and its value) and some additional profiling options. The latter specify the names of the files
 containing run time information for the code and whether this timing information is displayed in the terminal or not. 
-We discuss the multi-processing options in detail in the 
-[Running simulation in parallel for each round](#running-simulation-in-parallel-for-each-round) Section below.
+We discuss the multi-processing options in detail in [Running simulation in parallel for each round](#running-simulation-in-parallel-for-each-round).
 
 ```json
 {
@@ -182,8 +181,8 @@ section below for more information on the last parameters, which are specific to
 
 Next, we decide on the type of density estimator used to approximate the posterior distribution. The 
 preconfigured options in the `sbi` library include so-called masked autoregressive flows `maf` or Gaussian mixture 
-density networks `mdn`. In the case of SNPE, we can also set the number of hidden features for the density estimator.
-When using `mdn` or `maf`, we can set the number of components in the mixture or the number of transformations in the 
+density networks `mdn`. We can set the number of hidden features for the density estimator.
+When using `mdn` or `maf`, we can also set the number of components in the mixture or the number of transformations in the 
 flow, respectively, using the `num_components` and `num_transforms` parameters. On the other hand, for SNRE, we can 
 specify the type of classifier to use, such as: `linear`, `mlp`, or `resnet`. For more details on these methods and 
 relevant hyperparameters as well as custom density estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
@@ -196,7 +195,7 @@ neurons in the hidden layers is set to `32`.
   "density_estimator": {
     "type": "mdn",
     "classifier_nre": "resnet",
-    "args_mdn_npe": {
+    "args": {
       "hidden_features": 32,
       "num_components": 10, 
       "num_transforms": 5
@@ -204,7 +203,8 @@ neurons in the hidden layers is set to `32`.
   }
 }
 ```
-If the model type chosen in the training options is not `snre`, then the classifier specified here will be ignored.
+If the model type selected in the training options is not `snre`, and the density estimator is not `maf`, then the classifier and the num_components specified here will be ignored.
+
 
 #### MCMC sampler
 
@@ -232,10 +232,10 @@ features from the input data and compress the input into a latent vector that is
 This neural network is optimised at the same time as the parameters of the neural density estimator.
 
 !!! note 
-    This functionality is only supported in SNPE, not in SNRE or SNLE. In SNRE and SNLE, the output of the neural
-    network corresponds directly to the output of the simulator, in this case, 2D density maps. This contrasts with SNPE,
-    where the input to the neural network is the output of the simulator, allowing for simultaneous compression using a
-    CNN.
+    This functionality is only supported in SNPE, it is not available in SNRE or SNLE. This is because, unlike in NPE, 
+    the neural network in NRE and NLE approximates the likelihood or the likelihood ratio
+    directly. As a result, the output of the neural network must match those of the simulator, meaning the 
+    compression step would have to occur after the density estimator, which is not possible.
 
 In the following example, we will be using 2D maps as input and, hence, opt for a convolutional neural network (CNN) 
 as the embedding net. This CNN is designed to adapt to any input size specified by the `input_shape` parameter and 
@@ -248,10 +248,6 @@ There are currently three predefined models available for the embedding network:
 2. `ModelConvSBIdeep`: a deeper CNN with four convolutional layers.
 
 3. `ModelConvSBIshallow`: a shallower CNN with two convolutional layers.
-
-
-If you would like to design your own network architecture, you need to implement a new model class in 
-`pypopsyn/learning/models` and import this model in the file `models.py`.
 
 Therefore, when using ModelConvSBI, the configuration file looks as follows:
 
@@ -266,6 +262,8 @@ Therefore, when using ModelConvSBI, the configuration file looks as follows:
     }
 }
 ```
+If you would like to design your own network architecture, you need to implement a new model class in 
+`pypopsyn/learning/models` and import this model in the file `models.py`.
 
 #### Initialization
 
@@ -294,10 +292,7 @@ Here is a list with the different initialization procedures available:
 #### Alternative input compression options
 
 For learning approaches where NRE or NLE are applied, we cannot train an embedding network simultaneously with the 
-density estimator but instead apply another step to preprocess the data before passing it to the neural network.  
-This is because, unlike in NPE, the neural network in NRE and NLE approximates the likelihood or the likelihood ratio
-directly. As a result, the output of the neural network must match those of the simulator, meaning the 
-compression step would have to occur after the density estimator, which is not possible.
+density estimator but instead apply another step to preprocess the data before passing it to the neural network.
 For this purpose, we provide two options for separate data compression: a Convolutional Neural Network (CNN) or 
 Principal Component Analysis (PCA). Note that our implementation assumes that the CNN corresponds to a fully optimised
 (i.e., fixed) embedding network that has been trained as part of a previous NPE experiment. For both PCA and CNN, the 
@@ -333,7 +328,7 @@ in the `dataset_full.csv` file that contains information on the training data.
       "P_initial_log10_mean"
     ],
     "low": [12, -1.5],
-    "high": [14, 0.5]
+    "high": [14, 0.3]
   }
 }
 ```
@@ -378,7 +373,7 @@ For the example above and following the recommended folder structure, the `train
 
      When loading the data for SBI, we do not need to specify the batch size and the shuffle parameter.
      This is because the `sbi` library deals with shuffling the input dataset internally, while the batch size 
-     is specified during the training procedure (see below). If we were to use the data loader as in the 
+     is specified during the training procedure (see above). If we were to use the data loader as in the 
      [CNN learning tutorial](learning_tutorial_nn.md), it would load the dataset in a format that is not 
      compatible with sbi.
 
@@ -485,8 +480,8 @@ information for the training script executed across all rounds. Additionally, ea
 * `training_statistics_{j}.json` with the training and validation loss evolution.
 * `training_stats_{j}.pdf` with a plot showing the training and validation loss evolution.
 
-In this (multi-round) example, `j` indicates which neural network in the ensemble the file refers to. In the case of 
-single-round inference no subscript is added to these two files. 
+The `j` indicates which neural network in the ensemble the file refers to. In the case of using just one neural network
+no subscript is added to these two files. 
 
 Finally, each subfolder `round_{i}` in the `models` directory contains:
 
@@ -572,7 +567,7 @@ resumed runs.
 To use the resume mode we first need to:
 
 * Set `config["resume_training"]["resume"] = true`.
-* Specify the last completed round to resume from, e.g., using `config["resume_training"]["last_round"] = 2`.
+* Specify the last completed round to resume from, e.g., using `config["resume_training"]["last_round"] = 7`.
 * Provide the paths to the previously saved model and logs using `config["resume_training"]["save_dir"]` and 
   `config["resume_training"]["log_dir"]`, respectively.
 
