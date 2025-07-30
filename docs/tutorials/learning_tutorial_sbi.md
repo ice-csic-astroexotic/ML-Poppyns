@@ -129,16 +129,16 @@ We discuss the multi-processing options in detail in [Running simulation in para
 
 ```json
 {
-"name": "SBI_ConvolutionMDN",
-    "n_gpu": 1,
-    "enable_dask": false,
-    "n_processes": 4,
-    "workers_dask": 4,
-    "set_manual_seed": false,
-    "manual_seed": 42,
-    "profile_log": "profile.log",
-    "profile_json": "profile.json",
-    "show_profiling": true
+  "name": "SBI_ConvolutionMDN", 
+  "n_gpu": 1,
+  "enable_dask": false,
+  "n_processes": 4,
+  "workers_dask": 4,
+  "set_manual_seed": false,
+  "manual_seed": 42,
+  "profile_log": "profile.log",
+  "profile_json": "profile.json",
+  "show_profiling": true
 }
 ```
 
@@ -159,36 +159,39 @@ section below for more information on the last parameters, which are specific to
 
 ```json
 {
-    "trainer": {
-        "type": "snpe",
-        "num_rounds": 1,
-        "save_dir": "output/learning_sbi",
-        "validation_fraction": 0.1,
-        "batch_size": 8,
-        "lr": 0.0005,
-        "ensemble": false,
-        "size_ensemble": 5,
-        "truncated_prior": false,
-        "retrain_from_scratch": false,
-        "sir": true,
-        "append_simulations": true,
-        "plot_proposal": false
-      
-    }
+  "trainer": {
+    "type": "snpe", 
+    "num_rounds": 1,
+    "save_dir": "output/learning_sbi",
+    "validation_fraction": 0.1,
+    "batch_size": 8,
+    "lr": 0.0005,
+    "ensemble": false,
+    "size_ensemble": 5,
+    "truncated_prior": false,
+    "retrain_from_scratch": false,
+    "sir": true,
+    "append_simulations": true,
+    "plot_proposal": false
+  }
 }
 ```
 #### Density estimator
 
 Next, we decide on the type of density estimator used to approximate the posterior distribution. The 
-preconfigured options in the `sbi` library include so-called masked autoregressive flows `maf` or Gaussian mixture 
-density networks `mdn`. We can set the number of hidden features for the density estimator.
-When using `mdn` or `maf`, we can also set the number of components in the mixture or the number of transformations in the 
-flow, respectively, using the `num_components` and `num_transforms` parameters. On the other hand, for SNRE, we can 
-specify the type of classifier to use, such as: `linear`, `mlp`, or `resnet`. For more details on these methods and 
-relevant hyperparameters as well as custom density estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
+preconfigured options in the `sbi` library include so-called masked autoregressive flows `maf` and Gaussian mixture 
+density networks `mdn`. For both of these density estimators, we can set the number of `hidden_features`. In addition, 
+when using `mdn` or `maf`, we can also choose the number of components in the Gaussian mixture or the number 
+of transformations in the flow, respectively. These two parameters are controlled by setting `num_components` and 
+`num_transforms` values; the value for the parameter that is not relevant for the chosen estimator will just be
+ignored. 
+
+In addition, we can specify the type of classifier employed by SNRE. Options are `linear`, `mlp`, or 
+`resnet`. Note that this field will be ignored if the training options is not set to `snre`. For more details on these 
+methods and relevant hyperparameters as well as custom density estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
 
 In the following example, we are setting a mixture density network with `10` Gaussian components, and the number of 
-neurons in the hidden layers is set to `32`.
+neurons in the hidden layers to `32`.
 
 ```json
 {
@@ -203,8 +206,6 @@ neurons in the hidden layers is set to `32`.
   }
 }
 ```
-If the model type selected in the training options is not `snre`, and the density estimator is not `maf`, then the classifier and the num_components specified here will be ignored.
-
 
 #### MCMC sampler
 
@@ -216,7 +217,7 @@ When performing MCMC sampling, we need to specify the number of parallel chains,
 sampler type. `sbi` supports the following MCMC samplers: `nuts`, `slice`, `hmc`, and `slice_np_vectorized`.
 
 ```json
-{ 
+{
   "mcmc_sampler": {
     "type": "slice_np_vectorized",
     "num_chains": 20,
@@ -253,13 +254,13 @@ Therefore, when using ModelConvSBI, the configuration file looks as follows:
 
 ```json
 {
-    "arch": {
-        "type": "ModelConvSBI",
-        "args": {
-            "input_shape": [3, 32, 32],
-            "len_output_layer": 32
-        }
+  "arch": {
+    "type": "ModelConvSBI", 
+    "args": {
+      "input_shape": [3, 32, 32],
+      "len_output_layer": 32
     }
+  }
 }
 ```
 If you would like to design your own network architecture, you need to implement a new model class in 
@@ -272,10 +273,10 @@ Here, we show an example using the Kaiming initializer denoted by `InitializerKa
 
 ```json
 {
-    "weights_initializer": {
-        "type": "InitializerKaiming",
-        "args": {}
-    }
+  "weights_initializer": {
+    "type": "InitializerKaiming",
+    "args": {}
+  }
 }
 ```
 Here is a list with the different initialization procedures available:
@@ -323,10 +324,7 @@ in the `dataset_full.csv` file that contains information on the training data.
 ```json
 {
   "prior_ranges": {
-    "labels": [
-      "B_initial_log10_mean",
-      "P_initial_log10_mean"
-    ],
+    "labels": ["B_initial_log10_mean", "P_initial_log10_mean"],
     "low": [12, -1.5],
     "high": [14, 0.3]
   }
@@ -356,14 +354,14 @@ For the example above and following the recommended folder structure, the `train
 
 ```json
 {
- "training_data_loader": {
-    "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0",
-    "dataset_path": "output/data/training_dataset",
-    "statistic_path": "output/data/statistics_train.json",
-    "filter_inputs": [9, 10, 11],
-    "filter_labels": [15, 17],
-    "normalize": false,
-    "standardize": true,
+  "training_data_loader": {
+    "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0", 
+    "dataset_path": "output/data/training_dataset", 
+    "statistic_path": "output/data/statistics_train.json", 
+    "filter_inputs": [9, 10, 11], 
+    "filter_labels": [15, 17], 
+    "normalize": false, 
+    "standardize": true, 
     "num_sim": 1000
   }
 }
@@ -443,24 +441,26 @@ must match those used during training.
 ```json
 {
   "observed_sample": {
-      "dataset_path": "data/example_generator_observed",
-      "filter_inputs": [9, 10, 11],
-      "filter_labels": [15, 17]
+    "dataset_path": "data/example_generator_observed", 
+    "filter_inputs": [9, 10, 11],
+    "filter_labels": [15, 17]
   }
 }
 ```
 #### Dynamical database
 
-To perform the magneto-rotational evolution, we first need to sample stars from a dynamical database and then carry out 
-the magneto-rotational evolution. In the `dyn_data_loader`, we specify the path to the dynamical database, assuming that 
-it contains a file named `final_pop_dyn.csv`. This file can be generated using the tutorial notebook located at 
+To produce additional simulations in a sequential SBI approach, we need to run our simulation framework automatically 
+within each round. In particular, to perform the magneto-rotational evolution, we first need to sample stars from a 
+dynamical database and then carry out the subsequent evolution. For this purpose, we specify the path to the dynamical 
+database in the field `dyn_data_loader`, assuming that the `dataset_path` contains a file named `final_pop_dyn.csv`. 
+Note that this file can be generated using the tutorial notebook located at 
 `tutorials/tutorial_notebooks/02_simulator_dyn_tutorial.ipynb`.
 
 ```json
 {
   "dyn_data_loader": {
-      "dataset_path": "../../data/example_simulation_dyn"
-    }
+    "dataset_path": "../../data/example_simulation_dyn"
+  }
 }
 ```
 
@@ -540,20 +540,20 @@ An example of the multi-round training information could look as follows:
 ```json
 {
   "trainer": {
-        "type": "snpe",
-        "num_rounds": 2,
-        "save_dir": "output/learning_sbi",
-        "validation_fraction": 0.1,
-        "batch_size": 8,
-        "lr": 0.0005,
-        "ensemble": false,
-        "size_ensemble": 5,
-        "truncated_prior": false,
-        "retrain_from_scratch": false,
-        "sir": true,
-        "append_simulations": true,
-        "plot_proposal": false
-}
+    "type": "snpe", 
+    "num_rounds": 2, 
+    "save_dir": "output/learning_sbi", 
+    "validation_fraction": 0.1, 
+    "batch_size": 8, 
+    "lr": 0.0005, 
+    "ensemble": false, 
+    "size_ensemble": 5, 
+    "truncated_prior": false, 
+    "retrain_from_scratch": false, 
+    "sir": true, 
+    "append_simulations": true,
+    "plot_proposal": false
+  }
 }
 ```
 #### Resume mode
@@ -574,18 +574,18 @@ To use the resume mode we first need to:
 When resuming, the first (new) iteration requires loading the trained model from the 
 previously completed round of an earlier experiment. This is necessary to compute the proposal prior distribution 
 for the next (first new) round. Note that if `append_simulations` is set to true, simulations from all previous rounds 
-are reused at every round. Therefore, when resuming, it's essential to load the training datasets
-from all completed rounds.
+are reused at the current iteration. Therefore, when resuming, it is essential to load the training datasets from all 
+previously completed rounds.
 
 An example of the configuration file that enables resuming would look as follows:
 
 ```json
 {
   "resume_training": {
-  "resume": true,
-  "last_round": 7,
-  "save_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828",
-  "log_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828"
+    "resume": true,
+    "last_round": 7,
+    "save_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828", 
+    "log_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828"
   }
 }
 ```
@@ -727,11 +727,11 @@ An example of the inference information looks as follows:
 ```json
 {
     "infer": {
-    "sim_dataset": false ,
-    "compute_coverage": true,
-    "load_dir": "exp_1/learning/models/SBI_ConvolutionMDN/20250403_192124",
-    "save_dir": "exp_1/inference"
-  }
+      "sim_dataset": false ,
+      "compute_coverage": true,
+      "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20250730_120320/",
+      "save_dir": "output/inference_sbi"
+    }
 }
 ```
 !!! note
@@ -756,6 +756,7 @@ The `logs` subdirectories contain the files `profile.json` and `profile.log`, wh
 information for the inference script executed across all round. Additionally, each `round_{i}` subfolder inside the 
 logs directory contains the same files as when testing is enabled while running the `sbi_train.py` script, i.e., we
 are producing `corner_plot_observed_sample.pdf`, `coverage_plot.pdf`, `coverage_probability.npy`,
-`posterior_samples_test_data.npz`, and `samples_posterior.pt`. For detailed information about each file, see [Training output](#training-output).
+`posterior_samples_test_data.npz`, and `samples_posterior.pt`. For detailed information about each file, see 
+[Training output](#training-output).
 
 
