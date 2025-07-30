@@ -256,7 +256,7 @@ def test_magnetic_field(test_case_1, test_case_2):
     )
 
 
-def test_misalignment(test_case_1, test_case_2):
+def test_misalignment_angle(test_case_1, test_case_2):
     """
     Verifying that two separate instances of the InitialNeutronStarPopulation class
     have equivalent misalignment angles.
