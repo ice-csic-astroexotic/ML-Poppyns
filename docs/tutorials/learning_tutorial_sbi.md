@@ -604,7 +604,7 @@ We have implemented two ways to parallelize the simulation process to optimise c
 [`Dask`](https://www.dask.org/) or the [`multiprocessing`](https://docs.python.org/3/library/multiprocessing.html) packages.
 
 The desired parallelization method is specified at the top of the `config_train_sbi.json` file in the 
-[General info](#general_info) section. It, for example, looks as follows:
+[General info](#general-info) section. It, for example, looks as follows:
 
 ```json
 {
