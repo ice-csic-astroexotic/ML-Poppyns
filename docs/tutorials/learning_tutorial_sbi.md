@@ -412,10 +412,12 @@ approximately between -1 and 1.
 
 #### Testing data loader
 
-Inference on a test dataset can be performed either separately using the `sbi_infer.py` script after training, or 
-simultaneously during training by setting the `testing` field to true. As with training, testing requires specifying 
-the path to the test dataset for the first round in the `dataset_path_first_round` field, which must contain a 
-`dataset_full.csv` file. In multi-round inference, the test dataset for subsequent rounds is generated on the fly and 
+Inference on a test dataset can be performed either separately using the `sbi_infer.py` script after training as 
+outlined in detail below in [Inferring on a dataset](#inferring-on-a-dataset), or simultaneously during training by 
+setting the `testing` field to true. The latter approach is useful when inference is not particularly time-consuming
+and required as part of a sequential learning approach as, e.g., relevant for TSNPE. As with training, testing requires 
+specifying the path to the test dataset for the first round in the `dataset_path_first_round` field, which must contain 
+a `dataset_full.csv` file. In multi-round inference, the test dataset for subsequent rounds is generated on the fly and 
 saved to the path specified in `dataset_path`, with the number of simulations defined by `num_sim`.
 
 Following the recommended folder structure, the `test_data_loader` configuration for the example above looks as follows
@@ -700,7 +702,9 @@ these steps:
 Once our SBI pipeline has been trained (irrespective of the specific algorithm considered), it can be used to infer 
 on an unseen dataset of generated maps and extract posterior distributions of the corresponding pulsar population 
 parameters. The script `pypopsyn/learning/sbi_infer.py` allows us to take an experiment configuration file, a
-pretrained model, and a dataset, and run the inference.
+pretrained model, and a dataset, and run the inference. This way of doing inference (as opposed to enabling testing
+directly by setting `testing` to true in the `test_data_loader` option as part of the multi-round inference outlined 
+above in) is particularly useful when the inference procedure is time-consuming as is, e.g., the case with SNLE.
 
 ### Configuration options
 
