@@ -538,7 +538,7 @@ def prepare_dataset_sbi(
 
     if atnf:
         filter_inputs = config["observed_sample"]["filter_inputs"]
-        filter_labels = config["observed_sample"]["filter_labels"]
+        filter_labels = []
     else:
         filter_inputs = config["training_data_loader"]["filter_inputs"]
         filter_labels = config["training_data_loader"]["filter_labels"]

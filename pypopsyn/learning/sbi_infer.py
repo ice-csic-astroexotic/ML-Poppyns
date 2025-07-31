@@ -90,7 +90,7 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                 "Loading the training dataset to extract the statistics..."
             )
             train_dataset_path = config["training_data_loader"][
-                "dataset_path_first_round"
+                "dataset_path_round_0"
             ]
 
             # Load the training dataset information to extract the training statistics.
@@ -200,7 +200,7 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                             )
                         else:
                             test_dataset_path = config["test_data_loader"][
-                                "dataset_path_first_round"
+                                "dataset_path_round_0"
                             ]
 
                         (_, parameter, matrix,) = ut.prepare_dataset_sbi(
