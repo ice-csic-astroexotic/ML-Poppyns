@@ -92,7 +92,7 @@ output/
 We recommend placing all files relevant for training in the same base path. Specifically,
 
 * Store the training statistics file in the `data/` directory.
-  * Save the training and testing datasets for the first round in `data/training_dataset/generated_dataset/round_0/` and 
+  * Save the training and testing datasets for round 0 in `data/training_dataset/generated_dataset/round_0/` and 
   `data/test_dataset/generated_dataset/round_0/`, respectively.
 
 !!! note
@@ -337,7 +337,7 @@ in the `dataset_full.csv` file that contains information on the training data.
 
 We also require a training data loader, which is responsible for loading the dataset in a representation readable 
 by the network. The path to the directory containing the training dataset (in particular the file `dataset_full.csv`) 
-for the first round is specified in the `dataset_path_round_0` field. For multi-round inference, the training
+for round 0 is specified in the `dataset_path_round_0` field. For multi-round inference, the training
 datasets generated in each of the following rounds will then be saved in the directory specified by `dataset_path`.
 We also specify the location for the JSON file characterizing the statistics of the training dataset in `statistic_path`
 and the input channels `filter_inputs` used in building our (multichannel) input. Additionally, we set the ground truth
@@ -349,7 +349,7 @@ For the multi-round case, we must also specify, how many simulations we want to 
 field for training. In the example below, 1000 simulations are generated per round and then used for training.
 
 We also note that our workflow for both multi-round and single-round inference assumes that the dataset for the first 
-round already exist. This is possible because the prior distribution in the first round is fixed, and these datasets
+round already exist. This is possible because the prior distribution in round 0 is fixed, and these datasets
 can be reused across multiple experiments to save computational resources.
 
 For the example above and following the recommended folder structure, the `training_data_loader` will look like this:
@@ -416,7 +416,7 @@ approximately between -1 and 1.
 
 Inference on a test dataset can be performed either separately using the `sbi_infer.py` script after training, or 
 simultaneously during training by setting the `testing` field to true. As with training, testing requires specifying 
-the path to the test dataset for the first round in the `dataset_path_round_0` field, which must contain a 
+the path to the test dataset for round 0 in the `dataset_path_round_0` field, which must contain a 
 `dataset_full.csv` file. In multi-round inference, the test dataset for subsequent rounds is generated on the fly and 
 saved to the path specified in `dataset_path`, with the number of simulations defined by `num_sim`.
 

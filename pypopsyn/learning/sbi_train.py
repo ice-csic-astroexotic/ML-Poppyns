@@ -102,7 +102,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
             prof_json_path,
             config["show_profiling"],
         ):
-            logger.info("Loading the training dataset for the first round...")
+            logger.info("Loading the training dataset for round 0...")
 
             # If resuming from a previous training run, first create the training dataset for the first round
             # by merging all the training datasets from the previously completed rounds.
@@ -123,7 +123,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                     "dataset_path_round_0"
                 ]
             logger.info(
-                "Preparing the training dataset for sbi for the first round..."
+                "Preparing the training dataset for sbi for round 0..."
             )
             dataset, parameter, matrix = ut.prepare_dataset_sbi(
                 train_dataset_path, config, logger
@@ -172,7 +172,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                 atnf=True,
             )
 
-            # Set the proposal prior to the pior in the first round.
+            # Set the proposal prior to the pior in round 0.
             proposal = prior
 
             # Lists to store parameters and matrices from each round.
@@ -214,7 +214,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
 
                     num_sim_train = config["training_data_loader"]["num_sim"]
 
-                    # In the first round, instead of simulating the training dataset, we use the simulations
+                    # In round 0, instead of simulating the training dataset, we use the simulations
                     # previously run.
                     if i > 0:
                         logger.info(
