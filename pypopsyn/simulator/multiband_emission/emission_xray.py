@@ -552,7 +552,7 @@ def outburst_filter_from_crust_failure_rate(
     # Interpolate the rate of crust failures from the initial magnetic field value and the age.
     rate_crust_failure = crust_failure_rate_interpolator.ev(age, B_initial)
 
-    # Select only the stars that have experienced a crust failure event in the last 50 yrs. This way we determine an
+    # Select only those stars that have experienced a crust failure event in the last 50 yrs. This way, we determine an
     # estimate of the number of outbursts that neutron stars will likely have undergone during the period of activity
     # of X-ray survey missions.
     n_outburst_events = rate_crust_failure * 50
@@ -585,7 +585,8 @@ def xray_population(
         (dict): A dictionary containing properties of the neutron stars that emits thermally in X-rays.
     """
 
-    # Select only the stars that can, in principle, be detected in the X-rays as they lie within the observed region .
+    # Select only the stars that can, in principle, be detected in the X-rays, i.e., those that they lie within the
+    # observed region.
     coverage_x = dict_pop["coverage_xray"]
     dict_final_pop_filtered = {
         key: value[coverage_x] for key, value in dict_pop.items()
