@@ -57,7 +57,7 @@ def calculate_smallest_hdr(
     """
     Calculating the smallest highest density region of the posterior distribution, that contains the true value for the
     test dataset produced with the ground truths and simulation output stored in the arguments theta and matrix,
-    respectively. Additionally, it returns the posterior samples for each test case to enable further analysis.
+    respectively. Additionally, this function returns the posterior samples for each test case for further analysis.
 
     Args:
         posterior (DirectPosterior): Posterior distribution.
@@ -73,6 +73,7 @@ def calculate_smallest_hdr(
             posterior samples for all test simulations.
     """
     hdr = []
+
     # Counter for successful samples.
     successful_samples = 0
     posterior_samples_array = np.zeros(
@@ -145,8 +146,9 @@ def wrapper_pypopsyn(
     device: torch.device,
 ) -> str:
     """
-    Simulating `num_sim` of mock neutron star populations given the `proposal` distribution. After simulation, generate
-    density maps from the resulting populations.
+    Simulating `num_sim` of mock neutron star populations given the `proposal` distribution.
+
+    After simulation, generate density maps from the resulting populations.
 
     Args:
         proposal (Union[DirectPosterior,utils.RestrictedPrior]): Proposal distribution used for sampling the parameters.
@@ -186,7 +188,7 @@ def wrapper_pypopsyn(
             + f"/generated_dataset/round_{effective_round}"
         )
 
-    # Extracting simulation parameters from configuration file.
+    # Extracting simulation parameters from the configuration file.
     dyn_data_path = config["dyn_data_loader"]["dataset_path"]
     args_dict = {
         "dyn_data": dyn_data_path,
@@ -304,7 +306,7 @@ def merge_all_rounds_dataset(
         df = pd.read_csv(dataset_path)
         dataframes.append(df)
 
-    # Concatenating all the training datasets into one to use in the first round of the resumed inference.
+    # Concatenate all the training datasets into one to use in the first round of the resumed inference.
     merged_df = pd.concat(dataframes, ignore_index=True)
 
     # Define the path for the merged dataset.
@@ -513,8 +515,8 @@ def prepare_dataset_sbi(
     atnf: Optional[bool] = False,
 ) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
     """
-    Prepare dataset for use in SBI. If compression is enabled, either PCA or CNN compression will be applied to the input
-    matrix tensor.
+    Prepare dataset for use in sbi. If compression is enabled, either PCA or CNN compression will be applied to
+    the input matrix tensor.
 
     Args:
         dataset_folder (str): Path to the folder where the dataset is saved.
@@ -525,10 +527,11 @@ def prepare_dataset_sbi(
             observed ATNF population. The default is False.
 
     Returns:
-        (Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]): A tuple containing the dataset containing the statistics, parameter tensor and input matrix tensor.
+        (Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]): A tuple containing the dataset containing
+            the statistics, parameter tensor and input matrix tensor.
     """
 
-    # Adjusting the dataset_path based on whether the dataset is the observed or a simulated population.
+    # Adjusting the dataset_path based on whether the dataset is the observed one or a simulated population.
     dataset_path = (
         dataset_folder + "/dataset_atnf.csv"
         if atnf
@@ -576,7 +579,7 @@ def prepare_dataset_sbi(
             )
         else:
             logger.error(
-                f"Model type '{model_type}' requires compressed input. "
+                f"Model type '{model_type}' requires compressed input."
                 "Set 'use_compression_input' to True and specify a valid 'compression_type'."
             )
             sys.exit(1)
@@ -606,7 +609,7 @@ def prepare_dataset_sbi(
 
     else:
         logger.error(
-            "Invalid compression configuration: 'compression_input' enabled but 'compression_type' not recognized"
+            "Invalid compression configuration: 'compression_input' enabled but 'compression_type' not recognized."
         )
         sys.exit(1)
 
@@ -626,9 +629,8 @@ def pca_compression(
     normalize: bool,
     standardize: bool,
 ) -> Tuple[np.ndarray, np.ndarray]:
-
     """
-    Compresses input samples using a pre-trained PCA model.
+    Compress input samples using a pre-trained PCA model.
 
     Args:
         n_samples (int): Number of samples in the dataset.
@@ -641,12 +643,13 @@ def pca_compression(
         standardize (bool): Whether to standardize compressed values to zero mean and unit variance.
 
     Returns:
-        (Tuple[np.ndarray, np.ndarray]): Parameter array (theta) of shape (n_samples, n_parameters), PCA-compressed input array of shape (n_samples, n_pca_components)
+        (Tuple[np.ndarray, np.ndarray]): Parameter array (theta) of shape (n_samples, n_parameters), PCA-compressed
+            input array of shape (n_samples, n_pca_components).
     """
-
     matrix_raw = np.zeros(
         (n_samples, input_shape[0] * input_shape[1] * input_shape[2])
     )
+
     for i, (x, theta) in enumerate(dataset):
         x = np.moveaxis(x, -1, 0)
         if list(x.shape) != list(input_shape):
@@ -674,6 +677,7 @@ def pca_compression(
         denom = max_vals - min_vals
         denom[denom == 0] = 1e-8
         matrix_compressed = (matrix_compressed - min_vals) / denom
+
     elif standardize:
         mean_vals = matrix_compressed.mean(axis=1, keepdims=True)
         std_vals = matrix_compressed.std(axis=1, keepdims=True)
@@ -694,7 +698,7 @@ def cnn_compression(
     standardize: bool,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Applies CNN-based compression to compress input samples using a trained compression model.
+    Apply CNN-based compression to compress input samples using a previously trained embedding network.
 
     Args:
         n_samples (int): Number of samples in the dataset.
@@ -707,7 +711,8 @@ def cnn_compression(
         standardize (bool): Whether to standardize embedded values.
 
     Returns:
-        (Tuple[np.ndarray, np.ndarray]): Parameter array (theta) of shape (n_samples, n_parameters), CNN-compressed input array of shape (n_samples, len_output_layer)
+        (Tuple[np.ndarray, np.ndarray]): Parameter array (theta) of shape (n_samples, n_parameters), CNN-compressed
+            input array of shape (n_samples, len_output_layer).
     """
 
     matrix_embedded = np.zeros(
@@ -736,11 +741,13 @@ def cnn_compression(
             denom = max_val - min_val
             denom = denom if denom != 0 else 1e-8
             matrix_embedded[i] = (x_embedded - min_val) / denom
+
         elif standardize:
             mean_val = x_embedded.mean()
             std_val = x_embedded.std()
             std_val = std_val if std_val != 0 else 1e-8
             matrix_embedded[i] = (x_embedded - mean_val) / std_val
+
         else:
             matrix_embedded[i] = x_embedded
 
@@ -757,7 +764,7 @@ def raw_vector(
     parameter: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Loads raw data vectors without compression for use as input to the model.
+    Load raw data vectors without compression for use as input to the model.
 
     Args:
         n_samples (int): Number of samples in the dataset.
@@ -767,7 +774,8 @@ def raw_vector(
         parameter (np.ndarray): Array with the physical parameters.
 
     Returns:
-        (tuple): Tensor of physical parameters (theta), Tensor of raw input vectors with shape (n_samples, *input_shape)
+        (Tuple[np.ndarray, np.ndarray]): Tensor of physical parameters (theta), Tensor of raw input vectors with
+            shape (n_samples, *input_shape).
     """
     matrix_raw = np.zeros((n_samples, *input_shape))
 
