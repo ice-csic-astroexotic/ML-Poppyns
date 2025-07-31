@@ -120,7 +120,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                 )
             else:
                 train_dataset_path = config["training_data_loader"][
-                    "dataset_path_first_round"
+                    "dataset_path_round_0"
                 ]
             logger.info(
                 "Preparing the training dataset for sbi for the first round..."
@@ -318,7 +318,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
 
                             else:
                                 test_dataset_path = config["test_data_loader"][
-                                    "dataset_path_first_round"
+                                    "dataset_path_round_0"
                                 ]
 
                         else:
