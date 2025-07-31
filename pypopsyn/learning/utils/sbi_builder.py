@@ -56,7 +56,7 @@ def load_inference(
         ensemble (bool): Flag indicating if ensemble mode is enabled. Defaults to False.
 
     Returns:
-        (Union[List[SNPE], List[SNLE], List[SNRE]]):  A list of inference objects.
+        (Union[List[SNPE], List[SNLE], List[SNRE]]): A list of inference objects.
     """
     inference_list = []
 
@@ -115,7 +115,7 @@ def compute_proposal_prior(
     )
     # Computing the new proposal by restricting the prior to the posterior of the observation.
     # If config["sir"] is set to true, the restricted prior sampling uses sampling importance
-    # resampling (Rubin et al., 1988); otherwise, it employs rejection sampling. Note that the latter
+    # resampling (Rubin et al., 1988). Otherwise, it employs rejection sampling. Note that the latter
     # method may take longer for a narrower posterior distribution where the rejection rate is high.
     if config["trainer"]["sir"]:
         proposal = utils.RestrictedPrior(
@@ -142,23 +142,22 @@ def build_inference_network(
     device: torch.device,
     prior: utils.BoxUniform,
 ) -> Union[SNPE_C, SNLE_A, SNRE_B]:
-
     """
-    Builds an inference object (SNPE, SNLE, or SNRE) based on the selected model_type,
+    Build an inference object (SNPE, SNLE, or SNRE) based on the selected model_type,
     using the provided configuration, device, and prior.
 
     Args:
         model_type (str): The inference model_type to use. Must be one of:
-                      "snpe", "snle", or "snre".
+            "snpe", "snle", or "snre".
         logger (Logger): Logger object.
         config (ConfigurationParser): Configuration object that defines the architecture
-                                      and training parameters for the model.
+            and training parameters for the model.
         device (torch.device): The device (CPU or GPU) on which to build and run the model.
         prior (utils.BoxUniform): The prior distribution over the parameters.
 
     Returns:
         Union[SNPE_C, SNLE_A, SNRE_B]: An instance of the corresponding sbi inference class,
-                                       depending on the model_type specified.
+            depending on the model_type specified.
     """
 
     if model_type.lower() == "snpe":
@@ -175,14 +174,14 @@ def build_inference_network(
         }
 
         # If config["compression_input"]["use_compression"] is False, input data compression will be performed directly
-        # within the density network. In this case, the first component of the network is a CNN that compresses the
-        # input data, and it is trained jointly with the density estimator. Note that this option is only compatible
-        # with the NPE.
+        # within the training pipeline. In this case, the first component of the network is a CNN that compresses the
+        # input data, and is trained jointly with the density estimator. Note that this option is only compatible
+        # with the NPE approach but not NLE or NRE.
         if not config["compression_input"]["use_compression"]:
-            # Build the embedding network
+            # Build the embedding network.
             embedding_net = config.init_object("arch", learning_models)
 
-            # Initialize weights
+            # Initialize weights.
             weight_initializer = config.init_object(
                 "weights_initializer", learning_initializers
             )
@@ -190,8 +189,8 @@ def build_inference_network(
 
             posterior_nn_args["embedding_net"] = embedding_net
 
-        # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
-        # The weights are initialized with the default initialization provided by pytorch.
+        # The default density estimator has three hidden layers with a number of neurons = hidden_features.
+        # The weights are initialized with the default initialization provided by PyTorch.
         neural_posterior = utils.posterior_nn(**posterior_nn_args)
 
         # Setting up the inference procedure.
@@ -220,6 +219,7 @@ def build_inference_network(
         )
 
         return inference
+
     else:
         logger.exception(
             "The model type '{}' is not supported. ".format(model_type)
@@ -278,13 +278,13 @@ def train_posterior(
 
     If resume is set to True in the configuration file, this mode allows training to continue from the last completed
     round if interrupted. It uses the previously saved state to resume training without starting over.
-    If ensemble is set to True in the configuration file, multiple models (an ensemble) are trained and their
-    predictions are combined to ensure conservative coverages. Each of the neural networks will be trained on the same
-    training dataset.
+    If ensemble is set to True in the configuration file, multiple models (an ensemble) that differ only through
+    their initialization are trained and their predictions are combined to ensure conservative coverages. Each of
+    the neural networks will be trained on the same training dataset.
 
     Note that the inference object should be different for each component of the ensemble to ensure independent weights
-    for each component. Moreover, if `config['trainer']['model_type'] == 'snle' or 'snre'`, then an MCMC sampler is needed to sample
-    from the posterior distribution.
+    for each component. Moreover, if `config['trainer']['model_type'] == 'snle' or 'snre'`, then a MCMC sampler is
+    needed to sample from the posterior distribution.
 
     Args:
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
@@ -310,8 +310,8 @@ def train_posterior(
     last_round = config["resume_training"]["last_round"]
     model_type = config["trainer"]["type"]
 
-    # Determining the number of the effective inference round of the sequential sbi approach. Note that the
-    # round_current number is not the effective round when resume mode is enabled, as we did not start from 0.
+    # Determining the number of the effective inference round of the sequential SBI approach. Note that the
+    # round_current number is not the effective_round when resume mode is enabled, as we did not start from 0.
     effective_round = (
         round_current + int(last_round) if resume else round_current
     )
@@ -338,8 +338,8 @@ def train_posterior(
         inference = inference_list[index]
 
         # If we are in the first round of training and resume mode is enabled, the model is loaded from the last
-        # completed round instead of being trained again.
-        # This is needed to compute the proposal prior for the next round.
+        # completed round instead of being trained again. This is needed to compute the proposal prior for the next
+        # round.
         if resume and round_current == 0:
 
             if not os.path.exists(trained_model_path):
@@ -406,6 +406,7 @@ def train_posterior(
 
         if model_type == "snpe":
             posterior = inference.build_posterior(density_estimator.to(device))
+
         elif model_type == "snle" or "snre":
             posterior = inference.build_posterior(
                 density_estimator=density_estimator.to(device),
@@ -454,7 +455,7 @@ def initialize_prior(
     dataset: dl.DatasetMultichannelArray,
 ) -> BoxUniform:
     """
-    Initializes the prior distribution for the model based on the configuration and dataset.
+    Initialize the prior distribution for the model based on the configuration and dataset.
 
     The prior is initialized as a uniform distribution over the parameter space.
     If the dataset is normalized or standardized, the prior is scaled accordingly to ensure
@@ -468,12 +469,11 @@ def initialize_prior(
 
     Returns:
         BoxUniform: The initialized prior distribution as a BoxUniform object.
-
     """
     n_parameters = len(torch.tensor(config["prior_ranges"]["low"]))
-    # Setting the prior distribution for the parameters.
-    # Note that we need to rescale the prior distribution to ensure that it has the correct limits when
-    # restricted.
+
+    # Setting the prior distribution for the parameters. Note that we need to rescale the prior distribution to
+    # ensure that it has the correct limits when restricted.
     if config["training_data_loader"]["normalize"]:
         # All the parameters are rescaled in the range [0, 1].
         prior = BoxUniform(
