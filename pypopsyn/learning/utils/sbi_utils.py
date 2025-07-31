@@ -572,6 +572,11 @@ def prepare_dataset_sbi(
     use_compression_input = config["compression_input"]["use_compression"]
     compression_type = config["compression_input"]["compression_type"]
 
+    # Preprocess the input data depending on whether we want to compress it before passing it to the density estimator.
+    # For SNLE and SNRE, explicit compression is required. Here, we offer the option to use either PCA or a pre-trained
+    # CNN for this purpose. In contrast, SNPE supports joint training of an embedding network with the density estimator,
+    # allowing compressed representations to be extracted on-the-fly during training.
+
     if not use_compression_input and model_type == "snpe":
         if model_type == "snpe":
             parameter, matrix = raw_vector(
@@ -664,13 +669,14 @@ def pca_compression(
     pca_model_path = config["compression_input"]["pca_model_path"]
     if pca_model_path is None:
         logger.error(
-            "PCA model path not provided in configuration under compression_input -> pca_model_path."
+            "PCA model path not provided in configuration under cfg[compression_input][pca_model_path]."
         )
         sys.exit(1)
 
     pca_model = joblib.load(pca_model_path)
     matrix_compressed = pca_model.transform(matrix_raw)
 
+    # Normalize or standardize the PCA-compressed vectors before passing them to the density estimator.
     if normalize:
         min_vals = matrix_compressed.min(axis=1, keepdims=True)
         max_vals = matrix_compressed.max(axis=1, keepdims=True)
@@ -735,6 +741,7 @@ def cnn_compression(
             emb_neural_net._embedding_net(torch.tensor(x)).detach().numpy()
         )
 
+        # Normalize or standardize the CNN-compressed vectors before passing them to the density estimator.
         if normalize:
             min_val = x_embedded.min()
             max_val = x_embedded.max()
@@ -779,6 +786,7 @@ def raw_vector(
     """
     matrix_raw = np.zeros((n_samples, *input_shape))
 
+    # Rearranging the vectors to have the proper structure required by SBI, i.e., channels first.
     for i, (x, theta) in enumerate(dataset):
         x = np.moveaxis(x, -1, 0)  # channel-first
         if list(x.shape) != list(input_shape):

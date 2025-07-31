@@ -19,7 +19,6 @@
 import argparse
 import collections
 import pathlib
-import sys
 import time
 
 import pandas as pd
@@ -162,7 +161,8 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                     device=device,
                 ).cpu()
 
-                # Setting the proposal prior to the truncated prior or to the previous approximated posterior distribution at the observed data.
+                # Setting the proposal prior to the truncated prior or to the previous approximated posterior
+                # distribution at the observed data.
                 if config["trainer"]["truncated_prior"]:
                     proposal = sbi_builder.compute_proposal_prior(
                         posterior_obs, config, prior, device

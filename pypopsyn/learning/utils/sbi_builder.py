@@ -337,7 +337,7 @@ def train_posterior(
 
         inference = inference_list[index]
 
-        # If we are in the first round of training and resume mode is enabled, the model is loaded from the last
+        # If we are in round 0 of training and resume mode is enabled, the model is loaded from the last
         # completed round instead of being trained again. This is needed to compute the proposal prior for the next
         # round.
         if resume and round_current == 0:
@@ -430,7 +430,7 @@ def train_posterior(
         with open(inference_model_path, "wb") as inference_file:
             pickle.dump(inference, inference_file)
 
-        # Saving the training statistics. If resuming in the first round, no training is performed, i.e., nothing is
+        # Saving the training statistics. If resuming in round 0, no training is performed, i.e., nothing is
         # saved.
         if not resume or round_current != 0:
             ut.save_training_statistics(
