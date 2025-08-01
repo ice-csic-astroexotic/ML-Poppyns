@@ -280,7 +280,7 @@ def calculate_r_phi_spiral_model(
 
     # Evaluate the angular phi coordinate for each neutron star and
     # add noise to both galactocentric coordinates.
-    phi = sm.spiral_model.calculate_phi(r_pdf_rand, arm_index_rand)
+    phi = spiral_model.calculate_phi(r_pdf_rand, arm_index_rand)
     phi_rand, r_rand = smear_initial_coordinates(r_pdf_rand, phi, len(t_age))
 
     # Propagating the azimuthal coordinate of each object backwards in time
