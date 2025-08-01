@@ -338,3 +338,25 @@ def calculate_r_phi_electron_density(
     phi_rand = spiral_arm_time_evol(phi_rand, t_age)
 
     return r_rand, phi_rand
+
+
+def calculate_z(NS_number: int) -> np.ndarray:
+    """
+    Drawing a random distance from the galactic plane in [kpc] for each neutron
+    star according to the probability density function for the height.
+
+    Args:
+        NS_number (int): Number of neutron stars for which to draw a distance from the Galactic plane.
+
+    Returns:
+        (np.ndarray): Array of distances z from the Galactic plane in [kpc] for the simulated neutron star.
+    """
+    z_grid = np.logspace(
+        np.log10(0.0001), np.log10(cfg["z_extent"]), cfg["resolution"]
+    )
+    z_pdf_rand = rs.random_from_pdf(z_grid, pdf_initial_height, NS_number)
+
+    # Randomly distribute the stars above and below the galactic plane.
+    z_rand = random_scatter_about_plane(z_pdf_rand, NS_number)
+
+    return z_rand

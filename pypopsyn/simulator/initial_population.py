@@ -97,17 +97,7 @@ class InitialNeutronStarPopulation:
                 t_age, sm.spiral_model
             )
 
-        # Drawing a random distance from the galactic plane in [kpc] for each neutron
-        # star according to the probability density function for the height.
-        z_grid = np.logspace(
-            np.log10(0.0001), np.log10(cfg["z_extent"]), cfg["resolution"]
-        )
-        z_pdf_rand = rs.random_from_pdf(
-            z_grid, ip.pdf_initial_height, self.NS_number
-        )
-
-        # Randomly distribute the stars above and below the galactic plane.
-        z_rand = ip.random_scatter_about_plane(z_pdf_rand, self.NS_number)
+        z_rand = ip.calculate_z(self.NS_number)
 
         return r_rand, phi_rand, z_rand
 
