@@ -299,7 +299,8 @@ def calculate_r_phi_electron_density(
     Galactic electron density distribution ymw16 (see Yao et al. 2017).
 
     Using the notebook ns_distribution_ne_model.ipynb, we create a 2D NumPy array containing the electron density
-    distribution in polar coordinates (r, phi). This 2D array is used to sample the neutron star positions in the Galaxy.
+    distribution in polar coordinates (r, phi). This 2D array is saved in the file YMW16_density_model.npy in
+    pypopsyn/simulator/stellar_dynamics, and it is used to sample the neutron star positions in the Galaxy.
 
     Args:
         t_age (np.ndarray): Array of neutron star ages in [yr].
@@ -343,7 +344,8 @@ def calculate_r_phi_electron_density(
 def calculate_z(NS_number: int) -> np.ndarray:
     """
     Drawing a random distance from the galactic plane in [kpc] for each neutron
-    star according to the probability density function for the height.
+    star according to the probability density function for the height, and randomly distribute the stars above and below
+    the galactic plane, since we expect that this distribution to be symmetric.
 
     Args:
         NS_number (int): Number of neutron stars for which to draw a distance from the Galactic plane.
