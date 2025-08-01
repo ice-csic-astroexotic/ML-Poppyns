@@ -361,7 +361,7 @@ For the example above and following the recommended folder structure, the `train
     "dataset_path": "output/data/training_dataset",
     "statistic_path": "output/data/statistics_train.json",
     "filter_inputs": [9, 10, 11],
-    "filter_labels": [15, 17],
+    "filter_labels": [15, 16],
     "normalize": false,
     "standardize": true,
     "num_sim": 1000
@@ -437,18 +437,18 @@ Following the recommended folder structure, the `test_data_loader` configuration
 #### Observed sample
 
 The inference script performs inference on a sample specified in the `observed_sample` field, assuming that the folder 
-contains a CSV file named `dataset_atnf.csv`. As before, you must provide `filter_inputs` and `filter_labels`, which
-must match those used during training.
+contains a CSV file named `dataset_atnf.csv`. As before, you provide `filter_inputs`, which must match those used 
+during training. As we do not know the ground truths, `filter_labels` are not required here.
 
 ```json
 {
   "observed_sample": {
       "dataset_path": "data/example_generator_observed",
-      "filter_inputs": [9, 10, 11],
-      "filter_labels": [15, 17]
+      "filter_inputs": [9, 10, 11]
   }
 }
 ```
+
 #### Dynamical database
 
 To perform the magneto-rotational evolution, we first need to sample stars from a dynamical database and then carry out 
