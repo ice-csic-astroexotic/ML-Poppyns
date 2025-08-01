@@ -15,4 +15,9 @@ For the magneto-thermal simulations in `BSk24_multi_light-envelope` we used the 
    The remaining 90% of the energy is concentrated in the higher-order multipoles. 
    To reflect the latter, we make the simplifying assumption that all the energy in the multipolar components is concentrated in the polar quadrupolar component, 
    which is roughly achieved with the assumptions made above.
-6. The model for computing the crust failure events is described in [Dehman et al. (2020)](https://ui.adsabs.harvard.edu/abs/2020ApJ...902L..32D/abstract). 
+6. The model for computing the crust failure events is described in [Dehman et al. (2020)](https://ui.adsabs.harvard.edu/abs/2020ApJ...902L..32D/abstract). The files with the crust failure information contain the following columns:
+   - the time in [yr] when the failure event occurs;
+   - the total magnetic energy in [erg] dissipated during the failure;
+   - the position in polar coordinates ($\theta$ in [rad] and $r$ in [km]) where the failure event occurs;
+   - the total volume in [cm$^3$] of the crust affected by the failure;
+   - the timestep in [yr] for the magnetic field evolution that is used in the simulation.
