@@ -232,8 +232,8 @@ features from the input data and compress the input into a latent vector that is
 This neural network is optimised at the same time as the parameters of the neural density estimator.
 
 !!! note 
-    This functionality is only supported in SNPE, it is not available in SNRE or SNLE. This is because, unlike in NPE, 
-    the neural network in NRE and NLE approximates the likelihood or the likelihood ratio
+    This functionality is only supported in SNPE, but not available for SNRE or SNLE. This is because, unlike in NPE, 
+    the neural density estimators in NRE and NLE approximates the likelihood or the likelihood ratio
     directly. As a result, the output of the neural network must match those of the simulator, meaning the 
     compression step would have to occur after the density estimator, which is not possible.
 
