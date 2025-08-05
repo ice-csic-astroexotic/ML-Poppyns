@@ -95,8 +95,8 @@ cfg["NS_mass"]: float = 1.4 * const.M_SUN
 # Galactic potential model used in the simulation. Choose between gmM19 or gmFK06.
 cfg["galactic_model"]: str = "gmM19"
 
-# Flag indicating whether to use the electron density model of Yao et al. (2017) to sample the initial positions
-# of neutron stars.
+# Flag indicating whether to use the electron density model of Yao et al. (2017) or not to sample the initial positions
+# of neutron stars. If set to False the spiral-arm implementation right below will be used.
 cfg["sample_edm"]: bool = True
 
 if not cfg["sample_edm"]:

@@ -79,10 +79,10 @@ class InitialNeutronStarPopulation:
         self, t_age: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        Calculating the position at birth of each random neutron star in
-        cylindrical reference frame according either to the Galactic electron density
-        distribution ymw16 (see Yao et al. 2017) if cfg["sample_edm"] = True, or using a spiral model and a radial model
-        specified in the configuration file.
+        Calculating the position at birth of each random neutron star in a cylindrical reference frame according
+        either to the Galactic electron density distribution ymw16 (see Yao et al. 2017) when cfg["sample_edm"] = True
+        in the `config_simulator.py` file, or using a spiral model and a radial model as specified in the configuration
+        file when cfg["sample_edm"] = False.
 
         Args:
             t_age (np.ndarray): Array of neutron star ages in [yr].
@@ -99,17 +99,7 @@ class InitialNeutronStarPopulation:
                 t_age, sm.spiral_model
             )
 
-        # Drawing a random distance from the galactic plane in [kpc] for each neutron
-        # star according to the probability density function for the height.
-        z_grid = np.logspace(
-            np.log10(0.0001), np.log10(cfg["z_extent"]), cfg["resolution"]
-        )
-        z_pdf_rand = rs.random_from_pdf(
-            z_grid, ip.pdf_initial_height, self.NS_number
-        )
-
-        # Randomly distribute the stars above and below the galactic plane.
-        z_rand = ip.random_scatter_about_plane(z_pdf_rand, self.NS_number)
+        z_rand = ip.calculate_z(self.NS_number)
 
         return r_rand, phi_rand, z_rand
 
