@@ -483,8 +483,8 @@ def outburst_filter_probabilistic(
     magnetic energy, effectively assuming that all neutron stars with initial poloidal dipolar fields above 10^13 G are
     born with the same magnetic energy in the crust, resulting in the same number of outbursts. In the magneto-thermal
     models we consider we assume configurations where the magnetic energy increases with the poloidal dipole strength.
-    In particular we assume that the poloidal and toroidal dipoles have always the same strengths and in the models
-    with quadrupole, the quadrupole is always stronger then the dipole by a fixed ratio. Therefore this simplification
+    In particular, we assume that the poloidal and toroidal dipoles have always the same strengths and in the models
+    with quadrupole, the quadrupole is always stronger than the dipole by a fixed ratio. Therefore, this simplification
     is not completely consistent with the models we use.
 
     Args:
