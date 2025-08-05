@@ -272,28 +272,28 @@ class SurveyRadio:
     def __init__(self, parameters_path: str) -> None:
         """
         Radio survey initialization.
-        The parameters for the survey are imported from a JSON file and are the following:
-
-            - deg_factor (float): Degradation factor.
-            - G0 (float): Gain at the beam center [KJy ^ (-1)].
-            - t_obs (float): Integration time [s].
-            - t_samp (float): Sampling time [s].
-            - T_sys (float): System temperature [K].
-            - nu_central (float): Central frequency of the bandwidth [Hz].
-            - BW (float): Frequency bandwidth [Hz].
-            - channel_width (float): Width of a single frequency channel [Hz].
-            - n_pol (float): Number of polarizations.
-            - FWHM (float): FWHM of the beam[arcmin].
-            - SNR_th (float): Threshold signal-to-noise ratio.
-            - RA_range (np.ndarray): Range of the sky covered by the survey in RA [deg].
-            - DEC_range(np.ndarray): Range of the sky covered by the survey in DEC [deg].
-            - l_range(np.ndarray): Range of the sky covered by the survey in Galactic longitude l[deg].
-            - b_range_abs(np.ndarray): Absolute value of the range of the sky covered
-            by the survey in Galactic latitude b [deg].
+        The parameters for the survey are imported from a JSON file.
 
         Args:
-            parameters_path (str): Path to the survey_parameter.json file
-                containing the parameters of the radio survey.
+            parameters_path (str): Path to the survey_parameter.json file containing
+                the parameters of the radio survey. The file must include:
+
+                - deg_factor (float): Degradation factor.
+                - G0 (float): Gain at the beam center [KJy ^ (-1)].
+                - t_obs (float): Integration time [s].
+                - t_samp (float): Sampling time [s].
+                - T_sys (float): System temperature [K].
+                - nu_central (float): Central frequency of the bandwidth [Hz].
+                - BW (float): Frequency bandwidth [Hz].
+                - channel_width (float): Width of a single frequency channel [Hz].
+                - n_pol (float): Number of polarizations.
+                - FWHM (float): FWHM of the beam[arcmin].
+                - SNR_th (float): Threshold signal-to-noise ratio.
+                - RA_range (np.ndarray): Range of the sky covered by the survey in RA [deg].
+                - DEC_range(np.ndarray): Range of the sky covered by the survey in DEC [deg].
+                - l_range(np.ndarray): Range of the sky covered by the survey in Galactic longitude l[deg].
+                - b_range_abs(np.ndarray): Absolute value of the range of the sky covered
+                    by the survey in Galactic latitude b [deg].
         """
 
         # Load parameters from JSON file.

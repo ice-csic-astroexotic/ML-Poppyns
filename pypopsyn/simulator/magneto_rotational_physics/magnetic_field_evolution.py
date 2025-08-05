@@ -70,14 +70,13 @@ def magnetic_field_evolution_analytical_numpy(
     n_e: float,
 ) -> np.ndarray:
     """
-    Calculating the evolution of the magnetic field strength of a pulsar based on a simplified
-    model (see eq. (17) of Aguilera et al. (2008)) that captures the
-    characteristics of more complicated numerical simulations of pulsar magnetic field
-    evolution, i.e., at early timescales the Hall evolution dominates, while at late times
-    the exponential magnetic field decay due to Ohmic dissipation kicks in. Note that as
-    explained in Aguilera et al. (2008) the Hall timescale corresponds to that of the initial
-    field strength.
-    This method is compatible with numpy arrays and is used if one wants to save the entire evolution output in the
+    Calculating the evolution of the magnetic field strength of a pulsar based on a simplified model (see eq. (17)
+    of Aguilera et al. (2008)) that captures the characteristics of more complicated numerical simulations of pulsar
+    magnetic field evolution, i.e., at early timescales the Hall evolution dominates, while at late times the
+    exponential magnetic field decay due to Ohmic dissipation kicks in. Note that as explained in Aguilera et al.
+    (2008) the Hall timescale corresponds to that of the initial field strength.
+
+    This method is compatible with NumPy arrays and is used if one wants to save the entire evolution output in the
     magneto_rotational_evolution method.
 
     Args:
@@ -122,13 +121,11 @@ def magnetic_field_evolution_analytical(
     n_e: float,
 ) -> float:
     """
-    Calculating the evolution of the magnetic field strength of a pulsar based on a simplified
-    model (see eq. (17) of Aguilera et al. (2008)) that captures the
-    characteristics of more complicated numerical simulations of pulsar magnetic field
-    evolution, i.e., at early timescales the Hall evolution dominates, while at late times
-    the exponential magnetic field decay due to Ohmic dissipation kicks in. Note that as
-    explained in Aguilera et al. (2008) the Hall timescale corresponds to that of the initial
-    field strength.
+    Calculating the evolution of the magnetic field strength of a pulsar based on a simplified model (see eq. (17)
+    of Aguilera et al. (2008)) that captures the characteristics of more complicated numerical simulations of pulsar
+    magnetic field evolution, i.e., at early timescales the Hall evolution dominates, while at late times the
+    exponential magnetic field decay due to Ohmic dissipation kicks in. Note that as explained in Aguilera et al.
+    (2008) the Hall timescale corresponds to that of the initial field strength.
 
     Args:
         B_initial (float): Initial magnetic field strength in [G].
@@ -177,8 +174,9 @@ def magnetic_field_evolution_fit_numpy(
 ) -> np.ndarray:
     """
     An analytical function for the magnetic field evolution curves from the magneto-thermal evolution simulations.
-    This method is compatible with numpy arrays and is used if one wants to save the entire evolution output in the
+    This method is compatible with NumPy arrays and is used if one wants to save the entire evolution output in the
     magneto_rotational_evolution method.
+
     The fit parameters for each magneto-thermal model specified in the config_simulator.py file were adjusted by hand
     (see the notebook tutorials/analysis_notebooks/magnetic_field_evolution_fit.ipynb for more details).
 
@@ -276,6 +274,7 @@ def magnetic_field_evolution_fit(
     An analytical fit for the magnetic field evolution curves from the magneto-thermal evolution simulations.
     This method is used when solving the differential equations if one wants to save only the final state in the
     magneto_rotational_evolution method.
+
     The fit parameters for each magneto-thermal model specified in the config_simulator.py file were adjusted by hand
     (see the notebook tutorials/analysis_notebooks/magnetic_field_evolution_fit.ipynb for more details).
 

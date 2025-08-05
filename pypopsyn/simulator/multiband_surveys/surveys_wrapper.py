@@ -178,6 +178,7 @@ def initialize_xray_surveys() -> Tuple[dict, dict]:
         "L_x_therm": [],
         "S_x_rcs_abs": [],
         "S_x_bb_abs": [],
+        "outburst": [],
         "idx": [],
     }
 
@@ -934,6 +935,7 @@ def create_output_dataframe_surveys(
             "L_x_therm",
             "S_x_rcs_abs",
             "S_x_bb_abs",
+            "outburst",
         ]
         units_xray = [
             " ",
@@ -955,6 +957,7 @@ def create_output_dataframe_surveys(
             "[erg s^-1]",
             "[erg s^-1 cm^-2]",
             "[erg s^-1 cm^-2]",
+            "",
         ]
 
         # Loop over each survey's detected dictionary and generate the corresponding DataFrame.

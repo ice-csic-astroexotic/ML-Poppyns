@@ -486,9 +486,12 @@ def calculate_xray_emission_full(
     return xray_bright_mask, L_x_therm, S_x_bb_abs, S_x_rcs_abs, N_H
 
 
-def initialize_Lx_interpolator() -> RectBivariateSpline:
+def load_Lx_interpolator() -> RectBivariateSpline:
     """
-    Initialize the interpolator for the X-ray luminosity.
+    Load the interpolator for the X-ray luminosity.
+
+    The interpolator function has been constructed in the notebook
+    tutorials/analysis_notebooks/xray_luminosity_interpolation.ipynb.
 
     Returns:
         (RectBivariateSpline): An interpolator function loaded from a pickled file to evaluate the X-ray luminosity.
@@ -507,6 +510,31 @@ def initialize_Lx_interpolator() -> RectBivariateSpline:
     return L_x_interpolator
 
 
+def load_crust_failure_rate_interpolator() -> RectBivariateSpline:
+    """
+    Load the interpolator for the crust failure rates.
+
+    The interpolator function has been constructed in the notebook
+    tutorials/analysis_notebooks/crust_failure_rate_interpolation.ipynb.
+
+    Returns:
+        (RectBivariateSpline): An interpolator function loaded from a pickled file to evaluate the rate of
+            crustal failures.
+    """
+
+    # Get the path to the software directory.
+    base_path = pathlib.Path(cfg["path_to_software"])
+    # Load the interpolator function to evaluate the crustal failure rate.
+    interpolator_path = base_path.joinpath(
+        cfg["magneto-thermal_path"], "interpolator_crust_failure_rate.pkl"
+    )
+
+    with open(interpolator_path, "rb") as f:
+        crust_failure_rate_interpolator = pickle.load(f)
+
+    return crust_failure_rate_interpolator
+
+
 def outburst_filter_probabilistic(
     B_initial: np.ndarray, age: np.ndarray
 ) -> np.ndarray:
@@ -518,8 +546,12 @@ def outburst_filter_probabilistic(
 
     Note that Dehman et al. (2020) also found a correlation between the magnetic energy in the crust and the number
     of failure events. However, for simplification, we neglect any dependence of the failure rate on the crustal
-    magnetic energy, effectively assuming that all neutron stars with initial fields above 10^13 G are born with the
-    same magnetic energy in the crust, resulting in the same number of outbursts.
+    magnetic energy, effectively assuming that all neutron stars with initial poloidal dipolar fields above 10^13 G are
+    born with the same magnetic energy in the crust, resulting in the same number of outbursts. In the magneto-thermal
+    models we consider we assume configurations where the magnetic energy increases with the poloidal dipole strength.
+    In particular, we assume that the poloidal and toroidal dipoles have always the same strengths and in the models
+    with quadrupole, the quadrupole is always stronger than the dipole by a fixed ratio. Therefore, this simplification
+    is not completely consistent with the models we use.
 
     Args:
         B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
@@ -549,9 +581,9 @@ def outburst_filter_probabilistic(
     )
 
     # Generate random numbers from a uniform distribution between 0 and 1 with length equal to len(outburst_prob) and
-    # compare this random numbers with the actual probabilities stored in outburst_prob.
-    # For the stars where outburst_prob is high there is a high chance that the generated random number will be lower
-    # and therefore an higher chance for the mask to be true.
+    # compare these random numbers with the actual probabilities stored in outburst_prob. For the stars where
+    # outburst_prob is high, there is a high chance that the generated random number will be lower than the outburst
+    # probability, leading to a higher chance of the outburst mask value to be true.
     outburst_mask = (np.random.rand(len(outburst_prob)) < outburst_prob) & (
         B_initial >= 1.0e13
     )
@@ -559,9 +591,53 @@ def outburst_filter_probabilistic(
     return outburst_mask
 
 
+def outburst_filter_from_crust_failure_rate(
+    B_initial: np.ndarray,
+    age: np.ndarray,
+    crust_failure_rate_interpolator: RectBivariateSpline,
+) -> np.ndarray:
+    """
+    A mask that filters neutron stars that go into outburst after some crustal failures due to magnetic stresses
+    (see Dehman et al. 2020). In comparison to outburst_filter_probabilistic this implementation is magnetic-field
+    dependent.
+
+    We compute the expected rate of failures from the outcomes of magneto-thermal simulations for neutron stars with
+    a given initial magnetic field and age (see the notebook tutorials/analysis_notebooks/crust_failure_rate.ipynb
+    for more details). Based on this rate, we then select only those neutron stars that experiences a failure event in
+    the last 50 years which is roughly the time when X-ray survey missions began taking data.
+
+    Note that we assume that each failure event is associated with a detected outburst. This will generally lead to an
+    overestimation of the number of neutron stars that are detected through outburst events as lees energetic events
+    might have been missed or not identified with neutron star activity.
+
+    Args:
+        B_initial (np.ndarray): Array of initial magnetic fields of the pulsars in [G].
+        age (np.ndarray): Array of neutron star ages [yrs].
+        crust_failure_rate_interpolator (RectBivariateSpline): An interpolator function loaded from a pickled file
+            to evaluate the rate of crustal failures.
+
+    Returns:
+        (np.ndarray): Boolean mask to select the neutron stars that go in outburst.
+    """
+    # Interpolate the rate of crust failures from the initial magnetic field value and the age.
+    rate_crust_failure = crust_failure_rate_interpolator.ev(age, B_initial)
+
+    # Select only those stars that have experienced a crust failure event in the last 50 yrs. This way, we determine an
+    # estimate of the number of outbursts that neutron stars will likely have undergone during the period of activity
+    # of X-ray survey missions.
+    n_outburst_events = rate_crust_failure * 50
+
+    # We consider n_outburst_events to be a probability for having an outburst.
+    outburst_prob = np.where(n_outburst_events > 1, 1, n_outburst_events)
+    outburst_mask = np.random.rand(len(outburst_prob)) < outburst_prob
+
+    return outburst_mask
+
+
 def xray_population(
     dict_pop: dict,
     L_x_interpolator: RectBivariateSpline,
+    crust_failure_rate_interpolator: RectBivariateSpline,
     L_x_threshold: float = 1.0e30,
 ) -> dict:
     """
@@ -571,13 +647,16 @@ def xray_population(
         dict_pop (dict): Dictionary containing the properties of a neutron star population.
         L_x_interpolator (RectBivariateSpline): Interpolator used to calculate the thermal X-ray luminosity based
             on age and magnetic field.
+        crust_failure_rate_interpolator (RectBivariateSpline): An interpolator function loaded from a pickled file
+            to evaluate the rate of crust failures.
         L_x_threshold (float): A lower limit for the X-ray luminosity.
 
     Returns:
         (dict): A dictionary containing properties of the neutron stars that emits thermally in X-rays.
     """
 
-    # Select only the stars that can, in principle, be detected in the X-rays as they lie within the observed region .
+    # Select only the stars that can, in principle, be detected in the X-rays, i.e., those that they lie within the
+    # observed region.
     coverage_x = dict_pop["coverage_xray"]
     dict_final_pop_filtered = {
         key: value[coverage_x] for key, value in dict_pop.items()
@@ -608,9 +687,16 @@ def xray_population(
     }
 
     # Apply the filter to see which neutron stars go in outburst.
-    outburst_mask = outburst_filter_probabilistic(
-        dict_xray_pop["B_initial"], dict_xray_pop["age"]
-    )
+    if cfg["use_crust_failure_rate_interpolator"]:
+        outburst_mask = outburst_filter_from_crust_failure_rate(
+            dict_xray_pop["B_initial"],
+            dict_xray_pop["age"],
+            crust_failure_rate_interpolator,
+        )
+    else:
+        outburst_mask = outburst_filter_probabilistic(
+            dict_xray_pop["B_initial"], dict_xray_pop["age"]
+        )
 
     # Adding the computed neutron star X-ray emission properties to the dictionary.
     dict_xray_pop["L_x_therm"] = L_x_therm
@@ -625,6 +711,7 @@ def xray_population(
 def xray_population_full(
     dict_pop: dict,
     L_x_interpolator: RectBivariateSpline,
+    crust_failure_rate_interpolator: RectBivariateSpline,
     L_x_threshold: float = 1.0e30,
 ) -> dict:
     """
@@ -634,6 +721,8 @@ def xray_population_full(
         dict_pop (dict): Dictionary containing the properties of a neutron star population.
         L_x_interpolator (RectBivariateSpline): Interpolator used to calculate the thermal X-ray luminosity based
             on age and magnetic field.
+        crust_failure_rate_interpolator (RectBivariateSpline): An interpolator function loaded from a pickled file
+            to evaluate the rate of crust failures.
         L_x_threshold (float): A lower limit for the X-ray luminosity.
 
     Returns:
@@ -661,9 +750,16 @@ def xray_population_full(
     dict_xray_pop = {key: value for key, value in dict_pop.items()}
 
     # Apply the filter to see which neutron stars go in outburst.
-    outburst_mask = outburst_filter_probabilistic(
-        dict_xray_pop["B_initial"], dict_xray_pop["age"]
-    )
+    if cfg["use_crust_failure_rate_interpolator"]:
+        outburst_mask = outburst_filter_from_crust_failure_rate(
+            dict_xray_pop["B_initial"],
+            dict_xray_pop["age"],
+            crust_failure_rate_interpolator,
+        )
+    else:
+        outburst_mask = outburst_filter_probabilistic(
+            dict_xray_pop["B_initial"], dict_xray_pop["age"]
+        )
 
     # Adding the computed neutron star X-ray emission properties to the dictionary.
     dict_xray_pop["L_x_therm"] = L_x_therm

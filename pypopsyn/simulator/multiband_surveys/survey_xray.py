@@ -92,29 +92,30 @@ class SurveyXray:
     def __init__(self, parameters_path: str) -> None:
         """
         X-ray survey initialization.
-        The parameters for the survey are imported from a JSON file and are the following:
-
-            - apply_sharp_flux_threshold (bool): Boolean flag to apply a simplified survey with a sharp flux threshold or
-            not.
-            - sharp_flux_threshold (float): Sharp flux threshold value for a generic survey.
-            - S_x_threshold_log10_mean_long_exposure (float): Mean for the log10 of the flux threshold distribution for a
-            survey with short exposure.
-            - S_x_threshold_log10_sigma_long_exposure (float): Standard deviation for the log10 of the flux threshold
-            distribution for a survey with long exposure.
-            - S_x_threshold_log10_mean_short_exposure (float): Mean for the log10 of the flux threshold distribution for
-            a survey with short exposure.
-            - S_x_threshold_log10_sigma_short_exposure (float): Standard deviation for the log10 of the flux threshold
-            distribution for a survey with short exposure.
-            - RA_range (np.ndarray): Range of the sky covered by the survey in RA [deg].
-            - DEC_range(np.ndarray): Range of the sky covered by the survey in DEC [deg].
-            - l_range(np.ndarray): Range of the sky covered by the survey in Galactic longitude l[deg].
-            - b_range_abs(np.ndarray): Absolute value of the range of the sky covered by the survey in Galactic latitude
-            b [deg].
-            - name(str): Name of the survey.
+        The parameters for the survey are imported from a JSON file.
 
         Args:
             parameters_path (str): Path to the survey_parameter.json file
-                containing the parameters of the X-ray survey.
+                containing the parameters of the X-ray survey. The file must include:
+
+                - apply_sharp_flux_threshold (bool): Boolean flag to apply a simplified survey with a sharp flux threshold or
+                    not.
+                - sharp_flux_threshold (float): Sharp flux threshold value for a generic survey.
+                - S_x_threshold_log10_mean_long_exposure (float): Mean for the log10 of the flux threshold distribution for a
+                    survey with short exposure.
+                - S_x_threshold_log10_sigma_long_exposure (float): Standard deviation for the log10 of the flux threshold
+                    distribution for a survey with long exposure.
+                - S_x_threshold_log10_mean_short_exposure (float): Mean for the log10 of the flux threshold distribution for
+                    a survey with short exposure.
+                - S_x_threshold_log10_sigma_short_exposure (float): Standard deviation for the log10 of the flux threshold
+                    distribution for a survey with short exposure.
+                - RA_range (np.ndarray): Range of the sky covered by the survey in RA [deg].
+                - DEC_range(np.ndarray): Range of the sky covered by the survey in DEC [deg].
+                - l_range(np.ndarray): Range of the sky covered by the survey in Galactic longitude l[deg].
+                - b_range_abs(np.ndarray): Absolute value of the range of the sky covered by the survey in Galactic latitude
+                    b [deg].
+                - name(str): Name of the survey.
+
         """
 
         # Load parameters from JSON file.

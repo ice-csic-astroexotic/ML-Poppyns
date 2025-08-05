@@ -23,10 +23,11 @@ from typing import List, Union
 import numpy as np
 import torch
 from sbi import utils
-from sbi.inference import SNLE, SNPE
+from sbi.inference import SNLE, SNPE, SNRE
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
 from sbi.inference.snle.snle_a import SNLE_A
 from sbi.inference.snpe.snpe_c import SNPE_C
+from sbi.inference.snre.snre_b import SNRE_B
 from sbi.utils import BoxUniform
 from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 
@@ -43,7 +44,7 @@ def load_inference(
     round_number: int,
     save_dir: pathlib.Path,
     ensemble: bool = False,
-) -> Union[List[SNPE], List[SNLE]]:
+) -> Union[List[SNPE], List[SNLE], List[SNRE]]:
     """
     Load inference objects from pickle files. Note that this is used when resume mode is enabled
     or when doing inference with SNLE.
@@ -55,7 +56,7 @@ def load_inference(
         ensemble (bool): Flag indicating if ensemble mode is enabled. Defaults to False.
 
     Returns:
-        (Union[List[SNPE], List[SNLE]]):  A list of inference objects.
+        (Union[List[SNPE], List[SNLE], List[SNRE]]):  A list of inference objects.
     """
     inference_list = []
 
@@ -134,81 +135,96 @@ def compute_proposal_prior(
     return proposal
 
 
-def build_network_snpe(
+def build_inference_network(
+    model_type: str,
+    logger: Logger,
     config: configuration_parser.ConfigurationParser,
     device: torch.device,
     prior: utils.BoxUniform,
-) -> SNPE_C:
+) -> Union[SNPE_C, SNLE_A, SNRE_B]:
+
     """
-    Building the neural network for SNPE (composed of the embedding net and the density estimator) using the
-    configuration file specified in the arguments, and setting up the inference procedure.
+    Builds an inference object (SNPE, SNLE, or SNRE) based on the selected model_type,
+    using the provided configuration, device, and prior.
 
     Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
-        device (torch.device): Device used to run the script.
-        prior (utils.BoxUniform): Prior distribution.
+        model_type (str): The inference model_type to use. Must be one of:
+                      "snpe", "snle", or "snre".
+        logger (Logger): Logger object.
+        config (ConfigurationParser): Configuration object that defines the architecture
+                                      and training parameters for the model.
+        device (torch.device): The device (CPU or GPU) on which to build and run the model.
+        prior (utils.BoxUniform): The prior distribution over the parameters.
 
     Returns:
-        (SNPE_C): An instance of sbi's SNPE inference objects.
+        Union[SNPE_C, SNLE_A, SNRE_B]: An instance of the corresponding sbi inference class,
+                                       depending on the model_type specified.
     """
 
-    # Building the embedding network.
-    embedding_net = config.init_object("arch", learning_models)
+    if model_type.lower() == "snpe":
 
-    # Initialize weights.
-    weight_initializer = config.init_object(
-        "weights_initializer", learning_initializers
-    )
-    # Apply the weight initialization scheme to every layer in the model.
-    embedding_net.apply(weight_initializer)
+        posterior_nn_args = {
+            "model": config["density_estimator"]["type"],
+            "hidden_features": config["density_estimator"]["args"][
+                "hidden_features"
+            ],
+            "num_components": config["density_estimator"]["args"][
+                "num_components"
+            ],
+            "device": device,
+        }
 
-    # Build density estimator.
-    # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
-    # The weights are initialized with the default initialization provided by pytorch.
+        # If config["compression_input"]["use_compression"] is False, input data compression will be performed directly
+        # within the density network. In this case, the first component of the network is a CNN that compresses the
+        # input data, and it is trained jointly with the density estimator. Note that this option is only compatible
+        # with the NPE.
+        if not config["compression_input"]["use_compression"]:
+            # Build the embedding network
+            embedding_net = config.init_object("arch", learning_models)
 
-    neural_posterior = utils.posterior_nn(
-        model=config["density_estimator"]["type"],
-        embedding_net=embedding_net,
-        hidden_features=config["density_estimator"]["args"]["hidden_features"],
-        num_components=config["density_estimator"]["args"]["num_components"],
-        device=device,
-    )
+            # Initialize weights
+            weight_initializer = config.init_object(
+                "weights_initializer", learning_initializers
+            )
+            embedding_net.apply(weight_initializer)
 
-    # Setting up the inference procedure.
-    inference = SNPE(
-        density_estimator=neural_posterior,
-        device=f"{device}",
-        prior=prior,
-    )
+            posterior_nn_args["embedding_net"] = embedding_net
 
-    return inference
+        # The default density estimator has 3 hidden layers with a number of neurons = hidden_features.
+        # The weights are initialized with the default initialization provided by pytorch.
+        neural_posterior = utils.posterior_nn(**posterior_nn_args)
 
+        # Setting up the inference procedure.
+        inference = SNPE(
+            density_estimator=neural_posterior,
+            device=f"{device}",
+            prior=prior,
+        )
 
-def build_network_snle(
-    config: configuration_parser.ConfigurationParser,
-    device: torch.device,
-    prior: utils.BoxUniform,
-) -> SNLE_A:
-    """
-    Building inference procedure for SNLE.
+        return inference
 
-    Args:
-        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
-        device (torch.device): Device used to run the script.
-        prior (utils.BoxUniform): Prior distribution.
+    elif model_type.lower() == "snle":
+        inference = SNLE(
+            density_estimator=config["density_estimator"]["type"],
+            device=f"{device}",
+            prior=prior,
+        )
 
-    Returns:
-        (SNLE_C): An instance of sbi's SNLE inference objects.
+        return inference
 
-    """
+    elif model_type.lower() == "snre":
+        inference = SNRE(
+            classifier=config["density_estimator"]["classifier_nre"],
+            device=f"{device}",
+            prior=prior,
+        )
 
-    inference = SNLE(
-        density_estimator=config["density_estimator"]["type"],
-        device=f"{device}",
-        prior=prior,
-    )
-
-    return inference
+        return inference
+    else:
+        logger.exception(
+            "The model type '{}' is not supported. ".format(model_type)
+        )
+        sys.exit(1)
 
 
 def initialize_inference(
@@ -217,7 +233,7 @@ def initialize_inference(
     prior: utils.BoxUniform,
     logger: Logger,
     ensemble: bool = False,
-) -> Union[List[SNPE], List[SNLE]]:
+) -> Union[List[SNPE], List[SNLE], List[SNRE]]:
     """
     Initialize inference objects using the provided configuration.
 
@@ -229,22 +245,15 @@ def initialize_inference(
         ensemble (bool): Flag indicating if ensemble mode is enabled.
 
     Returns:
-        (Union[List[SNPE], List[SNLE]]): List of initialized inference objects.
+        (Union[List[SNPE], List[SNLE], List[SNRE]]): List of initialized inference objects.
     """
     inference_list = []
     model_type = config["trainer"]["type"]
 
     for _ in range(config["trainer"]["size_ensemble"] if ensemble else 1):
-        if model_type == "snle":
-            inference = build_network_snle(config, device, prior)
-        elif model_type == "snpe":
-            inference = build_network_snpe(config, device, prior)
-        else:
-            logger.exception(
-                "The model type '{}' is not supported. ".format(model_type)
-            )
-            sys.exit(1)
-
+        inference = build_inference_network(
+            model_type, logger, config, device, prior
+        )
         inference_list.append(inference)
 
     return inference_list
@@ -274,7 +283,7 @@ def train_posterior(
     training dataset.
 
     Note that the inference object should be different for each component of the ensemble to ensure independent weights
-    for each component. Moreover, if config['trainer']['model_type'] == 'snle', then an MCMC sampler is needed to sample
+    for each component. Moreover, if `config['trainer']['model_type'] == 'snle' or 'snre'`, then an MCMC sampler is needed to sample
     from the posterior distribution.
 
     Args:
@@ -361,12 +370,15 @@ def train_posterior(
                     "retrain_from_scratch": retrain_from_scratch,
                 }
 
-                # When using SNPE with a truncated prior, we set force_first_round_loss = True in the following to
+                # When using SNPE with a truncated prior, we set `force_first_round_loss = True` in the following to
                 # disable the loss-function correction. Otherwise, the loss would be corrected using the proposal prior
                 # during training. In the case where we do not truncate the prior and account for the correction, we
                 # then pass the proposal prior to the append_simulations function.
 
-                if config["trainer"]["truncated_prior"]:
+                if (
+                    config["trainer"]["truncated_prior"]
+                    and model_type == "snpe"
+                ):
                     train_args["force_first_round_loss"] = True
 
                 kwargs = {}
@@ -394,7 +406,7 @@ def train_posterior(
 
         if model_type == "snpe":
             posterior = inference.build_posterior(density_estimator.to(device))
-        elif model_type == "snle":
+        elif model_type == "snle" or "snre":
             posterior = inference.build_posterior(
                 density_estimator=density_estimator.to(device),
                 mcmc_method=config["mcmc_sampler"]["type"],
@@ -419,7 +431,7 @@ def train_posterior(
 
         # Saving the training statistics. If resuming in the first round, no training is performed, i.e., nothing is
         # saved.
-        if resume and round_current != 0:
+        if not resume or round_current != 0:
             ut.save_training_statistics(
                 config, inference, index, effective_round
             )
@@ -494,7 +506,7 @@ def initialize_prior(
 def load_posterior(
     config: configuration_parser.ConfigurationParser,
     logger: Logger,
-    inference_list: Union[List[SNPE], List[SNLE]],
+    inference_list: Union[List[SNPE], List[SNLE], List[SNRE]],
     device: torch.device,
     round_current: int,
 ) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
@@ -539,7 +551,8 @@ def load_posterior(
 
         if model_type == "snpe":
             posterior = inference.build_posterior(density_estimator.to(device))
-        elif model_type == "snle":
+
+        elif model_type == "snle" or "snre":
             posterior = inference.build_posterior(
                 density_estimator=density_estimator.to(device),
                 mcmc_method=config["mcmc_sampler"]["type"],
@@ -548,6 +561,7 @@ def load_posterior(
                     "thin": config["mcmc_sampler"]["thin"],
                 },
             )
+
         else:
             logger.exception(
                 "The model type '{}' is not supported. ".format(model_type)

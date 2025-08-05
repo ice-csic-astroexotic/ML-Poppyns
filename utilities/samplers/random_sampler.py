@@ -118,10 +118,7 @@ def random_from_pdf_2d(
     cdf_x1x2 = cum_func_grid / cum_func_grid.max(axis=0)
 
     # Draw a random x2 value.
-    if num_draw == 1:
-        x2_rand = np.array([random_from_cdf(x2, cdf_x2, num_draw)])
-    else:
-        x2_rand = random_from_cdf(x2, cdf_x2, num_draw)
+    x2_rand = random_from_cdf(x2, cdf_x2, num_draw)
 
     # Find the indices of the cdfs for x1 corresponding to the values of x2 just drawn.
     idx = np.floor(

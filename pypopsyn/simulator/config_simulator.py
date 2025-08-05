@@ -224,8 +224,10 @@ cfg["magrot_time_step_log10"]: float = 1e-2
 
 # ===================== FIT PARAMETERS FOR MAGNETO-THERMAL SIMULATIONS ========================
 
-# Model for the magneto-thermal simulations. Choose between "analytical", "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy",
-# "BSk24_dip-tor_light", "BSk24_multi_heavy" and "BSk24_multi_light".
+# Model for the magneto-thermal simulations. Choose between "analytical" (in which case the magnetic field evolution
+# is determined analytically from the evolution of a generalised induction equation), or fits to numerical simulations,
+# specifically "SLy4_dip-tor_heavy", "BSk24_dip-tor_heavy", "BSk24_dip-tor_light", "BSk24_multi_heavy" and
+# "BSk24_multi_light".
 cfg["magneto-thermal_model"]: str = "BSk24_dip-tor_heavy"
 
 # If the model "analytical" is chosen we use the approximated solution of Aguilera et al. (2008) for the evolution of
@@ -400,7 +402,7 @@ if cfg["radio_luminosity_model"] == "lum_radio_ppdot":
     cfg["L_radio_log10_sigma"]: float = 0.8
     cfg["epsilon_L"]: float = 0.5
 
-if cfg["radio_luminosity_model"] == "lum_radio_edot":
+elif cfg["radio_luminosity_model"] == "lum_radio_edot":
     # Parameters for the "lum_radio_edot" model (Pardo-Araujo et al. 2025).
     # These best parameters assume a mean_spectral_index = -1.8 (see Posselt et al. 2023).
     cfg["L_radio_log10_mean"]: float = 26.17  # [erg s^(- 1)]
@@ -480,6 +482,13 @@ cfg["ISM_abundances"]: List[float] = [
     7.43,
     6.05,
 ]
+
+# Enabling the use of an interpolator for the rate of crust failures to estimate the number of outburst events for
+# neutron stars with different initial magnetic fields and ages. If set to False a simpler probabilistic approach
+# will be used that takes into account the age but neglects the dependence of the outburst rate on the field strength
+# and configuration. See the method outburst_filter_probabilistic in
+# pypopsyn/simulator/multiband_emission/emission_xray.py for more details.
+cfg["use_crust_failure_rate_interpolator"]: bool = True
 
 # ===================== X-RAY DETECTION PARAMETERS ========================
 
