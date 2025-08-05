@@ -28,7 +28,7 @@ def spiral_model(monkeypatch):
 
     # Force generate_arm_index to return specific indices (1 star in the local arm).
     def mock_generate_arm_index(n_arms, n_stars):
-        return np.array([0, 4, 1])  # 3 stars, second one in Local arm
+        return np.array([0, 4, 1])  # 3 stars, second one in Local arm.
 
     monkeypatch.setattr(model, "generate_arm_index", mock_generate_arm_index)
 
@@ -263,13 +263,13 @@ def test_calculate_r_phi_spiral_model(test_case_6, spiral_model, monkeypatch):
     Verifying that the r and phi coordinates are correctly calculated when using a spiral arm model.
     """
 
-    # Mock rs.random_from_pdf
+    # Mock rs.random_from_pdf.
     def mock_random_from_pdf(r_grid, pdf_func, size):
         return np.linspace(1.0, 3.0, size)
 
     monkeypatch.setattr(rs, "random_from_pdf", mock_random_from_pdf)
 
-    # Mock smear_initial_coordinates
+    # Mock smear_initial_coordinates.
     monkeypatch.setattr(
         ip,
         "smear_initial_coordinates",
@@ -299,17 +299,17 @@ def test_calculate_r_phi_electron_density(test_case_7, monkeypatch):
     """
     Verifying that the r and phi coordinates are correctly calculated when using the electron density model.
     """
-    # Mock np.load to return a dummy density array
-    dummy_density = np.ones((5, 10))  # Shape: (r steps, phi steps)
+    # Mock np.load to return a dummy density array.
+    dummy_density = np.ones((5, 10))  # Shape: (r steps, phi steps).
     monkeypatch.setattr(np, "load", lambda _: dummy_density)
 
-    # Mock rs.random_from_pdf_2d
+    # Mock rs.random_from_pdf_2d.
     def mock_random_from_pdf_2d(r_grid, phi_grid, density_model, size):
         return np.array([1.0, 2.0, 3.0]), np.array([0.1, 0.2, 0.3])
 
     monkeypatch.setattr(rs, "random_from_pdf_2d", mock_random_from_pdf_2d)
 
-    # Mock spiral_arm_time_evol
+    # Mock spiral_arm_time_evol.
     monkeypatch.setattr(ip, "spiral_arm_time_evol", lambda phi, t: phi + 0.05)
 
     r_result, phi_result = ip.calculate_r_phi_electron_density(
