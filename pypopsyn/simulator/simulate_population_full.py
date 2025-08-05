@@ -166,9 +166,6 @@ def simulate_population(args: argparse.Namespace) -> None:
                 f"Output of the initial population generated in {os.getcwd()}/{initial_output_path}"
             )
 
-            if cfg["simulation_xray"]:
-                Lx_interpolator = ex.initialize_Lx_interpolator()
-
         # ===================== DYNAMICAL EVOLUTION ========================
 
         with timewith.TimeWith(
@@ -190,6 +187,7 @@ def simulate_population(args: argparse.Namespace) -> None:
                 pop_dyn_initial, pop_dyn_final, log
             )
 
+            # Add the positions in all coordinates to the final dictionary containing the dynamical information.
             pop_dyn_final = coco.convert_cylindrical_to_all_coordinates(
                 pop_dyn_final
             )
@@ -212,43 +210,31 @@ def simulate_population(args: argparse.Namespace) -> None:
                 pop_magrot_initial, output_path
             )
 
+            # Merge the two dictionaries containing the evolved dynamical and magneto-rotational properties.
             pop_final = pop_dyn_final | pop_magrot_final
             pop_final["idx"] = NS_idx
 
-        # ===================== RADIO EMISSION AND DETECTION ========================
+        # ===================== RADIO AND X-RAY EMISSION ========================
 
         with timewith.TimeWith(
-            "[RadioEmission]",
+            "[RadioXrayEmission]",
             cfg["profile_log"],
             cfg["profile_json"],
             cfg["show_profiling"],
         ):
 
+            # Compute a dictionary containing the sky coverage masks for all the surveys.
             coverage_dict = sw.apply_surveys_coverage_full(
                 surveys_radio,
                 surveys_xray,
                 pop_final,
                 dist_cutoff=35.0,
             )
-            print(pop_final["idx"])
 
             # Compute the properties of pulsars whose radio beam intercepts our line of sight.
             pop_radio = er.radio_population_intercepted_full(
                 pop_final, coverage_dict
             )
-            print(pop_radio["idx"])
-
-            # Compute X-ray emission of neutron stars.
-            pop_xray = ex.xray_population_full(
-                pop_final, L_x_interpolator=Lx_interpolator
-            )
-            print(pop_radio["idx"])
-
-            pop_full_final = pop_radio | pop_xray
-            print(pop_full_final["idx"])
-            # pop_full_final["idx"] = NS_idx
-
-            print(pop_full_final.keys())
 
             # Determine fraction of pulsars beamed towards us.
             fraction_intercepted = len(
@@ -258,6 +244,24 @@ def simulate_population(args: argparse.Namespace) -> None:
             log.info(
                 f"Fraction of pulsars beaming towards us in radio: {fraction_intercepted}"
             )
+
+            pop_xray = {}
+
+            if cfg["simulation_xray"]:
+                Lx_interpolator = ex.load_Lx_interpolator()
+                crust_failure_rate_interpolator = (
+                    ex.load_crust_failure_rate_interpolator()
+                )
+
+                # Compute X-ray emission of neutron stars.
+                pop_xray = ex.xray_population_full(
+                    pop_final,
+                    L_x_interpolator=Lx_interpolator,
+                    crust_failure_rate_interpolator=crust_failure_rate_interpolator,
+                )
+
+            # Merge the dictionary containing the intrinsic radio and X-ray emission properties.
+            pop_full_final = pop_radio | pop_xray
 
             # Adding the parameters to a data frame for export.
             log.info("Creating data frame for exporting...")
@@ -270,12 +274,21 @@ def simulate_population(args: argparse.Namespace) -> None:
             )
             df_final.to_pickle(final_output_path, compression="gzip")
 
+        # ===================== RADIO AND X-RAY DETECTION ========================
+
+        with timewith.TimeWith(
+            "[RadioXrayDetection]",
+            cfg["profile_log"],
+            cfg["profile_json"],
+            cfg["show_profiling"],
+        ):
+
             fraction_coverage = (
                 np.count_nonzero(coverage_dict["coverage_radio"])
                 / cfg["NS_number"]
             )
             log.info(
-                f"Fraction of pulsars in the covered sky region: {fraction_coverage}"
+                f"Fraction of pulsars in the sky region covered by the radio surveys: {fraction_coverage}"
             )
 
             # Simulating the radio survey.
@@ -295,29 +308,24 @@ def simulate_population(args: argparse.Namespace) -> None:
                 log,
             )
 
-        # ===================== X-RAY EMISSION AND DETECTION ========================
+            if cfg["simulation_xray"]:
+                # Simulating the radio survey.
+                log.info("Simulate detection with the X-ray surveys...")
 
-        with timewith.TimeWith(
-            "[XrayEmissionDetection]",
-            cfg["profile_log"],
-            cfg["profile_json"],
-            cfg["show_profiling"],
-        ):
+                # Filter the population to include only pulsars detected by the X-ray surveys.
+                pop_detected_x = sw.xray_detection(
+                    surveys_xray,
+                    pop_xray,
+                )
 
-            # Filter the population to include only pulsars detected by the X-ray surveys.
-            pop_detected_x_update = sw.xray_detection(
-                surveys_xray,
-                pop_xray,
-            )
-
-            sw.update_survey_data(
-                SurveyData,
-                pop_detected_x_update,
-                "X-ray",
-                cfg["NS_number"],
-                [],
-                log,
-            )
+                sw.update_survey_data(
+                    SurveyData,
+                    pop_detected_x,
+                    "X-ray",
+                    cfg["NS_number"],
+                    [],
+                    log,
+                )
 
         # ===================== EXPORT OUTPUT ========================
 

@@ -511,7 +511,7 @@ def calculate_radio_emission_full(
         len(S_radio_bol),
     )
 
-    return intercepted_radio, S_radio_bol, w_int_s, L_radio_bol, spectral_index
+    return intercepted_radio, w_int_s, L_radio_bol, S_radio_bol, spectral_index
 
 
 def radio_population_intercepted(dict_pop: dict) -> dict:

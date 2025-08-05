@@ -28,7 +28,7 @@ def build_dataframe(
 
     header = pd.MultiIndex.from_arrays([parameters, units])
 
-    # Force column order to match `parameters`
+    # Force column order to match the parameters.
     df = pd.DataFrame({key: data_dict[key] for key in parameters})
     df.columns = header
 

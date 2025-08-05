@@ -217,18 +217,17 @@ def initialize_population_dyn(age: np.ndarray) -> dict:
 
     v_r_initial = vk_r
     v_phi_initial = vk_phi + v_orb
-    omega_initial = v_phi_initial / r_initial
     v_z_initial = vk_z
 
     dictionary_initial_pop_dyn = {
         "age": age,
-        "r_initial": r_initial,
-        "phi_initial": phi_initial,
-        "z_initial": z_initial,
-        "v_r_initial": v_r_initial,
-        "v_phi_initial": v_phi_initial,
-        "omega_initial": omega_initial,
-        "v_z_initial": v_z_initial,
+        "r": r_initial,
+        "phi": phi_initial,
+        "z": z_initial,
+        "v_r": v_r_initial,
+        "v_phi": v_phi_initial,
+        "v_z": v_z_initial,
+        "v_orb": v_orb,
     }
 
     return dictionary_initial_pop_dyn
@@ -249,12 +248,14 @@ def evolve_population_dyn(
         (dict): A dictionary containing the properties of the evolved neutron star population.
     """
     age = dict_pop_initial_dyn["age"]
-    r_initial = dict_pop_initial_dyn["r_initial"]
-    phi_initial = dict_pop_initial_dyn["phi_initial"]
-    z_initial = dict_pop_initial_dyn["z_initial"]
-    v_r_initial = dict_pop_initial_dyn["v_r_initial"]
-    omega_initial = dict_pop_initial_dyn["omega_initial"]
-    v_z_initial = dict_pop_initial_dyn["v_z_initial"]
+    r_initial = dict_pop_initial_dyn["r"]
+    phi_initial = dict_pop_initial_dyn["phi"]
+    z_initial = dict_pop_initial_dyn["z"]
+    v_r_initial = dict_pop_initial_dyn["v_r"]
+    v_phi_initial = dict_pop_initial_dyn["v_phi"]
+    v_z_initial = dict_pop_initial_dyn["v_z"]
+
+    omega_initial = v_phi_initial / r_initial
 
     # Define the initial conditions for the dynamical evolution.
     initial_cond = np.array(
@@ -334,11 +335,11 @@ def check_angular_momentum_energy_conservation(
             diagnostics (energy and angular momentum variations).
     """
 
-    r_initial = dict_pop_initial_dyn["r_initial"]
-    z_initial = dict_pop_initial_dyn["z_initial"]
-    v_r_initial = dict_pop_initial_dyn["v_r_initial"]
-    v_phi_initial = dict_pop_initial_dyn["v_phi_initial"]
-    v_z_initial = dict_pop_initial_dyn["v_z_initial"]
+    r_initial = dict_pop_initial_dyn["r"]
+    z_initial = dict_pop_initial_dyn["z"]
+    v_r_initial = dict_pop_initial_dyn["v_r"]
+    v_phi_initial = dict_pop_initial_dyn["v_phi"]
+    v_z_initial = dict_pop_initial_dyn["v_z"]
 
     # Compute the magnitude of the initial velocity vector for each star.
     v_initial = (

@@ -275,9 +275,9 @@ def create_output_dataframe_initial_pop(
         "r",
         "phi",
         "z",
-        "vk_r",
-        "vk_phi",
-        "vk_z",
+        "v_r",
+        "v_phi",
+        "v_z",
         "v_orb",
         "B",
         "chi",
@@ -299,7 +299,7 @@ def create_output_dataframe_initial_pop(
         "[s]",
         "[s s^-1]",
     ]
-    print(dictionary_initial_pop.keys())
+
     # Build the DataFrame using the appropriate parameters and units.
     df = dfb.build_dataframe(dictionary_initial_pop, parameters, units)
 

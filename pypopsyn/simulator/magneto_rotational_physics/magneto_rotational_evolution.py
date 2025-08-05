@@ -375,10 +375,10 @@ def initialize_population_magrot(age: np.ndarray) -> dict:
 
     dictionary_initial_pop_magrot = {
         "age": age,
-        "B_initial": B_initial,
-        "chi_initial": chi_initial,
-        "P_initial": P_initial,
-        "P_dot_initial": P_dot_initial,
+        "B": B_initial,
+        "chi": chi_initial,
+        "P": P_initial,
+        "P_dot": P_dot_initial,
     }
 
     return dictionary_initial_pop_magrot
@@ -399,9 +399,9 @@ def evolve_population_magrot(
         (dict): A dictionary containing the properties of the evolved neutron star population.
     """
     age = dict_pop_initial_magrot["age"]
-    B_initial = dict_pop_initial_magrot["B_initial"]
-    chi_initial = dict_pop_initial_magrot["chi_initial"]
-    P_initial = dict_pop_initial_magrot["P_initial"]
+    B_initial = dict_pop_initial_magrot["B"]
+    chi_initial = dict_pop_initial_magrot["chi"]
+    P_initial = dict_pop_initial_magrot["P"]
 
     # Determine the evolved magnetic field, misalignment angle and rotation period.
     (
