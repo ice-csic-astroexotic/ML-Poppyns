@@ -620,14 +620,14 @@ class SurveyRadio:
         detectable_radio_survey = intercepted_radio & coverage
 
         # Computing the intrinsic radio flux density in [Jy].
-        S_radio_f = np.zeros(cfg["NS_number"])
+        S_radio_f = np.zeros(len(detectable_radio_survey))
         S_radio_f[detectable_radio_survey] = er.flux_density_radio(
             S_radio_bol[detectable_radio_survey],
             spectral_index[detectable_radio_survey],
             f=self.f_central,
         )
         # Computing the intrinsic radio flux density in [Jy] at a frequency of 1.4 GHz to compare with MeerKAT fluxes.
-        S_radio_f_1_4_GHz = np.zeros(cfg["NS_number"])
+        S_radio_f_1_4_GHz = np.zeros(len(detectable_radio_survey))
         S_radio_f_1_4_GHz[detectable_radio_survey] = er.flux_density_radio(
             S_radio_bol[detectable_radio_survey],
             spectral_index[detectable_radio_survey],
@@ -635,7 +635,7 @@ class SurveyRadio:
         )
 
         # Compute the effective pulse width in [s] at the survey's central frequency and at 1.4 GHz.
-        w_eff = np.zeros(cfg["NS_number"])
+        w_eff = np.zeros(len(detectable_radio_survey))
         w_eff[detectable_radio_survey] = effective_pulse_width(
             w_int_s[detectable_radio_survey],
             DM[detectable_radio_survey],
@@ -644,7 +644,7 @@ class SurveyRadio:
             self.t_samp,
             tau_sc[detectable_radio_survey],
         )
-        w_eff_1_4_GHz = np.zeros(cfg["NS_number"])
+        w_eff_1_4_GHz = np.zeros(len(detectable_radio_survey))
         w_eff_1_4_GHz[detectable_radio_survey] = effective_pulse_width(
             w_int_s[detectable_radio_survey],
             DM[detectable_radio_survey],
@@ -655,13 +655,13 @@ class SurveyRadio:
         )
 
         # Compute the observed radio flux in [Jy] at the survey's central frequency and at 1.4 GHz.
-        S_radio_obs = np.zeros(cfg["NS_number"])
+        S_radio_obs = np.zeros(len(detectable_radio_survey))
         S_radio_obs[detectable_radio_survey] = flux_radio_obs(
             S_radio_f[detectable_radio_survey],
             w_int_s[detectable_radio_survey],
             w_eff[detectable_radio_survey],
         )
-        S_radio_obs_1_4_GHz = np.zeros(cfg["NS_number"])
+        S_radio_obs_1_4_GHz = np.zeros(len(detectable_radio_survey))
         S_radio_obs_1_4_GHz[detectable_radio_survey] = flux_radio_obs(
             S_radio_f_1_4_GHz[detectable_radio_survey],
             w_int_s[detectable_radio_survey],
@@ -674,7 +674,9 @@ class SurveyRadio:
             S_radio_obs_1_4_GHz, P, w_eff_1_4_GHz
         )
 
-        detected_radio_survey = np.zeros(cfg["NS_number"], dtype=bool)
+        detected_radio_survey = np.zeros(
+            len(detectable_radio_survey), dtype=bool
+        )
 
         detected_radio_survey[
             detectable_radio_survey

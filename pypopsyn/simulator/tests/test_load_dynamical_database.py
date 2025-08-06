@@ -21,7 +21,7 @@ from pypopsyn.simulator.config_simulator import cfg
 
 
 @pytest.fixture()
-def test_case_2():
+def test_case_1():
     data = {
         "dyn_path": pathlib.Path("/mock/path/to/"),
         "dyn_data_path": pathlib.Path("/mock/path/to/final_pop_dyn.csv"),
@@ -92,7 +92,7 @@ def test_case_2():
     return data
 
 
-def test_load_database_dyn(monkeypatch, test_case_2):
+def test_load_database_dyn(monkeypatch, test_case_1):
     """
     Check that the dynamical database is correctly imported.
     """
@@ -106,21 +106,21 @@ def test_load_database_dyn(monkeypatch, test_case_2):
         monkeypatch.setattr(
             pathlib.Path,
             "exists",
-            lambda self: self == test_case_2["dyn_data_path"],
+            lambda self: self == test_case_1["dyn_data_path"],
         )
         # Mock the configuration file loading.
         monkeypatch.setattr(
             "builtins.open",
-            mock.mock_open(read_data=json.dumps(test_case_2["config_dyn"])),
+            mock.mock_open(read_data=json.dumps(test_case_1["config_dyn"])),
         )
 
         def mock_select(*args, **kwargs):
-            return test_case_2["mock_df_dyn"]
+            return test_case_1["mock_df_dyn"]
 
         monkeypatch.setattr(mes, "select", mock_select)
 
         def mock_convert_cylindrical_to_all_coordinates(*args, **kwargs):
-            return test_case_2["mock_cylindrical_to_all_coordinates"]
+            return test_case_1["mock_cylindrical_to_all_coordinates"]
 
         monkeypatch.setattr(
             coco,
@@ -129,16 +129,16 @@ def test_load_database_dyn(monkeypatch, test_case_2):
         )
 
         dict_out = ldyn.load_database_dyn(
-            test_case_2["dyn_path"],
-            test_case_2["n_batchsize"],
-            test_case_2["idx_remove"],
+            test_case_1["dyn_path"],
+            test_case_1["n_batchsize"],
+            test_case_1["idx_remove"],
             logger,
         )
 
-        assert set(dict_out.keys()) == test_case_2["expected_keys"]
-        for key in test_case_2["cfg_expected"].keys():
+        assert set(dict_out.keys()) == test_case_1["expected_keys"]
+        for key in test_case_1["cfg_expected"].keys():
             assert key in cfg.keys()
-            assert cfg[key] == test_case_2["cfg_expected"][key]
+            assert cfg[key] == test_case_1["cfg_expected"][key]
 
     finally:
         # Restore the original cfg in order for the other tests to work when pytest is run.

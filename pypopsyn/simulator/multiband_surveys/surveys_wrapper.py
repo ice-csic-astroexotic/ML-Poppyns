@@ -373,7 +373,7 @@ def apply_surveys_coverage_full(
         dist_cutoff (float): The maximum heliocentric distance to include in the survey coverage.
 
     Returns:
-        (dict): The input dictionary `pop_dict` with the coverage information for all surveys added.
+        (dict): A dictionary with the sky coverage information for all surveys.
     """
 
     dist = pop_dict["dist"]
@@ -604,6 +604,7 @@ def radio_detection_full(
             S_radio_obs_mean=S_radio_obs_mean,
             S_radio_obs_mean_1400=S_radio_obs_mean_1400,
         )
+        detected_dictionaries[survey_name].pop("intercepted_radio", None)
 
         # Save the properties for the HTRU low and mid surveys separately.
         if survey_name == "HTRU_low":
@@ -648,6 +649,7 @@ def radio_detection_full(
             HTRU_mid=detected_HTRU_mid,
             idx=dictionary_intercepted_radio["idx"],
         )
+        detected_dictionaries["HTRU_low_mid"].pop("intercepted_radio", None)
 
         # Remove the dictionaries containing the results for the individual HTRU low and mid surveys,
         # as we only require the combined detections determined above.
