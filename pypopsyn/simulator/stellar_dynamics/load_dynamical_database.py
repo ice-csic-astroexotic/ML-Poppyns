@@ -63,11 +63,17 @@ def load_database_dyn(
     df_dyn.columns = df_dyn.columns.get_level_values(0)
     dyn_dict = {col: df_dyn[col].to_numpy() for col in df_dyn.columns}
 
-    # Add the dynamical properties in all coordinates and the index associated to each star.
+    # Add the dynamical properties in all coordinates and the index associated to each star and remove unnecessary keys.
     dictionary_dyn_database_chunk = (
         coco.convert_cylindrical_to_all_coordinates(dyn_dict)
     )
     dictionary_dyn_database_chunk["idx"] = df_dyn.index.values
+    dictionary_dyn_database_chunk.pop("r", None)
+    dictionary_dyn_database_chunk.pop("phi", None)
+    dictionary_dyn_database_chunk.pop("z", None)
+    dictionary_dyn_database_chunk.pop("v_r", None)
+    dictionary_dyn_database_chunk.pop("v_phi", None)
+    dictionary_dyn_database_chunk.pop("v_z", None)
 
     # Update the parameters in the simulation configuration file with the ones of the dynamical database.
     cfg["t_age_max"] = config_dyn["t_age_max"]

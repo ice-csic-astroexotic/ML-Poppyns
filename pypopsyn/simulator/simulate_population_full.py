@@ -30,6 +30,7 @@ import sys
 import time
 
 import numpy as np
+import pandas as pd
 
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population as ipop
@@ -42,12 +43,219 @@ import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 import utilities.benchmark.timewith as timewith
+import utilities.dataframe_builder as dfb
 from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
 
 # Suppressing healpy related logging output.
 logging.getLogger("healpy").setLevel(logging.WARNING)
+
+
+def create_output_dataframe_initial_pop(
+    dictionary_initial_pop: dict,
+) -> pd.DataFrame:
+    """
+    Creates Pandas DataFrames containing the birth properties on the neutron stars.
+
+    Args:
+        dictionary_initial_pop (dict): Dictionary containing neutron star properties at birth.
+
+    Returns:
+        (pd.DataFrame): A DataFrame containing the neutron stars' properties.
+    """
+
+    # Generating two header lines and merging them using MultiIndex.
+    parameters = [
+        "idx",
+        "age",
+        "r",
+        "phi",
+        "z",
+        "v_r",
+        "v_phi",
+        "v_z",
+        "v_orb",
+        "B",
+        "chi",
+        "P",
+        "P_dot",
+    ]
+    units = [
+        " ",
+        "[yr]",
+        "[kpc]",
+        "[rad]",
+        "[kpc]",
+        "[kpc yr^-1]",
+        "[kpc yr^-1]",
+        "[kpc yr^-1]",
+        "[kpc yr^-1]",
+        "[G]",
+        "[rad]",
+        "[s]",
+        "[s s^-1]",
+    ]
+
+    # Build the DataFrame using the appropriate parameters and units.
+    df = dfb.build_dataframe(dictionary_initial_pop, parameters, units)
+
+    return df
+
+
+def create_output_dataframe_final_pop(
+    dictionary_final_pop: dict,
+) -> pd.DataFrame:
+    """
+    Creates Pandas DataFrames containing the properties on the evolved neutron stars.
+
+    Args:
+        dictionary_final_pop (dict): Dictionary containing evolved neutron star properties.
+
+    Returns:
+        (pd.DataFrame): A DataFrame containing the neutron stars' properties.
+    """
+
+    if cfg["simulation_xray"]:
+        # Generating two header lines and merging them using MultiIndex.
+        parameters = [
+            "idx",
+            "age",
+            "r",
+            "phi",
+            "z",
+            "ra",
+            "dec",
+            "l",
+            "b",
+            "dist",
+            "v_r",
+            "v_phi",
+            "v_z",
+            "pm_ra",
+            "pm_dec",
+            "v_ls",
+            "B",
+            "B_initial",
+            "chi",
+            "P",
+            "P_dot",
+            "L_radio_bol",
+            "S_radio_bol",
+            "w_int",
+            "DM",
+            "tau_sc",
+            "intercepted_radio",
+            "spectral_index",
+            "L_x_therm",
+            "S_x_rcs_abs",
+            "S_x_bb_abs",
+            "N_H",
+            "outburst",
+        ]
+        units = [
+            " ",
+            "[yr]",
+            "[kpc]",
+            "[rad]",
+            "[kpc]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[kpc]",
+            "[km s^-1]",
+            "[km s^-1]",
+            "[km s^-1]",
+            "[mas yr^-1]",
+            "[mas yr^-1]",
+            "[km s^-1]",
+            "[G]",
+            "[G]",
+            "[rad]",
+            "[s]",
+            "[s s^-1]",
+            "[erg s^-1]",
+            "[erg s^-1 cm^-2]",
+            "[s]",
+            "[pc cm^-3]",
+            "[s]",
+            " ",
+            " ",
+            "[erg s^-1]",
+            "[erg s^-1 cm^-2]",
+            "[erg s^-1 cm^-2]",
+            "[cm^-2]",
+            " ",
+        ]
+
+    else:
+        # Generating two header lines and merging them using MultiIndex.
+        parameters = [
+            "idx",
+            "age",
+            "r",
+            "phi",
+            "z",
+            "ra",
+            "dec",
+            "l",
+            "b",
+            "dist",
+            "v_r",
+            "v_phi",
+            "v_z",
+            "pm_ra",
+            "pm_dec",
+            "v_ls",
+            "B",
+            "B_initial",
+            "chi",
+            "P",
+            "P_dot",
+            "L_radio_bol",
+            "S_radio_bol",
+            "w_int",
+            "DM",
+            "tau_sc",
+            "intercepted_radio",
+            "spectral_index",
+        ]
+        units = [
+            " ",
+            "[yr]",
+            "[kpc]",
+            "[rad]",
+            "[kpc]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[deg]",
+            "[kpc]",
+            "[km s^-1]",
+            "[km s^-1]",
+            "[km s^-1]",
+            "[mas yr^-1]",
+            "[mas yr^-1]",
+            "[km s^-1]",
+            "[G]",
+            "[G]",
+            "[rad]",
+            "[s]",
+            "[s s^-1]",
+            "[erg s^-1]",
+            "[erg s^-1 cm^-2]",
+            "[s]",
+            "[pc cm^-3]",
+            "[s]",
+            " ",
+            " ",
+        ]
+
+    # Build the DataFrame using the appropriate parameters and units.
+    df = dfb.build_dataframe(dictionary_final_pop, parameters, units)
+
+    return df
 
 
 def simulate_population(args: argparse.Namespace) -> None:
@@ -152,9 +360,7 @@ def simulate_population(args: argparse.Namespace) -> None:
             # Adding the parameters to a data frame for export.
             log.info("Creating data frame for exporting...")
 
-            df_initial = ipop.create_output_dataframe_initial_pop(
-                pop_full_initial
-            )
+            df_initial = create_output_dataframe_initial_pop(pop_full_initial)
 
             # Save the data frame as compressed binary file.
             initial_output_path = pathlib.Path().joinpath(
@@ -266,7 +472,7 @@ def simulate_population(args: argparse.Namespace) -> None:
             # Adding the parameters to a data frame for export.
             log.info("Creating data frame for exporting...")
 
-            df_final = ipop.create_output_dataframe_final_pop(pop_full_final)
+            df_final = create_output_dataframe_final_pop(pop_full_final)
 
             # Save the data frame as compressed binary file.
             final_output_path = pathlib.Path().joinpath(

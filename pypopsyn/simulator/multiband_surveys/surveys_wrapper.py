@@ -874,7 +874,7 @@ def create_output_dataframe_surveys(
         "spectral_index",
     ]
     units_radio = [
-        " ",
+        "",
         "[yr]",
         "[deg]",
         "[deg]",
@@ -938,7 +938,7 @@ def create_output_dataframe_surveys(
             "outburst",
         ]
         units_xray = [
-            " ",
+            "",
             "[yr]",
             "[deg]",
             "[deg]",

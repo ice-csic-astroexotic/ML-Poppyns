@@ -90,6 +90,7 @@ def test_case_3():
         "S_radio_bol_expected": np.array([1.15583818e-19, 4.31414761e-17]),
         "w_int_s_expected": np.array([0, 0.03034442]),
         "L_radio_bol_expected": np.array([7.85e24, 2.93e27]),
+        "spectral_index_expected": np.array([-1.8, -1.8]),
     }
     return data
 
@@ -379,11 +380,11 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
     ) = er.calculate_radio_emission(
         test_case_2["P"],
         test_case_2["P_dot"],
+        test_case_2["chi"],
         test_case_2["age"],
         test_case_2["l_gal"],
         test_case_2["b_gal"],
         test_case_2["dist"],
-        test_case_2["chi"],
     )
 
     assert np.all(intercepted_radio_out == test_case_2["intercepted_radio"])
@@ -453,16 +454,24 @@ def test_calculate_radio_emission_full(monkeypatch, test_case_3):
         er, "pdf_luminosity_radio_edot", mock_pdf_luminosity_radio_edot
     )
 
+    def mock_compute_spectral_index(*args, **kwargs):
+        return test_case_3["spectral_index_expected"]
+
+    monkeypatch.setattr(
+        er, "compute_spectral_index", mock_compute_spectral_index
+    )
+
     (
         intercepted_radio,
-        S_radio_bol,
         w_int_s,
         L_radio_bol,
+        S_radio_bol,
+        spectral_index,
     ) = er.calculate_radio_emission_full(
         test_case_3["P"],
         test_case_3["P_dot"],
-        test_case_3["dist"],
         test_case_3["chi"],
+        test_case_3["dist"],
     )
 
     assert np.isclose(
@@ -489,6 +498,13 @@ def test_calculate_radio_emission_full(monkeypatch, test_case_3):
     assert np.isclose(
         test_case_3["L_radio_bol_expected"],
         L_radio_bol,
+        rtol=TOL,
+        atol=1.0e-5,
+    ).all()
+
+    assert np.isclose(
+        test_case_3["spectral_index_expected"],
+        spectral_index,
         rtol=TOL,
         atol=1.0e-5,
     ).all()

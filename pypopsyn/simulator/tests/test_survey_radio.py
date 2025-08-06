@@ -253,7 +253,7 @@ def test_simulate_detection(monkeypatch, test_case_1):
     assert test_case_1["detected_expected"].all() == detected_out.all()
 
 
-def test_detect_radio_population(test_case_1):
+def test_detected_radio_population(test_case_1):
     """
     Verifying that a population of pulsars is correctly detected by the survey.
     """
@@ -275,7 +275,6 @@ def test_detect_radio_population(test_case_1):
         test_case_1["w_int_s"],
         test_case_1["DM"],
         test_case_1["P"],
-        test_case_1["age"],
         test_case_1["coverage_expected"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],
