@@ -140,7 +140,6 @@
     "t_age_min": 1.0,
     "tau_late": 2000000.0,
     "use_crust_failure_rate_interpolator": true,
-    "vk_c": 180.0,
     "vk_extent": 2500.0,
     "z_extent": 5.0,
     "z_sun": 0.02
