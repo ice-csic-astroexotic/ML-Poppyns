@@ -79,8 +79,14 @@ def load_database_dyn(
     cfg["t_age_max"] = config_dyn["t_age_max"]
     cfg["NS_number"] = config_dyn["NS_number"]
     cfg["kick_model"] = config_dyn["kick_model"]
-    cfg["sigma_k"] = config_dyn["sigma_k"]
-    cfg["vk_c"] = config_dyn["vk_c"]
+    if config_dyn["kick_model"] == "km_maxwell":
+        cfg["sigma_k"] = config_dyn["sigma_k"]
+    elif config_dyn["kick_model"] == "km_exp":
+        cfg["vk_c"] = config_dyn["vk_c"]
+    elif config_dyn["kick_model"] == "km_2maxwell":
+        cfg["sigma_k_1"] = config_dyn["sigma_k_1"]
+        cfg["sigma_k_2"] = config_dyn["sigma_k_2"]
+        cfg["kick_weight"] = config_dyn["kick_weight"]
     cfg["h_c"] = config_dyn["h_c"]
 
     # Add the path of the dynamical database in the configuration file.

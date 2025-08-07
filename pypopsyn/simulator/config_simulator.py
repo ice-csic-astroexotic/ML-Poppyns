@@ -124,7 +124,7 @@ cfg["h_c"]: float = 0.18
 # Total vertical extent of the initial distribution of neutron star progenitors from the galactic plane in [kpc].
 cfg["z_extent"]: float = 5.0
 
-# Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_2maxwell".
+# Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_double_maxwell".
 cfg["kick_model"]: str = "km_maxwell"
 
 # Maximum kick velocity magnitude in [km/s].
@@ -138,18 +138,18 @@ elif cfg["kick_model"] == "km_maxwell":
     # Sigma in [km/s] for the Maxwell kick velocity pdf (Hobbs et al. 2005).
     cfg["sigma_k"]: float = 265.0
 
-elif cfg["kick_model"] == "km_2maxwell":
+elif cfg["kick_model"] == "km_double_maxwell":
     # Parameters for the double Maxwell kick velocity pdf (see Eq. (5) and Section 4.2 in Igoshev 2020).
     # The weight denotes the importance of the first Maxwell component relative to the whole pdf.
     # Its value has to be in the range between 0 and 1.
-    cfg["sigma_k_1"]: float = 55.0
-    cfg["sigma_k_2"]: float = 334.0
-    cfg["kick_weight"]: float = 0.19
+    cfg["sigma_k_comp1"]: float = 55.0
+    cfg["sigma_k_comp2"]: float = 334.0
+    cfg["kick_weight_comp1"]: float = 0.19
 
 else:
     log.error(
         "The specified model for the kick velocity distribution is not supported."
-        "Please choose between km_maxwell, km_exp or km_2maxwell."
+        "Please choose between km_maxwell, km_exp or km_double_maxwell."
     )
 
 # Time step for the dynamical evolution [yr].

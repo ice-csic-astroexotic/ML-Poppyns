@@ -61,9 +61,8 @@ def test_case_1():
         "config_dyn": {
             "t_age_max": 1.0e8,
             "NS_number": 100,
-            "kick_model": "kick_model",
+            "kick_model": "km_maxwell",
             "sigma_k": 100.0,
-            "vk_c": 100.0,
             "h_c": 100.0,
         },
         "expected_keys": {
@@ -81,9 +80,8 @@ def test_case_1():
         "cfg_expected": {
             "t_age_max": 1.0e8,
             "NS_number": 100,
-            "kick_model": "kick_model",
+            "kick_model": "km_maxwell",
             "sigma_k": 100.0,
-            "vk_c": 100.0,
             "h_c": 100.0,
             "dyn_database_path": "/mock/path/to",
         },
