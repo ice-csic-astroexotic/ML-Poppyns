@@ -38,12 +38,38 @@ from tqdm import tqdm
 import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.loaders.loader_multichannel_array as dl
 import pypopsyn.learning.utils.posterior_sampler as sampler
+import utilities.benchmark.timewith as timewith
 from pypopsyn.generator import generate_dataset_surveys
+from pypopsyn.learning.utils.request_device import request_device
 from utilities.coverage_probability import coverage_prob
 from utilities.experiment_helpers.run_simulation_set_sbi import (
+    initialize_dask_cluster,
     simulator_dask,
     simulator_multiprocess,
 )
+
+
+def initialize_environment(config, logger):
+    """Set device, profiling paths, and optionally Dask."""
+    prof_log_path = str(pathlib.Path(config.log_dir) / config["profile_log"])
+    prof_json_path = str(pathlib.Path(config.log_dir) / config["profile_json"])
+
+    logger.info("Requesting %s GPUs...", config["n_gpu"])
+    device, device_ids = request_device(logger, config["n_gpu"])
+    logger.info("Devices obtained: %s", device_ids)
+
+    cluster = None
+    if config["enable_dask"]:
+        with timewith.TimeWith(
+            "[InitializingDask]",
+            prof_log_path,
+            prof_json_path,
+            config["show_profiling"],
+        ):
+            logger.info("Initializing dask cluster...")
+            cluster = initialize_dask_cluster(logger, config)
+
+    return device, cluster, prof_log_path, prof_json_path
 
 
 def calculate_smallest_hdr(

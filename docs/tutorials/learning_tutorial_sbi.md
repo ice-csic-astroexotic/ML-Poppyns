@@ -93,7 +93,8 @@ We recommend placing all files relevant for training in the same base path. Spec
 
 * Store the training statistics file in the `data/` directory.
   * Save the training and testing datasets for round 0 in `data/training_dataset/generated_dataset/round_0/` and 
-  `data/test_dataset/generated_dataset/round_0/`, respectively.
+  `data/test_dataset/generated_dataset/round_0/`, respectively. Note that here you only need to save the `dataset.csv`
+  file containing the paths of each generated simulation, not the simulations themselves.
 
 !!! note
     When running training or inference in the single-round mode, the output is still saved using the multi-round
@@ -147,7 +148,10 @@ We discuss the multi-processing options in detail in [Running simulation in para
 General options for the machine learning experiment are specified in the trainer section. First, we select the SBI 
 method to use by choosing from `snpe`, `snle`, or `snre` (including the s for the sequential approach, even in the case 
 of single-round inference). For single-round inference, we set `num_rounds = 1`; otherwise, this parameter defines the 
-number of rounds to perform.
+number of rounds to perform. Note that the training and testing datasets for the first round are supposed to be 
+generated before training. Therefore, `num_rounds = 2` means training the neural network twice, but generating the 
+training and testing datasets only once for the second round.
+
 We must also specify the directory where the trained model will be saved using the `save_dir` parameter. Additional 
 configuration options include the fraction of the training dataset reserved for validation, the training batch size, 
 and the initial learning rate for the Adam optimizer, which is the default in the `sbi` library.
@@ -232,10 +236,13 @@ features from the input data and compress the input into a latent vector that is
 This neural network is optimised at the same time as the parameters of the neural density estimator.
 
 !!! note 
-    This functionality is only supported in SNPE, but not available for SNRE or SNLE. This is because, unlike in NPE, 
-    the neural density estimators in NRE and NLE approximates the likelihood or the likelihood ratio
-    directly. As a result, the output of the neural network must match those of the simulator, meaning the 
-    compression step would have to occur after the density estimator, which is not possible.
+    This functionality is only supported in SNPE and is not available in SNRE or SNLE. The reason is that, unlike in NPE, 
+    the neural density estimators in NRE and NLE approximate the likelihood or the likelihood ratio directly. As a 
+    result, the output of the neural network must match that of the simulator, which means the compression step would 
+    have to occur after the density estimator. If an embedding network were placed after the density estimator, the 
+    usual maximum-likelihood loss used in SBI would no longer apply, since the estimator’s output would no longer 
+    represent a valid likelihood (or likelihood ratio). For this reason, it is not possible to train an embedding 
+    network jointly with the density estimator in SNRE or SNLE.
 
 In the following example, we will be using 2D maps as input and, hence, opt for a convolutional neural network (CNN) 
 as the embedding net. This CNN is designed to adapt to any input size specified by the `input_shape` parameter and 
@@ -487,7 +494,8 @@ no subscript is added to these two files.
 Finally, each subfolder `round_{i}` in the `models` directory contains:
 
 * `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
-   the observed data.
+   the observed data. Note that if the ensemble is enabled, the corner plot will be produced using an ensemble of 
+   posteriors. It will then sample from each posterior in the ensemble and concatenate all the samples.
 * `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic
    test if testing was enabled.
 * `inference.pickle`: The trained inference object, which stores the weights of the trained neural network. Knowledge
@@ -753,10 +761,11 @@ directory specified in the `save_dir` option. Specifically, inference will creat
 containing subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the
 inference was launched.
 
-The `logs` subdirectories contain the files `profile.json` and `profile.log`, which provide timing and profiling 
-information for the inference script executed across all round. Additionally, each `round_{i}` subfolder inside the 
-logs directory contains the same files as when testing is enabled while running the `sbi_train.py` script, i.e., we
-are producing `corner_plot_observed_sample.pdf`, `coverage_plot.pdf`, `coverage_probability.npy`,
-`posterior_samples_test_data.npz`, and `samples_posterior.pt`. For detailed information about each file, see [Training output](#training-output).
+The `logs` subdirectories contain a file `log.txt` which captures the terminal `stdout` output and the `profile.json` 
+and `profile.log` files, which provide timing and profiling information for the inference script executed across all
+round. Additionally, each `round_{i}` subfolder inside the logs directory contains the same files as when testing is 
+enabled while running the `sbi_train.py` script, i.e., we are producing  `corner_plot_observed_sample.pdf`, 
+`coverage_plot.pdf`, `coverage_probability.npy`, `posterior_samples_test_data.npz`, and `samples_posterior.pt`. For 
+detailed information about each file, see [Training output](#training-output).
 
 

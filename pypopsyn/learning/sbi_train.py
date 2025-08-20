@@ -34,7 +34,9 @@
 
 import argparse
 import collections
+import json
 import pathlib
+import sys
 import time
 
 import pandas as pd
@@ -44,9 +46,7 @@ import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.utils.sbi_builder as sbi_builder
 import pypopsyn.learning.utils.sbi_utils as ut
 import utilities.benchmark.timewith as timewith
-from pypopsyn.learning.utils.request_device import request_device
 from utilities.experiment_helpers.run_simulation_set_sbi import (
-    initialize_dask_cluster,
     sample_without_nan,
 )
 
@@ -62,31 +62,13 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
     logger = config.get_logger("train")
     logger.info("Logger initialized...")
 
-    # Initialize the path where the time profiling will be saved.
-    prof_log_path = str(
-        pathlib.Path().joinpath(config.log_dir, config["profile_log"])
-    )
-    prof_json_path = str(
-        pathlib.Path().joinpath(config.log_dir, config["profile_json"])
-    )
-
-    # Set up GPU device if available.
-    logger.info("Requesting {} GPUs...".format(config["n_gpu"]))
-    device, device_ids = request_device(logger, config["n_gpu"])
-    logger.info("Devices obtained: {}".format(device_ids))
     resume = config["resume_training"]["resume"]
     ensemble = config["trainer"]["ensemble"]
     retrain_from_scratch = config["trainer"]["retrain_from_scratch"]
 
-    if config["enable_dask"]:
-        with timewith.TimeWith(
-            "[InitializingDask]",
-            prof_log_path,
-            prof_json_path,
-            config["show_profiling"],
-        ):
-            logger.info("Initializing dask cluster...")
-            cluster = initialize_dask_cluster(logger, config)
+    device, cluster, prof_log_path, prof_json_path = ut.initialize_environment(
+        config, logger
+    )
 
     # Show experiment information ------------------------------------------
     logger.info("=========================================================")
@@ -252,6 +234,18 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                         matrix_train = []
                         parameter_test = []
                         matrix_test = []
+
+                    # Note that you cannot append simulations from previous rounds when using SNPE with a non-truncated
+                    # prior. For more details, see the documentation.
+                    if (
+                        config["trainer"]["append_simulations"]
+                        and not config["trainer"]["truncated_prior"]
+                        and config["trainer"]["type"] == "snpe"
+                    ):
+                        logger.exception(
+                            "Cannot append simulations from previous rounds when using SNPE with a non-truncated prior."
+                        )
+                        sys.exit(1)
 
                     parameter_train.append(parameter)
                     matrix_train.append(matrix)
@@ -427,6 +421,10 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
             # performing extra rounds, since the iteration counter (i) does not reflect the effective round number.
             if effective_round == num_rounds - 1:
                 break
+
+        # Saving the configuration file into the save_dir folder.
+        with open(f"{config.save_dir}/config.json", "w") as f:
+            json.dump(config._configuration, f, indent=4)
 
         if config["enable_dask"]:
             # Closing the cluster once the training has finished.

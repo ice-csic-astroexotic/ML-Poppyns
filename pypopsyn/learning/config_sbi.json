@@ -22,7 +22,7 @@
     "truncated_prior": false,
     "retrain_from_scratch": false,
     "sir": true,
-    "append_simulations": true,
+    "append_simulations": false,
     "plot_proposal": false
   },
 
