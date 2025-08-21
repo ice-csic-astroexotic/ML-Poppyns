@@ -57,7 +57,7 @@
   },
 
   "compression_input": {
-    "use_compression": false,
+    "use_compression": true,
     "compression_type": "cnn",
     "cnn_model_path": "../../data/paper_results/pardo_etal_2025/experiments/exp_4/round_9/trained_model_ensemble_0.pickle",
     "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
@@ -94,7 +94,8 @@
   },
 
   "observed_sample": {
-      "dataset_path": "data/paper_results/pardo_etal_2025/observed_data_res32_updated_atnf"
+      "dataset_path": "data/paper_results/pardo_etal_2025/observed_data_res32_updated_atnf",
+      "filter_inputs": [9, 10, 11, 12, 13, 14]
   },
 
   "dyn_data_loader": {

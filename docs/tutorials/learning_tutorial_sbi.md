@@ -537,7 +537,7 @@ Several additional parameters control how training behaves across different roun
 * `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round. 
    ([Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
 
-* `plot_proposal`: If set to `true`, a corner plot of the proposal prior will be saved.
+* `plot_proposal`: If set to `true` and `truncated_prior` is enabled, a corner plot of the proposal prior will be saved.
 
 !!! warning
     For SNPE, we cannot enable both `truncated_prior = false` and `append_simulations = true` simultaneously because in 

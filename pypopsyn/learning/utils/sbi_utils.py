@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
+from dask_jobqueue import HTCondorCluster
 from sbi import utils
 from sbi.analysis import check_sbc, run_sbc, sbc_rank_plot
 from sbi.analysis import tensorboard_output as tbo
@@ -49,8 +50,19 @@ from utilities.experiment_helpers.run_simulation_set_sbi import (
 )
 
 
-def initialize_environment(config, logger):
-    """Set device, profiling paths, and optionally Dask."""
+def initialize_environment(
+    config: configuration_parser.ConfigurationParser, logger: Logger
+) -> Tuple[torch.device, HTCondorCluster, str, str]:
+    """Set device, profiling paths, and optionally Dask.
+
+    Args:
+        config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
+        logger (Logger): Logger object.
+
+    Returns:
+        (Tuple[torch.device,HTCondorCluster,str,str]): A tuple containing the selected device, the optional Dask
+            cluster, the profiling log path, and the profiling JSON path.
+    """
     prof_log_path = str(pathlib.Path(config.log_dir) / config["profile_log"])
     prof_json_path = str(pathlib.Path(config.log_dir) / config["profile_json"])
 
@@ -604,16 +616,23 @@ def prepare_dataset_sbi(
     # allowing compressed representations to be extracted on-the-fly during training.
 
     if not use_compression_input and model_type == "snpe":
-        if model_type == "snpe":
-            parameter, matrix = raw_vector(
-                n_samples, input_shape, dataset, logger, parameter
-            )
-        else:
-            logger.error(
-                f"Model type '{model_type}' requires compressed input."
-                "Set 'use_compression_input' to True and specify a valid 'compression_type'."
-            )
-            sys.exit(1)
+        parameter, matrix = raw_vector(
+            n_samples, input_shape, dataset, logger, parameter
+        )
+
+    elif not use_compression_input and model_type != "snpe":
+        logger.error(
+            f"Model type '{model_type}' requires compressed input."
+            "Set 'use_compression_input' to True and specify a valid 'compression_type'."
+        )
+        sys.exit(1)
+
+    elif use_compression_input and model_type == "snpe":
+        logger.error(
+            "Currently, the option of using SNPE with a compression input is not available."
+        )
+        sys.exit(1)
+
     elif use_compression_input and compression_type == "cnn":
         parameter, matrix = cnn_compression(
             n_samples,
