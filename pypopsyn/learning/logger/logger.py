@@ -52,6 +52,8 @@ def setup_logging(
         # Modify logging paths based on run configuration.
         for _, handler in log_config["handlers"].items():
             if "filename" in handler:
+                if not isinstance(log_dir, pathlib.Path):
+                    log_dir = pathlib.Path(log_dir)
                 handler["filename"] = str(log_dir / handler["filename"])
 
         logging.config.dictConfig(log_config)

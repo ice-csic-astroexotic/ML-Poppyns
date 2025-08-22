@@ -1,0 +1,123 @@
+{
+    "name": "SBI_ConvolutionMDN",
+    "n_gpu": 1,
+    "enable_dask": false,
+    "n_processes": 4,
+    "workers_dask": 4,
+    "set_manual_seed": false,
+    "manual_seed": 42,
+    "profile_log": "profile.log",
+    "profile_json": "profile.json",
+    "show_profiling": true,
+    "trainer": {
+        "type": "snpe",
+        "num_rounds": 2,
+        "save_dir": "output/learning_snpe_resume",
+        "validation_fraction": 0.1,
+        "batch_size": 8,
+        "lr": 0.0005,
+        "ensemble": false,
+        "size_ensemble": 5,
+        "truncated_prior": true,
+        "retrain_from_scratch": true,
+        "sir": true,
+        "append_simulations": true,
+        "plot_proposal": false
+    },
+    "density_estimator": {
+        "type": "mdn",
+        "classifier_nre": "resnet",
+        "args": {
+            "hidden_features": 32,
+            "num_components": 10,
+            "num_transforms": 5
+        }
+    },
+    "mcmc_sampler": {
+        "type": "slice_np_vectorized",
+        "num_chains": 20,
+        "thin": 5
+    },
+    "arch": {
+        "type": "ModelConvSBI",
+        "args": {
+            "input_shape": [
+                3,
+                32,
+                32
+            ],
+            "len_output_layer": 32
+        }
+    },
+    "weights_initializer": {
+        "type": "InitializerKaiming",
+        "args": {}
+    },
+    "compression_input": {
+        "use_compression": false,
+        "compression_type": "cnn",
+        "cnn_model_path": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/tutorials/tutorial_notebooks/output/learning_sbi/models/SBI_ConvolutionMDN/20250821_154107/round_0/trained_model.pickle",
+        "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
+    },
+    "prior_ranges": {
+        "labels": [
+            "B_initial_log10_mean",
+            "P_initial_log10_mean"
+        ],
+        "low": [
+            12,
+            -1.5
+        ],
+        "high": [
+            14,
+            -0.3
+        ]
+    },
+    "training_data_loader": {
+        "dataset_path_round_0": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot",
+        "dataset_path": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/output/data/training_dataset",
+        "statistic_path": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot/statistics_train.json",
+        "filter_inputs": [
+            9,
+            10,
+            11
+        ],
+        "filter_labels": [
+            15,
+            16
+        ],
+        "normalize": false,
+        "standardize": true,
+        "num_sim": 1
+    },
+    "test_data_loader": {
+        "testing": false,
+        "dataset_path_round_0": "../../tutorials/tutorial_notebooks/output/data/test_dataset/generated_dataset/round_0",
+        "dataset_path": "../../tutorials/tutorial_notebooks/output/data/test_dataset/generated_dataset",
+        "num_sim": 10,
+        "statistic_path": "../../tutorials/tutorial_notebooks/output/data/statistics_train.json"
+    },
+    "observed_sample": {
+        "dataset_path": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/data/example_generator_observed",
+        "filter_inputs": [
+            9,
+            10,
+            11
+        ]
+    },
+    "dyn_data_loader": {
+        "dataset_path": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/data/example_simulation_dyn"
+    },
+    "resume_training": {
+        "resume": false,
+        "last_round": 7,
+        "save_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828",
+        "log_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828"
+    },
+    "infer": {
+        "sim_dataset": false,
+        "compute_coverage": true,
+        "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20250821_103802/",
+        "save_dir": "output/inference_sbi"
+    }
+}
