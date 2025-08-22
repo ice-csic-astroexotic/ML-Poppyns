@@ -605,6 +605,11 @@ prior for the next round. From round 8 onward, the computation will proceed as u
 approach. The `inference.pickle` and the `trained_model.pickle` files for the `last_round` and onward will be saved in 
 the same folder specify in `save_dir`. The logs and training statistics are saved in the `log_dir` folder.
 
+!!!Note
+    The resume option requires the folder structure specified in [Folder structure](#folder-structure). Note that the
+    last completed round number should match the folder name containing the last `trained_model.pickle` file and the 
+    checkpoint you want to resume from.
+
 #### Running simulation in parallel for each round
 
 We have implemented two ways to parallelize the simulation process to optimise computation time: using either the 
