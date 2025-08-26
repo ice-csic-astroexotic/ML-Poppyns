@@ -93,7 +93,7 @@ We recommend placing all files relevant for training in the same base path. Spec
 
 * Store the training statistics file in the `data/` directory.
   * Save the training and testing datasets for round 0 in `data/training_dataset/generated_dataset/round_0/` and 
-  `data/test_dataset/generated_dataset/round_0/`, respectively. Note that here you only need to save the `dataset.csv`
+  `data/test_dataset/generated_dataset/round_0/`, respectively. Note that here we only need to save the `dataset.csv`
   file containing the paths of each generated simulation, not the simulations themselves.
 
 !!! note
@@ -149,8 +149,9 @@ General options for the machine learning experiment are specified in the trainer
 method to use by choosing from `snpe`, `snle`, or `snre` (including the s for the sequential approach, even in the case 
 of single-round inference). For single-round inference, we set `num_rounds = 1`; otherwise, this parameter defines the 
 number of rounds to perform. Note that the training and testing datasets for the first round are supposed to be 
-generated before training. Therefore, `num_rounds = 2` means training the neural network twice, but generating the 
-training and testing datasets only once for the second round.
+generated before training, i.e., outside the multi-round inference experiment presented here. Therefore, 
+`num_rounds = 2` would mean training the neural network twice, but generating the training and testing datasets only 
+once for the second round.
 
 We must also specify the directory where the trained model will be saved using the `save_dir` parameter. Additional 
 configuration options include the fraction of the training dataset reserved for validation, the training batch size, 
@@ -175,7 +176,7 @@ section below for more information on the last parameters, which are specific to
         "truncated_prior": false,
         "retrain_from_scratch": false,
         "sir": true,
-        "append_simulations": true,
+        "append_simulations": false,
         "plot_proposal": false
       
     }
@@ -236,13 +237,13 @@ features from the input data and compress the input into a latent vector that is
 This neural network is optimised at the same time as the parameters of the neural density estimator.
 
 !!! note 
-    This functionality is only supported in SNPE and is not available in SNRE or SNLE. The reason is that, unlike in NPE, 
-    the neural density estimators in NRE and NLE approximate the likelihood or the likelihood ratio directly. As a 
+    This functionality is only supported in SNPE and not available in SNRE or SNLE. The reason is that, unlike in NPE, 
+    the neural density estimators in NLE and NRE approximate the likelihood or the likelihood ratio directly. As a 
     result, the output of the neural network must match that of the simulator, which means the compression step would 
     have to occur after the density estimator. If an embedding network were placed after the density estimator, the 
     usual maximum-likelihood loss used in SBI would no longer apply, since the estimator’s output would no longer 
     represent a valid likelihood (or likelihood ratio). For this reason, it is not possible to train an embedding 
-    network jointly with the density estimator in SNRE or SNLE.
+    network jointly with the density estimator in SNLE or SNRE.
 
 In the following example, we will be using 2D maps as input and, hence, opt for a convolutional neural network (CNN) 
 as the embedding net. This CNN is designed to adapt to any input size specified by the `input_shape` parameter and 
@@ -494,8 +495,8 @@ no subscript is added to these two files.
 Finally, each subfolder `round_{i}` in the `models` directory contains:
 
 * `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
-   the observed data. Note that if the ensemble is enabled, the corner plot will be produced using an ensemble of 
-   posteriors. It will then sample from each posterior in the ensemble and concatenate all the samples.
+   the observed data. Note that if the ensemble is enabled, a single corner plot will be produced using the ensemble of 
+   posteriors.
 * `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic
    test if testing was enabled.
 * `inference.pickle`: The trained inference object, which stores the weights of the trained neural network. Knowledge
@@ -541,8 +542,9 @@ Several additional parameters control how training behaves across different roun
 
 !!! warning
     For SNPE, we cannot enable both `truncated_prior = false` and `append_simulations = true` simultaneously because in 
-    this scenario the approximate posterior must be corrected using the proposal prior from the corresponding round 
-    (Appendix 6.2 of [Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
+    this scenario the approximate posterior must be corrected using the proposal prior from the corresponding round,
+    which is not straight forward if the prior is not truncated.
+    (see Appendix 6.2 of [Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
 
 An example of the multi-round training information could look as follows:
 
