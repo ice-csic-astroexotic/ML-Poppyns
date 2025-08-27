@@ -150,7 +150,12 @@ def simulate_population(args) -> None:
                 )
 
                 if cfg["simulation_xray"]:
-                    Lx_interpolator = ex.initialize_Lx_interpolator()
+                    # Initializing luminosity and crust failure rate interpolators once for use across all different
+                    # detection loops in the simulation.
+                    Lx_interpolator = ex.load_Lx_interpolator()
+                    crust_failure_rate_interpolator = (
+                        ex.load_crust_failure_rate_interpolator()
+                    )
 
             # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
             with timewith.TimeWith(
@@ -206,7 +211,9 @@ def simulate_population(args) -> None:
                 ):
                     # Compute X-ray emission of neutron stars.
                     pop_xray = ex.xray_population(
-                        pop_final, L_x_interpolator=Lx_interpolator
+                        pop_final,
+                        L_x_interpolator=Lx_interpolator,
+                        crust_failure_rate_interpolator=crust_failure_rate_interpolator,
                     )
 
                     # Filter the population to include only pulsars detected by the X-ray surveys.
