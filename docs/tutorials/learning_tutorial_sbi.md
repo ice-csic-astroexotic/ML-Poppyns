@@ -92,7 +92,7 @@ output/
 We recommend placing all files relevant for training in the same base path. Specifically,
 
 * Store the training statistics file in the `data/` directory.
-  * Save the training and testing datasets for round 0 in `data/training_dataset/generated_dataset/round_0/` and 
+  * Save the training and testing datasets for the first round in `data/training_dataset/generated_dataset/round_0/` and 
   `data/test_dataset/generated_dataset/round_0/`, respectively. Note that here we only need to save the `dataset.csv`
   file containing the paths of each generated simulation, not the simulations themselves.
 
@@ -569,7 +569,7 @@ An example of the multi-round training information could look as follows:
 ```
 #### Resume mode
 
-Resume mode allows us to continue the SBI training from a previous round, as might, e.g., be necessary if the training
+Resume mode allows us to continue the SBI training from a previous round, as might be necessary, e.g., if the training
 was interrupted in an earlier run before it was completed. The following set-up will ensure continuity in the output 
 files and prevents the creation of a new directory for resumed runs. However, we recommend making a copy of the 
 existing `learning` directory to avoid overwriting data from previous rounds and to verify the consistency of 
@@ -578,15 +578,18 @@ resumed runs.
 To use the resume mode we first need to:
 
 * Set `config["resume_training"]["resume"] = true`.
-* Specify the last completed round to resume from, e.g., using `config["resume_training"]["last_round"] = 7`.
+* Specify the last completed round to resume from, e.g., using `config["resume_training"]["last_round"] = 7`. Note that
+   the numerical value saved under `num_rounds` in the general training parameters is the total number of rounds
+   (including `round_0`) that we want to run and not only the additional ones we add in resume mode. I.e., if we set 
+   `config["trainer"]["num_rounds"] = 4` and `config["resume_training"]["last_round"] = 2`, the resume mode will produce
+   training (and potentially test) data for the final round `round_3` and also perform the corresponding training.
 * Provide the paths to the previously saved model and logs using `config["resume_training"]["save_dir"]` and 
   `config["resume_training"]["log_dir"]`, respectively.
 
-When resuming, the first (new) iteration requires loading the trained model from the 
-previously completed round of an earlier experiment. This is necessary to compute the proposal prior distribution 
-for the next (first new) round. Note that if `append_simulations` is set to true, simulations from all previous rounds 
-are reused at every round. Therefore, when resuming, it's essential to load the training datasets
-from all completed rounds.
+When resuming, the first (new) iteration requires loading the trained model from the previously completed round of an 
+earlier experiment. This is necessary to compute the proposal prior distribution for the next (first new) round. Note 
+that if `append_simulations` is set to true, simulations from all previous rounds are reused at every round. Therefore, 
+when resuming, it is essential to load the training datasets from all completed rounds.
 
 An example of the configuration file that enables resuming would look as follows:
 
@@ -601,11 +604,12 @@ An example of the configuration file that enables resuming would look as follows
 }
 ```
 
-In this example, we will load the `inference.pickle` and `trained_model.pickle` from round 7 saved in the `save_dir`
+In this example, we will load the `inference.pickle` and `trained_model.pickle` from `round_7` saved in the `save_dir`
 folder and compute the approximated posterior distribution at an observed sample, which will then serve as the proposal 
-prior for the next round. From round 8 onward, the computation will proceed as usual in our multi-round inference 
+prior for the next round. From `round_8` onward, the computation will proceed as usual in our multi-round inference 
 approach. The `inference.pickle` and the `trained_model.pickle` files for the `last_round` and onward will be saved in 
-the same folder specify in `save_dir`. The logs and training statistics are saved in the `log_dir` folder.
+the same folder specified in `save_dir` (in this case, the `config["trainer"]["save_dir"]` argument is simply ignored). 
+The logs and training statistics are saved in the `log_dir` folder.
 
 !!!Note
     The resume option requires the folder structure specified in [Folder structure](#folder-structure). Note that the
