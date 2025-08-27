@@ -1,8 +1,7 @@
 """
     Generating an initial population of neutron stars in the Milky Way with
-    random parameters. For the initial positions we assume that the distribution
-    of progenitors follows a given radial distribution and the spiral arms with a given
-    parametrized shape.
+    random parameters. For the initial positions, we assume that the distribution
+    of progenitors follows the free electron density model ymw16 from Yao et al. (2017).
 
     Authors:
 
@@ -75,83 +74,30 @@ class InitialNeutronStarPopulation:
         output_dir=cfg["profiles_dir"],
     )
     def position(
-        self, t_age: np.ndarray, spiral_model: sm.SpiralModelBase
+        self, t_age: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        Calculating the position at birth of each random neutron star in
-        cylindrical reference frame.
+        Calculating the position at birth of each random neutron star in a cylindrical reference frame according
+        either to the Galactic electron density distribution ymw16 (see Yao et al. 2017) when cfg["sample_edm"] = True
+        in the `config_simulator.py` file, or using a spiral model and a radial model as specified in the configuration
+        file when cfg["sample_edm"] = False.
 
         Args:
             t_age (np.ndarray): Array of neutron star ages in [yr].
-            spiral_model (sm.SpiralModelBase): A class specifying the spiral arm structure model.
 
         Returns:
             (Tuple[np.ndarray, np.ndarray, np.ndarray]): Polar r, phi and z coordinates in [kpc], [rad] and [kpc]
                 respectively for each generated neutron star.
         """
 
-        radial_model = cfg["radial_model"]
-        if radial_model == "rmYK04":
-            pdf_radial = ip.pdf_radial_density_YK04
-        elif radial_model == "rmVV21":
-            pdf_radial = ip.pdf_radial_density_VV21
+        if cfg["sample_edm"]:
+            r_rand, phi_rand = ip.calculate_r_phi_electron_density(t_age)
         else:
-            raise ValueError(
-                "The radial density model pdf does not exist. Choose between rmYK04 or rmVV21."
+            r_rand, phi_rand = ip.calculate_r_phi_spiral_model(
+                t_age, sm.spiral_model
             )
 
-        # Randomly associate a spiral arm to each neutron star.
-        arm_index_rand = spiral_model.generate_arm_index(
-            cfg["arm_number"], self.NS_number
-        )
-        # Count the number of stars in the Local arm.
-        NS_local = len(arm_index_rand[arm_index_rand == 5])
-
-        # Drawing a random distance from the galactic center in [kpc] for
-        # each neutron star according to the radial stellar density.
-        r_grid = np.logspace(
-            np.log10(0.0001), np.log10(cfg["r_extent"]), cfg["resolution"]
-        )
-
-        r_pdf_rand = np.zeros(self.NS_number)
-        r_pdf_rand[arm_index_rand != 5] = rs.random_from_pdf(
-            r_grid, pdf_radial, self.NS_number - NS_local
-        )
-
-        if NS_local != 0:
-            r_grid_local = np.logspace(
-                np.log10(spiral_model.local_r_min),
-                np.log10(spiral_model.local_r_max),
-                cfg["resolution"],
-            )
-
-            r_pdf_rand[arm_index_rand == 5] = rs.random_from_pdf(
-                r_grid_local, pdf_radial, NS_local
-            )
-
-        # Evaluate the angular phi coordinate for each neutron star and
-        # add noise to both galactocentric coordinates.
-        phi = sm.spiral_model.calculate_phi(r_pdf_rand, arm_index_rand)
-        phi_rand, r_rand = ip.smear_initial_coordinates(
-            r_pdf_rand, phi, self.NS_number
-        )
-
-        # Propagating the azimuthal coordinate of each object backwards in time
-        # (according to its age) to account for the rotation of the galactic arms;
-        # we assume that the arm structure itself remains rigid.
-        phi_rand = ip.spiral_arm_time_evol(phi_rand, t_age)
-
-        # Drawing a random distance from the galactic plane in [kpc] for each neutron
-        # star according to the probability density function for the height.
-        z_grid = np.logspace(
-            np.log10(0.0001), np.log10(cfg["z_extent"]), cfg["resolution"]
-        )
-        z_pdf_rand = rs.random_from_pdf(
-            z_grid, ip.pdf_initial_height, self.NS_number
-        )
-
-        # Randomly distribute the stars above and below the galactic plane.
-        z_rand = ip.random_scatter_about_plane(z_pdf_rand, self.NS_number)
+        z_rand = ip.calculate_z(self.NS_number)
 
         return r_rand, phi_rand, z_rand
 
@@ -232,12 +178,13 @@ class InitialNeutronStarPopulation:
     def period(self) -> np.ndarray:
         """
         Determining the initial rotation periods of each pulsar in the sample,
-        as drawn from a log-normal distribution. The characteristic
+        as drawn from a normal or log-normal distribution. The characteristic
         parameters are defined in config_simulator.py.
 
         Returns:
             (np.ndarray): Initial spin periods of the pulsar sample in [s].
         """
+
         spin_period_model = cfg["spin_period_model"]
 
         if spin_period_model == "normal":

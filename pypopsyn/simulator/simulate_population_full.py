@@ -35,7 +35,7 @@ import pandas as pd
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
-import pypopsyn.simulator.initial_population_edm as ipop
+import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.interstellar_medium.e_density_model as edm
 import pypopsyn.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import pypopsyn.simulator.magneto_rotational_physics.period_derivative as pdv
@@ -110,7 +110,8 @@ def simulate_population(args: argparse.Namespace) -> None:
 
     # Initialize components of the simulator that need it.
     gm.initialize_galactic_model()
-    sm.initialize_spiral_model()
+    if not cfg["sample_edm"]:
+        sm.initialize_spiral_model()
 
     # Initialize the surveys.
     PMPS_par_path = pathlib.Path().joinpath(
@@ -483,7 +484,7 @@ def simulate_population(args: argparse.Namespace) -> None:
                 P_final,
                 magrot_evol_dict,
             ) = mre.magneto_rotational_evolution(
-                B_initial, chi_initial, P_initial, age, cfg["a_late"]
+                B_initial, chi_initial, P_initial, age
             )
 
             if cfg["save_magrot_evolution"]:
