@@ -233,79 +233,6 @@ def initialize_all_surveys() -> SurveyData:
     return survey_data_class
 
 
-def apply_surveys_coverage_filter(
-    surveys_radio: dict,
-    surveys_xray: dict,
-    coverage_dict: dict,
-    pop_dict: dict,
-    idx_remove: list,
-) -> Tuple[dict, list]:
-    """
-    Apply survey coverage criteria to filter a dynamic population dataset based on sky coverage of all surveys and a
-    distance cutoff, and update the indices of entries to be removed.
-
-    Args:
-        surveys_radio (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
-        surveys_xray (dict): A dictionary of X-ray survey objects, containing the information on the sky coverage.
-        coverage_dict (dict): A dictionary with the sky coverage information for all surveys.
-        pop_dict (dict): A dictionary containing the data of a neutron star population.
-        idx_remove (list): A list of indices of entries to be removed based on the filtering criteria.
-
-    Returns:
-        (Tuple[dict, list]): A tuple object containing the following attributes:
-
-            - A dictionary containing data for stars that meet the coverage criteria.
-            - An updated list of indices of stars that are outside the coverage and should be removed.
-    """
-
-    survey_radio_names = list(surveys_radio.keys())
-    survey_xray_names = []
-
-    if surveys_xray is not None:
-        survey_xray_names = list(surveys_xray.keys())
-        coverage_tot = (
-            coverage_dict["coverage_radio"] | coverage_dict["coverage_xray"]
-        )
-    else:
-        coverage_tot = coverage_dict["coverage_radio"]
-
-    # Select only neutron stars that fall into the sky region covered by the surveys.
-    dictionary_coverage_database = {
-        key: value[coverage_tot] for key, value in pop_dict.items()
-    }
-
-    # Add coverage for each survey to the dictionary.
-    dictionary_coverage_database["coverage_radio"] = coverage_dict[
-        "coverage_radio"
-    ][coverage_tot]
-
-    for survey_name in survey_radio_names:
-        # Add the coverage data for each survey.
-        coverage_key = f"coverage_radio_{survey_name}"
-        dictionary_coverage_database[coverage_key] = coverage_dict[
-            coverage_key
-        ][coverage_tot]
-
-    if surveys_xray is not None:
-        dictionary_coverage_database["coverage_xray"] = coverage_dict[
-            "coverage_xray"
-        ][coverage_tot]
-
-        for survey_name in survey_xray_names:
-            # Add the coverage data for each survey.
-            coverage_key = f"coverage_xray_{survey_name}"
-            dictionary_coverage_database[coverage_key] = coverage_dict[
-                coverage_key
-            ][coverage_tot]
-
-    # Remove stars that do not fall into the total sky coverage.
-    idx = pop_dict["idx"]
-    out_coverage = np.invert(coverage_tot)
-    idx_remove += idx[out_coverage].tolist()
-
-    return dictionary_coverage_database, idx_remove
-
-
 def compute_surveys_coverage(
     surveys_radio: dict,
     surveys_xray: dict,
@@ -398,6 +325,79 @@ def compute_surveys_coverage(
             coverage_dict[coverage_key] = coverage_survey_xray[survey_name]
 
     return coverage_dict
+
+
+def apply_surveys_coverage_filter(
+    surveys_radio: dict,
+    surveys_xray: dict,
+    coverage_dict: dict,
+    pop_dict: dict,
+    idx_remove: list,
+) -> Tuple[dict, list]:
+    """
+    Apply survey coverage criteria to filter a dynamic population dataset based on sky coverage of all surveys and a
+    distance cutoff, and update the indices of entries to be removed.
+
+    Args:
+        surveys_radio (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
+        surveys_xray (dict): A dictionary of X-ray survey objects, containing the information on the sky coverage.
+        coverage_dict (dict): A dictionary with the sky coverage information for all surveys.
+        pop_dict (dict): A dictionary containing the data of a neutron star population.
+        idx_remove (list): A list of indices of entries to be removed based on the filtering criteria.
+
+    Returns:
+        (Tuple[dict, list]): A tuple object containing the following attributes:
+
+            - A dictionary containing data for stars that meet the coverage criteria.
+            - An updated list of indices of stars that are outside the coverage and should be removed.
+    """
+
+    survey_radio_names = list(surveys_radio.keys())
+    survey_xray_names = []
+
+    if surveys_xray is not None:
+        survey_xray_names = list(surveys_xray.keys())
+        coverage_tot = (
+            coverage_dict["coverage_radio"] | coverage_dict["coverage_xray"]
+        )
+    else:
+        coverage_tot = coverage_dict["coverage_radio"]
+
+    # Select only neutron stars that fall into the sky region covered by the surveys.
+    dictionary_coverage_database = {
+        key: value[coverage_tot] for key, value in pop_dict.items()
+    }
+
+    # Add coverage for each survey to the dictionary.
+    dictionary_coverage_database["coverage_radio"] = coverage_dict[
+        "coverage_radio"
+    ][coverage_tot]
+
+    for survey_name in survey_radio_names:
+        # Add the coverage data for each survey.
+        coverage_key = f"coverage_radio_{survey_name}"
+        dictionary_coverage_database[coverage_key] = coverage_dict[
+            coverage_key
+        ][coverage_tot]
+
+    if surveys_xray is not None:
+        dictionary_coverage_database["coverage_xray"] = coverage_dict[
+            "coverage_xray"
+        ][coverage_tot]
+
+        for survey_name in survey_xray_names:
+            # Add the coverage data for each survey.
+            coverage_key = f"coverage_xray_{survey_name}"
+            dictionary_coverage_database[coverage_key] = coverage_dict[
+                coverage_key
+            ][coverage_tot]
+
+    # Remove stars that do not fall into the total sky coverage.
+    idx = pop_dict["idx"]
+    out_coverage = np.invert(coverage_tot)
+    idx_remove += idx[out_coverage].tolist()
+
+    return dictionary_coverage_database, idx_remove
 
 
 def radio_detection(
