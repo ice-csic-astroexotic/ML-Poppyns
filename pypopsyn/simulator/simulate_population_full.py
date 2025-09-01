@@ -438,8 +438,10 @@ def simulate_population(args: argparse.Namespace) -> None:
             )
 
             # Compute the properties of pulsars whose radio beam intercepts our line of sight.
-            pop_radio = er.radio_population_intercepted_full(
-                pop_final, coverage_dict
+            pop_radio = er.radio_population_intercepted(
+                pop_final,
+                coverage_dict["coverage_radio"],
+                full_population=True,
             )
 
             # Determine fraction of pulsars beamed towards us.
@@ -479,6 +481,10 @@ def simulate_population(args: argparse.Namespace) -> None:
                 output_path, "final_population.pkl.gz"
             )
             df_final.to_pickle(final_output_path, compression="gzip")
+
+            log.info(
+                f"Output of the final population generated in {os.getcwd()}/{final_output_path}"
+            )
 
         # ===================== RADIO AND X-RAY DETECTION ========================
 
