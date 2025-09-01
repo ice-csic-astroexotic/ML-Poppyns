@@ -57,7 +57,6 @@ def test_case_2():
     data = {
         "P": np.array([6.28, 0.54]),
         "P_dot": np.array([1.0e-15, 1.0e-13]),
-        "age": np.array([8.2e6, 1.7e6]),
         "l_gal": np.array([-2.05, -12.2]),
         "b_gal": np.array([-8.15, 7.51]),
         "dist": np.array([12.0, 6.59]),
@@ -441,7 +440,6 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
         test_case_2["P"],
         test_case_2["P_dot"],
         test_case_2["chi"],
-        test_case_2["age"],
         test_case_2["l_gal"],
         test_case_2["b_gal"],
         test_case_2["dist"],

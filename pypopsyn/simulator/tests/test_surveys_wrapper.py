@@ -548,6 +548,21 @@ def test_case_4():
             "v_ls": np.array([-50.0, 50.0]),
             "idx": np.array([0, 1]),
         },
+        "coverage_dict_with_xray": {
+            "coverage_radio": np.array([True, False]),
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
+            "coverage_xray": np.array([True, False]),
+            "coverage_xray_xray_flux_threshold": np.array([True, False]),
+            "coverage_xray_xray_realistic": np.array([True, False]),
+        },
+        "coverage_dict_without_xray": {
+            "coverage_radio": np.array([True, False]),
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
+        },
         "idx_remove": [],
         "dist_cutoff": 5.0,
         "expected_keys_with_xray": {
@@ -1850,7 +1865,7 @@ def test_initialize_all_surveys_with_xrays(
     assert result == test_case_3["SurveyData_with_xray_expected"]
 
 
-def test_apply_surveys_coverage(test_case_4):
+def test_apply_surveys_coverage_filter(test_case_4):
     """
     Check that the survey coverage filter is properly applied.
     """
@@ -1858,12 +1873,12 @@ def test_apply_surveys_coverage(test_case_4):
     (
         dictionary_coverage_database,
         updated_idx_remove,
-    ) = sw.apply_surveys_coverage(
+    ) = sw.apply_surveys_coverage_filter(
         test_case_4["radio_surveys"],
         xray_surveys,
+        test_case_4["coverage_dict_without_xray"],
         test_case_4["dyn_database_dict"],
         test_case_4["idx_remove"],
-        test_case_4["dist_cutoff"],
     )
 
     assert len(dictionary_coverage_database["age"]) <= len(
@@ -1885,12 +1900,12 @@ def test_apply_surveys_coverage(test_case_4):
     (
         dictionary_coverage_database,
         updated_idx_remove,
-    ) = sw.apply_surveys_coverage(
+    ) = sw.apply_surveys_coverage_filter(
         test_case_4["radio_surveys"],
         xray_surveys,
+        test_case_4["coverage_dict_with_xray"],
         test_case_4["dyn_database_dict"],
         test_case_4["idx_remove"],
-        test_case_4["dist_cutoff"],
     )
 
     assert len(dictionary_coverage_database["age"]) <= len(
@@ -1908,13 +1923,13 @@ def test_apply_surveys_coverage(test_case_4):
         assert key in dictionary_coverage_database
 
 
-def test_apply_surveys_coverage_full(test_case_5):
+def test_compute_surveys_coverage(test_case_5):
     """
-    Check that the survey coverage filter is properly applied for the full simulation.
+    Check that the survey coverage dictionary is properly computed.
     """
     xray_surveys = None
 
-    dictionary_coverage = sw.apply_surveys_coverage_full(
+    dictionary_coverage = sw.compute_surveys_coverage(
         test_case_5["radio_surveys"],
         xray_surveys,
         test_case_5["dyn_database_dict"],
@@ -1931,7 +1946,7 @@ def test_apply_surveys_coverage_full(test_case_5):
 
     xray_surveys = test_case_5["xray_surveys"]
 
-    dictionary_coverage = sw.apply_surveys_coverage_full(
+    dictionary_coverage = sw.compute_surveys_coverage(
         test_case_5["radio_surveys"],
         xray_surveys,
         test_case_5["dyn_database_dict"],

@@ -135,13 +135,24 @@ def simulate_population(args) -> None:
                 # Compute the maximum simulation time in centuries.
                 t_max = cfg["t_age_max"] / 100
 
-                # Filter the loaded database batch with the surveys' sky coverage.
-                database_coverage, idx_remove = sw.apply_surveys_coverage(
+                # Compute a dictionary containing the sky coverage masks for all the surveys.
+                coverage_dict = sw.compute_surveys_coverage(
                     surveys_radio,
                     surveys_xray,
                     database_dyn_batch,
-                    idx_remove,
                     dist_cutoff=35.0,
+                )
+
+                # Filter the loaded database batch with the surveys' sky coverage.
+                (
+                    database_coverage,
+                    idx_remove,
+                ) = sw.apply_surveys_coverage_filter(
+                    surveys_radio,
+                    surveys_xray,
+                    coverage_dict,
+                    database_dyn_batch,
+                    idx_remove,
                 )
 
                 # Initialize neutron star magneto-rotational properties.

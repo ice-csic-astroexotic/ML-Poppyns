@@ -430,7 +430,7 @@ def simulate_population(args: argparse.Namespace) -> None:
         ):
 
             # Compute a dictionary containing the sky coverage masks for all the surveys.
-            coverage_dict = sw.apply_surveys_coverage_full(
+            coverage_dict = sw.compute_surveys_coverage(
                 surveys_radio,
                 surveys_xray,
                 pop_final,

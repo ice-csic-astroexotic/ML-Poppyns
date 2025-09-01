@@ -301,7 +301,6 @@ def calculate_radio_emission(
     P: np.ndarray,
     P_dot: np.ndarray,
     chi: np.ndarray,
-    age: np.ndarray,
     l_gal: np.ndarray,
     b_gal: np.ndarray,
     dist: np.ndarray,
@@ -322,8 +321,6 @@ def calculate_radio_emission(
     Args:
         P (np.ndarray): Array of spin periods of the pulsars in [s].
         P_dot (np.ndarray): Array of neutron star spin period derivatives in [s s^-1].
-        chi (np.ndarray): Array of the misalignment angles in [rad].
-        age (np.ndarray): Array of neutron star ages [yrs].
         l_gal (np.ndarray): Array of galactic longitudes in [deg] defined between [-180, 180] deg.
         b_gal (np.ndarray): Array of galactic latitudes in [deg] defined between [-90, 90] deg.
         dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
@@ -351,7 +348,7 @@ def calculate_radio_emission(
     # Note that since we assume symmetry between the northern and southern hemisphere of the star
     # we only need to consider one hemisphere, e.g., the northern one.
     los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-    los_rand = rs.random_from_pdf(los_grid, np.sin, len(age))
+    los_rand = rs.random_from_pdf(los_grid, np.sin, len(P))
 
     # Determining if the pulsar's radio beam intercepts our line of sight.
     intercepted_radio = los_intercept(

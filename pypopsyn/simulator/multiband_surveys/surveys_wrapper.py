@@ -233,12 +233,12 @@ def initialize_all_surveys() -> SurveyData:
     return survey_data_class
 
 
-def apply_surveys_coverage(
+def apply_surveys_coverage_filter(
     surveys_radio: dict,
     surveys_xray: dict,
-    dyn_database_dict: dict,
+    coverage_dict: dict,
+    pop_dict: dict,
     idx_remove: list,
-    dist_cutoff: float,
 ) -> Tuple[dict, list]:
     """
     Apply survey coverage criteria to filter a dynamic population dataset based on sky coverage of all surveys and a
@@ -247,9 +247,9 @@ def apply_surveys_coverage(
     Args:
         surveys_radio (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
         surveys_xray (dict): A dictionary of X-ray survey objects, containing the information on the sky coverage.
-        dyn_database_dict (dict): A dictionary containing the data of a dynamical population.
+        coverage_dict (dict): A dictionary with the sky coverage information for all surveys.
+        pop_dict (dict): A dictionary containing the data of a neutron star population.
         idx_remove (list): A list of indices of entries to be removed based on the filtering criteria.
-        dist_cutoff (float): The maximum heliocentric distance to include in the survey coverage.
 
     Returns:
         (Tuple[dict, list]): A tuple object containing the following attributes:
@@ -258,105 +258,55 @@ def apply_surveys_coverage(
             - An updated list of indices of stars that are outside the coverage and should be removed.
     """
 
-    dist = dyn_database_dict["dist"]
-    dist_mask = dist < dist_cutoff
-
     survey_radio_names = list(surveys_radio.keys())
     survey_xray_names = []
-    coverage_survey_radio = {}
-    coverage_survey_xray = {}
-    coverage_xray_tot = {}
 
     if surveys_xray is not None:
         survey_xray_names = list(surveys_xray.keys())
-        coverage_survey_xray = {}
-
-    for name in survey_radio_names:
-        # Evaluate the sky coverage for each radio survey.
-        coverage_survey_radio[name] = surveys_radio[name].sky_coverage(
-            dyn_database_dict["ra"],
-            dyn_database_dict["dec"],
-            dyn_database_dict["l"],
-            dyn_database_dict["b"],
+        coverage_tot = (
+            coverage_dict["coverage_radio"] | coverage_dict["coverage_xray"]
         )
-
-    # Combine the coverage masks of all selected radio surveys into a single mask.
-    # It performs a logical OR (|) across all coverage arrays in coverage_survey_radio,
-    # for each survey name in survey_radio_names.
-    # The result is a single array where a position is True if it is covered by any survey.
-    coverage_radio_tot = (
-        functools.reduce(
-            lambda a, b: a | b,
-            (coverage_survey_radio[name] for name in survey_radio_names),
-        )
-    ) & dist_mask
-
-    if surveys_xray is not None:
-        # Evaluate the sky coverage for each X-ray survey.
-        for name in survey_xray_names:
-            coverage_survey_xray[name] = surveys_xray[name].sky_coverage(
-                dyn_database_dict["ra"],
-                dyn_database_dict["dec"],
-                dyn_database_dict["l"],
-                dyn_database_dict["b"],
-            )
-
-        # Combine the coverage masks of all selected X-ray surveys into a single mask.
-        # It performs a logical OR (|) across all coverage arrays in coverage_survey_xray,
-        # for each survey name in survey_xray_names.
-        # The result is a single array where a position is True if it is covered by any survey.
-        coverage_xray_tot = (
-            functools.reduce(
-                lambda a, b: a | b,
-                (coverage_survey_xray[name] for name in survey_xray_names),
-            )
-        ) & dist_mask
-
-    # Combine the total sky coverage for the radio and X-ray surveys together.
-    if surveys_xray is not None:
-        coverage_tot = coverage_radio_tot | coverage_xray_tot
-
     else:
-        coverage_tot = coverage_radio_tot
+        coverage_tot = coverage_dict["coverage_radio"]
 
     # Select only neutron stars that fall into the sky region covered by the surveys.
     dictionary_coverage_database = {
-        key: value[coverage_tot] for key, value in dyn_database_dict.items()
+        key: value[coverage_tot] for key, value in pop_dict.items()
     }
 
     # Add coverage for each survey to the dictionary.
-    dictionary_coverage_database["coverage_radio"] = coverage_radio_tot[
-        coverage_tot
-    ]
+    dictionary_coverage_database["coverage_radio"] = coverage_dict[
+        "coverage_radio"
+    ][coverage_tot]
 
     for survey_name in survey_radio_names:
         # Add the coverage data for each survey.
         coverage_key = f"coverage_radio_{survey_name}"
-        dictionary_coverage_database[coverage_key] = coverage_survey_radio[
-            survey_name
+        dictionary_coverage_database[coverage_key] = coverage_dict[
+            coverage_key
         ][coverage_tot]
 
     if surveys_xray is not None:
-        dictionary_coverage_database["coverage_xray"] = coverage_xray_tot[
-            coverage_tot
-        ]
+        dictionary_coverage_database["coverage_xray"] = coverage_dict[
+            "coverage_xray"
+        ][coverage_tot]
 
         for survey_name in survey_xray_names:
             # Add the coverage data for each survey.
             coverage_key = f"coverage_xray_{survey_name}"
-            dictionary_coverage_database[coverage_key] = coverage_survey_xray[
-                survey_name
+            dictionary_coverage_database[coverage_key] = coverage_dict[
+                coverage_key
             ][coverage_tot]
 
     # Remove stars that do not fall into the total sky coverage.
-    idx = dyn_database_dict["idx"]
+    idx = pop_dict["idx"]
     out_coverage = np.invert(coverage_tot)
     idx_remove += idx[out_coverage].tolist()
 
     return dictionary_coverage_database, idx_remove
 
 
-def apply_surveys_coverage_full(
+def compute_surveys_coverage(
     surveys_radio: dict,
     surveys_xray: dict,
     pop_dict: dict,
@@ -369,7 +319,7 @@ def apply_surveys_coverage_full(
     Args:
         surveys_radio (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
         surveys_xray (dict): A dictionary of X-ray survey objects, containing the information on the sky coverage.
-        pop_dict (dict): A dictionary containing the data of a dynamical population.
+        pop_dict (dict): A dictionary containing the sky coordinates of a population of neutron stars.
         dist_cutoff (float): The maximum heliocentric distance to include in the survey coverage.
 
     Returns:
