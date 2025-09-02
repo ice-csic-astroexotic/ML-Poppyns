@@ -73,22 +73,6 @@ def test_case_2():
 @pytest.fixture()
 def test_case_3():
     data = {
-        "dict_final_pop_full": {
-            "age": np.array([1e6, 2e6]),
-            "l": np.array([-50.0, 50.0]),
-            "b": np.array([-20.0, 10.0]),
-            "ra": np.array([50.0, 250.0]),
-            "dec": np.array([-50.0, 50.0]),
-            "dist": np.array([2.0, 10.0]),
-            "pm_ra": np.array([-50.0, 50.0]),
-            "pm_dec": np.array([-50.0, 50.0]),
-            "v_ls": np.array([-50.0, 50.0]),
-            "P": np.array([0.01, 0.5]),
-            "P_dot": np.array([1.0e-11, 1.0e-12]),
-            "B": np.array([1e12, 1e14]),
-            "chi": np.array([1.0, 2.0]),
-            "idx": np.array([0, 1]),
-        },
         "dict_final_pop": {
             "age": np.array([1e6, 2e6]),
             "l": np.array([-50.0, 50.0]),
@@ -104,10 +88,6 @@ def test_case_3():
             "B": np.array([1e12, 1e14]),
             "chi": np.array([1.0, 2.0]),
             "idx": np.array([0, 1]),
-            "coverage_radio_PMPS": np.array([True, False]),
-            "coverage_radio_HTRU_low": np.array([True, False]),
-            "coverage_radio_HTRU_mid": np.array([True, False]),
-            "coverage_radio": np.array([True, False]),
         },
         "dict_coverage": {
             "coverage_radio_PMPS": np.array([True, False]),
@@ -122,7 +102,7 @@ def test_case_3():
         "DM": np.array([100]),
         "tau_sc": np.array([0.001]),
         "intercepted_radio": np.array([True, True]),
-        "expected_keys_full": [
+        "expected_keys": [
             "age",
             "l",
             "b",
@@ -145,6 +125,41 @@ def test_case_3():
             "tau_sc",
             "intercepted_radio",
         ],
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_4():
+    data = {
+        "dict_final_pop": {
+            "age": np.array([1e6, 2e6]),
+            "l": np.array([-50.0, 50.0]),
+            "b": np.array([-20.0, 10.0]),
+            "ra": np.array([50.0, 250.0]),
+            "dec": np.array([-50.0, 50.0]),
+            "dist": np.array([2.0, 10.0]),
+            "pm_ra": np.array([-50.0, 50.0]),
+            "pm_dec": np.array([-50.0, 50.0]),
+            "v_ls": np.array([-50.0, 50.0]),
+            "P": np.array([0.01, 0.5]),
+            "P_dot": np.array([1.0e-11, 1.0e-12]),
+            "B": np.array([1e12, 1e14]),
+            "chi": np.array([1.0, 2.0]),
+            "idx": np.array([0, 1]),
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
+            "coverage_radio": np.array([True, False]),
+        },
+        "w_int_s": np.array([0.001]),
+        "L_radio_bol": np.array([1.0e26]),
+        "S_radio_bol": np.array([1.0e-6]),
+        "spectral_index": np.array([-1.8]),
+        "DM": np.array([100]),
+        "tau_sc": np.array([0.001]),
+        "intercepted_radio": np.array([True]),
         "expected_keys": [
             "age",
             "l",
@@ -425,10 +440,10 @@ def test_calculate_radio_emission(monkeypatch, test_case_2):
     ).all()
 
 
-def test_radio_population_intercepted(monkeypatch, test_case_3):
+def test_radio_population_intercepted_full(monkeypatch, test_case_3):
     """
     Check that the dictionary with the properties of the neutron stars that intercept our line of sight with their
-    radio beams is properly returned.
+    radio beams is properly returned for the full simulation.
     """
 
     def mock_calculate_radio_emission(*args, **kwargs):
@@ -455,23 +470,53 @@ def test_radio_population_intercepted(monkeypatch, test_case_3):
     monkeypatch.setattr(edm, "compute_tau_sc_327", mock_compute_tau_sc_327)
 
     out_dict = er.radio_population_intercepted(
-        test_case_3["dict_final_pop_full"],
+        test_case_3["dict_final_pop"],
         test_case_3["dict_coverage"]["coverage_radio"],
         full_population=True,
     )
 
     # Verify that the keys are correct.
-    assert set(out_dict.keys()) == set(test_case_3["expected_keys_full"])
+    assert set(out_dict.keys()) == set(test_case_3["expected_keys"])
     # Verify that the output dictionary contains at most the same number of stars as the input one.
     assert len(out_dict["age"]) == len(test_case_3["dict_final_pop"]["age"])
 
+
+def test_radio_population_intercepted(monkeypatch, test_case_4):
+    """
+    Check that the dictionary with the properties of the neutron stars that intercept our line of sight with their
+    radio beams is properly returned for the simulate_population_magrot_det.
+    """
+
+    def mock_calculate_radio_emission(*args, **kwargs):
+        return (
+            test_case_4["intercepted_radio"],
+            test_case_4["w_int_s"],
+            test_case_4["L_radio_bol"],
+            test_case_4["S_radio_bol"],
+            test_case_4["spectral_index"],
+        )
+
+    monkeypatch.setattr(
+        er, "calculate_radio_emission", mock_calculate_radio_emission
+    )
+
+    def mock_compute_DM(*args, **kwargs):
+        return test_case_4["DM"]
+
+    monkeypatch.setattr(edm, "compute_DM", mock_compute_DM)
+
+    def mock_compute_tau_sc_327(*args, **kwargs):
+        return test_case_4["tau_sc"]
+
+    monkeypatch.setattr(edm, "compute_tau_sc_327", mock_compute_tau_sc_327)
+
     out_dict = er.radio_population_intercepted(
-        test_case_3["dict_final_pop"],
-        test_case_3["dict_final_pop"]["coverage_radio"],
+        test_case_4["dict_final_pop"],
+        test_case_4["dict_final_pop"]["coverage_radio"],
         full_population=False,
     )
 
     # Verify that the keys are correct.
-    assert set(out_dict.keys()) == set(test_case_3["expected_keys"])
+    assert set(out_dict.keys()) == set(test_case_4["expected_keys"])
     # Verify that the output dictionary contains at most the same number of stars as the input one.
-    assert len(out_dict["age"]) <= len(test_case_3["dict_final_pop"]["age"])
+    assert len(out_dict["age"]) <= len(test_case_4["dict_final_pop"]["age"])

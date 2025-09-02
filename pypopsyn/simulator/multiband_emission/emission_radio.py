@@ -412,26 +412,24 @@ def radio_population_intercepted(
     Returns:
         (dict): A dictionary containing properties of the neutron stars whose radio beams intercept our line of sight.
     """
-
-    # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
-    # of their radio emission.
-    (
-        intercepted_radio,
-        w_int_s,
-        L_radio_bol,
-        S_radio_bol,
-        spectral_index,
-    ) = calculate_radio_emission(
-        dict_pop["P"],
-        dict_pop["P_dot"],
-        dict_pop["chi"],
-        dict_pop["dist"],
-    )
-
-    # Determine which stars could in principle be detected.
-    detectable_radio = intercepted_radio & coverage_radio
-
     if full_population:
+        # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
+        # of their radio emission.
+        (
+            intercepted_radio,
+            w_int_s,
+            L_radio_bol,
+            S_radio_bol,
+            spectral_index,
+        ) = calculate_radio_emission(
+            dict_pop["P"],
+            dict_pop["P_dot"],
+            dict_pop["chi"],
+            dict_pop["dist"],
+        )
+
+        # Determine which stars could in principle be detected.
+        detectable_radio = intercepted_radio & coverage_radio
 
         dictionary_radio_pop = {key: value for key, value in dict_pop.items()}
 
@@ -452,15 +450,37 @@ def radio_population_intercepted(
         tau_sc[DM != 0] = edm.compute_tau_sc_327(DM[DM != 0])
 
     else:
-        # Select only the stars that can be detected in radio by the considered surveys.
-        dictionary_radio_pop = {
-            key: value[detectable_radio] for key, value in dict_pop.items()
+        # Select only the stars that can, in principle, be detected in radio, i.e., those that they lie within the
+        # observed region.
+        dict_pop_filtered = {
+            key: value[coverage_radio] for key, value in dict_pop.items()
         }
 
-        w_int_s = w_int_s[detectable_radio]
-        L_radio_bol = L_radio_bol[detectable_radio]
-        S_radio_bol = S_radio_bol[detectable_radio]
-        spectral_index = spectral_index[detectable_radio]
+        # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
+        # of their radio emission.
+        (
+            intercepted_radio,
+            w_int_s,
+            L_radio_bol,
+            S_radio_bol,
+            spectral_index,
+        ) = calculate_radio_emission(
+            dict_pop_filtered["P"],
+            dict_pop_filtered["P_dot"],
+            dict_pop_filtered["chi"],
+            dict_pop_filtered["dist"],
+        )
+
+        # Select only the stars that can be detected in radio by the considered surveys.
+        dictionary_radio_pop = {
+            key: value[intercepted_radio]
+            for key, value in dict_pop_filtered.items()
+        }
+
+        w_int_s = w_int_s[intercepted_radio]
+        L_radio_bol = L_radio_bol[intercepted_radio]
+        S_radio_bol = S_radio_bol[intercepted_radio]
+        spectral_index = spectral_index[intercepted_radio]
 
         # Computing the DM for the stars that fall into the surveys' sky coverage and whose
         # radio beam intercepts our line of sight.

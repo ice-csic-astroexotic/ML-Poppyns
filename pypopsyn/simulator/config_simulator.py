@@ -52,8 +52,8 @@ else:
 
 if cfg["path_to_software"] == "":
     log.warning(
-        "path_to_software variable not set. Remember to set the right absolute path_to_software in the"
-        "pypopsyn/simulator/config_simulator.py file."
+        "path_to_software variable not set. Remember to set the right absolute path_to_software in the file: "
+        "pypopsyn/simulator/config_simulator.py."
     )
 
 # Seed for the random number generation for simulate_population_full.py.

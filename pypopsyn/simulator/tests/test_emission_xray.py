@@ -147,8 +147,11 @@ def test_case_2():
             [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
         ),
         "xray_bright_mask_expected": np.array([False, True, False]),
-        "L_x_therm_expected": np.array([1e33]),
+        "L_x_therm_expected": np.array([1e28, 1e33, 1e27]),
         "mock_L_x_therm": np.array([1e28, 1e33, 1e27]),
+        "S_x_rcs_abs_expected": np.array([0, 3.0e-12, 0]),
+        "S_x_bb_abs_expected": np.array([0, 2.0e-12, 0]),
+        "N_H_expected": np.array([0, 2.0e-21, 0]),
         "mock_S_x_rcs_abs": np.array([3.0e-12]),
         "mock_S_x_bb_abs": np.array([2.0e-12]),
         "mock_N_H": np.array([2.0e-21]),
@@ -308,6 +311,13 @@ def test_case_7():
             "B": np.array([1e12, 1e14]),
             "chi": np.array([1.0, 2.0]),
             "idx": np.array([0, 1]),
+        },
+        "dict_coverage": {
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
+            "coverage_radio": np.array([True, False]),
+            "coverage_xray": np.array([True, True]),
         },
         "L_x_threshold": 1e29,
         "S_x_abs_threshold": 1e-15,
@@ -604,90 +614,21 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
     ).all()
 
     assert np.isclose(
-        test_case_2["mock_S_x_bb_abs"],
+        test_case_2["S_x_bb_abs_expected"],
         S_x_bb_abs_out,
         rtol=TOL,
         atol=1.0e-14,
     ).all()
 
     assert np.isclose(
-        test_case_2["mock_S_x_rcs_abs"],
+        test_case_2["S_x_rcs_abs_expected"],
         S_x_rcs_abs_out,
         rtol=TOL,
         atol=1.0e-14,
     ).all()
 
     assert np.isclose(
-        test_case_2["mock_N_H"],
-        N_H_out,
-        rtol=TOL,
-        atol=1.0e-14,
-    ).all()
-
-
-def test_calculate_xray_emission_full(test_case_3, monkeypatch):
-    """
-    Verifying that absorbed X-ray flux is correctly estimated for the full simulation.
-    """
-
-    def mock_interpolator(*args, **kwargs):
-        return test_case_3["mock_L_x_therm"]
-
-    monkeypatch.setattr(RectBivariateSpline, "ev", mock_interpolator)
-
-    def mock_flux_xray_absorbed(*args, **kwargs):
-        return (
-            test_case_3["mock_S_x_bb_abs"],
-            test_case_3["mock_S_x_rcs_abs"],
-            test_case_3["mock_N_H"],
-        )
-
-    monkeypatch.setattr(xem, "flux_xray_absorbed", mock_flux_xray_absorbed)
-
-    (
-        xray_bright_mask_out,
-        L_x_therm_out,
-        S_x_bb_abs_out,
-        S_x_rcs_abs_out,
-        N_H_out,
-    ) = xem.calculate_xray_emission_full(
-        test_case_3["B"],
-        test_case_3["B_initial"],
-        test_case_3["age"],
-        test_case_3["ra"],
-        test_case_3["dec"],
-        test_case_3["dist"],
-        test_case_3["dummy_L_x_interpolator"],
-        test_case_3["L_x_threshold"],
-    )
-
-    assert np.all(
-        xray_bright_mask_out == test_case_3["xray_bright_mask_expected"]
-    )
-
-    assert np.isclose(
-        test_case_3["L_x_therm_expected"],
-        L_x_therm_out,
-        rtol=TOL,
-        atol=1.0e-14,
-    ).all()
-
-    assert np.isclose(
-        test_case_3["S_x_bb_abs_expected"],
-        S_x_bb_abs_out,
-        rtol=TOL,
-        atol=1.0e-14,
-    ).all()
-
-    assert np.isclose(
-        test_case_3["S_x_rcs_abs_expected"],
-        S_x_rcs_abs_out,
-        rtol=TOL,
-        atol=1.0e-14,
-    ).all()
-
-    assert np.isclose(
-        test_case_3["N_H_expected"],
+        test_case_2["N_H_expected"],
         N_H_out,
         rtol=TOL,
         atol=1.0e-14,
@@ -803,6 +744,7 @@ def test_xray_population(test_case_6, monkeypatch):
 
     out_dict = xem.xray_population(
         test_case_6["dict_final_pop"],
+        test_case_6["dict_final_pop"]["coverage_xray"],
         test_case_6["dummy_L_x_interpolator"],
         test_case_6["dummy_crust_failure_rate_interpolator"],
         test_case_6["L_x_threshold"],
@@ -826,6 +768,7 @@ def test_xray_population(test_case_6, monkeypatch):
 
     out_dict = xem.xray_population(
         test_case_6["dict_final_pop"],
+        test_case_6["dict_final_pop"]["coverage_xray"],
         test_case_6["dummy_L_x_interpolator"],
         test_case_6["dummy_crust_failure_rate_interpolator"],
         test_case_6["L_x_threshold"],
@@ -842,7 +785,7 @@ def test_xray_population_full(test_case_7, monkeypatch):
     for the full simulation.
     """
 
-    def mock_calculate_xray_emission_full(*args, **kwargs):
+    def mock_calculate_xray_emission(*args, **kwargs):
         return (
             test_case_7["xray_bright_mask"],
             test_case_7["L_x_therm"],
@@ -852,16 +795,18 @@ def test_xray_population_full(test_case_7, monkeypatch):
         )
 
     monkeypatch.setattr(
-        xem, "calculate_xray_emission_full", mock_calculate_xray_emission_full
+        xem, "calculate_xray_emission", mock_calculate_xray_emission
     )
 
     cfg["use_crust_failure_rate_interpolator"] = False
 
-    out_dict = xem.xray_population_full(
+    out_dict = xem.xray_population(
         test_case_7["dict_final_pop"],
+        test_case_7["dict_coverage"]["coverage_xray"],
         test_case_7["dummy_L_x_interpolator"],
         test_case_7["dummy_crust_failure_rate_interpolator"],
         test_case_7["L_x_threshold"],
+        full_population=True,
     )
     # Verify that the keys are correct.
     assert set(out_dict.keys()) == set(test_case_7["expected_keys"])
@@ -880,10 +825,12 @@ def test_xray_population_full(test_case_7, monkeypatch):
         mock_outburst_filter_from_crust_failure_rate,
     )
 
-    out_dict = xem.xray_population_full(
+    out_dict = xem.xray_population(
         test_case_7["dict_final_pop"],
+        test_case_7["dict_coverage"]["coverage_xray"],
         test_case_7["dummy_L_x_interpolator"],
         test_case_7["L_x_threshold"],
+        full_population=True,
     )
     # Verify that the keys are correct.
     assert set(out_dict.keys()) == set(test_case_7["expected_keys"])

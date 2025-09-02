@@ -462,10 +462,12 @@ def simulate_population(args: argparse.Namespace) -> None:
                 )
 
                 # Compute X-ray emission of neutron stars.
-                pop_xray = ex.xray_population_full(
+                pop_xray = ex.xray_population(
                     pop_final,
+                    coverage_dict["coverage_xray"],
                     L_x_interpolator=Lx_interpolator,
                     crust_failure_rate_interpolator=crust_failure_rate_interpolator,
+                    full_population=True,
                 )
 
             # Merge the dictionary containing the intrinsic radio and X-ray emission properties.

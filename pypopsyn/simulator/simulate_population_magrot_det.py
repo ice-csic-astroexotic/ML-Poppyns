@@ -228,6 +228,7 @@ def simulate_population(args) -> None:
                     # Compute X-ray emission of neutron stars.
                     pop_xray = ex.xray_population(
                         pop_final,
+                        pop_final["coverage_xray"],
                         L_x_interpolator=Lx_interpolator,
                         crust_failure_rate_interpolator=crust_failure_rate_interpolator,
                     )
