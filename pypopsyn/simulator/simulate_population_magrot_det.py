@@ -205,7 +205,10 @@ def simulate_population(args) -> None:
 
                 # Filter the population to include only pulsars detected by the radio surveys.
                 pop_detected_radio_update = sw.radio_detection(
-                    surveys_radio, pop_radio
+                    surveys_radio,
+                    pop_radio,
+                    np.ones(len(pop_radio["w_int"]), dtype=bool),
+                    log,
                 )
 
                 sw.update_survey_data(

@@ -56,6 +56,7 @@ def test_case_1():
         "RA": np.array([30.0, 200.0]),
         "DEC": np.array([-30.0, 50.0]),
         "T_sky_expected": np.array([3.00651602, 1.25853108]),
+        "intercepted_radio": np.array([True, True], dtype=bool),
         "coverage_expected": np.array([True, False], dtype=bool),
         "offset2": np.array([5, 10]),
         "S_radio_bol": np.array([5.1e-18, 2.9e-19]),
@@ -329,6 +330,7 @@ def test_detected_radio_population(test_case_1):
         test_case_1["w_int_s"],
         test_case_1["DM"],
         test_case_1["P"],
+        test_case_1["intercepted_radio"],
         test_case_1["coverage_expected"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],
@@ -358,7 +360,7 @@ def test_detected_radio_population_full(test_case_2):
         w_eff,
         S_radio_obs_mean,
         S_radio_obs_mean_1400,
-    ) = PMPS.detected_radio_population_full(
+    ) = PMPS.detected_radio_population(
         test_case_2["w_int_s"],
         test_case_2["DM"],
         test_case_2["P"],

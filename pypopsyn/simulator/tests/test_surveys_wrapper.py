@@ -65,6 +65,7 @@ class MockSurveyRadio:
         w_int_s,
         DM,
         P,
+        intercepted_radio,
         coverage,
         l_gal,
         b_gal,
@@ -778,8 +779,6 @@ def test_case_7():
             "spectral_index": np.array([-1.8, -1.8]),
             "tau_sc": np.array([0.001, 0.002]),
             "intercepted_radio": np.array([True, True]),
-        },
-        "dictionary_coverage": {
             "coverage_radio_PMPS": np.array([True, False]),
             "coverage_radio_HTRU_low": np.array([True, False]),
             "coverage_radio_HTRU_mid": np.array([True, False]),
@@ -809,6 +808,9 @@ def test_case_7():
                 "spectral_index": np.array([-1.8]),
                 "tau_sc": np.array([0.001]),
                 "idx": np.array([0]),
+                "coverage_radio_PMPS": np.array([True]),
+                "coverage_radio_HTRU_low": np.array([True]),
+                "coverage_radio_HTRU_mid": np.array([True]),
             },
             "HTRU_low_mid": {
                 "age": np.array([1e6]),
@@ -836,6 +838,9 @@ def test_case_7():
                 "idx": np.array([0]),
                 "HTRU_low": np.array([True]),
                 "HTRU_mid": np.array([True]),
+                "coverage_radio_PMPS": np.array([True]),
+                "coverage_radio_HTRU_low": np.array([True]),
+                "coverage_radio_HTRU_mid": np.array([True]),
             },
         },
     }
@@ -1966,9 +1971,17 @@ def test_radio_detection(test_case_6):
     """
     Check that the dictionary with the properties of the neutron stars that are detected in radio is properly returned.
     """
+
+    logger = MagicMock()
+
     output_dict = sw.radio_detection(
         test_case_6["radio_surveys"],
         test_case_6["dictionary_intercepted_radio"],
+        np.ones(
+            len(test_case_6["dictionary_intercepted_radio"]["w_int"]),
+            dtype=bool,
+        ),
+        logger,
     )
     # Verify that the keys are correct.
     assert set(output_dict.keys()) == set(
@@ -2002,11 +2015,12 @@ def test_radio_detection_full(test_case_7):
     """
     logger = MagicMock()
 
-    output_dict = sw.radio_detection_full(
+    output_dict = sw.radio_detection(
         test_case_7["radio_surveys"],
         test_case_7["dictionary_intercepted_radio"],
-        test_case_7["dictionary_coverage"],
+        test_case_7["dictionary_intercepted_radio"]["intercepted_radio"],
         logger,
+        full_population=True,
     )
     # Verify that the keys are correct.
     assert set(output_dict.keys()) == set(

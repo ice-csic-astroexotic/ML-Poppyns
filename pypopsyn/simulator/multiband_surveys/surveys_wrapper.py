@@ -401,7 +401,11 @@ def apply_surveys_coverage_filter(
 
 
 def radio_detection(
-    radio_surveys: dict, dictionary_intercepted_radio: dict
+    radio_surveys: dict,
+    dictionary_radio: dict,
+    intercepted_radio: np.ndarray,
+    logger: logging.Logger,
+    full_population: bool = False,
 ) -> dict:
     """
     Simulate radio detections for various surveys and update the dictionaries with the properties
@@ -409,7 +413,12 @@ def radio_detection(
 
     Args:
         radio_surveys (dict): Dictionary containing the radio survey objects.
-        dictionary_intercepted_radio (dict): Dictionary with properties of intercepted radio pulsars.
+        dictionary_radio (dict): Dictionary with properties of radio pulsars.
+        intercepted_radio (np.ndarray): Boolean mask to select radio pulsars whose beam intercept our line of sight.
+        logger (logging.Logger): Logger object for logging.
+        full_population (bool, optional): If True, return arrays of size `cfg["NS_number"]` (all stars, filling
+            with zeros where not intercepted). If False, return arrays only for intercepted stars.
+            Defaults to False.
 
     Returns:
         (dict): A dictionary containing the properties of detected pulsars for each survey.
@@ -427,6 +436,7 @@ def radio_detection(
 
     # Process each survey.
     detected_dictionaries = {}
+
     for survey_name in radio_surveys:
         (
             detected_mask,
@@ -434,23 +444,33 @@ def radio_detection(
             S_radio_obs_mean,
             S_radio_obs_mean_1400,
         ) = radio_surveys[survey_name].detected_radio_population(
-            dictionary_intercepted_radio["w_int"],
-            dictionary_intercepted_radio["DM"],
-            dictionary_intercepted_radio["P"],
-            dictionary_intercepted_radio[f"coverage_radio_{survey_name}"],
-            dictionary_intercepted_radio["l"],
-            dictionary_intercepted_radio["b"],
-            dictionary_intercepted_radio["S_radio_bol"],
-            dictionary_intercepted_radio["spectral_index"],
-            dictionary_intercepted_radio["tau_sc"],
+            dictionary_radio["w_int"],
+            dictionary_radio["DM"],
+            dictionary_radio["P"],
+            intercepted_radio,
+            dictionary_radio[f"coverage_radio_{survey_name}"],
+            dictionary_radio["l"],
+            dictionary_radio["b"],
+            dictionary_radio["S_radio_bol"],
+            dictionary_radio["spectral_index"],
+            dictionary_radio["tau_sc"],
         )
         detected_dictionaries[survey_name] = update_filtered_dictionary(
-            dictionary_intercepted_radio,
+            dictionary_radio,
             detected_mask,
             w_eff=w_eff,
             S_radio_obs_mean=S_radio_obs_mean,
             S_radio_obs_mean_1400=S_radio_obs_mean_1400,
         )
+        if full_population:
+            detected_dictionaries[survey_name].pop("intercepted_radio", None)
+
+            fraction_detected = len(detected_mask[detected_mask]) / len(
+                detected_mask
+            )
+            logger.info(
+                f"Fraction of detected pulsars by {survey_name}: {fraction_detected}"
+            )
 
         # Save the properties for the HTRU low and mid surveys separately.
         if survey_name == "HTRU_low":
@@ -473,7 +493,7 @@ def radio_detection(
         # survey that are already in the low survey in order to not double count individual objects.
         detected_HTRU_low_mid = detected_HTRU_low | detected_HTRU_mid
         detected_dictionaries["HTRU_low_mid"] = update_filtered_dictionary(
-            dictionary_intercepted_radio,
+            dictionary_radio,
             detected_HTRU_low_mid,
             w_eff=np.where(detected_HTRU_low, w_eff_low, w_eff_mid),
             S_radio_obs_mean=np.where(
@@ -486,120 +506,12 @@ def radio_detection(
             ),
             HTRU_low=detected_HTRU_low,
             HTRU_mid=detected_HTRU_mid,
-            idx=dictionary_intercepted_radio["idx"],
+            idx=dictionary_radio["idx"],
         )
-
-        # Remove the dictionaries containing the results for the individual HTRU low and mid surveys,
-        # as we only require the combined detections determined above.
-        del detected_dictionaries["HTRU_low"]
-        del detected_dictionaries["HTRU_mid"]
-
-    return detected_dictionaries
-
-
-def radio_detection_full(
-    radio_surveys: dict,
-    dictionary_intercepted_radio: dict,
-    dictionary_coverage: dict,
-    logger: logging.Logger,
-) -> dict:
-    """
-    Simulate radio detections for various surveys and update the dictionaries with the properties
-    of detected neutron stars.
-
-    Args:
-        radio_surveys (dict): Dictionary containing the radio survey objects.
-        dictionary_intercepted_radio (dict): Dictionary with properties of intercepted radio pulsars.
-        dictionary_coverage (dict): Dictionary containing boolean mask for the sky coverage of each survey.
-        logger (logging.Logger): Logger object for logging.
-
-    Returns:
-        (dict): A dictionary containing the properties of detected pulsars for each survey.
-    """
-    # Initialize variables for HTRU_low and HTRU_mid.
-    detected_HTRU_low = np.array([])
-    w_eff_low = None
-    S_radio_obs_mean_low = None
-    S_radio_obs_mean_1400_low = None
-
-    detected_HTRU_mid = np.array([])
-    w_eff_mid = None
-    S_radio_obs_mean_mid = None
-    S_radio_obs_mean_1400_mid = None
-
-    # Process each survey.
-    detected_dictionaries = {}
-    for survey_name in radio_surveys:
-        (
-            detected_mask,
-            w_eff,
-            S_radio_obs_mean,
-            S_radio_obs_mean_1400,
-        ) = radio_surveys[survey_name].detected_radio_population_full(
-            dictionary_intercepted_radio["w_int"],
-            dictionary_intercepted_radio["DM"],
-            dictionary_intercepted_radio["P"],
-            dictionary_intercepted_radio["intercepted_radio"],
-            dictionary_coverage[f"coverage_radio_{survey_name}"],
-            dictionary_intercepted_radio["l"],
-            dictionary_intercepted_radio["b"],
-            dictionary_intercepted_radio["S_radio_bol"],
-            dictionary_intercepted_radio["spectral_index"],
-            dictionary_intercepted_radio["tau_sc"],
-        )
-        detected_dictionaries[survey_name] = update_filtered_dictionary(
-            dictionary_intercepted_radio,
-            detected_mask,
-            w_eff=w_eff,
-            S_radio_obs_mean=S_radio_obs_mean,
-            S_radio_obs_mean_1400=S_radio_obs_mean_1400,
-        )
-        detected_dictionaries[survey_name].pop("intercepted_radio", None)
-
-        # Save the properties for the HTRU low and mid surveys separately.
-        if survey_name == "HTRU_low":
-            detected_HTRU_low = detected_mask
-            w_eff_low = w_eff
-            S_radio_obs_mean_low = S_radio_obs_mean
-            S_radio_obs_mean_1400_low = S_radio_obs_mean_1400
-
-        elif survey_name == "HTRU_mid":
-            detected_HTRU_mid = detected_mask
-            w_eff_mid = w_eff
-            S_radio_obs_mean_mid = S_radio_obs_mean
-            S_radio_obs_mean_1400_mid = S_radio_obs_mean_1400
-
-        fraction_detected = len(detected_mask[detected_mask]) / len(
-            detected_mask
-        )
-        logger.info(
-            f"Fraction of detected pulsars by {survey_name}: {fraction_detected}"
-        )
-
-    if (
-        "HTRU_low" in radio_surveys.keys()
-        and "HTRU_mid" in radio_surveys.keys()
-    ):
-        # Since the sky coverage of the HTRU mid and low surveys overlap, we remove those stars from the mid
-        # survey that are already in the low survey in order to not double count individual objects.
-        detected_HTRU_low_mid = detected_HTRU_low | detected_HTRU_mid
-        detected_dictionaries["HTRU_low_mid"] = update_filtered_dictionary(
-            dictionary_intercepted_radio,
-            detected_HTRU_low_mid,
-            w_eff=np.where(detected_HTRU_low, w_eff_low, w_eff_mid),
-            S_radio_obs_mean=np.where(
-                detected_HTRU_low, S_radio_obs_mean_low, S_radio_obs_mean_mid
-            ),
-            S_radio_obs_mean_1400=np.where(
-                detected_HTRU_low,
-                S_radio_obs_mean_1400_low,
-                S_radio_obs_mean_1400_mid,
-            ),
-            HTRU_low=detected_HTRU_low,
-            HTRU_mid=detected_HTRU_mid,
-            idx=dictionary_intercepted_radio["idx"],
-        )
-        detected_dictionaries["HTRU_low_mid"].pop("intercepted_radio", None)
+        if full_population:
+            detected_dictionaries["HTRU_low_mid"].pop(
+                "intercepted_radio", None
+            )
 
         # Remove the dictionaries containing the results for the individual HTRU low and mid surveys,
         # as we only require the combined detections determined above.

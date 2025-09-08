@@ -437,10 +437,13 @@ def simulate_population(args: argparse.Namespace) -> None:
                 dist_cutoff=35.0,
             )
 
+            # Add the survey sky coverage information to the final population dictionary.
+            pop_final |= coverage_dict
+
             # Compute the properties of pulsars whose radio beam intercepts our line of sight.
             pop_radio = er.radio_population_intercepted(
                 pop_final,
-                coverage_dict["coverage_radio"],
+                pop_final["coverage_radio"],
                 full_population=True,
             )
 
@@ -464,7 +467,7 @@ def simulate_population(args: argparse.Namespace) -> None:
                 # Compute X-ray emission of neutron stars.
                 pop_xray = ex.xray_population(
                     pop_final,
-                    coverage_dict["coverage_xray"],
+                    pop_final["coverage_xray"],
                     L_x_interpolator=Lx_interpolator,
                     crust_failure_rate_interpolator=crust_failure_rate_interpolator,
                     full_population=True,
@@ -509,8 +512,12 @@ def simulate_population(args: argparse.Namespace) -> None:
             log.info("Simulate detection with the radio surveys...")
 
             # Filter the population to include only pulsars detected by the radio surveys.
-            pop_detected_radio = sw.radio_detection_full(
-                surveys_radio, pop_radio, coverage_dict, log
+            pop_detected_radio = sw.radio_detection(
+                surveys_radio,
+                pop_radio,
+                pop_radio["intercepted_radio"],
+                log,
+                full_population=True,
             )
 
             sw.update_survey_data(
