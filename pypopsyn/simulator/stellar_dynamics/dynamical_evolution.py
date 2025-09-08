@@ -188,8 +188,7 @@ def initialize_population_dyn(age: np.ndarray) -> dict:
     Initialize the dynamical properties of a neutron star population.
 
     Args:
-        age (np.ndarray): An array of ages in [yr] fot the neutron stars that has to be initialized for the
-            dynamical evolution.
+        age (np.ndarray): An array of ages in [yr] for the neutron stars in the population to be initialized.
 
     Returns:
         (dict): A dictionary containing the initialized dynamical properties of the neutron star population.
@@ -270,7 +269,7 @@ def evolve_population_dyn(
     ).T
 
     # Determine the evolved positions and velocities.
-    (final_population, dyn_evol_dict,) = dynamical_evolution(
+    final_population, dyn_evol_dict = dynamical_evolution(
         initial_cond,
         age,
     )
@@ -323,7 +322,7 @@ def check_angular_momentum_energy_conservation(
 ) -> None:
     """
     This function computes the total energy and angular momentum (L_z) of a
-    stellar population before and after a dynamical process. It reports the
+    stellar population before and after a dynamical evolution. It reports the
     percentage variation of each quantity to assess conservation.
 
     Args:
