@@ -506,13 +506,13 @@ cfg["use_crust_failure_rate_interpolator"]: bool = True
 cfg["surveys_xray"]: dict = {
     "xray_flux_threshold": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
-        "detected_real": 4,
-        "flux_threshold_completeness": 2.0e-11,
+        "detected_real": 5,
+        "flux_threshold_completeness": 1.0e-11,
     },
     "xray_realistic": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json",
-        "detected_real": 4,
-        "flux_threshold_completeness": 2.0e-11,
+        "detected_real": 5,
+        "flux_threshold_completeness": 1.0e-11,
     },
 }
 
