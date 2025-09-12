@@ -353,6 +353,9 @@ labels `filter_labels` that we want to predict and provide information on whethe
 standardized. The `filter_labels` and `filter_inputs` arguments are explained in more detail below, along with an 
 example.
 
+!!! note
+    The file in `dataset_path_round_0` must be named `dataset_full.csv`, as this is the expected filename in the code.
+
 For the multi-round case, we must also specify, how many simulations we want to run in each round using the `num_sim` 
 field for training. In the example below, 1000 simulations are generated per round and then used for training.
 
@@ -492,7 +495,8 @@ the following files:
 The `j` indicates which neural network in the ensemble the file refers to. In the case of using just one neural network
 no subscript is added to these two files. 
 
-Finally, each subfolder `round_{i}` in the `models` directory contains:
+The `model` folder contains a `config_sbi.json` that it is a copy of the configuration file used to run the experiment.
+Finally, each subfolder `round_{i}` in this directory contains:
 
 * `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
    the observed data. Note that if the ensemble is enabled, a single corner plot will be produced using the ensemble of 

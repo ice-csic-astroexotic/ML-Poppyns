@@ -393,9 +393,9 @@ def save_training_statistics(
         else os.path.join(log_dir_round_path, "training_statistics.json")
     )
     training_statistics_plot_path = (
-        os.path.join(log_dir_round_path, f"training_stats_{index}.pdf")
+        os.path.join(log_dir_round_path, f"training_stats_{index}.png")
         if config["trainer"]["ensemble"]
-        else os.path.join(log_dir_round_path, "training_stats.pdf")
+        else os.path.join(log_dir_round_path, "training_stats.png")
     )
 
     with open(training_statistics_json_path, "w") as f:

@@ -70,6 +70,10 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
         config, logger
     )
 
+    # Saving the configuration file into the save_dir folder.
+    with open(f"{config.save_dir}/config.json", "w") as f:
+        json.dump(config._configuration, f, indent=4)
+
     # Show experiment information ------------------------------------------
     logger.info("=========================================================")
     with timewith.TimeWith(
@@ -421,10 +425,6 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
             # performing extra rounds, since the iteration counter (i) does not reflect the effective round number.
             if effective_round == num_rounds - 1:
                 break
-
-        # Saving the configuration file into the save_dir folder.
-        with open(f"{config.save_dir}/config.json", "w") as f:
-            json.dump(config._configuration, f, indent=4)
 
         if config["enable_dask"]:
             # Closing the cluster once the training has finished.
