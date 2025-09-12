@@ -223,10 +223,10 @@ def test_save_training_statistics(
     sbi_utils.save_training_statistics(
         make_config, fake_inference, index, effective_round
     )
-
     round_dir = os.path.join(make_config.log_dir, f"round_{effective_round}")
+
     json_path = os.path.join(round_dir, f"training_statistics_{index}.json")
-    pdf_path = os.path.join(round_dir, f"training_stats_{index}.pdf")
+    pdf_path = os.path.join(round_dir, f"training_stats_{index}.png")
 
     # Assert both files are created.
     assert os.path.exists(json_path)
