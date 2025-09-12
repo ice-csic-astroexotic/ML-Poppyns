@@ -629,7 +629,7 @@ def prepare_dataset_sbi(
 
     elif use_compression_input and model_type == "snpe":
         logger.error(
-            "Currently, the option of using SNPE with a compression input is not available."
+            "Currently, the option of using SNPE with a compression input is not available. Change the `use_compression` flag in the configuration file to false."
         )
         sys.exit(1)
 
