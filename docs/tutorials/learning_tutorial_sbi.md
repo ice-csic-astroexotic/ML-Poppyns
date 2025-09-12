@@ -539,7 +539,7 @@ Several additional parameters control how training behaves across different roun
    we refer the user to
    [Liu, J. S. (2001), Monte Carlo Strategies in Scientific Computing.](https://github.com/szcf-weiya/MonteCarlo/blob/master/References/Monte-Carlo-Strategies-in-Scientific-Computing.pdf)
 
-* `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round. 
+* `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round when testing. 
    ([Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
 
 * `plot_proposal`: If set to `true` and `truncated_prior` is enabled, a corner plot of the proposal prior will be saved.

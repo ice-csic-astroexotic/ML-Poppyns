@@ -161,9 +161,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
             # Set the proposal prior to the pior in round 0.
             proposal = prior
 
-            # Lists to store parameters and matrices from each round.
-            parameter_train = []
-            matrix_train = []
+            # Lists to store parameters and matrices from each round in testing.
             parameter_test = []
             matrix_test = []
 
@@ -226,18 +224,13 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                         logger.info(
                             "Preparing the training data set for sbi..."
                         )
-                        dataset, parameter, matrix = ut.prepare_dataset_sbi(
+                        (
+                            dataset,
+                            parameter_train_round,
+                            matrix_train_round,
+                        ) = ut.prepare_dataset_sbi(
                             train_dataset_path, config, logger
                         )
-
-                    # Save the training and testing data for reuse in future rounds if the proposal distribution
-                    # config["trainer"]["append_simulations"] is True.
-                    # Otherwise, use the simulations from the current round.
-                    if not config["trainer"]["append_simulations"]:
-                        parameter_train = []
-                        matrix_train = []
-                        parameter_test = []
-                        matrix_test = []
 
                     # Note that you cannot append simulations from previous rounds when using SNPE with a non-truncated
                     # prior. For more details, see the documentation.
@@ -251,13 +244,8 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                         )
                         sys.exit(1)
 
-                    parameter_train.append(parameter)
-                    matrix_train.append(matrix)
-                    parameter_round = torch.cat(parameter_train, dim=0)
-                    matrix_round = torch.cat(matrix_train, dim=0)
-
                     logger.info(
-                        f"Training the density estimator with {parameter_round.shape[0]} samples in round {effective_round} ..."
+                        f"Training the density estimator with {parameter_train_round.shape[0]} samples in round {effective_round} ..."
                     )
 
                     # If the model is trained using an SNPE approach and the proposal prior is set to the approximated
@@ -277,8 +265,8 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                         save_dir_round=save_dir_round,
                         logger=logger,
                         inference_list=inference_list,
-                        parameter_round=parameter_round,
-                        matrix_round=matrix_round,
+                        parameter_round=parameter_train_round,
+                        matrix_round=matrix_train_round,
                         device=device,
                         round_current=i,
                         prof_log_path=prof_log_path,
