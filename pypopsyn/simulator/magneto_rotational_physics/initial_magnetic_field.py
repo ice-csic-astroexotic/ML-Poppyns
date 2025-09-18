@@ -143,8 +143,8 @@ def initial_magnetic_field_lognormal(
     Draw random initial magnetic field values from a log-normal distribution as suggested in Gullón et al. (2015).
 
     Args:
-        mean (float): Mean of the Gaussian initial period distribution, in [s].
-        sigma (float): Standard deviation of the initial period distribution, in [s].
+        mean (float): Mean of the log-normal distribution.
+        sigma (float): Standard deviation of the log-normal distribution.
         NS_number (int): Total number of neutron stars created in the simulation.
 
     Returns:
