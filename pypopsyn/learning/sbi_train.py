@@ -111,9 +111,11 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
             logger.info(
                 "Preparing the training dataset for sbi for round 0..."
             )
-            dataset, parameter, matrix = ut.prepare_dataset_sbi(
-                train_dataset_path, config, logger
-            )
+            (
+                dataset,
+                parameter_train_round,
+                matrix_train_round,
+            ) = ut.prepare_dataset_sbi(train_dataset_path, config, logger)
             num_rounds = config["trainer"]["num_rounds"]
 
             # Loading the train dataset as a dataframe and extracting the ground truth labels.
@@ -400,14 +402,6 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                     observed_samples_posterior,
                     f"{save_dir_round}/samples_posterior.pt",
                 )
-
-                # If retrain_from_scratch is set to True, initialize the inference object to reset the weights
-                # and avoid reusing the previously trained weights at each round.
-
-                if retrain_from_scratch:
-                    inference_list = sbi_builder.initialize_inference(
-                        config, device, prior, logger, ensemble
-                    )
 
             # Stop the training when the number of rounds is reached. This is necessary in the resume case to avoid
             # performing extra rounds, since the iteration counter (i) does not reflect the effective round number.
