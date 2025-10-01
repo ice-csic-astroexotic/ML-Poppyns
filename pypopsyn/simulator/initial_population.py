@@ -132,7 +132,7 @@ class InitialNeutronStarPopulation:
             )
         else:
             raise ValueError(
-                "The kick velocity model pdf does not exist. Choose between km_maxwell, km_exp or km_2maxwell."
+                "The kick velocity model pdf does not exist. Choose between km_maxwell, km_exp, km_double_maxwell or km_log-normal."
             )
 
         # To draw a random direction for the speed from a uniform distribution,
