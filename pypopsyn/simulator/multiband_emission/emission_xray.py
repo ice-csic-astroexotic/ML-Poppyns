@@ -403,14 +403,19 @@ def calculate_xray_emission(
     # This is done in order to remove luminosity values that are too small or even negative due to the unreliable
     # results of the interpolation at late times. This helps to avoid computing the RCS spectra for those stars
     # whose luminosity is too low to be detectable and save computational resources.
-    L_x_mask = L_x_therm > L_x_threshold
-    L_x_therm = L_x_therm[L_x_mask]
-
-    xray_bright_mask = L_x_mask
+    xray_bright_mask = L_x_therm > L_x_threshold
 
     # Compute the absorbed fluxes computing the RCS spectra and the N_H column density.
-    S_x_bb_abs, S_x_rcs_abs, N_H = flux_xray_absorbed(
-        L_x_therm,
+    S_x_bb_abs = np.zeros_like(L_x_therm)
+    S_x_rcs_abs = np.zeros_like(L_x_therm)
+    N_H = np.zeros_like(L_x_therm)
+
+    (
+        S_x_bb_abs[xray_bright_mask],
+        S_x_rcs_abs[xray_bright_mask],
+        N_H[xray_bright_mask],
+    ) = flux_xray_absorbed(
+        L_x_therm[xray_bright_mask],
         B[xray_bright_mask],
         ra[xray_bright_mask],
         dec[xray_bright_mask],
@@ -570,55 +575,88 @@ def outburst_filter_from_crust_failure_rate(
 
 def xray_population(
     dict_pop: dict,
+    coverage_xray: np.ndarray,
     L_x_interpolator: RectBivariateSpline,
     crust_failure_rate_interpolator: RectBivariateSpline,
     L_x_threshold: float = 1.0e30,
+    full_population: bool = False,
 ) -> dict:
     """
     Filter and compute properties of a population of neutron stars that emits thermally in X-rays.
 
     Args:
         dict_pop (dict): Dictionary containing the properties of a neutron star population.
+        coverage_xray (np.ndarray): A boolean mask to filter only stars in the sky coverage of X-ray surveys.
         L_x_interpolator (RectBivariateSpline): Interpolator used to calculate the thermal X-ray luminosity based
             on age and magnetic field.
         crust_failure_rate_interpolator (RectBivariateSpline): An interpolator function loaded from a pickled file
             to evaluate the rate of crust failures.
         L_x_threshold (float): A lower limit for the X-ray luminosity.
+        full_population (bool, optional): If True, return arrays of size `cfg["NS_number"]` (all stars, filling
+            with zeros where not intercepted). If False, return arrays only for intercepted stars.
+            Defaults to False.
 
     Returns:
-        (dict): A dictionary containing properties of the neutron stars that emits thermally in X-rays.
+        (dict): A dictionary containing properties of the neutron stars that emit thermally in X-rays.
     """
 
-    # Select only the stars that can, in principle, be detected in the X-rays, i.e., those that they lie within the
-    # observed region.
-    coverage_x = dict_pop["coverage_xray"]
-    dict_final_pop_filtered = {
-        key: value[coverage_x] for key, value in dict_pop.items()
-    }
+    if full_population:
+        # Compute the properties of the X-ray bright neutron stars.
+        (
+            xray_bright_mask,
+            L_x_therm,
+            S_x_bb_abs,
+            S_x_rcs_abs,
+            N_H,
+        ) = calculate_xray_emission(
+            dict_pop["B"],
+            dict_pop["B_initial"],
+            dict_pop["age"],
+            dict_pop["ra"],
+            dict_pop["dec"],
+            dict_pop["dist"],
+            L_x_interpolator,
+            L_x_threshold,
+        )
 
-    # Compute the properties of the X-ray bright neutron stars.
-    (
-        xray_bright_mask,
-        L_x_therm,
-        S_x_bb_abs,
-        S_x_rcs_abs,
-        N_H,
-    ) = calculate_xray_emission(
-        dict_final_pop_filtered["B"],
-        dict_final_pop_filtered["B_initial"],
-        dict_final_pop_filtered["age"],
-        dict_final_pop_filtered["ra"],
-        dict_final_pop_filtered["dec"],
-        dict_final_pop_filtered["dist"],
-        L_x_interpolator,
-        L_x_threshold,
-    )
+        # Storing the properties of the X-ray bright neutron stars in a dictionary.
+        dict_xray_pop = {key: value for key, value in dict_pop.items()}
 
-    # Storing the properties of the X-ray bright neutron stars in a dictionary.
-    dict_xray_pop = {
-        key: value[xray_bright_mask]
-        for key, value in dict_final_pop_filtered.items()
-    }
+    else:
+        # Select only the stars that can, in principle, be detected in the X-rays, i.e., those that lie within the
+        # observed region.
+        dict_pop_filtered = {
+            key: value[coverage_xray] for key, value in dict_pop.items()
+        }
+
+        # Compute the properties of the X-ray bright neutron stars.
+        (
+            xray_bright_mask,
+            L_x_therm,
+            S_x_bb_abs,
+            S_x_rcs_abs,
+            N_H,
+        ) = calculate_xray_emission(
+            dict_pop_filtered["B"],
+            dict_pop_filtered["B_initial"],
+            dict_pop_filtered["age"],
+            dict_pop_filtered["ra"],
+            dict_pop_filtered["dec"],
+            dict_pop_filtered["dist"],
+            L_x_interpolator,
+            L_x_threshold,
+        )
+
+        # Storing the properties of the X-ray bright neutron stars in a dictionary.
+        dict_xray_pop = {
+            key: value[xray_bright_mask]
+            for key, value in dict_pop_filtered.items()
+        }
+
+        L_x_therm = L_x_therm[xray_bright_mask]
+        S_x_bb_abs = S_x_bb_abs[xray_bright_mask]
+        S_x_rcs_abs = S_x_rcs_abs[xray_bright_mask]
+        N_H = N_H[xray_bright_mask]
 
     # Apply the filter to see which neutron stars go in outburst.
     if cfg["use_crust_failure_rate_interpolator"]:

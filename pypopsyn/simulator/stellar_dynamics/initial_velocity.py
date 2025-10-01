@@ -74,10 +74,11 @@ def pdf_kick_velocity_double_maxwell(v: np.ndarray) -> np.ndarray:
     sigma_1 = cfg["sigma_k_comp1"]
     sigma_2 = cfg["sigma_k_comp2"]
     # Define the fractional contribution of the first Maxwellian.
-    w = cfg["weight_comp1"]
+    w = cfg["kick_weight_comp1"]
+
     if (w < 0) or (w > 1):
         raise ValueError(
-            "The relative weight parameter of the km_2maxwell kick velocity model must be in "
+            "The relative weight parameter of the km_double_maxwell kick velocity model must be in "
             "the range 0 and 1."
         )
 

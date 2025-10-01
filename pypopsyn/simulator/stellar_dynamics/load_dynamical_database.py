@@ -59,64 +59,34 @@ def load_database_dyn(
         idx_remove,
     )
 
-    age = df_dyn["age"]["[yr]"].to_numpy()
-    r = df_dyn["r"]["[kpc]"].to_numpy()
-    phi = df_dyn["phi"]["[rad]"].to_numpy()
-    z = df_dyn["z"]["[kpc]"].to_numpy()
-    v_r = df_dyn["v_r"]["[km/s]"].to_numpy()
-    v_phi = df_dyn["v_phi"]["[km/s]"].to_numpy()
-    v_z = df_dyn["v_z"]["[km/s]"].to_numpy()
+    # Remove the second line of the header and convert the dataframe to a dictionary.
+    df_dyn.columns = df_dyn.columns.get_level_values(0)
+    dyn_dict = {col: df_dyn[col].to_numpy() for col in df_dyn.columns}
 
-    # Convert from polar coordinates to Cartesian coordinates.
-    x, y = coco.polar_to_cartesian(r, phi)
-
-    # Convert velocity components from galactocentric cylindrical coordinates
-    # to galactocentric Cartesian coordinates.
-    (
-        v_x,
-        v_y,
-        v_z,
-    ) = coco.speed_cylindrical_to_cartesian(v_r, v_phi, v_z, phi)
-
-    # Convert galactocentric coordinates and velocities into ICRS frame.
-    (
-        ra,
-        dec,
-        dist_heliocentric_icrs,
-        pm_ra,
-        pm_dec,
-        v_ls_icrs,
-    ) = coco.galactocentric_to_icrs(x, y, z, v_x, v_y, v_z)
-
-    # Convert galactocentric coordinates and velocities into galactic coordinates.
-    (
-        l_gal,
-        b_gal,
-        dist_heliocentric_gal,
-        pm_l,
-        pm_b,
-        v_ls_gal,
-    ) = coco.galactocentric_to_galactic(x, y, z, v_x, v_y, v_z)
-
-    dictionary_dyn_database_chunk = {
-        "age": age,
-        "ra": ra,
-        "dec": dec,
-        "l": l_gal,
-        "b": b_gal,
-        "dist": dist_heliocentric_icrs,
-        "pm_ra": pm_ra,
-        "pm_dec": pm_dec,
-        "v_ls": v_ls_icrs,
-        "idx": df_dyn.index.values,
-    }
+    # Add the dynamical properties in all coordinates and the index associated to each star and remove unnecessary keys.
+    dictionary_dyn_database_chunk = (
+        coco.convert_cylindrical_to_all_coordinates(dyn_dict)
+    )
+    dictionary_dyn_database_chunk["idx"] = df_dyn.index.values
+    dictionary_dyn_database_chunk.pop("r", None)
+    dictionary_dyn_database_chunk.pop("phi", None)
+    dictionary_dyn_database_chunk.pop("z", None)
+    dictionary_dyn_database_chunk.pop("v_r", None)
+    dictionary_dyn_database_chunk.pop("v_phi", None)
+    dictionary_dyn_database_chunk.pop("v_z", None)
 
     # Update the parameters in the simulation configuration file with the ones of the dynamical database.
     cfg["t_age_max"] = config_dyn["t_age_max"]
     cfg["NS_number"] = config_dyn["NS_number"]
     cfg["kick_model"] = config_dyn["kick_model"]
-    cfg["sigma_k"] = config_dyn["sigma_k"]
-    cfg["vk_c"] = config_dyn["vk_c"]
+    if config_dyn["kick_model"] == "km_maxwell":
+        cfg["sigma_k"] = config_dyn["sigma_k"]
+    elif config_dyn["kick_model"] == "km_exp":
+        cfg["vk_c"] = config_dyn["vk_c"]
+    elif config_dyn["kick_model"] == "km_2maxwell":
+        cfg["sigma_k_1"] = config_dyn["sigma_k_1"]
+        cfg["sigma_k_2"] = config_dyn["sigma_k_2"]
+        cfg["kick_weight"] = config_dyn["kick_weight"]
     cfg["h_c"] = config_dyn["h_c"]
 
     # Add the path of the dynamical database in the configuration file.

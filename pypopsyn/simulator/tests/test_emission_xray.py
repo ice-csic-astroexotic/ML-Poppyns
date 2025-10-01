@@ -147,8 +147,11 @@ def test_case_2():
             [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
         ),
         "xray_bright_mask_expected": np.array([False, True, False]),
-        "L_x_therm_expected": np.array([1e33]),
+        "L_x_therm_expected": np.array([1e28, 1e33, 1e27]),
         "mock_L_x_therm": np.array([1e28, 1e33, 1e27]),
+        "S_x_rcs_abs_expected": np.array([0, 3.0e-12, 0]),
+        "S_x_bb_abs_expected": np.array([0, 2.0e-12, 0]),
+        "N_H_expected": np.array([0, 2.0e-21, 0]),
         "mock_S_x_rcs_abs": np.array([3.0e-12]),
         "mock_S_x_bb_abs": np.array([2.0e-12]),
         "mock_N_H": np.array([2.0e-21]),
@@ -160,6 +163,35 @@ def test_case_2():
 @pytest.fixture()
 def test_case_3():
     data = {
+        "age": np.array([1e4, 2e5, 1e7]),
+        "ra": np.array([50.0, 250.0, 30.0]),
+        "dec": np.array([-50.0, 50.0, 30.0]),
+        "dist": np.array([2.0, 10.0, 5.0]),
+        "B_initial": np.array([1e12, 1e14, 1e13]),
+        "B": np.array([1e12, 1e14, 1e13]),
+        "L_x_threshold": 1e29,
+        "dummy_L_x_interpolator": RectBivariateSpline(
+            [0, 1, 2, 3],
+            [0, 1, 2, 3],
+            [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
+        ),
+        "xray_bright_mask_expected": np.array([False, True, False]),
+        "L_x_therm_expected": np.array([1e28, 1e33, 1e27]),
+        "mock_L_x_therm": np.array([1e28, 1e33, 1e27]),
+        "mock_S_x_rcs_abs": np.array([3.0e-12]),
+        "mock_S_x_bb_abs": np.array([2.0e-12]),
+        "mock_N_H": np.array([2.0e-21]),
+        "S_x_rcs_abs_expected": np.array([0.0, 3.0e-12, 0.0]),
+        "S_x_bb_abs_expected": np.array([0.0, 2.0e-12, 0.0]),
+        "N_H_expected": np.array([0.0, 2.0e-21, 0.0]),
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_4():
+    data = {
         "age": np.array([50, 200, 800, 2000]),
         "B_initial": np.array([1e14, 5e12, 2e13, 9e12]),
         "outburst_mask_expected": np.array([True, False, False, False]),
@@ -169,7 +201,7 @@ def test_case_3():
 
 
 @pytest.fixture()
-def test_case_4():
+def test_case_5():
     data = {
         "age": np.array([50, 200, 800, 2000]),
         "B_initial": np.array([1e14, 5e12, 2e13, 9e12]),
@@ -186,7 +218,7 @@ def test_case_4():
 
 
 @pytest.fixture()
-def test_case_5():
+def test_case_6():
     data = {
         "dict_final_pop": {
             "age": np.array([1e6, 2e6]),
@@ -213,6 +245,11 @@ def test_case_5():
         "L_x_threshold": 1e29,
         "S_x_abs_threshold": 1e-15,
         "dummy_L_x_interpolator": RectBivariateSpline(
+            [0, 1, 2, 3],
+            [0, 1, 2, 3],
+            [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
+        ),
+        "dummy_crust_failure_rate_interpolator": RectBivariateSpline(
             [0, 1, 2, 3],
             [0, 1, 2, 3],
             [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
@@ -248,6 +285,78 @@ def test_case_5():
             "coverage_radio_HTRU_mid",
             "coverage_radio_PMPS",
             "coverage_xray",
+            "outburst",
+        ],
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_7():
+    data = {
+        "dict_final_pop": {
+            "age": np.array([1e6, 2e6]),
+            "l": np.array([-50.0, 50.0]),
+            "b": np.array([-20.0, 10.0]),
+            "ra": np.array([50.0, 250.0]),
+            "dec": np.array([-50.0, 50.0]),
+            "dist": np.array([2.0, 10.0]),
+            "pm_ra": np.array([-50.0, 50.0]),
+            "pm_dec": np.array([-50.0, 50.0]),
+            "v_ls": np.array([-50.0, 50.0]),
+            "P": np.array([0.01, 0.5]),
+            "P_dot": np.array([1.0e-11, 1.0e-12]),
+            "B_initial": np.array([1e12, 1e14]),
+            "B": np.array([1e12, 1e14]),
+            "chi": np.array([1.0, 2.0]),
+            "idx": np.array([0, 1]),
+        },
+        "dict_coverage": {
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
+            "coverage_radio": np.array([True, False]),
+            "coverage_xray": np.array([True, True]),
+        },
+        "L_x_threshold": 1e29,
+        "S_x_abs_threshold": 1e-15,
+        "dummy_L_x_interpolator": RectBivariateSpline(
+            [0, 1, 2, 3],
+            [0, 1, 2, 3],
+            [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
+        ),
+        "dummy_crust_failure_rate_interpolator": RectBivariateSpline(
+            [0, 1, 2, 3],
+            [0, 1, 2, 3],
+            [[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]],
+        ),
+        "xray_bright_mask": np.array([True, True]),
+        "L_x_therm": np.array([1e33, 1e34]),
+        "S_x_rcs_abs": np.array([3.0e-12, 4.0e-16]),
+        "S_x_bb_abs": np.array([2.0e-12, 3.0e-16]),
+        "N_H": np.array([2.0e-21, 3.0e-21]),
+        "outburst_mask": np.array([True, False]),
+        "expected_keys": [
+            "age",
+            "ra",
+            "dec",
+            "l",
+            "b",
+            "N_H",
+            "dist",
+            "pm_ra",
+            "pm_dec",
+            "v_ls",
+            "B_initial",
+            "B",
+            "chi",
+            "P",
+            "P_dot",
+            "L_x_therm",
+            "S_x_rcs_abs",
+            "S_x_bb_abs",
+            "idx",
             "outburst",
         ],
     }
@@ -505,59 +614,28 @@ def test_calculate_xray_emission(test_case_2, monkeypatch):
     ).all()
 
     assert np.isclose(
-        test_case_2["mock_S_x_bb_abs"],
+        test_case_2["S_x_bb_abs_expected"],
         S_x_bb_abs_out,
         rtol=TOL,
         atol=1.0e-14,
     ).all()
 
     assert np.isclose(
-        test_case_2["mock_S_x_rcs_abs"],
+        test_case_2["S_x_rcs_abs_expected"],
         S_x_rcs_abs_out,
         rtol=TOL,
         atol=1.0e-14,
     ).all()
 
     assert np.isclose(
-        test_case_2["mock_N_H"],
+        test_case_2["N_H_expected"],
         N_H_out,
         rtol=TOL,
         atol=1.0e-14,
     ).all()
 
 
-def test_load_crust_failure_rate_interpolator(test_case_4, tmp_path):
-    """
-    Test that initialize_Lx_interpolator loads and returns a valid interpolator.
-    """
-    # Create sub-directory for the pickle file.
-    subdir = tmp_path / "magneto-thermal"
-    subdir.mkdir()
-
-    # Path to interpolator pickle inside subdir.
-    interpolator_path = subdir / "interpolator_crust_failure_rate.pkl"
-
-    # Write the dummy interpolator to the file.
-    with open(interpolator_path, "wb") as f:
-        pickle.dump(test_case_4["dummy_failure_rate_interpolator"], f)
-
-    # Define a fake cfg to point to this location.
-    fake_cfg = {
-        "path_to_software": str(tmp_path),  # base dir is tmp_path
-        "magneto-thermal_path": "magneto-thermal",  # subdir
-    }
-
-    # Patch cfg with this fake_cfg.
-    with mock.patch(
-        "pypopsyn.simulator.multiband_emission.emission_xray.cfg", fake_cfg
-    ):
-        interpolator = xem.load_crust_failure_rate_interpolator()
-
-    # Assertions.
-    assert isinstance(interpolator, RectBivariateSpline)
-
-
-def test_outburst_filter_probabilistic(test_case_3, monkeypatch):
+def test_outburst_filter_probabilistic(test_case_4, monkeypatch):
     """
     Check that the outburst mask from the outburst_filter_probabilistic is correctly returned.
     """
@@ -582,19 +660,50 @@ def test_outburst_filter_probabilistic(test_case_3, monkeypatch):
     monkeypatch.setattr(np.random, "rand", mock_rand)
 
     outburst_mask_out = xem.outburst_filter_probabilistic(
-        test_case_3["B_initial"], test_case_3["age"]
+        test_case_4["B_initial"], test_case_4["age"]
     )
 
-    assert np.all(outburst_mask_out == test_case_3["outburst_mask_expected"])
+    assert np.all(outburst_mask_out == test_case_4["outburst_mask_expected"])
 
 
-def test_outburst_filter_from_crust_failure_rate(test_case_4, monkeypatch):
+def test_load_crust_failure_rate_interpolator(test_case_5, tmp_path):
+    """
+    Test that initialize_Lx_interpolator loads and returns a valid interpolator.
+    """
+    # Create sub-directory for the pickle file.
+    subdir = tmp_path / "magneto-thermal"
+    subdir.mkdir()
+
+    # Path to interpolator pickle inside subdir.
+    interpolator_path = subdir / "interpolator_crust_failure_rate.pkl"
+
+    # Write the dummy interpolator to the file.
+    with open(interpolator_path, "wb") as f:
+        pickle.dump(test_case_5["dummy_failure_rate_interpolator"], f)
+
+    # Define a fake cfg to point to this location.
+    fake_cfg = {
+        "path_to_software": str(tmp_path),  # base dir is tmp_path
+        "magneto-thermal_path": "magneto-thermal",  # subdir
+    }
+
+    # Patch cfg with this fake_cfg.
+    with mock.patch(
+        "pypopsyn.simulator.multiband_emission.emission_xray.cfg", fake_cfg
+    ):
+        interpolator = xem.load_crust_failure_rate_interpolator()
+
+    # Assertions.
+    assert isinstance(interpolator, RectBivariateSpline)
+
+
+def test_outburst_filter_from_crust_failure_rate(test_case_5, monkeypatch):
     """
     Check that the outburst mask from interpolated crust failure rate is correctly returned.
     """
 
     def mock_interpolator(*args, **kwargs):
-        return test_case_4["mock_failure_rate"]
+        return test_case_5["mock_failure_rate"]
 
     monkeypatch.setattr(RectBivariateSpline, "ev", mock_interpolator)
 
@@ -605,26 +714,26 @@ def test_outburst_filter_from_crust_failure_rate(test_case_4, monkeypatch):
     monkeypatch.setattr(np.random, "rand", mock_rand)
 
     outburst_mask_out = xem.outburst_filter_from_crust_failure_rate(
-        test_case_4["B_initial"],
-        test_case_4["age"],
-        test_case_4["dummy_failure_rate_interpolator"],
+        test_case_5["B_initial"],
+        test_case_5["age"],
+        test_case_5["dummy_failure_rate_interpolator"],
     )
 
-    assert np.all(outburst_mask_out == test_case_4["outburst_mask_expected"])
+    assert np.all(outburst_mask_out == test_case_5["outburst_mask_expected"])
 
 
-def test_xray_population(test_case_5, monkeypatch):
+def test_xray_population(test_case_6, monkeypatch):
     """
     Check that the dictionary with the properties of the neutron stars that are detected in X-rays is properly returned.
     """
 
     def mock_calculate_xray_emission(*args, **kwargs):
         return (
-            test_case_5["xray_bright_mask"],
-            test_case_5["L_x_therm"],
-            test_case_5["S_x_bb_abs"],
-            test_case_5["S_x_rcs_abs"],
-            test_case_5["N_H"],
+            test_case_6["xray_bright_mask"],
+            test_case_6["L_x_therm"],
+            test_case_6["S_x_bb_abs"],
+            test_case_6["S_x_rcs_abs"],
+            test_case_6["N_H"],
         )
 
     monkeypatch.setattr(
@@ -634,20 +743,22 @@ def test_xray_population(test_case_5, monkeypatch):
     cfg["use_crust_failure_rate_interpolator"] = False
 
     out_dict = xem.xray_population(
-        test_case_5["dict_final_pop"],
-        test_case_5["dummy_L_x_interpolator"],
-        test_case_5["L_x_threshold"],
+        test_case_6["dict_final_pop"],
+        test_case_6["dict_final_pop"]["coverage_xray"],
+        test_case_6["dummy_L_x_interpolator"],
+        test_case_6["dummy_crust_failure_rate_interpolator"],
+        test_case_6["L_x_threshold"],
     )
     # Verify that the keys are correct.
-    assert set(out_dict.keys()) == set(test_case_5["expected_keys"])
+    assert set(out_dict.keys()) == set(test_case_6["expected_keys"])
 
     # Verify that the output dictionary contains at most the same number of stars as the input one.
-    assert len(out_dict["age"]) <= len(test_case_5["dict_final_pop"]["age"])
+    assert len(out_dict["age"]) <= len(test_case_6["dict_final_pop"]["age"])
 
     cfg["use_crust_failure_rate_interpolator"] = True
 
     def mock_outburst_filter_from_crust_failure_rate(*args, **kwargs):
-        return test_case_5["outburst_mask"]
+        return test_case_6["outburst_mask"]
 
     monkeypatch.setattr(
         xem,
@@ -656,11 +767,72 @@ def test_xray_population(test_case_5, monkeypatch):
     )
 
     out_dict = xem.xray_population(
-        test_case_5["dict_final_pop"],
-        test_case_5["dummy_L_x_interpolator"],
-        test_case_5["L_x_threshold"],
+        test_case_6["dict_final_pop"],
+        test_case_6["dict_final_pop"]["coverage_xray"],
+        test_case_6["dummy_L_x_interpolator"],
+        test_case_6["dummy_crust_failure_rate_interpolator"],
+        test_case_6["L_x_threshold"],
     )
     # Verify that the keys are correct.
-    assert set(out_dict.keys()) == set(test_case_5["expected_keys"])
+    assert set(out_dict.keys()) == set(test_case_6["expected_keys"])
     # Verify that the output dictionary contains at most the same number of stars as the input one.
-    assert len(out_dict["age"]) <= len(test_case_5["dict_final_pop"]["age"])
+    assert len(out_dict["age"]) <= len(test_case_6["dict_final_pop"]["age"])
+
+
+def test_xray_population_full(test_case_7, monkeypatch):
+    """
+    Check that the dictionary with the properties of the neutron stars that are detected in X-rays is properly returned
+    for the full simulation.
+    """
+
+    def mock_calculate_xray_emission(*args, **kwargs):
+        return (
+            test_case_7["xray_bright_mask"],
+            test_case_7["L_x_therm"],
+            test_case_7["S_x_bb_abs"],
+            test_case_7["S_x_rcs_abs"],
+            test_case_7["N_H"],
+        )
+
+    monkeypatch.setattr(
+        xem, "calculate_xray_emission", mock_calculate_xray_emission
+    )
+
+    cfg["use_crust_failure_rate_interpolator"] = False
+
+    out_dict = xem.xray_population(
+        test_case_7["dict_final_pop"],
+        test_case_7["dict_coverage"]["coverage_xray"],
+        test_case_7["dummy_L_x_interpolator"],
+        test_case_7["dummy_crust_failure_rate_interpolator"],
+        test_case_7["L_x_threshold"],
+        full_population=True,
+    )
+    # Verify that the keys are correct.
+    assert set(out_dict.keys()) == set(test_case_7["expected_keys"])
+
+    # Verify that the output dictionary contains the same number of stars as the input one.
+    assert len(out_dict["age"]) == len(test_case_7["dict_final_pop"]["age"])
+
+    cfg["use_crust_failure_rate_interpolator"] = True
+
+    def mock_outburst_filter_from_crust_failure_rate(*args, **kwargs):
+        return test_case_7["outburst_mask"]
+
+    monkeypatch.setattr(
+        xem,
+        "outburst_filter_from_crust_failure_rate",
+        mock_outburst_filter_from_crust_failure_rate,
+    )
+
+    out_dict = xem.xray_population(
+        test_case_7["dict_final_pop"],
+        test_case_7["dict_coverage"]["coverage_xray"],
+        test_case_7["dummy_L_x_interpolator"],
+        test_case_7["L_x_threshold"],
+        full_population=True,
+    )
+    # Verify that the keys are correct.
+    assert set(out_dict.keys()) == set(test_case_7["expected_keys"])
+    # Verify that the output dictionary contains the same number of stars as the input one.
+    assert len(out_dict["age"]) == len(test_case_7["dict_final_pop"]["age"])

@@ -2,6 +2,8 @@
 
 ::: utilities.coverage_probability
 
+::: utilities.dataframe_builder
+
 ::: utilities.download_online_content
 
 ::: utilities.inference_statistics

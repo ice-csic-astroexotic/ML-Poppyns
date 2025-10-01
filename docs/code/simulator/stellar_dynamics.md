@@ -10,4 +10,6 @@
 
 ::: pypopsyn.simulator.stellar_dynamics.initial_velocity
 
+::: pypopsyn.simulator.stellar_dynamics.load_dynamical_database
+
 ::: pypopsyn.simulator.stellar_dynamics.spiral_model

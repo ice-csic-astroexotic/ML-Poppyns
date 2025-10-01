@@ -65,7 +65,29 @@ class MockSurveyRadio:
         w_int_s,
         DM,
         P,
-        age,
+        intercepted_radio,
+        coverage,
+        l_gal,
+        b_gal,
+        S_radio_bol,
+        spectral_index,
+        tau_sc,
+    ):
+        """Mock implementation of detected_radio_population."""
+        # For simplicity, return the same output for all the surveys.
+        return (
+            np.array([True, False]),  # detected_radio
+            np.array([0.1, 0.2]),  # w_eff
+            np.array([0.001, 0.002]),  # S_radio_obs_mean
+            np.array([0.003, 0.004]),  # S_radio_obs_mean_1400
+        )
+
+    def detected_radio_population_full(
+        self,
+        w_int_s,
+        DM,
+        P,
+        intercepted_radio,
         coverage,
         l_gal,
         b_gal,
@@ -527,6 +549,21 @@ def test_case_4():
             "v_ls": np.array([-50.0, 50.0]),
             "idx": np.array([0, 1]),
         },
+        "coverage_dict_with_xray": {
+            "coverage_radio": np.array([True, False]),
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
+            "coverage_xray": np.array([True, False]),
+            "coverage_xray_xray_flux_threshold": np.array([True, False]),
+            "coverage_xray_xray_realistic": np.array([True, False]),
+        },
+        "coverage_dict_without_xray": {
+            "coverage_radio": np.array([True, False]),
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
+        },
         "idx_remove": [],
         "dist_cutoff": 5.0,
         "expected_keys_with_xray": {
@@ -571,6 +608,51 @@ def test_case_4():
 
 @pytest.fixture()
 def test_case_5():
+    data = {
+        "radio_surveys": {
+            "PMPS": MockSurveyRadio("PMPS"),
+            "HTRU_low": MockSurveyRadio("HTRU_low"),
+            "HTRU_mid": MockSurveyRadio("HTRU_mid"),
+        },
+        "xray_surveys": {
+            "xray_flux_threshold": MockSurveyXray("xray_flux_threshold"),
+            "xray_realistic": MockSurveyXray("xray_realistic"),
+        },
+        "dyn_database_dict": {
+            "age": np.array([1e6, 2e6]),
+            "ra": np.array([50.0, 250.0]),
+            "dec": np.array([-50.0, 50.0]),
+            "l": np.array([-50.0, 50.0]),
+            "b": np.array([-20.0, 10.0]),
+            "dist": np.array([2.0, 10.0]),
+            "pm_ra": np.array([-50.0, 50.0]),
+            "pm_dec": np.array([-50.0, 50.0]),
+            "v_ls": np.array([-50.0, 50.0]),
+            "idx": np.array([0, 1]),
+        },
+        "dist_cutoff": 5.0,
+        "expected_keys_with_xray": {
+            "coverage_radio",
+            "coverage_radio_PMPS",
+            "coverage_radio_HTRU_low",
+            "coverage_radio_HTRU_mid",
+            "coverage_xray",
+            "coverage_xray_xray_flux_threshold",
+            "coverage_xray_xray_realistic",
+        },
+        "expected_keys_without_xray": {
+            "coverage_radio",
+            "coverage_radio_PMPS",
+            "coverage_radio_HTRU_low",
+            "coverage_radio_HTRU_mid",
+        },
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_6():
     data = {
         "radio_surveys": {
             "PMPS": MockSurveyRadio("PMPS"),
@@ -668,7 +750,106 @@ def test_case_5():
 
 
 @pytest.fixture()
-def test_case_6():
+def test_case_7():
+    data = {
+        "radio_surveys": {
+            "PMPS": MockSurveyRadio("PMPS"),
+            "HTRU_low": MockSurveyRadio("HTRU_low"),
+            "HTRU_mid": MockSurveyRadio("HTRU_mid"),
+        },
+        "dictionary_intercepted_radio": {
+            "age": np.array([1e6, 2e6]),
+            "ra": np.array([180.0, 190.0]),
+            "dec": np.array([-45.0, -50.0]),
+            "l": np.array([120.0, 130.0]),
+            "b": np.array([10.0, 15.0]),
+            "dist": np.array([2.0, 3.0]),
+            "pm_ra": np.array([10.0, 20.0]),
+            "pm_dec": np.array([-5.0, -10.0]),
+            "v_ls": np.array([50.0, 60.0]),
+            "B": np.array([1e12, 2e12]),
+            "chi": np.array([30.0, 40.0]),
+            "P": np.array([0.5, 1.0]),
+            "P_dot": np.array([1e-15, 2e-15]),
+            "w_int": np.array([0.05, 0.1]),
+            "DM": np.array([100.0, 200.0]),
+            "idx": np.array([0, 1]),
+            "L_radio_bol": np.array([1e30, 1e31]),
+            "S_radio_bol": np.array([0.01, 0.02]),
+            "spectral_index": np.array([-1.8, -1.8]),
+            "tau_sc": np.array([0.001, 0.002]),
+            "intercepted_radio": np.array([True, True]),
+            "coverage_radio_PMPS": np.array([True, False]),
+            "coverage_radio_HTRU_low": np.array([True, False]),
+            "coverage_radio_HTRU_mid": np.array([True, False]),
+        },
+        "expected_dictionary_detected": {
+            "PMPS": {
+                "age": np.array([1e6]),
+                "ra": np.array([180.0]),
+                "dec": np.array([-45.0]),
+                "l": np.array([120.0]),
+                "b": np.array([10.0]),
+                "DM": np.array([100.0]),
+                "dist": np.array([2.0]),
+                "pm_ra": np.array([10.0]),
+                "pm_dec": np.array([-5.0]),
+                "v_ls": np.array([50.0]),
+                "B": np.array([1e12]),
+                "chi": np.array([30.0]),
+                "P": np.array([0.5]),
+                "P_dot": np.array([1e-15]),
+                "L_radio_bol": np.array([1e30]),
+                "S_radio_bol": np.array([0.01]),
+                "S_radio_obs_mean": np.array([0.001]),
+                "S_radio_obs_mean_1400": np.array([0.003]),
+                "w_int": np.array([0.05]),
+                "w_eff": np.array([0.1]),
+                "spectral_index": np.array([-1.8]),
+                "tau_sc": np.array([0.001]),
+                "idx": np.array([0]),
+                "coverage_radio_PMPS": np.array([True]),
+                "coverage_radio_HTRU_low": np.array([True]),
+                "coverage_radio_HTRU_mid": np.array([True]),
+            },
+            "HTRU_low_mid": {
+                "age": np.array([1e6]),
+                "ra": np.array([180.0]),
+                "dec": np.array([-45.0]),
+                "l": np.array([120.0]),
+                "b": np.array([10.0]),
+                "DM": np.array([100.0]),
+                "dist": np.array([2.0]),
+                "pm_ra": np.array([10.0]),
+                "pm_dec": np.array([-5.0]),
+                "v_ls": np.array([50.0]),
+                "B": np.array([1e12]),
+                "chi": np.array([30.0]),
+                "P": np.array([0.5]),
+                "P_dot": np.array([1e-15]),
+                "L_radio_bol": np.array([1e30]),
+                "S_radio_bol": np.array([0.01]),
+                "S_radio_obs_mean": np.array([0.001]),
+                "S_radio_obs_mean_1400": np.array([0.003]),
+                "w_int": np.array([0.05]),
+                "w_eff": np.array([0.1]),
+                "spectral_index": np.array([-1.8]),
+                "tau_sc": np.array([0.001]),
+                "idx": np.array([0]),
+                "HTRU_low": np.array([True]),
+                "HTRU_mid": np.array([True]),
+                "coverage_radio_PMPS": np.array([True]),
+                "coverage_radio_HTRU_low": np.array([True]),
+                "coverage_radio_HTRU_mid": np.array([True]),
+            },
+        },
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_8():
     data = {
         "xray_surveys": {
             "xray_flux_threshold": MockSurveyXray("xray_flux_threshold"),
@@ -769,7 +950,7 @@ def test_case_6():
 
 
 @pytest.fixture()
-def test_case_7():
+def test_case_9():
     data = {
         "dict_to_update": {
             "age": np.array([100, 1.0e3, 1.0e5, 1.0e4]),
@@ -792,7 +973,7 @@ def test_case_7():
 
 
 @pytest.fixture()
-def test_case_8():
+def test_case_10():
     data = {
         "SurveyData": sw.SurveyData(
             surveys_cfg={
@@ -1201,49 +1382,20 @@ def test_case_8():
 
 
 @pytest.fixture()
-def test_case_9():
-    data = {
-        "data_dict": {
-            "mass": [1.4, 1.3],
-            "radius": [10.0, 9.5],
-        },
-        "parameters": ["mass", "radius"],
-        "units": ["[Msun]", "[kpc]"],
-        "expected_columns": pd.MultiIndex.from_arrays(
-            [
-                ["mass", "radius"],
-                ["[Msun]", "[kpc]"],
-            ]
-        ),
-        "expected_data": {
-            ("mass", "[Msun]"): [1.4, 1.3],
-            ("radius", "[kpc]"): [10.0, 9.5],
-        },
-        "expected_df": pd.DataFrame(
-            {
-                ("mass", "[Msun]"): [1.4, 1.3],
-                ("radius", "[kpc]"): [10.0, 9.5],
-            }
-        ),
-    }
-
-    return data
-
-
-@pytest.fixture()
-def test_case_10():
+def test_case_11():
     data = {
         "dictionary_detected_radio": {
             "PMPS": {
+                "idx": [0, 1],
                 "age": [1e6, 2e6],
-                "RA": [180.0, 190.0],
-                "DEC": [45.0, 50.0],
+                "ra": [180.0, 190.0],
+                "dec": [45.0, 50.0],
                 "l": [120.0, 130.0],
                 "b": [30.0, 35.0],
                 "DM": [10.0, 12.0],
-                "d": [1.0, 1.5],
-                "pm_RA": [3.0, 4.0],
-                "pm_DEC": [2.0, 2.5],
+                "dist": [1.0, 1.5],
+                "pm_ra": [3.0, 4.0],
+                "pm_dec": [2.0, 2.5],
                 "v_ls": [100.0, 110.0],
                 "B": [1e12, 1.1e12],
                 "chi": [0.1, 0.2],
@@ -1258,15 +1410,16 @@ def test_case_10():
                 "spectral_index": [-1.4, -1.5],
             },
             "HTRU_low_mid": {
+                "idx": [0, 1],
                 "age": [3e6, 4e6],
-                "RA": [200.0, 210.0],
-                "DEC": [55.0, 60.0],
+                "ra": [200.0, 210.0],
+                "dec": [55.0, 60.0],
                 "l": [140.0, 150.0],
                 "b": [40.0, 45.0],
                 "DM": [14.0, 15.0],
-                "d": [2.0, 2.5],
-                "pm_RA": [5.0, 6.0],
-                "pm_DEC": [3.0, 3.5],
+                "dist": [2.0, 2.5],
+                "pm_ra": [5.0, 6.0],
+                "pm_dec": [3.0, 3.5],
                 "v_ls": [120.0, 130.0],
                 "B": [1.2e12, 1.3e12],
                 "chi": [0.3, 0.4],
@@ -1279,8 +1432,8 @@ def test_case_10():
                 "w_eff": [0.008, 0.009],
                 "tau_sc": [0.001, 0.001],
                 "spectral_index": [-1.6, -1.7],
-                ("HTRU_low", ""): [True, False],
-                ("HTRU_mid", ""): [True, True],
+                "HTRU_low": [True, False],
+                "HTRU_mid": [True, True],
             },
         },
         "dictionary_detected_xray": {
@@ -1332,15 +1485,16 @@ def test_case_10():
         "expected_dfs_with_xrays": {
             "PMPS": pd.DataFrame(
                 {
+                    ("idx", ""): [0, 1],
                     ("age", "[yr]"): [1e6, 2e6],
-                    ("RA", "[deg]"): [180.0, 190.0],
-                    ("DEC", "[deg]"): [45.0, 50.0],
+                    ("ra", "[deg]"): [180.0, 190.0],
+                    ("dec", "[deg]"): [45.0, 50.0],
                     ("l", "[deg]"): [120.0, 130.0],
                     ("b", "[deg]"): [30.0, 35.0],
                     ("DM", "[pc cm^-3]"): [10.0, 12.0],
-                    ("d", "[kpc]"): [1.0, 1.5],
-                    ("pm_RA", "[mas yr^-1]"): [3.0, 4.0],
-                    ("pm_DEC", "[mas yr^-1]"): [2.0, 2.5],
+                    ("dist", "[kpc]"): [1.0, 1.5],
+                    ("pm_ra", "[mas yr^-1]"): [3.0, 4.0],
+                    ("pm_dec", "[mas yr^-1]"): [2.0, 2.5],
                     ("v_ls", "[km s^-1]"): [100.0, 110.0],
                     ("B", "[G]"): [1e12, 1.1e12],
                     ("chi", "[rad]"): [0.1, 0.2],
@@ -1357,15 +1511,16 @@ def test_case_10():
             ),
             "HTRU_low_mid": pd.DataFrame(
                 {
+                    ("idx", ""): [0, 1],
                     ("age", "[yr]"): [3e6, 4e6],
-                    ("RA", "[deg]"): [200.0, 210.0],
-                    ("DEC", "[deg]"): [55.0, 60.0],
+                    ("ra", "[deg]"): [200.0, 210.0],
+                    ("dec", "[deg]"): [55.0, 60.0],
                     ("l", "[deg]"): [140.0, 150.0],
                     ("b", "[deg]"): [40.0, 45.0],
                     ("DM", "[pc cm^-3]"): [14.0, 15.0],
-                    ("d", "[kpc]"): [2.0, 2.5],
-                    ("pm_RA", "[mas yr^-1]"): [5.0, 6.0],
-                    ("pm_DEC", "[mas yr^-1]"): [3.0, 3.5],
+                    ("dist", "[kpc]"): [2.0, 2.5],
+                    ("pm_ra", "[mas yr^-1]"): [5.0, 6.0],
+                    ("pm_dec", "[mas yr^-1]"): [3.0, 3.5],
                     ("v_ls", "[km s^-1]"): [120.0, 130.0],
                     ("B", "[G]"): [1.2e12, 1.3e12],
                     ("chi", "[rad]"): [0.3, 0.4],
@@ -1384,15 +1539,16 @@ def test_case_10():
             ),
             "xray_flux_threshold": pd.DataFrame(
                 {
-                    ("age", "[yr]"): [1e4],
-                    ("RA", "[deg]"): np.array([50.0]),
-                    ("DEC", "[deg]"): np.array([-50.0]),
+                    ("idx", ""): np.array([0]),
+                    ("age", "[yr]"): np.array([1e4]),
+                    ("ra", "[deg]"): np.array([50.0]),
+                    ("dec", "[deg]"): np.array([-50.0]),
                     ("l", "[deg]"): np.array([-50.0]),
                     ("b", "[deg]"): np.array([-20.0]),
                     ("N_H", "[cm^-2]"): np.array([2.0e-21]),
-                    ("d", "[kpc]"): np.array([2.0]),
-                    ("pm_RA", "[mas yr^-1]"): np.array([-50.0]),
-                    ("pm_DEC", "[mas yr^-1]"): np.array([-50.0]),
+                    ("dist", "[kpc]"): np.array([2.0]),
+                    ("pm_ra", "[mas yr^-1]"): np.array([-50.0]),
+                    ("pm_dec", "[mas yr^-1]"): np.array([-50.0]),
                     ("v_ls", "[km s^-1]"): np.array([-50.0]),
                     ("B_initial", "[G]"): np.array([1e12]),
                     ("B", "[G]"): np.array([1e12]),
@@ -1407,15 +1563,16 @@ def test_case_10():
             ),
             "xray_realistic": pd.DataFrame(
                 {
-                    ("age", "[yr]"): [1e4],
-                    ("RA", "[deg]"): np.array([50.0]),
-                    ("DEC", "[deg]"): np.array([-50.0]),
+                    ("idx", ""): np.array([0]),
+                    ("age", "[yr]"): np.array([1e4]),
+                    ("ra", "[deg]"): np.array([50.0]),
+                    ("dec", "[deg]"): np.array([-50.0]),
                     ("l", "[deg]"): np.array([-50.0]),
                     ("b", "[deg]"): np.array([-20.0]),
                     ("N_H", "[cm^-2]"): np.array([2.0e-21]),
-                    ("d", "[kpc]"): np.array([2.0]),
-                    ("pm_RA", "[mas yr^-1]"): np.array([-50.0]),
-                    ("pm_DEC", "[mas yr^-1]"): np.array([-50.0]),
+                    ("dist", "[kpc]"): np.array([2.0]),
+                    ("pm_ra", "[mas yr^-1]"): np.array([-50.0]),
+                    ("pm_dec", "[mas yr^-1]"): np.array([-50.0]),
                     ("v_ls", "[km s^-1]"): np.array([-50.0]),
                     ("B_initial", "[G]"): np.array([1e12]),
                     ("B", "[G]"): np.array([1e12]),
@@ -1432,15 +1589,16 @@ def test_case_10():
         "expected_dfs_without_xrays": {
             "PMPS": pd.DataFrame(
                 {
+                    ("idx", ""): [0, 1],
                     ("age", "[yr]"): [1e6, 2e6],
-                    ("RA", "[deg]"): [180.0, 190.0],
-                    ("DEC", "[deg]"): [45.0, 50.0],
+                    ("ra", "[deg]"): [180.0, 190.0],
+                    ("dec", "[deg]"): [45.0, 50.0],
                     ("l", "[deg]"): [120.0, 130.0],
                     ("b", "[deg]"): [30.0, 35.0],
                     ("DM", "[pc cm^-3]"): [10.0, 12.0],
-                    ("d", "[kpc]"): [1.0, 1.5],
-                    ("pm_RA", "[mas yr^-1]"): [3.0, 4.0],
-                    ("pm_DEC", "[mas yr^-1]"): [2.0, 2.5],
+                    ("dist", "[kpc]"): [1.0, 1.5],
+                    ("pm_ra", "[mas yr^-1]"): [3.0, 4.0],
+                    ("pm_dec", "[mas yr^-1]"): [2.0, 2.5],
                     ("v_ls", "[km s^-1]"): [100.0, 110.0],
                     ("B", "[G]"): [1e12, 1.1e12],
                     ("chi", "[rad]"): [0.1, 0.2],
@@ -1457,15 +1615,16 @@ def test_case_10():
             ),
             "HTRU_low_mid": pd.DataFrame(
                 {
+                    ("idx", ""): [0, 1],
                     ("age", "[yr]"): [3e6, 4e6],
-                    ("RA", "[deg]"): [200.0, 210.0],
-                    ("DEC", "[deg]"): [55.0, 60.0],
+                    ("ra", "[deg]"): [200.0, 210.0],
+                    ("dec", "[deg]"): [55.0, 60.0],
                     ("l", "[deg]"): [140.0, 150.0],
                     ("b", "[deg]"): [40.0, 45.0],
                     ("DM", "[pc cm^-3]"): [14.0, 15.0],
-                    ("d", "[kpc]"): [2.0, 2.5],
-                    ("pm_RA", "[mas yr^-1]"): [5.0, 6.0],
-                    ("pm_DEC", "[mas yr^-1]"): [3.0, 3.5],
+                    ("dist", "[kpc]"): [2.0, 2.5],
+                    ("pm_ra", "[mas yr^-1]"): [5.0, 6.0],
+                    ("pm_dec", "[mas yr^-1]"): [3.0, 3.5],
                     ("v_ls", "[km s^-1]"): [120.0, 130.0],
                     ("B", "[G]"): [1.2e12, 1.3e12],
                     ("chi", "[rad]"): [0.3, 0.4],
@@ -1489,7 +1648,7 @@ def test_case_10():
 
 
 @pytest.fixture()
-def test_case_11():
+def test_case_12():
     data = {
         "SurveyData": sw.SurveyData(
             surveys_cfg={
@@ -1711,7 +1870,7 @@ def test_initialize_all_surveys_with_xrays(
     assert result == test_case_3["SurveyData_with_xray_expected"]
 
 
-def test_apply_surveys_coverage(test_case_4):
+def test_apply_surveys_coverage_filter(test_case_4):
     """
     Check that the survey coverage filter is properly applied.
     """
@@ -1719,12 +1878,12 @@ def test_apply_surveys_coverage(test_case_4):
     (
         dictionary_coverage_database,
         updated_idx_remove,
-    ) = sw.apply_surveys_coverage(
+    ) = sw.apply_surveys_coverage_filter(
         test_case_4["radio_surveys"],
         xray_surveys,
+        test_case_4["coverage_dict_without_xray"],
         test_case_4["dyn_database_dict"],
         test_case_4["idx_remove"],
-        test_case_4["dist_cutoff"],
     )
 
     assert len(dictionary_coverage_database["age"]) <= len(
@@ -1746,12 +1905,12 @@ def test_apply_surveys_coverage(test_case_4):
     (
         dictionary_coverage_database,
         updated_idx_remove,
-    ) = sw.apply_surveys_coverage(
+    ) = sw.apply_surveys_coverage_filter(
         test_case_4["radio_surveys"],
         xray_surveys,
+        test_case_4["coverage_dict_with_xray"],
         test_case_4["dyn_database_dict"],
         test_case_4["idx_remove"],
-        test_case_4["dist_cutoff"],
     )
 
     assert len(dictionary_coverage_database["age"]) <= len(
@@ -1769,87 +1928,173 @@ def test_apply_surveys_coverage(test_case_4):
         assert key in dictionary_coverage_database
 
 
-def test_radio_detection(test_case_5):
+def test_compute_surveys_coverage(test_case_5):
+    """
+    Check that the survey coverage dictionary is properly computed.
+    """
+    xray_surveys = None
+
+    dictionary_coverage = sw.compute_surveys_coverage(
+        test_case_5["radio_surveys"],
+        xray_surveys,
+        test_case_5["dyn_database_dict"],
+        test_case_5["dist_cutoff"],
+    )
+
+    assert len(dictionary_coverage["coverage_radio"]) == len(
+        test_case_5["dyn_database_dict"]["age"]
+    )
+
+    # Check that dictionary keys match expectations.
+    for key in test_case_5["expected_keys_without_xray"]:
+        assert key in dictionary_coverage
+
+    xray_surveys = test_case_5["xray_surveys"]
+
+    dictionary_coverage = sw.compute_surveys_coverage(
+        test_case_5["radio_surveys"],
+        xray_surveys,
+        test_case_5["dyn_database_dict"],
+        test_case_5["dist_cutoff"],
+    )
+
+    assert len(dictionary_coverage["coverage_radio"]) == len(
+        test_case_5["dyn_database_dict"]["age"]
+    )
+
+    # Check that dictionary keys match expectations.
+    for key in test_case_5["expected_keys_with_xray"]:
+        assert key in dictionary_coverage
+
+
+def test_radio_detection(test_case_6):
     """
     Check that the dictionary with the properties of the neutron stars that are detected in radio is properly returned.
     """
+
+    logger = MagicMock()
+
     output_dict = sw.radio_detection(
-        test_case_5["radio_surveys"],
-        test_case_5["dictionary_intercepted_radio"],
+        test_case_6["radio_surveys"],
+        test_case_6["dictionary_intercepted_radio"],
+        np.ones(
+            len(test_case_6["dictionary_intercepted_radio"]["w_int"]),
+            dtype=bool,
+        ),
+        logger,
     )
     # Verify that the keys are correct.
     assert set(output_dict.keys()) == set(
-        test_case_5["expected_update_dictionary_detected"].keys()
+        test_case_6["expected_update_dictionary_detected"].keys()
     )
-    for key in test_case_5["expected_update_dictionary_detected"]:
+    for key in test_case_6["expected_update_dictionary_detected"]:
         assert set(output_dict[key].keys()) == set(
-            test_case_5["expected_update_dictionary_detected"][key].keys()
+            test_case_6["expected_update_dictionary_detected"][key].keys()
         )
 
     # Validate overlapping logic for HTRU_low and HTRU_mid.
     assert len(output_dict["HTRU_low_mid"]["age"]) == 1
     assert (
         output_dict["HTRU_low_mid"]["HTRU_low"]
-        == test_case_5["expected_update_dictionary_detected"]["HTRU_low_mid"][
+        == test_case_6["expected_update_dictionary_detected"]["HTRU_low_mid"][
             "HTRU_low"
         ]
     )
     assert (
         output_dict["HTRU_low_mid"]["HTRU_mid"]
-        == test_case_5["expected_update_dictionary_detected"]["HTRU_low_mid"][
+        == test_case_6["expected_update_dictionary_detected"]["HTRU_low_mid"][
             "HTRU_mid"
         ]
     )
 
 
-def test_xray_detection(test_case_6):
+def test_radio_detection_full(test_case_7):
+    """
+    Check that the dictionary with the properties of the neutron stars that are detected in radio is properly returned
+    for the full simulation.
+    """
+    logger = MagicMock()
+
+    output_dict = sw.radio_detection(
+        test_case_7["radio_surveys"],
+        test_case_7["dictionary_intercepted_radio"],
+        test_case_7["dictionary_intercepted_radio"]["intercepted_radio"],
+        logger,
+        full_population=True,
+    )
+    # Verify that the keys are correct.
+    assert set(output_dict.keys()) == set(
+        test_case_7["expected_dictionary_detected"].keys()
+    )
+    for key in test_case_7["expected_dictionary_detected"]:
+        assert set(output_dict[key].keys()) == set(
+            test_case_7["expected_dictionary_detected"][key].keys()
+        )
+
+    # Validate overlapping logic for HTRU_low and HTRU_mid.
+    assert len(output_dict["HTRU_low_mid"]["age"]) == 1
+    assert (
+        output_dict["HTRU_low_mid"]["HTRU_low"]
+        == test_case_7["expected_dictionary_detected"]["HTRU_low_mid"][
+            "HTRU_low"
+        ]
+    )
+    assert (
+        output_dict["HTRU_low_mid"]["HTRU_mid"]
+        == test_case_7["expected_dictionary_detected"]["HTRU_low_mid"][
+            "HTRU_mid"
+        ]
+    )
+
+
+def test_xray_detection(test_case_8):
     """
     Check that the dictionary with the properties of the neutron stars that are detected in X-ray is properly returned.
     """
     output_dict = sw.xray_detection(
-        test_case_6["xray_surveys"],
-        test_case_6["dictionary_xray_pop"],
+        test_case_8["xray_surveys"],
+        test_case_8["dictionary_xray_pop"],
     )
     # Verify that the keys are correct.
     assert set(output_dict.keys()) == set(
-        test_case_6["update_dictionary_detected_x_expected"].keys()
+        test_case_8["update_dictionary_detected_x_expected"].keys()
     )
-    for key in test_case_6["update_dictionary_detected_x_expected"]:
+    for key in test_case_8["update_dictionary_detected_x_expected"]:
         assert set(output_dict[key].keys()) == set(
-            test_case_6["update_dictionary_detected_x_expected"][key].keys()
+            test_case_8["update_dictionary_detected_x_expected"][key].keys()
         )
 
 
-def test_update_filtered_dictionary(test_case_7):
+def test_update_filtered_dictionary(test_case_9):
     """
     Check that the method to update the dictionary of detected neutron stars works properly.
     """
 
     result = sw.update_filtered_dictionary(
-        test_case_7["dict_to_update"],
-        test_case_7["detected_mask"],
-        **test_case_7["additional_properties"]
+        test_case_9["dict_to_update"],
+        test_case_9["detected_mask"],
+        **test_case_9["additional_properties"]
     )
 
     # Assert the result matches the expected output.
-    for key in test_case_7["expected_output"]:
-        assert result[key] == test_case_7["expected_output"][key]
+    for key in test_case_9["expected_output"]:
+        assert result[key] == test_case_9["expected_output"][key]
 
 
-def test_update_survey_data(test_case_8):
+def test_update_survey_data(test_case_10):
     """
     Check that the SurveyData object is properly updated.
     """
 
     # Test if updating the radio survey data works properly.
-    survey_data = test_case_8["SurveyData"]
+    survey_data = test_case_10["SurveyData"]
     logger = MagicMock()
 
     idx_remove = []
 
     sw.update_survey_data(
         survey_data,
-        test_case_8["update_dictionary_detected_radio"],
+        test_case_10["update_dictionary_detected_radio"],
         "radio",
         1000,
         idx_remove,
@@ -1863,11 +2108,11 @@ def test_update_survey_data(test_case_8):
     # Check dictionary updated.
     assert (
         survey_data.dictionary_detected_radio
-        == test_case_8["dictionary_detected_radio_expected"]
+        == test_case_10["dictionary_detected_radio_expected"]
     )
 
     # Check idx_remove updated.
-    assert idx_remove == test_case_8["idx_remove_expected"]
+    assert idx_remove == test_case_10["idx_remove_expected"]
 
     logger.info.assert_has_calls(
         [
@@ -1883,14 +2128,14 @@ def test_update_survey_data(test_case_8):
     assert survey_data.n_created_at_match["PMPS"] == 0
 
     # Test if updating the X-ray survey data works properly.
-    survey_data = test_case_8["SurveyData"]
+    survey_data = test_case_10["SurveyData"]
     logger = MagicMock()
 
     idx_remove = []
 
     sw.update_survey_data(
         survey_data,
-        test_case_8["update_dictionary_detected_xray"],
+        test_case_10["update_dictionary_detected_xray"],
         "X-ray",
         1000,
         idx_remove,
@@ -1904,11 +2149,11 @@ def test_update_survey_data(test_case_8):
     # Check dictionary updated.
     assert (
         survey_data.dictionary_detected_xray
-        == test_case_8["dictionary_detected_xray_expected"]
+        == test_case_10["dictionary_detected_xray_expected"]
     )
 
     # Check idx_remove updated.
-    assert idx_remove == test_case_8["idx_remove_expected"]
+    assert idx_remove == test_case_10["idx_remove_expected"]
 
     logger.info.assert_has_calls(
         [
@@ -1928,26 +2173,12 @@ def test_update_survey_data(test_case_8):
     assert survey_data.n_created_at_match["xray_realistic"] == 0
 
 
-def test_build_dataframe(test_case_9):
-    """
-    Check that the function to create a dataframe is properly working.
-    """
-    result_df = sw.build_dataframe(
-        test_case_9["data_dict"],
-        test_case_9["parameters"],
-        test_case_9["units"],
-    )
-
-    # Assert the result matches the expected output.
-    pd.testing.assert_frame_equal(result_df, test_case_9["expected_df"])
-
-
-def test_create_output_dataframe(test_case_10):
+def test_create_output_dataframe(test_case_11):
     """
     Check that the dataframe with the output of the survey detection is correct.
     """
-    output_dfs_without_xray = sw.create_output_dataframe(
-        test_case_10["dictionary_detected_radio"],
+    output_dfs_without_xray = sw.create_output_dataframe_surveys(
+        test_case_11["dictionary_detected_radio"],
         None,
     )
 
@@ -1955,27 +2186,27 @@ def test_create_output_dataframe(test_case_10):
     for survey_name, expected_df in output_dfs_without_xray.items():
         pd.testing.assert_frame_equal(
             output_dfs_without_xray[survey_name],
-            test_case_10["expected_dfs_without_xrays"][survey_name],
+            test_case_11["expected_dfs_without_xrays"][survey_name],
         )
 
-    output_dfs_with_xray = sw.create_output_dataframe(
-        test_case_10["dictionary_detected_radio"],
-        test_case_10["dictionary_detected_xray"],
+    output_dfs_with_xray = sw.create_output_dataframe_surveys(
+        test_case_11["dictionary_detected_radio"],
+        test_case_11["dictionary_detected_xray"],
     )
 
     # Assert the result matches the expected output.
     for survey_name, expected_df in output_dfs_with_xray.items():
         pd.testing.assert_frame_equal(
             output_dfs_with_xray[survey_name],
-            test_case_10["expected_dfs_with_xrays"][survey_name],
+            test_case_11["expected_dfs_with_xrays"][survey_name],
         )
 
 
-def test_adjust_n_batchsize(test_case_11):
+def test_adjust_n_batchsize(test_case_12):
     """
     Check that the batch size for the simulation is correctly adjusted.
     """
-    survey_data = test_case_11["SurveyData"]
+    survey_data = test_case_12["SurveyData"]
 
     survey_data.n_detected_complete_sim["PMPS"] = 1
     survey_data.n_detected_complete_sim["HTRU_low-mid"] = 1

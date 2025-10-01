@@ -52,8 +52,8 @@ else:
 
 if cfg["path_to_software"] == "":
     log.warning(
-        "path_to_software variable not set. Remember to set the right absolute path_to_software in the"
-        "pypopsyn/simulator/config_simulator.py file."
+        "path_to_software variable not set. Remember to set the right absolute path_to_software in the file: "
+        "pypopsyn/simulator/config_simulator.py."
     )
 
 # Seed for the random number generation for simulate_population_full.py.
@@ -124,7 +124,7 @@ cfg["h_c"]: float = 0.18
 # Total vertical extent of the initial distribution of neutron star progenitors from the galactic plane in [kpc].
 cfg["z_extent"]: float = 5.0
 
-# Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_2maxwell".
+# Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_double_maxwell" and "km_log-normal.
 cfg["kick_model"]: str = "km_log-normal"
 
 # Maximum kick velocity magnitude in [km/s].
@@ -142,9 +142,9 @@ elif cfg["kick_model"] == "km_double_maxwell":
     # Parameters for the double Maxwell kick velocity pdf (see Eq. (5) and Section 4.2 in Igoshev 2020).
     # The weight denotes the importance of the first Maxwell component relative to the whole pdf.
     # Its value has to be in the range between 0 and 1.
-    cfg["sigma_k_1"]: float = 55.0
-    cfg["sigma_k_2"]: float = 334.0
-    cfg["weight_comp1"]: float = 0.19
+    cfg["sigma_k_comp1"]: float = 55.0
+    cfg["sigma_k_comp2"]: float = 334.0
+    cfg["kick_weight_comp1"]: float = 0.19
 
 elif cfg["kick_model"] == "km_log-normal":
     # Parameters for the log-normal velocity pdf in Disberg and Mandel (2025).
@@ -154,7 +154,7 @@ elif cfg["kick_model"] == "km_log-normal":
 else:
     log.error(
         "The specified model for the kick velocity distribution is not supported."
-        "Please choose between km_maxwell, km_exp or km_2maxwell."
+        "Please choose between km_maxwell, km_exp, km_double_maxwell or km_log-normal."
     )
 
 # Time step for the dynamical evolution [yr].
@@ -511,13 +511,13 @@ cfg["use_crust_failure_rate_interpolator"]: bool = True
 cfg["surveys_xray"]: dict = {
     "xray_flux_threshold": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
-        "detected_real": 4,
-        "flux_threshold_completeness": 2.0e-11,
+        "detected_real": 5,
+        "flux_threshold_completeness": 1.0e-11,
     },
     "xray_realistic": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json",
-        "detected_real": 4,
-        "flux_threshold_completeness": 2.0e-11,
+        "detected_real": 5,
+        "flux_threshold_completeness": 1.0e-11,
     },
 }
 
