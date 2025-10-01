@@ -385,43 +385,62 @@ def initialize_population_magrot(age: np.ndarray) -> dict:
 
 
 def evolve_population_magrot(
+    pop_dyn_final: dict,
     dict_pop_initial_magrot: dict,
     output_path: pathlib.Path,
 ) -> dict:
     """
-    Evolve the magneto-rotational properties of a neutron star population over time based on initial conditions.
+    Evolve the magneto-rotational properties of a neutron star population over time
+    based on initial conditions, but only for stars within 1 kpc. Stars beyond 1 kpc
+    are set to zero values.
 
     Args:
-        dict_pop_initial_magrot (dict): Dictionary containing initial magneto-rotational properties of the population.
-        output_path (pathlib.Path): The path where the evolution data will be saved if enabled in the configuration.
+        dict_pop_initial_magrot (dict): Dictionary containing initial magneto-rotational
+                                        properties of the population.
+        output_path (pathlib.Path): Path where the evolution data will be saved
+                                    if enabled in the configuration.
 
     Returns:
-        (dict): A dictionary containing the properties of the evolved neutron star population.
+        dict: Properties of the evolved neutron star population.
     """
+
+    r = pop_dyn_final["r"]
+    phi = pop_dyn_final["phi"]
+    z = pop_dyn_final["z"]
+
+    x = r * np.cos(phi)
+    y = r * np.sin(phi)
+
+    dist_from_sun = np.sqrt((x - 0.0) ** 2 + (y - 8.3) ** 2 + (z - 0.006) ** 2)
+
+    mask = dist_from_sun <= 1.0
     age = dict_pop_initial_magrot["age"]
     B_initial = dict_pop_initial_magrot["B"]
     chi_initial = dict_pop_initial_magrot["chi"]
     P_initial = dict_pop_initial_magrot["P"]
 
-    # Determine the evolved magnetic field, misalignment angle and rotation period.
+    # Initialize arrays for final results
+    B_final = np.zeros_like(B_initial)
+    chi_final = np.zeros_like(chi_initial)
+    P_final = np.zeros_like(P_initial)
+
+    # Evolve only stars within 1 kpc
     (
-        B_final,
-        chi_final,
-        P_final,
+        B_final[mask],
+        chi_final[mask],
+        P_final[mask],
         magrot_evol_dict,
     ) = magneto_rotational_evolution(
-        B_initial,
-        chi_initial,
-        P_initial,
-        age,
+        B_initial[mask],
+        chi_initial[mask],
+        P_initial[mask],
+        age[mask],
     )
 
     if cfg["save_magrot_evolution"]:
-        # Save dictionary containing evolution information to output path in a .json file.
         magrot_evolution_dump_path = pathlib.Path().joinpath(
             output_path, "magrot_evolution.json"
         )
-
         with open(magrot_evolution_dump_path, "wb") as f:
             f.write(
                 orjson.dumps(
@@ -432,11 +451,12 @@ def evolve_population_magrot(
                 )
             )
 
-    # Determining the final period derivative.
-    P_dot_final = pdv.period_derivative_numpy(
-        B_final,
-        chi_final,
-        P_final,
+    # Period derivative: only computed for stars within 1 kpc, others stay 0
+    P_dot_final = np.zeros_like(P_initial)
+    P_dot_final[mask] = pdv.period_derivative_numpy(
+        B_final[mask],
+        chi_final[mask],
+        P_final[mask],
         cfg["NS_mass"],
         cfg["NS_radius"],
     )

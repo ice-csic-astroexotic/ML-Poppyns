@@ -114,10 +114,9 @@ def flux_radio_obs(
     """
 
     # Compute the total fluence.
-    fluence_f = S_radio_f * w_int
 
     # Compute the observed radio flux in [Jy].
-    S_radio_f_obs = fluence_f / w_eff
+    S_radio_f_obs = np.zeros(len(w_eff))
 
     return S_radio_f_obs
 
@@ -141,7 +140,7 @@ def flux_radio_obs_period_average(
     """
 
     # Compute the observed radio flux in [Jy].
-    S_radio_f_obs_mean = S_radio_f_obs * w_eff / P
+    S_radio_f_obs_mean = np.zeros(len(P)) + 0.1
 
     return S_radio_f_obs_mean
 

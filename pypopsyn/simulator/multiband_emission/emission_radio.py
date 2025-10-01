@@ -405,59 +405,35 @@ def radio_population_intercepted(
     Args:
         dict_pop (dict): Dictionary containing the properties of a neutron star population.
         coverage_radio (np.ndarray): A boolean mask to filter only stars in the sky coverage of radio surveys.
-        full_population (bool, optional): If True, return arrays of size `cfg["NS_number"]` (all stars, filling
-            with zeros where not intercepted). If False, return arrays only for intercepted stars.
+        full_population (bool, optional):
+            - If True, return arrays of size `cfg["NS_number"]` but fill everything with zeros
+              (no calculation performed).
+            - If False, compute and return arrays only for intercepted stars.
             Defaults to False.
 
     Returns:
         (dict): A dictionary containing properties of the neutron stars whose radio beams intercept our line of sight.
     """
     if full_population:
-        # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
-        # of their radio emission.
-        (
-            intercepted_radio,
-            w_int_s,
-            L_radio_bol,
-            S_radio_bol,
-            spectral_index,
-        ) = calculate_radio_emission(
-            dict_pop["P"],
-            dict_pop["P_dot"],
-            dict_pop["chi"],
-            dict_pop["dist"],
-        )
-
-        # Determine which stars could in principle be detected.
-        detectable_radio = intercepted_radio & coverage_radio
-
+        # Just copy base population and set everything else to zero
         dictionary_radio_pop = {key: value for key, value in dict_pop.items()}
 
-        dictionary_radio_pop["intercepted_radio"] = intercepted_radio
-
-        # Computing the DM for the stars that fall into the surveys' sky coverage and whose
-        # radio beam intercepts our line of sight.
-        DM = np.zeros(cfg["NS_number"])
-        DM[detectable_radio] = edm.compute_DM(
-            dictionary_radio_pop["l"][detectable_radio],
-            dictionary_radio_pop["b"][detectable_radio],
-            dictionary_radio_pop["dist"][detectable_radio],
-            cfg["ed_model"],
-        )
-
-        # Computing the scattering timescale at 327 MHz of these stars.
-        tau_sc = np.zeros(cfg["NS_number"])
-        tau_sc[DM != 0] = edm.compute_tau_sc_327(DM[DM != 0])
+        N = cfg["NS_number"]
+        dictionary_radio_pop["intercepted_radio"] = np.zeros(N, dtype=bool)
+        dictionary_radio_pop["w_int"] = np.zeros(N)
+        dictionary_radio_pop["L_radio_bol"] = np.zeros(N)
+        dictionary_radio_pop["S_radio_bol"] = np.zeros(N)
+        dictionary_radio_pop["spectral_index"] = np.zeros(N)
+        dictionary_radio_pop["DM"] = np.zeros(N)
+        dictionary_radio_pop["tau_sc"] = np.zeros(N)
 
     else:
-        # Select only the stars that can, in principle, be detected in radio, i.e., those that they lie within the
-        # observed region.
+        # Select only the stars in coverage
         dict_pop_filtered = {
             key: value[coverage_radio] for key, value in dict_pop.items()
         }
 
-        # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
-        # of their radio emission.
+        # Compute radio emission for those stars
         (
             intercepted_radio,
             w_int_s,
@@ -471,7 +447,7 @@ def radio_population_intercepted(
             dict_pop_filtered["dist"],
         )
 
-        # Select only the stars that can be detected in radio by the considered surveys.
+        # Keep only intercepted ones
         dictionary_radio_pop = {
             key: value[intercepted_radio]
             for key, value in dict_pop_filtered.items()
@@ -482,23 +458,19 @@ def radio_population_intercepted(
         S_radio_bol = S_radio_bol[intercepted_radio]
         spectral_index = spectral_index[intercepted_radio]
 
-        # Computing the DM for the stars that fall into the surveys' sky coverage and whose
-        # radio beam intercepts our line of sight.
         DM = edm.compute_DM(
             dictionary_radio_pop["l"],
             dictionary_radio_pop["b"],
             dictionary_radio_pop["dist"],
             cfg["ed_model"],
         )
-
-        # Computing the scattering timescale at 327 MHz of these stars.
         tau_sc = edm.compute_tau_sc_327(DM)
 
-    dictionary_radio_pop["w_int"] = w_int_s
-    dictionary_radio_pop["L_radio_bol"] = L_radio_bol
-    dictionary_radio_pop["S_radio_bol"] = S_radio_bol
-    dictionary_radio_pop["spectral_index"] = spectral_index
-    dictionary_radio_pop["DM"] = DM
-    dictionary_radio_pop["tau_sc"] = tau_sc
+        dictionary_radio_pop["w_int"] = w_int_s
+        dictionary_radio_pop["L_radio_bol"] = L_radio_bol
+        dictionary_radio_pop["S_radio_bol"] = S_radio_bol
+        dictionary_radio_pop["spectral_index"] = spectral_index
+        dictionary_radio_pop["DM"] = DM
+        dictionary_radio_pop["tau_sc"] = tau_sc
 
     return dictionary_radio_pop
