@@ -495,7 +495,7 @@ the following files:
 The `j` indicates which neural network in the ensemble the file refers to. In the case of using just one neural network
 no subscript is added to these two files. 
 
-The `model` folder contains a `config_sbi.json` that it is a copy of the configuration file used to run the experiment.
+The `model` folder contains a `config_sbi.json` that is a copy of the configuration file used to run the experiment.
 Finally, each subfolder `round_{i}` in this directory contains:
 
 * `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
