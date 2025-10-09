@@ -10,6 +10,39 @@
   "profile_json": "profile.json",
   "show_profiling": true,
 
+  "trainer": {
+    "type": "snle",
+    "num_rounds": 3,
+    "save_dir": "toremove/learning_snle",
+    "validation_fraction": 0.1,
+    "batch_size": 8,
+    "lr": 5e-4,
+    "ensemble": true,
+    "size_ensemble": 5,
+    "truncated_prior": false,
+    "retrain_from_scratch": false,
+    "sir": true,
+    "append_simulations": false,
+    "plot_proposal": false
+  },
+
+  "density_estimator": {
+    "type": "mdn",
+    "classifier_nre": "resnet",
+    "args": {
+      "hidden_features": 16,
+      "num_components": 10,
+      "num_transforms": 5
+
+       }
+  },
+
+  "mcmc_sampler": {
+    "type": "slice_np_vectorized",
+    "num_chains": 20,
+    "thin": 5
+  },
+
   "arch": {
     "type": "ModelConvSBI",
     "args": {
@@ -23,40 +56,31 @@
       "args": {}
   },
 
-  "mcmc_sampler": {
-    "type": "slice_np_vectorized",
-    "num_chains": 20,
-    "thin": 5
-  },
-
-  "density_estimator": {
-    "type": "mdn",
-    "classifier_nre": "resnet",
-    "args": {
-      "hidden_features": 16,
-      "num_components": 10
-       }
-  },
   "compression_input": {
-    "use_compression": false,
+    "use_compression": true,
     "compression_type": "cnn",
     "cnn_model_path": "../../data/paper_results/pardo_etal_2025/experiments/exp_4/round_9/trained_model_ensemble_0.pickle",
-    "pca_model_path":"PCAs/1_PCA_95_new/pca_model_combined.pkl"
+    "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
   },
 
+
  "prior_ranges": {
-	  "labels":["B_initial_log10_mean", "B_initial_log10_sigma","P_initial_log10_mean", "P_initial_log10_sigma","L_radio_log10_mean", "epsilon_L"],
-	  "low": [12,0.1,-1.5,0.1,24.6,0.1],
-	  "high":[14,1,-0.3,1,28.6,1]
+	  "labels": ["B_initial_log10_mean",
+        "B_initial_log10_sigma",
+        "P_initial_log10_mean",
+        "P_initial_log10_sigma",
+        "L_radio_log10_mean",
+        "epsilon_L"],
+	  "low": [12, 0.1, -1.5, 0.1, 24.6, 0.1],
+	  "high": [14, 1, -0.3, 1, 28.6, 1]
 	  },
 
-
   "training_data_loader": {
+    "dataset_path_round_0": "../../data/example_generator_magrot",
     "dataset_path": "../../data/example_generator_magrot",
     "statistic_path": "../../data/example_generator_magrot/statistics_train.json",
-    "dataset_path_first_round": "../../data/example_generator_magrot",
     "filter_inputs": [9, 10, 11, 12, 13, 14],
-    "filter_labels": [15,16],
+    "filter_labels": [15, 16],
     "normalize": false,
     "standardize": true,
     "num_sim": 2
@@ -65,45 +89,28 @@
   "test_data_loader": {
     "testing": false,
     "dataset_path": "../../data/example_generator_magrot",
-    "dataset_path_first_round": "../../data/example_generator_magrot",
+    "dataset_path_round_0": "../../data/example_generator_magrot",
     "num_sim": 3
+  },
+
+  "observed_sample": {
+      "dataset_path": "data/paper_results/pardo_etal_2025/observed_data_res32_updated_atnf",
+      "filter_inputs": [9, 10, 11, 12, 13, 14]
   },
 
   "dyn_data_loader": {
       "dataset_path": "../../data/example_simulation_dyn"
   },
 
-  "observed_sample": {
-      "dataset_path": "data/paper_results/pardo_etal_2025/observed_data_res32_updated_atnf",
-      "filter_inputs": [9, 10, 11, 12, 13, 14],
-      "filter_labels": [15,17]
-  },
-
   "resume_training": {
-    "resume": false,
-    "last_round": 7,
-    "save_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828",
-    "log_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828"
-  },
-
-  "trainer": {
-    "type": "snle",
-    "truncated_prior": false,
-    "retrain_from_scratch": false,
-    "ensemble": true,
-    "size_ensemble": 5,
-    "validation_fraction": 0.1,
-    "batch_size": 8,
-    "lr": 5e-4,
-    "num_rounds": 3,
-    "sir": true,
-    "append_simulations": true,
-    "plot_proposal": false,
-    "save_dir": "toremove/learning_snle"
+      "resume": false,
+      "last_round": 7,
+      "save_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828",
+      "log_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828"
   },
 
   "infer": {
-    "sim_dataset":false ,
+    "sim_dataset": false,
     "compute_coverage": true,
     "load_dir": "learning/models/SBI_ConvolutionMDN/20240719_164759",
     "save_dir": "inference"

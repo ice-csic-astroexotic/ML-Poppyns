@@ -2,9 +2,7 @@
 
 ::: pypopsyn.simulator.config_simulator
 
-::: pypopsyn.simulator.initial_population_edm
-
-::: pypopsyn.simulator.initial_population_sam
+::: pypopsyn.simulator.initial_population
 
 ::: pypopsyn.simulator.simulate_population_dyn
 

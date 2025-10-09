@@ -34,7 +34,9 @@
 
 import argparse
 import collections
+import json
 import pathlib
+import sys
 import time
 
 import pandas as pd
@@ -44,9 +46,7 @@ import pypopsyn.learning.configuration_parser as configuration_parser
 import pypopsyn.learning.utils.sbi_builder as sbi_builder
 import pypopsyn.learning.utils.sbi_utils as ut
 import utilities.benchmark.timewith as timewith
-from pypopsyn.learning.utils.request_device import request_device
 from utilities.experiment_helpers.run_simulation_set_sbi import (
-    initialize_dask_cluster,
     sample_without_nan,
 )
 
@@ -62,31 +62,17 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
     logger = config.get_logger("train")
     logger.info("Logger initialized...")
 
-    # Initialize the path where the time profiling will be saved.
-    prof_log_path = str(
-        pathlib.Path().joinpath(config.log_dir, config["profile_log"])
-    )
-    prof_json_path = str(
-        pathlib.Path().joinpath(config.log_dir, config["profile_json"])
-    )
-
-    # Set up GPU device if available.
-    logger.info("Requesting {} GPUs...".format(config["n_gpu"]))
-    device, device_ids = request_device(logger, config["n_gpu"])
-    logger.info("Devices obtained: {}".format(device_ids))
     resume = config["resume_training"]["resume"]
     ensemble = config["trainer"]["ensemble"]
     retrain_from_scratch = config["trainer"]["retrain_from_scratch"]
 
-    if config["enable_dask"]:
-        with timewith.TimeWith(
-            "[InitializingDask]",
-            prof_log_path,
-            prof_json_path,
-            config["show_profiling"],
-        ):
-            logger.info("Initializing dask cluster...")
-            cluster = initialize_dask_cluster(logger, config)
+    device, cluster, prof_log_path, prof_json_path = ut.initialize_environment(
+        config, logger
+    )
+
+    # Saving the configuration file into the save_dir folder.
+    with open(f"{config.save_dir}/config.json", "w") as f:
+        json.dump(config._configuration, f, indent=4)
 
     # Show experiment information ------------------------------------------
     logger.info("=========================================================")
@@ -102,7 +88,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
             prof_json_path,
             config["show_profiling"],
         ):
-            logger.info("Loading the training dataset for the first round...")
+            logger.info("Loading the training dataset for round 0...")
 
             # If resuming from a previous training run, first create the training dataset for the first round
             # by merging all the training datasets from the previously completed rounds.
@@ -120,14 +106,16 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                 )
             else:
                 train_dataset_path = config["training_data_loader"][
-                    "dataset_path_first_round"
+                    "dataset_path_round_0"
                 ]
             logger.info(
-                "Preparing the training dataset for sbi for the first round..."
+                "Preparing the training dataset for sbi for round 0..."
             )
-            dataset, parameter, matrix = ut.prepare_dataset_sbi(
-                train_dataset_path, config, logger
-            )
+            (
+                dataset,
+                parameter_train_round,
+                matrix_train_round,
+            ) = ut.prepare_dataset_sbi(train_dataset_path, config, logger)
             num_rounds = config["trainer"]["num_rounds"]
 
             # Loading the train dataset as a dataframe and extracting the ground truth labels.
@@ -172,12 +160,10 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                 atnf=True,
             )
 
-            # Set the proposal prior to the pior in the first round.
+            # Set the proposal prior to the pior in round 0.
             proposal = prior
 
-            # Lists to store parameters and matrices from each round.
-            parameter_train = []
-            matrix_train = []
+            # Lists to store parameters and matrices from each round in testing.
             parameter_test = []
             matrix_test = []
 
@@ -214,7 +200,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
 
                     num_sim_train = config["training_data_loader"]["num_sim"]
 
-                    # In the first round, instead of simulating the training dataset, we use the simulations
+                    # In round 0, instead of simulating the training dataset, we use the simulations
                     # previously run.
                     if i > 0:
                         logger.info(
@@ -240,26 +226,28 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                         logger.info(
                             "Preparing the training data set for sbi..."
                         )
-                        dataset, parameter, matrix = ut.prepare_dataset_sbi(
+                        (
+                            dataset,
+                            parameter_train_round,
+                            matrix_train_round,
+                        ) = ut.prepare_dataset_sbi(
                             train_dataset_path, config, logger
                         )
 
-                    # Save the training and testing data for reuse in future rounds if the proposal distribution
-                    # config["trainer"]["append_simulations"] is True.
-                    # Otherwise, use the simulations from the current round.
-                    if not config["trainer"]["append_simulations"]:
-                        parameter_train = []
-                        matrix_train = []
-                        parameter_test = []
-                        matrix_test = []
-
-                    parameter_train.append(parameter)
-                    matrix_train.append(matrix)
-                    parameter_round = torch.cat(parameter_train, dim=0)
-                    matrix_round = torch.cat(matrix_train, dim=0)
+                    # Note that you cannot append simulations from previous rounds when using SNPE with a non-truncated
+                    # prior. For more details, see the documentation.
+                    if (
+                        config["trainer"]["append_simulations"]
+                        and not config["trainer"]["truncated_prior"]
+                        and config["trainer"]["type"] == "snpe"
+                    ):
+                        logger.exception(
+                            "Cannot append simulations from previous rounds when using SNPE with a non-truncated prior."
+                        )
+                        sys.exit(1)
 
                     logger.info(
-                        f"Training the density estimator with {parameter_round.shape[0]} samples in round {effective_round} ..."
+                        f"Training the density estimator with {parameter_train_round.shape[0]} samples in round {effective_round} ..."
                     )
 
                     # If the model is trained using an SNPE approach and the proposal prior is set to the approximated
@@ -279,8 +267,8 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                         save_dir_round=save_dir_round,
                         logger=logger,
                         inference_list=inference_list,
-                        parameter_round=parameter_round,
-                        matrix_round=matrix_round,
+                        parameter_round=parameter_train_round,
+                        matrix_round=matrix_train_round,
                         device=device,
                         round_current=i,
                         prof_log_path=prof_log_path,
@@ -318,7 +306,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
 
                             else:
                                 test_dataset_path = config["test_data_loader"][
-                                    "dataset_path_first_round"
+                                    "dataset_path_round_0"
                                 ]
 
                         else:
@@ -415,14 +403,6 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                     f"{save_dir_round}/samples_posterior.pt",
                 )
 
-                # If retrain_from_scratch is set to True, initialize the inference object to reset the weights
-                # and avoid reusing the previously trained weights at each round.
-
-                if retrain_from_scratch:
-                    inference_list = sbi_builder.initialize_inference(
-                        config, device, prior, logger, ensemble
-                    )
-
             # Stop the training when the number of rounds is reached. This is necessary in the resume case to avoid
             # performing extra rounds, since the iteration counter (i) does not reflect the effective round number.
             if effective_round == num_rounds - 1:
@@ -431,6 +411,8 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
         if config["enable_dask"]:
             # Closing the cluster once the training has finished.
             cluster.close()
+
+        logger.info(f"Training results have been saved to: {config.save_dir}")
 
 
 if __name__ == "__main__":
