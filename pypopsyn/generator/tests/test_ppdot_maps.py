@@ -46,7 +46,7 @@ def temp_dir(tmpdir):
     tmpdir.remove()
 
 
-def test_generate_position_map(temp_dir, test_case_1):
+def test_generate_ppdot_map(temp_dir, test_case_1):
     """
     Test function for generate_ppdot_map.
 

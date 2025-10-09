@@ -31,6 +31,8 @@ import sys
 import numpy as np
 import pandas as pd
 
+import pypopsyn.generator.maps.p_flux_maps as pfmaps
+import pypopsyn.generator.maps.pdot_flux_maps as pdfmaps
 import pypopsyn.generator.maps.position_maps as pmaps
 import pypopsyn.generator.maps.ppdot_fluxes_maps as ppdfmaps
 import pypopsyn.generator.maps.ppdot_maps as ppdmaps
@@ -57,6 +59,8 @@ def create_survey_maps(
     dictionary_velocity_map_vdec: dict,
     dictionary_ppdot_map: dict,
     dictionary_ppdot_flux_map: dict,
+    dictionary_p_flux_map: dict,
+    dictionary_pdot_flux_map: dict,
 ) -> None:
     """
     This method reads the observed population from the ATNF Pulsar Catalogue and the Meerkat TPA program (Posselt et
@@ -78,15 +82,19 @@ def create_survey_maps(
         resolution_ppdot (int): Resolution (number of bins per axis for the 2d
             histograms) for the P-Pdot density maps to generate.
         dictionary_position_map_radec (dict): Dictionary containing the path to the position maps in RA, DEC for
-            all the simulated surveys.
+            all the observed surveys.
         dictionary_velocity_map_vra (dict): Dictionary containing the path to the proper motion maps in RA for
-            all the simulated surveys.
+            all the observed surveys.
         dictionary_velocity_map_vdec (dict): Dictionary containing the path to the proper motion maps in DEC for
-            all the simulated surveys.
+            all the observed surveys.
         dictionary_ppdot_map (dict): Dictionary containing the path to the P-Pdot maps for
-            all the simulated surveys.
+            all the observed surveys.
         dictionary_ppdot_flux_map (dict): Dictionary containing the path to the averaged flux P-Pdot maps for
-            all the simulated surveys.
+            all the observed surveys.
+        dictionary_p_flux_map (dict): Dictionary containing the path to the P-flux maps for
+            all the observed surveys.
+        dictionary_pdot_flux_map (dict): Dictionary containing the path to the Pdot-flux maps for
+            all the observed surveys.
     """
 
     # Create position density maps projected onto the RA DEC plane.
@@ -144,9 +152,38 @@ def create_survey_maps(
             resolution_ppdot,
             resolution_ppdot,
             dictionary_ppdot_flux_map,
-            x_limits=(1e-3, 1e2),
-            y_limits=(1e-21, 1e-9),
+            x_limits=(1e-2, 1e2),
+            y_limits=(1e-20, 1e-9),
         )
+
+        pfmaps.generate_p_flux_map(
+            dataset_path,
+            f"survey_{survey_name}_pflux_map",
+            0,
+            data_type,
+            survey_meerkat_dict["P"],
+            survey_meerkat_dict["S1400"],
+            resolution_ppdot,
+            resolution_ppdot,
+            dictionary_p_flux_map,
+            p_limits=(0.01, 100.0),
+            flux_limits=(1.0e-5, 10.0),
+        )
+
+        pdfmaps.generate_pdot_flux_map(
+            dataset_path,
+            f"survey_{survey_name}_pdotflux_map",
+            0,
+            data_type,
+            survey_meerkat_dict["P_dot"],
+            survey_meerkat_dict["S1400"],
+            resolution_ppdot,
+            resolution_ppdot,
+            dictionary_pdot_flux_map,
+            pdot_limits=(1.0e-20, 1.0e-9),
+            flux_limits=(1.0e-5, 10.0),
+        )
+
     elif (survey_type == "radio") & (use_meerkat_fluxes is False):
         ppdfmaps.generate_ppdot_fluxes_map(
             dataset_path,
@@ -160,9 +197,38 @@ def create_survey_maps(
             resolution_ppdot,
             resolution_ppdot,
             dictionary_ppdot_flux_map,
-            x_limits=(1e-3, 1e2),
-            y_limits=(1e-21, 1e-9),
+            x_limits=(1e-2, 1e2),
+            y_limits=(1e-20, 1e-9),
         )
+
+        pfmaps.generate_p_flux_map(
+            dataset_path,
+            f"survey_{survey_name}_pflux_map",
+            0,
+            data_type,
+            survey_dict["P"],
+            survey_dict["S1400"],
+            resolution_ppdot,
+            resolution_ppdot,
+            dictionary_p_flux_map,
+            p_limits=(0.01, 100.0),
+            flux_limits=(1.0e-5, 10.0),
+        )
+
+        pdfmaps.generate_pdot_flux_map(
+            dataset_path,
+            f"survey_{survey_name}_pdotflux_map",
+            0,
+            data_type,
+            survey_dict["P_dot"],
+            survey_dict["S1400"],
+            resolution_ppdot,
+            resolution_ppdot,
+            dictionary_pdot_flux_map,
+            pdot_limits=(1.0e-20, 1.0e-9),
+            flux_limits=(1.0e-5, 10.0),
+        )
+
     elif survey_type == "X-ray":
         ppdfmaps.generate_ppdot_fluxes_map(
             dataset_path,
@@ -176,9 +242,38 @@ def create_survey_maps(
             resolution_ppdot,
             resolution_ppdot,
             dictionary_ppdot_flux_map,
-            x_limits=(1e-3, 1e2),
-            y_limits=(1e-21, 1e-9),
+            x_limits=(1e-2, 1e2),
+            y_limits=(1e-20, 1e-9),
         )
+
+        pfmaps.generate_p_flux_map(
+            dataset_path,
+            f"survey_{survey_name}_pflux_map",
+            0,
+            data_type,
+            survey_dict["P"],
+            survey_dict["S_x_abs"],
+            resolution_ppdot,
+            resolution_ppdot,
+            dictionary_p_flux_map,
+            p_limits=(0.01, 100.0),
+            flux_limits=(1.0e-15, 1.0e-9),
+        )
+
+        pdfmaps.generate_pdot_flux_map(
+            dataset_path,
+            f"survey_{survey_name}_pdotflux_map",
+            0,
+            data_type,
+            survey_dict["P_dot"],
+            survey_dict["S_x_abs"],
+            resolution_ppdot,
+            resolution_ppdot,
+            dictionary_pdot_flux_map,
+            pdot_limits=(1.0e-20, 1.0e-9),
+            flux_limits=(1.0e-15, 1.0e-9),
+        )
+
     else:
         log.error(
             f"The specified {survey_type} is not supported. Choose between 'radio' and 'X-ray'."
@@ -220,24 +315,32 @@ def generate_dataset(args: argparse.Namespace) -> None:
     survey_PMPS_velocity_map_vdec_dictionary = {}
     survey_PMPS_ppdot_map_dictionary = {}
     survey_PMPS_ppdot_fluxes_map_dictionary = {}
+    survey_PMPS_pflux_map_dictionary = {}
+    survey_PMPS_pdotflux_map_dictionary = {}
 
     survey_SMPS_position_map_radec_dictionary = {}
     survey_SMPS_velocity_map_vra_dictionary = {}
     survey_SMPS_velocity_map_vdec_dictionary = {}
     survey_SMPS_ppdot_map_dictionary = {}
     survey_SMPS_ppdot_fluxes_map_dictionary = {}
+    survey_SMPS_pflux_map_dictionary = {}
+    survey_SMPS_pdotflux_map_dictionary = {}
 
     survey_HTRU_position_map_radec_dictionary = {}
     survey_HTRU_velocity_map_vra_dictionary = {}
     survey_HTRU_velocity_map_vdec_dictionary = {}
     survey_HTRU_ppdot_map_dictionary = {}
     survey_HTRU_ppdot_fluxes_map_dictionary = {}
+    survey_HTRU_pflux_map_dictionary = {}
+    survey_HTRU_pdotflux_map_dictionary = {}
 
     survey_xray_position_map_radec_dictionary = {}
     survey_xray_velocity_map_vra_dictionary = {}
     survey_xray_velocity_map_vdec_dictionary = {}
     survey_xray_ppdot_map_dictionary = {}
     survey_xray_ppdot_fluxes_map_dictionary = {}
+    survey_xray_pflux_map_dictionary = {}
+    survey_xray_pdotflux_map_dictionary = {}
 
     log.info("Generating sample...")
 
@@ -257,6 +360,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
         survey_PMPS_velocity_map_vdec_dictionary,
         survey_PMPS_ppdot_map_dictionary,
         survey_PMPS_ppdot_fluxes_map_dictionary,
+        survey_PMPS_pflux_map_dictionary,
+        survey_PMPS_pdotflux_map_dictionary,
     )
 
     create_survey_maps(
@@ -274,6 +379,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
         survey_SMPS_velocity_map_vdec_dictionary,
         survey_SMPS_ppdot_map_dictionary,
         survey_SMPS_ppdot_fluxes_map_dictionary,
+        survey_SMPS_pflux_map_dictionary,
+        survey_SMPS_pdotflux_map_dictionary,
     )
 
     create_survey_maps(
@@ -291,6 +398,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
         survey_HTRU_velocity_map_vdec_dictionary,
         survey_HTRU_ppdot_map_dictionary,
         survey_HTRU_ppdot_fluxes_map_dictionary,
+        survey_HTRU_pflux_map_dictionary,
+        survey_HTRU_pdotflux_map_dictionary,
     )
 
     create_survey_maps(
@@ -308,6 +417,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
         survey_xray_velocity_map_vdec_dictionary,
         survey_xray_ppdot_map_dictionary,
         survey_xray_ppdot_fluxes_map_dictionary,
+        survey_xray_pflux_map_dictionary,
+        survey_xray_pdotflux_map_dictionary,
     )
 
     # Merge the filename and parameter dictionaries into a single dictionary.
@@ -332,6 +443,14 @@ def generate_dataset(args: argparse.Namespace) -> None:
         **survey_SMPS_ppdot_fluxes_map_dictionary,
         **survey_HTRU_ppdot_fluxes_map_dictionary,
         **survey_xray_ppdot_fluxes_map_dictionary,
+        **survey_PMPS_pflux_map_dictionary,
+        **survey_SMPS_pflux_map_dictionary,
+        **survey_HTRU_pflux_map_dictionary,
+        **survey_xray_pflux_map_dictionary,
+        **survey_PMPS_pdotflux_map_dictionary,
+        **survey_SMPS_pdotflux_map_dictionary,
+        **survey_HTRU_pdotflux_map_dictionary,
+        **survey_xray_pdotflux_map_dictionary,
     }
 
     # Write the whole dataset dictionary into a .csv file.
