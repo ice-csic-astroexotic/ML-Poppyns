@@ -11,17 +11,17 @@
     "show_profiling": true,
     "trainer": {
         "type": "snpe",
-        "num_rounds": 1,
-        "save_dir": "output/learning_sbi",
+        "num_rounds": 2,
+        "save_dir": "output/learning_snpe_resume",
         "validation_fraction": 0.1,
         "batch_size": 8,
         "lr": 0.0005,
         "ensemble": false,
         "size_ensemble": 5,
-        "truncated_prior": false,
-        "retrain_from_scratch": false,
+        "truncated_prior": true,
+        "retrain_from_scratch": true,
         "sir": true,
-        "append_simulations": false,
+        "append_simulations": true,
         "plot_proposal": false
     },
     "density_estimator": {
@@ -56,7 +56,7 @@
     "compression_input": {
         "use_compression": false,
         "compression_type": "cnn",
-        "cnn_model_path": "exp_4/round_9/trained_model_ensemble_0.pickle",
+        "cnn_model_path": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/tutorials/tutorial_notebooks/output/learning_sbi/models/SBI_ConvolutionMDN/20250821_154107/round_0/trained_model.pickle",
         "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
     },
     "prior_ranges": {
@@ -74,9 +74,9 @@
         ]
     },
     "training_data_loader": {
-        "dataset_path_round_0": "../../tutorials/tutorial_notebooks/output/data/training_dataset/generated_dataset/round_0",
-        "dataset_path": "../../tutorials/tutorial_notebooks/output/data/training_dataset/generated_dataset",
-        "statistic_path": "output/generator/statistics_train.json",
+        "dataset_path_round_0": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot",
+        "dataset_path": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/output/data/training_dataset",
+        "statistic_path": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/data/example_generator_magrot/statistics_train.json",
         "filter_inputs": [
             9,
             10,
@@ -88,7 +88,7 @@
         ],
         "normalize": false,
         "standardize": true,
-        "num_sim": 10
+        "num_sim": 1
     },
     "test_data_loader": {
         "testing": false,
@@ -98,7 +98,7 @@
         "statistic_path": "../../tutorials/tutorial_notebooks/output/data/statistics_train.json"
     },
     "observed_sample": {
-        "dataset_path": "output/generator_observed/",
+        "dataset_path": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/data/example_generator_observed",
         "filter_inputs": [
             9,
             10,
@@ -106,7 +106,7 @@
         ]
     },
     "dyn_data_loader": {
-        "dataset_path": "../../data/example_simulation_dyn"
+        "dataset_path": "/Users/celsapardoaraujo/Documents/MAGNESIA_population_synthesis/data/example_simulation_dyn"
     },
     "resume_training": {
         "resume": false,

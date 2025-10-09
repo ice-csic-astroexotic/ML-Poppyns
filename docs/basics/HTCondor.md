@@ -151,7 +151,7 @@ conda init bash
 source /data/astro/software/centos7/conda/mambaforge_4.14.0/etc/profile.d/conda.sh
 
 # Activate conda environment.
-conda activate /data/magnesia/scratch/conda/env/pop_syn
+conda activate /data/magnesia/scratch/conda/envs/pop_syn
 
 # We copy the pypopsyn module in the working node to avoid problems with the path while running the simulations in the server.
 cp -R /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn
