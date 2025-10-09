@@ -668,33 +668,39 @@ located in `utilities/experiment_helpers/run_simulation_set_sbi.py`.
 ##### Running the main job using HTCondor
 
 While we refer to the [HTCondor documentation](../basics/HTCondor.md) for general information about HTCondor, we 
-highlight a special aspect of multi-round inference executed with HTCondor in combination with Dask here. To run the 
-main job on HTCondor, the submit file has to have the following content:
+highlight a special aspect of multi-round inference executed with HTCondor in combination with Dask here. In the example 
+below, we assume that the directories `htcondor_submit` and `htcondor_output` have already been created. The 
+first is used to store the `job.submit` and  `wrapper.sh` files, and the second stores the `stdout` and `stderr` from 
+the main job. To run the main job on HTCondor, the submit file (`job.submit`) has to have the following content:
 
 ```bash
-RUN_FOLDER = <experiment_folder>
+RUN_FOLDER = <experiment_folder_path>
 LOG_FOLDER = $(RUN_FOLDER)/logs
 initialdir = $(RUN_FOLDER)
 remote_initialdir = $(RUN_FOLDER)
     
 universe        = vanilla 
-executable      = <experiment_folder>/htcondor_submit/wrapper.sh
-log             = <experiment_folder>/htcondor_output/$(ProcId)-log.txt
-output          = <experiment_folder>/htcondor_output/$(ProcId)-out.txt 
-error           = <experiment_folder>/htcondor_output/$(ProcId)-error.txt 
+executable      = $(RUN_FOLDER)/htcondor_submit/wrapper.sh
+log             = $(RUN_FOLDER)/htcondor_output/$(ProcId)-log.txt
+output          = $(RUN_FOLDER)/htcondor_output/$(ProcId)-out.txt 
+error           = $(RUN_FOLDER)/htcondor_output/$(ProcId)-error.txt 
     
 request_gpus=1
     
 Queue
 ```
 
-!!!Note 
-    In the example above, we assume that we have created `htcondor_submit` and `htcondor_output` folders. 
-    The first is used to store the `job.submit` and  `wrapper.sh` files, and the second stores the `stdout` 
-    and `stderr` from the main job.
+For an example of the `wrapper.sh` file go to [HTCondor documentation](../basics/HTCondor.md). With
+`experiment_folder_path`, we refer to the main folder where the data is saved (see [Folder structure](#folder-structure) 
+above for details). In the example above, we assumed that the `htcondor_submit` and `htcondor_output` folders are saved 
+within the `experiment_folder_path` directory.
 
-We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `output` directory where 
-the `data` folder is located (see [Folder structure](#folder-structure) above for details).
+
+!!! warning
+    
+    Before running `condor_submit job.submit`, remember to run `chmod -R +rwx experiment_folder_path` to allow the 
+    different HTCondor nodes to access the home directory. However, all the details on how to run jobs with HTCondor 
+    are in [HTCondor documentation](../basics/HTCondor.md).
 
 ##### Monitoring Dask workers (HTCondor + GPU)
 
