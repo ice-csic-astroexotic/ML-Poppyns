@@ -49,7 +49,9 @@ For multi-round inference, the workflow is as follows:
    data $x_0$.
 5. Compute a new proposal prior using the following options:
     - If we opt for a **truncated approach**, restrict the prior distribution to the support of the approximated 
-      posterior computed in step 4.
+      posterior computed in step 4. For more information about truncated proposal priors, see 
+      [Deistler et al. (2022)](https://arxiv.org/abs/2210.04815) and 
+      [Pardo-Araujo et al. (2025)](https://www.aanda.org/articles/aa/pdf/2025/04/aa53314-24.pdf).
     - Otherwise, use the posterior distribution from step 4 directly as the new proposal prior.
 6. Update the prior distribution with the new proposal prior and return to step 1.
 
@@ -90,8 +92,13 @@ output/
 We recommend placing all files relevant for training in the same base path. Specifically,
 
 * Store the training statistics file in the `data/` directory.
-* Save the training and testing datasets for the first round in `data/training_dataset/generated_dataset/round_0/` and 
-`data/test_dataset/generated_dataset/round_0/`, respectively.
+  * Save the training and testing datasets for the first round in `data/training_dataset/generated_dataset/round_0/` and 
+  `data/test_dataset/generated_dataset/round_0/`, respectively. Note that here we only need to save the `dataset.csv`
+  file containing the paths of each generated simulation, not the simulations themselves.
+
+!!! note
+    When running training or inference in the single-round mode, the output is still saved using the multi-round
+    structure. That is, results will be stored in a folder named `round_0`.
 
 ### Main training script
 
@@ -110,19 +117,24 @@ Here, the `config_train_sbi.json` file contains all the information required to 
 We now discuss the various options in the `config_train_sbi.json` SBI configuration file, which include the type 
 of SBI method, the type of compression if needed, the type of density estimator, the input shape of the dataset, 
 and other relevant training hyperparameters used. Note that several of these are equivalent to those outlined in 
-the tutorial [Learning pulsar parameters with NNs](learning_tutorial_nn.md), where we discuss point estimation.
+the tutorial [Learning pulsar parameters with NNs](learning_tutorial_nn.md), where we discuss point estimation. In the following, we
+primarily focus on single-round inference as outlined in the tutorial `08_learning_sbi_tutorial.ipynb`. We explain 
+additional parameters specific to multi-round inference further below in [Multi-round specific options](#multi-round-specific-options).
 
 #### General info
 
-We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, 
-a manual seed for the initialization of the network weights (assuming that `set_manual_seed` is set to true) 
-and some additional profiling options. The latter specify the names of the files containing run time information
-for the code and whether this timing information is displayed in the terminal or not.
+We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, whether 
+to fix the random seed (and its value) and some additional profiling options. The latter specify the names of the files
+containing run time information for the code and whether this timing information is displayed in the terminal or not. 
+We discuss the multi-processing options in detail in [Running simulation in parallel for each round](#running-simulation-in-parallel-for-each-round).
 
 ```json
 {
-    "name": "SBI_ConvolutionMDN",
+"name": "SBI_ConvolutionMDN",
     "n_gpu": 1,
+    "enable_dask": false,
+    "n_processes": 4,
+    "workers_dask": 4,
     "set_manual_seed": false,
     "manual_seed": 42,
     "profile_log": "profile.log",
@@ -131,57 +143,79 @@ for the code and whether this timing information is displayed in the terminal or
 }
 ```
 
-#### Initialization
+#### Training parameters
 
-We also specify a scheme to initialize the weights and biases of the network. 
-Here, we show an example using the Kaiming initializer denoted by `InitializerKaiming`.
+General options for the machine learning experiment are specified in the trainer section. First, we select the SBI 
+method to use by choosing from `snpe`, `snle`, or `snre` (including the s for the sequential approach, even in the case 
+of single-round inference). For single-round inference, we set `num_rounds = 1`; otherwise, this parameter defines the 
+number of rounds to perform. Note that the training and testing datasets for the first round are supposed to be 
+generated before training, i.e., outside the multi-round inference experiment presented here. Therefore, 
+`num_rounds = 2` would mean training the neural network twice, but generating the training and testing datasets only 
+once for the second round.
+
+We must also specify the directory where the trained model will be saved using the `save_dir` parameter. Additional 
+configuration options include the fraction of the training dataset reserved for validation, the training batch size, 
+and the initial learning rate for the Adam optimizer, which is the default in the `sbi` library.
+
+To create an ensemble of posteriors, we can train multiple networks per round by setting `ensemble = true` and specifying
+the ensemble size using `size_ensemble`. Note that the networks in the ensemble share the same architecture and differ 
+only due to the random initialization of their weights. See [Multi-round specific options](#multi-round-specific-options)
+section below for more information on the last parameters, which are specific to multi-round inference.
 
 ```json
 {
-    "weights_initializer": {
-        "type": "InitializerKaiming",
-        "args": {}
+    "trainer": {
+        "type": "snpe",
+        "num_rounds": 1,
+        "save_dir": "output/learning_sbi",
+        "validation_fraction": 0.1,
+        "batch_size": 8,
+        "lr": 0.0005,
+        "ensemble": false,
+        "size_ensemble": 5,
+        "truncated_prior": false,
+        "retrain_from_scratch": false,
+        "sir": true,
+        "append_simulations": false,
+        "plot_proposal": false
+      
     }
 }
 ```
-Here is a list with the different initialization procedures available:
-
-* `InitializerKaiming` uses the Kaiming initialization approach introduced in [He et al. (2015)](https://arxiv.org/abs/1502.01852).
-* `InitializerNormal` samples the weights from a Normal distribution $N(0, \sigma^2)$ whilst biases are filled 
- with a constant zero value. In this case, $\sigma = 1 / \sqrt{n}$ where $n$ is the number of input features.
-* `InitializerUniform` samples the weights from a uniform distribution $U(0,1)$ whilst biases are filled with 
- a constant zero value.
-* `InitializerUniformRule` samples the weights from a uniform distribution $U(-y, y)$. Here, $y = 1 / \sqrt{n}$ 
- with $n$ being the number of input features and biases are filled with a constant zero value.
-* `InitializerXavier` uses the Xavier initialization approach introduced in [Xavier et al. (2010)](https://proceedings.mlr.press/v9/glorot10a.html).
-
 #### Density estimator
 
 Next, we decide on the type of density estimator used to approximate the posterior distribution. The 
-preconfigured options in the sbi library include so-called masked autoregressive flows `maf` or Gaussian mixture 
-density networks `mdn`. For more details on these methods and relevant hyperparameters as well as custom density 
-estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
+preconfigured options in the `sbi` library include so-called masked autoregressive flows `maf` or Gaussian mixture 
+density networks `mdn`. We can set the number of hidden features for the density estimator.
+When using `mdn` or `maf`, we can also set the number of components in the mixture or the number of transformations in the 
+flow, respectively, using the `num_components` and `num_transforms` parameters. On the other hand, for SNRE, we can 
+specify the type of classifier to use, such as: `linear`, `mlp`, or `resnet`. For more details on these methods and 
+relevant hyperparameters as well as custom density estimators see [here](https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/).
 
 In the following example, we are setting a mixture density network with `10` Gaussian components, and the number of 
-neurons in the hidden layers is set to `16`.
+neurons in the hidden layers is set to `32`.
 
 ```json
 {
-    "density_estimator": {
-        "type": "mdn",
-        "args": {
-            "num_components": 10,
-            "hidden_features":16
-        }
+  "density_estimator": {
+    "type": "mdn",
+    "classifier_nre": "resnet",
+    "args": {
+      "hidden_features": 32,
+      "num_components": 10, 
+      "num_transforms": 5
     }
+  }
 }
 ```
+If the model type selected in the training options is not `snre`, and the density estimator is not `maf`, then the classifier and the num_components specified here will be ignored.
+
 
 #### MCMC sampler
 
 For cases where NRE or NLE is used, an extra step is required to obtain or sample from the posterior. In the following 
 case, we use the default MCMC-based sampling algorithms provided by the `sbi` package. For details on the different 
-samplers in `sbi`, see [the sbi documentation](https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/).
+samplers in `sbi`, see [the official documentation](https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/). In the case of NPE, the following options are simply ignored.
 
 When performing MCMC sampling, we need to specify the number of parallel chains, the thinning factor, and the MCMC 
 sampler type. `sbi` supports the following MCMC samplers: `nuts`, `slice`, `hmc`, and `slice_np_vectorized`.
@@ -203,15 +237,27 @@ features from the input data and compress the input into a latent vector that is
 This neural network is optimised at the same time as the parameters of the neural density estimator.
 
 !!! note 
-    This functionality is only supported for SNPE, not for SNRE or SNLE.
+    This functionality is only supported in SNPE and not available in SNRE or SNLE. The reason is that, unlike in NPE, 
+    the neural density estimators in NLE and NRE approximate the likelihood or the likelihood ratio directly. As a 
+    result, the output of the neural network must match that of the simulator, which means the compression step would 
+    have to occur after the density estimator. If an embedding network were placed after the density estimator, the 
+    usual maximum-likelihood loss used in SBI would no longer apply, since the estimator’s output would no longer 
+    represent a valid likelihood (or likelihood ratio). For this reason, it is not possible to train an embedding 
+    network jointly with the density estimator in SNLE or SNRE.
 
 In the following example, we will be using 2D maps as input and, hence, opt for a convolutional neural network (CNN) 
 as the embedding net. This CNN is designed to adapt to any input size specified by the `input_shape` parameter and 
-produce an output with a length specified by `len_output_layer`. In this specific example, the CNN receives an array of 
-shape $32 \times 32$ with `3` different input channels (three of our density maps with a 32 resolution) as input and 
-outputs a latent vector of size 32, which contains a compressed representation of the input feature maps.
+produce an output with a length specified by `len_output_layer`. 
 
-The configuration file then looks as follows:
+There are currently three predefined models available for the embedding network:
+
+1. `ModelConvSBI`: a CNN with three convolutional layers.
+
+2. `ModelConvSBIdeep`: a deeper CNN with four convolutional layers.
+
+3. `ModelConvSBIshallow`: a shallower CNN with two convolutional layers.
+
+Therefore, when using ModelConvSBI, the configuration file looks as follows:
 
 ```json
 {
@@ -224,58 +270,73 @@ The configuration file then looks as follows:
     }
 }
 ```
-
-The models that have been predefined are the following ones:
-
-* `ModelConv` based on a CNN.
-* `ModelLinear` based on a multi-layer perceptron (MPL) architecture.
-
 If you would like to design your own network architecture, you need to implement a new model class in 
 `pypopsyn/learning/models` and import this model in the file `models.py`.
 
+#### Initialization
+
+We also specify a scheme to initialize the weights and biases of the convolutional neural network. 
+Here, we show an example using the Kaiming initializer denoted by `InitializerKaiming`.
+
+```json
+{
+    "weights_initializer": {
+        "type": "InitializerKaiming",
+        "args": {}
+    }
+}
+```
+Here is a list with the different initialization procedures available:
+
+* `InitializerKaiming` uses the Kaiming initialization approach introduced in [He et al. (2015)](https://arxiv.org/abs/1502.01852).
+* `InitializerNormal` samples the weights from a Normal distribution $N(0, \sigma^2)$ whilst biases are filled 
+ with a constant zero value. In this case, $\sigma = 1 / \sqrt{n}$ where $n$ is the number of input features.
+* `InitializerUniform` samples the weights from a uniform distribution $U(0,1)$ whilst biases are filled with 
+ a constant zero value.
+* `InitializerUniformRule` samples the weights from a uniform distribution $U(-y, y)$. Here, $y = 1 / \sqrt{n}$ 
+ with $n$ being the number of input features and biases are filled with a constant zero value.
+* `InitializerXavier` uses the Xavier initialization approach introduced in [Xavier et al. (2010)](https://proceedings.mlr.press/v9/glorot10a.html).
+
 #### Alternative input compression options
 
-For learning approaches where NRE or NLE are applied, we do not require an embedding net but instead another step is 
-required to preprocess the data before passing it to the neural network. Unlike in NPE, we cannot train an embedding 
-network simultaneously with the density estimator. To address this, we provide two options for separate data 
-compression: a Convolutional Neural Network (CNN) or Principal Component Analysis (PCA). The CNN is assumed to have 
-been trained as part of a previous NPE experiment. The PCA model can be trained separately using the 
-`tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook. 
+For learning approaches where NRE or NLE are applied, as outlined above we cannot train an embedding network 
+simultaneously with the density estimator but instead apply another step to preprocess the data before passing it 
+to the neural network. For this purpose, we provide two options for separate data compression: a Convolutional Neural 
+Network (CNN) or Principal Component Analysis (PCA). Note that our implementation assumes that the CNN corresponds to 
+a fully optimised (i.e., fixed) embedding network that has been trained as part of a previous NPE experiment. For 
+both PCA and CNN, the code expects a pickle file containing the pretrained model. The PCA model can be trained 
+separately using the `tutorials/analysis_notebooks/PCA_image_compressor.ipynb` notebook. 
 
 ```json
 {
   "compression_input": {
     "use_compression": true,
     "compression_type": "cnn",
-    "cnn_model_path": "exp/models/SBI_ConvolutionMDNshallow/20250127_144110/round_0/trained_model.pickle",
-    "pca_model_path": "/PCAs/1_pca_model_95_variance.pkl"
+    "cnn_model_path": "exp_4/round_9/trained_model_ensemble_0.pickle",
+    "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
   }
 }
 ```
-
 Note that when `use_compression` is set to False, the training configuration can only be used with NPE. In this case, 
 an embedding network will be trained simultaneously with the density estimator as outlined in the previous section, and 
 this embedding network is responsible for compressing the input data.
 
 #### Prior distribution for training data
 
-We need to specify the labels and prior ranges for plotting purposes. Note that the order of the list must match
-the order of parameters in the `dataset_full.csv` file that contains information on the training data.
+In order to perform multi-round inference with a truncated approach or visualise cornerplots for our inference results
+across all SBI methods, we need to specify the labels and prior ranges (corresponding to the initial prior ranges which
+are subsequently restricted in the TSNPE algorithm). Note that the order of the list must match the order of parameters 
+in the `dataset_full.csv` file that contains information on the training data.
 
 ```json
 {
   "prior_ranges": {
     "labels": [
       "B_initial_log10_mean",
-      "B_initial_log10_sigma",
-      "P_initial_log10_mean",
-      "P_initial_log10_sigma",
-      "a_late",
-      "L_radio_log10_mean",
-      "epsilon_L"
+      "P_initial_log10_mean"
     ],
-    "low": [12, 0.1, -1.5, 0.1, -3, 24.6, 0.1],
-    "high": [14, 1, 0.5, 1, 0, 28.6, 1]
+    "low": [12, -1.5],
+    "high": [14, 0.3]
   }
 }
 ```
@@ -284,17 +345,22 @@ the order of parameters in the `dataset_full.csv` file that contains information
 
 We also require a training data loader, which is responsible for loading the dataset in a representation readable 
 by the network. The path to the directory containing the training dataset (in particular the file `dataset_full.csv`) 
-for the first round is specified in the `dataset_path_first_round` field. We also specify the location for the JSON
-file characterizing the statistics of the training dataset in `statistic_path`, and the input channels `filter_inputs`
-used in building our (multichannel) input. Additionally, we set the ground truth labels `filter_labels` that we want 
-to predict and provide information on whether our data and labels are normalized or standardized. For multi-round
-inference, the training datasets generated in each round will be saved in the directory specified by `dataset_path`.
+for round 0 is specified in the `dataset_path_round_0` field. For multi-round inference, the training
+datasets generated in each of the following rounds will then be saved in the directory specified by `dataset_path`.
+We also specify the location for the JSON file characterizing the statistics of the training dataset in `statistic_path`
+and the input channels `filter_inputs` used in building our (multichannel) input. Additionally, we set the ground truth
+labels `filter_labels` that we want to predict and provide information on whether our data and labels are normalized or
+standardized. The `filter_labels` and `filter_inputs` arguments are explained in more detail below, along with an 
+example.
+
+!!! note
+    The file in `dataset_path_round_0` must be named `dataset_full.csv`, as this is the expected filename in the code.
 
 For the multi-round case, we must also specify, how many simulations we want to run in each round using the `num_sim` 
 field for training. In the example below, 1000 simulations are generated per round and then used for training.
 
 We also note that our workflow for both multi-round and single-round inference assumes that the dataset for the first 
-round already exist. This is possible because the prior distribution in the first round is fixed, and these datasets
+round already exist. This is possible because the prior distribution in round 0 is fixed, and these datasets
 can be reused across multiple experiments to save computational resources.
 
 For the example above and following the recommended folder structure, the `training_data_loader` will look like this:
@@ -302,11 +368,11 @@ For the example above and following the recommended folder structure, the `train
 ```json
 {
  "training_data_loader": {
+    "dataset_path_round_0": "output/data/training_dataset/generated_dataset/round_0",
     "dataset_path": "output/data/training_dataset",
     "statistic_path": "output/data/statistics_train.json",
-    "dataset_path_first_round": "output/data/training_dataset/generated_dataset/round_0",
-    "filter_inputs": [9, 10, 11, 12, 13, 14],
-    "filter_labels": [15, 16, 17, 18, 19, 20, 21],
+    "filter_inputs": [9, 10, 11],
+    "filter_labels": [15, 16],
     "normalize": false,
     "standardize": true,
     "num_sim": 1000
@@ -317,8 +383,8 @@ For the example above and following the recommended folder structure, the `train
 !!! note 
 
      When loading the data for SBI, we do not need to specify the batch size and the shuffle parameter.
-     This is because the sbi library deals with shuffling the input dataset internally, while the batch size 
-     is specified during the training procedure (see below). If we were to use the data loader as in the 
+     This is because the `sbi` library deals with shuffling the input dataset internally, while the batch size 
+     is specified during the training procedure (see above). If we were to use the data loader as in the 
      [CNN learning tutorial](learning_tutorial_nn.md), it would load the dataset in a format that is not 
      compatible with sbi.
 
@@ -341,14 +407,15 @@ the labels `B_initial_log10_mean` and `P_initial_log10_mean` (indices 15, 16).
 
 !!! warning
     
-    The length of the two lists for `filter_inputs` and `filter_labels` in the dataset loader configuration have to 
-    match the channel input dimension and number of output dimension of the neural network.
-    Otherwise an error is produced.
+    If an embedding network is used to compress the 2D maps, the length of `filter_inputs` in the dataset loader 
+    configuration must match the network’s expected input channel dimension specified in `input_shape` in the `arch` 
+    section.
 
 Finally, our training data loader enables us to activate on-the-fly normalization or standardization (both are 
 mutually exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information 
 contained in the `statistics_train.json` file. For normalization, the input channels and labels will have values in 
-the range between 0 and 1. If standardized, the input channels and labels have values centred around 0 and range approximately between -1 and 1.
+the range between 0 and 1. If standardized, the input channels and labels have values centred around 0 and range 
+approximately between -1 and 1.
 
 !!! note
 
@@ -358,108 +425,155 @@ the range between 0 and 1. If standardized, the input channels and labels have v
 
 #### Testing data loader
 
-Inference on a test dataset can be performed either separately using the `sbi_infer.py` script after training has been
-completed, or simultaneously during training by setting `testing` to `true`. In the latter case, the testing dataset 
-will be generated on the fly, producing as many simulations as specified in `num_sim`. As with training, testing 
-requires specifying the path to the test dataset in the `dataset_path_first_round` field. This directory must contain 
-a `dataset_full.csv` file. In the case of multi-round inference, the testing dataset will be saved at the path 
-specified in `dataset_path`. Therefore, for the example above and following the recommended folder 
-structure, the `test_data_loader` configurations will look like this:
+Inference on a test dataset can be performed either separately using the `sbi_infer.py` script after training, or 
+simultaneously during training by setting the `testing` field to true. As with training, testing requires specifying 
+the path to the test dataset for round 0 in the `dataset_path_round_0` field, which must contain a 
+`dataset_full.csv` file. In multi-round inference, the test dataset for subsequent rounds is generated on the fly and 
+saved to the path specified in `dataset_path`, with the number of simulations defined by `num_sim`.
 
+Following the recommended folder structure, the `test_data_loader` configuration for the example above looks as follows
+(although we have opted to not perform testing simultaneously here and set `testing` to false:
 
 ```json
 {
   "test_data_loader": {
     "testing": false,
-    "dataset_path": "output/data/test_dataset",
-    "dataset_path_first_round": "output/data/test_dataset/generated_dataset/round_0",
-    "num_sim": 300
+    "dataset_path_round_0": "output/data/test_dataset/generated_dataset/round_0",
+    "dataset_path": "output/data/test_dataset/generated_dataset",
+    "num_sim": 10
   }
 }
 ```
 
 #### Observed sample
 
-The inference script performs the inference for an observed sample specified in the `observed_sample` field. 
-As before, you must provide the `filter_inputs` and `filter_labels`, which must match those used during training. 
+The inference script performs inference on a sample specified in the `observed_sample` field, assuming that the folder 
+contains a CSV file named `dataset_atnf.csv`. As before, you provide `filter_inputs`, which must match those used 
+during training. As we do not know the ground truths, `filter_labels` are not required here.
 
 ```json
 {
   "observed_sample": {
       "dataset_path": "data/example_generator_observed",
-      "filter_inputs": [9, 10, 11, 12, 13, 14],
-      "filter_labels": [15, 16, 17, 18, 19, 20, 21]
+      "filter_inputs": [9, 10, 11]
   }
 }
 ```
 
-#### Training parameters
+#### Dynamical database
 
-Finally, we specify general options for our machine learning experiment. First, we select the SBI method we want
-to use choosing from the options `snpe`, `snle`, or `snre` (including the `s` for the sequential approach even in the
-case of single-round inference). For single-round inference, we set `num_rounds = 1`. Otherwise, this parameter 
-denotes the number of rounds we want to learn sequentially. Additionally, we can configure the fraction of the 
-training dataset reserved for validation, the training batch size, and the initial learning rate for the `Adam`
-optimizer, which is the default optimizer in the `sbi` library. We must also specify the directory path where the
-trained model will be saved using the `save_dir` parameter. We also have the option to train multiple networks per
-round and create an ensemble of posteriors by setting `ensemble = true` and specifying the ensemble size 
-with `size_ensemble`. Note that the difference between the networks in the ensemble is only due to the randomized
-initialization of their weights, i.e., the architecture of each network in the ensemble is the same.
+To perform the magneto-rotational evolution, we first need to sample stars from a dynamical database and then carry out 
+the magneto-rotational evolution. In the `dyn_data_loader`, we specify the path to the dynamical database, assuming that 
+it contains a file named `final_pop_dyn.csv`. This file can be generated using the tutorial notebook located at 
+`tutorials/tutorial_notebooks/02_simulator_dyn_tutorial.ipynb`.
 
 ```json
 {
-    "trainer": {
-        "type": "snle",
-        "validation_fraction": 0.1,
-        "batch_size": 8,
-        "lr": 5e-4,
-        "ensemble":true,
-        "size_ensemble":5, 
-        "num_rounds":1,
-        "save_dir": "data/example_learning_sbi"
+  "dyn_data_loader": {
+      "dataset_path": "../../data/example_simulation_dyn"
     }
 }
 ```
 
-### Training output
+#### Training output
 
 The results of the training experiment are saved in the directory specified by the `save_dir` option outlined under
-[Training Parameters](#training-parameters) above. Specifically, training will create two folders in this directory, 
+[Training parameters](#training-parameters) above. Specifically, training will create two folders in this directory, 
 namely a `logs` folder and a `models` folder. Both contain subfolders for each specific training experiment of the
 form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the experiment was launched.
 Within these folders, the training experiment will result in the creation of one subfolder for each round of training.
 In the case of single-round inference, we would only obtain one folder named `round_0`. 
 
 The `logs` subdirectories contain the files `profile.json` and `profile.log`, which provide timing and profiling 
-information for the training script executed across all rounds. Additionally, each `round_{i}` subfolder inside the 
-`logs` directory contains the following files:
+information for the training script executed across all rounds. This folder also contains a file called `log.txt`, which 
+captures the terminal `stdout` output. Additionally, each `round_{i}` subfolder inside the `logs` directory contains 
+the following files:
 
 * `training_statistics_{j}.json` with the training and validation loss evolution.
 * `training_stats_{j}.pdf` with a plot showing the training and validation loss evolution.
 
-In this example, `j` indicates which neural network in the ensemble the file refers to.
+The `j` indicates which neural network in the ensemble the file refers to. In the case of using just one neural network
+no subscript is added to these two files. 
 
-Finally, each subfolder `round_{i}` in the `models` directory contains:
+The `model` folder contains a `config_sbi.json` that is a copy of the configuration file used to run the experiment.
+Finally, each subfolder `round_{i}` in this directory contains:
 
+* `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
+   the observed data. Note that if the ensemble is enabled, a single corner plot will be produced using the ensemble of 
+   posteriors.
+* `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic
+   test if testing was enabled.
+* `inference.pickle`: The trained inference object, which stores the weights of the trained neural network. Knowledge
+   of these are required when resuming training in the multi-round case, where we do not want to start from scratch 
+   but continue from the last trained network.
+* `posterior_samples_test_data.npz`: A NumPy array containing the true values and the corresponding posterior samples
+   for each sample in the test dataset if testing is enable .
+* `samples_posterior.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
 * `trained_model.pickle`: The trained model. This object is needed to sample from the approximated posterior 
    distribution after the neural network has been trained.
-* `inference.pickle`: The trained inference object, which stores the weights of the trained neural network. 
-* `samples_posterior.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
-* `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
-   the observed data.
-* `posterior_samples_test_data.npz`: A NumPy array containing the true values and the corresponding posterior samples
-   for each sample in the test dataset.
 
 If `ensemble` is enabled, there will be as many `inference.pickle` and `trained_model.pickle` files as there are 
 neural networks in the ensemble.
 
-## Multi-round specific options
+### Multi-round specific options
 
 This section describes configuration options specific to multi-round inference.
 
-### Resume mode
+#### Training specific parameters for multi-round inference
 
-Resume mode allows us to continue the SBI training from a previous round, as might, e.g., be necessary if the training
+Several additional parameters control how training behaves across different rounds:
+
+
+* `truncated_prior`: If set to `true`, the proposal prior is obtained by truncating the initial prior with the
+   posterior from the previous round (evaluated at the observed data, 
+    [Deistler et al. 2022](https://arxiv.org/abs/2210.04815)). Otherwise, the proposal prior is simply the 
+   approximated posterior distribution from the previous round.
+
+* `retrain_from_scratch`: If set to `true`, the neural network is retrained from scratch in each round, i.e., the 
+   model weights are re-initialized in each round. Otherwise, training continues updating the weights trained in the
+   previous rounds.
+
+* `sir`: If set to `true`, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, 
+   rejection sampling is used. Note that rejection sampling can be significantly more computationally expensive if the 
+   posterior distribution is very narrow and the rejection region is large. For an explanation of these two methods, 
+   we refer the user to
+   [Liu, J. S. (2001), Monte Carlo Strategies in Scientific Computing.](https://github.com/szcf-weiya/MonteCarlo/blob/master/References/Monte-Carlo-Strategies-in-Scientific-Computing.pdf)
+
+* `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round when testing. 
+   ([Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
+
+* `plot_proposal`: If set to `true` and `truncated_prior` is enabled, a corner plot of the proposal prior will be saved.
+
+!!! warning
+    For SNPE, we cannot enable both `truncated_prior = false` and `append_simulations = true` simultaneously because in 
+    this scenario the approximate posterior must be corrected using the proposal prior from the corresponding round,
+    which is not straight forward if the prior is not truncated.
+    (see Appendix 6.2 of [Deistler et al. 2022](https://arxiv.org/abs/2210.04815)).
+
+An example of the multi-round training information could look as follows:
+
+```json
+{
+  "trainer": {
+        "type": "snpe",
+        "num_rounds": 2,
+        "save_dir": "output/learning_sbi",
+        "validation_fraction": 0.1,
+        "batch_size": 8,
+        "lr": 0.0005,
+        "ensemble": false,
+        "size_ensemble": 5,
+        "truncated_prior": false,
+        "retrain_from_scratch": false,
+        "sir": true,
+        "append_simulations": true,
+        "plot_proposal": false
+}
+}
+```
+#### Resume mode
+
+Resume mode allows us to continue the SBI training from a previous round, as might be necessary, e.g., if the training
 was interrupted in an earlier run before it was completed. The following set-up will ensure continuity in the output 
 files and prevents the creation of a new directory for resumed runs. However, we recommend making a copy of the 
 existing `learning` directory to avoid overwriting data from previous rounds and to verify the consistency of 
@@ -468,95 +582,75 @@ resumed runs.
 To use the resume mode we first need to:
 
 * Set `config["resume_training"]["resume"] = true`.
-* Specify the last completed round to resume from, e.g., using `config["resume_training"]["last_round"] = 2`.
+* Specify the last completed round to resume from, e.g., using `config["resume_training"]["last_round"] = 7`. Note that
+   the numerical value saved under `num_rounds` in the general training parameters is the total number of rounds
+   (including `round_0`) that we want to run and not only the additional ones we add in resume mode. I.e., if we set 
+   `config["trainer"]["num_rounds"] = 4` and `config["resume_training"]["last_round"] = 2`, the resume mode will produce
+   training (and potentially test) data for the final round `round_3` and also perform the corresponding training.
 * Provide the paths to the previously saved model and logs using `config["resume_training"]["save_dir"]` and 
   `config["resume_training"]["log_dir"]`, respectively.
 
-When resuming, the first (new) iteration requires loading the trained model and the training dataset from the last 
-successfully completed round of an earlier experiment. This is necessary to:
+When resuming, the first (new) iteration requires loading the trained model from the previously completed round of an 
+earlier experiment. This is necessary to compute the proposal prior distribution for the next (first new) round. Note 
+that if `append_simulations` is set to true, simulations from all previous rounds are reused at every round. Therefore, 
+when resuming, it is essential to load the training datasets from all completed rounds.
 
-* Compute the proposal prior distribution for the next (first new) round.
-* Load the training dataset, since simulations from previous rounds are reused in subsequent rounds 
-  when `append_simulations` is enabled.
-
-An example of the configuration file would look as follows:
+An example of the configuration file that enables resuming would look as follows:
 
 ```json
 {
   "resume_training": {
-  "resume": false,
-  "last_round": 3,
+  "resume": true,
+  "last_round": 7,
   "save_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828",
   "log_dir": "exp/learning/models/SBI_ConvolutionMDN/20240705_123828"
   }
 }
 ```
 
-In this example, we will load the `inference.pickle` and `trained_model.pickle` from round 3 and compute the
-approximated posterior distribution at an observed sample, which will then serve as the proposal prior for the next 
-round. From round 4 onward, the computation will proceed as usual in our multi-round inference approach.
+In this example, we will load the `inference.pickle` and `trained_model.pickle` from `round_7` saved in the `save_dir`
+folder and compute the approximated posterior distribution at an observed sample, which will then serve as the proposal 
+prior for the next round. From `round_8` onward, the computation will proceed as usual in our multi-round inference 
+approach. The `inference.pickle` and the `trained_model.pickle` files for the `last_round` and onward will be saved in 
+the same folder specified in `save_dir` (in this case, the `config["trainer"]["save_dir"]` argument is simply ignored). 
+The logs and training statistics are saved in the `log_dir` folder.
 
-### Extra parameters for training
+!!!Note
+    The resume option requires the folder structure specified in [Folder structure](#folder-structure). Note that the
+    last completed round number should match the folder name containing the last `trained_model.pickle` file and the 
+    checkpoint you want to resume from.
 
-Several additional parameters control how training behaves across rounds:
-
-* `append_simulations`: If set to `true`, simulations from previous rounds are included in the current round.
-
-* `truncated_prior`: If set to `true`, the proposal prior is obtained by truncating the initial prior with the
-   posterior from the previous round (evaluated at the observed data). Otherwise, the proposal prior is simply the 
-   approximated posterior distribution from the previous round.
-
-* `sir`: If set to `true`, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, 
-   rejection sampling is used. For an explanation of these two methods, we refer the user to
-   [Liu, J. S. (2001), Monte Carlo Strategies in Scientific Computing.](https://github.com/szcf-weiya/MonteCarlo/blob/master/References/Monte-Carlo-Strategies-in-Scientific-Computing.pdf)
-
-* `retrain_from_scratch`: If set to `true`, the neural network is retrained from scratch in each round, i.e., the 
-   model weights are re-initialized in each round. Otherwise, training continues updating the weights trained in the
-   previous rounds.
-
-* `plot_proposal`: If set to `true`, a corner plot of the proposal prior will be saved.
-
-Note: For SNPE, you cannot enable both `truncated_prior = false` and `append_simulations = true`. 
-
-An example of the multi-round training information could look as follows:
-
-```json
-{
-  "trainer": {
-    "type": "snle",
-    "append_simulations": true,
-    "truncated_prior": false,
-    "retrain_from_scratch": true,
-    "ensemble": true,
-    "size_ensemble": 5,
-    "validation_fraction": 0.1,
-    "batch_size": 16,
-    "lr": 1e-4,
-    "num_rounds": 10,
-    "sir": true,
-    "plot_proposal": false,
-    "save_dir": "/data/magnesia/common/paper_pardo_araujo_etal_2025/exp_constant_mag_cnn_embedding/learning"
-  }
-}
-```
-
-### Running simulation in parallel for each round
+#### Running simulation in parallel for each round
 
 We have implemented two ways to parallelize the simulation process to optimise computation time: using either the 
 [`Dask`](https://www.dask.org/) or the [`multiprocessing`](https://docs.python.org/3/library/multiprocessing.html) packages.
 
-- To use Dask, we set `enable_dask` to `true` in the configuration file and specify the number of workers with
-   `n_workers`, which corresponds to the number of HTCondor jobs on the PIC server.
-- If Dask is not enabled, the `multiprocessing` package will be automatically used instead. We can specify the 
-   number of parallel processes via: `n_processes`.
+The desired parallelization method is specified at the top of the `config_train_sbi.json` file in the 
+[General info](#general_info) section. It, for example, looks as follows:
 
-### Notes on running with Dask on the PIC server
+```json
+{
+  "name": "SBI_ConvolutionMDN",
+  "n_gpu": 1,
+  "enable_dask": false,
+  "n_processes": 4,
+  "workers_dask": 4
+}
+```
+
+- To use Dask, we set `enable_dask` to true and specify the number of workers with `n_workers`, which corresponds to 
+   the number of HTCondor jobs on the PIC server.
+- If Dask is not enabled, the `multiprocessing` package will be automatically used instead. We can specify the 
+   number of parallel processes via `n_processes`.
+
+#### Notes on running Dask on the PIC
 
 There are some important considerations for MAGNESIA users when running simulations with Dask on the PIC server:
 
-#### Folder handling
+##### Folder handling
 
-- The script copies the `MAGNESIA_population_synthesis` folder to each node to avoid redundant reads and reduce server load.
+- During training the `MAGNESIA_population_synthesis` folder is copied to each node to avoid redundant reads and reduce 
+   server load.
 - You must update the following in `pypopsyn/simulator/config_simulator.py` as each node will have its own copy of 
    the full code repository and will access files locally:
     ```python
@@ -564,45 +658,51 @@ There are some important considerations for MAGNESIA users when running simulati
         path_to_software = "MAGNESIA_population_synthesis"
     ```
 
-#### Dask usage on the PIC server
+##### Dask usage on the PIC server
 
 To reduce file system load, the simulation output folder is created and saved locally on each node.  After the 
 simulation completes, the output folder is copied back to the original dataset path, specified in
-`config["training_data_loader"]["dataset_path"]`.  This logic is implemented in the function `run_simulation_dask` 
-located in `utilities/simulation_helper/run_simulation_set.py`.
+`config["training_data_loader"]["dataset_path"]`.  This logic is implemented in the function `simulator_dask` 
+located in `utilities/experiment_helpers/run_simulation_set_sbi.py`.
 
-#### Running the main job using HTCondor
+##### Running the main job using HTCondor
 
-While we refer to the [HTCondor documentation](../basics/HTCondor.md) for general information about HTCondor, we highlight a special
-aspect of multi-round inference run using HTCondor here. To execute the main job on HTCondor, the submit file has to
-have the following content:
+While we refer to the [HTCondor documentation](../basics/HTCondor.md) for general information about HTCondor, we 
+highlight a special aspect of multi-round inference executed with HTCondor in combination with Dask here. In the example 
+below, we assume that the directories `htcondor_submit` and `htcondor_output` have already been created. The 
+first is used to store the `job.submit` and  `wrapper.sh` files, and the second stores the `stdout` and `stderr` from 
+the main job. To run the main job on HTCondor, the submit file (`job.submit`) has to have the following content:
 
-    ```bash
-    RUN_FOLDER = <experiment_folder>
-    LOG_FOLDER = $(RUN_FOLDER)/logs
-    initialdir = $(RUN_FOLDER)
-    remote_initialdir = $(RUN_FOLDER)
+```bash
+RUN_FOLDER = <experiment_folder_path>
+LOG_FOLDER = $(RUN_FOLDER)/logs
+initialdir = $(RUN_FOLDER)
+remote_initialdir = $(RUN_FOLDER)
     
-    universe        = vanilla 
-    executable      = <experiment_folder>/htcondor_submit/wrapper.sh
-    log             = <experiment_folder>/htcondor_output/$(ProcId)-log.txt
-    output          = <experiment_folder>/htcondor_output/$(ProcId)-out.txt 
-    error           = <experiment_folder>/htcondor_output/$(ProcId)-error.txt 
+universe        = vanilla 
+executable      = $(RUN_FOLDER)/htcondor_submit/wrapper.sh
+log             = $(RUN_FOLDER)/htcondor_output/$(ProcId)-log.txt
+output          = $(RUN_FOLDER)/htcondor_output/$(ProcId)-out.txt 
+error           = $(RUN_FOLDER)/htcondor_output/$(ProcId)-error.txt 
     
-    request_gpus=1
+request_gpus=1
     
-    Queue
-    ```
+Queue
+```
 
-!!!Note 
-    In the example above, we assume that we have created `htcondor_submit` and `htcondor_output` folders. 
-    The first is used to store the `job.submit` and  `wrapper.sh` files, and the second stores the `stdout` 
-    and `stderr` from the main job.
+For an example of the `wrapper.sh` file go to [HTCondor documentation](../basics/HTCondor.md). With
+`experiment_folder_path`, we refer to the main folder where the data is saved (see [Folder structure](#folder-structure) 
+above for details). In the example above, we assumed that the `htcondor_submit` and `htcondor_output` folders are saved 
+within the `experiment_folder_path` directory.
 
-We recommend saving the `htcondor_submit` and `htcondor_output` folders within the same `output` directory where 
-the `data` folder is located (see [Folder Structure](#folder-structure) above for details).
 
-#### Monitoring Dask workers (HTCondor + GPU)
+!!! warning
+    
+    Before running `condor_submit job.submit`, remember to run `chmod -R +rwx experiment_folder_path` to allow the 
+    different HTCondor nodes to access the home directory. However, all the details on how to run jobs with HTCondor 
+    are in [HTCondor documentation](../basics/HTCondor.md).
+
+##### Monitoring Dask workers (HTCondor + GPU)
 
 If this is your first time using Dask on the PIC server, you must manually launch an empty Dask cluster via the Jupyter
 dashboard (located in the left sidebar on the PIC Jupyter interface) to ensure correct functionality. If you are
@@ -627,9 +727,10 @@ these steps:
 
 ## Inferring on a dataset
 
-Once our SBI pipeline has been trained, it can be used to infer on an unseen dataset of generated maps and extract 
-posterior distributions of the corresponding pulsar population parameters. The script `pypopsyn/learning/sbi_infer.py`
-allows us to take an experiment configuration file, a pretrained model, and a dataset, and run the inference.
+Once our SBI pipeline has been trained (irrespective of the specific algorithm considered), it can be used to infer 
+on an unseen dataset of generated maps and extract posterior distributions of the corresponding pulsar population 
+parameters. The script `pypopsyn/learning/sbi_infer.py` allows us to take an experiment configuration file, a
+pretrained model, and a dataset, and run the inference.
 
 ### Configuration options
 
@@ -681,15 +782,11 @@ directory specified in the `save_dir` option. Specifically, inference will creat
 containing subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the
 inference was launched.
 
-The `logs` subdirectories contain the files `profile.json` and `profile.log`, which provide timing and profiling 
-information for the inference script executed across all round. Additionally, each `round_{i}` subfolder inside 
-the logs directory contains the following files:
+The `logs` subdirectories contain a file `log.txt` which captures the terminal `stdout` output and the `profile.json` 
+and `profile.log` files, which provide timing and profiling information for the inference script executed across all
+round. Additionally, each `round_{i}` subfolder inside the logs directory contains the same files as when testing is 
+enabled while running the `sbi_train.py` script, i.e., we are producing  `corner_plot_observed_sample.pdf`, 
+`coverage_plot.pdf`, `coverage_probability.npy`, `posterior_samples_test_data.npz`, and `samples_posterior.pt`. For 
+detailed information about each file, see [Training output](#training-output).
 
-* `samples_posterior.pt`: A tensor containing samples from the posterior distribution conditioned on the observed data.
-* `corner_plot_observed_sample.pdf`: A corner plot visualizing the approximated posterior distribution conditioned on 
-   the observed data.
-* `posterior_samples_test_data.npz`: A NumPy array containing the ground truths and the corresponding posterior
-   samples for each sample in the test dataset.
-* `coverage_plot.pdf` and `coverage_probability.npy` files with the results of the coverage probability diagnostic
-   test if the coverage calculation was enabled.
 

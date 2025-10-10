@@ -19,7 +19,6 @@
 import argparse
 import collections
 import pathlib
-import sys
 import time
 
 import pandas as pd
@@ -90,7 +89,7 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                 "Loading the training dataset to extract the statistics..."
             )
             train_dataset_path = config["training_data_loader"][
-                "dataset_path_first_round"
+                "dataset_path_round_0"
             ]
 
             # Load the training dataset information to extract the training statistics.
@@ -162,7 +161,8 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                     device=device,
                 ).cpu()
 
-                # Setting the proposal prior to the truncated prior or to the previous approximated posterior distribution at the observed data.
+                # Setting the proposal prior to the truncated prior or to the previous approximated posterior
+                # distribution at the observed data.
                 if config["trainer"]["truncated_prior"]:
                     proposal = sbi_builder.compute_proposal_prior(
                         posterior_obs, config, prior, device
@@ -200,7 +200,7 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                             )
                         else:
                             test_dataset_path = config["test_data_loader"][
-                                "dataset_path_first_round"
+                                "dataset_path_round_0"
                             ]
 
                         (_, parameter, matrix,) = ut.prepare_dataset_sbi(
@@ -246,6 +246,8 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
         if config["enable_dask"]:
             # Closing the cluster once the training has finished.
             cluster.close()
+
+        logger.info(f"Inference results have been saved to: {config.log_dir}")
 
 
 if __name__ == "__main__":

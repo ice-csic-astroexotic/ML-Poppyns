@@ -654,24 +654,18 @@ def update_survey_data(
 
         elif survey_type == "X-ray":
             # For the X-ray survey we are not complete, and we do not control well the observational biases. Therefore,
-            # we consider a flux threshold above which we assume we are complete and try to match the number of observed
-            # sources above this flux threshold. See the config_simulator file for more details.
+            # to be conservative we assume that at least we have to detect the number of neutron stars in the observed
+            # catalogue.
             n_detected_sim[survey] += len(
                 pop_detected_dict_update[survey]["age"]
             )
-            mask_completeness = (
-                np.array(pop_detected_dict_update[survey]["S_x_rcs_abs"])
-                > surveys_cfg[survey]["flux_threshold_completeness"]
-            )
             n_detected_complete_sim[survey] += len(
-                np.array(pop_detected_dict_update[survey]["age"])[
-                    mask_completeness
-                ]
+                pop_detected_dict_update[survey]["age"]
             )
             logger.info(
-                f"Total number of neutron stars detected by {survey}: {n_detected_sim[survey]} (above completeness flux threshold: {n_detected_complete_sim[survey]})"
+                f"Total number of neutron stars detected by {survey}: {n_detected_sim[survey]}"
             )
-            # If the number of simulated detected pulsars above the completeness flux threshold matches the
+            # If the number of simulated detected pulsars matches the
             # real one, store the value of created neutron stars.
             if (
                 n_detected_complete_sim[survey]
