@@ -267,7 +267,7 @@ def convert_cylindrical_to_all_coordinates(dict_pop_dyn: dict) -> dict:
 
     Args:
         dict_pop_dyn (dict): A dictionary containing the initial polar coordinates and velocities
-            of a population.
+            of a population of neutron stars.
 
     Returns:
         (dict): The input dictionary `dict_pop_dyn` with the following keys added:
@@ -293,7 +293,7 @@ def convert_cylindrical_to_all_coordinates(dict_pop_dyn: dict) -> dict:
     # Convert from polar coordinates to Cartesian coordinates.
     x, y = polar_to_cartesian(r, phi)
 
-    # Convert velocity component from galactocentric cylindrical coordinates
+    # Convert velocity components from galactocentric cylindrical coordinates
     # to galactocentric Cartesian coordinates.
     (
         v_x,
