@@ -17,7 +17,7 @@ def build_dataframe(
     Helper function to create a DataFrame with a MultiIndex header.
 
     Args:
-        data_dict (dict): A dictionary containing the data to be saved in the dataframe.
+        data_dict (dict): A dictionary containing the data to be saved in the DataFrame.
         parameters (list): A list of parameter names, used as the first level of the MultiIndex header.
         units (list): A list of physical units, used as the second level of the MultiIndex header.
 
