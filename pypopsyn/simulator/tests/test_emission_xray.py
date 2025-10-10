@@ -639,7 +639,7 @@ def test_outburst_filter_probabilistic(test_case_4, monkeypatch):
     """
     Check that the outburst mask from the outburst_filter_probabilistic is correctly returned.
     """
-    # Fixed uniform return values based on age group logic.
+    # Fix uniform return values based on age group logic.
     def mock_uniform(low, high, size):
         if low == 0.40 and high == 0.85:
             return np.full(size, 0.7)
@@ -652,7 +652,7 @@ def test_outburst_filter_probabilistic(test_case_4, monkeypatch):
         else:
             raise ValueError("Unexpected uniform call")
 
-    # Fixed rand values: these simulate the draw to compare against the probability.
+    # Fix rand values: These simulate the draw to compare against the probability.
     def mock_rand(size):
         return np.array([0.6, 0.3, 0.4, 0.02])
 
