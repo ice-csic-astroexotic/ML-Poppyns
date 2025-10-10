@@ -56,7 +56,7 @@ def create_output_dataframe_initial_pop(
     dictionary_initial_pop: dict,
 ) -> pd.DataFrame:
     """
-    Creates Pandas DataFrames containing the birth properties on the neutron stars.
+    Creates Pandas DataFrames containing the birth properties of the neutron stars.
 
     Args:
         dictionary_initial_pop (dict): Dictionary containing neutron star properties at birth.
@@ -407,7 +407,7 @@ def simulate_population(args: argparse.Namespace) -> None:
             cfg["show_profiling"],
         ):
 
-            # Evolve in time the magneto-rotational properties.
+            # Evolve the magneto-rotational properties in time.
             log.info(
                 "Evolving magnetic field, misalignment angle and rotation period..."
             )
