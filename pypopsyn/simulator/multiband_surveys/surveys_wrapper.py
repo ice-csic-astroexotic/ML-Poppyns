@@ -653,8 +653,8 @@ def update_survey_data(
             idx_remove += idx_det
 
         elif survey_type == "X-ray":
-            # For the X-ray survey we are not complete, and we do not control well the observational biases. Therefore,
-            # to be conservative we assume that at least we have to detect the number of neutron stars in the observed
+            # For the X-ray survey we are not complete, and observational biases are poorly controlled. To be
+            # conservative, we thus assume that we have at least detected the number of neutron stars in the observed
             # catalogue.
             n_detected_sim[survey] += len(
                 pop_detected_dict_update[survey]["age"]
