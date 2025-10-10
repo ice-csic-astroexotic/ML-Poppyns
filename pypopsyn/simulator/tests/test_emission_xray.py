@@ -670,7 +670,7 @@ def test_load_crust_failure_rate_interpolator(test_case_5, tmp_path):
     """
     Test that initialize_Lx_interpolator loads and returns a valid interpolator.
     """
-    # Create sub-directory for the pickle file.
+    # Create subdirectory for the pickle file.
     subdir = tmp_path / "magneto-thermal"
     subdir.mkdir()
 
