@@ -707,7 +707,7 @@ def test_outburst_filter_from_crust_failure_rate(test_case_5, monkeypatch):
 
     monkeypatch.setattr(RectBivariateSpline, "ev", mock_interpolator)
 
-    # Fixed rand values: these simulate the draw to compare against probability.
+    # Fix rand values: These simulate the draw to compare against probability.
     def mock_rand(size):
         return np.array([0.6, 0.3, 0.4, 0.02])
 
