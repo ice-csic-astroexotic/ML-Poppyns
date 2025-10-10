@@ -493,24 +493,24 @@ cfg["use_crust_failure_rate_interpolator"]: bool = True
 # ===================== X-RAY DETECTION PARAMETERS ========================
 
 # Information on the modeled X-ray surveys.
-# To obtain the number of Galactic isolated neutron stars detected with a quiescent thermal emission in X-rays,
-# we only include magnetars and XDINSs, as young RPPs with quiescent X-ray emission are primarily discovered through the
-# detection of the supernova remnant emission and pulsar wind nebula contribution which we are not modeling in our code.
+# To obtain the number of Galactic isolated neutron stars detected with a quiescent thermal emission in X-rays.
+# We only include magnetars and XDINSs and young RPPs with quiescent X-ray emission.
+# We excluded all Central Compact Objects (CCOs) as we do not model any mechanism of supernova fallback that could lead
+# to bury the magnetic field. We also removed the RPPs that have an association with a pulsar wind nebula as they are
+# primarily discovered through the detection of the supernova remnant emission and pulsar wind nebula contribution which
+# we are not modeling in our code.
 # We currently implement two different kinds of surveys in the X-rays. The first survey only takes into account a simple
 # cut-off in flux. The second one tries to better match the observed distribution and considers that many magnetars have
 # been discovered during an outburst phase. For those we consider a deeper survey to detect a quiescent emission. We
-# then combine it with a shallower survey which detects only the brightest sources. Moreover, since we do not have full
-# control over the observational biases for X-ray surveys, we try to match only the number of sources above a flux
-# threshold of 2e-11 [erg s^-1 cm^-2] which defines the limit where we assume real surveys are complete (by looking at
-# the logN-lgS distribution).
+# then combine it with a shallower survey which detects only the brightest sources.
 cfg["surveys_xray"]: dict = {
     "xray_flux_threshold": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
-        "detected_real": 34,
+        "detected_real": 35,
     },
     "xray_realistic": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json",
-        "detected_real": 34,
+        "detected_real": 35,
     },
 }
 
