@@ -83,10 +83,10 @@ def load_database_dyn(
         cfg["sigma_k"] = config_dyn["sigma_k"]
     elif config_dyn["kick_model"] == "km_exp":
         cfg["vk_c"] = config_dyn["vk_c"]
-    elif config_dyn["kick_model"] == "km_2maxwell":
-        cfg["sigma_k_1"] = config_dyn["sigma_k_1"]
-        cfg["sigma_k_2"] = config_dyn["sigma_k_2"]
-        cfg["kick_weight"] = config_dyn["kick_weight"]
+    elif config_dyn["kick_model"] == "km_double_maxwell":
+        cfg["sigma_k_comp1"] = config_dyn["sigma_k_comp1"]
+        cfg["sigma_k_comp2"] = config_dyn["sigma_k_comp2"]
+        cfg["kick_weight_comp1"] = config_dyn["kick_weight_comp1"]
     cfg["h_c"] = config_dyn["h_c"]
 
     # Add the path of the dynamical database in the configuration file.

@@ -2158,10 +2158,10 @@ def test_update_survey_data(test_case_10):
     logger.info.assert_has_calls(
         [
             call(
-                "Total number of neutron stars detected by xray_flux_threshold: 1 (above completeness flux threshold: 1)"
+                "Total number of neutron stars detected by xray_flux_threshold: 1"
             ),
             call(
-                "Total number of neutron stars detected by xray_realistic: 1 (above completeness flux threshold: 1)"
+                "Total number of neutron stars detected by xray_realistic: 1"
             ),
         ],
         any_order=True,

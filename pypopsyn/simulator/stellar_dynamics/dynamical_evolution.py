@@ -33,6 +33,55 @@ from pypopsyn.simulator.config_simulator import cfg
 gm.initialize_galactic_model()
 
 
+def initialize_population_dyn(age: np.ndarray) -> dict:
+    """
+    Initialize the dynamical properties of a neutron star population.
+
+    Args:
+        age (np.ndarray): An array of ages in [yr] for the neutron stars in the population to be initialized.
+
+    Returns:
+        (dict): A dictionary containing the initialized dynamical properties of the neutron star population.
+    """
+
+    # Initialize neutron star population properties.
+    pop_initial = ipop.InitialNeutronStarPopulation(NS_number=len(age))
+
+    # Generating initial positions.
+    (
+        r_initial,
+        phi_initial,
+        z_initial,
+    ) = pop_initial.position(t_age=age)
+
+    # Generating initial velocities by summing the kick
+    # velocities at birth and the orbital velocities.
+    (
+        vk_r,
+        vk_phi,
+        vk_z,
+    ) = pop_initial.kick_velocity()
+
+    v_orb = pop_initial.orbital_velocity(r_initial, z_initial)
+
+    v_r_initial = vk_r
+    v_phi_initial = vk_phi + v_orb
+    v_z_initial = vk_z
+
+    dictionary_initial_pop_dyn = {
+        "age": age,
+        "r": r_initial,
+        "phi": phi_initial,
+        "z": z_initial,
+        "v_r": v_r_initial,
+        "v_phi": v_phi_initial,
+        "v_z": v_z_initial,
+        "v_orb": v_orb,
+    }
+
+    return dictionary_initial_pop_dyn
+
+
 @jit(
     float64[:](
         float64,
@@ -181,55 +230,6 @@ def dynamical_evolution(
     ).T
 
     return final_population, evolution_dictionary
-
-
-def initialize_population_dyn(age: np.ndarray) -> dict:
-    """
-    Initialize the dynamical properties of a neutron star population.
-
-    Args:
-        age (np.ndarray): An array of ages in [yr] for the neutron stars in the population to be initialized.
-
-    Returns:
-        (dict): A dictionary containing the initialized dynamical properties of the neutron star population.
-    """
-
-    # Initialize neutron star population properties.
-    pop_initial = ipop.InitialNeutronStarPopulation(NS_number=len(age))
-
-    # Generating initial positions.
-    (
-        r_initial,
-        phi_initial,
-        z_initial,
-    ) = pop_initial.position(t_age=age)
-
-    # Generating initial velocities by summing the kick
-    # velocities at birth and the orbital velocities.
-    (
-        vk_r,
-        vk_phi,
-        vk_z,
-    ) = pop_initial.kick_velocity()
-
-    v_orb = pop_initial.orbital_velocity(r_initial, z_initial)
-
-    v_r_initial = vk_r
-    v_phi_initial = vk_phi + v_orb
-    v_z_initial = vk_z
-
-    dictionary_initial_pop_dyn = {
-        "age": age,
-        "r": r_initial,
-        "phi": phi_initial,
-        "z": z_initial,
-        "v_r": v_r_initial,
-        "v_phi": v_phi_initial,
-        "v_z": v_z_initial,
-        "v_orb": v_orb,
-    }
-
-    return dictionary_initial_pop_dyn
 
 
 def evolve_population_dyn(
@@ -395,42 +395,3 @@ def check_angular_momentum_energy_conservation(
     logger.info(
         f"Percentage variation of z-component of total angular momentum of the system: {delta_Lz_percentage} %"
     )
-
-
-def create_output_dataframe_dyn(
-    dictionary_final_pop_dyn: dict,
-) -> pd.DataFrame:
-    """
-    Creates Pandas DataFrames containing the properties on the dynamically evolved neutron stars.
-
-    Args:
-        dictionary_final_pop_dyn (dict): Dictionary containing evolved neutron star properties.
-
-    Returns:
-        (pd.DataFrame): A DataFrame containing the neutron stars' properties.
-    """
-
-    # Generating two header lines and merging them using MultiIndex.
-    parameters = [
-        "age",
-        "r",
-        "phi",
-        "z",
-        "v_r",
-        "v_phi",
-        "v_z",
-    ]
-    units = [
-        "[yr]",
-        "[kpc]",
-        "[rad]",
-        "[kpc]",
-        "[km/s]",
-        "[km/s]",
-        "[km/s]",
-    ]
-
-    # Build the DataFrame using the appropriate parameters and units.
-    df = dfb.build_dataframe(dictionary_final_pop_dyn, parameters, units)
-
-    return df

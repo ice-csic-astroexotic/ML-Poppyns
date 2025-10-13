@@ -33,6 +33,7 @@ import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 import utilities.benchmark.timewith as timewith
+import utilities.dataframe_builder as dfb
 from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
@@ -149,7 +150,7 @@ def simulate_population(args: argparse.Namespace) -> None:
         ):
             log.info("Creating data frame for exporting...")
 
-            df_final = dyn.create_output_dataframe_dyn(pop_dyn_final)
+            df_final = dfb.create_output_dataframe_dyn(pop_dyn_final)
 
             # Save the data frame as a compressed binary file.
             final_output_path = pathlib.Path().joinpath(
