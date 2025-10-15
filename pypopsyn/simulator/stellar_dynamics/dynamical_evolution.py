@@ -20,14 +20,12 @@ from typing import Tuple
 
 import numpy as np
 import orjson
-import pandas as pd
 from numba import float64, jit
 from scipy.integrate import odeint
 
 import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
-import utilities.dataframe_builder as dfb
 from pypopsyn.simulator.config_simulator import cfg
 
 gm.initialize_galactic_model()
