@@ -493,16 +493,15 @@ cfg["use_crust_failure_rate_interpolator"]: bool = True
 # ===================== X-RAY DETECTION PARAMETERS ========================
 
 # Information on the modeled X-ray surveys.
-# To obtain the number of Galactic isolated neutron stars detected with a quiescent thermal emission in X-rays.
-# We only include magnetars and XDINSs and young RPPs with quiescent X-ray emission.
-# We excluded all Central Compact Objects (CCOs) as we do not model any mechanism of supernova fallback that could lead
-# to bury the magnetic field. We also removed the RPPs that have an association with a pulsar wind nebula as they are
-# primarily discovered through the detection of the supernova remnant emission and pulsar wind nebula contribution which
-# we are not modeling in our code.
+# To obtain the number of observed Galactic isolated X-ray neutron stars, we only include magnetars, XDINSs and young
+# RPPs with quiescent thermal X-ray emission. We excluded all central compact objects (CCOs) as we do not model any
+# supernova fallback mechanisms that could lead to the burial of the magnetic field. We also removed those RPPs that
+# have an association with a pulsar wind nebula as these sources are primarily discovered through the detection of the
+# supernova remnant emission and pulsar wind nebula contribution which we are also not modeling in our code.
 # We currently implement two different kinds of surveys in the X-rays. The first survey only takes into account a simple
-# cut-off in flux. The second one tries to better match the observed distribution and considers that many magnetars have
-# been discovered during an outburst phase. For those we consider a deeper survey to detect a quiescent emission. We
-# then combine it with a shallower survey which detects only the brightest sources.
+# cut-off in flux. The second survey description tries to better match the observed distribution and considers that
+# many magnetars have been discovered during an outburst phase. For these sources, we consider a deeper survey to
+# detect a quiescent emission. We then combine this with a shallower survey, which detects only the brightest sources.
 cfg["surveys_xray"]: dict = {
     "xray_flux_threshold": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
