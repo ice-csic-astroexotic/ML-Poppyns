@@ -653,10 +653,10 @@ def update_survey_data(
             idx_remove += idx_det
 
         elif survey_type == "X-ray":
-            # For the X-ray survey we are not complete, and observational biases are poorly controlled.
-            # Since our simulations do not take into account all observational biases and therefore should overestimate
-            # the number of detected sources, we assume that we need to at least detect the number of neutron stars
-            # in the observed catalogue. This would give a lower limit on the birth rate.
+            # For the X-ray survey we are not complete, and observational biases are poorly controlled. As our
+            # simulations do not take into account all observational biases and thus should overestimate the number of
+            # detected sources, we assume that we need to at least detect the number of neutron stars in the observed
+            # catalog, which is set in config_simulator.py. Our results will then give a lower limit on the birthrate.
             n_detected_sim[survey] += len(
                 pop_detected_dict_update[survey]["age"]
             )
