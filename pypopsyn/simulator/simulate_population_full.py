@@ -30,7 +30,6 @@ import sys
 import time
 
 import numpy as np
-import pandas as pd
 
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population as ipop
