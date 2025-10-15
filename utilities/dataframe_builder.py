@@ -39,7 +39,7 @@ def create_output_dataframe_dyn(
     dictionary_final_pop_dyn: dict,
 ) -> pd.DataFrame:
     """
-    Creates Pandas DataFrames containing the properties on the dynamically evolved neutron stars.
+    Creating Pandas DataFrames containing the properties of the dynamically evolved neutron stars.
 
     Args:
         dictionary_final_pop_dyn (dict): Dictionary containing evolved neutron star properties.
@@ -130,7 +130,7 @@ def create_output_dataframe_final_pop(
     simulation_xray: bool,
 ) -> pd.DataFrame:
     """
-    Creates Pandas DataFrames containing the properties on the evolved neutron stars for the full simulation.
+    Creating Pandas DataFrames containing the properties of the evolved neutron stars for the full simulation.
 
     Args:
         dictionary_final_pop (dict): Dictionary containing evolved neutron star properties.
