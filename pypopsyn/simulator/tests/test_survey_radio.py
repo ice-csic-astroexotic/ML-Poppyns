@@ -56,6 +56,61 @@ def test_case_1():
         "RA": np.array([30.0, 200.0]),
         "DEC": np.array([-30.0, 50.0]),
         "T_sky_expected": np.array([3.00651602, 1.25853108]),
+        "intercepted_radio": np.array([True, True], dtype=bool),
+        "coverage_expected": np.array([True, False], dtype=bool),
+        "offset2": np.array([5, 10]),
+        "S_radio_bol": np.array([5.1e-18, 2.9e-19]),
+        "G_expected": np.array([0.68485507, 0.63813124]),
+        "S_radio_int": np.array([0.01, 100]),
+        "S_radio_obs_expected": np.array([0.00728263, 0.50610848]),
+        "S_radio_obs_mean_expected": np.array([9.99999989e-5, 0.999999996]),
+        "P": np.array([0.1, 0.01]),
+        "SNR_expected": np.array([1291.00882657, 0.0]),
+        "detected_expected": np.array([True, False], dtype=bool),
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_2():
+    data = {
+        "dummy_survey_params": {
+            "name": "Parkes multibeam",
+            "ref": "Manchester+2001, Lorimer+2006",
+            "deg_factor": 1.5,
+            "G0": 0.735,
+            "t_obs": 2100.0,
+            "t_samp": 250.0e-6,
+            "T_sys": 21.0,
+            "f_central": 1.374e9,
+            "BW": 288.0e6,
+            "channel_width": 3.0e6,
+            "n_pol": 2,
+            "FWHM": 14.0,
+            "SNR_th": 9.0,
+            "RA_range": [0.0, 360.0],
+            "DEC_range": [-90.0, 90.0],
+            "l_range": [-100.0, 50.0],
+            "b_range_abs": [0.0, 5.0],
+        },
+        "w_int": np.array([1.0e-3, 1.0e-4]),
+        "w_int_s": np.array([1.59e-05, 1.59e-07]),
+        "DM": np.array([100, 1000]),
+        "age": np.array([1.0, 1.2]),
+        "tau_sc": np.array([3.472e-03, 1.055e01]),
+        "spectral_index": np.array([-1.6, -1.6]),
+        "f": 1.4e9,
+        "channel_width": 3.0e6,
+        "t_samp": 250e-6,
+        "tau_DM_expected": np.array([0.00090717, 0.00907173]),
+        "w_eff_expected": np.array([0.00137313, 0.01975861]),
+        "l_gal": np.array([-90.0, 0.0]),
+        "b_gal": np.array([0.0, 20.0]),
+        "RA": np.array([30.0, 200.0]),
+        "DEC": np.array([-30.0, 50.0]),
+        "T_sky_expected": np.array([3.00651602, 1.25853108]),
+        "intercepted_radio": np.array([True, True], dtype=bool),
         "coverage_expected": np.array([True, False], dtype=bool),
         "offset2": np.array([5, 10]),
         "S_radio_bol": np.array([5.1e-18, 2.9e-19]),
@@ -253,7 +308,7 @@ def test_simulate_detection(monkeypatch, test_case_1):
     assert test_case_1["detected_expected"].all() == detected_out.all()
 
 
-def test_detect_radio_population(test_case_1):
+def test_detected_radio_population(test_case_1):
     """
     Verifying that a population of pulsars is correctly detected by the survey.
     """
@@ -275,7 +330,7 @@ def test_detect_radio_population(test_case_1):
         test_case_1["w_int_s"],
         test_case_1["DM"],
         test_case_1["P"],
-        test_case_1["age"],
+        test_case_1["intercepted_radio"],
         test_case_1["coverage_expected"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],
@@ -285,3 +340,37 @@ def test_detect_radio_population(test_case_1):
     )
 
     assert test_case_1["detected_expected"].all() == detected_out.all()
+
+
+def test_detected_radio_population_full(test_case_2):
+    """
+    Verifying that a population of pulsars is correctly detected by the survey.
+    """
+    # Create a temporary .json file with some survey parameters to initialize a radio survey class object.
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False
+    ) as tmpfile:
+        json.dump(test_case_2["dummy_survey_params"], tmpfile)
+        tmpfile_path = tmpfile.name
+
+    PMPS = sr.SurveyRadio(parameters_path=tmpfile_path)
+
+    (
+        detected_out,
+        w_eff,
+        S_radio_obs_mean,
+        S_radio_obs_mean_1400,
+    ) = PMPS.detected_radio_population(
+        test_case_2["w_int_s"],
+        test_case_2["DM"],
+        test_case_2["P"],
+        test_case_2["intercepted_radio"],
+        test_case_2["coverage_expected"],
+        test_case_2["l_gal"],
+        test_case_2["b_gal"],
+        test_case_2["S_radio_bol"],
+        test_case_2["spectral_index"],
+        test_case_2["tau_sc"],
+    )
+
+    assert test_case_2["detected_expected"].all() == detected_out.all()

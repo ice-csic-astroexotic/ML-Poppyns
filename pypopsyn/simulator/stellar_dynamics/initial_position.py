@@ -227,7 +227,8 @@ def calculate_r_phi_spiral_model(
     t_age: np.ndarray, spiral_model: sm.SpiralModelBase
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Calculating the position at birth of each random neutron star in a cylindrical reference frame for a spiral model.
+    Calculating the position at birth of each random neutron star in a cylindrical reference frame for a given radial
+    and spiral arm model.
 
     Args:
         t_age (np.ndarray): Array of neutron star ages in [yr].
@@ -267,6 +268,8 @@ def calculate_r_phi_spiral_model(
         r_grid, pdf_radial, len(t_age) - NS_local
     )
 
+    # Since the local arm has a shorter extent in r coordinate compared to the other spiral arms,
+    # we need to draw the r position of stars in the local arm in the range [local_r_min, local_r_max].
     if NS_local != 0:
         r_grid_local = np.logspace(
             np.log10(spiral_model.local_r_min),

@@ -135,9 +135,10 @@ def test_case_5():
         "age": np.array([1e6, 2e6]),
         "expected_keys": {
             "age",
-            "B_initial",
-            "P_initial",
-            "chi_initial",
+            "B",
+            "P",
+            "P_dot",
+            "chi",
         },
     }
 
@@ -149,9 +150,9 @@ def test_case_6():
     data = {
         "dict_pop_initial_magrot": {
             "age": np.array([1e6]),
-            "B_initial": np.array([1.0e12]),
-            "P_initial": np.array([0.1]),
-            "chi_initial": np.array([0.5]),
+            "B": np.array([1.0e12]),
+            "P": np.array([0.1]),
+            "chi": np.array([0.5]),
         },
         "B_final": np.array([1.0e12]),
         "P_final": np.array([0.1]),

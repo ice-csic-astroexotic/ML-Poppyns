@@ -40,6 +40,7 @@ import os
 import pathlib
 import sys
 
+import numpy as np
 import pandas as pd
 
 import pypopsyn.generator.compute_statistics as cs
@@ -127,14 +128,17 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # Remove the unit header row from the data frame.
         df_pop.columns = [x[0] for x in df_pop.columns]
 
+        x = df_pop["r"] * np.cos(df_pop["phi"])
+        y = df_pop["r"] * np.sin(df_pop["phi"])
+
         # Create position density maps projected on XY plane.
         pmaps.generate_position_map(
             dataset_path,
             "position_map_xy",
             s,
             args.data_type,
-            df_pop["x"],
-            df_pop["y"],
+            x,
+            y,
             args.resolution_dyn,
             args.resolution_dyn,
             position_map_xy_dictionary,
@@ -146,7 +150,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             "position_map_xz",
             s,
             args.data_type,
-            df_pop["x"],
+            x,
             df_pop["z"],
             args.resolution_dyn,
             args.resolution_dyn,
@@ -159,8 +163,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
             "velocity_map_xy_vr",
             s,
             args.data_type,
-            df_pop["x"],
-            df_pop["y"],
+            x,
+            y,
             abs(df_pop["v_r"]),
             args.resolution_dyn,
             args.resolution_dyn,
@@ -173,8 +177,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
             "velocity_map_xy_vphi",
             s,
             args.data_type,
-            df_pop["x"],
-            df_pop["y"],
+            x,
+            y,
             abs(df_pop["v_phi"]),
             args.resolution_dyn,
             args.resolution_dyn,
@@ -187,8 +191,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
             "velocity_map_xy_vz",
             s,
             args.data_type,
-            df_pop["x"],
-            df_pop["y"],
+            x,
+            y,
             abs(df_pop["v_z"]),
             args.resolution_dyn,
             args.resolution_dyn,
@@ -201,8 +205,8 @@ def generate_dataset(args: argparse.Namespace) -> None:
             "position_map_radec",
             s,
             args.data_type,
-            df_pop["RA"],
-            df_pop["DEC"],
+            df_pop["ra"],
+            df_pop["dec"],
             args.resolution_dyn,
             int(args.resolution_dyn / 2),
             position_map_radec_dictionary,
@@ -216,9 +220,9 @@ def generate_dataset(args: argparse.Namespace) -> None:
             "velocity_map_vra",
             s,
             args.data_type,
-            df_pop["RA"],
-            df_pop["DEC"],
-            abs(df_pop["v_RA"]),
+            df_pop["ra"],
+            df_pop["dec"],
+            abs(df_pop["pm_ra"]),
             args.resolution_dyn,
             int(args.resolution_dyn / 2),
             velocity_map_vra_dictionary,
@@ -232,9 +236,9 @@ def generate_dataset(args: argparse.Namespace) -> None:
             "velocity_map_vdec",
             s,
             args.data_type,
-            df_pop["RA"],
-            df_pop["DEC"],
-            abs(df_pop["v_DEC"]),
+            df_pop["ra"],
+            df_pop["dec"],
+            abs(df_pop["pm_dec"]),
             args.resolution_dyn,
             int(args.resolution_dyn / 2),
             velocity_map_vdec_dictionary,

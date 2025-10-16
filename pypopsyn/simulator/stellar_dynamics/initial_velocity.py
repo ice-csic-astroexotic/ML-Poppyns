@@ -56,7 +56,7 @@ def pdf_kick_velocity_maxwell(v: np.ndarray) -> np.ndarray:
     return pdf_vk
 
 
-def pdf_kick_velocity_2maxwell(v: np.ndarray) -> np.ndarray:
+def pdf_kick_velocity_double_maxwell(v: np.ndarray) -> np.ndarray:
     """
     Double Maxwell probability density function for the neutron stars' initial kick
     velocity magnitude following eq. (5) and section 4.2 in Igoshev (2020).
@@ -69,13 +69,13 @@ def pdf_kick_velocity_2maxwell(v: np.ndarray) -> np.ndarray:
     """
 
     # Define the dispersions of the two Maxwellian components.
-    sigma_1 = cfg["sigma_k_1"]
-    sigma_2 = cfg["sigma_k_2"]
+    sigma_1 = cfg["sigma_k_comp1"]
+    sigma_2 = cfg["sigma_k_comp2"]
     # Define the fractional contribution of the first Maxwellian.
-    w = cfg["kick_weight"]
+    w = cfg["kick_weight_comp1"]
     if (w < 0) or (w > 1):
         raise ValueError(
-            "The relative weight parameter of the km_2maxwell kick velocity model must be in "
+            "The relative weight parameter of the km_double_maxwell kick velocity model must be in "
             "the range 0 and 1."
         )
 

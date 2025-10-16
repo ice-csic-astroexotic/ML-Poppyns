@@ -53,7 +53,7 @@ def check_simulations(args: argparse.Namespace) -> None:
             files_in_directory = os.listdir(simulations_directory)
 
             # If the simulations have finished successfully, then 8 files will be located within each output folder.
-            # Hence, by checking the fil number, we can identify those simulations that have failed.
+            # Hence, by checking the file number, we can identify those simulations that have failed.
             if len(files_in_directory) < 8:
                 count_error += 1
                 fail_simulation.append(os.path.basename(simulations_directory))

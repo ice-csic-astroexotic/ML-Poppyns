@@ -9,6 +9,7 @@
         Alberto Garcia-Garcia (garciagarcia @ ice.csic.es)
         Celsa Pardo Araujo (pardo @ ice.csic.es)
 """
+
 import functools
 import logging
 import pathlib
@@ -17,10 +18,10 @@ from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
 import numpy as np
-import pandas as pd
 
 import pypopsyn.simulator.multiband_surveys.survey_radio as sr
 import pypopsyn.simulator.multiband_surveys.survey_xray as sx
+import utilities.dataframe_builder as dfb
 from pypopsyn.simulator.config_simulator import cfg
 
 
@@ -232,13 +233,12 @@ def initialize_all_surveys() -> SurveyData:
     return survey_data_class
 
 
-def apply_surveys_coverage(
+def compute_surveys_coverage(
     surveys_radio: dict,
     surveys_xray: dict,
-    dyn_database_dict: dict,
-    idx_remove: list,
+    pop_dict: dict,
     dist_cutoff: float,
-) -> Tuple[dict, list]:
+) -> dict:
     """
     Apply survey coverage criteria to filter a dynamic population dataset based on sky coverage of all surveys and a
     distance cutoff, and update the indices of entries to be removed.
@@ -246,18 +246,14 @@ def apply_surveys_coverage(
     Args:
         surveys_radio (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
         surveys_xray (dict): A dictionary of X-ray survey objects, containing the information on the sky coverage.
-        dyn_database_dict (dict): A dictionary containing the data of a dynamical population.
-        idx_remove (list): A list of indices of entries to be removed based on the filtering criteria.
+        pop_dict (dict): A dictionary containing the sky coordinates of a population of neutron stars.
         dist_cutoff (float): The maximum heliocentric distance to include in the survey coverage.
 
     Returns:
-        (Tuple[dict, list]): A tuple object containing the following attributes:
-
-            - A dictionary containing data for stars that meet the coverage criteria.
-            - An updated list of indices of stars that are outside the coverage and should be removed.
+        (dict): A dictionary with the sky coverage information for all surveys.
     """
 
-    dist = dyn_database_dict["dist"]
+    dist = pop_dict["dist"]
     dist_mask = dist < dist_cutoff
 
     survey_radio_names = list(surveys_radio.keys())
@@ -273,10 +269,10 @@ def apply_surveys_coverage(
     for name in survey_radio_names:
         # Evaluate the sky coverage for each radio survey.
         coverage_survey_radio[name] = surveys_radio[name].sky_coverage(
-            dyn_database_dict["ra"],
-            dyn_database_dict["dec"],
-            dyn_database_dict["l"],
-            dyn_database_dict["b"],
+            pop_dict["ra"],
+            pop_dict["dec"],
+            pop_dict["l"],
+            pop_dict["b"],
         )
 
     # Combine the coverage masks of all selected radio surveys into a single mask.
@@ -294,10 +290,10 @@ def apply_surveys_coverage(
         # Evaluate the sky coverage for each X-ray survey.
         for name in survey_xray_names:
             coverage_survey_xray[name] = surveys_xray[name].sky_coverage(
-                dyn_database_dict["ra"],
-                dyn_database_dict["dec"],
-                dyn_database_dict["l"],
-                dyn_database_dict["b"],
+                pop_dict["ra"],
+                pop_dict["dec"],
+                pop_dict["l"],
+                pop_dict["b"],
             )
 
         # Combine the coverage masks of all selected X-ray surveys into a single mask.
@@ -311,44 +307,93 @@ def apply_surveys_coverage(
             )
         ) & dist_mask
 
-    # Combine the total sky coverage for the radio and X-ray surveys together.
-    if surveys_xray is not None:
-        coverage_tot = coverage_radio_tot | coverage_xray_tot
-
-    else:
-        coverage_tot = coverage_radio_tot
-
-    # Select only neutron stars that fall into the sky region covered by the surveys.
-    dictionary_coverage_database = {
-        key: value[coverage_tot] for key, value in dyn_database_dict.items()
-    }
-
-    # Add coverage for each survey to the dictionary.
-    dictionary_coverage_database["coverage_radio"] = coverage_radio_tot[
-        coverage_tot
-    ]
+    # Create a dictionary to save the coverage information.
+    coverage_dict = {}
+    coverage_dict["coverage_radio"] = coverage_radio_tot
 
     for survey_name in survey_radio_names:
         # Add the coverage data for each survey.
         coverage_key = f"coverage_radio_{survey_name}"
-        dictionary_coverage_database[coverage_key] = coverage_survey_radio[
-            survey_name
-        ][coverage_tot]
+        coverage_dict[coverage_key] = coverage_survey_radio[survey_name]
 
     if surveys_xray is not None:
-        dictionary_coverage_database["coverage_xray"] = coverage_xray_tot[
-            coverage_tot
-        ]
+        coverage_dict["coverage_xray"] = coverage_xray_tot
 
         for survey_name in survey_xray_names:
             # Add the coverage data for each survey.
             coverage_key = f"coverage_xray_{survey_name}"
-            dictionary_coverage_database[coverage_key] = coverage_survey_xray[
-                survey_name
+            coverage_dict[coverage_key] = coverage_survey_xray[survey_name]
+
+    return coverage_dict
+
+
+def apply_surveys_coverage_filter(
+    surveys_radio: dict,
+    surveys_xray: dict,
+    coverage_dict: dict,
+    pop_dict: dict,
+    idx_remove: list,
+) -> Tuple[dict, list]:
+    """
+    Apply survey coverage criteria to filter a dynamic population dataset based on sky coverage of all surveys and a
+    distance cutoff, and update the indices of entries to be removed.
+
+    Args:
+        surveys_radio (dict): A dictionary of radio survey objects, containing the information on the sky coverage.
+        surveys_xray (dict): A dictionary of X-ray survey objects, containing the information on the sky coverage.
+        coverage_dict (dict): A dictionary with the sky coverage information for all surveys.
+        pop_dict (dict): A dictionary containing the data of a neutron star population.
+        idx_remove (list): A list of indices of entries to be removed based on the filtering criteria.
+
+    Returns:
+        (Tuple[dict, list]): A tuple object containing the following attributes:
+
+            - A dictionary containing data for stars that meet the coverage criteria.
+            - An updated list of indices of stars that are outside the coverage and should be removed.
+    """
+
+    survey_radio_names = list(surveys_radio.keys())
+    survey_xray_names = []
+
+    if surveys_xray is not None:
+        survey_xray_names = list(surveys_xray.keys())
+        coverage_tot = (
+            coverage_dict["coverage_radio"] | coverage_dict["coverage_xray"]
+        )
+    else:
+        coverage_tot = coverage_dict["coverage_radio"]
+
+    # Select only neutron stars that fall into the sky region covered by the surveys.
+    dictionary_coverage_database = {
+        key: value[coverage_tot] for key, value in pop_dict.items()
+    }
+
+    # Add coverage for each survey to the dictionary.
+    dictionary_coverage_database["coverage_radio"] = coverage_dict[
+        "coverage_radio"
+    ][coverage_tot]
+
+    for survey_name in survey_radio_names:
+        # Add the coverage data for each survey.
+        coverage_key = f"coverage_radio_{survey_name}"
+        dictionary_coverage_database[coverage_key] = coverage_dict[
+            coverage_key
+        ][coverage_tot]
+
+    if surveys_xray is not None:
+        dictionary_coverage_database["coverage_xray"] = coverage_dict[
+            "coverage_xray"
+        ][coverage_tot]
+
+        for survey_name in survey_xray_names:
+            # Add the coverage data for each survey.
+            coverage_key = f"coverage_xray_{survey_name}"
+            dictionary_coverage_database[coverage_key] = coverage_dict[
+                coverage_key
             ][coverage_tot]
 
     # Remove stars that do not fall into the total sky coverage.
-    idx = dyn_database_dict["idx"]
+    idx = pop_dict["idx"]
     out_coverage = np.invert(coverage_tot)
     idx_remove += idx[out_coverage].tolist()
 
@@ -356,7 +401,11 @@ def apply_surveys_coverage(
 
 
 def radio_detection(
-    radio_surveys: dict, dictionary_intercepted_radio: dict
+    radio_surveys: dict,
+    dictionary_radio: dict,
+    intercepted_radio: np.ndarray,
+    logger: logging.Logger,
+    full_population: bool = False,
 ) -> dict:
     """
     Simulate radio detections for various surveys and update the dictionaries with the properties
@@ -364,7 +413,12 @@ def radio_detection(
 
     Args:
         radio_surveys (dict): Dictionary containing the radio survey objects.
-        dictionary_intercepted_radio (dict): Dictionary with properties of intercepted radio pulsars.
+        dictionary_radio (dict): Dictionary with properties of radio pulsars.
+        intercepted_radio (np.ndarray): Boolean mask to select radio pulsars whose beam intercept our line of sight.
+        logger (logging.Logger): Logger object for logging.
+        full_population (bool, optional): If True, return arrays of size `cfg["NS_number"]` (all stars, filling
+            with zeros where not intercepted). If False, return arrays only for intercepted stars.
+            Defaults to False.
 
     Returns:
         (dict): A dictionary containing the properties of detected pulsars for each survey.
@@ -382,6 +436,7 @@ def radio_detection(
 
     # Process each survey.
     detected_dictionaries = {}
+
     for survey_name in radio_surveys:
         (
             detected_mask,
@@ -389,24 +444,33 @@ def radio_detection(
             S_radio_obs_mean,
             S_radio_obs_mean_1400,
         ) = radio_surveys[survey_name].detected_radio_population(
-            dictionary_intercepted_radio["w_int"],
-            dictionary_intercepted_radio["DM"],
-            dictionary_intercepted_radio["P"],
-            dictionary_intercepted_radio["age"],
-            dictionary_intercepted_radio[f"coverage_radio_{survey_name}"],
-            dictionary_intercepted_radio["l"],
-            dictionary_intercepted_radio["b"],
-            dictionary_intercepted_radio["S_radio_bol"],
-            dictionary_intercepted_radio["spectral_index"],
-            dictionary_intercepted_radio["tau_sc"],
+            dictionary_radio["w_int"],
+            dictionary_radio["DM"],
+            dictionary_radio["P"],
+            intercepted_radio,
+            dictionary_radio[f"coverage_radio_{survey_name}"],
+            dictionary_radio["l"],
+            dictionary_radio["b"],
+            dictionary_radio["S_radio_bol"],
+            dictionary_radio["spectral_index"],
+            dictionary_radio["tau_sc"],
         )
         detected_dictionaries[survey_name] = update_filtered_dictionary(
-            dictionary_intercepted_radio,
+            dictionary_radio,
             detected_mask,
             w_eff=w_eff,
             S_radio_obs_mean=S_radio_obs_mean,
             S_radio_obs_mean_1400=S_radio_obs_mean_1400,
         )
+        if full_population:
+            detected_dictionaries[survey_name].pop("intercepted_radio", None)
+
+            fraction_detected = len(detected_mask[detected_mask]) / len(
+                detected_mask
+            )
+            logger.info(
+                f"Fraction of detected pulsars by {survey_name}: {fraction_detected}"
+            )
 
         # Save the properties for the HTRU low and mid surveys separately.
         if survey_name == "HTRU_low":
@@ -429,7 +493,7 @@ def radio_detection(
         # survey that are already in the low survey in order to not double count individual objects.
         detected_HTRU_low_mid = detected_HTRU_low | detected_HTRU_mid
         detected_dictionaries["HTRU_low_mid"] = update_filtered_dictionary(
-            dictionary_intercepted_radio,
+            dictionary_radio,
             detected_HTRU_low_mid,
             w_eff=np.where(detected_HTRU_low, w_eff_low, w_eff_mid),
             S_radio_obs_mean=np.where(
@@ -442,8 +506,12 @@ def radio_detection(
             ),
             HTRU_low=detected_HTRU_low,
             HTRU_mid=detected_HTRU_mid,
-            idx=dictionary_intercepted_radio["idx"],
+            idx=dictionary_radio["idx"],
         )
+        if full_population:
+            detected_dictionaries["HTRU_low_mid"].pop(
+                "intercepted_radio", None
+            )
 
         # Remove the dictionaries containing the results for the individual HTRU low and mid surveys,
         # as we only require the combined detections determined above.
@@ -585,25 +653,20 @@ def update_survey_data(
             idx_remove += idx_det
 
         elif survey_type == "X-ray":
-            # For the X-ray survey we are not complete, and we do not control well the observational biases. Therefore,
-            # we consider a flux threshold above which we assume we are complete and try to match the number of observed
-            # sources above this flux threshold. See the config_simulator file for more details.
+            # For the X-ray survey we are not complete, and observational biases are poorly controlled. As our
+            # simulations do not take into account all observational biases and thus should overestimate the number of
+            # detected sources, we assume that we need to at least detect the number of neutron stars in the observed
+            # catalog, which is set in config_simulator.py. Our results will then give a lower limit on the birthrate.
             n_detected_sim[survey] += len(
                 pop_detected_dict_update[survey]["age"]
             )
-            mask_completeness = (
-                np.array(pop_detected_dict_update[survey]["S_x_rcs_abs"])
-                > surveys_cfg[survey]["flux_threshold_completeness"]
-            )
             n_detected_complete_sim[survey] += len(
-                np.array(pop_detected_dict_update[survey]["age"])[
-                    mask_completeness
-                ]
+                pop_detected_dict_update[survey]["age"]
             )
             logger.info(
-                f"Total number of neutron stars detected by {survey}: {n_detected_sim[survey]} (above completeness flux threshold: {n_detected_complete_sim[survey]})"
+                f"Total number of neutron stars detected by {survey}: {n_detected_sim[survey]}"
             )
-            # If the number of simulated detected pulsars above the completeness flux threshold matches the
+            # If the number of simulated detected pulsars matches the
             # real one, store the value of created neutron stars.
             if (
                 n_detected_complete_sim[survey]
@@ -626,33 +689,7 @@ def update_survey_data(
             sys.exit(1)
 
 
-def build_dataframe(
-    data_dict: dict, parameters: list, units: list
-) -> pd.DataFrame:
-    """
-    Helper function to create a DataFrame with a MultiIndex header.
-
-    Args:
-        data_dict (dict): A dictionary containing the data to be saved in the dataframe.
-        parameters (list): A list of parameter names, used as the first level of the MultiIndex header.
-        units (list): A list of physical units, used as the second level of the MultiIndex header.
-
-    Returns:
-        (pd.DataFrame): A Pandas DataFrame with a MultiIndex header, where columns are
-            indexed by parameters and units.
-    """
-    # If the key `"idx"` is present, it is removed.
-    data_dict.pop("idx", None)
-
-    header = pd.MultiIndex.from_arrays([parameters, units])
-
-    df = pd.DataFrame.from_dict(data=data_dict)
-    df.columns = header
-
-    return df
-
-
-def create_output_dataframe(
+def create_output_dataframe_surveys(
     dictionary_detected_radio: dict,
     dictionary_detected_xray: dict,
 ) -> dict:
@@ -672,15 +709,16 @@ def create_output_dataframe(
 
     # Defining the parameters and units that are common for all radio surveys.
     parameters_radio = [
+        "idx",
         "age",
-        "RA",
-        "DEC",
+        "ra",
+        "dec",
         "l",
         "b",
         "DM",
-        "d",
-        "pm_RA",
-        "pm_DEC",
+        "dist",
+        "pm_ra",
+        "pm_dec",
         "v_ls",
         "B",
         "chi",
@@ -695,6 +733,7 @@ def create_output_dataframe(
         "spectral_index",
     ]
     units_radio = [
+        "",
         "[yr]",
         "[deg]",
         "[deg]",
@@ -729,22 +768,23 @@ def create_output_dataframe(
             units_survey = units_radio
 
         # Build the DataFrame using the appropriate parameters and units.
-        df = build_dataframe(survey_data, parameters_survey, units_survey)
+        df = dfb.build_dataframe(survey_data, parameters_survey, units_survey)
         dfs[
             survey_name
         ] = df  # Store the DataFrame in the dictionary with survey_name as key.
 
     if dictionary_detected_xray is not None:
         parameters_xray = [
+            "idx",
             "age",
-            "RA",
-            "DEC",
+            "ra",
+            "dec",
             "l",
             "b",
             "N_H",
-            "d",
-            "pm_RA",
-            "pm_DEC",
+            "dist",
+            "pm_ra",
+            "pm_dec",
             "v_ls",
             "B_initial",
             "B",
@@ -757,6 +797,7 @@ def create_output_dataframe(
             "outburst",
         ]
         units_xray = [
+            "",
             "[yr]",
             "[deg]",
             "[deg]",
@@ -781,7 +822,7 @@ def create_output_dataframe(
         # Loop over each survey's detected dictionary and generate the corresponding DataFrame.
         for survey_name, survey_data in dictionary_detected_xray.items():
             # Build the DataFrame using the appropriate parameters and units.
-            df = build_dataframe(survey_data, parameters_xray, units_xray)
+            df = dfb.build_dataframe(survey_data, parameters_xray, units_xray)
             dfs[
                 survey_name
             ] = df  # Store the DataFrame in the dictionary with survey_name as key.

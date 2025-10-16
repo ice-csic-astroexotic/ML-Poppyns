@@ -52,8 +52,8 @@ else:
 
 if cfg["path_to_software"] == "":
     log.warning(
-        "path_to_software variable not set. Remember to set the right absolute path_to_software in the"
-        "pypopsyn/simulator/config_simulator.py file."
+        "path_to_software variable not set. Remember to set the right absolute path_to_software in the file: "
+        "pypopsyn/simulator/config_simulator.py."
     )
 
 # Seed for the random number generation for simulate_population_full.py.
@@ -124,7 +124,7 @@ cfg["h_c"]: float = 0.18
 # Total vertical extent of the initial distribution of neutron star progenitors from the galactic plane in [kpc].
 cfg["z_extent"]: float = 5.0
 
-# Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_2maxwell".
+# Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_double_maxwell".
 cfg["kick_model"]: str = "km_maxwell"
 
 # Maximum kick velocity magnitude in [km/s].
@@ -138,18 +138,18 @@ elif cfg["kick_model"] == "km_maxwell":
     # Sigma in [km/s] for the Maxwell kick velocity pdf (Hobbs et al. 2005).
     cfg["sigma_k"]: float = 265.0
 
-elif cfg["kick_model"] == "km_2maxwell":
+elif cfg["kick_model"] == "km_double_maxwell":
     # Parameters for the double Maxwell kick velocity pdf (see Eq. (5) and Section 4.2 in Igoshev 2020).
     # The weight denotes the importance of the first Maxwell component relative to the whole pdf.
     # Its value has to be in the range between 0 and 1.
-    cfg["sigma_k_1"]: float = 55.0
-    cfg["sigma_k_2"]: float = 334.0
-    cfg["kick_weight"]: float = 0.19
+    cfg["sigma_k_comp1"]: float = 55.0
+    cfg["sigma_k_comp2"]: float = 334.0
+    cfg["kick_weight_comp1"]: float = 0.19
 
 else:
     log.error(
         "The specified model for the kick velocity distribution is not supported."
-        "Please choose between km_maxwell, km_exp or km_2maxwell."
+        "Please choose between km_maxwell, km_exp or km_double_maxwell."
     )
 
 # Time step for the dynamical evolution [yr].
@@ -493,26 +493,23 @@ cfg["use_crust_failure_rate_interpolator"]: bool = True
 # ===================== X-RAY DETECTION PARAMETERS ========================
 
 # Information on the modeled X-ray surveys.
-# To obtain the number of Galactic isolated neutron stars detected with a quiescent thermal emission in X-rays,
-# we only include magnetars and XDINSs, as young RPPs with quiescent X-ray emission are primarily discovered through the
-# detection of the supernova remnant emission and pulsar wind nebula contribution which we are not modeling in our code.
+# To obtain the number of observed Galactic isolated X-ray neutron stars, we only include magnetars, XDINSs and young
+# RPPs with quiescent thermal X-ray emission. We excluded all central compact objects (CCOs) as we do not model any
+# supernova fallback mechanisms that could lead to the burial of the magnetic field. We also removed those RPPs that
+# have an association with a pulsar wind nebula as these sources are primarily discovered through the detection of the
+# supernova remnant emission and pulsar wind nebula contribution which we are also not modeling in our code.
 # We currently implement two different kinds of surveys in the X-rays. The first survey only takes into account a simple
-# cut-off in flux. The second one tries to better match the observed distribution and considers that many magnetars have
-# been discovered during an outburst phase. For those we consider a deeper survey to detect a quiescent emission. We
-# then combine it with a shallower survey which detects only the brightest sources. Moreover, since we do not have full
-# control over the observational biases for X-ray surveys, we try to match only the number of sources above a flux
-# threshold of 2e-11 [erg s^-1 cm^-2] which defines the limit where we assume real surveys are complete (by looking at
-# the logN-lgS distribution).
+# cut-off in flux. The second survey description tries to better match the observed distribution and considers that
+# many magnetars have been discovered during an outburst phase. For these sources, we consider a deeper survey to
+# detect a quiescent emission. We then combine this with a shallower survey, which detects only the brightest sources.
 cfg["surveys_xray"]: dict = {
     "xray_flux_threshold": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
-        "detected_real": 4,
-        "flux_threshold_completeness": 2.0e-11,
+        "detected_real": 35,
     },
     "xray_realistic": {
         "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json",
-        "detected_real": 4,
-        "flux_threshold_completeness": 2.0e-11,
+        "detected_real": 35,
     },
 }
 

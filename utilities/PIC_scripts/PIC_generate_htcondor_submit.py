@@ -75,14 +75,14 @@ def generate_wrapper(
 
     if type_simulation == "dyn":
 
-        exec_command = "python /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn/simulator/simulate_population_dyn.py --output_dir ${a[0]} --parameter_override ${a[1]}  \n"
+        exec_command = "python /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn/simulator/simulate_population_dyn.py --save_dir ${a[0]} --parameter_override ${a[1]}  \n"
 
     elif type_simulation == "magrot":
 
         exec_command = (
             "python /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn/simulator/simulate_population_magrot_det.py --dyn_data "
             + str(dyn_path)
-            + " --output_dir ${a[0]} --parameter_override ${a[1]} \n"
+            + " --save_dir ${a[0]} --parameter_override ${a[1]} \n"
         )
     else:
         raise ValueError(
@@ -100,7 +100,9 @@ def generate_wrapper(
         f.write(
             "source /data/astro/software/centos7/conda/mambaforge_4.14.0/etc/profile.d/conda.sh\n"
         )
-        f.write("conda activate /data/magnesia/scratch2/conda/envs/pop_syn\n")
+        f.write(
+            "conda activate /data/magnesia/scratch_ssd/conda/envs/pop_syn\n"
+        )
         f.write(
             "# We copy the pypopsyn module in the working node to avoid problems with the path while running the simulations in the server.\n"
         )

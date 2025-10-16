@@ -120,11 +120,11 @@ class InitialNeutronStarPopulation:
             pdf_vkick = iv.pdf_kick_velocity_maxwell
         elif kick_model == "km_exp":
             pdf_vkick = iv.pdf_kick_velocity_exp
-        elif kick_model == "km_2maxwell":
-            pdf_vkick = iv.pdf_kick_velocity_2maxwell
+        elif kick_model == "km_double_maxwell":
+            pdf_vkick = iv.pdf_kick_velocity_double_maxwell
         else:
             raise ValueError(
-                "The kick velocity model pdf does not exist. Choose between km_maxwell, km_exp or km_2maxwell."
+                "The kick velocity model pdf does not exist. Choose between km_maxwell, km_exp or km_double_maxwell."
             )
 
         # Drawing a random magnitude of the birth kick velocity in [km/s] for each
