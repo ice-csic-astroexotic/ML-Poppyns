@@ -571,7 +571,7 @@ def prepare_dataset_sbi(
 
     # Adjusting the dataset_path based on whether the dataset is the observed one or a simulated population.
     dataset_path = (
-        dataset_folder + "/dataset_atnf.csv"
+        dataset_folder + "/dataset_observed.csv"
         if atnf
         else dataset_folder + "/dataset_full.csv"
     )

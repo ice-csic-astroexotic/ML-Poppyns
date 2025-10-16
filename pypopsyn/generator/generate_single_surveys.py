@@ -239,7 +239,7 @@ def create_survey_maps(
             df_survey["P"],
             df_survey["P_dot"],
             np.log10(df_survey["S_x_rcs_abs"]),
-            -15,
+            -17,
             resolution_ppdot,
             resolution_ppdot,
             dictionary_ppdot_flux_map,
