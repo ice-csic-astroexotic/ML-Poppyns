@@ -215,7 +215,7 @@ def generate_kde_density_map(
     KDE density map generator.
 
     Creates a density or heat map of a distribution of points, computing the kernel-density estimation (KDE) given the
-    point X/Y coordinates in a 2D space. The resulting image is written to disk.
+    point's X/Y coordinates in a 2D space. The resulting image is written to disk.
 
     Args:
         x (np.ndarray): horizontal coordinate values for the points.
@@ -302,7 +302,7 @@ def generate_kde_weight_map(
     Weighted KDE density map generator.
 
     Creates a weighted density or heat map of a distribution of points, computing the weighted kernel-density estimation
-    (KDE) given the point X/Y coordinates in a 2D space and some weights. The resulting image is written to disk.
+    (KDE) given the point's X/Y coordinates in a 2D space and some weights. The resulting image is written to disk.
 
     Args:
         x (np.ndarray): horizontal coordinate values for the points.
@@ -516,7 +516,7 @@ def generate_kde_density_matrix(
     KDE density matrix generator.
 
     Creates a density matrix of distribution of points, computing the kernel-density estimation (KDE) given the
-    point X/Y coordinates in a 2D space. The resulting matrix is saved as .npy file.
+    point's X/Y coordinates in a 2D space. The resulting matrix is saved as .npy file.
 
     Args:
         x (np.ndarray): Horizontal coordinate values for the points.
@@ -591,7 +591,7 @@ def generate_kde_weight_matrix(
     Weighted KDE density map generator.
 
     Creates a weighted density matrix of a distribution of points, computing the weighted kernel-density estimation
-    (KDE) given the point X/Y coordinates in a 2D space and some weights. The resulting matrix is saved as .npy file.
+    (KDE) given the point's X/Y coordinates in a 2D space and some weights. The resulting matrix is saved as .npy file.
 
     Args:
         x (np.ndarray): Horizontal coordinate values for the points.
