@@ -555,7 +555,7 @@ def generate_kde_density_matrix(
     # Check how many points we actually have.
     n_points = points.shape[1]
 
-    if n_points > 1:
+    if n_points > 2:
         # Enough data for KDE.
         kde = scipy.stats.gaussian_kde(points)
 
@@ -635,7 +635,7 @@ def generate_kde_weight_matrix(
     # Check how many points we actually have.
     n_points = points.shape[1]
 
-    if n_points > 1:
+    if n_points > 2:
         # Enough data for KDE.
         kde = scipy.stats.gaussian_kde(points, weights=positive_w)
 

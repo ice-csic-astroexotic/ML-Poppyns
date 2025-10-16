@@ -179,6 +179,8 @@ def create_survey_maps(
         resolution_ppdot,
         resolution_ppdot,
         dictionary_ppdot_map,
+        p_limits=(1e-2, 1e2),
+        pdot_limits=(1e-20, 1e-9),
     )
 
     # Create P-Pdot average flux maps.
@@ -245,7 +247,7 @@ def create_survey_maps(
             df_survey["P"],
             df_survey["P_dot"],
             np.log10(df_survey["S_x_rcs_abs"]),
-            -15,
+            -16,
             resolution_ppdot,
             resolution_ppdot,
             dictionary_ppdot_flux_map,
@@ -264,7 +266,7 @@ def create_survey_maps(
             resolution_ppdot,
             dictionary_p_flux_map,
             p_limits=(0.01, 100.0),
-            flux_limits=(1.0e-15, 1.0e-9),
+            flux_limits=(1.0e-16, 1.0e-9),
         )
 
         pdfmaps.generate_pdot_flux_map(
@@ -278,7 +280,7 @@ def create_survey_maps(
             resolution_ppdot,
             dictionary_pdot_flux_map,
             pdot_limits=(1.0e-20, 1.0e-9),
-            flux_limits=(1.0e-15, 1.0e-9),
+            flux_limits=(1.0e-16, 1.0e-9),
         )
     else:
         log.error(
