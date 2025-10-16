@@ -253,7 +253,7 @@ def generate_kde_density_map(
     points = np.vstack([x, y])
     kde = scipy.stats.gaussian_kde(points)
 
-    # Evaluate the KDE in each position points and restructure the flat output of KDE back into a 2D grid
+    # Evaluate the KDE at each point and restructure the flat output of KDE back into a 2D grid
     # that corresponds to the x-y coordinate grid.
     density = kde(positions).reshape(len(y_centers), len(x_centers))
 
@@ -345,7 +345,7 @@ def generate_kde_weight_map(
     points = np.vstack([x, y])
     kde = scipy.stats.gaussian_kde(points, weights=positive_w)
 
-    # Evaluate the KDE in each position points and restructure the flat output of KDE back into a 2D grid
+    # Evaluate the KDE at each point and restructure the flat output of KDE back into a 2D grid
     # that corresponds to the x-y coordinate grid.
     weighted_density = kde(positions).reshape(n_y_bins, n_x_bins)
 
@@ -559,7 +559,7 @@ def generate_kde_density_matrix(
         # Enough data for KDE.
         kde = scipy.stats.gaussian_kde(points)
 
-        # Evaluate the KDE in each position points and restructure the flat output of KDE back into a 2D grid
+        # Evaluate the KDE at each point and restructure the flat output of KDE back into a 2D grid
         # that corresponds to the x-y coordinate grid.
         density = kde(positions).reshape(len(y_centers), len(x_centers))
 
@@ -639,7 +639,7 @@ def generate_kde_weight_matrix(
         # Enough data for KDE.
         kde = scipy.stats.gaussian_kde(points, weights=positive_w)
 
-        # Evaluate the KDE in each position points and restructure the flat output of KDE back into a 2D grid
+        # Evaluate the KDE at each point and restructure the flat output of KDE back into a 2D grid
         # that corresponds to the x-y coordinate grid.
         weighted_density = kde(positions).reshape(n_y_bins, n_x_bins)
 
