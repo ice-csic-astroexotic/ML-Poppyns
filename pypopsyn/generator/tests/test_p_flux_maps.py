@@ -52,7 +52,7 @@ def test_generate_p_flux_map(temp_dir, test_case_1):
 
     Args:
         temp_dir (str): Path to the temporary directory created by the fixture.
-        test_case_1 (dict): input args.
+        test_case_1 (dict): Input args.
     """
     # Call the function to generate position map.
     generate_p_flux_map(
