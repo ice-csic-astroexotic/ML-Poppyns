@@ -1,9 +1,9 @@
 """
     Loader for catalogs with neutron star data.
 
-    This module contains methods to load the data of the observed population of neutron stars from
+    This module contains methods to load the data of the observed radio pulsar population from
     the ATNF Pulsar Catalogue, the TPA program on MeerKat presented in Posselt et al. (2023) and
-    the catalog of thermally emitting neutron stars.
+    the catalog of thermally emitting X-ray neutron stars.
 
     In the following, we consider the fluxes from the ch6flux column in Posselt et al. (2023),
     which correspond to measurements at 1429 MHz. These fluxes are used in Figure 7
@@ -30,13 +30,13 @@ def load_atnf_meerkat_catalog(
     Load the ATNF Pulsar Catalogue and the radio flux data from the TPA program on MeerKat and return dictionaries with
     the properties of detected neutron stars for the following radio surveys:
 
-        1) PMPS: the Parks Multibeam Pulsar Survey (see Manchester et al. 2001, Lorimer et al. 2006)
+        1) PMPS: the Parkes Multibeam Pulsar Survey (see Manchester et al. 2001, Lorimer et al. 2006)
         2) SMPS: the Swinburne Parkes Multibeam Pulsar Survey (see Edwards et al. 2001, Jacoby et al. 2009)
         3) HTRU: the High Time Resolution Universe Survey (see Keith et al. 2010)
 
     Args:
-        path_atnf_catalog (pathlib.Path): Path to the ATNF Pulsar Catalog.
-        path_meerkat_catalog (pathlib.Path): Path to the TPA Program with MeerKaT catalog.
+        path_atnf_catalog (pathlib.Path): Path to the ATNF Pulsar Catalogue.
+        path_meerkat_catalog (pathlib.Path): Path to the TPA Program with MeerKat catalog.
 
     Returns:
         (Tuple[dict, dict]): A tuple object containing the following dictionaries:
@@ -45,7 +45,7 @@ def load_atnf_meerkat_catalog(
             - A dictionary with the properties of detected neutron stars in the TPA program for each radio survey.
     """
 
-    # Initialize the dictionaries where to save the filtered properties for each survey.
+    # Initialize the dictionaries where the filtered properties for each survey will be saved.
     surveys_atnf = {
         "PMPS": {},
         "SMPS": {},
@@ -105,10 +105,10 @@ def load_atnf_meerkat_catalog(
         | (df_atnf["P1"].isin(["NAN"]))
     ]
 
-    # Parkes multibeam pulsar survey database.
+    # Parkes Multibeam Pulsar Survey database.
     df_atnf_pmps = df_atnf[df_atnf["SURVEY"].str.contains("pksmb")]
 
-    # Select only pulsars falling into the Parkes multibeam sky coverage where completeness is above 90%.
+    # Select only pulsars falling into the PMPS sky coverage where completeness is above 90%.
     # See Lorimer et al. (2006) for details.
 
     # Extracting Galactic longitude, latitude.
@@ -164,15 +164,15 @@ def load_atnf_meerkat_catalog(
         df_atnf_pmps["W10"].to_numpy().astype(np.float64)
     )
 
-    # Merge the Meerkat TPA program data with the PMPS ATNF Pulsar Catalogue data to obtain MeerKAT flux measurements
+    # Merge the MeerKat TPA program data with the PMPS ATNF Pulsar Catalogue data to obtain MeerKAT flux measurements
     # for the PMPS pulsars.
     df_meerkat_pmps = pd.merge(
         df_meerkat, df_atnf_pmps, left_on="PSRJ", right_on="PSRJ"
     )
     df_meerkat_pmps = df_meerkat_pmps.dropna(subset=["ch6flux"])
 
-    # Save the properties in the PMPS Meerkat dictionary.
-    # We convert the Meerkat fluxes from [Jy] to [mJy] to compare with simulations.
+    # Save the properties in the PMPS MeerKat dictionary.
+    # We convert the MeerKat fluxes from [Jy] to [mJy] to compare with simulations.
     surveys_meerkat["PMPS"]["S1400"] = (
         df_meerkat_pmps["ch6flux"].to_numpy().astype(np.float64) / 1000
     )
@@ -183,10 +183,10 @@ def load_atnf_meerkat_catalog(
         df_meerkat_pmps["P1"].to_numpy().astype(np.float64)
     )
 
-    # Swinburne multibeam pulsar survey database.
+    # Swinburne Parkes Multibeam Pulsar Survey database.
     df_atnf_smps = df_atnf[df_atnf["SURVEY"].str.contains("pkssw")]
 
-    # Select only pulsars falling into the Swinburne sky coverage where completeness is above 90%.
+    # Select only pulsars falling into the SMPS sky coverage where completeness is above 90%.
     # See Edwards et al. (2001) and Jacoby et al. (2009) for details.
 
     # Extracting Galactic longitude.
@@ -237,15 +237,15 @@ def load_atnf_meerkat_catalog(
         df_atnf_smps["W10"].to_numpy().astype(np.float64)
     )
 
-    # Merge the Meerkat TPA program data with the SMPS ATNF Pulsar Catalogue data to obtain MeerKAT flux measurements
+    # Merge the MeerKat TPA program data with the SMPS ATNF Pulsar Catalogue data to obtain MeerKAT flux measurements
     # for the SMPS pulsars.
     df_meerkat_smps = pd.merge(
         df_meerkat, df_atnf_smps, left_on="PSRJ", right_on="PSRJ"
     )
     df_meerkat_smps = df_meerkat_smps.dropna(subset=["ch6flux"])
 
-    # Save the properties in the PMPS Meerkat dictionary.
-    # We convert the Meerkat fluxes from [Jy] to [mJy] to compare with simulations.
+    # Save the properties in the PMPS MeerKat dictionary.
+    # We convert the MeerKat fluxes from [Jy] to [mJy] to compare with simulations.
     surveys_meerkat["SMPS"]["S1400"] = (
         df_meerkat_smps["ch6flux"].to_numpy().astype(np.float64) / 1000
     )
@@ -260,7 +260,7 @@ def load_atnf_meerkat_catalog(
     # measurements are from the low- and mid- latitude surveys only.
     df_atnf_htru = df_atnf[df_atnf["SURVEY"].str.contains("htru_pks")]
 
-    # Selection only pulsars falling in the HTRU sky coverage where completness is above 90%.
+    # Selection only pulsars falling in the HTRU sky coverage where completeness is above 90%.
 
     # Extracting Galactic longitude and latitude.
     b_htru_obs = df_atnf_htru["Gb"].to_numpy().astype(np.float64)
@@ -279,7 +279,7 @@ def load_atnf_meerkat_catalog(
 
     df_atnf_htru = df_atnf_htru[cond]
 
-    # Save the properties in the SMPS dictionary.
+    # Save the properties in the HTRU dictionary.
     surveys_atnf["HTRU_low-mid"]["RA"] = (
         df_atnf_htru["RAJD"].to_numpy().astype(np.float64)
     )
@@ -315,15 +315,15 @@ def load_atnf_meerkat_catalog(
         df_atnf_htru["W10"].to_numpy().astype(np.float64)
     )
 
-    # Merge the Meerkat TPA program data with the HTRU ATNF Pulsar Catalogue data to obtain MeerKAT flux measurements
+    # Merge the MeerKat TPA program data with the HTRU ATNF Pulsar Catalogue data to obtain MeerKAT flux measurements
     # for the HTRU pulsars.
     df_meerkat_htru = pd.merge(
         df_meerkat, df_atnf_htru, left_on="PSRJ", right_on="PSRJ"
     )
     df_meerkat_htru = df_meerkat_htru.dropna(subset=["ch6flux"])
 
-    # Save the properties in the HTRU Meerkat dictionary.
-    # We convert the Meerkat fluxes from [Jy] to [mJy] to compare with simulations.
+    # Save the properties in the HTRU MeerKat dictionary.
+    # We convert the MeerKat fluxes from [Jy] to [mJy] to compare with simulations.
     surveys_meerkat["HTRU_low-mid"]["S1400"] = (
         df_meerkat_htru["ch6flux"].to_numpy().astype(np.float64) / 1000
     )
@@ -341,7 +341,7 @@ def load_xray_catalog(
     path_xray_catalog: pathlib.Path,
 ) -> dict:
     """
-    Load the catalog containing the properties of observed thermally emitting neutron stars.
+    Load the catalog containing the properties of observed thermally emitting X-ray bright neutron stars.
 
     Args:
         path_xray_catalog (pathlib.Path): Path to the catalog of thermally emitting neutron stars.
@@ -350,7 +350,7 @@ def load_xray_catalog(
         (dict): A dictionary with the properties of detected neutron stars in X-rays with quiescent thermal emission.
     """
 
-    # Initialize the dictionary where to save the filtered properties.
+    # Initialize the dictionary where the filtered properties will be saved.
     survey_xray = {}
 
     # Read the thermally emitting neutron star catalog .csv file. Binary pulsars are excluded.
@@ -360,10 +360,10 @@ def load_xray_catalog(
         header=[0],
     )
 
-    # We remove Central Compact Objects (CCOs) because their magnetic field have likely been buried
-    # due to supernova fallback and their evolution cannot be modelled with our simulation framework.
-    # We also remove neutron stars associated to pulsar wind nebulae as their detection might have been triggered by the non-thermal emission of the nebula.
-    # We also remove those stars that belong to the Magellanic Clouds.
+    # We have removed central compact objects (CCOs) because their magnetic field have likely been buried due to
+    # supernova fallback and their evolution cannot be modeled with our simulation framework. We also remove neutron
+    # stars associated with pulsar wind nebulae as their detection might have been triggered by the non-thermal
+    # emission of the nebula. We also remove those stars that belong to the Magellanic Clouds.
     df_x = df_x[~df_x["class"].isin(["CCO"])]
     df_x = df_x[~df_x["assoc"].isin(["PWN", "PWN, Radio"])]
     df_x = df_x[~df_x["assoc"].isin(["SMC", "LMC"])]
@@ -371,7 +371,7 @@ def load_xray_catalog(
     df_x = df_x.dropna(subset=["pdot(1e-11s/s)"])
     df_x = df_x.dropna(subset=["abs. flux (0.3-10 keV)"])
 
-    # Extracting Galactic longitude and converting it in the range [-180., 180]
+    # Extracting Galactic longitude and converting it in the range [-180., 180].
     l_x_obs = df_x["l(deg)"].to_numpy().astype(np.float64)
 
     l_x_obs[(l_x_obs > 180.0) & (l_x_obs < 360.0)] = (
