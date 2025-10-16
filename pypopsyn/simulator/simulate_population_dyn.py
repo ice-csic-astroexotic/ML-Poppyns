@@ -26,16 +26,14 @@ import sys
 import time
 
 import numpy as np
-import orjson
-import pandas as pd
 
-import pypopsyn.simulator.basics.constants as const
 import pypopsyn.simulator.config_simulator as configuration
 import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.stellar_dynamics.dynamical_evolution as dyn
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 import pypopsyn.simulator.stellar_dynamics.spiral_model as sm
 import utilities.benchmark.timewith as timewith
+import utilities.dataframe_builder as dfb
 from pypopsyn.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
@@ -73,14 +71,6 @@ def simulate_population(args: argparse.Namespace) -> None:
     cfg["profile_json"] = str(prof_json_path)
     cfg["profile_log"] = str(prof_log_path)
 
-    # Initialize seed randomly if no seed was specified.
-    if cfg["seed_dyn"] is None:
-        cfg["seed_dyn"] = int(time.time())
-
-    # Set NumPy random seed globally.
-    log.info("Seed: {}".format(cfg["seed_dyn"]))
-    np.random.seed(cfg["seed_dyn"])
-
     # Update simulator configuration with the provided JSON override (if any).
     if args.parameter_override:
         json_override_path = pathlib.Path(args.parameter_override)
@@ -88,17 +78,13 @@ def simulate_population(args: argparse.Namespace) -> None:
             cfg_override = json.load(f)
             configuration.update_configuration(cfg_override)
 
-    # Dump updated configuration to output path.
-    config_dump_path = pathlib.Path().joinpath(
-        output_path, "configuration.json"
-    )
-    with open(config_dump_path, "w") as f:
-        json.dump(cfg, f, indent=4, sort_keys=True)
+    # Initialize seed randomly if no seed was specified.
+    if cfg["seed_dyn"] is None:
+        cfg["seed_dyn"] = int(time.time())
 
-    # Initialize components of the simulator that need it.
-    gm.initialize_galactic_model()
-    if not cfg["sample_edm"]:
-        sm.initialize_spiral_model()
+    # Set NumPy random seed globally.
+    log.info("Seed: {}".format(cfg["seed_dyn"]))
+    np.random.seed(cfg["seed_dyn"])
 
     with timewith.TimeWith(
         "[TotalSimulation]",
@@ -110,217 +96,61 @@ def simulate_population(args: argparse.Namespace) -> None:
         # ===================== INITIALIZE THE POPULATION ========================
 
         with timewith.TimeWith(
-            "[InitialPopulation]",
+            "[InitializePopulation]",
             cfg["profile_log"],
             cfg["profile_json"],
             cfg["show_profiling"],
-        ) as timer:
+        ):
+
+            log.info("Initialize the dynamical properties...")
+
+            # Initialize components of the simulator that need it.
+            gm.initialize_galactic_model()
+            if not cfg["sample_edm"]:
+                sm.initialize_spiral_model()
 
             # Generate an initial neutron star population.
             NS_population_initial = ipop.InitialNeutronStarPopulation(
                 cfg["NS_number"]
             )
-
             # Generating ages.
-            log.info("Randomizing population age...")
             age = NS_population_initial.age()
 
-            # Generating initial positions.
-            log.info("Generating initial positions...")
-            (
-                r_initial,
-                phi_initial,
-                z_initial,
-            ) = NS_population_initial.position(t_age=age)
-
-            # Generating initial velocities by summing the kick
-            # velocities at birth and the orbital velocities.
-            log.info("Generating initial kick velocities...")
-            (
-                vk_r,
-                vk_phi,
-                vk_z,
-            ) = NS_population_initial.kick_velocity()
-
-            log.info("Computing orbital velocities...")
-            v_orb = NS_population_initial.orbital_velocity(
-                r_initial, z_initial
-            )
-
-            log.info("Computing initial total velocities...")
-            v_r_initial = vk_r
-            v_phi_initial = vk_phi + v_orb
-            omega_initial = v_phi_initial / r_initial
-            v_z_initial = vk_z
-
-            # Compute the magnitude of the initial velocity vector for each star.
-            v_initial = (
-                np.sqrt(
-                    v_r_initial**2 + v_phi_initial**2 + v_z_initial**2
-                )
-                * const.KPC_TO_KM
-                / const.YR_TO_S
-            )
-
-            timer.checkpoint("[Initial position and velocity]")
-
-            # Compute the total initial energy of the system.
-            total_energy_initial = gm.galactic_model.total_energy(
-                v_initial, r_initial, z_initial
-            )
-
-            timer.checkpoint("[Initial energy]")
-
-            # Compute the initial z-component of the total angular momentum of the system.
-            L_z_initial = gm.galactic_model.total_angular_momentum_z(
-                v_phi_initial * const.KPC_TO_KM / const.YR_TO_S, r_initial
-            )
-
-            timer.checkpoint("[Initial Angular momentum]")
+            # Initialize neutron star dynamical properties.
+            pop_dyn_initial = dyn.initialize_population_dyn(age)
 
         # ===================== DYNAMICAL EVOLUTION ========================
 
         with timewith.TimeWith(
-            "[EvolvePopulation]",
+            "[DynamicalEvolution]",
             cfg["profile_log"],
             cfg["profile_json"],
             cfg["show_profiling"],
-        ) as timer:
+        ):
 
             # Evolve the initial population.
             log.info("Evolving the initial population in time...")
 
-            # Define the initial conditions for the dynamical evolution.
-            initial_cond = np.array(
-                [
-                    r_initial,
-                    phi_initial,
-                    z_initial,
-                    v_r_initial,
-                    omega_initial,
-                    v_z_initial,
-                ]
-            ).T
-
-            # Evolve positions and velocities of the neutron stars forward in time.
-            log.info("Evolving the positions and velocities...")
-            final_population, dyn_evol_dict = dyn.dynamical_evolution(
-                initial_cond, age
+            pop_dyn_final = dyn.evolve_population_dyn(
+                pop_dyn_initial, output_path
             )
 
-            r_final = final_population[:, 0]
-            phi_final = final_population[:, 1]
-            z_final = final_population[:, 2]
-            v_r_final = final_population[:, 3]
-            v_phi_final = final_population[:, 4]
-            v_z_final = final_population[:, 5]
-
-            # Convert velocities from [kpc/yr] into [km/s].
-            v_r_final = v_r_final * const.KPC_TO_KM / const.YR_TO_S
-            v_phi_final = v_phi_final * const.KPC_TO_KM / const.YR_TO_S
-            v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
-
-            if cfg["save_dyn_evolution"]:
-                # Save dictionary containing evolution information to output path in a .json file.
-                dyn_evolution_dump_path = pathlib.Path().joinpath(
-                    output_path, "dyn_evolution.json"
-                )
-
-                with open(dyn_evolution_dump_path, "wb") as f:
-                    f.write(
-                        orjson.dumps(
-                            dict(dyn_evol_dict),
-                            option=orjson.OPT_SERIALIZE_NUMPY
-                            | orjson.OPT_NON_STR_KEYS
-                            | orjson.OPT_SORT_KEYS,
-                        )
-                    )
-
-            timer.checkpoint("[Dynamic evolution]")
-
-            # Compute the magnitude of the initial velocity vector for each star.
-            v_final = np.sqrt(
-                v_r_final**2 + v_phi_final**2 + v_z_final**2
+            # Check the conservation of the z-component of the angular momentum and total energy:
+            dyn.check_angular_momentum_energy_conservation(
+                pop_dyn_initial, pop_dyn_final, log
             )
 
-            # Compute the total energy of the system after the dynamical evolution.
-            total_energy_final = gm.galactic_model.total_energy(
-                v_final, r_final, z_final
-            )
+        # ===================== EXPORT OUTPUT ========================
 
-            # Compute the percentage variation in total energy during the simulation
-            # with respect to the initial total energy.
-            delta_energy_percentage = (
-                (total_energy_final - total_energy_initial)
-                / total_energy_initial
-                * 100.0
-            )
-
-            log.info(
-                f"Percentage variation of total energy of the system: {delta_energy_percentage} %"
-            )
-
-            timer.checkpoint("[Final energy]")
-
-            # Compute the final z-component of the total angular momentum of the system.
-            L_z_final = gm.galactic_model.total_angular_momentum_z(
-                v_phi_final, r_final
-            )
-
-            # Compute the percentage variation in total energy during the simulation
-            # with respect to the initial total energy.
-            delta_Lz_percentage = (
-                (L_z_final - L_z_initial) / L_z_initial * 100.0
-            )
-
-            log.info(
-                f"Percentage variation of z-component of total angular momentum of the system: {delta_Lz_percentage} %"
-            )
-
-            timer.checkpoint("[Final angular momentum]")
-
-            # ===================== EXPORT OUTPUT ========================
-
-            # Adding the evolution output to a data frame for export.
+        with timewith.TimeWith(
+            "[Export]",
+            cfg["profile_log"],
+            cfg["profile_json"],
+            cfg["show_profiling"],
+        ):
             log.info("Creating data frame for exporting...")
 
-            # Generating two header lines and merging them using MultiIndex.
-            parameters_final = [
-                "age",
-                "r",
-                "phi",
-                "z",
-                "v_r",
-                "v_phi",
-                "v_z",
-            ]
-            units_final = [
-                "[yr]",
-                "[kpc]",
-                "[rad]",
-                "[kpc]",
-                "[km/s]",
-                "[km/s]",
-                "[km/s]",
-            ]
-            header_final = pd.MultiIndex.from_arrays(
-                [parameters_final, units_final]
-            )
-
-            df_final = pd.DataFrame(
-                data=np.array(
-                    [
-                        age,
-                        r_final,
-                        phi_final,
-                        z_final,
-                        v_r_final,
-                        v_phi_final,
-                        v_z_final,
-                    ]
-                ).T,
-                columns=header_final,
-            )
+            df_final = dfb.create_output_dataframe_dyn(pop_dyn_final)
 
             # Save the data frame as a compressed binary file.
             final_output_path = pathlib.Path().joinpath(
@@ -333,10 +163,20 @@ def simulate_population(args: argparse.Namespace) -> None:
                 f"Output of the evolved population generated in {os.getcwd()}/{final_output_path}"
             )
 
-            timer.checkpoint("[Export]")
+    # Dump updated configuration to output path.
+    config_dump_path = pathlib.Path().joinpath(
+        output_path, "configuration.json"
+    )
+    with open(config_dump_path, "w") as f:
+        json.dump(cfg, f, indent=4, sort_keys=True)
 
-    # Cleanup. Reset seed to empty value.
+    # Reset seed, profile_log, and profile_json to default values. This is done to prevent issues when
+    # calling the simulate_population function in other scripts more than once, ensuring that the values are
+    # properly reset.
+
     cfg["seed_dyn"] = None
+    cfg["profile_log"] = "profile.log"
+    cfg["profile_json"] = "profile.json"
 
 
 if __name__ == "__main__":

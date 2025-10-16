@@ -1,14 +1,20 @@
 {
   "[TotalSimulation]": {
-    "time": 4573.699277877808
+    "time": 3304.079320192337
   },
-  "[LoadPopulationDynamics]": {
-    "time": 0.4785268306732178
+  "[InitializePopulation]": {
+    "time": 0.5428001880645752
   },
-  "[SimulatePopulationDetection]": {
-    "time": 75.96422791481018
+  "[MagnetoRotationalEvolution]": {
+    "time": 75.09492683410645
+  },
+  "[RadioDetection]": {
+    "time": 5.626247882843018
+  },
+  "[XrayDetection]": {
+    "time": 21.92669105529785
   },
   "[Export]": {
-    "time": 0.03956413269042969
+    "time": 0.3130629062652588
   }
 }

@@ -14,17 +14,70 @@
         Michele Ronchi (ronchi@ice.csic.es)
 """
 
+import logging
+import pathlib
 from typing import Tuple
 
 import numpy as np
+import orjson
 from numba import float64, jit
 from scipy.integrate import odeint
 
 import pypopsyn.simulator.basics.constants as const
+import pypopsyn.simulator.initial_population as ipop
 import pypopsyn.simulator.stellar_dynamics.galactic_model as gm
 from pypopsyn.simulator.config_simulator import cfg
 
 gm.initialize_galactic_model()
+
+
+def initialize_population_dyn(age: np.ndarray) -> dict:
+    """
+    Initialize the dynamical properties of a neutron star population.
+
+    Args:
+        age (np.ndarray): An array of ages in [yr] for the neutron stars in the population to be initialized.
+
+    Returns:
+        (dict): A dictionary containing the initialized dynamical properties of the neutron star population.
+    """
+
+    # Initialize neutron star population properties.
+    pop_initial = ipop.InitialNeutronStarPopulation(NS_number=len(age))
+
+    # Generating initial positions.
+    (
+        r_initial,
+        phi_initial,
+        z_initial,
+    ) = pop_initial.position(t_age=age)
+
+    # Generating initial velocities by summing the kick
+    # velocities at birth and the orbital velocities.
+    (
+        vk_r,
+        vk_phi,
+        vk_z,
+    ) = pop_initial.kick_velocity()
+
+    v_orb = pop_initial.orbital_velocity(r_initial, z_initial)
+
+    v_r_initial = vk_r
+    v_phi_initial = vk_phi + v_orb
+    v_z_initial = vk_z
+
+    dictionary_initial_pop_dyn = {
+        "age": age,
+        "r": r_initial,
+        "phi": phi_initial,
+        "z": z_initial,
+        "v_r": v_r_initial,
+        "v_phi": v_phi_initial,
+        "v_z": v_z_initial,
+        "v_orb": v_orb,
+    }
+
+    return dictionary_initial_pop_dyn
 
 
 @jit(
@@ -175,3 +228,168 @@ def dynamical_evolution(
     ).T
 
     return final_population, evolution_dictionary
+
+
+def evolve_population_dyn(
+    dict_pop_initial_dyn: dict,
+    output_path: pathlib.Path,
+) -> dict:
+    """
+    Evolve the dynamical properties of a neutron star population over time based on initial conditions.
+
+    Args:
+        dict_pop_initial_dyn (dict): Dictionary containing initial magneto-rotational properties of the population.
+        output_path (pathlib.Path): The path where the evolution data will be saved if enabled in the configuration.
+
+    Returns:
+        (dict): A dictionary containing the properties of the evolved neutron star population.
+    """
+    age = dict_pop_initial_dyn["age"]
+    r_initial = dict_pop_initial_dyn["r"]
+    phi_initial = dict_pop_initial_dyn["phi"]
+    z_initial = dict_pop_initial_dyn["z"]
+    v_r_initial = dict_pop_initial_dyn["v_r"]
+    v_phi_initial = dict_pop_initial_dyn["v_phi"]
+    v_z_initial = dict_pop_initial_dyn["v_z"]
+
+    omega_initial = v_phi_initial / r_initial
+
+    # Define the initial conditions for the dynamical evolution.
+    initial_cond = np.array(
+        [
+            r_initial,
+            phi_initial,
+            z_initial,
+            v_r_initial,
+            omega_initial,
+            v_z_initial,
+        ]
+    ).T
+
+    # Determine the evolved positions and velocities.
+    final_population, dyn_evol_dict = dynamical_evolution(
+        initial_cond,
+        age,
+    )
+
+    r_final = final_population[:, 0]
+    phi_final = final_population[:, 1]
+    z_final = final_population[:, 2]
+    v_r_final = final_population[:, 3]
+    v_phi_final = final_population[:, 4]
+    v_z_final = final_population[:, 5]
+
+    # Convert velocities from [kpc/yr] into [km/s].
+    v_r_final = v_r_final * const.KPC_TO_KM / const.YR_TO_S
+    v_phi_final = v_phi_final * const.KPC_TO_KM / const.YR_TO_S
+    v_z_final = v_z_final * const.KPC_TO_KM / const.YR_TO_S
+
+    if cfg["save_dyn_evolution"]:
+        # Save dictionary containing evolution information to output path in a .json file.
+        dyn_evolution_dump_path = pathlib.Path().joinpath(
+            output_path, "dyn_evolution.json"
+        )
+
+        with open(dyn_evolution_dump_path, "wb") as f:
+            f.write(
+                orjson.dumps(
+                    dict(dyn_evol_dict),
+                    option=orjson.OPT_SERIALIZE_NUMPY
+                    | orjson.OPT_NON_STR_KEYS
+                    | orjson.OPT_SORT_KEYS,
+                )
+            )
+
+    dictionary_final_pop_dyn = {
+        "age": age,
+        "r": r_final,
+        "phi": phi_final,
+        "z": z_final,
+        "v_r": v_r_final,
+        "v_phi": v_phi_final,
+        "v_z": v_z_final,
+    }
+
+    return dictionary_final_pop_dyn
+
+
+def check_angular_momentum_energy_conservation(
+    dict_pop_initial_dyn: dict,
+    dict_pop_final_dyn: dict,
+    logger: logging.Logger,
+) -> None:
+    """
+    This function computes the total energy and angular momentum (L_z) of a
+    stellar population before and after a dynamical evolution. It reports the
+    percentage variation of each quantity to assess conservation.
+
+    Args:
+        dict_pop_initial_dyn (dict): Dictionary containing the initial dynamical
+            properties of the population.
+        dict_pop_final_dyn (dict): Dictionary containing the final dynamical
+            properties of the population.
+        logger (logging.Logger): Logger instance used to output conservation
+            diagnostics (energy and angular momentum variations).
+    """
+
+    r_initial = dict_pop_initial_dyn["r"]
+    z_initial = dict_pop_initial_dyn["z"]
+    v_r_initial = dict_pop_initial_dyn["v_r"]
+    v_phi_initial = dict_pop_initial_dyn["v_phi"]
+    v_z_initial = dict_pop_initial_dyn["v_z"]
+
+    # Compute the magnitude of the initial velocity vector for each star.
+    v_initial = (
+        np.sqrt(v_r_initial**2 + v_phi_initial**2 + v_z_initial**2)
+        * const.KPC_TO_KM
+        / const.YR_TO_S
+    )
+
+    # Compute the total initial energy of the system.
+    total_energy_initial = gm.galactic_model.total_energy(
+        v_initial, r_initial, z_initial
+    )
+
+    # Compute the initial z-component of the total angular momentum of the system.
+    L_z_initial = gm.galactic_model.total_angular_momentum_z(
+        v_phi_initial * const.KPC_TO_KM / const.YR_TO_S, r_initial
+    )
+
+    r_final = dict_pop_final_dyn["r"]
+    z_final = dict_pop_final_dyn["z"]
+    v_r_final = dict_pop_final_dyn["v_r"]
+    v_phi_final = dict_pop_final_dyn["v_phi"]
+    v_z_final = dict_pop_final_dyn["v_z"]
+
+    # Compute the magnitude of the final velocity vector for each star.
+    v_final = np.sqrt(v_r_final**2 + v_phi_final**2 + v_z_final**2)
+
+    # Compute the total energy of the system after the dynamical evolution.
+    total_energy_final = gm.galactic_model.total_energy(
+        v_final, r_final, z_final
+    )
+
+    # Compute the percentage variation in total energy during the simulation
+    # with respect to the initial total energy.
+    delta_energy_percentage = (
+        (total_energy_final - total_energy_initial)
+        / total_energy_initial
+        * 100.0
+    )
+
+    logger.info(
+        f"Percentage variation of total energy of the system: {delta_energy_percentage} %"
+    )
+
+    # Compute the final z-component of the total angular momentum of the system.
+    L_z_final = gm.galactic_model.total_angular_momentum_z(
+        v_phi_final, r_final
+    )
+
+    # Compute the percentage variation in total energy during the simulation
+    # with respect to the initial total energy.
+    delta_Lz_percentage = (L_z_final - L_z_initial) / L_z_initial * 100.0
+
+    logger.info(
+        f"Percentage variation of z-component of total angular momentum of the system: {delta_Lz_percentage} %"
+    )

@@ -255,3 +255,78 @@ def galactocentric_to_galactic(
     radial_velocity = galactic.radial_velocity.value
 
     return l_gal, b_gal, distance, pm_l_cosb, pm_b, radial_velocity
+
+
+def convert_cylindrical_to_all_coordinates(dict_pop_dyn: dict) -> dict:
+    """
+    Converts a population's positions and velocities from galactocentric cylindrical
+    (polar) coordinates to ICRS, and galactic coordinate frames.
+
+    The resulting sky coordinates, distances, proper motions and line of sight velocity
+    are added to the input dictionary.
+
+    Args:
+        dict_pop_dyn (dict): A dictionary containing the initial polar coordinates and velocities
+            of a population of neutron stars.
+
+    Returns:
+        (dict): The input dictionary `dict_pop_dyn` with the following keys added:
+
+            - 'ra' (np.ndarray): Right Ascension [deg].
+            - 'dec' (np.ndarray): Declination [deg].
+            - 'dist' (np.ndarray): Heliocentric distance in ICRS frame [kpc].
+            - 'pm_ra' (np.ndarray): Proper motion in RA [mas/yr].
+            - 'pm_dec' (np.ndarray): Proper motion in Dec [mas/yr].
+            - 'l_gal' (np.ndarray): Galactic longitude [deg].
+            - 'b_gal' (np.ndarray): Galactic latitude [deg].
+            - 'pm_l' (np.ndarray): Proper motion in Galactic longitude [mas/yr].
+            - 'pm_b' (np.ndarray): Proper motion in Galactic latitude [mas/yr].
+    """
+
+    r = dict_pop_dyn["r"]
+    phi = dict_pop_dyn["phi"]
+    z = dict_pop_dyn["z"]
+    v_r = dict_pop_dyn["v_r"]
+    v_phi = dict_pop_dyn["v_phi"]
+    v_z = dict_pop_dyn["v_z"]
+
+    # Convert from polar coordinates to Cartesian coordinates.
+    x, y = polar_to_cartesian(r, phi)
+
+    # Convert velocity components from galactocentric cylindrical coordinates
+    # to galactocentric Cartesian coordinates.
+    (
+        v_x,
+        v_y,
+        v_z,
+    ) = speed_cylindrical_to_cartesian(v_r, v_phi, v_z, phi)
+
+    # Convert galactocentric coordinates and velocities into ICRS and galactic frame.
+    (
+        ra,
+        dec,
+        sun_dist_icrs,
+        pm_ra,
+        pm_dec,
+        v_ls_icrs,
+    ) = galactocentric_to_icrs(x, y, z, v_x, v_y, v_z)
+
+    (
+        l_gal,
+        b_gal,
+        sun_dist_gal,
+        pm_l,
+        pm_b,
+        v_ls_gal,
+    ) = galactocentric_to_galactic(x, y, z, v_x, v_y, v_z)
+
+    dict_pop_dyn["ra"] = ra
+    dict_pop_dyn["dec"] = dec
+    dict_pop_dyn["dist"] = sun_dist_icrs
+    dict_pop_dyn["pm_ra"] = pm_ra
+    dict_pop_dyn["pm_dec"] = pm_dec
+    dict_pop_dyn["l"] = l_gal
+    dict_pop_dyn["b"] = b_gal
+    dict_pop_dyn["v_ls"] = v_ls_icrs
+
+    return dict_pop_dyn

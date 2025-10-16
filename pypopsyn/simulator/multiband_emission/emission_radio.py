@@ -300,20 +300,9 @@ def compute_spectral_index(
 def calculate_radio_emission(
     P: np.ndarray,
     P_dot: np.ndarray,
-    age: np.ndarray,
-    l_gal: np.ndarray,
-    b_gal: np.ndarray,
-    dist: np.ndarray,
     chi: np.ndarray,
-) -> Tuple[
-    np.ndarray,
-    np.ndarray,
-    np.ndarray,
-    np.ndarray,
-    np.ndarray,
-    np.ndarray,
-    np.ndarray,
-]:
+    dist: np.ndarray,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray,]:
     """
     Compute the radio beam geometry, the intrinsic bolometric radio flux and the DM.
     Note that the luminosity and DM are computed only for those pulsars whose beams cross our line of sight.
@@ -322,11 +311,8 @@ def calculate_radio_emission(
     Args:
         P (np.ndarray): Array of spin periods of the pulsars in [s].
         P_dot (np.ndarray): Array of neutron star spin period derivatives in [s s^-1].
-        age (np.ndarray): Array of neutron star ages [yrs].
-        l_gal (np.ndarray): Array of galactic longitudes in [deg] defined between [-180, 180] deg.
-        b_gal (np.ndarray): Array of galactic latitudes in [deg] defined between [-90, 90] deg.
+        chi (np.ndarray): Array of inclination angles of the pulsars in [rad].
         dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
-        chi (np.ndarray): Array of the misalignment angles in [rad].
 
     Returns:
         (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): A Tuple
@@ -337,9 +323,21 @@ def calculate_radio_emission(
             - Bolometric radio luminosity [erg s^-1].
             - Bolometric radio flux in [erg s^-1 cm^-2].
             - Spectral index.
-            - Dispersion measure in [pc cm^-3].
-            - Scattering timescale in [s].
     """
+
+    # Determining the bolometric radio luminosity.
+    # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
+    # See line 251 in the config_simulator.py file.
+    radio_luminosity_model = cfg["radio_luminosity_model"]
+
+    if radio_luminosity_model == "lum_radio_ppdot":
+        L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
+    elif radio_luminosity_model == "lum_radio_edot":
+        L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
+    else:
+        raise ValueError(
+            "The radio luminosity model does not exist. Choose between lum_radio_ppdot or lum_radio_edot."
+        )
 
     # Determining the radio beam angular aperture.
     rho_beam = beam_aperture(P)
@@ -351,7 +349,7 @@ def calculate_radio_emission(
     # Note that since we assume symmetry between the northern and southern hemisphere of the star
     # we only need to consider one hemisphere, e.g., the northern one.
     los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-    los_rand = rs.random_from_pdf(los_grid, np.sin, len(age))
+    los_rand = rs.random_from_pdf(los_grid, np.sin, len(P))
 
     # Determining if the pulsar's radio beam intercepts our line of sight.
     intercepted_radio = los_intercept(
@@ -360,63 +358,31 @@ def calculate_radio_emission(
         los_rand,
     )
 
-    # Select only neutron stars that point at us.
-    l_gal = l_gal[intercepted_radio]
-    b_gal = b_gal[intercepted_radio]
-    dist = dist[intercepted_radio]
-    chi = chi[intercepted_radio]
-    P = P[intercepted_radio]
-    P_dot = P_dot[intercepted_radio]
-    rho_beam = rho_beam[intercepted_radio]
-    los_rand = los_rand[intercepted_radio]
-    solid_angle_beam = solid_angle_beam[intercepted_radio]
-
-    # Determining the bolometric radio luminosity.
-    # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
-    # See line 251 in the config_simulator.py file.
-    radio_luminosity_model = cfg["radio_luminosity_model"]
-
-    if radio_luminosity_model == "lum_radio_ppdot":
-        L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
-    elif radio_luminosity_model == "lum_radio_edot":
-        L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
-    else:
-        raise ValueError(
-            "The radio luminosity model does not exist. Choose between lum_radio_ppdot or lum_radio_edot."
-        )
-
-    # Computing the intrinsic bolometric radio flux.
-    S_radio_bol = flux_radio(
-        L_radio_bol,
-        dist,
-        solid_angle_beam,
+    # Computing the intrinsic pulse width of the radio pulse.
+    w_int = np.zeros(len(P))
+    w_int[intercepted_radio] = pulse_width(
+        chi[intercepted_radio],
+        rho_beam[intercepted_radio],
+        los_rand[intercepted_radio],
     )
 
-    # Computing the intrinsic pulse width of the radio pulse.
-    w_int = pulse_width(
-        chi,
-        rho_beam,
-        los_rand,
+    # Computing the intrinsic bolometric radio flux.
+    S_radio_bol = np.zeros(len(P))
+    S_radio_bol[intercepted_radio] = flux_radio(
+        L_radio_bol[intercepted_radio],
+        dist[intercepted_radio],
+        solid_angle_beam[intercepted_radio],
     )
 
     # Convert pulse width from [rad] to [s].
     w_int_s = w_int * P / (2.0 * np.pi)
 
-    # Computing the DM.
-    DM = edm.compute_DM(
-        l_gal,
-        b_gal,
-        dist,
-        cfg["ed_model"],
-    )
-
-    # Computing the spectral index and the scattering timescale at 327 MHz of each star.
+    # Computing the spectral index for the radio power-law spectrum.
     spectral_index = compute_spectral_index(
         cfg["mean_spectral_index"],
         cfg["std_spectral_index"],
-        len(S_radio_bol),
+        len(P),
     )
-    tau_sc = edm.compute_tau_sc_327(DM)
 
     return (
         intercepted_radio,
@@ -424,129 +390,110 @@ def calculate_radio_emission(
         L_radio_bol,
         S_radio_bol,
         spectral_index,
-        DM,
-        tau_sc,
     )
 
 
-def calculate_radio_emission_full(
-    P: np.ndarray,
-    P_dot: np.ndarray,
-    dist: np.ndarray,
-    chi: np.ndarray,
-):
+def radio_population_intercepted(
+    dict_pop: dict,
+    coverage_radio: np.ndarray,
+    full_population: bool = False,
+) -> dict:
     """
-    Compute the radio beam geometry and the intrinsic bolometric radio flux. This function is only used in the
-    simulate_population_full.py script, where we perform the dynamical and magneto-rotational evolution together.
-
-    Args:
-        P (np.ndarray): Array of spin periods of the pulsars in [s].
-        P_dot (np.ndarray): Array of spin period derivatives of the pulsars in [s/s].
-        dist (np.ndarray): Array of distances from the ICRS origin in [kpc].
-        chi (np.ndarray): Array of the misalignment angles in [rad].
-
-    Returns:
-        intercepted_radio (np.ndarray): Array of Booleans with the pulsars whose beams cross our line of sight.
-        S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
-        w_int_s (np.ndarray): Intrinsic pulse widths in [s].
-        L_radio_bol (np.ndarray): Pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.
-    """
-
-    # Determining the bolometric radio luminosity.
-    # Choose one of the two implementations either based on the P and Pdot or the Edot dependence.
-    # See line 251 in the config_simulator.py file.
-    radio_luminosity_model = cfg["radio_luminosity_model"]
-
-    if radio_luminosity_model == "lum_radio_ppdot":
-        L_radio_bol = pdf_luminosity_radio_ppdot(P, P_dot)
-    elif radio_luminosity_model == "lum_radio_edot":
-        L_radio_bol = pdf_luminosity_radio_edot(P, P_dot)
-    else:
-        raise ValueError(
-            "The radio luminosity model does not exist. Choose between lum_radio_ppdot or lum_radio_edot."
-        )
-
-    # Determining the radio beam angular aperture.
-    rho_beam = beam_aperture(P)
-
-    # Determining the solid angle covered by the two radio beams.
-    solid_angle_beam = solid_angle_radio_beams(rho_beam)
-
-    # Drawing a random angular intercept for the line of sight.
-    # Note that since we assume symmetry between the northern and southern hemisphere of the star
-    # we only need to consider one hemisphere, e.g., the northern one.
-    los_grid = np.linspace(0.0, np.pi / 2, cfg["resolution"])
-    los_rand = rs.random_from_pdf(los_grid, np.sin, cfg["NS_number"])
-
-    # Selecting the pulsars whose radio beam intercepts our line of sight.
-    intercepted_radio = los_intercept(
-        chi,
-        rho_beam,
-        los_rand,
-    )
-
-    # Computing the intrinsic pulse width of the radio pulse.
-    w_int = np.zeros(cfg["NS_number"])
-    w_int[intercepted_radio] = pulse_width(
-        chi[intercepted_radio],
-        rho_beam[intercepted_radio],
-        los_rand[intercepted_radio],
-    )
-    # Convert pulse width from [rad] to [s].
-    w_int_s = w_int * P / (2.0 * np.pi)
-
-    # Computing the intrinsic bolometric radio flux.
-    S_radio_bol = np.zeros(cfg["NS_number"])
-    S_radio_bol[intercepted_radio] = flux_radio(
-        L_radio_bol[intercepted_radio],
-        dist[intercepted_radio],
-        solid_angle_beam[intercepted_radio],
-    )
-
-    return intercepted_radio, S_radio_bol, w_int_s, L_radio_bol
-
-
-def radio_population_intercepted(dict_pop: dict) -> dict:
-    """
-    Filter and compute properties of a population of neutron stars whose radio beams intercept our line of sight.
+    Filter and compute properties of a population of neutron stars whose radio beams intercept our line of sight
+    and that fall in the survey sky coverage.
 
     Args:
         dict_pop (dict): Dictionary containing the properties of a neutron star population.
+        coverage_radio (np.ndarray): A boolean mask to filter only stars in the sky coverage of radio surveys.
+        full_population (bool, optional): If True, return arrays of size `cfg["NS_number"]` (all stars, filling
+            with zeros where not intercepted). If False, return arrays only for intercepted stars.
+            Defaults to False.
 
     Returns:
         (dict): A dictionary containing properties of the neutron stars whose radio beams intercept our line of sight.
     """
+    if full_population:
+        # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
+        # of their radio emission.
+        (
+            intercepted_radio,
+            w_int_s,
+            L_radio_bol,
+            S_radio_bol,
+            spectral_index,
+        ) = calculate_radio_emission(
+            dict_pop["P"],
+            dict_pop["P_dot"],
+            dict_pop["chi"],
+            dict_pop["dist"],
+        )
 
-    # Select only the stars that can be detected in radio by the considered surveys.
-    coverage_radio = dict_pop["coverage_radio"]
-    dict_pop_filtered = {
-        key: value[coverage_radio] for key, value in dict_pop.items()
-    }
+        # Determine which stars could in principle be detected.
+        detectable_radio = intercepted_radio & coverage_radio
 
-    # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
-    # of their radio emission.
-    (
-        intercepted_radio,
-        w_int_s,
-        L_radio_bol,
-        S_radio_bol,
-        spectral_index,
-        DM,
-        tau_sc,
-    ) = calculate_radio_emission(
-        dict_pop_filtered["P"],
-        dict_pop_filtered["P_dot"],
-        dict_pop_filtered["age"],
-        dict_pop_filtered["l"],
-        dict_pop_filtered["b"],
-        dict_pop_filtered["dist"],
-        dict_pop_filtered["chi"],
-    )
+        dictionary_radio_pop = {key: value for key, value in dict_pop.items()}
 
-    dictionary_radio_pop = {
-        key: value[intercepted_radio]
-        for key, value in dict_pop_filtered.items()
-    }
+        dictionary_radio_pop["intercepted_radio"] = intercepted_radio
+
+        # Computing the DM for the stars that fall into the surveys' sky coverage and whose
+        # radio beam intercepts our line of sight.
+        DM = np.zeros(cfg["NS_number"])
+        DM[detectable_radio] = edm.compute_DM(
+            dictionary_radio_pop["l"][detectable_radio],
+            dictionary_radio_pop["b"][detectable_radio],
+            dictionary_radio_pop["dist"][detectable_radio],
+            cfg["ed_model"],
+        )
+
+        # Computing the scattering timescale at 327 MHz of these stars.
+        tau_sc = np.zeros(cfg["NS_number"])
+        tau_sc[DM != 0] = edm.compute_tau_sc_327(DM[DM != 0])
+
+    else:
+        # Select only the stars that can, in principle, be detected in radio, i.e., those that they lie within the
+        # observed region.
+        dict_pop_filtered = {
+            key: value[coverage_radio] for key, value in dict_pop.items()
+        }
+
+        # Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties
+        # of their radio emission.
+        (
+            intercepted_radio,
+            w_int_s,
+            L_radio_bol,
+            S_radio_bol,
+            spectral_index,
+        ) = calculate_radio_emission(
+            dict_pop_filtered["P"],
+            dict_pop_filtered["P_dot"],
+            dict_pop_filtered["chi"],
+            dict_pop_filtered["dist"],
+        )
+
+        # Select only the stars that can be detected in radio by the considered surveys.
+        dictionary_radio_pop = {
+            key: value[intercepted_radio]
+            for key, value in dict_pop_filtered.items()
+        }
+
+        w_int_s = w_int_s[intercepted_radio]
+        L_radio_bol = L_radio_bol[intercepted_radio]
+        S_radio_bol = S_radio_bol[intercepted_radio]
+        spectral_index = spectral_index[intercepted_radio]
+
+        # Computing the DM for the stars that fall into the surveys' sky coverage and whose
+        # radio beam intercepts our line of sight.
+        DM = edm.compute_DM(
+            dictionary_radio_pop["l"],
+            dictionary_radio_pop["b"],
+            dictionary_radio_pop["dist"],
+            cfg["ed_model"],
+        )
+
+        # Computing the scattering timescale at 327 MHz of these stars.
+        tau_sc = edm.compute_tau_sc_327(DM)
+
     dictionary_radio_pop["w_int"] = w_int_s
     dictionary_radio_pop["L_radio_bol"] = L_radio_bol
     dictionary_radio_pop["S_radio_bol"] = S_radio_bol

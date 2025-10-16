@@ -135,13 +135,24 @@ def simulate_population(args) -> None:
                 # Compute the maximum simulation time in centuries.
                 t_max = cfg["t_age_max"] / 100
 
-                # Filter the loaded database batch with the surveys' sky coverage.
-                database_coverage, idx_remove = sw.apply_surveys_coverage(
+                # Compute a dictionary containing the sky coverage masks for all the surveys.
+                coverage_dict = sw.compute_surveys_coverage(
                     surveys_radio,
                     surveys_xray,
                     database_dyn_batch,
-                    idx_remove,
                     dist_cutoff=35.0,
+                )
+
+                # Filter the loaded database batch with the surveys' sky coverage.
+                (
+                    database_coverage,
+                    idx_remove,
+                ) = sw.apply_surveys_coverage_filter(
+                    surveys_radio,
+                    surveys_xray,
+                    coverage_dict,
+                    database_dyn_batch,
+                    idx_remove,
                 )
 
                 # Initialize neutron star magneto-rotational properties.
@@ -159,11 +170,14 @@ def simulate_population(args) -> None:
 
             # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
             with timewith.TimeWith(
-                "[SimulateMagnetoRotationalEvolution]",
+                "[MagnetoRotationalEvolution]",
                 cfg["profile_log"],
                 cfg["profile_json"],
                 cfg["show_profiling"],
             ):
+                log.info(
+                    "Evolving magnetic field, misalignment angle and rotation period..."
+                )
 
                 # Evolve in time the magneto-rotational properties.
                 pop_magrot_final = mre.evolve_population_magrot(
@@ -176,20 +190,25 @@ def simulate_population(args) -> None:
 
             # ===================== RADIO DETECTION ========================
             with timewith.TimeWith(
-                "[SimulateRadioDetection]",
+                "[RadioDetection]",
                 cfg["profile_log"],
                 cfg["profile_json"],
                 cfg["show_profiling"],
             ):
 
                 # Filter the population to include only pulsars whose radio beam intercepts our line of sight.
-                pop_radio = er.radio_population_intercepted(pop_final)
+                pop_radio = er.radio_population_intercepted(
+                    pop_final, pop_final["coverage_radio"]
+                )
                 if len(pop_radio["age"]) == 0:
                     break
 
                 # Filter the population to include only pulsars detected by the radio surveys.
                 pop_detected_radio_update = sw.radio_detection(
-                    surveys_radio, pop_radio
+                    surveys_radio,
+                    pop_radio,
+                    np.ones(len(pop_radio["w_int"]), dtype=bool),
+                    log,
                 )
 
                 sw.update_survey_data(
@@ -204,7 +223,7 @@ def simulate_population(args) -> None:
             # ===================== X DETECTION ========================
             if cfg["simulation_xray"]:
                 with timewith.TimeWith(
-                    "[SimulateXrayDetection]",
+                    "[XrayDetection]",
                     cfg["profile_log"],
                     cfg["profile_json"],
                     cfg["show_profiling"],
@@ -212,6 +231,7 @@ def simulate_population(args) -> None:
                     # Compute X-ray emission of neutron stars.
                     pop_xray = ex.xray_population(
                         pop_final,
+                        pop_final["coverage_xray"],
                         L_x_interpolator=Lx_interpolator,
                         crust_failure_rate_interpolator=crust_failure_rate_interpolator,
                     )
@@ -276,7 +296,7 @@ def simulate_population(args) -> None:
             log.info("Creating data frame for exporting...")
 
             # Create output dataframes for each survey.
-            dfs = sw.create_output_dataframe(
+            dfs = sw.create_output_dataframe_surveys(
                 SurveyData.dictionary_detected_radio,
                 SurveyData.dictionary_detected_xray,
             )
