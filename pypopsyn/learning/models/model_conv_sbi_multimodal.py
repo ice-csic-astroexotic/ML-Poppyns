@@ -1,5 +1,5 @@
 """
-Model for a multi-modal convolutional neural network
+Model for a multimodal convolutional neural network
 
 Authors:
 
@@ -16,7 +16,7 @@ from .model_base import ModelBase
 
 class ModelConvMultimodalSBI(ModelBase):
 
-    """A multi-modal convolutional neural network Model"""
+    """A multimodal convolutional neural network Model"""
 
     def __init__(
         self,
@@ -26,7 +26,7 @@ class ModelConvMultimodalSBI(ModelBase):
     ) -> None:
         """
         Multi-modal CNN Model Initialization.
-        This multi-modal CNN automatically adapts to the shape of the initial input features.
+        This multimodal CNN automatically adapts to the shape of the initial input features.
 
         Args:
             input_shape_1: Shape of the input batch (C x H x W) for mode 1.
@@ -37,13 +37,13 @@ class ModelConvMultimodalSBI(ModelBase):
 
         super().__init__()
 
-        # Setup the convolutional filters for the first mode.
+        # Set up the convolutional filters for the first mode.
         self.conv1_m1 = nn.Conv2d(
             input_shape_1[0], 32, kernel_size=3, padding=1
         )
         self.conv2_m1 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
 
-        # Setup the convolutional filters for the second mode.
+        # Set up the convolutional filters for the second mode.
         self.conv1_m2 = nn.Conv2d(
             input_shape_2[0], 32, kernel_size=3, padding=1
         )
