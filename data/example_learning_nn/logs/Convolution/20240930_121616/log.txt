@@ -13,9 +13,9 @@
 2024-09-30 12:16:16,829 - train - INFO - L_radio_log10_mean_threshold:0.5
 2024-09-30 12:16:16,829 - train - INFO - epsilon_L:0.5
 2024-09-30 12:16:16,829 - train - INFO - Creating data loaders...
-2024-09-30 12:16:16,833 - train - INFO - Training loader: <pypopsyn.learning.loaders.loader_multichannel_array.LoaderMultichannelArray object at 0x78eaf78ce150>
+2024-09-30 12:16:16,833 - train - INFO - Training loader: <mlpoppyns.learning.loaders.loader_multichannel_array.LoaderMultichannelArray object at 0x78eaf78ce150>
 2024-09-30 12:16:16,834 - train - INFO - Creating validation data loader...
-2024-09-30 12:16:16,836 - train - INFO - Validation loader: <pypopsyn.learning.loaders.loader_multichannel_array.LoaderMultichannelArray object at 0x78eb08191e10>
+2024-09-30 12:16:16,836 - train - INFO - Validation loader: <mlpoppyns.learning.loaders.loader_multichannel_array.LoaderMultichannelArray object at 0x78eb08191e10>
 2024-09-30 12:16:16,836 - train - INFO - Building model...
 2024-09-30 12:16:16,840 - train - INFO - Model architecture: ModelConv(
   (conv1): Conv2d(3, 32, kernel_size=(3, 3), stride=(1, 1))

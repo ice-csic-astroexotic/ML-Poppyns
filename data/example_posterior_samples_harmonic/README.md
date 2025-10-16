@@ -6,7 +6,7 @@ in the notebook `tutorials/analysis_notebooks/model_comparison_sbi.ipynb`.
 
 To run this example, we use the following command:
 ```commandline
-python pypopsyn/learning/sbi_train.py
+python mlpoppyns/learning/sbi_train.py
 ```
-By default, this script uses the configuration specified in `pypopsyn/learning/config_sbi.json`. To use `SNLE`, you need 
+By default, this script uses the configuration specified in `mlpoppyns/learning/config_sbi.json`. To use `SNLE`, you need 
 to change the `type` to "snle" in the trainer section of this file.

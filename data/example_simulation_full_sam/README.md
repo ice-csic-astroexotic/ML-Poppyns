@@ -7,5 +7,5 @@ To this end, we have set the parameter `sample_edm` to `False` in the configurat
 
 To run this example, we then use the following command:
 ```commandline
-python pypopsyn/simulator/simulate_population_full.py --save_dir data/example_simulation_full_sam
+python mlpoppyns/simulator/simulate_population_full.py --save_dir data/example_simulation_full_sam
 ```

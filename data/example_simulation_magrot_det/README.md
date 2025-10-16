@@ -9,5 +9,5 @@ cfg["magnetic_field_model"]: str = "double_log-normal"
 
 To run this example, we use the following command:
 ```commandline
-python pypopsyn/simulator/simulate_population_magrot_det.py --dyn_data data/example_simulation_dyn --save_dir data/example_simulation_magrot_det
+python mlpoppyns/simulator/simulate_population_magrot_det.py --dyn_data data/example_simulation_dyn --save_dir data/example_simulation_magrot_det
 ```
