@@ -55,10 +55,10 @@ from typing import Any
 
 import numpy as np
 
-import pypopsyn.simulator.simulate_population_dyn as dyn
-import pypopsyn.simulator.simulate_population_magrot_det as magrot
+import mlpoppyns.simulator.simulate_population_dyn as dyn
+import mlpoppyns.simulator.simulate_population_magrot_det as magrot
 import utilities.experiment_helpers.parameter_set_generator as psg
-from pypopsyn.simulator.config_simulator import cfg
+from mlpoppyns.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
 
@@ -440,7 +440,7 @@ def main(args) -> None:
         # the script path and the path for the JSON override.
         server_path = cfg["path_to_software"]
         cmd: str = (
-            f"python {server_path}/pypopsyn/simulator/{simulator_type}.py"
+            f"python {server_path}/mlpoppyns/simulator/{simulator_type}.py"
         )
         cmd += f" --save_dir {simulation_output_path}"
         cmd += f" --parameter_override {simulation_override_json_path}"

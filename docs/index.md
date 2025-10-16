@@ -17,10 +17,11 @@ inference and constrain the neutron stars' physical properties.
 
 We can simulate a population of neutron stars and model their detection across three different surveys performed with 
 Murriyang, the Parkes Radio Telescope, with just a few steps:
+
 ```python
 import argparse
-from pypopsyn.simulator.config_simulator import cfg
-from pypopsyn.simulator.simulate_population_full import simulate_population
+from mlpoppyns.simulator.config_simulator import cfg
+from mlpoppyns.simulator.simulate_population_full import simulate_population
 
 # Setting up some simulation parameters.
 cfg["NS_number"] = 300000
@@ -31,8 +32,8 @@ cfg["P_initial_log10_mean"] = -1.0
 cfg["P_initial_log10_sigma"] = 0.38
 
 simulation_args = argparse.Namespace(
-    save_dir="output_dir",
-    parameter_override=None,
+  save_dir="output_dir",
+  parameter_override=None,
 )
 simulate_population(simulation_args)
 ```

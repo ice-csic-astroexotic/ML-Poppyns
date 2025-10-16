@@ -32,7 +32,7 @@ from typing import Tuple
 
 import numpy as np
 
-from pypopsyn.simulator.config_simulator import cfg
+from mlpoppyns.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
 
