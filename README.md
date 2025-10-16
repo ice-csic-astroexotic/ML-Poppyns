@@ -6,8 +6,6 @@
   <em></em>
 </p>
 
-Population synthesis code for the ERC project MAGNESIA - The Magnetar Census
-
 ## Getting Started
 
 These instructions will provide you with a copy of the project and help you get it up and running on your local machine.
@@ -83,3 +81,13 @@ pre-commit install
 The steps with pre-commit are as follows: (i) modify code, (ii) stage changes with `git add`, (iii) running `git commit` 
 will automatically execute the pre-commit framework. If the pre-commit checks are passed, the changes are commit. If not 
 files are modified and the steps (i) - (iii) have to be repeated. For more info see [here](https://pre-commit.com/#intro) or [here](https://medium.com/staqu-dev-logs/keeping-python-code-clean-with-pre-commit-hooks-black-flake8-and-isort-cac8b01e0ea1).
+
+## Citation
+
+If you use ML-Poppyns in your research, please reference the repository [website]() and the following publications: 
+* 
+* Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
+
+* Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
+
+* Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)

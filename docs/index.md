@@ -6,9 +6,6 @@
   <em></em>
 </p>
 
-Neutron star population synthesis code for isolated pulsars developed as part of the ERC project MAGNESIA - 
-The Magnetar Census.
-
 ## Overview
 
 Our population synthesis framework models the birth properties and evolution of the population of isolated Galactic 
@@ -167,3 +164,12 @@ The directory `utilities` contains some additional python modules and scripts fo
 simulations at our computing cluster at PIC, launching several simulations automatically and performing a parameter 
 sweep, sampling distributions or dataframes, performing statistical analysis and plotting settings.
 
+## Citation
+
+If you use ML-Poppyns in your research, please reference the repository [website]() and the following publications: 
+
+* Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
+
+* Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
+
+* Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
