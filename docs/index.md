@@ -1,4 +1,10 @@
-# Isolated Pulsar Population Synthesis
+# Machine-learning Based Population Synthesis Code for Neutron Stars in Python
+
+<p align="center">
+  <img src="./images/Poppyns_logo.png" width="500">
+  <br>
+  <em></em>
+</p>
 
 Neutron star population synthesis code for isolated pulsars developed as part of the ERC project MAGNESIA - 
 The Magnetar Census.

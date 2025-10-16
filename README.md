@@ -1,4 +1,11 @@
-# MAGNESIA Population Synthesis
+# Machine-learning Based Population Synthesis Code for Neutron Stars in Python
+
+<p align="center">
+  <img src="docs/images/Poppyns_logo.png" width="500">
+  <br>
+  <em></em>
+</p>
+
 Population synthesis code for the ERC project MAGNESIA - The Magnetar Census
 
 ## Getting Started

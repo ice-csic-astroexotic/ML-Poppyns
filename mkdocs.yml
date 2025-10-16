@@ -1,4 +1,4 @@
-site_name: pypopsyn documentation
+site_name: ML-Poppyns documentation
 # Comment out the site_url for now as we cannot deploy this yet.
 #site_url: https://mydomain.org/mysite
 theme:
@@ -24,7 +24,7 @@ theme:
     - content.code.copy
 # Adding link to github repo.
 repo_url: https://github.com/csic-ice-magnesia/MAGNESIA_population_synthesis
-repo_name: MAGNESIA/population-synthesis
+repo_name: ML-Poppyns
 nav:
   # Overall navigation structure of the documentation.
   - Home: index.md
