@@ -24,7 +24,7 @@ from .loader_base import LoaderBase
 
 class DatasetMultimodalArray:
     """
-    Dataset for a multi-channel and multi-modal array input.
+    Dataset for a multichannel and multimodal array input.
 
     This class represents a dataset of populations whose representation for any
     of the inputs is a numpy array of numerical values stored in NPY format. All
@@ -36,7 +36,7 @@ class DatasetMultimodalArray:
         """
         Import dataset statistics for normalization and standardization.
 
-        This routine import the training dataset statistics that might be needed for
+        This routine imports the training dataset statistics that might be needed for
         input/targets normalization and standardization like mean, standard
         deviation, minimum and maximum.
 
@@ -152,7 +152,7 @@ class DatasetMultimodalArray:
             index (int): Index running along the rows of the dataset CSV file.
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of a two multi-channel 2D image
+            (Tuple[np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of a two multichannel 2D image
                 with shape N x N x channels (where N is the number of entries
                 along a row or column of the array in the .npy file) composed by stacking
                 all input images specified in the dataset for the requested sample
@@ -169,7 +169,7 @@ class DatasetMultimodalArray:
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in
             # the dataset CSV file. Find them and add them to the list.
-            # If the channel name contains xray add it to the second multi-channel input in order to be processed by
+            # If the channel name contains xray add it to the second multichannel input in order to be processed by
             # the second branch of the neural network.
             if "input:" in col:
                 channel_filename = self.dataset.iloc[index, i]
@@ -225,7 +225,7 @@ class LoaderMultimodalArray(LoaderBase):
         standardize: bool = False,
     ) -> None:
         """
-        Data loader for a multi-channel and multi-modal image-based dataset. The dataset is
+        Data loader for a multichannel and multimodal image-based dataset. The dataset is
         expected to be packed in a dataset.csv file and contain paths to .png
         files to be loaded.
 
