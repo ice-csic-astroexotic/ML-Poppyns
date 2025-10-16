@@ -568,7 +568,7 @@ def generate_kde_density_matrix(
             f"Not enough data points for KDE (n={n_points}). Generating an empty map."
         )
 
-        # Generate a uniform empty density map
+        # Generate a uniform empty density map.
         density = np.zeros((len(y_centers), len(x_centers)))
 
     np.save(filename, density)
@@ -648,7 +648,7 @@ def generate_kde_weight_matrix(
             f"Not enough data points for KDE (n={n_points}). Generating an empty map."
         )
 
-        # Generate a uniform empty density map
+        # Generate a uniform empty density map.
         weighted_density = np.zeros((len(y_centers), len(x_centers)))
 
     np.save(filename, weighted_density)
