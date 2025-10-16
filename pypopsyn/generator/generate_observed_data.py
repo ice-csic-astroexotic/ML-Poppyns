@@ -1,9 +1,9 @@
 """
     Generator for the observed population.
 
-    This module creates compressed representations for the observed population
-    in the ATNF Pulsar Catalogue using the fluxes of the TPA program on MeerKat
-    presented in Posselt et al. (2023) and for the catalog of thermally emitting neutron stars.
+    This module creates compressed representations for the observed radio pulsar population
+    in the ATNF Pulsar Catalogue using the fluxes from the TPA program on MeerKat
+    presented in Posselt et al. (2023) and for the catalog of thermally emitting X-ray neutron stars.
 
     In the following, we work with the fluxes from the ch6flux column in Posselt et al. (2023),
     which correspond to measurements at 1429 MHz. These fluxes are used in Figure 7
@@ -63,7 +63,7 @@ def create_survey_maps(
     dictionary_pdot_flux_map: dict,
 ) -> None:
     """
-    This method reads the observed population from the ATNF Pulsar Catalogue and the Meerkat TPA program (Posselt et
+    This method reads the observed population from the ATNF Pulsar Catalogue and the MeerKat TPA program (Posselt et
     al., 2023) and generates a set of density maps in the specified format (images or arrays) and with a specified
     resolution.
 
@@ -72,9 +72,9 @@ def create_survey_maps(
         survey_name (str): Survey acronym.
         survey_dict (dict): Dictionary containing the survey data.
         survey_type (str): Survey type, radio or X-ray.
-        use_meerkat_fluxes (bool): A boolean value indicating whether to use Meerkat fluxes in the P-Pdot average flux maps.
-        survey_meerkat_dict (dict): Dictionary containing the Meerkat survey data (used only if use_meerkat_fluxes is True,
-            and survey_type == radio).
+        use_meerkat_fluxes (bool): A boolean indicating whether to use MeerKat fluxes in the P-Pdot average flux maps.
+        survey_meerkat_dict (dict): Dictionary containing the MeerKat survey data (used only if use_meerkat_fluxes is
+            True, and survey_type == radio).
         data_type (str): Type of dataset to generate: array, array_kde, image or image_kde.
         resolution_dyn (int): Resolution (number of bins per axis for the 2d histograms) for the position and
             velocity maps to generate. In case of RA DEC maps the DEC axis has half the number of bins
@@ -283,7 +283,7 @@ def create_survey_maps(
 def generate_dataset(args: argparse.Namespace) -> None:
     """
     This method generates a dataset of density maps in the specified format (images or arrays) and with a specified
-    resolution from the ATNF Pulsar Catalogue and the Meerkat TPA program (Posselt et al., 2023).
+    resolution from the ATNF Pulsar Catalogue and the MeerKat TPA program (Posselt et al., 2023).
     All the information about the dataset is stored in a dataset.csv file containing the density-map file names
     and the set of parameter values for each simulated population.
 
@@ -296,7 +296,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             - resolution_ppdot (int): Resolution (number of bins per axis for the 2d
                 histograms) for the P-Pdot density maps to generate.
             - path_atnf (str): Path to the ATNF catalogue.
-            - path_meerkat (str): Path to the Meerkat catalogue.
+            - path_meerkat (str): Path to the MeerKat catalogue.
     """
 
     catalog_atnf, catalog_meerkat = load_atnf_meerkat_catalog(
@@ -479,7 +479,7 @@ if __name__ == "__main__":
         nargs="?",
         type=str,
         default="data/observations/meerkat_tpa_posselt_2023.csv",
-        help="Path, with the name of the csv included, to where the Meerkat TPA program data is located.",
+        help="Path, with the name of the csv included, to where the MeerKat TPA program data is located.",
     )
     parser.add_argument(
         "--path_xray",
