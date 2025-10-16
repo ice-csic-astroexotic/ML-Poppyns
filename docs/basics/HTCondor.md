@@ -153,8 +153,8 @@ source /data/astro/software/centos7/conda/mambaforge_4.14.0/etc/profile.d/conda.
 # Activate conda environment.
 conda activate /data/magnesia/scratch/conda/envs/pop_syn
 
-# We copy the pypopsyn module in the working node to avoid problems with the path while running the simulations in the server.
-cp -R /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn
+# We copy the mlpoppyns module in the working node to avoid problems with the path while running the simulations in the server.
+cp -R /data/magnesia/software/MAGNESIA_population_synthesis/mlpoppyns
 
 # Run the simulation specifying the path for the output.
 python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn_test.py --output /data/magnesia/common/test_HTCondor

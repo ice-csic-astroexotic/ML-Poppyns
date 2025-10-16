@@ -1,11 +1,11 @@
 # Basic simulator modules
 
-::: pypopsyn.simulator.config_simulator
+::: mlpoppyns.simulator.config_simulator
 
-::: pypopsyn.simulator.initial_population
+::: mlpoppyns.simulator.initial_population
 
-::: pypopsyn.simulator.simulate_population_dyn
+::: mlpoppyns.simulator.simulate_population_dyn
 
-::: pypopsyn.simulator.simulate_population_full
+::: mlpoppyns.simulator.simulate_population_full
 
-::: pypopsyn.simulator.simulate_population_magrot_det
+::: mlpoppyns.simulator.simulate_population_magrot_det

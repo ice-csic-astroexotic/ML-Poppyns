@@ -63,7 +63,7 @@ The distributions of these pulsars in the sky and in the $P-\dot{P}$ plane are a
 ### Main code modules
 
 The repository is structured in a modular way to allow for easy adjustments and additions as we continue to improve our software package.
-The main folder is `pypopsyn` which contains three subfolders: `simulator`, `generator`, and `learning`.
+The main folder is `mlpoppyns` which contains three subfolders: `simulator`, `generator`, and `learning`.
 
 * The `simulator` subfolder contains all the modules and scripts necessary to simulate a population of synthetic 
   neutron stars. We group modules according to their physics, i.e., separating those that are associated with the 
@@ -86,7 +86,7 @@ Each directory contains a `README.md` file with instructions on how to produce a
 !!! note
 
     All the simulation examples provided in the `data` directory were computed using the default parameters 
-    specified in the configuration file `pypopsyn/simulator/config_simulator.py`.
+    specified in the configuration file `mlpoppyns/simulator/config_simulator.py`.
 
 * The `example_generator_magrot` subfolder contains an example dataset of feature maps from simulated populations.
 
@@ -106,24 +106,24 @@ Each directory contains a `README.md` file with instructions on how to produce a
    used with the Harmonic package for model comparison.
 
 * The `example_simulation_dyn` subfolder contains the results of the dynamical evolution of a population of neutron 
-  stars obtained by running the script `pypopsyn/simulator/simulate_population_dyn.py`.
+  stars obtained by running the script `mlpoppyns/simulator/simulate_population_dyn.py`.
 
 * The `example_simulation_full_edm` subfolder contains the results of a full simulation (dynamical + magneto-rotational
   evolution + detection) of a population of neutron stars obtained by running the script 
-  `pypopsyn/simulator/simulate_population_full.py` and by using the `pypopsyn/simulator/initial_population_edm.py` 
+  `mlpoppyns/simulator/simulate_population_full.py` and by using the `mlpoppyns/simulator/initial_population_edm.py` 
   module to set up the initial conditions.
 
 * The `example_simulation_full_sam` subfolder contains the results of a full simulation (dynamical + magneto-rotational
   evolution + detection) of a population of neutron stars obtained by running the script
-  `pypopsyn/simulator/simulate_population_full.py` and by using the `pypopsyn/simulator/initial_population_sam.py` 
+  `mlpoppyns/simulator/simulate_population_full.py` and by using the `mlpoppyns/simulator/initial_population_sam.py` 
   module to set up the initial conditions.
 
 * The `example_simulation_helper_magrot` subfolder contains the results of 20 simulations obtained by running the 
-  script `utilities/experiment_helpers/run_simulation_set.py` and using the `pypopsyn/simulator/simulate_population_magrot_det.py` simulator.
+  script `utilities/experiment_helpers/run_simulation_set.py` and using the `mlpoppyns/simulator/simulate_population_magrot_det.py` simulator.
 
 * The `example_simulation_magrot_det` subfolder contains the results of a simulation of magneto-rotational evolution 
   and detection of a population of neutron stars obtained by running the script
-  `pypopsyn/simulator/simulate_population_magrot_det.py`.
+  `mlpoppyns/simulator/simulate_population_magrot_det.py`.
 
 * The `observations` subfolder contains catalogs with observed data.
 

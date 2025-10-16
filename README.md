@@ -31,7 +31,7 @@ For this, you need `conda` to be installed on your machine. The code has been te
    ```
    We recommend working within this environment when using the code.
 
-3. To install the `pypopsyn` package locally and work with the code, navigate to the cloned software repository and run
+3. To install the `mlpoppyns` package locally and work with the code, navigate to the cloned software repository and run
    ```commandline
    python setup.py develop
    ```
@@ -43,7 +43,7 @@ For this, you need `conda` to be installed on your machine. The code has been te
    ```
 
 5. Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local 
-   machine. To this end, open the configuration file `pypopsyn/simulator/config_simulator.py`, scroll to the section
+   machine. To this end, open the configuration file `mlpoppyns/simulator/config_simulator.py`, scroll to the section
    titled "GENERAL SIMULATION PARAMETERS" (specifically lines 49 and 50) and add the absolute path to the repository
    folder and the path to the folder where you would like to save any subsequent simulation output by modifying the 
    variables `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively. Both paths could, for example, read

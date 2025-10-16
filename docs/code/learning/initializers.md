@@ -1,15 +1,15 @@
 # Initializers
 
-::: pypopsyn.learning.initializers.initializer_base
+::: mlpoppyns.learning.initializers.initializer_base
 
-::: pypopsyn.learning.initializers.initializer_kaiming
+::: mlpoppyns.learning.initializers.initializer_kaiming
 
-::: pypopsyn.learning.initializers.initializer_normal
+::: mlpoppyns.learning.initializers.initializer_normal
 
-::: pypopsyn.learning.initializers.initializer_uniform
+::: mlpoppyns.learning.initializers.initializer_uniform
 
-::: pypopsyn.learning.initializers.initializer_uniform_rule
+::: mlpoppyns.learning.initializers.initializer_uniform_rule
 
-::: pypopsyn.learning.initializers.initializer_xavier
+::: mlpoppyns.learning.initializers.initializer_xavier
 
-::: pypopsyn.learning.initializers.initializers
+::: mlpoppyns.learning.initializers.initializers
