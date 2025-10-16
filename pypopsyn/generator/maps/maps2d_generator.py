@@ -223,8 +223,8 @@ def generate_kde_density_map(
         y (np.ndarray): vertical coordinate values for the points.
         y_range (Tuple[float, float]): vertical range of values for the points.
         filename (str): file path to generate the density map image.
-        x_log_scale (bool): if True set the x axis scale to log scale.
-        y_log_scale (bool): if True set the y axis scale to log scale.
+        x_log_scale (bool): if True set the x-axis scale to log scale.
+        y_log_scale (bool): if True set the y-axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the density map.
         n_y_bins (int): number of vertical bins for the density map.
         colormap (str): colormap to use for the image.
@@ -312,8 +312,8 @@ def generate_kde_weight_map(
         w (np.ndarray): Weight values for the points.
         w_min (float): Minimum weight to subtract to ensure positivity.
         filename (str): file path to generate the density map image.
-        x_log_scale (bool): if True set the x axis scale to log scale.
-        y_log_scale (bool): if True set the y axis scale to log scale.
+        x_log_scale (bool): if True set the x-axis scale to log scale.
+        y_log_scale (bool): if True set the y-axis scale to log scale.
         n_x_bins (int): number of horizontal bins for the density map.
         n_y_bins (int): number of vertical bins for the density map.
         colormap (str): colormap to use for the image.
