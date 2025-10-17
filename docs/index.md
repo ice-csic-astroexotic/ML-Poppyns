@@ -1,7 +1,7 @@
-# Machine-learning Based Population Synthesis Code for Neutron Stars in Python
+# 
 
 <p align="center">
-  <img src="./images/Poppyns_logo.png" width="500">
+  <img src="./images/full_logo_mlpoppyns.png" width="800">
   <br>
   <em></em>
 </p>
