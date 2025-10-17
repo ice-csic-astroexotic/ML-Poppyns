@@ -11,7 +11,7 @@ For this, you need `conda` to be installed on your machine. The code has been te
 
 1. First, you need to clone the repository on your computer. To get the files from our GitHub repository, run
    ```commandline
-   git clone https://github.com/csic-ice-magnesia/MAGNESIA_population_synthesis.git
+   git clone https://github.com/ice-csic-astroexotic/ML-Poppyns.git
    ```
 
 2. The repo contains an environment file that can be installed by running
@@ -23,7 +23,7 @@ For this, you need `conda` to be installed on your machine. The code has been te
 
    On your local machine, this environment can be activated using
    ```commandline
-   conda activate pop_syn
+   conda activate mlpoppyns
    ```
    We recommend working within this environment when using the code.
 
@@ -43,7 +43,7 @@ For this, you need `conda` to be installed on your machine. The code has been te
    titled "GENERAL SIMULATION PARAMETERS" (specifically lines 49 and 50) and add the absolute path to the repository
    folder and the path to the folder where you would like to save any subsequent simulation output by modifying the 
    variables `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively. Both paths could, for example, read
-   `/home/user/Documents/MAGNESIA_population_synthesis`.
+   `/home/user/Documents/ML-Poppyns`.
 
 6. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will 
    need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/) library after activating the 

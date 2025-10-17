@@ -40,13 +40,11 @@ cfg["save_magrot_evolution"]: bool = False
 # If launching experiments on one of the PIC servers set cfg["server_run"] = True.
 cfg["server_run"]: bool = False
 if cfg["server_run"]:
-    cfg[
-        "path_to_software"
-    ]: str = "/data/magnesia/software/MAGNESIA_population_synthesis"
+    cfg["path_to_software"]: str = "/data/magnesia/software/ML-Poppyns"
     cfg["path_to_output"]: str = "/data/magnesia/common"
 else:
     # Change the following parameters to your local path, e.g., something like
-    # /home/michele/Documents/MAGNESIA_population_synthesis. Otherwise, some notebooks might not work!
+    # /home/michele/Documents/ML-Poppyns. Otherwise, some notebooks might not work!
     cfg["path_to_software"]: str = ""
     cfg["path_to_output"]: str = ""
 

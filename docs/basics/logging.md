@@ -20,7 +20,7 @@ log.error("add error log message")
 As an example, if we run the script to simulate a population of 100 neutron stars using the standard configuration 
 file, the following logging information is shown:
 ```commandline
-(pop_syn) michele@michele-XPS-13-7390:~/Documents/Magnesia-PhD/MAGNESIA_population_synthesis$ python mlpoppyns/simulator/simulate_population_full.py
+(pop_syn) michele@michele-XPS-13-7390:~/Documents/Magnesia-PhD/ML-Poppyns$ python mlpoppyns/simulator/simulate_population_full.py
 INFO:__main__:Seed: 1716554090
 INFO:__main__:Randomizing population age...
 INFO:__main__:Generating initial positions...
@@ -38,7 +38,7 @@ INFO:__main__:Computing initial period derivatives...
 <prof>[InitialPopulation][Initial period derivatives] took 0.0003 [s] (cumulative 1.9930 [s])
 INFO:__main__:Creating data frame for exporting...
 <prof>[InitialPopulation][Export] took 0.0019 [s] (cumulative 1.9948 [s])
-INFO:__main__:Output of the initial population generated in /home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis/toremove/sim_full_test/initial_population.pkl.gz
+INFO:__main__:Output of the initial population generated in /home/michele/Documents/Magnesia-PhD/ML-Poppyns/toremove/sim_full_test/initial_population.pkl.gz
 <prof>[InitialPopulation] finished took 1.9952 [s]
 INFO:__main__:Evolve the initial population in time dynamically...
 INFO:__main__:Evolving the positions and velocities...
@@ -72,16 +72,16 @@ INFO:__main__:Fraction of detected pulsars by HTRU high latitude: 0.0
 <prof>[RadioDetection][Radio surveys detection] took 0.1605 [s] (cumulative 0.1715 [s])
 <prof>[RadioDetection] finished took 0.1720 [s]
 INFO:__main__:Creating data frame for exporting...
-INFO:__main__:Output of the evolved population generated in /home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis/toremove/sim_full_test/final_population.pkl.gz
-INFO:__main__:Output of the PMPS survey generated in /home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis/toremove/sim_full_test/survey_PMPS_results.pkl.gz
-INFO:__main__:Output of the SMPS survey generated in /home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis/toremove/sim_full_test/survey_SMPS_results.pkl.gz
-INFO:__main__:Output of the HTRU high-latitude survey generated in /home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis/toremove/sim_full_test/survey_HTRU_high_results.pkl.gz
-INFO:__main__:Output of the HTRU low and mid-latitude surveys generated in /home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis/toremove/sim_full_test/survey_HTRU_low_mid_results.pkl.gz
+INFO:__main__:Output of the evolved population generated in /home/michele/Documents/Magnesia-PhD/ML-Poppyns/toremove/sim_full_test/final_population.pkl.gz
+INFO:__main__:Output of the PMPS survey generated in /home/michele/Documents/Magnesia-PhD/ML-Poppyns/toremove/sim_full_test/survey_PMPS_results.pkl.gz
+INFO:__main__:Output of the SMPS survey generated in /home/michele/Documents/Magnesia-PhD/ML-Poppyns/toremove/sim_full_test/survey_SMPS_results.pkl.gz
+INFO:__main__:Output of the HTRU high-latitude survey generated in /home/michele/Documents/Magnesia-PhD/ML-Poppyns/toremove/sim_full_test/survey_HTRU_high_results.pkl.gz
+INFO:__main__:Output of the HTRU low and mid-latitude surveys generated in /home/michele/Documents/Magnesia-PhD/ML-Poppyns/toremove/sim_full_test/survey_HTRU_low_mid_results.pkl.gz
 <prof>[RadioDetection][Export] took 0.0081 [s] (cumulative 0.1801 [s])
 <prof>[TotalSimulation] finished took 2.2832 [s]
 ```
 
-If the `show_profiling` option in the `pyposyn/simulator/config_simulator.py` file is set to `True`, the timing profile
+If the `show_profiling` option in the `mlpoppyns/simulator/config_simulator.py` file is set to `True`, the timing profile
 for each section of the simulator is also shown in the terminal. In addition to the terminal output, the timing 
 information is saved as a `profile.log` file in the same folder in which the output of the simulation is saved.
 Function-specific profiling can also be activated by setting `enable_profiles` and / or `show_profiles` to `True`.

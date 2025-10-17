@@ -180,10 +180,10 @@ def run_simulation_dask(
                 dyn_data_path,
                 os.path.basename(dyn_data_path),
             )
-        if not os.path.exists("MAGNESIA_population_synthesis"):
+        if not os.path.exists("ML-Poppyns"):
             safe_copytree(
-                "/data/magnesia/software/MAGNESIA_population_synthesis",
-                "MAGNESIA_population_synthesis",
+                "/data/magnesia/software/ML-Poppyns",
+                "ML-Poppyns",
             )
         # Generate the output folder with the parameter_override.json file in each node.
         output_dir_path = pathlib.Path(args.save_dir)

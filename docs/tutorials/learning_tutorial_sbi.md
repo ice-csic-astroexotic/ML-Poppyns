@@ -649,13 +649,13 @@ There are some important considerations for MAGNESIA users when running simulati
 
 ##### Folder handling
 
-- During training the `MAGNESIA_population_synthesis` folder is copied to each node to avoid redundant reads and reduce 
+- During training the `ML-Poppyns` folder is copied to each node to avoid redundant reads and reduce 
    server load.
 - You must update the following in `mlpoppyns/simulator/config_simulator.py` as each node will have its own copy of 
    the full code repository and will access files locally:
     ```python
         cfg["server_run"] = False
-        path_to_software = "MAGNESIA_population_synthesis"
+        path_to_software = "ML-Poppyns"
     ```
 
 ##### Dask usage on the PIC server

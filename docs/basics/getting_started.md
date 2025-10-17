@@ -7,7 +7,7 @@ machine. For this, you need `conda` to be installed on your machine. The code ha
 
 1. First, you need to clone the repository on your computer. To get the files from our GitHub repository, run
    ```commandline
-   git clone https://github.com/csic-ice-magnesia/MAGNESIA_population_synthesis.git
+   git clone https://github.com/ice-csic-astroexotic/ML-Poppyns.git
    ```
 
 2. The repo contains an environment file that can be installed by running
@@ -24,12 +24,12 @@ machine. For this, you need `conda` to be installed on your machine. The code ha
 
         To set up the environment on the PIC servers, we specify the full path where the environment will be saved:
         ```commandline
-        conda env create --prefix /data/magnesia/scratch/conda/env/pop_syn --file  /data/magnesia/software/MAGNESIA_population_synthesis/environment.yaml
+        conda env create --prefix /data/magnesia/scratch/conda/env/mlpoppyns --file  /data/magnesia/software/ML-poppyns/environment.yaml
         ```
 
     On your local machine, the environment can be activated using 
     ```commandline
-    conda activate pop_syn
+    conda activate mlpoppyns
     ```
     We recommend working within this environment when using the code.
    
@@ -37,7 +37,7 @@ machine. For this, you need `conda` to be installed on your machine. The code ha
         
         On the PIC, the environment can be activated using
         ```commandline
-        conda activate /data/magnesia/scratch/conda/env/pop_syn
+        conda activate /data/magnesia/scratch/conda/env/mlpoppyns
         ```
 
 3. To install the `mlpoppyns` package locally and work with the code, navigate to the cloned software repository and run
@@ -45,10 +45,10 @@ machine. For this, you need `conda` to be installed on your machine. The code ha
    python setup.py develop
    ```
    
-4. To install the new conda environment `pop_syn` as an IPython kernel and use it in a Jupyter Notebook, activate
+4. To install the new conda environment `mlpoppyns` as an IPython kernel and use it in a Jupyter Notebook, activate
    the environment as shown in step 2 and then run
    ```commandline
-   python -m ipykernel install --user --name pop_syn --display-name "pop_syn"
+   python -m ipykernel install --user --name mlpoppyns --display-name "mlpoppyns"
    ```
 
 5. Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local 
@@ -56,7 +56,7 @@ machine. For this, you need `conda` to be installed on your machine. The code ha
    titled "GENERAL SIMULATION PARAMETERS" (specifically lines 49 and 50) and add the absolute path to the repository
    folder and the path to the folder where you would like to save any subsequent simulation output by modifying the 
    variables `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively. Both paths could, for example, read
-   `/home/user/Documents/MAGNESIA_population_synthesis`.
+   `/home/user/Documents/ML-poppyns`.
 
 6. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will
    need to install the [Simulation Based Inference (sbi)](https://sbi-dev.github.io/sbi/>) library after activating the

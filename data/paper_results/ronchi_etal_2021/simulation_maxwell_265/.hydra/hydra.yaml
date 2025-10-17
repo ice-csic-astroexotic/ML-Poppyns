@@ -111,7 +111,7 @@ hydra:
   run:
     dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
   runtime:
-    cwd: /home/michele/Documents/Magnesia-PhD/MAGNESIA_population_synthesis
+    cwd: /home/michele/Documents/Magnesia-PhD/ML-Poppyns
     version: 0.11.3
   sweep:
     dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
