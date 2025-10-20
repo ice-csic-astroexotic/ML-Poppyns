@@ -82,7 +82,7 @@ files are modified and the steps (i) - (iii) have to be repeated. For more info 
 
 ## Citation
 
-If you use ML-Poppyns in your research, please reference the repository [website]() and the following publications: 
+If you use ML-Poppyns in your research, please reference the repository [website](https://github.com/ice-csic-astroexotic/ML-Poppyns) and the following publications: 
 * 
 * Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
 
