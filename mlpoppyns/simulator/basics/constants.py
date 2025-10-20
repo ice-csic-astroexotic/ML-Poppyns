@@ -8,6 +8,8 @@
         Michele Ronchi (ronchi@ice.csic.es)
 """
 
+import numpy as np
+
 # Unit conversions.
 
 KPC_TO_KM = 3.08567758e16  # Convert from [kpc] to [km].
@@ -20,6 +22,7 @@ JY_TO_ERG = 1.0e-23  # Convert [Jy] to [erg cm^-2 s^-1 Hz^-1].
 EV_TO_ERG = 1.60218e-12  # Convert [eV] to [erg].
 RYD_TO_ERG = 2.1798741e-11  # Convert [Rydberg] to [erg].
 CM_TO_A = 1.0e8  # Convert [cm] to [Angstrom].
+DEG_TO_RAD = np.pi / 180.0  # Convert [deg] to [rad].
 
 # Physical constants.
 
