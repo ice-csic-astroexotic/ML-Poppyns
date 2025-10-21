@@ -10,15 +10,15 @@ The first approach consists of simulating the full population in one go. This me
 initialize the entire population formed of N neutron stars from some initial conditions, evolve it in time 
 and finally apply the survey models to select those neutron stars that are detected.
 
-For this approach, we run the script `pypopsyn/simulator/simulate_population_full.py`.
+For this approach, we run the script `mlpoppyns/simulator/simulate_population_full.py`.
 Detailed information about the arguments that we can pass to the script is obtained by issuing the `--help` 
 argument, e.g., running:
 ```
-python pypopsyn/simulator/simulate_population_full.py --help
+python mlpoppyns/simulator/simulate_population_full.py --help
 ```
-The default input parameters for the simulation are specified in the `pypopsyn/simulator/config_simulator.py` file.
+The default input parameters for the simulation are specified in the `mlpoppyns/simulator/config_simulator.py` file.
 To simulate populations with different initial parameters, the user can directly modify the simulator configuration in 
-`pypopsyn/simulator/config_simulator.py`.
+`mlpoppyns/simulator/config_simulator.py`.
 
 Alternatively, we can provide a JSON dictionary containing configuration overrides for the various simulation
 parameters. An example of such a JSON file could look as follows: 
@@ -36,7 +36,7 @@ parameters. An example of such a JSON file could look as follows:
 
 We specify this as a command line argument to the simulator script as follows:
 ```
-python pypopsyn/simulator/simulate_population_full.py --save_dir output/sim_full --parameter_override parameter_override.json
+python mlpoppyns/simulator/simulate_population_full.py --save_dir output/sim_full --parameter_override parameter_override.json
 ```
 For example, we can set the number of neutron stars to simulate, the kick-velocity model, the parameters of the initial 
 distributions of spin periods and magnetic fields, and several other parameters.
@@ -80,14 +80,14 @@ size of around 600 and 400 Mb each.
 
 If we instead want to perform the dynamical evolution only, we run the following command:
 ```
-python pypopsyn/simulator/simulate_population_dyn.py --save_dir output/sim_dyn
+python mlpoppyns/simulator/simulate_population_dyn.py --save_dir output/sim_dyn
 ```
 As for the case above, to change the initial parameters, the user can directly modify the simulator 
-configuration in `pypopsyn/simulator/config_simulator.py` or alternatively parse a JSON file containing 
+configuration in `mlpoppyns/simulator/config_simulator.py` or alternatively parse a JSON file containing 
 custom simulation parameters.
 
 The above command will create a population of neutron stars according to the initial conditions specified in
-`pypopsyn/simulator/config_simulator.py` and evolve it in time dynamically.
+`mlpoppyns/simulator/config_simulator.py` and evolve it in time dynamically.
 The output is saved in the specified output folder and consists of the following files:
 
 * `final_pop_dyn.csv` containing the information on the final positions and velocities of neutron stars in the Galaxy.
@@ -107,19 +107,19 @@ sufficiently large to allow for a proper determination of the birth rate in the 
 ## Magneto-rotational evolution and detection filters
 
 After simulating the dynamical evolution of a large number of neutron stars by using the script 
-`pypopsyn/simulator/simulate_population_dyn.py`, the corresponding database can be used as a basis for the subsequent 
+`mlpoppyns/simulator/simulate_population_dyn.py`, the corresponding database can be used as a basis for the subsequent 
 steps of pulsar population synthesis.
 
-Using the module `pypopsyn/simulator/simulate_population_magrot_det.py`, we can select stars from the 
+Using the module `mlpoppyns/simulator/simulate_population_magrot_det.py`, we can select stars from the 
 dynamically evolved database according to the sky coverage of a given survey, evolve their properties in 
 time and finally establish if these sources are detected by a given survey or not.
 
 To do so, we execute the command
 ```
-python pypopsyn/simulator/simulate_population_magrot_det.py --dyn_data dyn_database --save_dir output/sim_magrot_det
+python mlpoppyns/simulator/simulate_population_magrot_det.py --dyn_data dyn_database --save_dir output/sim_magrot_det
 ```
 As for the cases above, to change the initial parameters, the user can directly modify the simulator 
-configuration in `pypopsyn/simulator/config_simulator.py` or alternatively parse a JSON file containing 
+configuration in `mlpoppyns/simulator/config_simulator.py` or alternatively parse a JSON file containing 
 custom parameters for the simulation.
 
 In this simulation mode, new stars are sampled from the database in batches and evolved until the desired 

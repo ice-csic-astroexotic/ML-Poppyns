@@ -15,14 +15,14 @@ with simulation-based inference (SBI) see [Parameter inference with SBI](learnin
 In the following, we discuss a supervised learning approach where training data are suitably labeled and the network 
 learns to predict the ground truths associated with individual data samples.
 
-The `pypopsyn/learning/train_nn.py` script allows us to train a neural network on a dataset of simulated 
+The `mlpoppyns/learning/train_nn.py` script allows us to train a neural network on a dataset of simulated 
 neutron star populations. Once the corresponding heatmaps or 2D arrays have been created (see [Generating density 
 maps](generator_tutorial.md) for details), we train the network by running the following command:
 ```commandline
-python pypopsyn/learning/train_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json
+python mlpoppyns/learning/train_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json
 ```
 Here, the `config_train_cnn.json` file contains all the information required to optimize the neural network. If this `CLI` 
-argument is left empty, the script will take the default `pypopsyn/learning/config_multiparameter_CNN.json`.
+argument is left empty, the script will take the default `mlpoppyns/learning/config_multiparameter_CNN.json`.
 
 ### Configuration options
 
@@ -32,7 +32,7 @@ architecture, the input shape of the dataset, or the number of output parameters
 #### General info
 
 We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, the number
-of trials performed for each execution of `pypopsyn/learning/train_nn.py` in case convergence is not reached, and the 
+of trials performed for each execution of `mlpoppyns/learning/train_nn.py` in case convergence is not reached, and the 
 specific convergence thresholds for each of the possible output parameters. 
 These thresholds represent limiting values for the losses of the individual parameters below which 
 we consider the network to have reached sufficient performance in predicting our parameters.
@@ -69,7 +69,7 @@ we consider the network to have reached sufficient performance in predicting our
 #### Model architecture
 
 Next, we specify the network architecture. In the following example, we use a predefined convolutional neural network 
-(CNN) denoted by `ModelConv` defined in `pypopsyn/learning/models/model_conv.py`. This CNN is designed to adapt to 
+(CNN) denoted by `ModelConv` defined in `mlpoppyns/learning/models/model_conv.py`. This CNN is designed to adapt to 
 any input size specified by the `input_shape` parameter and produce an output with a length specified by
 `num_parameters`. However, the individual CNN filters and hidden layers are fixed. Below, we specify an input array 
 of shape $32 \times 32$ with `3` different input channels (three of our density maps) and an output of `2` values
@@ -90,7 +90,7 @@ The models that have been predefined are the following ones:
 * `ModelConv` based on a CNN.
 * `ModelLinear` based on a multi-layer perceptron (MPL) architecture.
 
-If you would like to design your own network architecture, you need to implement a new model class in `pypopsyn/learning/models` and import this model in the file `models.py`.
+If you would like to design your own network architecture, you need to implement a new model class in `mlpoppyns/learning/models` and import this model in the file `models.py`.
 
 #### Initialization
 
@@ -305,7 +305,7 @@ rate value and the path to where the trained model is saved.
 
 For example, we can train a neural network as follows:
 ```commandline
-python pypopsyn/learning/train_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_validation data/example_generator_magrot/dataset_test.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 9 10 11 --filter_labels 15 16 --input_shape 3 32 32 --num_parameters 2 --batch_size 1 --lr 1e-5 --save_dir learning_results
+python mlpoppyns/learning/train_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_validation data/example_generator_magrot/dataset_test.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 9 10 11 --filter_labels 15 16 --input_shape 3 32 32 --num_parameters 2 --batch_size 1 --lr 1e-5 --save_dir learning_results
 ```
 
 ### Training output
@@ -337,7 +337,7 @@ will be used when inferring on an unseen dataset as outlined below.
 ## Inferring on a dataset
 
 Once a network has been trained, it can be used to infer on an unseen dataset of generated maps and extract the 
-relevant pulsar population parameters. The script `pypopsyn/learning/infer_nn.py` allows us to take an experiment
+relevant pulsar population parameters. The script `mlpoppyns/learning/infer_nn.py` allows us to take an experiment
 configuration file, a pre-trained model, and a dataset, and run inference on selected samples from that dataset.
 
 ### Configuration options
@@ -385,14 +385,14 @@ To use the inference script, we need to provide a pretrained model (`--trained_m
 the experiment that generated the corresponding model (`--configuration`). For instance, we could run the following
 command:
 ```commandline
-python pypopsyn/learning/infer_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json --trained_model data/example_learning_nn/models/Convolution/20240926_113426/best_model_trial1.pth
+python mlpoppyns/learning/infer_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json --trained_model data/example_learning_nn/models/Convolution/20240926_113426/best_model_trial1.pth
 ```
 
 We can also use the `--samples` argument to provide a list of specific samples we would like to infer on (their indices 
 in the dataset). Leaving this option blank implies that we are inferring over all test data samples. As for the 
 training script, we can also specify several other parameters directly via `CLI`. To see relevant options run
 ```commandline
-python pypopsyn/learning/infer_nn.py --help
+python mlpoppyns/learning/infer_nn.py --help
 ```
 
 As noted above, the dataset used for inference has to have the same configuration as the training dataset used during
@@ -407,7 +407,7 @@ If the input channels do not match, an error like the following is raised:
 ValueError: all the input array dimensions for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 128 and the array at index 1 has size 64
 ```
 
-If the inference is successful, the output `pypopsyn/learning/infer_nn.py` will be saved in the directory specified in the 
+If the inference is successful, the output `mlpoppyns/learning/infer_nn.py` will be saved in the directory specified in the 
 `save_dir` option. Specifically, inference will create a `logs` folder in this directory containing subfolders of the 
 form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the inference was launched.
 

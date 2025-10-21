@@ -44,11 +44,11 @@ from dask.distributed import Client
 from dask_jobqueue import HTCondorCluster
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
 
-import pypopsyn.learning.configuration_parser as configuration_parser
-from pypopsyn.learning.loaders.loader_multichannel_array import (
+import mlpoppyns.learning.configuration_parser as configuration_parser
+from mlpoppyns.learning.loaders.loader_multichannel_array import (
     DatasetMultichannelArray,
 )
-from pypopsyn.simulator.config_simulator import cfg
+from mlpoppyns.simulator.config_simulator import cfg
 from utilities.experiment_helpers.run_simulation_set import (
     log_simulation,
     robust_run_simulation_dask,

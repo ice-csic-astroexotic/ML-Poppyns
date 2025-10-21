@@ -13,7 +13,7 @@ For a discussion of how neural networks can be used to infer point estimates (wi
 
 ## SBI methods
 
-Using the `pypopsyn/learning/sbi_train.py` script, we support the following approaches for SBI:
+Using the `mlpoppyns/learning/sbi_train.py` script, we support the following approaches for SBI:
 
  1. Neural Posterior Estimation ([NPE](https://proceedings.neurips.cc/paper_files/paper/2016/file/6aca97005c68f1206823815f66102863-Paper.pdf)): A neural network is trained to approximate the posterior distribution 
     directly, learning a mapping from model parameters $\theta$ to $P(\theta | x)$.
@@ -71,7 +71,7 @@ datasets for each round. Although this is not strictly necessary for single-roun
 for consistency. We obtain the relevant folder structure by running the following command:
 
 ```commandline
-python pypopsyn/learning/utils/data_folder_struct_sbi.py --base_path output/
+python mlpoppyns/learning/utils/data_folder_struct_sbi.py --base_path output/
 ```
 
 This will generate the following structure under `output`:
@@ -103,11 +103,11 @@ We recommend placing all files relevant for training in the same base path. Spec
 ### Main training script
 
 To perform our SBI using a dataset composed of heatmaps or 2D arrays of our synthetic pulsar populations (see 
-the tutorial [Generating density maps](generator_tutorial.md) for details), we execute the script `pypopsyn/learning/sbi_train.py` as 
+the tutorial [Generating density maps](generator_tutorial.md) for details), we execute the script `mlpoppyns/learning/sbi_train.py` as 
 follows:
 
 ```commandline
-python pypopsyn/learning/sbi_train.py --configuration tutorials/tutorial_notebooks/config_train_sbi.json
+python mlpoppyns/learning/sbi_train.py --configuration tutorials/tutorial_notebooks/config_train_sbi.json
 ```
 
 Here, the `config_train_sbi.json` file contains all the information required to optimize the neural network.
@@ -271,7 +271,7 @@ Therefore, when using ModelConvSBI, the configuration file looks as follows:
 }
 ```
 If you would like to design your own network architecture, you need to implement a new model class in 
-`pypopsyn/learning/models` and import this model in the file `models.py`.
+`mlpoppyns/learning/models` and import this model in the file `models.py`.
 
 #### Initialization
 
@@ -649,13 +649,13 @@ There are some important considerations for MAGNESIA users when running simulati
 
 ##### Folder handling
 
-- During training the `MAGNESIA_population_synthesis` folder is copied to each node to avoid redundant reads and reduce 
+- During training the `ML-Poppyns` folder is copied to each node to avoid redundant reads and reduce 
    server load.
-- You must update the following in `pypopsyn/simulator/config_simulator.py` as each node will have its own copy of 
+- You must update the following in `mlpoppyns/simulator/config_simulator.py` as each node will have its own copy of 
    the full code repository and will access files locally:
     ```python
         cfg["server_run"] = False
-        path_to_software = "MAGNESIA_population_synthesis"
+        path_to_software = "ML-Poppyns"
     ```
 
 ##### Dask usage on the PIC server
@@ -729,7 +729,7 @@ these steps:
 
 Once our SBI pipeline has been trained (irrespective of the specific algorithm considered), it can be used to infer 
 on an unseen dataset of generated maps and extract posterior distributions of the corresponding pulsar population 
-parameters. The script `pypopsyn/learning/sbi_infer.py` allows us to take an experiment configuration file, a
+parameters. The script `mlpoppyns/learning/sbi_infer.py` allows us to take an experiment configuration file, a
 pretrained model, and a dataset, and run the inference.
 
 ### Configuration options
@@ -772,12 +772,12 @@ Once the inference configuration is set up, we run the inference script by provi
 (`--configuration`) as follows:
 
 ```commandline
-python pypopsyn/learning/sbi_infer.py --configuration tutorials/tutorial_notebooks/config_train_sbi.json 
+python mlpoppyns/learning/sbi_infer.py --configuration tutorials/tutorial_notebooks/config_train_sbi.json 
 ```
 
 ### Inference output
 
-If the inference has been performed successfully, the output of `pypopsyn/learning/sbi_infer.py` will be saved in the 
+If the inference has been performed successfully, the output of `mlpoppyns/learning/sbi_infer.py` will be saved in the 
 directory specified in the `save_dir` option. Specifically, inference will create a `logs` folder in this directory 
 containing subfolders of the form `name/YYYYMMDD_HHMMSS`, where `YYYYMMDD_HHMMSS` denotes the date and time when the
 inference was launched.

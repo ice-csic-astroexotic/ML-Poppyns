@@ -66,7 +66,7 @@
     "kick_model": "km_maxwell",
     "magnetic_field_model": "log-normal",
     "magneto-thermal_model": "BSk24_dip-tor_heavy",
-    "magneto-thermal_path": "/Users/ronchi/Documents/GitHub/MAGNESIA_population_synthesis/pypopsyn/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_heavy-envelope",
+    "magneto-thermal_path": "/Users/ronchi/Documents/GitHub/MAGNESIA_population_synthesis/mlpoppyns/simulator/magneto_rotational_physics/magneto-thermal_evol_curves/BSk24_dip-tor_heavy-envelope",
     "magrot_time_step_log10": 0.01,
     "mean_spectral_index": -1.8,
     "n_detected_sim_HTRU_high_at_match": 28,
@@ -108,32 +108,32 @@
     "surveys_radio": {
         "HTRU_high": {
             "detected_real": 20,
-            "path": "pypopsyn/simulator/multiband_surveys/htru_high_parameters.json"
+            "path": "mlpoppyns/simulator/multiband_surveys/htru_high_parameters.json"
         },
         "HTRU_low_mid": {
             "detected_real": 1095,
-            "path_low": "pypopsyn/simulator/multiband_surveys/htru_low_parameters.json",
-            "path_mid": "pypopsyn/simulator/multiband_surveys/htru_mid_parameters.json"
+            "path_low": "mlpoppyns/simulator/multiband_surveys/htru_low_parameters.json",
+            "path_mid": "mlpoppyns/simulator/multiband_surveys/htru_mid_parameters.json"
         },
         "PMPS": {
             "detected_real": 1045,
-            "path": "pypopsyn/simulator/multiband_surveys/Parkes_parameters.json"
+            "path": "mlpoppyns/simulator/multiband_surveys/Parkes_parameters.json"
         },
         "SMPS": {
             "detected_real": 218,
-            "path": "pypopsyn/simulator/multiband_surveys/Swinburne_Parkes_parameters.json"
+            "path": "mlpoppyns/simulator/multiband_surveys/Swinburne_Parkes_parameters.json"
         }
     },
     "surveys_xray": {
         "xray_flux_threshold": {
             "detected_real": 4,
             "flux_threshold_completeness": 2e-11,
-            "path": "pypopsyn/simulator/multiband_surveys/xray_flux_threshold_parameters.json"
+            "path": "mlpoppyns/simulator/multiband_surveys/xray_flux_threshold_parameters.json"
         },
         "xray_realistic": {
             "detected_real": 4,
             "flux_threshold_completeness": 2e-11,
-            "path": "pypopsyn/simulator/multiband_surveys/xray_realistic_parameters.json"
+            "path": "mlpoppyns/simulator/multiband_surveys/xray_realistic_parameters.json"
         }
     },
     "t_age_max": 30000000.0,

@@ -1,0 +1,67 @@
+"""
+    Test for the dataset_splitter module.
+
+    Authors:
+
+        Michele Ronchi (ronchi@ice.csic.es)
+"""
+
+import numpy as np
+import pytest
+
+import mlpoppyns.generator.dataset_splitter as ds
+
+TOL = 1e-5
+
+
+@pytest.fixture()
+def test_case_1():
+    data = {
+        "dataset_dict": {
+            "input:map1": ["map1_1", "map1_2", "map1_3", "map1_4"],
+            "input:map2": ["map2_1", "map2_2", "map2_3", "map2_4"],
+            "label1": [1, 2, 3, 4],
+            "label2": [5, 6, 7, 8],
+        },
+        "split": 0.5,
+        "valid_dict_expected": {
+            "input:map1": np.array(["map1_2", "map1_3"]),
+            "input:map2": np.array(["map2_2", "map2_3"]),
+            "label1": np.array([2, 3]),
+            "label2": np.array([6, 7]),
+        },
+        "train_dict_expected": {
+            "input:map1": np.array(["map1_1", "map1_4"]),
+            "input:map2": np.array(["map2_1", "map2_4"]),
+            "label1": np.array([1, 4]),
+            "label2": np.array([5, 8]),
+        },
+    }
+
+    return data
+
+
+def test_split_dataset(monkeypatch, test_case_1):
+    """
+    Verifying that the dataset is split correctly.
+    """
+
+    def mock_choice(*args, **kwargs):
+        return np.array([1, 2])
+
+    monkeypatch.setattr(np.random, "choice", mock_choice)
+
+    valid_dict_out, train_dict_out = ds.split_dataset(
+        test_case_1["dataset_dict"], test_case_1["split"]
+    )
+
+    assert valid_dict_out.keys() == test_case_1["valid_dict_expected"].keys()
+    for key in test_case_1["valid_dict_expected"].keys():
+        assert (
+            valid_dict_out[key] == test_case_1["valid_dict_expected"][key]
+        ).all()
+    assert train_dict_out.keys() == test_case_1["train_dict_expected"].keys()
+    for key in test_case_1["train_dict_expected"].keys():
+        assert (
+            train_dict_out[key] == test_case_1["train_dict_expected"][key]
+        ).all()

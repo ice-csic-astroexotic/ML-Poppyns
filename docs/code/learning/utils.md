@@ -1,21 +1,21 @@
 # Learning utilities
 
-::: pypopsyn.learning.utils.benchmark
+::: mlpoppyns.learning.utils.benchmark
 
-::: pypopsyn.learning.utils.data_folder_struct_sbi
+::: mlpoppyns.learning.utils.data_folder_struct_sbi
 
-::: pypopsyn.learning.utils.json_utils
+::: mlpoppyns.learning.utils.json_utils
 
-::: pypopsyn.learning.utils.metric_tracker
+::: mlpoppyns.learning.utils.metric_tracker
 
-::: pypopsyn.learning.utils.posterior_sampler
+::: mlpoppyns.learning.utils.posterior_sampler
 
-::: pypopsyn.learning.utils.posterior_sampler_mcmc_sbi
+::: mlpoppyns.learning.utils.posterior_sampler_mcmc_sbi
 
-::: pypopsyn.learning.utils.request_device
+::: mlpoppyns.learning.utils.request_device
 
-::: pypopsyn.learning.utils.sbi_builder
+::: mlpoppyns.learning.utils.sbi_builder
 
-::: pypopsyn.learning.utils.sbi_utils
+::: mlpoppyns.learning.utils.sbi_utils
 
 
