@@ -40,6 +40,7 @@ def test_case_1():
             "l_range": [-100.0, 50.0],
             "b_range_abs": [0.0, 5.0],
             "aperture_config": False,
+            "FFT_search": True,
         },
         "w_int": np.array([1.0e-3, 1.0e-4]),
         "w_int_s": np.array([1.59e-05, 1.59e-07]),
@@ -67,6 +68,8 @@ def test_case_1():
         "S_radio_obs_expected": np.array([0.00728263, 0.50610848]),
         "S_radio_obs_mean_expected": np.array([9.99999989e-5, 0.999999996]),
         "P": np.array([0.1, 0.01]),
+        "duty_cycle": np.array([0.01, 0.1]),
+        "fft_efficiency_expected": np.array([0.5408595, 0.83306736]),
         "SNR_expected": np.array([1291.00882657, 0.0]),
         "detected_expected": np.array([True, False], dtype=bool),
     }
@@ -96,6 +99,7 @@ def test_case_2():
             "l_range": [-100.0, 50.0],
             "b_range_abs": [0.0, 5.0],
             "aperture_config": False,
+            "FFT_search": True,
         },
         "w_int": np.array([1.0e-3, 1.0e-4]),
         "w_int_s": np.array([1.59e-05, 1.59e-07]),
@@ -151,6 +155,7 @@ def test_case_3():
             "l_range": [-180.0, 180.0],
             "b_range_abs": [15.0, 90.0],
             "aperture_config": True,
+            "FFT_search": True,
         },
         "w_int": np.array([1.0e-3, 1.0e-4]),
         "w_int_s": np.array([1.59e-05, 1.59e-07]),
@@ -330,6 +335,27 @@ def test_aperture_array_factor(test_case_3):
 
     assert np.isclose(
         test_case_3["aa_factor_expected"], aa_factor_out, rtol=TOL, atol=1.0e-5
+    ).all()
+
+
+def test_fft_search_efficiency(test_case_1):
+    """
+    Verifying that the fft search efficiency factor is computed correctly.
+    """
+
+    # Create a temporary .json file with some survey parameters to initialize a radio survey class object.
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False
+    ) as tmpfile:
+        json.dump(test_case_1["dummy_survey_params"], tmpfile)
+        tmpfile_path = tmpfile.name
+
+    PMPS = sr.SurveyRadio(parameters_path=tmpfile_path)
+
+    epsilon = PMPS.fft_search_efficiency(test_case_1["duty_cycle"])
+
+    assert np.isclose(
+        test_case_1["fft_efficiency_expected"], epsilon, rtol=TOL, atol=1.0e-5
     ).all()
 
 

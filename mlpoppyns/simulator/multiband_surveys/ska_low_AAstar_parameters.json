@@ -16,5 +16,6 @@
   "DEC_range": [-90.0, 36.0],
   "l_range": [-180.0, 180.0],
   "b_range_abs": [15.0, 90.0],
-  "aperture_config": true
+  "aperture_config": true,
+  "FFT_search": true
 }

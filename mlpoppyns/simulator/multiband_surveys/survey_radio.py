@@ -318,6 +318,7 @@ class SurveyRadio:
         self.l_range = self.parameters["l_range"]
         self.b_range_abs = self.parameters["b_range_abs"]
         self.aperture_config = self.parameters["aperture_config"]
+        self.FFT_search = self.parameters["FFT_search"]
         self.name = self.parameters["name"]
 
     def sky_coverage(
@@ -428,6 +429,20 @@ class SurveyRadio:
 
         return aa_factor
 
+    def fft_search_efficiency(self, duty_cycle: np.ndarray) -> np.ndarray:
+        """
+        Compute the efficiency factor from Morello et al. (2020) (see eq. 44) to account for incoherent FFT search.
+
+        Args:
+            duty_cycle (np.ndarray): duty cycle of pulsars.
+        Returns:
+            (np.ndarray): Correction factor emulating the sensitivity of an incoherent FFT search.
+        """
+
+        epsilon = (1.0 + 0.0473 * duty_cycle ** (-0.627)) ** (-1)
+
+        return epsilon
+
     def radiometer_equation(
         self,
         S_radio_obs_mean: np.ndarray,
@@ -512,6 +527,12 @@ class SurveyRadio:
         if self.aperture_config:
             aa_factor = self.aperture_array_factor(DEC)
             SNR_detection = SNR_detection * aa_factor
+
+        if self.FFT_search:
+            # Apply efficiency factor from Morello et al. (2020) (see eq. 44) to account for incoherent FFT search.
+            duty_cycle = w_eff / P
+            epsilon = self.fft_search_efficiency(duty_cycle)
+            SNR_detection = SNR_detection * epsilon
 
         detected = SNR_detection > self.SNR_th
 

@@ -1,6 +1,6 @@
 { "name" : "HTRU high",
   "ref": "M. J. Keith+2010",
-  "deg_factor": 1.5,
+  "deg_factor": 1.25,
   "G0": 0.735,
   "t_obs": 270,
   "t_samp": 64e-6,
@@ -15,5 +15,6 @@
   "DEC_range": [-90.0, 10],
   "l_range": [[-180.0, -120.0],[30,180]],
   "b_range_abs": [15, 90.0],
-  "aperture_config": false
+  "aperture_config": false,
+  "FFT_search": true
 }
