@@ -1,4 +1,4 @@
-name: pop_syn
+name: mlpoppyns
 channels:
   - pytorch
   - nvidia

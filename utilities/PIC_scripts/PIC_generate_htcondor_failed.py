@@ -157,12 +157,12 @@ def generate_htcondor_failed(args: argparse.Namespace) -> None:
     # if it is equal to 'dyn', we generate a wrapper file that will execute the dynamical simulations.
     if args.type_simulation == "dyn":
 
-        exec_command = "python /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn/simulator/simulate_population_dyn.py --save_dir $1 --parameter_override $2  \n"
+        exec_command = "python /data/magnesia/software/ML-Poppyns/mlpoppyns/simulator/simulate_population_dyn.py --save_dir $1 --parameter_override $2  \n"
 
     elif args.type_simulation == "magrot":
 
         exec_command = (
-            "python /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn/simulator/simulate_population_magrot_det.py --dyn_data "
+            "python /data/magnesia/software/ML-Poppyns/mlpoppyns/simulator/simulate_population_magrot_det.py --dyn_data "
             + str(args.dyn_data)
             + " --save_dir $1 --parameter_override $2 \n"
         )
@@ -186,11 +186,9 @@ def generate_htcondor_failed(args: argparse.Namespace) -> None:
             "conda activate /data/magnesia/scratch_ssd/conda/envs/pop_syn\n"
         )
         f.write(
-            "# We copy the pypopsyn module in the working node to avoid problems with the path while running the simulations in the server.\n"
+            "# We copy the mlpoppyns module in the working node to avoid problems with the path while running the simulations in the server.\n"
         )
-        f.write(
-            "cp -R /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn .\n"
-        )
+        f.write("cp -R /data/magnesia/software/ML-Poppyns/mlpoppyns .\n")
         f.write(exec_command)
         f.write("conda deactivate")
         f.close()

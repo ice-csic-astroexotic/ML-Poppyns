@@ -13,6 +13,7 @@
     "L_radio_log10_mean_threshold": 0.5,
     "epsilon_L": 0.5
   },
+
   "n_gpu": 1,
 
   "arch": {

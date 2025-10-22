@@ -1,7 +1,10 @@
-# Isolated Pulsar Population Synthesis
+# 
 
-Neutron star population synthesis code for isolated pulsars developed as part of the ERC project MAGNESIA - 
-The Magnetar Census.
+<p align="center">
+  <img src="./images/full_logo_mlpoppyns.png" width="800">
+  <br>
+  <em></em>
+</p>
 
 ## Overview
 
@@ -11,10 +14,11 @@ inference and constrain the neutron stars' physical properties.
 
 We can simulate a population of neutron stars and model their detection across three different surveys performed with 
 Murriyang, the Parkes Radio Telescope, with just a few steps:
+
 ```python
 import argparse
-from pypopsyn.simulator.config_simulator import cfg
-from pypopsyn.simulator.simulate_population_full import simulate_population
+from mlpoppyns.simulator.config_simulator import cfg
+from mlpoppyns.simulator.simulate_population_full import simulate_population
 
 # Setting up some simulation parameters.
 cfg["NS_number"] = 300000
@@ -25,8 +29,8 @@ cfg["P_initial_log10_mean"] = -1.0
 cfg["P_initial_log10_sigma"] = 0.38
 
 simulation_args = argparse.Namespace(
-    save_dir="output_dir",
-    parameter_override=None,
+  save_dir="output_dir",
+  parameter_override=None,
 )
 simulate_population(simulation_args)
 ```
@@ -56,7 +60,7 @@ The distributions of these pulsars in the sky and in the $P-\dot{P}$ plane are a
 ### Main code modules
 
 The repository is structured in a modular way to allow for easy adjustments and additions as we continue to improve our software package.
-The main folder is `pypopsyn` which contains three subfolders: `simulator`, `generator`, and `learning`.
+The main folder is `mlpoppyns` which contains three subfolders: `simulator`, `generator`, and `learning`.
 
 * The `simulator` subfolder contains all the modules and scripts necessary to simulate a population of synthetic 
   neutron stars. We group modules according to their physics, i.e., separating those that are associated with the 
@@ -79,7 +83,7 @@ Each directory contains a `README.md` file with instructions on how to produce a
 !!! note
 
     All the simulation examples provided in the `data` directory were computed using the default parameters 
-    specified in the configuration file `pypopsyn/simulator/config_simulator.py`.
+    specified in the configuration file `mlpoppyns/simulator/config_simulator.py`.
 
 * The `example_generator_magrot` subfolder contains an example dataset of feature maps from simulated populations.
 
@@ -99,24 +103,24 @@ Each directory contains a `README.md` file with instructions on how to produce a
    used with the Harmonic package for model comparison.
 
 * The `example_simulation_dyn` subfolder contains the results of the dynamical evolution of a population of neutron 
-  stars obtained by running the script `pypopsyn/simulator/simulate_population_dyn.py`.
+  stars obtained by running the script `mlpoppyns/simulator/simulate_population_dyn.py`.
 
 * The `example_simulation_full_edm` subfolder contains the results of a full simulation (dynamical + magneto-rotational
   evolution + detection) of a population of neutron stars obtained by running the script 
-  `pypopsyn/simulator/simulate_population_full.py` and by using the `pypopsyn/simulator/initial_population_edm.py` 
+  `mlpoppyns/simulator/simulate_population_full.py` and by using the `mlpoppyns/simulator/initial_population_edm.py` 
   module to set up the initial conditions.
 
 * The `example_simulation_full_sam` subfolder contains the results of a full simulation (dynamical + magneto-rotational
   evolution + detection) of a population of neutron stars obtained by running the script
-  `pypopsyn/simulator/simulate_population_full.py` and by using the `pypopsyn/simulator/initial_population_sam.py` 
+  `mlpoppyns/simulator/simulate_population_full.py` and by using the `mlpoppyns/simulator/initial_population_sam.py` 
   module to set up the initial conditions.
 
 * The `example_simulation_helper_magrot` subfolder contains the results of 20 simulations obtained by running the 
-  script `utilities/experiment_helpers/run_simulation_set.py` and using the `pypopsyn/simulator/simulate_population_magrot_det.py` simulator.
+  script `utilities/experiment_helpers/run_simulation_set.py` and using the `mlpoppyns/simulator/simulate_population_magrot_det.py` simulator.
 
 * The `example_simulation_magrot_det` subfolder contains the results of a simulation of magneto-rotational evolution 
   and detection of a population of neutron stars obtained by running the script
-  `pypopsyn/simulator/simulate_population_magrot_det.py`.
+  `mlpoppyns/simulator/simulate_population_magrot_det.py`.
 
 * The `observations` subfolder contains catalogs with observed data.
 
@@ -160,3 +164,20 @@ The directory `utilities` contains some additional python modules and scripts fo
 simulations at our computing cluster at PIC, launching several simulations automatically and performing a parameter 
 sweep, sampling distributions or dataframes, performing statistical analysis and plotting settings.
 
+## Citation
+
+If you use ML-Poppyns in your research, please reference the repository [website](https://github.com/ice-csic-astroexotic/ML-Poppyns) and the following publications: 
+
+* Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
+
+* Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
+
+* Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
+
+## Contacts
+
+If you encounter any issues or have questions, please feel free to email us:
+
+* Vanessa Graber (Vanessa.Graber@rhul.ac.uk)
+* Celsa Pardo Araujo (pardo@ices.csic.es)
+* Michele Ronchi (ronchi@astron.nl)

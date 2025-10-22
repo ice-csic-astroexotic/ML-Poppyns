@@ -1,11 +1,11 @@
 # Loaders
 
-::: pypopsyn.learning.loaders.loader_base
+::: mlpoppyns.learning.loaders.loader_base
 
-::: pypopsyn.learning.loaders.loader_multichannel_array
+::: mlpoppyns.learning.loaders.loader_multichannel_array
 
-::: pypopsyn.learning.loaders.loader_multichannel_image
+::: mlpoppyns.learning.loaders.loader_multichannel_image
 
-::: pypopsyn.learning.loaders.loader_rgb_image
+::: mlpoppyns.learning.loaders.loader_rgb_image
 
-::: pypopsyn.learning.loaders.loaders
+::: mlpoppyns.learning.loaders.loaders
