@@ -82,10 +82,18 @@ files are modified and the steps (i) - (iii) have to be repeated. For more info 
 
 ## Citation
 
-If you use ML-Poppyns in your research, please reference the repository [website]() and the following publications: 
-* 
+If you use ML-Poppyns in your research, please reference the repository [website](https://github.com/ice-csic-astroexotic/ML-Poppyns) and the following publications: 
+
 * Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
 
 * Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
 
 * Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
+
+## Contacts
+
+If you encounter any issues or have questions, please feel free to email us:
+
+* Vanessa Graber (Vanessa.Graber@rhul.ac.uk)
+* Celsa Pardo Araujo (pardo@ices.csic.es)
+* Michele Ronchi (ronchi@astron.nl)

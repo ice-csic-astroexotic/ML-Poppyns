@@ -25,7 +25,7 @@ theme:
     - navigation.tabs
     - content.code.copy
 # Adding link to github repo.
-repo_url: https://github.com/csic-ice-magnesia/MAGNESIA_population_synthesis
+repo_url: https://github.com/ice-csic-astroexotic/ML-Poppyns
 repo_name: ML-Poppyns
 nav:
   # Overall navigation structure of the documentation.
