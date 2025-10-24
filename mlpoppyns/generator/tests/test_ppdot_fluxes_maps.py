@@ -10,7 +10,10 @@ import os
 
 import numpy as np
 import pytest
-from pypopsyn.generator.maps.ppdot_fluxes_maps import generate_ppdot_fluxes_map
+
+from mlpoppyns.generator.maps.ppdot_fluxes_maps import (
+    generate_ppdot_fluxes_map,
+)
 
 
 @pytest.fixture()

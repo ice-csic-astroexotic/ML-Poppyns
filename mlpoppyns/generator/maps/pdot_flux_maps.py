@@ -13,7 +13,8 @@ import logging
 import typing
 
 import numpy as np
-import pypopsyn.generator.maps.maps2d_generator as mg
+
+import mlpoppyns.generator.maps.maps2d_generator as mg
 
 # Initialize the multiple options we have to generate the different data
 # inputs which will be later selected at runtime depending on the arguments.
