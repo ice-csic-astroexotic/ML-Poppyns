@@ -11,7 +11,7 @@ import logging
 import numpy as np
 import pytest
 
-from pypopsyn.simulator.config_simulator import cfg
+from mlpoppyns.simulator.config_simulator import cfg
 from utilities.experiment_helpers import parameter_set_generator as psg
 
 

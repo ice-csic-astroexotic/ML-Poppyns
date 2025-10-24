@@ -134,4 +134,4 @@ multirun/
 tutorials/.DS_Store/
 sbi-logs/
 tutorials/tutorial_notebooks/sbi-logs
-pypopsyn/simulator/interstellar_medium/ebv_map.npz
+mlpoppyns/simulator/interstellar_medium/ebv_map.npz

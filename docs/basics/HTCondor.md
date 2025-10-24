@@ -153,11 +153,11 @@ source /data/astro/software/centos7/conda/mambaforge_4.14.0/etc/profile.d/conda.
 # Activate conda environment.
 conda activate /data/magnesia/scratch/conda/envs/pop_syn
 
-# We copy the pypopsyn module in the working node to avoid problems with the path while running the simulations in the server.
-cp -R /data/magnesia/software/MAGNESIA_population_synthesis/pypopsyn
+# We copy the mlpoppyns module in the working node to avoid problems with the path while running the simulations in the server.
+cp -R /data/magnesia/software/ML-Poppyns/mlpoppyns
 
 # Run the simulation specifying the path for the output.
-python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn_test.py --output /data/magnesia/common/test_HTCondor
+python /data/magnesia/software/ML-Poppyns/examples/simulator/simulate_population_dyn_test.py --output /data/magnesia/common/test_HTCondor
 ```
 
 !!! warning
@@ -274,7 +274,7 @@ export PATH=/data/magnesia/software/anaconda3/bin:$PATH
 conda init bash
 source /data/magnesia/software/anaconda3/etc/profile.d/conda.sh
 conda activate /data/magnesia/software/anaconda3/envs/pop_syn
-python /data/magnesia/software/MAGNESIA_population_synthesis/examples/simulator/simulate_population_dyn.py --output $1 --parameter_override $
+python /data/magnesia/software/ML-Poppyns/examples/simulator/simulate_population_dyn.py --output $1 --parameter_override $
 ```
 
 Although this above approach works, there are two more optimal ways to pass arguments to the wrapper using the

@@ -42,7 +42,7 @@ import sys
 import numpy as np
 
 import utilities.experiment_helpers.parameter_set_generator as psg
-from pypopsyn.simulator.config_simulator import cfg
+from mlpoppyns.simulator.config_simulator import cfg
 
 log = logging.getLogger(__name__)
 

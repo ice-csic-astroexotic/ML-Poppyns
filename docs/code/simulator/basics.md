@@ -1,3 +1,3 @@
 # Basics
 
-::: pypopsyn.simulator.basics.constants
+::: mlpoppyns.simulator.basics.constants

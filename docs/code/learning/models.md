@@ -1,15 +1,15 @@
 # Models
 
-::: pypopsyn.learning.models.model_base
+::: mlpoppyns.learning.models.model_base
 
-::: pypopsyn.learning.models.model_conv
+::: mlpoppyns.learning.models.model_conv
 
-::: pypopsyn.learning.models.model_conv_sbi
+::: mlpoppyns.learning.models.model_conv_sbi
 
-::: pypopsyn.learning.models.model_conv_sbi_deep
+::: mlpoppyns.learning.models.model_conv_sbi_deep
 
-::: pypopsyn.learning.models.model_conv_sbi_shallow
+::: mlpoppyns.learning.models.model_conv_sbi_shallow
 
-::: pypopsyn.learning.models.model_linear
+::: mlpoppyns.learning.models.model_linear
 
-::: pypopsyn.learning.models.models
+::: mlpoppyns.learning.models.models

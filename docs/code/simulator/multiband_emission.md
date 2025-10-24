@@ -1,3 +1,3 @@
 # Multiband emission
 
-::: pypopsyn.simulator.multiband_emission.emission_radio
+::: mlpoppyns.simulator.multiband_emission.emission_radio

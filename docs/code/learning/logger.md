@@ -1,5 +1,5 @@
 # Logger
 
-::: pypopsyn.learning.logger.logger
+::: mlpoppyns.learning.logger.logger
 
-::: pypopsyn.learning.logger.tensorboard_writer
+::: mlpoppyns.learning.logger.tensorboard_writer

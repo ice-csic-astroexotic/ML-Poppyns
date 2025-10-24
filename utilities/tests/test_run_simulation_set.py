@@ -56,7 +56,7 @@ def test_run_simulation_dask(caplog):
     ), mock.patch("pathlib.Path.mkdir"), mock.patch("json.dump"), mock.patch(
         "shutil.rmtree"
     ), mock.patch(
-        "pypopsyn.simulator.simulate_population_magrot_det.simulate_population"
+        "mlpoppyns.simulator.simulate_population_magrot_det.simulate_population"
     ):
         try:
             # Call the function being tested.

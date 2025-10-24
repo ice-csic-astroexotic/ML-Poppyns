@@ -1,14 +1,14 @@
 # Basic learning modules
 
-::: pypopsyn.learning.configuration_parser
+::: mlpoppyns.learning.configuration_parser
 
-::: pypopsyn.learning.infer_nn
+::: mlpoppyns.learning.infer_nn
 
-::: pypopsyn.learning.infer_npe_ensemble
+::: mlpoppyns.learning.infer_npe_ensemble
 
-::: pypopsyn.learning.sbi_infer
+::: mlpoppyns.learning.sbi_infer
 
-::: pypopsyn.learning.sbi_train
+::: mlpoppyns.learning.sbi_train
 
-::: pypopsyn.learning.train_nn
+::: mlpoppyns.learning.train_nn
 
