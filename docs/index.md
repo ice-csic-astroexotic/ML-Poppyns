@@ -138,7 +138,7 @@ The `paper_plots` folder contains the notebooks to generate the plots and figure
 
 * Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
 
-* Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
+* Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo-Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
 
 ### Tutorials
 
