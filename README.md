@@ -32,10 +32,10 @@ For this, you need `conda` to be installed on your machine. The code has been te
    python setup.py develop
    ```
    
-4. To install the new conda environment `pop_syn` as an IPython kernel and use it in a Jupyter Notebook, activate
+4. To install the new conda environment `mlpoppyns` as an IPython kernel and use it in a Jupyter Notebook, activate
    the environment as shown in step 2 and then run
    ```commandline
-   python -m ipykernel install --user --name pop_syn --display-name "pop_syn"
+   python -m ipykernel install --user --name mlpoppyns --display-name "mlpoppyns"
    ```
 
 5. Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local 
@@ -82,18 +82,19 @@ files are modified and the steps (i) - (iii) have to be repeated. For more info 
 
 ## Citation
 
-If you use ML-Poppyns in your research, please reference the repository [website](https://github.com/ice-csic-astroexotic/ML-Poppyns) and the following publications: 
+If you use ML-Poppyns in your research, we kindly ask you to:
 
-* Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
+* Cite the following publications in the text:
 
-* Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
+  * Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
 
-* Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo-Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
+  * Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
+
+  * Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo-Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
+
+* Add the following sentence in the acknowledgment section of your publication:
+"ML-Poppyns has been funded by the European Research Council via the ERC Consolidator grant 'MAGNESIA' (No. 817661; PI: N. Rea)."
 
 ## Contacts
 
-If you encounter any issues or have questions, please feel free to email us:
-
-* Vanessa Graber (Vanessa.Graber@rhul.ac.uk)
-* Celsa Pardo Araujo (pardo@ices.csic.es)
-* Michele Ronchi (ronchi@astron.nl)
+If you encounter any issues or have questions, please feel free to email us at ml-poppyns@ice.csis.es.
