@@ -174,7 +174,7 @@ def calculate_smallest_hdr(
     return np.array(hdr), posterior_samples_array
 
 
-def wrapper_pypopsyn(
+def wrapper_mlpoppyns(
     proposal: Union[DirectPosterior, utils.RestrictedPrior],
     num_sim: int,
     config: configuration_parser.ConfigurationParser,

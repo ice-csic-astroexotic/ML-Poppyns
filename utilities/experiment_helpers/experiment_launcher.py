@@ -161,7 +161,7 @@ def main(args) -> None:
 
 if __name__ == "__main__":
 
-    args = argparse.ArgumentParser(description="PyPopSyn Experiment Launcher")
+    args = argparse.ArgumentParser(description="MLPoppyns Experiment Launcher")
 
     args.add_argument(
         "--command_list",

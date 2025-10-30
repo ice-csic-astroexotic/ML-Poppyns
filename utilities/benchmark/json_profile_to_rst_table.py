@@ -171,7 +171,7 @@ def print_table(filename: str) -> None:
 
 
 if __name__ == "__main__":
-    args = argparse.ArgumentParser(description="PyPopSyn parameters")
+    args = argparse.ArgumentParser(description="MLPoppyns parameters")
 
     args.add_argument(
         "--filename",
