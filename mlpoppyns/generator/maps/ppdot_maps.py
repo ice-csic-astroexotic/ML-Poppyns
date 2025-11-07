@@ -66,7 +66,7 @@ def generate_ppdot_map(
         period_derivatives (np.array): Spin period derivatives of the neutron stars (vertical axis).
         p_resolution (int): Resolution in the horizontal axis.
         pdot_resolution (int): Resolution in the vertical axis.
-        ppdot_maps_dictionary (dict): Partial dictionary of P-Pdot maps.
+        ppdot_maps_dictionary (dict): Dictionary of P-Pdot maps where to append the path of the new generated map.
         p_limits (Tuple[float, float]): Limits of the horizontal axis.
         pdot_limits (Tuple[float, float]): Limits of the vertical axis.
     """

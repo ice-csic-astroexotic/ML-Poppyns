@@ -26,7 +26,7 @@ class DatasetMultimodalArray:
     Dataset for a multichannel and multimodal array input.
 
     This class represents a dataset of populations whose representation for any
-    of the inputs is a numpy array of numerical values stored in NPY format. All
+    of the inputs is a NumPy array of numerical values stored in .npy format. All
     those inputs will be treated as individual channels to generate an input
     tensor for the loader. Labels will be generated as a vector.
     """

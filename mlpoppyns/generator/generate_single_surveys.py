@@ -38,7 +38,7 @@ import pandas as pd
 import mlpoppyns.generator.maps.p_flux_maps as pfmaps
 import mlpoppyns.generator.maps.pdot_flux_maps as pdfmaps
 import mlpoppyns.generator.maps.position_maps as pmaps
-import mlpoppyns.generator.maps.ppdot_fluxes_map as ppdfmaps
+import mlpoppyns.generator.maps.ppdot_fluxes_maps as ppdfmaps
 import mlpoppyns.generator.maps.ppdot_maps as ppdmaps
 import mlpoppyns.generator.maps.velocity_maps as vmaps
 from mlpoppyns.simulator.config_simulator import cfg
@@ -72,7 +72,7 @@ def create_survey_maps(
         dataset_path (str): Path to where the generated dataset will be saved.
         survey_name (str): Survey acronym.
         survey_filename (str): Survey filename.
-        survey_type (str): Survey type, radio or X-ray.
+        survey_type (str): Survey type, "radio" or "X-ray".
         data_type (str): Type of dataset to generate: array or image.
         resolution_ppdot (int): Resolution (number of bins per axis for the 2d
             histograms) for the P-Pdot density maps to generate.
@@ -128,7 +128,8 @@ def create_survey_maps(
         y_limits=(-90.0, 90.0),
     )
 
-    # Create velocity maps of component v_RA in the RA DEC plane.
+    # Create velocity maps of component pm_RA in the RA DEC plane.
+    # We chose a minimum proper motion of 0 mas yr-1 to assign to the empty bins.
     vmaps.generate_velocity_map(
         dataset_path,
         f"survey_{survey_name}_velocity_map_vra",
@@ -145,7 +146,8 @@ def create_survey_maps(
         y_limits=(-90.0, 90.0),
     )
 
-    # Create velocity maps of component v_DEC in the RA DEC plane.
+    # Create velocity maps of component pm_DEC in the RA DEC plane.
+    # We chose a minimum proper motion of 0 mas yr-1 to assign to the empty bins.
     vmaps.generate_velocity_map(
         dataset_path,
         f"survey_{survey_name}_velocity_map_vdec",
@@ -175,7 +177,6 @@ def create_survey_maps(
         dictionary_ppdot_map,
     )
 
-    # Create P-Pdot average flux maps.
     if survey_type == "radio":
         # Since the TPA program on MeerKat is not complete, we take a random subsample of the PMPS, SMPS, and HTRU
         # surveys, respectively, to match the number of objects in the TPA sample. This ensures that there is no bias
@@ -185,6 +186,9 @@ def create_survey_maps(
                 n=int(cfg[f"detected_meerkat_{survey_name}"])
             )
 
+        # Create P-Pdot average flux maps.
+        # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-7 Jy since all
+        # observed radio fluxes are greater than around 10^-5 Jy.
         ppdfmaps.generate_ppdot_fluxes_map(
             dataset_path,
             f"survey_{survey_name}_ppdot_map_fluxes",
@@ -201,6 +205,7 @@ def create_survey_maps(
             y_limits=(1e-20, 1e-9),
         )
 
+        # Create P-flux density maps.
         pfmaps.generate_p_flux_map(
             dataset_path,
             f"survey_{survey_name}_pflux_map",
@@ -215,6 +220,7 @@ def create_survey_maps(
             flux_limits=(1.0e-5, 10.0),
         )
 
+        # Create Pdot-flux density maps.
         pdfmaps.generate_pdot_flux_map(
             dataset_path,
             f"survey_{survey_name}_pdotflux_map",
@@ -230,7 +236,9 @@ def create_survey_maps(
         )
 
     elif survey_type == "X-ray":
-
+        # Create P-Pdot average flux maps.
+        # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-17 erg s^-1
+        # cm^-2 since all observed X-ray fluxes are greater than around 10^-15 erg s^-1 cm^-2.
         ppdfmaps.generate_ppdot_fluxes_map(
             dataset_path,
             f"survey_{survey_name}_ppdot_map_fluxes",
@@ -247,6 +255,7 @@ def create_survey_maps(
             y_limits=(1e-20, 1e-9),
         )
 
+        # Create P-flux density maps.
         pfmaps.generate_p_flux_map(
             dataset_path,
             f"survey_{survey_name}_pflux_map",
@@ -261,6 +270,7 @@ def create_survey_maps(
             flux_limits=(1.0e-15, 1.0e-9),
         )
 
+        # Create Pdot-flux density maps.
         pdfmaps.generate_pdot_flux_map(
             dataset_path,
             f"survey_{survey_name}_pdotflux_map",
@@ -439,6 +449,24 @@ def generate_dataset(args: argparse.Namespace) -> None:
         )
         # If the override.json is not found we save the parameter values from the configuration.json file as a
         # dictionary.
+        if config_json["spin_period_model"] == "normal":
+            param_dictionary.update(
+                {
+                    "P_initial_mean": config_json["P_initial_mean"],
+                    "P_initial_sigma": config_json["P_initial_sigma"],
+                }
+            )
+        elif config_json["spin_period_model"] == "log-normal":
+            param_dictionary.update(
+                {
+                    "P_initial_log10_mean": config_json[
+                        "P_initial_log10_mean"
+                    ],
+                    "P_initial_log10_sigma": config_json[
+                        "P_initial_log10_sigma"
+                    ],
+                }
+            )
         if config_json["magnetic_field_model"] == "log-normal":
             param_dictionary.update(
                 {
@@ -493,13 +521,9 @@ def generate_dataset(args: argparse.Namespace) -> None:
 
         param_dictionary.update(
             {
-                "P_initial_log10_mean": config_json["P_initial_log10_mean"],
-                "P_initial_log10_sigma": config_json["P_initial_log10_sigma"],
                 "a_late": config_json["a_late"],
                 "L_radio_log10_mean": config_json["L_radio_log10_mean"],
                 "epsilon_L": config_json["epsilon_L"],
-                "h_c": config_json["h_c"],
-                "sigma_k": config_json["sigma_k"],
             }
         )
     else:

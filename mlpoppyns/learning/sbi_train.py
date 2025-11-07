@@ -157,7 +157,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                 config["observed_sample"]["dataset_path"],
                 config,
                 logger,
-                atnf=True,
+                observed=True,
             )
 
             # Set the proposal prior to the pior in round 0.

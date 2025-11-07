@@ -26,7 +26,7 @@ class DatasetMultichannelArray:
     Dataset for a multichannel array input.
 
     This class represents a dataset of populations whose representation for any
-    of the inputs is a numpy array of numerical values stored in NPY format. All
+    of the inputs is a NumPy array of numerical values stored in .npy format. All
     those inputs will be treated as individual channels to generate an input
     tensor for the loader. Labels will be generated as a vector.
     """
@@ -146,7 +146,7 @@ class DatasetMultichannelArray:
         Read the dataset and extract the arrays and the corresponding labels.
 
         Args:
-            index (int): Index running along the rows of the dataset CSV file.
+            index (int): Index running along the rows of the dataset.scv file.
 
         Returns:
             (Tuple[np.ndarray, np.ndarray]): Tuple consisting of a multichannel 2D array

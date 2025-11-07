@@ -126,7 +126,7 @@ def generate_avg_weight_map(
         y (np.ndarray): Vertical coordinate values for the points.
         y_range (Tuple[float, float]): Vertical range of values for the points.
         w (np.ndarray): Weight values for the points.
-        w_avg_min (float): Minimum average weight value for the bins.
+        w_avg_min (float): Minimum average weight value to assign to the empty bins.
         filename (str): File path to generate the heat map image.
         x_log_scale (bool): If True set the x-axis scale to log scale.
         y_log_scale (bool): If True set the y-axis scale to log scale.
@@ -218,16 +218,16 @@ def generate_kde_density_map(
     point's X/Y coordinates in a 2D space. The resulting image is written to disk.
 
     Args:
-        x (np.ndarray): horizontal coordinate values for the points.
-        x_range (Tuple[float, float]): horizontal range of values for the points.
-        y (np.ndarray): vertical coordinate values for the points.
-        y_range (Tuple[float, float]): vertical range of values for the points.
-        filename (str): file path to generate the density map image.
-        x_log_scale (bool): if True set the x-axis scale to log scale.
-        y_log_scale (bool): if True set the y-axis scale to log scale.
-        n_x_bins (int): number of horizontal bins for the density map.
-        n_y_bins (int): number of vertical bins for the density map.
-        colormap (str): colormap to use for the image.
+        x (np.ndarray): Horizontal coordinate values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
+        y (np.ndarray): Vertical coordinate values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
+        filename (str): File path to generate the density map image.
+        x_log_scale (bool): If True set the x-axis scale to log scale.
+        y_log_scale (bool): If True set the y-axis scale to log scale.
+        n_x_bins (int): Number of horizontal bins for the density map.
+        n_y_bins (int): Number of vertical bins for the density map.
+        colormap (str): Colormap to use for the image.
     """
 
     x, y = mu.remove_nan_entries(x, y)
@@ -305,18 +305,18 @@ def generate_kde_weight_map(
     (KDE) given the point's X/Y coordinates in a 2D space and some weights. The resulting image is written to disk.
 
     Args:
-        x (np.ndarray): horizontal coordinate values for the points.
-        x_range (Tuple[float, float]): horizontal range of values for the points.
-        y (np.ndarray): vertical coordinate values for the points.
-        y_range (Tuple[float, float]): vertical range of values for the points.
+        x (np.ndarray): Horizontal coordinate values for the points.
+        x_range (Tuple[float, float]): Horizontal range of values for the points.
+        y (np.ndarray): Vertical coordinate values for the points.
+        y_range (Tuple[float, float]): Vertical range of values for the points.
         w (np.ndarray): Weight values for the points.
         w_min (float): Minimum weight to subtract to ensure positivity.
-        filename (str): file path to generate the density map image.
-        x_log_scale (bool): if True set the x-axis scale to log scale.
-        y_log_scale (bool): if True set the y-axis scale to log scale.
-        n_x_bins (int): number of horizontal bins for the density map.
-        n_y_bins (int): number of vertical bins for the density map.
-        colormap (str): colormap to use for the image.
+        filename (str): File path to generate the density map image.
+        x_log_scale (bool): If True set the x-axis scale to log scale.
+        y_log_scale (bool): If True set the y-axis scale to log scale.
+        n_x_bins (int): Number of horizontal bins for the density map.
+        n_y_bins (int): Number of vertical bins for the density map.
+        colormap (str): Colormap to use for the image.
     """
 
     x, y, w = mu.remove_nan_entries(x, y, w)
@@ -455,7 +455,7 @@ def generate_avg_weight_matrix(
         y (np.ndarray): Vertical coordinate values for the points.
         y_range (Tuple[float, float]): Vertical range of values for the points.
         w (np.ndarray): Weight values for the points.
-        w_avg_min (float): Minimum average weight value for the bins.
+        w_avg_min (float): Minimum average weight value to assign to the empty bins.
         filename (str): File path to generate the density matrix.
         x_log_scale (bool): If True set the x-axis scale to log scale.
         y_log_scale (bool): If True set the y-axis scale to log scale.

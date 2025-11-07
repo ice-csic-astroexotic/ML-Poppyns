@@ -27,6 +27,11 @@ from .loader_base import LoaderBase
 class DatasetMultichannelImage:
     """
     Dataset for a multichannel image input.
+
+    This class represents a dataset of populations whose representation for any
+    of the inputs is an image stored in .png format. All
+    those inputs will be treated as individual channels to generate an input
+    tensor for the loader. Labels will be generated as a vector.
     """
 
     def __import_statistics(self, statistic_path: str) -> None:

@@ -66,7 +66,7 @@ def generate_position_map(
         y_positions (np.array): Positions in the second axis (vertical).
         x_resolution (int): Resolution in the horizontal axis.
         y_resolution (int): Resolution in the vertical axis.
-        position_maps_dictionary (dict): Partial dictionary of position maps.
+        position_maps_dictionary (dict): Dictionary of positions maps where to append the path of the new generated map.
         x_limits (Tuple[float, float]): Limits of the horizontal axis.
         y_limits (Tuple[float, float]): Limits of the vertical axis.
     """

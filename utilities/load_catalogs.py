@@ -129,10 +129,10 @@ def load_atnf_meerkat_catalog(
     df_atnf_pmps = df_atnf_pmps[cond]
 
     # Save the properties in the PMPS dictionary.
-    surveys_atnf["PMPS"]["RA"] = (
+    surveys_atnf["PMPS"]["ra"] = (
         df_atnf_pmps["RAJD"].to_numpy().astype(np.float64)
     )
-    surveys_atnf["PMPS"]["DEC"] = (
+    surveys_atnf["PMPS"]["dec"] = (
         df_atnf_pmps["DECJD"].to_numpy().astype(np.float64)
     )
     surveys_atnf["PMPS"]["l_gal"] = l_pmps_obs[cond]
@@ -154,10 +154,10 @@ def load_atnf_meerkat_catalog(
     surveys_atnf["PMPS"]["S1400"] = (
         df_atnf_pmps["S1400"].to_numpy().astype(np.float64)
     )
-    surveys_atnf["PMPS"]["pm_RA"] = (
+    surveys_atnf["PMPS"]["pm_ra"] = (
         df_atnf_pmps["PMRA"].to_numpy().astype(np.float64)
     )
-    surveys_atnf["PMPS"]["pm_DEC"] = (
+    surveys_atnf["PMPS"]["pm_dec"] = (
         df_atnf_pmps["PMDEC"].to_numpy().astype(np.float64)
     )
     surveys_atnf["PMPS"]["w10"] = (
@@ -202,10 +202,10 @@ def load_atnf_meerkat_catalog(
     df_atnf_smps = df_atnf_smps[cond]
 
     # Save the properties in the SMPS dictionary.
-    surveys_atnf["SMPS"]["RA"] = (
+    surveys_atnf["SMPS"]["ra"] = (
         df_atnf_smps["RAJD"].to_numpy().astype(np.float64)
     )
-    surveys_atnf["SMPS"]["DEC"] = (
+    surveys_atnf["SMPS"]["dec"] = (
         df_atnf_smps["DECJD"].to_numpy().astype(np.float64)
     )
     surveys_atnf["SMPS"]["l_gal"] = l_smps_obs[cond]
@@ -227,10 +227,10 @@ def load_atnf_meerkat_catalog(
     surveys_atnf["SMPS"]["S1400"] = (
         df_atnf_smps["S1400"].to_numpy().astype(np.float64)
     )
-    surveys_atnf["SMPS"]["pm_RA"] = (
+    surveys_atnf["SMPS"]["pm_ra"] = (
         df_atnf_smps["PMRA"].to_numpy().astype(np.float64)
     )
-    surveys_atnf["SMPS"]["pm_DEC"] = (
+    surveys_atnf["SMPS"]["pm_dec"] = (
         df_atnf_smps["PMDEC"].to_numpy().astype(np.float64)
     )
     surveys_atnf["SMPS"]["w10"] = (
@@ -280,10 +280,10 @@ def load_atnf_meerkat_catalog(
     df_atnf_htru = df_atnf_htru[cond]
 
     # Save the properties in the HTRU dictionary.
-    surveys_atnf["HTRU_low-mid"]["RA"] = (
+    surveys_atnf["HTRU_low-mid"]["ra"] = (
         df_atnf_htru["RAJD"].to_numpy().astype(np.float64)
     )
-    surveys_atnf["HTRU_low-mid"]["DEC"] = (
+    surveys_atnf["HTRU_low-mid"]["dec"] = (
         df_atnf_htru["DECJD"].to_numpy().astype(np.float64)
     )
     surveys_atnf["HTRU_low-mid"]["l_gal"] = l_htru_obs[cond]
@@ -305,10 +305,10 @@ def load_atnf_meerkat_catalog(
     surveys_atnf["HTRU_low-mid"]["S1400"] = (
         df_atnf_htru["S1400"].to_numpy().astype(np.float64)
     )
-    surveys_atnf["HTRU_low-mid"]["pm_RA"] = (
+    surveys_atnf["HTRU_low-mid"]["pm_ra"] = (
         df_atnf_htru["PMRA"].to_numpy().astype(np.float64)
     )
-    surveys_atnf["HTRU_low-mid"]["pm_DEC"] = (
+    surveys_atnf["HTRU_low-mid"]["pm_dec"] = (
         df_atnf_htru["PMDEC"].to_numpy().astype(np.float64)
     )
     surveys_atnf["HTRU_low-mid"]["w10"] = (
@@ -381,8 +381,8 @@ def load_xray_catalog(
     # Save the properties in the X-ray dictionary.
     survey_xray["l_gal"] = df_x["l(deg)"].to_numpy().astype(np.float64)
     survey_xray["b_gal"] = df_x["b(deg)"].to_numpy().astype(np.float64)
-    survey_xray["RA"] = df_x["ra(deg)"].to_numpy().astype(np.float64)
-    survey_xray["DEC"] = df_x["dec(deg)"].to_numpy().astype(np.float64)
+    survey_xray["ra"] = df_x["ra(deg)"].to_numpy().astype(np.float64)
+    survey_xray["dec"] = df_x["dec(deg)"].to_numpy().astype(np.float64)
     survey_xray["dist"] = df_x["distance(kpc)"].to_numpy().astype(np.float64)
     survey_xray["P"] = df_x["period(s)"].to_numpy().astype(np.float64)
     survey_xray["P_dot"] = (

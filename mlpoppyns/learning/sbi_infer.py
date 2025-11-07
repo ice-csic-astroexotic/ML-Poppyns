@@ -122,7 +122,7 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                 config["observed_sample"]["dataset_path"],
                 config,
                 logger,
-                atnf=True,
+                observed=True,
             )
 
         parameter_test = []

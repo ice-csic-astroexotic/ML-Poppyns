@@ -550,7 +550,7 @@ def prepare_dataset_sbi(
     dataset_folder: str,
     config: configuration_parser.ConfigurationParser,
     logger: Logger,
-    atnf: Optional[bool] = False,
+    observed: Optional[bool] = False,
 ) -> Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]:
     """
     Prepare dataset for use in sbi. If compression is enabled, either PCA or CNN compression will be applied to
@@ -560,9 +560,9 @@ def prepare_dataset_sbi(
         dataset_folder (str): Path to the folder where the dataset is saved.
         config (configuration_parser.ConfigurationParser): Configuration object specifying the model settings.
         logger (Logger): Logger object.
-        atnf (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to
+        observed (bool, optional): Indicates whether the PPdot density maps in the 'train_data_set' folder correspond to
             the observed population or to a simulated population. If set to True, the simulations correspond to the
-            observed ATNF population. The default is False.
+            observed population. The default is False.
 
     Returns:
         (Tuple[dl.DatasetMultichannelArray, torch.tensor, torch.tensor]): A tuple containing the dataset containing
@@ -572,12 +572,12 @@ def prepare_dataset_sbi(
     # Adjusting the dataset_path based on whether the dataset is the observed one or a simulated population.
     dataset_path = (
         dataset_folder + "/dataset_observed.csv"
-        if atnf
+        if observed
         else dataset_folder + "/dataset_full.csv"
     )
     dataset_stat_path = config["training_data_loader"]["statistic_path"]
 
-    if atnf:
+    if observed:
         filter_inputs = config["observed_sample"]["filter_inputs"]
         filter_labels = []
     else:

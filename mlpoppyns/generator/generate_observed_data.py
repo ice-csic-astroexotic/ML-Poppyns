@@ -34,7 +34,7 @@ import pandas as pd
 import mlpoppyns.generator.maps.p_flux_maps as pfmaps
 import mlpoppyns.generator.maps.pdot_flux_maps as pdfmaps
 import mlpoppyns.generator.maps.position_maps as pmaps
-import mlpoppyns.generator.maps.ppdot_fluxes_map as ppdfmaps
+import mlpoppyns.generator.maps.ppdot_fluxes_maps as ppdfmaps
 import mlpoppyns.generator.maps.ppdot_maps as ppdmaps
 from utilities.load_catalogs import (
     load_atnf_meerkat_catalog,
@@ -103,8 +103,8 @@ def create_survey_maps(
         f"survey_{survey_name}_position_map_radec",
         0,
         data_type,
-        survey_dict["RA"],
-        survey_dict["DEC"],
+        survey_dict["ra"],
+        survey_dict["dec"],
         resolution_dyn,
         int(resolution_dyn / 2),
         dictionary_position_map_radec,
@@ -115,12 +115,12 @@ def create_survey_maps(
     # Since the number of ATNF Catalogue objects with measured proper motions is insufficient,
     # we do not produce the velocity maps. However, for compatibility purposes with our
     # machine-learning utilities, we have to update the corresponding dictionary fields with empty strings.
-    # Updating the velocity map label of component v_RA in the RA DEC plane.
+    # Updating the velocity map label of component pm_RA in the RA DEC plane.
     dictionary_velocity_map_vra.update(
         {f"input:survey_{survey_name}_velocity_map_vra": [""]}
     )
 
-    # Updating the velocity map label of component v_DEC in the RA DEC plane.
+    # Updating the velocity map label of component pm_DEC in the RA DEC plane.
     dictionary_velocity_map_vdec.update(
         {f"input:survey_{survey_name}_velocity_map_vdec": [""]}
     )
@@ -138,8 +138,10 @@ def create_survey_maps(
         dictionary_ppdot_map,
     )
 
-    # Create P-Pdot average flux maps.
     if (survey_type == "radio") & use_meerkat_fluxes:
+        # Create P-Pdot average flux maps.
+        # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-7 Jy since all
+        # observed radio fluxes are greater than around 10^-5 Jy.
         ppdfmaps.generate_ppdot_fluxes_map(
             dataset_path,
             f"survey_{survey_name}_ppdot_map_fluxes",
@@ -156,6 +158,7 @@ def create_survey_maps(
             y_limits=(1e-20, 1e-9),
         )
 
+        # Create P-flux density maps.
         pfmaps.generate_p_flux_map(
             dataset_path,
             f"survey_{survey_name}_pflux_map",
@@ -170,6 +173,7 @@ def create_survey_maps(
             flux_limits=(1.0e-5, 10.0),
         )
 
+        # Create Pdot-flux density maps.
         pdfmaps.generate_pdot_flux_map(
             dataset_path,
             f"survey_{survey_name}_pdotflux_map",
@@ -185,6 +189,9 @@ def create_survey_maps(
         )
 
     elif (survey_type == "radio") & (use_meerkat_fluxes is False):
+        # Create P-Pdot average flux maps.
+        # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-7 Jy since all
+        # observed radio fluxes are greater than around 10^-5 Jy.
         ppdfmaps.generate_ppdot_fluxes_map(
             dataset_path,
             f"survey_{survey_name}_ppdot_map_fluxes",
@@ -201,6 +208,7 @@ def create_survey_maps(
             y_limits=(1e-20, 1e-9),
         )
 
+        # Create P-flux density maps.
         pfmaps.generate_p_flux_map(
             dataset_path,
             f"survey_{survey_name}_pflux_map",
@@ -215,6 +223,7 @@ def create_survey_maps(
             flux_limits=(1.0e-5, 10.0),
         )
 
+        # Create Pdot-flux density maps.
         pdfmaps.generate_pdot_flux_map(
             dataset_path,
             f"survey_{survey_name}_pdotflux_map",
@@ -230,6 +239,9 @@ def create_survey_maps(
         )
 
     elif survey_type == "X-ray":
+        # Create P-Pdot average flux maps.
+        # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-17 erg s^-1
+        # cm^-2 since all observed X-ray fluxes are greater than around 10^-15 erg s^-1 cm^-2.
         ppdfmaps.generate_ppdot_fluxes_map(
             dataset_path,
             f"survey_{survey_name}_ppdot_map_fluxes",
@@ -246,6 +258,7 @@ def create_survey_maps(
             y_limits=(1e-20, 1e-9),
         )
 
+        # Create P-flux density maps.
         pfmaps.generate_p_flux_map(
             dataset_path,
             f"survey_{survey_name}_pflux_map",
@@ -260,6 +273,7 @@ def create_survey_maps(
             flux_limits=(1.0e-15, 1.0e-9),
         )
 
+        # Create Pdot-flux density maps.
         pdfmaps.generate_pdot_flux_map(
             dataset_path,
             f"survey_{survey_name}_pdotflux_map",

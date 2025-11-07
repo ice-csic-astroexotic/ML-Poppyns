@@ -70,7 +70,7 @@ def generate_ppdot_fluxes_map(
         flux_avg_min (float): Minimum average value of the logarithm of the fluxes to put in the map in the empty bins.
         x_resolution (int): Resolution in the horizontal axis.
         y_resolution (int): Resolution in the vertical axis.
-        ppdot_fluxes_maps_dictionary (dict): Dictionary of fluxes in the ppdot maps.
+        ppdot_fluxes_maps_dictionary (dict): Dictionary of average flux P-Pdot maps where to append the path of the new generated map.
         x_limits (Tuple[float, float]): Limits of the horizontal axis.
         y_limits (Tuple[float, float]): Limits of the vertical axis.
     """

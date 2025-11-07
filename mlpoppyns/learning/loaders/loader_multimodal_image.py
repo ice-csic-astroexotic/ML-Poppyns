@@ -22,12 +22,12 @@ from PIL import Image
 from .loader_base import LoaderBase
 
 
-class DatasetMultimodalArray:
+class DatasetMultimodalImage:
     """
-    Dataset for a multichannel and multimodal array input.
+    Dataset for a multichannel and multimodal image input.
 
     This class represents a dataset of populations whose representation for any
-    of the inputs is a numpy array of numerical values stored in NPY format. All
+    of the inputs is an image stored in .png format. All
     those inputs will be treated as individual channels to generate an input
     tensor for the loader. Labels will be generated as a vector.
     """
@@ -149,7 +149,7 @@ class DatasetMultimodalArray:
         Read the dataset and extract the arrays and the corresponding labels.
 
         Args:
-            index (int): Index running along the rows of the dataset CSV file.
+            index (int): Index running along the rows of the dataset.csv file.
 
         Returns:
             (Tuple[np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of a two multichannel 2D image
@@ -211,7 +211,7 @@ class DatasetMultimodalArray:
         return image_1, image_2, targets
 
 
-class LoaderMultimodalArray(LoaderBase):
+class LoaderMultimodalImage(LoaderBase):
     def __init__(
         self,
         dataset_path: str,
@@ -250,7 +250,7 @@ class LoaderMultimodalArray(LoaderBase):
         self.normalize = normalize
         self.standardize = standardize
 
-        self.dataset = DatasetMultimodalArray(
+        self.dataset = DatasetMultimodalImage(
             self.dataset_path,
             self.statistic_path,
             self.filter_inputs,

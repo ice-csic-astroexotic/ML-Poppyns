@@ -67,7 +67,7 @@ def generate_pdot_flux_map(
         fluxes (np.array): Fluxes of the neutron stars (vertical axis).
         pdot_resolution (int): Resolution in the horizontal axis.
         flux_resolution (int): Resolution in the vertical axis.
-        pdot_flux_maps_dictionary (dict): Partial dictionary of P-Pdot maps.
+        pdot_flux_maps_dictionary (dict): Dictionary of Pdot-flux maps where to append the path of the new generated map.
         pdot_limits (Tuple[float, float]): Limits of the horizontal axis.
         flux_limits (Tuple[float, float]): Limits of the vertical axis.
     """
