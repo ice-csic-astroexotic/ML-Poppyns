@@ -31,11 +31,8 @@ import sys
 import numpy as np
 import pandas as pd
 
-import mlpoppyns.generator.maps.p_flux_maps as pfmaps
-import mlpoppyns.generator.maps.pdot_flux_maps as pdfmaps
-import mlpoppyns.generator.maps.position_maps as pmaps
-import mlpoppyns.generator.maps.ppdot_fluxes_maps as ppdfmaps
-import mlpoppyns.generator.maps.ppdot_maps as ppdmaps
+import mlpoppyns.generator.maps.density_map_generator as dmap
+import mlpoppyns.generator.maps.weighted_density_map_generator as wdmap
 from utilities.load_catalogs import (
     load_atnf_meerkat_catalog,
     load_xray_catalog,
@@ -98,7 +95,7 @@ def create_survey_maps(
     """
 
     # Create position density maps projected onto the RA DEC plane.
-    pmaps.generate_position_map(
+    dmap.generate_density_map(
         dataset_path,
         f"survey_{survey_name}_position_map_radec",
         0,
@@ -107,7 +104,9 @@ def create_survey_maps(
         survey_dict["dec"],
         resolution_dyn,
         int(resolution_dyn / 2),
-        dictionary_position_map_radec,
+        x_log_scale=False,
+        y_log_scale=False,
+        maps_dictionary=dictionary_position_map_radec,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
     )
@@ -126,7 +125,7 @@ def create_survey_maps(
     )
 
     # Create P-Pdot density maps.
-    ppdmaps.generate_ppdot_map(
+    dmap.generate_density_map(
         dataset_path,
         f"survey_{survey_name}_ppdot_map",
         0,
@@ -135,14 +134,18 @@ def create_survey_maps(
         survey_dict["P_dot"],
         resolution_ppdot,
         resolution_ppdot,
-        dictionary_ppdot_map,
+        x_log_scale=True,
+        y_log_scale=True,
+        maps_dictionary=dictionary_ppdot_map,
+        x_limits=(0.01, 100.0),
+        y_limits=(1.0e-20, 1.0e-9),
     )
 
     if (survey_type == "radio") & use_meerkat_fluxes:
         # Create P-Pdot average flux maps.
         # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-7 Jy since all
         # observed radio fluxes are greater than around 10^-5 Jy.
-        ppdfmaps.generate_ppdot_fluxes_map(
+        wdmap.generate_weighted_density_map(
             dataset_path,
             f"survey_{survey_name}_ppdot_map_fluxes",
             0,
@@ -150,16 +153,18 @@ def create_survey_maps(
             survey_meerkat_dict["P"],
             survey_meerkat_dict["P_dot"],
             np.log10(survey_meerkat_dict["S1400"]),
-            -7.0,
-            resolution_ppdot,
-            resolution_ppdot,
-            dictionary_ppdot_flux_map,
+            w_min=-7,
+            x_resolution=resolution_ppdot,
+            y_resolution=resolution_ppdot,
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=dictionary_ppdot_flux_map,
             x_limits=(1e-2, 1e2),
             y_limits=(1e-20, 1e-9),
         )
 
         # Create P-flux density maps.
-        pfmaps.generate_p_flux_map(
+        dmap.generate_density_map(
             dataset_path,
             f"survey_{survey_name}_pflux_map",
             0,
@@ -168,13 +173,15 @@ def create_survey_maps(
             survey_meerkat_dict["S1400"],
             resolution_ppdot,
             resolution_ppdot,
-            dictionary_p_flux_map,
-            p_limits=(0.01, 100.0),
-            flux_limits=(1.0e-5, 10.0),
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=dictionary_p_flux_map,
+            x_limits=(0.01, 100.0),
+            y_limits=(1e-5, 10.0),
         )
 
         # Create Pdot-flux density maps.
-        pdfmaps.generate_pdot_flux_map(
+        dmap.generate_density_map(
             dataset_path,
             f"survey_{survey_name}_pdotflux_map",
             0,
@@ -183,16 +190,18 @@ def create_survey_maps(
             survey_meerkat_dict["S1400"],
             resolution_ppdot,
             resolution_ppdot,
-            dictionary_pdot_flux_map,
-            pdot_limits=(1.0e-20, 1.0e-9),
-            flux_limits=(1.0e-5, 10.0),
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=dictionary_pdot_flux_map,
+            x_limits=(1.0e-20, 1.0e-9),
+            y_limits=(1.0e-5, 10.0),
         )
 
     elif (survey_type == "radio") & (use_meerkat_fluxes is False):
         # Create P-Pdot average flux maps.
         # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-7 Jy since all
         # observed radio fluxes are greater than around 10^-5 Jy.
-        ppdfmaps.generate_ppdot_fluxes_map(
+        wdmap.generate_weighted_density_map(
             dataset_path,
             f"survey_{survey_name}_ppdot_map_fluxes",
             0,
@@ -200,16 +209,18 @@ def create_survey_maps(
             survey_dict["P"],
             survey_dict["P_dot"],
             np.log10(survey_dict["S1400"]),
-            -7.0,
-            resolution_ppdot,
-            resolution_ppdot,
-            dictionary_ppdot_flux_map,
+            w_min=-7,
+            x_resolution=resolution_ppdot,
+            y_resolution=resolution_ppdot,
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=dictionary_ppdot_flux_map,
             x_limits=(1e-2, 1e2),
             y_limits=(1e-20, 1e-9),
         )
 
         # Create P-flux density maps.
-        pfmaps.generate_p_flux_map(
+        dmap.generate_density_map(
             dataset_path,
             f"survey_{survey_name}_pflux_map",
             0,
@@ -218,13 +229,15 @@ def create_survey_maps(
             survey_dict["S1400"],
             resolution_ppdot,
             resolution_ppdot,
-            dictionary_p_flux_map,
-            p_limits=(0.01, 100.0),
-            flux_limits=(1.0e-5, 10.0),
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=dictionary_p_flux_map,
+            x_limits=(0.01, 100.0),
+            y_limits=(1e-5, 10.0),
         )
 
         # Create Pdot-flux density maps.
-        pdfmaps.generate_pdot_flux_map(
+        dmap.generate_density_map(
             dataset_path,
             f"survey_{survey_name}_pdotflux_map",
             0,
@@ -233,16 +246,18 @@ def create_survey_maps(
             survey_dict["S1400"],
             resolution_ppdot,
             resolution_ppdot,
-            dictionary_pdot_flux_map,
-            pdot_limits=(1.0e-20, 1.0e-9),
-            flux_limits=(1.0e-5, 10.0),
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=dictionary_pdot_flux_map,
+            x_limits=(1.0e-20, 1.0e-9),
+            y_limits=(1.0e-5, 10.0),
         )
 
     elif survey_type == "X-ray":
         # Create P-Pdot average flux maps.
         # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-17 erg s^-1
         # cm^-2 since all observed X-ray fluxes are greater than around 10^-15 erg s^-1 cm^-2.
-        ppdfmaps.generate_ppdot_fluxes_map(
+        wdmap.generate_weighted_density_map(
             dataset_path,
             f"survey_{survey_name}_ppdot_map_fluxes",
             0,
@@ -250,16 +265,18 @@ def create_survey_maps(
             survey_dict["P"],
             survey_dict["P_dot"],
             np.log10(survey_dict["S_x_abs"]),
-            -17.0,
-            resolution_ppdot,
-            resolution_ppdot,
-            dictionary_ppdot_flux_map,
+            w_min=-17,
+            x_resolution=resolution_ppdot,
+            y_resolution=resolution_ppdot,
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=dictionary_ppdot_flux_map,
             x_limits=(1e-2, 1e2),
             y_limits=(1e-20, 1e-9),
         )
 
         # Create P-flux density maps.
-        pfmaps.generate_p_flux_map(
+        dmap.generate_density_map(
             dataset_path,
             f"survey_{survey_name}_pflux_map",
             0,
@@ -268,13 +285,15 @@ def create_survey_maps(
             survey_dict["S_x_abs"],
             resolution_ppdot,
             resolution_ppdot,
-            dictionary_p_flux_map,
-            p_limits=(0.01, 100.0),
-            flux_limits=(1.0e-15, 1.0e-9),
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=dictionary_p_flux_map,
+            x_limits=(0.01, 100.0),
+            y_limits=(1.0e-15, 1.0e-9),
         )
 
         # Create Pdot-flux density maps.
-        pdfmaps.generate_pdot_flux_map(
+        dmap.generate_density_map(
             dataset_path,
             f"survey_{survey_name}_pdotflux_map",
             0,
@@ -283,9 +302,11 @@ def create_survey_maps(
             survey_dict["S_x_abs"],
             resolution_ppdot,
             resolution_ppdot,
-            dictionary_pdot_flux_map,
-            pdot_limits=(1.0e-20, 1.0e-9),
-            flux_limits=(1.0e-15, 1.0e-9),
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=dictionary_pdot_flux_map,
+            x_limits=(1.0e-20, 1.0e-9),
+            y_limits=(1.0e-15, 1.0e-9),
         )
 
     else:

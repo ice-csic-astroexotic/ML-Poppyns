@@ -18,7 +18,7 @@ import scipy.ndimage
 import mlpoppyns.generator.maps.maps_utils as mu
 
 
-def generate_density_map(
+def generate_density_image(
     x: np.ndarray,
     x_range: typing.Tuple[float, float],
     y: np.ndarray,
@@ -31,7 +31,7 @@ def generate_density_map(
     colormap: str = "Greys",
 ) -> None:
     """
-    Density map generator.
+    Density image generator.
 
     Creates a density or heat map of a distribution of points given their
     X/Y coordinates in a 2D space. The resulting image is generated in
@@ -99,7 +99,7 @@ def generate_density_map(
     plt.close(fig)
 
 
-def generate_avg_weight_map(
+def generate_avg_weight_image(
     x: np.ndarray,
     x_range: typing.Tuple[float, float],
     y: np.ndarray,
@@ -114,7 +114,7 @@ def generate_avg_weight_map(
     colormap: str = "Greys",
 ) -> None:
     """
-    Average weighted map generator.
+    Average weighted image generator.
 
     Creates a map of the average weight w of a distribution of points given their
     X/Y coordinates in a 2D space.
@@ -199,7 +199,7 @@ def generate_avg_weight_map(
     plt.close(fig)
 
 
-def generate_kde_density_map(
+def generate_kde_density_image(
     x: np.ndarray,
     x_range: typing.Tuple[float, float],
     y: np.ndarray,
@@ -212,7 +212,7 @@ def generate_kde_density_map(
     colormap: str = "Greys",
 ) -> None:
     """
-    KDE density map generator.
+    KDE density image generator.
 
     Creates a density or heat map of a distribution of points, computing the kernel-density estimation (KDE) given the
     point's X/Y coordinates in a 2D space. The resulting image is written to disk.
@@ -298,7 +298,7 @@ def generate_kde_density_map(
     plt.close(fig)
 
 
-def generate_kde_weight_map(
+def generate_kde_weight_image(
     x: np.ndarray,
     x_range: typing.Tuple[float, float],
     y: np.ndarray,

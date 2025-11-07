@@ -13,10 +13,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from mlpoppyns.generator.maps.maps2d_generator import (
-    generate_avg_weight_map,
+from mlpoppyns.generator.maps.maps2d_generators import (
+    generate_avg_weight_image,
     generate_avg_weight_matrix,
-    generate_density_map,
+    generate_density_image,
     generate_density_matrix,
 )
 
@@ -59,7 +59,7 @@ def test_generate_density_map(temp_output_path, test_case_1):
     filename = os.path.join(temp_output_path, "density_map.png")
 
     # Check if the .png map exists.
-    generate_density_map(
+    generate_density_image(
         x, test_case_1["x_range"], y, test_case_1["y_range"], filename
     )
     assert os.path.exists(filename)
@@ -79,7 +79,7 @@ def test_generate_avg_weight_map(temp_output_path, test_case_1):
     filename = os.path.join(temp_output_path, "avg_weight_map.png")
 
     # Check if the .png map exists.
-    generate_avg_weight_map(
+    generate_avg_weight_image(
         x, test_case_1["x_range"], y, test_case_1["y_range"], w, 0.0, filename
     )
     assert os.path.exists(filename)
