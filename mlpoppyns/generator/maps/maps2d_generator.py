@@ -251,11 +251,25 @@ def generate_kde_density_map(
 
     # Construct the KDE function.
     points = np.vstack([x, y])
-    kde = scipy.stats.gaussian_kde(points)
 
-    # Evaluate the KDE at each point and restructure the flat output of KDE back into a 2D grid
-    # that corresponds to the x-y coordinate grid.
-    density = kde(positions).reshape(len(y_centers), len(x_centers))
+    # Check how many points we actually have.
+    n_points = points.shape[1]
+
+    if n_points > 2:
+        # Enough data for KDE.
+        kde = scipy.stats.gaussian_kde(points)
+
+        # Evaluate the KDE at each point and restructure the flat output of KDE back into a 2D grid
+        # that corresponds to the x-y coordinate grid.
+        density = kde(positions).reshape(len(y_centers), len(x_centers))
+
+    else:
+        print(
+            f"Not enough data points for KDE (n={n_points}). Generating an empty map."
+        )
+
+        # Generate a uniform empty density map.
+        density = np.zeros((len(y_centers), len(x_centers)))
 
     DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
@@ -343,11 +357,25 @@ def generate_kde_weight_map(
 
     # Construct the weighted KDE function.
     points = np.vstack([x, y])
-    kde = scipy.stats.gaussian_kde(points, weights=positive_w)
 
-    # Evaluate the KDE at each point and restructure the flat output of KDE back into a 2D grid
-    # that corresponds to the x-y coordinate grid.
-    weighted_density = kde(positions).reshape(n_y_bins, n_x_bins)
+    # Check how many points we actually have.
+    n_points = points.shape[1]
+
+    if n_points > 2:
+        # Enough data for KDE.
+        kde = scipy.stats.gaussian_kde(points, weights=positive_w)
+
+        # Evaluate the KDE at each point and restructure the flat output of KDE back into a 2D grid
+        # that corresponds to the x-y coordinate grid.
+        weighted_density = kde(positions).reshape(n_y_bins, n_x_bins)
+
+    else:
+        print(
+            f"Not enough data points for KDE (n={n_points}). Generating an empty map."
+        )
+
+        # Generate a uniform empty density map.
+        weighted_density = np.zeros((len(y_centers), len(x_centers)))
 
     DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
