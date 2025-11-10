@@ -79,15 +79,15 @@ def generate_dataset(args: argparse.Namespace) -> None:
 
     # Initialize dictionaries that will contain the density map files names and
     # the corresponding set of parameters values.
-    position_map_xy_dictionary = {}
-    position_map_xz_dictionary = {}
-    position_map_radec_dictionary = {}
-    velocity_map_xy_vr_dictionary = {}
-    velocity_map_xy_vphi_dictionary = {}
-    velocity_map_xy_vz_dictionary = {}
-    velocity_map_vra_dictionary = {}
-    velocity_map_vdec_dictionary = {}
-    ppdot_map_dictionary = {}
+    density_map_xy_dictionary = {}
+    density_map_xz_dictionary = {}
+    density_map_radec_dictionary = {}
+    velocity_vr_map_xy_dictionary = {}
+    velocity_vphi_map_xy_dictionary = {}
+    velocity_vz_map_xy_dictionary = {}
+    velocity_vra_map_radec_dictionary = {}
+    velocity_vdec_map_radec_dictionary = {}
+    density_map_ppdot_dictionary = {}
     param_dictionary = {}
 
     # Check if the parsed simulated populations' directory exists.
@@ -133,7 +133,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # Create position density maps projected on XY plane.
         dmap.generate_density_map(
             dataset_path,
-            "position_map_xy",
+            "density_map_xy",
             s,
             args.data_type,
             x,
@@ -142,7 +142,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             args.resolution_dyn,
             x_log_scale=False,
             y_log_scale=False,
-            maps_dictionary=position_map_xy_dictionary,
+            maps_dictionary=density_map_xy_dictionary,
             x_limits=(-20.0, 20.0),
             y_limits=(-20.0, 20.0),
         )
@@ -150,7 +150,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # Create position density maps projected on XZ plane.
         dmap.generate_density_map(
             dataset_path,
-            "position_map_xz",
+            "density_map_xz",
             s,
             args.data_type,
             x,
@@ -159,7 +159,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             args.resolution_dyn,
             x_log_scale=False,
             y_log_scale=False,
-            maps_dictionary=position_map_xz_dictionary,
+            maps_dictionary=density_map_xz_dictionary,
             x_limits=(-20.0, 20.0),
             y_limits=(-20.0, 20.0),
         )
@@ -168,7 +168,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # We chose a minimum velocity of 0 km s-1 to assign to the empty bins.
         wdmap.generate_weighted_density_map(
             dataset_path,
-            "velocity_map_xy_vr",
+            "velocity_vr_map_xy",
             s,
             args.data_type,
             x,
@@ -179,7 +179,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             y_resolution=args.resolution_dyn,
             x_log_scale=False,
             y_log_scale=False,
-            maps_dictionary=velocity_map_xy_vr_dictionary,
+            maps_dictionary=velocity_vr_map_xy_dictionary,
             x_limits=(-20.0, 20.0),
             y_limits=(-20.0, 20.0),
         )
@@ -188,7 +188,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # We chose a minimum velocity of 0 km s-1 to assign to the empty bins.
         wdmap.generate_weighted_density_map(
             dataset_path,
-            "velocity_map_xy_vphi",
+            "velocity_vphi_map_xy",
             s,
             args.data_type,
             x,
@@ -199,7 +199,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             y_resolution=args.resolution_dyn,
             x_log_scale=False,
             y_log_scale=False,
-            maps_dictionary=velocity_map_xy_vphi_dictionary,
+            maps_dictionary=velocity_vphi_map_xy_dictionary,
             x_limits=(-20.0, 20.0),
             y_limits=(-20.0, 20.0),
         )
@@ -208,7 +208,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # We chose a minimum velocity of 0 km s-1 to assign to the empty bins.
         wdmap.generate_weighted_density_map(
             dataset_path,
-            "velocity_map_xy_vz",
+            "velocity_vz_map_xy",
             s,
             args.data_type,
             x,
@@ -219,7 +219,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             y_resolution=args.resolution_dyn,
             x_log_scale=False,
             y_log_scale=False,
-            maps_dictionary=velocity_map_xy_vz_dictionary,
+            maps_dictionary=velocity_vz_map_xy_dictionary,
             x_limits=(-20.0, 20.0),
             y_limits=(-20.0, 20.0),
         )
@@ -227,7 +227,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # Create position density maps projected on RA DEC plane.
         dmap.generate_density_map(
             dataset_path,
-            "position_map_radec",
+            "density_map_radec",
             s,
             args.data_type,
             df_pop["ra"],
@@ -236,7 +236,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             int(args.resolution_dyn / 2),
             x_log_scale=False,
             y_log_scale=False,
-            maps_dictionary=position_map_radec_dictionary,
+            maps_dictionary=density_map_radec_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
         )
@@ -245,7 +245,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # We chose a minimum proper motion of 0 mas yr-1 to assign to the empty bins.
         wdmap.generate_weighted_density_map(
             dataset_path,
-            "velocity_map_vra",
+            "velocity_vra_map_radec",
             s,
             args.data_type,
             df_pop["ra"],
@@ -256,7 +256,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             y_resolution=int(args.resolution_dyn / 2),
             x_log_scale=False,
             y_log_scale=False,
-            maps_dictionary=velocity_map_vra_dictionary,
+            maps_dictionary=velocity_vra_map_radec_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
         )
@@ -265,7 +265,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # We chose a minimum proper motion of 0 mas yr-1 to assign to the empty bins.
         wdmap.generate_weighted_density_map(
             dataset_path,
-            "velocity_map_vdec",
+            "velocity_vdec_map_radec",
             s,
             args.data_type,
             df_pop["ra"],
@@ -276,7 +276,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             y_resolution=int(args.resolution_dyn / 2),
             x_log_scale=False,
             y_log_scale=False,
-            maps_dictionary=velocity_map_vdec_dictionary,
+            maps_dictionary=velocity_vdec_map_radec_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
         )
@@ -284,7 +284,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # Create P-Pdot density maps.
         dmap.generate_density_map(
             dataset_path,
-            "ppdot_map",
+            "density_map_ppdot",
             s,
             args.data_type,
             df_pop["P"],
@@ -293,7 +293,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             args.resolution_ppdot,
             x_log_scale=True,
             y_log_scale=True,
-            maps_dictionary=ppdot_map_dictionary,
+            maps_dictionary=density_map_ppdot_dictionary,
             x_limits=(0.01, 100.0),
             y_limits=(1.0e-20, 1.0e-9),
         )
@@ -313,15 +313,15 @@ def generate_dataset(args: argparse.Namespace) -> None:
 
     # Merge the filename and parameters dictionaries in a single dictionary.
     dataset_dictionary = {
-        **position_map_xy_dictionary,
-        **position_map_xz_dictionary,
-        **position_map_radec_dictionary,
-        **velocity_map_xy_vr_dictionary,
-        **velocity_map_xy_vphi_dictionary,
-        **velocity_map_xy_vz_dictionary,
-        **velocity_map_vra_dictionary,
-        **velocity_map_vdec_dictionary,
-        **ppdot_map_dictionary,
+        **density_map_xy_dictionary,
+        **density_map_xz_dictionary,
+        **density_map_radec_dictionary,
+        **velocity_vr_map_xy_dictionary,
+        **velocity_vphi_map_xy_dictionary,
+        **velocity_vz_map_xy_dictionary,
+        **velocity_vra_map_radec_dictionary,
+        **velocity_vdec_map_radec_dictionary,
+        **density_map_ppdot_dictionary,
         **param_dictionary,
     }
 
