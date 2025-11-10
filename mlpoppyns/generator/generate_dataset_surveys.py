@@ -85,25 +85,30 @@ def create_survey_maps(
             histograms) for the dynamical maps. In case of RA DEC maps the DEC axis has half the number of bins
             with respect to the RA axis.
         dictionary_density_map_radec (dict): Dictionary containing the path to the position maps in RA, DEC for
-            all the simulated surveys.
+            the simulated survey.
         dictionary_velocity_vra_map_radec (dict): Dictionary containing the path to the proper motion maps in RA for
-            all the simulated surveys.
+            the simulated survey.
         dictionary_velocity_vdec_map_radec (dict): Dictionary containing the path to the proper motion maps in DEC for
-            all the simulated surveys.
+            the simulated survey.
         dictionary_density_map_ppdot (dict): Dictionary containing the path to the P-Pdot maps for
-            all the simulated surveys.
+            the simulated survey.
         dictionary_flux_map_ppdot (dict): Dictionary containing the path to the averaged flux P-Pdot maps for
-            all the simulated surveys.
+            the simulated survey.
         dictionary_density_map_pflux (dict): Dictionary containing the path to the P-flux maps for
-            all the simulated surveys.
+            the simulated survey.
         dictionary_density_map_pdotflux (dict): Dictionary containing the path to the Pdot-flux maps for
-            all the simulated surveys.
+            the simulated survey.
     """
 
     # Check if the simulated survey file exists as a precondition.
     survey_path = pathlib.Path(
         f"{simulation_output_path}/{sample_number:06}/{survey_filename}.pkl.gz"
     )
+
+    if (sample_number == 0) and not survey_path.exists():
+        survey_path = pathlib.Path(
+            f"{simulation_output_path}/{survey_filename}.pkl.gz"
+        )
 
     if not survey_path.exists():
         log.error(f"Survey output file not found in {survey_path}")
@@ -391,12 +396,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
     sample_number = len(next(os.walk(root_path))[1])
 
     if sample_number == 0:
-        log.error(
-            f"The number of simulated samples in {root_path} is insufficient and equal to {sample_number}. "
-            f"The {root_path} folder has to contain several simulated samples in folders named 000000, 000001, "
-            f"... ."
-        )
-        sys.exit()
+        sample_number = 1
 
     log.info(f"Generating {sample_number} samples...")
 
@@ -486,15 +486,105 @@ def generate_dataset(args: argparse.Namespace) -> None:
         # Check if files containing labels exists as a precondition.
         label_path = pathlib.Path(f"{root_path}/{s:06}/override.json")
 
-        if not label_path.exists():
-            log.error(f"File containing labels not found in {label_path}")
-            sys.exit()
+        if (s == 0) and not label_path.exists():
+            label_path = pathlib.Path(f"{root_path}/override.json")
 
-        # Save the parameter value in a dictionary.
-        with open(label_path) as file:
-            dictionary = json.load(file)
-            for key, val in dictionary.items():
-                param_dictionary.setdefault(key, []).append(val)
+        if not label_path.exists():
+            log.error(
+                f"File containing labels not found in {label_path}. "
+                f"Retrieving labels from the configuration.json file."
+            )
+
+            config_json = json.load(
+                open(
+                    pathlib.Path().joinpath(root_path, "configuration.json"),
+                )
+            )
+            # If the override.json is not found we save the parameter values from the configuration.json file as a
+            # dictionary.
+            if config_json["spin_period_model"] == "normal":
+                param_dictionary.update(
+                    {
+                        "P_initial_mean": config_json["P_initial_mean"],
+                        "P_initial_sigma": config_json["P_initial_sigma"],
+                    }
+                )
+            elif config_json["spin_period_model"] == "log-normal":
+                param_dictionary.update(
+                    {
+                        "P_initial_log10_mean": config_json[
+                            "P_initial_log10_mean"
+                        ],
+                        "P_initial_log10_sigma": config_json[
+                            "P_initial_log10_sigma"
+                        ],
+                    }
+                )
+            if config_json["magnetic_field_model"] == "log-normal":
+                param_dictionary.update(
+                    {
+                        "B_initial_log10_mean": config_json[
+                            "B_initial_log10_mean"
+                        ],
+                        "B_initial_log10_sigma": config_json[
+                            "B_initial_log10_sigma"
+                        ],
+                    }
+                )
+            elif config_json["magnetic_field_model"] == "double_log-normal":
+                param_dictionary.update(
+                    {
+                        "B_initial_log10_mean_comp1": config_json[
+                            "B_initial_log10_mean_comp1"
+                        ],
+                        "B_initial_log10_sigma_comp1": config_json[
+                            "B_initial_log10_sigma_comp1"
+                        ],
+                        "B_initial_log10_mean_comp2": config_json[
+                            "B_initial_log10_mean_comp2"
+                        ],
+                        "B_initial_log10_sigma_comp2": config_json[
+                            "B_initial_log10_sigma_comp2"
+                        ],
+                        "B_initial_log10_weight_comp1": config_json[
+                            "B_initial_log10_weight_comp1"
+                        ],
+                    }
+                )
+            elif config_json["magnetic_field_model"] == "smooth_tophat":
+                param_dictionary.update(
+                    {
+                        "B_initial_log10_rise_mean": config_json[
+                            "B_initial_log10_rise_mean"
+                        ],
+                        "B_initial_log10_rise_sigma": config_json[
+                            "B_initial_log10_rise_sigma"
+                        ],
+                        "B_initial_log10_decay_mean": config_json[
+                            "B_initial_log10_decay_mean"
+                        ],
+                        "B_initial_log10_decay_sigma": config_json[
+                            "B_initial_log10_decay_sigma"
+                        ],
+                        "B_initial_log10_slope": config_json[
+                            "B_initial_log10_slope"
+                        ],
+                    }
+                )
+
+            param_dictionary.update(
+                {
+                    "a_late": config_json["a_late"],
+                    "L_radio_log10_mean": config_json["L_radio_log10_mean"],
+                    "epsilon_L": config_json["epsilon_L"],
+                }
+            )
+        else:
+            # Save the parameter values as a dictionary.
+            with open(label_path) as file:
+                dictionary = json.load(file)
+                for key, val in dictionary.items():
+                    param_dictionary.setdefault(key, []).append(val)
 
     # Merge the filename and parameter dictionaries in a single dictionary.
     dataset_dictionary = {
