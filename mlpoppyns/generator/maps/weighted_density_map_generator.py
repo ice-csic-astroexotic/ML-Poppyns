@@ -1,5 +1,5 @@
 """
-    flux maps generation routines.
+    weighted maps generation routines.
 
     Authors:
 
@@ -53,13 +53,17 @@ def generate_weighted_density_map(
     y_limits: typing.Tuple[float, float] = (1e-20, 1e-9),
 ) -> None:
     """
-    This method generates a flux-averaged ppdot map. The dimensions of the map
-    can be chosen, the type (image or array) can also be decided, and the limits
+    This method generates a weighted map.
+    If kernel density estimation (KDE) is used to generate the maps, each point is weighted by a weight w when
+    computing the KDE.
+    In the other case the average value of the weights of all points falling inside a bin in the map
+    is computed and assigned to that bin.
+    The dimensions of the map can be chosen, the type (image or array) can also be decided, and the limits
     and resolution for it can be specified. As a result, a map with the specified
     filename and an extension determined by the chosen type is created as output.
 
-    The dictionary of flux ppdot maps for the dataset is also updated with the
-    generated example.
+    The dictionary containing the paths to all the maps for the dataset is also updated with the new
+    generated map.
 
     Args:
         dataset_path (str): Path to the folder where the map will be created.
@@ -68,7 +72,7 @@ def generate_weighted_density_map(
         map_type (str): Type of map to generate (array or image).
         x (np.array): Horizontal coordinate values for the points.
         y (np.array): Vertical coordinate values for the points.
-        w (np.array): Array of the logarithm of the fluxes to put in the map.
+        w (np.array): Array of weights of the points.
         w_min (float): Either the minimum average value to assign to the empty bins or, for KDE maps, the minimum weight
             value to subtract to ensure positivity of the weights passed to the KDE.
         x_resolution (int): Resolution in the horizontal axis.
@@ -102,7 +106,7 @@ def generate_weighted_density_map(
         n_y_bins=y_resolution,
     )
 
-    # Save file names of ppdot-flux maps into the partial dataset dictionary.
+    # Save map file name into the dataset dictionary.
     maps_dictionary.setdefault("input:" + map_name, []).append(map_filename)
 
     log.info("{} generated...".format(map_filename))

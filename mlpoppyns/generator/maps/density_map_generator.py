@@ -52,9 +52,9 @@ def generate_density_map(
 ) -> None:
     """
     This method generates a density map with great flexibility, the
-    dimensions of the map can be chosen, the type (image or array) can also be
-    decided, and the limits and resolution for it can be specified. As a result,
-    a map with the specified filename and an extension determined by the chosen
+    dimensions of the map can be chosen, whether using kernel density estimation (KDE) or not and
+    the type (image or array) can also be decided, and the limits and resolution for it can be specified.
+    As a result, a map with the specified filename and an extension determined by the chosen
     type is created as output.
 
     The specified dictionary of density maps for the dataset is also updated with the
@@ -96,7 +96,7 @@ def generate_density_map(
         n_y_bins=y_resolution,
     )
 
-    # Save density map file names into the partial dataset dictionary.
+    # Save density map file path into the dataset dictionary.
     maps_dictionary.setdefault("input:" + map_name, []).append(map_filename)
 
     log.info("{} generated...".format(map_filename))
