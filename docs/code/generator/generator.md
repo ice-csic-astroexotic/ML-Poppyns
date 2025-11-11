@@ -9,5 +9,3 @@
 ::: mlpoppyns.generator.generate_dataset_surveys
 
 ::: mlpoppyns.generator.generate_observed_data
-
-::: mlpoppyns.generator.generate_single_surveys
