@@ -101,24 +101,46 @@ def create_survey_maps(
     """
 
     # Check if the simulated survey file exists as a precondition.
-    survey_path = pathlib.Path(
-        f"{simulation_output_path}/{sample_number:06}/{survey_filename}.pkl.gz"
-    )
+    root_path = pathlib.Path(f"{simulation_output_path}/{sample_number:06}")
+    survey_path = pathlib.Path(f"{root_path}/{survey_filename}.pkl.gz")
 
     if (sample_number == 0) and not survey_path.exists():
-        survey_path = pathlib.Path(
-            f"{simulation_output_path}/{survey_filename}.pkl.gz"
-        )
+        root_path = pathlib.Path(f"{simulation_output_path}")
+        survey_path = pathlib.Path(f"{root_path}/{survey_filename}.pkl.gz")
 
     if not survey_path.exists():
         log.error(f"Survey output file not found in {survey_path}")
         sys.exit()
+
+    config_json = json.load(
+        open(
+            pathlib.Path().joinpath(root_path, "configuration.json"),
+        )
+    )
 
     # Create a dataframe object of the .pkl population file.
     df_survey = pd.read_pickle(str(survey_path), compression="gzip")
 
     # Remove the units header row from the dataframe.
     df_survey.columns = [x[0] for x in df_survey.columns]
+
+    # If the survey exceed the maximum birth rate generate an empty map.
+    if (survey_name == "HTRU") and (
+        config_json[f"birth_rate_{survey_name}_low_mid_at_match"] == 0.0
+    ):
+        df_survey = df_survey.head(0)
+
+    elif (survey_name == "xray") and (
+        config_json[f"birth_rate_{survey_name}_realistic_at_match"] == 0.0
+    ):
+        df_survey = df_survey.head(0)
+
+    elif (
+        (survey_name != "HTRU")
+        and (survey_name != "xray")
+        and (config_json[f"birth_rate_{survey_name}_at_match"] == 0.0)
+    ):
+        df_survey = df_survey.head(0)
 
     # Create position density maps projected onto the RA DEC plane.
     dmap.generate_density_map(
