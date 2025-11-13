@@ -29,6 +29,7 @@ def generate_density_image(
     n_x_bins: int = 128,
     n_y_bins: int = 128,
     colormap: str = "Greys",
+    valid_simulation: bool = True,
 ) -> None:
     """
     Density image generator.
@@ -48,6 +49,7 @@ def generate_density_image(
         n_x_bins (int): Number of horizontal bins for the density map.
         n_y_bins (int): Number of vertical bins for the density map.
         colormap (str): Colormap to use for the image.
+        valid_simulation (bool): If False the generated map will contain NaN values.
     """
 
     x, y = mu.remove_nan_entries(x, y)
@@ -70,6 +72,9 @@ def generate_density_image(
     # x (y) values are histogrammed along first (second) dimension.
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     density = scipy.ndimage.gaussian_filter(density, sigma=1)
+
+    if not valid_simulation:
+        density[:] = np.nan
 
     DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
@@ -112,6 +117,7 @@ def generate_avg_weight_image(
     n_x_bins: int = 128,
     n_y_bins: int = 128,
     colormap: str = "Greys",
+    valid_simulation: bool = True,
 ) -> None:
     """
     Average weighted image generator.
@@ -133,6 +139,7 @@ def generate_avg_weight_image(
         n_x_bins (int): Number of horizontal bins for the weight map.
         n_y_bins (int): Number of vertical bins for the weight map.
         colormap (str): Colormap to use for the image.
+        valid_simulation (bool): If False the generated map will contain NaN values.
     """
 
     x, y, w = mu.remove_nan_entries(x, y, w)
@@ -169,6 +176,9 @@ def generate_avg_weight_image(
 
     # To avoid potential sharp edges, we apply a Gaussian filter.
     avg_weight = scipy.ndimage.gaussian_filter(avg_weight, sigma=1)
+
+    if not valid_simulation:
+        avg_weight[:] = np.nan
 
     DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
@@ -210,6 +220,7 @@ def generate_kde_density_image(
     n_x_bins: int = 128,
     n_y_bins: int = 128,
     colormap: str = "Greys",
+    valid_simulation: bool = True,
 ) -> None:
     """
     KDE density image generator.
@@ -228,6 +239,7 @@ def generate_kde_density_image(
         n_x_bins (int): Number of horizontal bins for the density map.
         n_y_bins (int): Number of vertical bins for the density map.
         colormap (str): Colormap to use for the image.
+        valid_simulation (bool): If False the generated map will contain NaN values.
     """
 
     x, y = mu.remove_nan_entries(x, y)
@@ -271,6 +283,9 @@ def generate_kde_density_image(
         # Generate a uniform empty density map.
         density = np.zeros((len(y_centers), len(x_centers)))
 
+    if not valid_simulation:
+        density[:] = np.nan
+
     DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
     fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
@@ -311,6 +326,7 @@ def generate_kde_weight_image(
     n_x_bins: int = 128,
     n_y_bins: int = 128,
     colormap: str = "Greys",
+    valid_simulation: bool = True,
 ) -> None:
     """
     Weighted KDE density map generator.
@@ -331,6 +347,7 @@ def generate_kde_weight_image(
         n_x_bins (int): Number of horizontal bins for the density map.
         n_y_bins (int): Number of vertical bins for the density map.
         colormap (str): Colormap to use for the image.
+        valid_simulation (bool): If False the generated map will contain NaN values.
     """
 
     x, y, w = mu.remove_nan_entries(x, y, w)
@@ -377,6 +394,9 @@ def generate_kde_weight_image(
         # Generate a uniform empty density map.
         weighted_density = np.zeros((len(y_centers), len(x_centers)))
 
+    if not valid_simulation:
+        weighted_density[:] = np.nan
+
     DPI = 512
     fig = plt.figure(dpi=DPI, frameon=False)
     fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
@@ -416,6 +436,7 @@ def generate_density_matrix(
     y_log_scale: bool = False,
     n_x_bins: int = 128,
     n_y_bins: int = 128,
+    valid_simulation: bool = True,
 ) -> None:
     """
     Density matrix generator.
@@ -433,6 +454,7 @@ def generate_density_matrix(
         y_log_scale (bool): If True set the y-axis scale to log scale.
         n_x_bins (int): Number of horizontal bins for the density matrix.
         n_y_bins (int): Number of vertical bins for the density matrix.
+        valid_simulation (bool): If False the generated map will contain NaN values.
     """
 
     x, y = mu.remove_nan_entries(x, y)
@@ -454,6 +476,9 @@ def generate_density_matrix(
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     density = scipy.ndimage.gaussian_filter(density, sigma=1)
 
+    if not valid_simulation:
+        density[:] = np.nan
+
     np.save(filename, density)
 
 
@@ -469,6 +494,7 @@ def generate_avg_weight_matrix(
     y_log_scale: bool = False,
     n_x_bins: int = 32,
     n_y_bins: int = 32,
+    valid_simulation: bool = True,
 ) -> None:
     """
     Average weighted matrix generator.
@@ -489,6 +515,7 @@ def generate_avg_weight_matrix(
         y_log_scale (bool): If True set the y-axis scale to log scale.
         n_x_bins (int): Number of horizontal bins for the density matrix.
         n_y_bins (int): Number of vertical bins for the density matrix.
+        valid_simulation (bool): If False the generated map will contain NaN values.
     """
 
     x, y, w = mu.remove_nan_entries(x, y, w)
@@ -526,6 +553,9 @@ def generate_avg_weight_matrix(
     # To avoid potential sharp edges, we apply a Gaussian filter.
     avg_weight = scipy.ndimage.gaussian_filter(avg_weight, sigma=1)
 
+    if not valid_simulation:
+        avg_weight[:] = np.nan
+
     np.save(filename, avg_weight)
 
 
@@ -539,6 +569,7 @@ def generate_kde_density_matrix(
     y_log_scale: bool = False,
     n_x_bins: int = 128,
     n_y_bins: int = 128,
+    valid_simulation: bool = True,
 ) -> None:
     """
     KDE density matrix generator.
@@ -556,6 +587,7 @@ def generate_kde_density_matrix(
         y_log_scale (bool): If True set the y-axis scale to log scale.
         n_x_bins (int): Number of horizontal bins for the density matrix.
         n_y_bins (int): Number of vertical bins for the density matrix.
+        valid_simulation (bool): If False the generated map will contain NaN values.
     """
 
     x, y = mu.remove_nan_entries(x, y)
@@ -599,6 +631,9 @@ def generate_kde_density_matrix(
         # Generate a uniform empty density map.
         density = np.zeros((len(y_centers), len(x_centers)))
 
+    if not valid_simulation:
+        density[:] = np.nan
+
     np.save(filename, density)
 
 
@@ -614,6 +649,7 @@ def generate_kde_weight_matrix(
     y_log_scale: bool = False,
     n_x_bins: int = 32,
     n_y_bins: int = 32,
+    valid_simulation: bool = True,
 ) -> None:
     """
     Weighted KDE density map generator.
@@ -633,6 +669,7 @@ def generate_kde_weight_matrix(
         y_log_scale (bool): If True set the y-axis scale to log scale.
         n_x_bins (int): Number of horizontal bins for the density matrix.
         n_y_bins (int): Number of vertical bins for the density matrix.
+        valid_simulation (bool): If False the generated map will contain NaN values.
     """
 
     x, y, w = mu.remove_nan_entries(x, y, w)
@@ -678,5 +715,8 @@ def generate_kde_weight_matrix(
 
         # Generate a uniform empty density map.
         weighted_density = np.zeros((len(y_centers), len(x_centers)))
+
+    if not valid_simulation:
+        weighted_density[:] = np.nan
 
     np.save(filename, weighted_density)

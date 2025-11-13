@@ -73,6 +73,7 @@ def test_generate_density_map(temp_dir, test_case_1):
         maps_dictionary=test_case_1["position_maps_dictionary"],
         x_limits=test_case_1["x_limits"],
         y_limits=test_case_1["y_limits"],
+        valid_simulation=True,
     )
 
     # Check if the map file is created.
