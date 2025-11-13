@@ -118,29 +118,31 @@ def create_survey_maps(
         )
     )
 
+    valid_simulation = True
+
     # Create a dataframe object of the .pkl population file.
     df_survey = pd.read_pickle(str(survey_path), compression="gzip")
 
     # Remove the units header row from the dataframe.
     df_survey.columns = [x[0] for x in df_survey.columns]
 
-    # If the survey exceed the maximum birth rate generate an empty map.
+    # If the survey exceed the maximum birth rate generate an map of NaN values.
     if (survey_name == "HTRU") and (
         config_json[f"birth_rate_{survey_name}_low_mid_at_match"] == 0.0
     ):
-        df_survey = df_survey.head(0)
+        valid_simulation = False
 
     elif (survey_name == "xray") and (
         config_json[f"birth_rate_{survey_name}_realistic_at_match"] == 0.0
     ):
-        df_survey = df_survey.head(0)
+        valid_simulation = False
 
     elif (
         (survey_name != "HTRU")
         and (survey_name != "xray")
         and (config_json[f"birth_rate_{survey_name}_at_match"] == 0.0)
     ):
-        df_survey = df_survey.head(0)
+        valid_simulation = False
 
     # Create position density maps projected onto the RA DEC plane.
     dmap.generate_density_map(
@@ -157,6 +159,7 @@ def create_survey_maps(
         maps_dictionary=dictionary_density_map_radec,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
+        valid_simulation=valid_simulation,
     )
 
     # Create velocity maps of component pm_RA in the RA DEC plane.
@@ -177,6 +180,7 @@ def create_survey_maps(
         maps_dictionary=dictionary_velocity_vra_map_radec,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
+        valid_simulation=valid_simulation,
     )
 
     # Create velocity maps of component pm_DEC in the RA DEC plane.
@@ -197,6 +201,7 @@ def create_survey_maps(
         maps_dictionary=dictionary_velocity_vdec_map_radec,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
+        valid_simulation=valid_simulation,
     )
 
     # Create P-Pdot density maps.
@@ -214,6 +219,7 @@ def create_survey_maps(
         maps_dictionary=dictionary_density_map_ppdot,
         x_limits=(0.01, 100.0),
         y_limits=(1.0e-20, 1.0e-9),
+        valid_simulation=valid_simulation,
     )
 
     if survey_type == "radio":
@@ -244,6 +250,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_flux_map_ppdot,
             x_limits=(1e-2, 1e2),
             y_limits=(1e-20, 1e-9),
+            valid_simulation=valid_simulation,
         )
 
         # Create P-flux density maps.
@@ -261,6 +268,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_density_map_pflux,
             x_limits=(0.01, 100.0),
             y_limits=(1e-5, 10.0),
+            valid_simulation=valid_simulation,
         )
 
         # Create Pdot-flux density maps.
@@ -278,6 +286,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_density_map_pdotflux,
             x_limits=(1.0e-20, 1.0e-9),
             y_limits=(1.0e-5, 10.0),
+            valid_simulation=valid_simulation,
         )
 
     elif survey_type == "X-ray":
@@ -300,6 +309,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_flux_map_ppdot,
             x_limits=(1e-2, 1e2),
             y_limits=(1e-20, 1e-9),
+            valid_simulation=valid_simulation,
         )
 
         # Create P-flux density maps.
@@ -317,6 +327,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_density_map_pflux,
             x_limits=(0.01, 100.0),
             y_limits=(1.0e-15, 1.0e-9),
+            valid_simulation=valid_simulation,
         )
 
         # Create Pdot-flux density maps.
@@ -334,6 +345,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_density_map_pdotflux,
             x_limits=(1.0e-20, 1.0e-9),
             y_limits=(1.0e-15, 1.0e-9),
+            valid_simulation=valid_simulation,
         )
 
     else:

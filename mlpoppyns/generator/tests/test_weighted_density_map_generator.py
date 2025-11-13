@@ -51,7 +51,7 @@ def temp_dir(tmpdir):
     tmpdir.remove()
 
 
-def test_generate_ppdot_fluxes_map(temp_dir, test_case_1):
+def test_generate_weighted_density_map(temp_dir, test_case_1):
     """
     Test function for generate_ppdot_fluxes_map.
 
@@ -74,6 +74,9 @@ def test_generate_ppdot_fluxes_map(temp_dir, test_case_1):
         x_log_scale=test_case_1["x_log_scale"],
         y_log_scale=test_case_1["y_log_scale"],
         maps_dictionary=test_case_1["maps_dictionary"],
+        x_limits=test_case_1["x_limits"],
+        y_limits=test_case_1["y_limits"],
+        valid_simulation=True,
     )
 
     # Check if the map file is created.
