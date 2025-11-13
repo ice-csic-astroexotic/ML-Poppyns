@@ -236,7 +236,7 @@ def resonant_cyclotron_scat_spectrum(
         )
         rcs_spectrum = rcs_spectrum + I_ph_trans_refl
 
-        I_ph = I_ph_trans_refl[:, np.newaxis, :]
+        I_ph = I_ph_reflect_reshape
 
     return rcs_spectrum
 
