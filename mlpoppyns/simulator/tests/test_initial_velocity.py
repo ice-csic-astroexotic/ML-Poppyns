@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 import mlpoppyns.simulator.stellar_dynamics.initial_velocity as iv
+import utilities.samplers.random_sampler as rs
 from mlpoppyns.simulator.config_simulator import cfg
 
 TOL = 1e-5
@@ -26,6 +27,8 @@ cfg["sigma_k"] = 265.0
 cfg["sigma_k_comp1"]: float = 55.0
 cfg["sigma_k_comp2"]: float = 334.0
 cfg["kick_weight_comp1"]: float = 0.19
+# Set the maximum kick velocity magnitude in [km/s] for the test .
+cfg["vk_extent"]: float = 2500.0
 
 
 @pytest.fixture()
@@ -53,6 +56,32 @@ def test_case_2():
     gm.initialize_galactic_model()
 
     data = {"r": 1.0, "z": 1.0, "v_circular_expected": 1.12376e-7}
+
+    return data
+
+
+@pytest.fixture()
+def test_case_3():
+    data = {
+        "NS_number": 2,
+        "kick_rand_expected": np.array(
+            [1.0220121572131332e-07, 2.0440243144262663e-07]
+        ),
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_4():
+    data = {
+        "NS_number": 2,
+        "mean": 4.0,
+        "sigma": 1.0,
+        "kick_rand_expected": np.array(
+            [1.5168005289324023e-07, 4.123091315194017e-07]
+        ),
+    }
 
     return data
 
@@ -103,6 +132,111 @@ def test_pdf_kick_velocity_double_maxwell(test_case_1):
         "the range 0 and 1.",
     ):
         iv.pdf_kick_velocity_double_maxwell(test_case_1["v"])
+
+
+def test_kick_velocity_exp(test_case_3, monkeypatch):
+    """
+    Verifying that a random velocity is correctly drawn for the Maxwell distribution pdf.
+    """
+    # Mock a pdf function.
+    def mock_pdf(x):
+        return np.ones_like(x)
+
+    monkeypatch.setattr(iv, "pdf_kick_velocity_exp", mock_pdf)
+
+    # Mock random_from_pdf to return predictable values.
+    def mock_random_from_pdf(vk_grid, pdf_func, ns_number):
+        return np.array([100.0, 200.0])  # in km/s
+
+    monkeypatch.setattr(rs, "random_from_pdf", mock_random_from_pdf)
+
+    kick_rand_out = iv.kick_velocity_exp(test_case_3["NS_number"])
+
+    np.testing.assert_allclose(
+        kick_rand_out, test_case_3["kick_rand_expected"]
+    )
+
+    # Check type and shape
+    assert isinstance(kick_rand_out, np.ndarray)
+    assert kick_rand_out.shape == (test_case_3["NS_number"],)
+
+
+def test_kick_velocity_maxwell(test_case_3, monkeypatch):
+    """
+    Verifying that a random velocity is correctly drawn for the Maxwell distribution pdf.
+    """
+    # Mock a pdf function.
+    def mock_pdf(x):
+        return np.ones_like(x)
+
+    monkeypatch.setattr(iv, "pdf_kick_velocity_maxwell", mock_pdf)
+
+    # Mock random_from_pdf to return predictable values.
+    def mock_random_from_pdf(vk_grid, pdf_func, ns_number):
+        return np.array([100.0, 200.0])  # in km/s
+
+    monkeypatch.setattr(rs, "random_from_pdf", mock_random_from_pdf)
+
+    kick_rand_out = iv.kick_velocity_maxwell(test_case_3["NS_number"])
+
+    np.testing.assert_allclose(
+        kick_rand_out, test_case_3["kick_rand_expected"]
+    )
+
+    # Check type and shape
+    assert isinstance(kick_rand_out, np.ndarray)
+    assert kick_rand_out.shape == (test_case_3["NS_number"],)
+
+
+def test_kick_velocity_double_maxwell(test_case_3, monkeypatch):
+    """
+    Verifying that a random velocity is correctly drawn for the Maxwell distribution pdf.
+    """
+    # Mock a pdf function.
+    def mock_pdf(x):
+        return np.ones_like(x)
+
+    monkeypatch.setattr(iv, "pdf_kick_velocity_double_maxwell", mock_pdf)
+
+    # Mock random_from_pdf to return predictable values.
+    def mock_random_from_pdf(vk_grid, pdf_func, ns_number):
+        return np.array([100.0, 200.0])  # in km/s
+
+    monkeypatch.setattr(rs, "random_from_pdf", mock_random_from_pdf)
+
+    kick_rand_out = iv.kick_velocity_double_maxwell(test_case_3["NS_number"])
+
+    np.testing.assert_allclose(
+        kick_rand_out, test_case_3["kick_rand_expected"]
+    )
+
+    # Check type and shape
+    assert isinstance(kick_rand_out, np.ndarray)
+    assert kick_rand_out.shape == (test_case_3["NS_number"],)
+
+
+def test_kick_velocity_lognormal(test_case_4, monkeypatch):
+    """
+    Verifying that a random velocity is correctly drawn for the Maxwell distribution pdf.
+    """
+
+    # Mock np.random.normal to return predictable values.
+    def mock_random_from_normal(vk_grid, pdf_func, ns_number):
+        return np.array([5.0, 6.0])
+
+    monkeypatch.setattr(np.random, "normal", mock_random_from_normal)
+
+    kick_rand_out = iv.kick_velocity_lognormal(
+        test_case_4["mean"], test_case_4["sigma"], test_case_4["NS_number"]
+    )
+
+    np.testing.assert_allclose(
+        kick_rand_out, test_case_4["kick_rand_expected"]
+    )
+
+    # Check type and shape
+    assert isinstance(kick_rand_out, np.ndarray)
+    assert kick_rand_out.shape == (test_case_4["NS_number"],)
 
 
 def test_circular_velocity(test_case_2):
