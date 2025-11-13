@@ -239,9 +239,12 @@ def wrapper_mlpoppyns(
     args_gen = argparse.Namespace(
         data=str(sim_dir_path),
         save_dir=str(dataset_path),
-        resolution_ppdot=config["arch"]["args"]["input_shape"][1],
-        resolution_dyn=32,
+        resolution_ppdot_radio=config["arch"]["args"]["input_shape"][1],
+        resolution_ppdot_xray=config["arch"]["args"]["input_shape"][1],
+        resolution_dyn_radio=32,
+        resolution_dyn_xray=32,
         data_type="array",
+        generate_xray=True,
     )
 
     # Running the simulations and generating the corresponding density maps for each simulation. The simulations are run
