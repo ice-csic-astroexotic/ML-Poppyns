@@ -379,7 +379,7 @@ def load_xray_catalog(
     )
 
     # Save the properties in the X-ray dictionary.
-    survey_xray["l_gal"] = df_x["l(deg)"].to_numpy().astype(np.float64)
+    survey_xray["l_gal"] = l_x_obs
     survey_xray["b_gal"] = df_x["b(deg)"].to_numpy().astype(np.float64)
     survey_xray["ra"] = df_x["ra(deg)"].to_numpy().astype(np.float64)
     survey_xray["dec"] = df_x["dec(deg)"].to_numpy().astype(np.float64)
