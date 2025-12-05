@@ -111,12 +111,13 @@ def create_survey_maps(
     if not survey_path.exists():
         log.error(f"Survey output file not found in {survey_path}")
         sys.exit()
-
+    """
     config_json = json.load(
         open(
             pathlib.Path().joinpath(root_path, "configuration.json"),
         )
     )
+    """
 
     valid_simulation = True
 
@@ -126,6 +127,7 @@ def create_survey_maps(
     # Remove the units header row from the dataframe.
     df_survey.columns = [x[0] for x in df_survey.columns]
 
+    """
     # If the survey exceed the maximum birth rate generate an map of NaN values.
     if (survey_name == "HTRU") and (
         config_json[f"birth_rate_{survey_name}_low_mid_at_match"] == 0.0
@@ -143,6 +145,7 @@ def create_survey_maps(
         and (config_json[f"birth_rate_{survey_name}_at_match"] == 0.0)
     ):
         valid_simulation = False
+    """
 
     # Create position density maps projected onto the RA DEC plane.
     dmap.generate_density_map(
