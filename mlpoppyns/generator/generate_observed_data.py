@@ -109,6 +109,7 @@ def create_survey_maps(
         maps_dictionary=dictionary_density_map_radec,
         x_limits=(0.0, 360.0),
         y_limits=(-90.0, 90.0),
+        valid_simulation=True,
     )
 
     # Since the number of ATNF Catalogue objects with measured proper motions is insufficient,
@@ -139,6 +140,7 @@ def create_survey_maps(
         maps_dictionary=dictionary_density_map_ppdot,
         x_limits=(0.01, 100.0),
         y_limits=(1.0e-20, 1.0e-9),
+        valid_simulation=True,
     )
 
     if (survey_type == "radio") & use_meerkat_fluxes:
@@ -161,6 +163,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_flux_map_ppdot,
             x_limits=(1e-2, 1e2),
             y_limits=(1e-20, 1e-9),
+            valid_simulation=True,
         )
 
         # Create P-flux density maps.
@@ -178,6 +181,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_density_map_pflux,
             x_limits=(0.01, 100.0),
             y_limits=(1e-5, 10.0),
+            valid_simulation=True,
         )
 
         # Create Pdot-flux density maps.
@@ -195,6 +199,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_density_map_pdotflux,
             x_limits=(1.0e-20, 1.0e-9),
             y_limits=(1.0e-5, 10.0),
+            valid_simulation=True,
         )
 
     elif (survey_type == "radio") & (use_meerkat_fluxes is False):
@@ -217,6 +222,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_flux_map_ppdot,
             x_limits=(1e-2, 1e2),
             y_limits=(1e-20, 1e-9),
+            valid_simulation=True,
         )
 
         # Create P-flux density maps.
@@ -234,6 +240,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_density_map_pflux,
             x_limits=(0.01, 100.0),
             y_limits=(1e-5, 10.0),
+            valid_simulation=True,
         )
 
         # Create Pdot-flux density maps.
@@ -251,6 +258,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_density_map_pdotflux,
             x_limits=(1.0e-20, 1.0e-9),
             y_limits=(1.0e-5, 10.0),
+            valid_simulation=True,
         )
 
     elif survey_type == "X-ray":
@@ -273,6 +281,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_flux_map_ppdot,
             x_limits=(1e-2, 1e2),
             y_limits=(1e-20, 1e-9),
+            valid_simulation=True,
         )
 
         # Create P-flux density maps.
@@ -290,6 +299,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_density_map_pflux,
             x_limits=(0.01, 100.0),
             y_limits=(1.0e-15, 1.0e-9),
+            valid_simulation=True,
         )
 
         # Create Pdot-flux density maps.
@@ -307,6 +317,7 @@ def create_survey_maps(
             maps_dictionary=dictionary_density_map_pdotflux,
             x_limits=(1.0e-20, 1.0e-9),
             y_limits=(1.0e-15, 1.0e-9),
+            valid_simulation=True,
         )
 
     else:
