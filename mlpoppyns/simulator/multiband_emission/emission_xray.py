@@ -436,11 +436,9 @@ def load_Lx_interpolator() -> RectBivariateSpline:
         (RectBivariateSpline): An interpolator function loaded from a pickled file to evaluate the X-ray luminosity.
     """
 
-    # Get the path to the software directory.
-    base_path = pathlib.Path(cfg["path_to_software"])
     # Load the interpolator function to evaluate the X-ray luminosity.
-    interpolator_Lx_path = base_path.joinpath(
-        cfg["magneto-thermal_path"], "interpolator_Lx.pkl"
+    interpolator_Lx_path = (
+        pathlib.Path(cfg["magneto-thermal_path"]) / "interpolator_Lx.pkl"
     )
 
     with open(interpolator_Lx_path, "rb") as f:
@@ -461,11 +459,10 @@ def load_crust_failure_rate_interpolator() -> RectBivariateSpline:
             crustal failures.
     """
 
-    # Get the path to the software directory.
-    base_path = pathlib.Path(cfg["path_to_software"])
     # Load the interpolator function to evaluate the crustal failure rate.
-    interpolator_path = base_path.joinpath(
-        cfg["magneto-thermal_path"], "interpolator_crust_failure_rate.pkl"
+    interpolator_path = (
+        pathlib.Path(cfg["magneto-thermal_path"])
+        / "interpolator_crust_failure_rate.pkl"
     )
 
     with open(interpolator_path, "rb") as f:
