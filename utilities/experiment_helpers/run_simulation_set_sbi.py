@@ -143,8 +143,8 @@ def initialize_dask_cluster(
 
     cluster = HTCondorCluster(
         cores=1,
-        memory="2 GB",
-        disk="2 GB",
+        memory="6 GB",
+        disk="4 GB",
         job_extra_directives=extra,
         nanny=True,
         death_timeout="60s",

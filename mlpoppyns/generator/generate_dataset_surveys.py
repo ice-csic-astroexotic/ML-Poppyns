@@ -207,28 +207,29 @@ def create_survey_maps(
         valid_simulation=valid_simulation,
     )
 
-    # Create P-Pdot density maps.
-    dmap.generate_density_map(
-        dataset_path,
-        f"survey_{survey_name}_density_map_ppdot",
-        sample_number,
-        data_type,
-        df_survey["P"],
-        df_survey["P_dot"],
-        resolution_ppdot,
-        resolution_ppdot,
-        x_log_scale=True,
-        y_log_scale=True,
-        maps_dictionary=dictionary_density_map_ppdot,
-        x_limits=(0.01, 100.0),
-        y_limits=(1.0e-20, 1.0e-9),
-        valid_simulation=valid_simulation,
-    )
-
     if survey_type == "radio":
         # Since the TPA program on MeerKat is not complete, we take a random subsample of the PMPS, SMPS, and HTRU
         # surveys, respectively, to match the number of objects in the TPA sample. This ensures that there is no bias
         # in this subsample.
+
+        # Create P-Pdot density maps.
+        dmap.generate_density_map(
+            dataset_path,
+            f"survey_{survey_name}_density_map_ppdot",
+            sample_number,
+            data_type,
+            df_survey["P"],
+            df_survey["P_dot"],
+            resolution_ppdot,
+            resolution_ppdot,
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=dictionary_density_map_ppdot,
+            x_limits=(0.01, 100.0),
+            y_limits=(1.0e-20, 1.0e-9),
+            valid_simulation=valid_simulation,
+        )
+
         if int(cfg[f"detected_meerkat_{survey_name}"]) < len(df_survey["P"]):
             df_survey = df_survey.sample(
                 n=int(cfg[f"detected_meerkat_{survey_name}"])
@@ -293,6 +294,35 @@ def create_survey_maps(
         )
 
     elif survey_type == "X-ray":
+
+        d_x_sim = df_survey["dist"].to_numpy()
+        age_x_sim = df_survey["age"].to_numpy()
+
+        # Filter X-ray emitting NSs with XDINS-like properties.
+        xdins_mask = (d_x_sim <= 0.5) & (age_x_sim >= 1.0e5)
+
+        young_mask = age_x_sim <= 2.0e3
+
+        xdins_young_mask = xdins_mask | young_mask
+
+        # Create P-Pdot density maps.
+        dmap.generate_density_map(
+            dataset_path,
+            f"survey_{survey_name}_density_map_ppdot",
+            sample_number,
+            data_type,
+            df_survey["P"][xdins_young_mask],
+            df_survey["P_dot"][xdins_young_mask],
+            resolution_ppdot,
+            resolution_ppdot,
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=dictionary_density_map_ppdot,
+            x_limits=(0.01, 100.0),
+            y_limits=(1.0e-20, 1.0e-9),
+            valid_simulation=valid_simulation,
+        )
+
         # Create P-Pdot average flux maps.
         # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-17 erg s^-1
         # cm^-2 since all observed X-ray fluxes are greater than around 10^-15 erg s^-1 cm^-2.
@@ -301,9 +331,9 @@ def create_survey_maps(
             f"survey_{survey_name}_flux_map_ppdot",
             sample_number,
             data_type,
-            df_survey["P"],
-            df_survey["P_dot"],
-            np.log10(df_survey["S_x_rcs_abs"]),
+            df_survey["P"][xdins_young_mask],
+            df_survey["P_dot"][xdins_young_mask],
+            np.log10(df_survey["S_x_rcs_abs"][xdins_young_mask]),
             w_min=-17,
             x_resolution=resolution_ppdot,
             y_resolution=resolution_ppdot,
@@ -321,8 +351,8 @@ def create_survey_maps(
             f"survey_{survey_name}_density_map_pflux",
             sample_number,
             data_type,
-            df_survey["P"],
-            df_survey["S_x_rcs_abs"],
+            df_survey["P"][xdins_young_mask],
+            df_survey["S_x_rcs_abs"][xdins_young_mask],
             resolution_ppdot,
             resolution_ppdot,
             x_log_scale=True,
@@ -339,8 +369,8 @@ def create_survey_maps(
             f"survey_{survey_name}_density_map_pdotflux",
             sample_number,
             data_type,
-            df_survey["P_dot"],
-            df_survey["S_x_rcs_abs"],
+            df_survey["P_dot"][xdins_young_mask],
+            df_survey["S_x_rcs_abs"][xdins_young_mask],
             resolution_ppdot,
             resolution_ppdot,
             x_log_scale=True,

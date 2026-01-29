@@ -277,7 +277,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                         proposal=proposal_train,
                     )
 
-                if config["test_data_loader"]["testing"]:
+                if config["test_data_loader"]["testing"] and i == 0:
                     with timewith.TimeWith(
                         f"[TestingRound{i}]",
                         prof_log_path,

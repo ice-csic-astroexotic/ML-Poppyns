@@ -21,6 +21,8 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 
+import mlpoppyns.simulator.basics.constants as const
+
 
 def load_atnf_meerkat_catalog(
     path_atnf_catalog: pathlib.Path,
@@ -378,23 +380,47 @@ def load_xray_catalog(
         l_x_obs[(l_x_obs > 180.0) & (l_x_obs < 360.0)] - 360.0
     )
 
+    P = df_x["period(s)"].to_numpy().astype(np.float64)
+    P_dot = df_x["pdot(1e-11s/s)"].to_numpy().astype(np.float64) * 1e-11
+
+    age_real = df_x["age_real(kyr)"].to_numpy().astype(np.float64)
+    age_char = P / (2 * P_dot) / const.YR_TO_S / 1000
+
+    young_mask = (age_real <= 2) | (age_char <= 2)
+
+    xdins_mask = df_x["class"] == "XDINS"
+
+    filter_mask = young_mask | xdins_mask
+
     # Save the properties in the X-ray dictionary.
-    survey_xray["l_gal"] = l_x_obs
-    survey_xray["b_gal"] = df_x["b(deg)"].to_numpy().astype(np.float64)
-    survey_xray["ra"] = df_x["ra(deg)"].to_numpy().astype(np.float64)
-    survey_xray["dec"] = df_x["dec(deg)"].to_numpy().astype(np.float64)
-    survey_xray["dist"] = df_x["distance(kpc)"].to_numpy().astype(np.float64)
-    survey_xray["P"] = df_x["period(s)"].to_numpy().astype(np.float64)
+    survey_xray["l_gal"] = l_x_obs[filter_mask]
+    survey_xray["b_gal"] = (
+        df_x["b(deg)"].to_numpy().astype(np.float64)[filter_mask]
+    )
+    survey_xray["ra"] = (
+        df_x["ra(deg)"].to_numpy().astype(np.float64)[filter_mask]
+    )
+    survey_xray["dec"] = (
+        df_x["dec(deg)"].to_numpy().astype(np.float64)[filter_mask]
+    )
+    survey_xray["dist"] = (
+        df_x["distance(kpc)"].to_numpy().astype(np.float64)[filter_mask]
+    )
+    survey_xray["P"] = (
+        df_x["period(s)"].to_numpy().astype(np.float64)[filter_mask]
+    )
     survey_xray["P_dot"] = (
         df_x["pdot(1e-11s/s)"].to_numpy().astype(np.float64) * 1e-11
-    )
+    )[filter_mask]
     survey_xray["L_x_bol"] = (
         df_x["luminosity_bol_qui(e33erg/s)"].to_numpy().astype(np.float64)
         * 1e33
-    )
+    )[filter_mask]
     survey_xray["S_x_abs"] = (
         df_x["abs. flux (0.3-10 keV)"].to_numpy().astype(np.float64)
+    )[filter_mask]
+    survey_xray["age"] = (
+        df_x["age_real(kyr)"].to_numpy().astype(np.float64)[filter_mask]
     )
-    survey_xray["age"] = df_x["age_real(kyr)"].to_numpy().astype(np.float64)
 
     return survey_xray
