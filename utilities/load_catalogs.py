@@ -367,6 +367,7 @@ def load_xray_catalog(
     # stars associated with pulsar wind nebulae as their detection might have been triggered by the non-thermal
     # emission of the nebula. We also remove those stars that belong to the Magellanic Clouds.
     df_x = df_x[~df_x["class"].isin(["CCO"])]
+    df_x = df_x[~df_x["class"].isin(["RPP"])]
     df_x = df_x[~df_x["assoc"].isin(["PWN", "PWN, Radio"])]
     df_x = df_x[~df_x["assoc"].isin(["SMC", "LMC"])]
     df_x = df_x.dropna(subset=["period(s)"])
@@ -391,6 +392,7 @@ def load_xray_catalog(
     xdins_mask = df_x["class"] == "XDINS"
 
     filter_mask = young_mask | xdins_mask
+    # filter_mask = np.ones(len(P), dtype=bool)
 
     # Save the properties in the X-ray dictionary.
     survey_xray["l_gal"] = l_x_obs[filter_mask]
