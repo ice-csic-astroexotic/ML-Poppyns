@@ -254,9 +254,7 @@ def simulate_population(args: argparse.Namespace) -> None:
             # Adding the parameters to a data frame for export.
             log.info("Creating data frame for exporting...")
 
-            df_final = dfb.create_output_dataframe_final_pop(
-                pop_full_final, cfg["simulation_xray"]
-            )
+            df_final = dfb.create_output_dataframe_final_pop(pop_full_final)
 
             # Save the data frame as compressed binary file.
             final_output_path = pathlib.Path().joinpath(
@@ -313,8 +311,7 @@ def simulate_population(args: argparse.Namespace) -> None:
 
         # Create output dataframes for each survey.
         dfs = sw.create_output_dataframe_surveys(
-            SurveyData.dictionary_detected_radio,
-            SurveyData.dictionary_detected_xray,
+            SurveyData.dictionary_detected_radio
         )
 
         # Save the data frame as a compressed binary file.

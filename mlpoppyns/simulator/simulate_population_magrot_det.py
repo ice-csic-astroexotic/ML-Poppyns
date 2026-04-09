@@ -254,8 +254,7 @@ def simulate_population(args) -> None:
 
             # Create output dataframes for each survey.
             dfs = sw.create_output_dataframe_surveys(
-                SurveyData.dictionary_detected_radio,
-                SurveyData.dictionary_detected_xray,
+                SurveyData.dictionary_detected_radio
             )
 
             # Save the data frame as a compressed binary file.

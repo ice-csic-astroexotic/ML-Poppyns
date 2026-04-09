@@ -1,20 +1,20 @@
 {
   "[TotalSimulation]": {
-    "time": 160.1355950832367
+    "time": 228.1296455860138
   },
   "[InitializePopulation]": {
-    "time": 2.536425828933716
+    "time": 5.2615978717803955
   },
   "[DynamicalEvolution]": {
-    "time": 32.6687388420105
+    "time": 63.06095910072327
   },
   "[MagnetoRotationalEvolution]": {
-    "time": 77.82228016853333
+    "time": 143.42300295829773
   },
-  "[RadioXrayEmission]": {
-    "time": 46.96430993080139
+  "[RadioEmission]": {
+    "time": 16.11238121986389
   },
-  "[RadioXrayDetection]": {
-    "time": 0.1260371208190918
+  "[RadioDetection]": {
+    "time": 0.24154996871948242
   }
 }

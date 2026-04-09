@@ -8,25 +8,6 @@
     "B_millisec_mean": 8.5,
     "B_millisec_sigma": 0.5,
     "Erot_dot_0": 1e+29,
-    "ISM_abundances": [
-        12.0,
-        10.99,
-        8.38,
-        7.88,
-        8.69,
-        7.94,
-        6.16,
-        7.4,
-        6.33,
-        7.27,
-        7.09,
-        5.12,
-        6.41,
-        6.2,
-        5.51,
-        7.43,
-        6.05
-    ],
     "L_radio_log10_mean": 26.17,
     "L_radio_log10_sigma": 0.8,
     "NS_mass": 2.7999999999999995e+33,
@@ -77,14 +58,13 @@
     "save_dyn_evolution": false,
     "save_magrot_evolution": false,
     "seed_dyn": null,
-    "seed_full": 1754556514,
+    "seed_full": 1775748113,
     "seed_magrot": null,
     "seed_sampling": null,
     "server_run": false,
     "show_profiles": false,
     "show_profiling": true,
     "sigma_k": 265.0,
-    "simulation_xray": true,
     "spin_period_model": "log-normal",
     "spiral_arms": "saYMW17",
     "std_spectral_index": 0,
@@ -107,22 +87,9 @@
             "path": "mlpoppyns/simulator/multiband_surveys/Swinburne_Parkes_parameters.json"
         }
     },
-    "surveys_xray": {
-        "xray_flux_threshold": {
-            "detected_real": 4,
-            "flux_threshold_completeness": 2e-11,
-            "path": "mlpoppyns/simulator/multiband_surveys/xray_flux_threshold_parameters.json"
-        },
-        "xray_realistic": {
-            "detected_real": 4,
-            "flux_threshold_completeness": 2e-11,
-            "path": "mlpoppyns/simulator/multiband_surveys/xray_realistic_parameters.json"
-        }
-    },
     "t_age_max": 30000000.0,
     "t_age_min": 1.0,
     "tau_late": 2000000.0,
-    "use_crust_failure_rate_interpolator": true,
     "vk_extent": 2500.0,
     "z_extent": 5.0,
     "z_sun": 0.02
