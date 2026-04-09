@@ -79,10 +79,6 @@ cfg["t_age_max"]: float = 3e7
 # Maximum birth rate in neutron stars per century that can be reached by a simulation before stopping.
 cfg["birth_rate_max"]: float = 5.0
 
-# Flag indicating whether to perform the X-ray simulation or not. If set to True then radio and X-ray emissions
-# will be simulated; if False then only the radio population synthesis will be performed.
-cfg["simulation_xray"]: bool = True
-
 # ===================== CANONICAL NEUTRON STAR PARAMETERS ========================
 
 # Characteristic neutron star mass in [g].
@@ -457,59 +453,6 @@ cfg["surveys_radio"]: dict = {
 cfg["detected_meerkat_PMPS"]: int = 640
 cfg["detected_meerkat_SMPS"]: int = 170
 cfg["detected_meerkat_HTRU"]: int = 668
-
-# ===================== X-RAY EMISSION-MODEL PARAMETERS ========================
-
-# Array of abundances relative to hydrogen for 17 elements taken from table 2 in Wilms et al. (2000).
-cfg["ISM_abundances"]: List[float] = [
-    12.0,
-    10.99,
-    8.38,
-    7.88,
-    8.69,
-    7.94,
-    6.16,
-    7.40,
-    6.33,
-    7.27,
-    7.09,
-    5.12,
-    6.41,
-    6.20,
-    5.51,
-    7.43,
-    6.05,
-]
-
-# Enabling the use of an interpolator for the rate of crust failures to estimate the number of outburst events for
-# neutron stars with different initial magnetic fields and ages. If set to False a simpler probabilistic approach
-# will be used that takes into account the age but neglects the dependence of the outburst rate on the field strength
-# and configuration. See the method outburst_filter_probabilistic in
-# mlpoppyns/simulator/multiband_emission/emission_xray.py for more details.
-cfg["use_crust_failure_rate_interpolator"]: bool = True
-
-# ===================== X-RAY DETECTION PARAMETERS ========================
-
-# Information on the modeled X-ray surveys.
-# To obtain the number of observed Galactic isolated X-ray neutron stars, we only include magnetars, XDINSs and young
-# RPPs with quiescent thermal X-ray emission. We excluded all central compact objects (CCOs) as we do not model any
-# supernova fallback mechanisms that could lead to the burial of the magnetic field. We also removed those RPPs that
-# have an association with a pulsar wind nebula as these sources are primarily discovered through the detection of the
-# supernova remnant emission and pulsar wind nebula contribution which we are also not modeling in our code.
-# We currently implement two different kinds of surveys in the X-rays. The first survey only takes into account a simple
-# cut-off in flux. The second survey description tries to better match the observed distribution and considers that
-# many magnetars have been discovered during an outburst phase. For these sources, we consider a deeper survey to
-# detect a quiescent emission. We then combine this with a shallower survey, which detects only the brightest sources.
-cfg["surveys_xray"]: dict = {
-    "xray_flux_threshold": {
-        "path": "mlpoppyns/simulator/multiband_surveys/xray_flux_threshold_parameters.json",
-        "detected_real": 35,
-    },
-    "xray_realistic": {
-        "path": "mlpoppyns/simulator/multiband_surveys/xray_realistic_parameters.json",
-        "detected_real": 35,
-    },
-}
 
 
 def update_configuration(new_configuration: dict) -> None:

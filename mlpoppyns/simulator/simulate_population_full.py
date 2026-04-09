@@ -5,8 +5,8 @@
     and the respective objects evolved in time according to their age.
     We simulate both the dynamical evolution in the Galaxy and the magneto-rotational
     evolution.
-    Finally, we model the radio emission and simulate the detection from two radio surveys,
-    Parkes multibeam (PMPS) and Swinburne (SMPS).
+    Finally, we model the radio emission and simulate the detection from three radio surveys,
+    Parkes multibeam (PMPS), Swinburne (SMPS) and High Time Resolution Universe (HTRU).
 
     Display help message to run the code:
 
@@ -35,7 +35,6 @@ import mlpoppyns.simulator.config_simulator as configuration
 import mlpoppyns.simulator.initial_population as ipop
 import mlpoppyns.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import mlpoppyns.simulator.multiband_emission.emission_radio as er
-import mlpoppyns.simulator.multiband_emission.emission_xray as ex
 import mlpoppyns.simulator.multiband_surveys.surveys_wrapper as sw
 import mlpoppyns.simulator.stellar_dynamics.coordinate_conversions as coco
 import mlpoppyns.simulator.stellar_dynamics.dynamical_evolution as dyn
@@ -110,7 +109,6 @@ def simulate_population(args: argparse.Namespace) -> None:
 
         surveys_cfg = SurveyData.surveys_cfg
         surveys_radio = SurveyData.surveys_radio
-        surveys_xray = SurveyData.surveys_xray
 
         # ===================== INITIALIZE THE POPULATION ========================
 
@@ -215,10 +213,10 @@ def simulate_population(args: argparse.Namespace) -> None:
             pop_final = pop_dyn_final | pop_magrot_final
             pop_final["idx"] = NS_idx
 
-        # ===================== RADIO AND X-RAY EMISSION ========================
+        # ===================== RADIO EMISSION ========================
 
         with timewith.TimeWith(
-            "[RadioXrayEmission]",
+            "[RadioEmission]",
             cfg["profile_log"],
             cfg["profile_json"],
             cfg["show_profiling"],
@@ -227,7 +225,6 @@ def simulate_population(args: argparse.Namespace) -> None:
             # Compute a dictionary containing the sky coverage masks for all the surveys.
             coverage_dict = sw.compute_surveys_coverage(
                 surveys_radio,
-                surveys_xray,
                 pop_final,
                 dist_cutoff=35.0,
             )
@@ -251,25 +248,8 @@ def simulate_population(args: argparse.Namespace) -> None:
                 f"Fraction of pulsars beaming towards us in radio: {fraction_intercepted}"
             )
 
-            pop_xray = {}
-
-            if cfg["simulation_xray"]:
-                Lx_interpolator = ex.load_Lx_interpolator()
-                crust_failure_rate_interpolator = (
-                    ex.load_crust_failure_rate_interpolator()
-                )
-
-                # Compute X-ray emission of neutron stars.
-                pop_xray = ex.xray_population(
-                    pop_final,
-                    pop_final["coverage_xray"],
-                    L_x_interpolator=Lx_interpolator,
-                    crust_failure_rate_interpolator=crust_failure_rate_interpolator,
-                    full_population=True,
-                )
-
-            # Merge the dictionary containing the intrinsic radio and X-ray emission properties.
-            pop_full_final = pop_radio | pop_xray
+            # Create the dictionary containing the intrinsic radio emission properties.
+            pop_full_final = pop_radio
 
             # Adding the parameters to a data frame for export.
             log.info("Creating data frame for exporting...")
@@ -288,10 +268,10 @@ def simulate_population(args: argparse.Namespace) -> None:
                 f"Output of the final population generated in {os.getcwd()}/{final_output_path}"
             )
 
-        # ===================== RADIO AND X-RAY DETECTION ========================
+        # ===================== RADIO DETECTION ========================
 
         with timewith.TimeWith(
-            "[RadioXrayDetection]",
+            "[RadioDetection]",
             cfg["profile_log"],
             cfg["profile_json"],
             cfg["show_profiling"],
@@ -325,25 +305,6 @@ def simulate_population(args: argparse.Namespace) -> None:
                 [],
                 log,
             )
-
-            if cfg["simulation_xray"]:
-                # Simulating the radio survey.
-                log.info("Simulate detection with the X-ray surveys...")
-
-                # Filter the population to include only pulsars detected by the X-ray surveys.
-                pop_detected_x = sw.xray_detection(
-                    surveys_xray,
-                    pop_xray,
-                )
-
-                sw.update_survey_data(
-                    SurveyData,
-                    pop_detected_x,
-                    "X-ray",
-                    cfg["NS_number"],
-                    [],
-                    log,
-                )
 
         # ===================== EXPORT OUTPUT ========================
 

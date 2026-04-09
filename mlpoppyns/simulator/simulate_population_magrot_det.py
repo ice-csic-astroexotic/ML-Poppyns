@@ -28,7 +28,6 @@ import numpy as np
 import mlpoppyns.simulator.config_simulator as configuration
 import mlpoppyns.simulator.magneto_rotational_physics.magneto_rotational_evolution as mre
 import mlpoppyns.simulator.multiband_emission.emission_radio as er
-import mlpoppyns.simulator.multiband_emission.emission_xray as ex
 import mlpoppyns.simulator.multiband_surveys.surveys_wrapper as sw
 import mlpoppyns.simulator.stellar_dynamics.load_dynamical_database as dyn
 import utilities.benchmark.timewith as timewith
@@ -108,7 +107,6 @@ def simulate_population(args) -> None:
 
         surveys_cfg = SurveyData.surveys_cfg
         surveys_radio = SurveyData.surveys_radio
-        surveys_xray = SurveyData.surveys_xray
         stop_flags = SurveyData.stop_flags
 
         # Loop to simulate stars until the detected number of pulsars for all surveys is reached.
@@ -138,7 +136,6 @@ def simulate_population(args) -> None:
                 # Compute a dictionary containing the sky coverage masks for all the surveys.
                 coverage_dict = sw.compute_surveys_coverage(
                     surveys_radio,
-                    surveys_xray,
                     database_dyn_batch,
                     dist_cutoff=35.0,
                 )
@@ -149,7 +146,6 @@ def simulate_population(args) -> None:
                     idx_remove,
                 ) = sw.apply_surveys_coverage_filter(
                     surveys_radio,
-                    surveys_xray,
                     coverage_dict,
                     database_dyn_batch,
                     idx_remove,
@@ -159,14 +155,6 @@ def simulate_population(args) -> None:
                 pop_magrot_initial = mre.initialize_population_magrot(
                     database_coverage["age"]
                 )
-
-                if cfg["simulation_xray"]:
-                    # Initializing luminosity and crust failure rate interpolators once for use across all different
-                    # detection loops in the simulation.
-                    Lx_interpolator = ex.load_Lx_interpolator()
-                    crust_failure_rate_interpolator = (
-                        ex.load_crust_failure_rate_interpolator()
-                    )
 
             # ===================== MAGNETO-ROTATIONAL EVOLUTION ========================
             with timewith.TimeWith(
@@ -219,37 +207,6 @@ def simulate_population(args) -> None:
                     idx_remove,
                     log,
                 )
-
-            # ===================== X DETECTION ========================
-            if cfg["simulation_xray"]:
-                with timewith.TimeWith(
-                    "[XrayDetection]",
-                    cfg["profile_log"],
-                    cfg["profile_json"],
-                    cfg["show_profiling"],
-                ):
-                    # Compute X-ray emission of neutron stars.
-                    pop_xray = ex.xray_population(
-                        pop_final,
-                        pop_final["coverage_xray"],
-                        L_x_interpolator=Lx_interpolator,
-                        crust_failure_rate_interpolator=crust_failure_rate_interpolator,
-                    )
-
-                    # Filter the population to include only pulsars detected by the X-ray surveys.
-                    pop_detected_x_update = sw.xray_detection(
-                        surveys_xray,
-                        pop_xray,
-                    )
-
-                    sw.update_survey_data(
-                        SurveyData,
-                        pop_detected_x_update,
-                        "X-ray",
-                        n_created,
-                        idx_remove,
-                        log,
-                    )
 
             # ==========================================================
 
