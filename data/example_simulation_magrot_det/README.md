@@ -1,6 +1,6 @@
 # Magneto-rotational + detection simulation example
 
-This is an example of a magneto-rotational plus detection simulation run with the `simulate_population_magrot_det.py` script and changing the following parameters in the configuration file.
+This is an example of a magneto-rotational plus detection simulation run with the `simulate_population_magrot_det.py` script.
 
 To run this example, we use the following command:
 ```commandline
