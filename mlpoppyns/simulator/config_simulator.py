@@ -447,6 +447,38 @@ cfg["surveys_radio"]: dict = {
     },
 }
 
+# If you want to simulate surveys with the Square Kilometer Array (SKA) you can use the following dictionary
+# and add it to the one above if you want to simulate all surveys or just use this one and comment out the one above
+# (see Keane et al. 2025):
+"""
+cfg["surveys_radio"]: dict = {
+    "SKA_Low_AA4": {
+        "path": "mlpoppyns/simulator/multiband_surveys/ska_low_AA4_parameters.json",
+        "detected_real": 1,
+    },
+    "SKA_Low_AAstar": {
+        "path": "mlpoppyns/simulator/multiband_surveys/ska_low_AAstar_parameters.json",
+        "detected_real": 1,
+    },
+    "SKA_mid_band1_AA4": {
+        "path": "mlpoppyns/simulator/multiband_surveys/ska_mid_band1_AA4_parameters.json",
+        "detected_real": 1,
+    },
+    "SKA_mid_band1_AAstar": {
+        "path": "mlpoppyns/simulator/multiband_surveys/ska_mid_band1_AAstar_parameters.json",
+        "detected_real": 1,
+    },
+    "SKA_mid_band2_AA4": {
+        "path": "mlpoppyns/simulator/multiband_surveys/ska_mid_band2_AA4_parameters.json",
+        "detected_real": 1,
+    },
+    "SKA_mid_band2_AAstar": {
+        "path": "mlpoppyns/simulator/multiband_surveys/ska_mid_band2_AAstar_parameters.json",
+        "detected_real": 1,
+    },
+}
+"""
+
 # Numbers of objects associated with the three pulsar surveys as followed up with the TPA programme on MeerKAT.
 # For details see Posselt et al. (2023). Note these numbers are used in the mlpoppyns/generator/generate_observed_data.py
 # script and differ from those given in the full ATNF Pulsar Catalogue.

@@ -294,6 +294,7 @@ class SurveyRadio:
                 - l_range(np.ndarray): Range of the sky covered by the survey in Galactic longitude l[deg].
                 - b_range_abs(np.ndarray): Absolute value of the range of the sky covered
                     by the survey in Galactic latitude b [deg].
+                - aperture_config (bool): If True, use the aperture array configuration for the pulsar detection.
         """
 
         # Load parameters from JSON file.
@@ -316,6 +317,8 @@ class SurveyRadio:
         self.DEC_range = self.parameters["DEC_range"]
         self.l_range = self.parameters["l_range"]
         self.b_range_abs = self.parameters["b_range_abs"]
+        self.aperture_config = self.parameters["aperture_config"]
+        self.FFT_search = self.parameters["FFT_search"]
         self.name = self.parameters["name"]
 
     def sky_coverage(
@@ -408,6 +411,38 @@ class SurveyRadio:
 
         return G
 
+    def aperture_array_factor(self, DEC: np.ndarray) -> np.ndarray:
+        """
+        Computes the aperture array sensitivity correction factor as a function of declination for each pulsar.
+        Args:
+            DEC (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
+        Returns:
+            (np.ndarray): Correction factor emulating the sensitivity of an aperture array for different declinations.
+        """
+
+        # Compute the pulsars' offset angles from zenith and convert them to [rad].
+        offset_from_zenith = (
+            DEC - (self.DEC_range[0] + self.DEC_range[1]) / 2.0
+        ) * const.DEG_TO_RAD
+
+        aa_factor = np.cos(offset_from_zenith)
+
+        return aa_factor
+
+    def fft_search_efficiency(self, duty_cycle: np.ndarray) -> np.ndarray:
+        """
+        Compute the efficiency factor from Morello et al. (2020) (see eq. 44) to account for incoherent FFT search.
+
+        Args:
+            duty_cycle (np.ndarray): duty cycle of pulsars.
+        Returns:
+            (np.ndarray): Correction factor emulating the sensitivity of an incoherent FFT search.
+        """
+
+        epsilon = (1.0 + 0.0473 * duty_cycle ** (-0.627)) ** (-1)
+
+        return epsilon
+
     def radiometer_equation(
         self,
         S_radio_obs_mean: np.ndarray,
@@ -454,17 +489,19 @@ class SurveyRadio:
         S_radio_obs_mean: np.ndarray,
         l_gal: np.ndarray,
         b_gal: np.ndarray,
+        DEC: np.ndarray,
         w_eff: np.ndarray,
         P: np.ndarray,
     ) -> np.ndarray:
         """
-        Simulate a detection: if the measured SNR surpasses the threshold SNR_th of the survey
+        Simulate a detection: If the measured SNR surpasses the threshold SNR_th of the survey
         then the pulsar is detected.
 
         Args:
             S_radio_obs_mean (np.ndarray): Observed period-averaged radio flux density in [Jy].
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+            DEC (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
             w_eff (np.ndarray): Effective pulse width in [s].
             P (np.ndarray): Spin period in [s].
 
@@ -487,6 +524,16 @@ class SurveyRadio:
             S_radio_obs_mean, G, w_eff, P, T_sky
         )
 
+        if self.aperture_config:
+            aa_factor = self.aperture_array_factor(DEC)
+            SNR_detection = SNR_detection * aa_factor
+
+        if self.FFT_search:
+            # Apply efficiency factor from Morello et al. (2020) (see eq. 44) to account for incoherent FFT search.
+            duty_cycle = w_eff / P
+            epsilon = self.fft_search_efficiency(duty_cycle)
+            SNR_detection = SNR_detection * epsilon
+
         detected = SNR_detection > self.SNR_th
 
         return detected
@@ -500,6 +547,7 @@ class SurveyRadio:
         coverage: np.ndarray,
         l_gal: np.ndarray,
         b_gal: np.ndarray,
+        DEC: np.ndarray,
         S_radio_bol: np.ndarray,
         spectral_index: np.ndarray,
         tau_sc: np.ndarray,
@@ -517,6 +565,7 @@ class SurveyRadio:
             coverage (np.ndarray): Array of boolean variables indicating the pulsars within the sky coverage.
             l_gal (np.ndarray): Galactic longitude in [deg] defined between [-180, 180] deg.
             b_gal (np.ndarray): Galactic latitude in [deg] defined between [-90, 90] deg.
+            DEC (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
             S_radio_bol (np.ndarray): Pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].
             spectral_index (np.ndarray): Spectral indexes.
             tau_sc (np.ndarray): Scattering timescale in [s].
@@ -593,6 +642,7 @@ class SurveyRadio:
             S_radio_obs_mean[detectable_radio_survey],
             l_gal[detectable_radio_survey],
             b_gal[detectable_radio_survey],
+            DEC[detectable_radio_survey],
             w_eff[detectable_radio_survey],
             P[detectable_radio_survey],
         )
