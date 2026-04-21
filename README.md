@@ -6,13 +6,17 @@
 
 ## Getting Started
 
-These instructions will provide you with a copy of the project and help you get it up and running on your local machine.
-For this, you need `conda` to be installed on your machine. The code has been tested on Ubuntu and macOS.
+These instructions will help you set up a local copy of the project and get it running on your machine.
+For this, you need conda to be installed on your machine. The code has been tested on Ubuntu and macOS.
 
-1. First, you need to clone the repository on your computer. To get the files from our GitHub repository, run
-   ```commandline
-   git clone https://github.com/ice-csic-astroexotic/ML-Poppyns.git
-   ```
+1. The latest stable version of ML-Poppyns (`v1.0.0`) is available for download [here](https://github.com/ice-csic-astroexotic/ML-Poppyns/releases).
+    This release corresponds to the `release_v1.0.0` branch.
+    
+   **WARNING**: The master branch is under active development and may be unstable.
+    If you want to use the master branch, first, you need to clone the repository on your computer. To get the files from our GitHub repository, run
+    ```commandline
+    git clone https://github.com/ice-csic-astroexotic/ML-Poppyns.git
+    ```
 
 2. The repo contains an environment file that can be installed by running
    ```commandline
@@ -79,6 +83,10 @@ pre-commit install
 The steps with pre-commit are as follows: (i) modify code, (ii) stage changes with `git add`, (iii) running `git commit` 
 will automatically execute the pre-commit framework. If the pre-commit checks are passed, the changes are commit. If not 
 files are modified and the steps (i) - (iii) have to be repeated. For more info see [here](https://pre-commit.com/#intro) or [here](https://medium.com/staqu-dev-logs/keeping-python-code-clean-with-pre-commit-hooks-black-flake8-and-isort-cac8b01e0ea1).
+
+## Licence
+
+Licensed under the GNU General Public License v3.0 (GPL-3.0). See the [LICENSE](https://github.com/ice-csic-astroexotic/ML-Poppyns/blob/master/LICENSE) file for details.
 
 ## Citation
 
