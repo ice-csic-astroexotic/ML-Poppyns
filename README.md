@@ -9,11 +9,10 @@
 These instructions will help you set up a local copy of the project and get it running on your machine.
 For this, you need conda to be installed on your machine. The code has been tested on Ubuntu and macOS.
 
-1. The latest stable version of ML-Poppyns (`v1.0.0`) is available for download [here](https://github.com/ice-csic-astroexotic/ML-Poppyns/releases).
-    This release corresponds to the `release_v1.0.0` branch.
-    
-   **WARNING**: The master branch is under active development and may be unstable.
-    If you want to use the master branch, first, you need to clone the repository on your computer. To get the files from our GitHub repository, run
+> [!WARNING]
+> Note that we currently only endorse the use of features published in release `v1.0.0`, associated with branch `release_v1.0.0`. New features in other branches in this repository are still under active development, may be unstable and have not undergone rigorous testing.
+ 
+1. If you are part of the ML-Poppyns developer team and want to use the master branch, you can clone the repository on your computer by running:
     ```commandline
     git clone https://github.com/ice-csic-astroexotic/ML-Poppyns.git
     ```
@@ -84,9 +83,9 @@ The steps with pre-commit are as follows: (i) modify code, (ii) stage changes wi
 will automatically execute the pre-commit framework. If the pre-commit checks are passed, the changes are commit. If not 
 files are modified and the steps (i) - (iii) have to be repeated. For more info see [here](https://pre-commit.com/#intro) or [here](https://medium.com/staqu-dev-logs/keeping-python-code-clean-with-pre-commit-hooks-black-flake8-and-isort-cac8b01e0ea1).
 
-## Licence
+## License
 
-Licensed under the GNU General Public License v3.0 (GPL-3.0). See the [LICENSE](https://github.com/ice-csic-astroexotic/ML-Poppyns/blob/master/LICENSE) file for details.
+This software is licensed under the GNU General Public License v3.0 (GPL-3.0). See [LICENSE](https://github.com/ice-csic-astroexotic/ML-Poppyns/blob/release_v1.0.0/LICENSE) for details.
 
 ## Citation
 
