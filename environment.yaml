@@ -4,39 +4,39 @@ channels:
   - nvidia
   - conda-forge
 dependencies:
-  - astropy=5.3.1
-  - black=23.7.0
-  - corner=2.2.2
-  - dask=2024.4.2
-  - dask-jobqueue=0.8.5
+  - astropy=7.2.0
+  - black=26.3.1
+  - corner=2.2.3
+  - dask=2026.3.0
+  - dask-jobqueue=0.9.0
   - f2c=20210323183018
-  - ffmpeg=6.1.1
-  - graphviz=8.1.0
-  - healpy=1.16.2
-  - jupyterlab=4.0.3
-  - matplotlib=3.7.1
-  - notebook=7.0.1
-  - numba=0.59.0
-  - numpy=1.24.4
-  - orjson=3.9.2
-  - pandas=2.0.3
-  - pip=23.2.1
-  - pre-commit=3.3.3
-  - pyinstrument=4.5.1
-  - pytest=7.4.0
-  - pytest-cov=4.1.0
+  - ffmpeg=8.0.1
+  - graphviz=14.1.2
+  - healpy=1.19.0
+  - jupyterlab=4.5.6
+  - matplotlib=3.10.9
+  - notebook=7.5.5
+  - numba=0.65.1
+  - numpy=2.4.3
+  - orjson=3.11.8
+  - pandas=3.0.2
+  - pip=26.0.1
+  - pre-commit=4.6.0
+  - pyinstrument=5.1.2
+  - pytest=9.0.3
+  - pytest-cov=7.1.0
   - pytest-runner=6.0.0
-  - python=3.11.4
-  - pytorch=2.1.0
+  - python=3.11.15
+  - pytorch=2.4.0
   - pytorch-cuda=12.1  # Comment this out if you are a macOS user.
-  - scipy=1.11.1
-  - tensorboard=2.11.0
+  - scipy=1.17.1
+  - tensorboard=2.20.0
   - tensorboardx=2.6.2
-  - termcolor=2.1.1
-  - torchvision=0.16.0
+  - termcolor=3.3.0
+  - torchvision=0.19.0
   - pip:
       - pydeps
-      - pygedm --config-settings="build_ext.include_dirs=${CONDA_PREFIX}/include:/usr/local/include"
+      - pygedm
       - mkdocs-material
       - mkdocstrings-python
       - python-markdown-math
