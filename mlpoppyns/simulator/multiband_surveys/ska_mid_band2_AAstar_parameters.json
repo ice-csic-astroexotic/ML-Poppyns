@@ -1,4 +1,5 @@
-{ "name" : "SKA Mid Band 2 AAstar",
+{
+  "name": "SKA Mid Band 2 AAstar",
   "ref": "Keane et al. (2025)",
   "deg_factor": 1.0,
   "G0": 2.75,

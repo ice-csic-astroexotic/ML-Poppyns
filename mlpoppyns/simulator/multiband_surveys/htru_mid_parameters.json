@@ -1,4 +1,5 @@
-{ "name" : "HTRU mid",
+{
+  "name": "HTRU mid",
   "ref": "M. J. Keith+2010",
   "deg_factor": 1.25,
   "G0": 0.735,
