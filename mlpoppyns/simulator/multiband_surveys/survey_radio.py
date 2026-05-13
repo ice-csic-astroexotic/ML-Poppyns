@@ -77,6 +77,7 @@ def effective_pulse_width(
         f (float): Central frequency at which the observation is performed [Hz].
         t_samp (float): Sampling time for the radio survey [s].
         tau_sc (np.ndarray): Scattering timescales in [s].
+
     Returns:
         (np.ndarray): Measured effective pulse width in [s].
     """
@@ -417,6 +418,7 @@ class SurveyRadio:
 
         Args:
             DEC (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
+
         Returns:
             (np.ndarray): Correction factor emulating the sensitivity of an aperture array for different declinations.
         """
@@ -554,7 +556,6 @@ class SurveyRadio:
         spectral_index: np.ndarray,
         tau_sc: np.ndarray,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-
         """
         Compute the pulsars detected by each survey.
 
