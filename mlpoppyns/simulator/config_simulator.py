@@ -451,8 +451,8 @@ cfg["surveys_radio"]: dict = {
     },
 }
 
-# If you want to simulate surveys with the Square Kilometer Array (SKA) you can use the following dictionary
-# and add it to the one above if you want to simulate all surveys or just use this one and comment out the one above
+# If you want to simulate only surveys with the Square Kilometer Array (SKA) you can use the following dictionary and comment out the dictionary above.
+# If you want to simulate all surveys you can add the entries of the dictionary for the SKA surveys below to the dictionary defined above.
 # (see Keane et al. 2025):
 """
 cfg["surveys_radio"]: dict = {

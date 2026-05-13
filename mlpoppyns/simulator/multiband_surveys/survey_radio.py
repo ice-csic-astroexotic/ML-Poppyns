@@ -414,6 +414,7 @@ class SurveyRadio:
     def aperture_array_factor(self, DEC: np.ndarray) -> np.ndarray:
         """
         Computes the aperture array sensitivity correction factor as a function of declination for each pulsar.
+
         Args:
             DEC (np.ndarray): Declination in [deg] defined between [-90, 90] deg in ICRS frame.
         Returns:
@@ -434,7 +435,8 @@ class SurveyRadio:
         Compute the efficiency factor from Morello et al. (2020) (see eq. 44) to account for incoherent FFT search.
 
         Args:
-            duty_cycle (np.ndarray): duty cycle of pulsars.
+            duty_cycle (np.ndarray): Duty cycle of pulsars.
+
         Returns:
             (np.ndarray): Correction factor emulating the sensitivity of an incoherent FFT search.
         """

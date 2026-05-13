@@ -1,6 +1,6 @@
 {
-  "name": "SKA Mid Band 1 AA4",
-  "ref": "Keane et al. (2025)",
+  "name" : "SKA Mid Band 1 AA4",
+  "ref": "Keane+2025",
   "deg_factor": 1.0,
   "G0": 4.40,
   "t_obs": 600.0,
