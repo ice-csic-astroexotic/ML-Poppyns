@@ -35,10 +35,10 @@ For this, you need conda to be installed on your machine. The code has been test
    python setup.py develop
    ```
    
-4. To install the new conda environment `pop_syn` as an IPython kernel and use it in a Jupyter Notebook, activate
+4. To install the new conda environment `mlpoppyns` as an IPython kernel and use it in a Jupyter Notebook, activate
    the environment as shown in step 2 and then run
    ```commandline
-   python -m ipykernel install --user --name pop_syn --display-name "pop_syn"
+   python -m ipykernel install --user --name mlpoppyns --display-name "mlpoppyns"
    ```
 
 5. Finally, to enable full functionality, you need to set the absolute path of the downloaded repository on your local 

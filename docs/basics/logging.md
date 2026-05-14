@@ -20,7 +20,7 @@ log.error("add error log message")
 As an example, if we run the script to simulate a population of 100 neutron stars using the standard configuration 
 file, the following logging information is shown:
 ```commandline
-(pop_syn) michele@michele-XPS-13-7390:~/Documents/Magnesia-PhD/ML-Poppyns$ python mlpoppyns/simulator/simulate_population_full.py
+(mlpoppyns) michele@michele-XPS-13-7390:~/Documents/Magnesia-PhD/ML-Poppyns$ python mlpoppyns/simulator/simulate_population_full.py
 INFO:__main__:Seed: 1716554090
 INFO:__main__:Randomizing population age...
 INFO:__main__:Generating initial positions...
