@@ -31,14 +31,14 @@ jobs:
       - name: Setup miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: pop_syn
+          activate-environment: mlpoppyns
       # As it takes about 5min to generate the full environment for each run,
       # we cache it after first creation and subsequently restore it to avoid recreation at every push.
       # We also use the hash of the corresponding environment file for the key to check environment modifications below.
       - name: Caching environment
         uses: actions/cache@v4
         with:
-          path: /usr/share/miniconda/envs/pop_syn
+          path: /usr/share/miniconda/envs/mlpoppyns
           key: conda-${{ hashFiles('environment.yaml') }}
         id: cache
       # Create full environment if key from previous step does not match a key stored in the cache.
@@ -50,7 +50,7 @@ jobs:
       # As the pip dependencies are not installed in /usr/share/miniconda/envs/pop_syn
       # and therefore not cached, we update the environment every time to add pip dependencies.
       - name: Install pip dependencies
-        run: conda env update -n pop_syn --file environment.yaml
+        run: conda env update -n mlpoppyns --file environment.yaml
       # Install our software package in the standard way.
       - name: Install package in development mode
         run: python setup.py develop

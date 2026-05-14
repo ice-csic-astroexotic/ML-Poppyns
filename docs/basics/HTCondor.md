@@ -151,7 +151,7 @@ conda init bash
 source /data/astro/software/centos7/conda/mambaforge_4.14.0/etc/profile.d/conda.sh
 
 # Activate conda environment.
-conda activate /data/magnesia/scratch/conda/envs/pop_syn
+conda activate /data/magnesia/scratch/conda/envs/mlpoppyns
 
 # We copy the mlpoppyns module in the working node to avoid problems with the path while running the simulations in the server.
 cp -R /data/magnesia/software/ML-Poppyns/mlpoppyns
@@ -273,7 +273,7 @@ change the last line of our wrapper file:
 export PATH=/data/magnesia/software/anaconda3/bin:$PATH
 conda init bash
 source /data/magnesia/software/anaconda3/etc/profile.d/conda.sh
-conda activate /data/magnesia/software/anaconda3/envs/pop_syn
+conda activate /data/magnesia/software/anaconda3/envs/mlpoppyns
 python /data/magnesia/software/ML-Poppyns/examples/simulator/simulate_population_dyn.py --output $1 --parameter_override $
 ```
 

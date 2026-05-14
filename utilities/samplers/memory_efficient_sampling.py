@@ -37,7 +37,7 @@ def choose_rows(
     Args:
         number_of_rows_to_select (int): Number of rows to randomly select from the full dataset without taking into
             account the headers.
-        total_number_of_rows (int) : Number of rows in the full dataset without taking into account the headers.
+        total_number_of_rows (int): Number of rows in the full dataset without taking into account the headers.
         previously_chosen_rows (list): Rows previously chosen from previous subset.
 
     Returns:
