@@ -29,11 +29,12 @@ import pandas as pd
 import torch
 from dask_jobqueue import HTCondorCluster
 from sbi import utils
-from sbi.analysis import check_sbc, run_sbc, sbc_rank_plot
 from sbi.analysis import tensorboard_output as tbo
+from sbi.analysis.plot import sbc_rank_plot
+from sbi.diagnostics import check_sbc, run_sbc
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
-from sbi.inference.snle.snle_a import SNLE_A
-from sbi.inference.snpe.snpe_c import SNPE_C
+from sbi.inference.trainers.nle import SNLE_A
+from sbi.inference.trainers.npe import SNPE_C
 from tqdm import tqdm
 
 import mlpoppyns.learning.configuration_parser as configuration_parser
