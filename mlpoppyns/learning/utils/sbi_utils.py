@@ -379,7 +379,7 @@ def save_training_statistics(
             enabled, effective_round = last_completed_round + actual_round.
     """
     all_event_data = tbo._get_event_data_from_log_dir(
-        inference._summary_writer.log_dir
+        inference._tracker.log_dir
     )
     training_statistics = all_event_data["scalars"]
 
@@ -407,8 +407,8 @@ def save_training_statistics(
     ax.set_xlabel(r"Epoch")
     ax.set_ylabel(r"Accuracy")
     ax.plot(
-        training_statistics["training_log_probs"]["step"],
-        training_statistics["training_log_probs"]["value"],
+        training_statistics["training_loss"]["step"],
+        training_statistics["training_loss"]["value"],
         linestyle="-",
         linewidth=4,
         color="tab:blue",
@@ -416,8 +416,8 @@ def save_training_statistics(
         label="training",
     )
     ax.plot(
-        training_statistics["validation_log_probs"]["step"],
-        training_statistics["validation_log_probs"]["value"],
+        training_statistics["validation_loss"]["step"],
+        training_statistics["validation_loss"]["value"],
         linestyle="-",
         linewidth=4,
         color="tab:orange",
