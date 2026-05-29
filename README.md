@@ -6,13 +6,16 @@
 
 ## Getting Started
 
-These instructions will provide you with a copy of the project and help you get it up and running on your local machine.
-For this, you need `conda` to be installed on your machine. The code has been tested on Ubuntu and macOS.
+These instructions will help you set up a local copy of the project and get it running on your machine.
+For this, you need conda to be installed on your machine. The code has been tested on Ubuntu and macOS.
 
-1. First, you need to clone the repository on your computer. To get the files from our GitHub repository, run
-   ```commandline
-   git clone https://github.com/ice-csic-astroexotic/ML-Poppyns.git
-   ```
+> [!WARNING]
+> Note that we currently only endorse the use of features published in release `v1.0.0`, associated with branch `release_v1.0.0`. New features in other branches in this repository are still under active development, may be unstable and have not undergone rigorous testing.
+ 
+1. If you are part of the ML-Poppyns developer team and want to use the master branch, you can clone the repository on your computer by running:
+    ```commandline
+    git clone https://github.com/ice-csic-astroexotic/ML-Poppyns.git
+    ```
 
 2. The repo contains an environment file that can be installed by running
    ```commandline
@@ -44,13 +47,6 @@ For this, you need `conda` to be installed on your machine. The code has been te
    folder and the path to the folder where you would like to save any subsequent simulation output by modifying the 
    variables `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively. Both paths could, for example, read
    `/home/user/Documents/ML-Poppyns`.
-
-6. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will 
-   need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/) library after activating the 
-   environment by running:
-   ```commandline
-   pip install sbi==0.22.0
-   ```
    
 ## How to use the code?
 
@@ -80,21 +76,24 @@ The steps with pre-commit are as follows: (i) modify code, (ii) stage changes wi
 will automatically execute the pre-commit framework. If the pre-commit checks are passed, the changes are commit. If not 
 files are modified and the steps (i) - (iii) have to be repeated. For more info see [here](https://pre-commit.com/#intro) or [here](https://medium.com/staqu-dev-logs/keeping-python-code-clean-with-pre-commit-hooks-black-flake8-and-isort-cac8b01e0ea1).
 
+## License
+
+This software is licensed under the GNU General Public License v3.0 (GPL-3.0). See [LICENSE](https://github.com/ice-csic-astroexotic/ML-Poppyns/blob/release_v1.0.0/LICENSE) for details.
+
 ## Citation
 
-If you use ML-Poppyns in your research, we kindly ask you to:
+If you use ML-Poppyns in your research, please reference the [website](https://ice-csic-astroexotic.github.io/code/ml_poppyns/) and the following publications: 
 
-* Cite the following publications in the text:
+* Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
 
-  * Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
+* Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
 
-  * Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
-
-  * Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo-Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
-
-* Add the following sentence in the acknowledgment section of your publication:
-"ML-Poppyns has been funded by the European Research Council via the ERC Consolidator grant 'MAGNESIA' (No. 817661; PI: N. Rea)."
+* Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
 
 ## Contacts
 
-If you encounter any issues or have questions, please feel free to email us at ml-poppyns@ice.csis.es.
+If you encounter any issues or have questions, please feel free to email us:
+
+* Vanessa Graber (Vanessa.Graber@rhul.ac.uk)
+* Celsa Pardo Araujo (pardo@ices.csic.es)
+* Michele Ronchi (ronchi@astron.nl)

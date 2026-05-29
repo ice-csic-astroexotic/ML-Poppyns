@@ -135,10 +135,17 @@ def data_sampler(args: argparse.Namespace) -> None:
 
             else:
                 # Select stars according to some weights that are function of the distance from the Sun.
-                w = calculate_selection_weights(
+                weights = calculate_selection_weights(
                     df_pop["d"]["[kpc]"].to_numpy()
                 )
-                df_select = df_pop.sample(args.size, replace=False, weights=w)
+                weights = np.asarray(weights)
+                # Normalize weights for stability reason when sampling with pandas.
+                weights = weights / weights.sum()
+
+                indices = np.random.choice(
+                    len(df_pop), size=args.size, replace=False, p=weights
+                )
+                df_select = df_pop.iloc[indices]
 
         else:
 

@@ -129,6 +129,6 @@ def random_from_pdf_2d(
     # Draw a random x1 from the cdfs corresponding to the given x2 values.
     x1_rand = np.zeros_like(x2_rand)
     for i in range(len(x2_rand)):
-        x1_rand[i] = random_from_cdf(x1, cdf_x1x2[:, idx[i]], 1)
+        x1_rand[i] = random_from_cdf(x1, cdf_x1x2[:, idx[i]], 1)[0]
 
     return x1_rand, x2_rand
