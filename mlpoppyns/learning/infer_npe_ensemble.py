@@ -333,7 +333,7 @@ def infer(
                         )
 
                         # By default the procedure uses SNPE-C
-                        # (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+                        # (https://sbi.readthedocs.io/en/latest/api_reference/_autosummary/sbi.inference.NPE_C.html).
                         inference = SNPE()
 
                         # Building the inferred posterior distribution for each experiment.

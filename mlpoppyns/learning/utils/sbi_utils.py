@@ -492,7 +492,7 @@ def compute_rank_coverage(
 
         logger.info("Check the rank statistics...")
         # Check if the rank distributions follow a uniform distribution with three different tests
-        # (see [here](https://www.mackelab.org/sbi/tutorial/13_diagnostics_simulation_based_calibration/)
+        # (see [here](https://sbi.readthedocs.io/en/latest/advanced_tutorials/11_diagnostics_simulation_based_calibration.html)
         # for more details on these tests).
         check_stats = check_sbc(
             ranks,

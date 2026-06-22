@@ -6,7 +6,7 @@ distribution of the underlying model parameters.
 
 The framework thus allows us to perform robust statistical inference and derive credibility intervals for parameter 
 estimation with complex simulators like those developed for pulsar population synthesis. Our implementation builds on 
-the [sbi](https://sbi.readthedocs.io/en/latest/) library ([Boelts et al., 2025](https://joss.theoj.org/papers/10.21105/joss.07754)).
+the [sbi](https://sbi.readthedocs.io/en/latest/) library ([Tejero-Cantero et al., 2020](https://arxiv.org/abs/2007.09114), [Boelts et al., 2025](https://joss.theoj.org/papers/10.21105/joss.07754)).
 
 For a discussion of how neural networks can be used to infer point estimates (without quantifying uncertainties) see
 [Learning pulsar parameters with NNs](learning_tutorial_nn.md).
