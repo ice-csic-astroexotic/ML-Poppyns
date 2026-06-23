@@ -164,6 +164,29 @@ parameters used to simulate the magneto-rotational evolution and the detection m
 
     An example of this simulation mode is presented in detail in the tutorial `tutorials/tutorial_notebooks/03_simulator_magrot_det_tutorial.ipynb`.
 
+## Applying detection filters on an already evolved population
+
+After simulating the full evolution of a large number of neutron stars by using the script 
+`mlpoppyns/simulator/simulate_population_full.py`, we can use the module `mlpoppyns/simulator/simulate_population_survey_only.py`, to select stars from the 
+evolved database according to the sky coverage of a given survey and establish if these sources are detected by a given survey or not.
+
+To do so, we execute the command
+```
+python mlpoppyns/simulator/simulate_population_survey_only.py --full_data full_population --save_dir output/sim_det
+```
+
+We need to provide the path where the file `final_population.pkl.gz` containing the evolved full population properties is saved 
+through the argument `--full data`. 
+
+The output consists of the following files:
+
+* `.pkl.gz` files for each of the modelled surveys (containing the stars detected by that survey).
+* `.json` and `.log` files containing the timing profiles for the simulation, if enabled.
+* `configuration.json` containing the configuration parameters for reproducibility.
+
+This simulator type is useful if one needs only to study the effects of applying different survey filters on a 
+fixed underlying population of neutron stars.
+
 ## Simulations with parameter sweep
 
 If we want to run simulations for a large number of parameter combinations, we can use the helper script 

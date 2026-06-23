@@ -23,6 +23,7 @@ import json
 import logging
 import os
 import pathlib
+import shutil
 import sys
 import time
 
@@ -59,6 +60,8 @@ def simulate_surveys(args: argparse.Namespace) -> None:
     if not final_population_path.exists():
         log.error(f"File {final_population_path} not found...")
         sys.exit()
+
+    final_population_config_path = full_path / "configuration.json"
 
     # If the output directory does not exist, create it.
     output_path = pathlib.Path(args.save_dir)
@@ -216,12 +219,9 @@ def simulate_surveys(args: argparse.Namespace) -> None:
                 f"Output of the detected population with {survey} generated in {os.getcwd()}/{output_path_survey}"
             )
 
-    # Dump updated configuration to output path.
-    config_dump_path = pathlib.Path().joinpath(
-        output_path, "configuration.json"
-    )
-    with open(config_dump_path, "w") as f:
-        json.dump(cfg, f, indent=4, sort_keys=True)
+    # Copy the configuration file of the full simulation in the output folder for reproducibility purposes.
+    config_dump_path = pathlib.Path(output_path) / "configuration.json"
+    shutil.copy2(final_population_config_path, config_dump_path)
 
     # Reset seed, profile_log, and profile_json to default values. This is done to prevent issues when
     # calling the simulate_population function in other scripts more than once, ensuring that the values are
