@@ -9,6 +9,7 @@
     "profile_log": "profile.log",
     "profile_json": "profile.json",
     "show_profiling": true,
+
     "trainer": {
         "type": "snpe",
         "num_rounds": 1,
@@ -24,6 +25,7 @@
         "append_simulations": false,
         "plot_proposal": false
     },
+
     "density_estimator": {
         "type": "mdn",
         "classifier_nre": "resnet",
@@ -33,11 +35,13 @@
             "num_transforms": 5
         }
     },
+
     "mcmc_sampler": {
         "type": "slice_np_vectorized",
         "num_chains": 20,
         "thin": 5
     },
+
     "arch": {
         "type": "ModelConvSBI",
         "args": {
@@ -49,16 +53,19 @@
             "len_output_layer": 32
         }
     },
+
     "weights_initializer": {
         "type": "InitializerKaiming",
         "args": {}
     },
+
     "compression_input": {
         "use_compression": false,
         "compression_type": "cnn",
         "cnn_model_path": "exp_4/round_9/trained_model_ensemble_0.pickle",
         "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
     },
+
     "prior_ranges": {
         "labels": [
             "B_initial_log10_mean",
@@ -73,6 +80,7 @@
             -0.3
         ]
     },
+
     "training_data_loader": {
         "dataset_path_round_0": "data/example_generator_magrot",
         "dataset_path": "data/example_generator_magrot",
@@ -90,6 +98,7 @@
         "standardize": true,
         "num_sim": 10
     },
+
     "test_data_loader": {
         "testing": false,
         "dataset_path_round_0": "data/example_generator_magrot",
@@ -97,6 +106,7 @@
         "num_sim": 10,
         "statistic_path": "data/example_generator_magrot/statistics_train.json"
     },
+
     "observed_sample": {
         "dataset_path": "data/example_generator_observed/",
         "filter_inputs": [
@@ -105,15 +115,18 @@
             11
         ]
     },
+
     "dyn_data_loader": {
         "dataset_path": "data/example_simulation_dyn"
     },
+
     "resume_training": {
         "resume": false,
         "last_round": 7,
         "save_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828",
         "log_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828"
     },
+
     "infer": {
         "sim_dataset": false,
         "compute_coverage": true,
