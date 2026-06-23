@@ -27,12 +27,13 @@ def pdf_period_normal(mean: float, sigma: float, NS_number: int) -> np.ndarray:
         (np.ndarray): Initial pulsar period in [s] drawn from a Gaussian distribution.
     """
 
-    P_initial = np.zeros(NS_number)
+    P_initial = np.random.normal(mean, sigma, NS_number)
 
-    for i in range(NS_number):
-        P_initial[i] = np.random.normal(mean, sigma, 1)
-        while P_initial[i] <= 0:
-            P_initial[i] = np.random.normal(mean, sigma, 1)
+    # Resample only the invalid (<= 0) entries.
+    mask = P_initial <= 0
+    while np.any(mask):
+        P_initial[mask] = np.random.normal(mean, sigma, mask.sum())
+        mask = P_initial <= 0
 
     return P_initial
 
