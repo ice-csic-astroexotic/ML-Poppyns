@@ -5,8 +5,9 @@
     and the respective objects evolved in time according to their age.
     We simulate both the dynamical evolution in the Galaxy and the magneto-rotational
     evolution.
-    Finally, we model the radio emission and simulate the detection from two radio surveys,
-    Parkes multibeam (PMPS) and Swinburne (SMPS).
+    Finally, we model the radio emission and simulate the detection from three radio surveys,
+    Parkes multibeam (PMPS) and Swinburne (SMPS) and the low-mid High Time Resolution Universe (HTRU) and an
+    X-ray survey.
 
     Display help message to run the code:
 
