@@ -21,6 +21,8 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 
+import mlpoppyns.simulator.basics.constants as const
+
 
 def load_atnf_meerkat_catalog(
     path_atnf_catalog: pathlib.Path,
@@ -339,12 +341,15 @@ def load_atnf_meerkat_catalog(
 
 def load_xray_catalog(
     path_xray_catalog: pathlib.Path,
+    filter_young_xdins: bool = False,
 ) -> dict:
     """
     Load the catalog containing the properties of observed thermally emitting X-ray bright neutron stars.
 
     Args:
         path_xray_catalog (pathlib.Path): Path to the catalog of thermally emitting neutron stars.
+        filter_young_xdins (bool): Whether to filter the X-ray simulated samples to include only young magnetars and
+            XDINS-like sources.
 
     Returns:
         (dict): A dictionary with the properties of detected neutron stars in X-rays with quiescent thermal emission.
@@ -361,10 +366,12 @@ def load_xray_catalog(
     )
 
     # We have removed central compact objects (CCOs) because their magnetic field have likely been buried due to
-    # supernova fallback and their evolution cannot be modeled with our simulation framework. We also remove neutron
-    # stars associated with pulsar wind nebulae as their detection might have been triggered by the non-thermal
-    # emission of the nebula. We also remove those stars that belong to the Magellanic Clouds.
+    # supernova fallback and their evolution cannot be modeled with our simulation framework. We also remove
+    # rotation-powered pulsars and neutron stars associated with pulsar wind nebulae as their detection might have
+    # been triggered by the non-thermal emission of the nebula.
+    # We also remove those stars that belong to the Magellanic Clouds.
     df_x = df_x[~df_x["class"].isin(["CCO"])]
+    df_x = df_x[~df_x["class"].isin(["RPP"])]
     df_x = df_x[~df_x["assoc"].isin(["PWN", "PWN, Radio"])]
     df_x = df_x[~df_x["assoc"].isin(["SMC", "LMC"])]
     df_x = df_x.dropna(subset=["period(s)"])
@@ -378,23 +385,51 @@ def load_xray_catalog(
         l_x_obs[(l_x_obs > 180.0) & (l_x_obs < 360.0)] - 360.0
     )
 
+    P = df_x["period(s)"].to_numpy().astype(np.float64)
+    P_dot = df_x["pdot(1e-11s/s)"].to_numpy().astype(np.float64) * 1e-11
+
+    if filter_young_xdins:
+        age_real = df_x["age_real(kyr)"].to_numpy().astype(np.float64)
+        age_char = P / (2 * P_dot) / const.YR_TO_S / 1000
+
+        # Filter young sources (with estimated ages less than 2 kyrs).
+        young_mask = (age_real <= 2) | (age_char <= 2)
+        # Filter XDINS sources.
+        xdins_mask = df_x["class"] == "XDINS"
+
+        filter_mask = young_mask | xdins_mask
+    else:
+        filter_mask = np.ones(len(P), dtype=bool)
+
     # Save the properties in the X-ray dictionary.
-    survey_xray["l_gal"] = l_x_obs
-    survey_xray["b_gal"] = df_x["b(deg)"].to_numpy().astype(np.float64)
-    survey_xray["ra"] = df_x["ra(deg)"].to_numpy().astype(np.float64)
-    survey_xray["dec"] = df_x["dec(deg)"].to_numpy().astype(np.float64)
-    survey_xray["dist"] = df_x["distance(kpc)"].to_numpy().astype(np.float64)
-    survey_xray["P"] = df_x["period(s)"].to_numpy().astype(np.float64)
+    survey_xray["l_gal"] = l_x_obs[filter_mask]
+    survey_xray["b_gal"] = (
+        df_x["b(deg)"].to_numpy().astype(np.float64)[filter_mask]
+    )
+    survey_xray["ra"] = (
+        df_x["ra(deg)"].to_numpy().astype(np.float64)[filter_mask]
+    )
+    survey_xray["dec"] = (
+        df_x["dec(deg)"].to_numpy().astype(np.float64)[filter_mask]
+    )
+    survey_xray["dist"] = (
+        df_x["distance(kpc)"].to_numpy().astype(np.float64)[filter_mask]
+    )
+    survey_xray["P"] = (
+        df_x["period(s)"].to_numpy().astype(np.float64)[filter_mask]
+    )
     survey_xray["P_dot"] = (
         df_x["pdot(1e-11s/s)"].to_numpy().astype(np.float64) * 1e-11
-    )
+    )[filter_mask]
     survey_xray["L_x_bol"] = (
         df_x["luminosity_bol_qui(e33erg/s)"].to_numpy().astype(np.float64)
         * 1e33
-    )
+    )[filter_mask]
     survey_xray["S_x_abs"] = (
         df_x["abs. flux (0.3-10 keV)"].to_numpy().astype(np.float64)
+    )[filter_mask]
+    survey_xray["age"] = (
+        df_x["age_real(kyr)"].to_numpy().astype(np.float64)[filter_mask]
     )
-    survey_xray["age"] = df_x["age_real(kyr)"].to_numpy().astype(np.float64)
 
     return survey_xray

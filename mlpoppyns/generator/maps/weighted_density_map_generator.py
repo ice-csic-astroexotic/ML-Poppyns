@@ -51,7 +51,6 @@ def generate_weighted_density_map(
     maps_dictionary: dict,
     x_limits: typing.Tuple[float, float],
     y_limits: typing.Tuple[float, float],
-    valid_simulation: bool,
 ) -> None:
     """
     This method generates a weighted map.
@@ -83,7 +82,6 @@ def generate_weighted_density_map(
         maps_dictionary (dict): Dictionary of the maps where to append the path of the new generated map.
         x_limits (Tuple[float, float]): Limits of the horizontal axis.
         y_limits (Tuple[float, float]): Limits of the vertical axis.
-        valid_simulation (bool): If False the generated map will contain NaN values.
     """
 
     # Compose the final filename with the dataset path, the name for the map,
@@ -106,7 +104,6 @@ def generate_weighted_density_map(
         y_log_scale,
         n_x_bins=x_resolution,
         n_y_bins=y_resolution,
-        valid_simulation=valid_simulation,
     )
 
     # Save map file name into the dataset dictionary.

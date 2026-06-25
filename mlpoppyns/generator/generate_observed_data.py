@@ -275,40 +275,6 @@ def create_survey_maps(
             y_limits=(1e-20, 1e-9),
         )
 
-        # Create P-flux density maps.
-        dmap.generate_density_map(
-            dataset_path,
-            f"survey_{survey_name}_density_map_pflux",
-            0,
-            data_type,
-            survey_dict["P"],
-            survey_dict["S_x_abs"],
-            resolution_ppdot,
-            resolution_ppdot,
-            x_log_scale=True,
-            y_log_scale=True,
-            maps_dictionary=dictionary_density_map_pflux,
-            x_limits=(0.01, 100.0),
-            y_limits=(1.0e-15, 1.0e-9),
-        )
-
-        # Create Pdot-flux density maps.
-        dmap.generate_density_map(
-            dataset_path,
-            f"survey_{survey_name}_density_map_pdotflux",
-            0,
-            data_type,
-            survey_dict["P_dot"],
-            survey_dict["S_x_abs"],
-            resolution_ppdot,
-            resolution_ppdot,
-            x_log_scale=True,
-            y_log_scale=True,
-            maps_dictionary=dictionary_density_map_pdotflux,
-            x_limits=(1.0e-20, 1.0e-9),
-            y_limits=(1.0e-15, 1.0e-9),
-        )
-
     else:
         log.error(
             f"The specified {survey_type} is not supported. Choose between 'radio' and 'X-ray'."
@@ -337,7 +303,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
     catalog_atnf, catalog_meerkat = load_atnf_meerkat_catalog(
         args.path_atnf, args.path_meerkat
     )
-    catalog_xray = load_xray_catalog(args.path_xray)
+    catalog_xray = load_xray_catalog(args.path_xray, args.filter_young_xdins)
 
     # Create the dataset directory path.
     dataset_path = f"{args.save_dir}"
@@ -565,6 +531,11 @@ if __name__ == "__main__":
         type=int,
         default=64,
         help="Resolution of the P-Pdot maps for the X-ray surveys that will be generated (in number of bins).",
+    )
+    parser.add_argument(
+        "--filter_young_xdins",
+        action="store_true",
+        help="Whether to filter the X-ray simulated samples to include only young magnetars and XDINS-like sources.",
     )
 
     args = parser.parse_args()
