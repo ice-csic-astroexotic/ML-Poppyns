@@ -15,12 +15,6 @@
     The information on the simulated dataset is also saved in a .csv file where the
     corresponding input files are mapped with their paths and labels.
 
-    The total dataset can be also split into a training, validation and test subsets
-    and in this case three additional .csv files will be created
-    specifying the samples in each subset. One can also choose to split only into a
-    training and validation subsets (without test subset) and in this case only the
-    two related .csv files will be created.
-
     Display help message to run the code:
 
     python generate_dataset_full.py --help
@@ -369,7 +363,7 @@ if __name__ == "__main__":
         "--data_type",
         nargs="?",
         type=str,
-        choices=["array", "image"],
+        choices=["array", "image", "array_kde", "image_kde"],
         default="array",
         help="Type of dataset to generate: array or image.",
     )
