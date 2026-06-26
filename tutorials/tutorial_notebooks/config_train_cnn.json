@@ -36,8 +36,8 @@
       "statistic_path": "output/generator/statistics_train.json",
       "batch_size": 8,
       "num_workers": 1,
-      "filter_inputs": [9, 10, 11],
-      "filter_labels": [15, 16],
+      "filter_inputs": [12, 13, 14],
+      "filter_labels": [20, 21],
       "shuffle": true,
       "normalize": false,
       "standardize": true
@@ -51,8 +51,8 @@
       "statistic_path": "output/generator/statistics_train.json",
       "batch_size": 8,
       "num_workers": 1,
-      "filter_inputs": [9, 10, 11],
-      "filter_labels": [15, 16],
+      "filter_inputs": [12, 13, 14],
+      "filter_labels": [20, 21],
       "shuffle": false,
       "normalize": false,
       "standardize": true
@@ -66,8 +66,8 @@
       "statistic_path": "output/generator/statistics_train.json",
       "batch_size": 1,
       "num_workers": 1,
-      "filter_inputs": [9, 10, 11],
-      "filter_labels": [15, 16],
+      "filter_inputs": [12, 13, 14],
+      "filter_labels": [20, 21],
       "shuffle": false,
       "normalize": false,
       "standardize": true

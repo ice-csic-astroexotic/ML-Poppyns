@@ -56,13 +56,11 @@ def create_survey_maps(
     dictionary_velocity_vdec_map_radec: dict,
     dictionary_density_map_ppdot: dict,
     dictionary_flux_map_ppdot: dict,
-    dictionary_density_map_pflux: dict,
-    dictionary_density_map_pdotflux: dict,
 ) -> None:
     """
-    This method reads the observed population from the ATNF Pulsar Catalogue and the MeerKat TPA program (Posselt et
-    al., 2023) and generates a set of density maps in the specified format (images or arrays) and with a specified
-    resolution.
+    This method reads the observed population from the ATNF Pulsar Catalogue, the MeerKat TPA program (Posselt et
+    al., 2023) and the thermally-emitting neutron star catalogue (Dehman et al. in prep), generates a set of density maps
+    in the specified format (images or arrays) and with a specified resolution.
 
     Args:
         dataset_path (str): Path to where the generated dataset will be saved.
@@ -87,10 +85,6 @@ def create_survey_maps(
         dictionary_density_map_ppdot (dict): Dictionary containing the path to the P-Pdot maps for
             all the observed surveys.
         dictionary_flux_map_ppdot (dict): Dictionary containing the path to the averaged flux P-Pdot maps for
-            all the observed surveys.
-        dictionary_density_map_pflux (dict): Dictionary containing the path to the P-flux maps for
-            all the observed surveys.
-        dictionary_density_map_pdotflux (dict): Dictionary containing the path to the Pdot-flux maps for
             all the observed surveys.
     """
 
@@ -163,40 +157,6 @@ def create_survey_maps(
             y_limits=(1e-20, 1e-9),
         )
 
-        # Create P-flux density maps.
-        dmap.generate_density_map(
-            dataset_path,
-            f"survey_{survey_name}_density_map_pflux",
-            0,
-            data_type,
-            survey_meerkat_dict["P"],
-            survey_meerkat_dict["S1400"],
-            resolution_ppdot,
-            resolution_ppdot,
-            x_log_scale=True,
-            y_log_scale=True,
-            maps_dictionary=dictionary_density_map_pflux,
-            x_limits=(0.01, 100.0),
-            y_limits=(1e-5, 10.0),
-        )
-
-        # Create Pdot-flux density maps.
-        dmap.generate_density_map(
-            dataset_path,
-            f"survey_{survey_name}_density_map_pdotflux",
-            0,
-            data_type,
-            survey_meerkat_dict["P_dot"],
-            survey_meerkat_dict["S1400"],
-            resolution_ppdot,
-            resolution_ppdot,
-            x_log_scale=True,
-            y_log_scale=True,
-            maps_dictionary=dictionary_density_map_pdotflux,
-            x_limits=(1.0e-20, 1.0e-9),
-            y_limits=(1.0e-5, 10.0),
-        )
-
     elif (survey_type == "radio") & (use_meerkat_fluxes is False):
         # Create P-Pdot average flux maps.
         # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-7 Jy since all
@@ -217,40 +177,6 @@ def create_survey_maps(
             maps_dictionary=dictionary_flux_map_ppdot,
             x_limits=(1e-2, 1e2),
             y_limits=(1e-20, 1e-9),
-        )
-
-        # Create P-flux density maps.
-        dmap.generate_density_map(
-            dataset_path,
-            f"survey_{survey_name}_density_map_pflux",
-            0,
-            data_type,
-            survey_dict["P"],
-            survey_dict["S1400"],
-            resolution_ppdot,
-            resolution_ppdot,
-            x_log_scale=True,
-            y_log_scale=True,
-            maps_dictionary=dictionary_density_map_pflux,
-            x_limits=(0.01, 100.0),
-            y_limits=(1e-5, 10.0),
-        )
-
-        # Create Pdot-flux density maps.
-        dmap.generate_density_map(
-            dataset_path,
-            f"survey_{survey_name}_density_map_pdotflux",
-            0,
-            data_type,
-            survey_dict["P_dot"],
-            survey_dict["S1400"],
-            resolution_ppdot,
-            resolution_ppdot,
-            x_log_scale=True,
-            y_log_scale=True,
-            maps_dictionary=dictionary_density_map_pdotflux,
-            x_limits=(1.0e-20, 1.0e-9),
-            y_limits=(1.0e-5, 10.0),
         )
 
     elif survey_type == "X-ray":
@@ -284,20 +210,31 @@ def create_survey_maps(
 def generate_dataset(args: argparse.Namespace) -> None:
     """
     This method generates a dataset of density maps in the specified format (images or arrays) and with a specified
-    resolution from the ATNF Pulsar Catalogue and the MeerKat TPA program (Posselt et al., 2023).
+    resolution from the ATNF Pulsar Catalogue, the MeerKat TPA program (Posselt et al., 2023) and the thermally-emitting
+    neutron star catalogue (Dehman et al. in prep).
     All the information about the dataset is stored in a dataset.csv file containing the density-map file names
     and the set of parameter values for each simulated population.
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
 
-            - data (str): Path to where the observed population is located.
-            - save_dir (str): Path to where the generated dataset will be saved.
-            - data_type (str): Type of dataset to generate: array or image.
-            - resolution_ppdot (int): Resolution (number of bins per axis for the 2d
-                histograms) for the P-Pdot density maps to generate.
             - path_atnf (str): Path to the ATNF catalogue.
             - path_meerkat (str): Path to the MeerKat catalogue.
+            - path_xray (str): Path to the thermally-emitting neutron star catalogue.
+            - save_dir (str): Path to where the generated dataset will be saved.
+            - data_type (str): Type of dataset to generate: array, array_kde, image or image_kde.
+            - resolution_ppdot_radio (int): Resolution (number of bins per axis for the 2d
+                histograms) for the P-Pdot maps related to the radio surveys.
+            - resolution_dyn_radio (int): Resolution (number of bins per axis for the 2d
+                histograms) for the dynamical maps related to the radio surveys. In case of RA DEC maps the
+                DEC axis has half the number of bins with respect to the RA axis.
+            - resolution_ppdot_xray (int): Resolution (number of bins per axis for the 2d
+                histograms) for the P-Pdot maps related to the X-ray survey.
+            - resolution_dyn_xray (int): Resolution (number of bins per axis for the 2d
+                histograms) for the dynamical maps related to the X-ray surveys. In case of RA DEC maps the
+                DEC axis has half the number of bins with respect to the RA axis.
+            - filter_young_xdins (bool): Whether to filter the X-ray simulated samples to include only young magnetars
+                and XDINS-like sources.
     """
 
     catalog_atnf, catalog_meerkat = load_atnf_meerkat_catalog(
@@ -316,32 +253,24 @@ def generate_dataset(args: argparse.Namespace) -> None:
     survey_PMPS_velocity_vdec_map_radec_dictionary = {}
     survey_PMPS_density_map_ppdot_dictionary = {}
     survey_PMPS_flux_map_ppdot_dictionary = {}
-    survey_PMPS_density_map_pflux_dictionary = {}
-    survey_PMPS_density_map_pdotflux_dictionary = {}
 
     survey_SMPS_density_map_radec_dictionary = {}
     survey_SMPS_velocity_vra_map_radec_dictionary = {}
     survey_SMPS_velocity_vdec_map_radec_dictionary = {}
     survey_SMPS_density_map_ppdot_dictionary = {}
     survey_SMPS_flux_map_ppdot_dictionary = {}
-    survey_SMPS_density_map_pflux_dictionary = {}
-    survey_SMPS_density_map_pdotflux_dictionary = {}
 
     survey_HTRU_density_map_radec_dictionary = {}
     survey_HTRU_velocity_vra_map_radec_dictionary = {}
     survey_HTRU_velocity_vdec_map_radec_dictionary = {}
     survey_HTRU_density_map_ppdot_dictionary = {}
     survey_HTRU_flux_map_ppdot_dictionary = {}
-    survey_HTRU_density_map_pflux_dictionary = {}
-    survey_HTRU_density_map_pdotflux_dictionary = {}
 
     survey_xray_density_map_radec_dictionary = {}
     survey_xray_velocity_vra_map_radec_dictionary = {}
     survey_xray_velocity_vdec_map_radec_dictionary = {}
     survey_xray_density_map_ppdot_dictionary = {}
     survey_xray_flux_map_ppdot_dictionary = {}
-    survey_xray_density_map_pflux_dictionary = {}
-    survey_xray_density_map_pdotflux_dictionary = {}
 
     log.info("Generating sample...")
 
@@ -361,8 +290,6 @@ def generate_dataset(args: argparse.Namespace) -> None:
         survey_PMPS_velocity_vdec_map_radec_dictionary,
         survey_PMPS_density_map_ppdot_dictionary,
         survey_PMPS_flux_map_ppdot_dictionary,
-        survey_PMPS_density_map_pflux_dictionary,
-        survey_PMPS_density_map_pdotflux_dictionary,
     )
 
     create_survey_maps(
@@ -380,8 +307,6 @@ def generate_dataset(args: argparse.Namespace) -> None:
         survey_SMPS_velocity_vdec_map_radec_dictionary,
         survey_SMPS_density_map_ppdot_dictionary,
         survey_SMPS_flux_map_ppdot_dictionary,
-        survey_SMPS_density_map_pflux_dictionary,
-        survey_SMPS_density_map_pdotflux_dictionary,
     )
 
     create_survey_maps(
@@ -399,8 +324,6 @@ def generate_dataset(args: argparse.Namespace) -> None:
         survey_HTRU_velocity_vdec_map_radec_dictionary,
         survey_HTRU_density_map_ppdot_dictionary,
         survey_HTRU_flux_map_ppdot_dictionary,
-        survey_HTRU_density_map_pflux_dictionary,
-        survey_HTRU_density_map_pdotflux_dictionary,
     )
 
     create_survey_maps(
@@ -418,8 +341,6 @@ def generate_dataset(args: argparse.Namespace) -> None:
         survey_xray_velocity_vdec_map_radec_dictionary,
         survey_xray_density_map_ppdot_dictionary,
         survey_xray_flux_map_ppdot_dictionary,
-        survey_xray_density_map_pflux_dictionary,
-        survey_xray_density_map_pdotflux_dictionary,
     )
 
     # Merge the filename and parameter dictionaries into a single dictionary.
@@ -444,14 +365,6 @@ def generate_dataset(args: argparse.Namespace) -> None:
         **survey_SMPS_flux_map_ppdot_dictionary,
         **survey_HTRU_flux_map_ppdot_dictionary,
         **survey_xray_flux_map_ppdot_dictionary,
-        **survey_PMPS_density_map_pflux_dictionary,
-        **survey_SMPS_density_map_pflux_dictionary,
-        **survey_HTRU_density_map_pflux_dictionary,
-        **survey_xray_density_map_pflux_dictionary,
-        **survey_PMPS_density_map_pdotflux_dictionary,
-        **survey_SMPS_density_map_pdotflux_dictionary,
-        **survey_HTRU_density_map_pdotflux_dictionary,
-        **survey_xray_density_map_pdotflux_dictionary,
     }
 
     # Write the whole dataset dictionary into a .csv file.
