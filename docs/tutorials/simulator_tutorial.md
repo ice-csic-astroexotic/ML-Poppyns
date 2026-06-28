@@ -167,25 +167,26 @@ parameters used to simulate the magneto-rotational evolution and the detection m
 ## Applying detection filters on an already evolved population
 
 After simulating the full evolution of a large number of neutron stars by using the script 
-`mlpoppyns/simulator/simulate_population_full.py`, we can use the module `mlpoppyns/simulator/simulate_population_survey_only.py`, to select stars from the 
-evolved database according to the sky coverage of a given survey and establish if these sources are detected by a given survey or not.
+`mlpoppyns/simulator/simulate_population_full.py`, we can use the module 
+`mlpoppyns/simulator/simulate_population_survey_only.py` to select stars from the evolved database according to the 
+sky coverage of a given survey and establish if these sources are detected by said survey or not. This allows us to
+avoid reproducing the computationally expensive time evolution of the pulsar population repeatedly while testing a 
+range of survey parameters, for example, for a fixed underlying neutron star population.
 
 To do so, we execute the command
 ```
 python mlpoppyns/simulator/simulate_population_survey_only.py --full_data full_population --save_dir output/sim_det
 ```
 
-We need to provide the path where the file `final_population.pkl.gz` containing the evolved full population properties is saved 
+Here, we specify the path where the `final_population.pkl.gz` file containing the full evolved population is saved 
 through the argument `--full data`. 
 
-The output consists of the following files:
+The output of the above command consists of the following files:
 
-* `.pkl.gz` files for each of the modelled surveys (containing the stars detected by that survey).
+* `.pkl.gz` files for each of the modeled surveys (containing the stars detected by that survey).
 * `.json` and `.log` files containing the timing profiles for the simulation, if enabled.
 * `configuration.json` containing the configuration parameters for reproducibility.
 
-This simulator type is useful if one needs only to study the effects of applying different survey filters on a 
-fixed underlying population of neutron stars.
 
 ## Simulations with parameter sweep
 
