@@ -1,9 +1,10 @@
 """
     Simulating a detected population of neutron stars.
 
-    After loading a full evolved population of neutron stars in the Galaxy, we model the detection from three radio surveys,
-    Parkes multibeam (PMPS) and Swinburne (SMPS) and the low-mid High Time Resolution Universe (HTRU)
-    and an X-ray survey.
+    After loading a fullly evolved population of neutron stars in the Galaxy, we model the radio emission and
+    simulate the detection from three radio surveys, namely the Parkes Multibeam Pulsar Survey (PMPS) and
+    Swinburne Intermediate-latitude Pulsar Survey (SMPS) and the low- and mid-latitude High Time Resolution
+    Universe (HTRU) surveys as well as an X-ray survey.
 
     Display help message to run the code:
 
@@ -42,7 +43,7 @@ logging.getLogger("healpy").setLevel(logging.WARNING)
 
 def simulate_surveys(args: argparse.Namespace) -> None:
     """
-    Applying detection filter from radio and X-ray surveys to an evolved neutron star population.
+    Applying detection filters from radio and X-ray surveys to an evolved neutron star population.
 
     Args:
         args (argparse.Namespace): An argparse.Namespace object containing the following attributes:
@@ -71,7 +72,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
     prof_log_path = pathlib.Path().joinpath(output_path, cfg["profile_log"])
     prof_json_path = pathlib.Path().joinpath(output_path, cfg["profile_json"])
 
-    # Remove the profile.json and profile.log files to prevent interrupted server connections issues.
+    # Remove the profile.json and profile.log files to prevent interrupted server connection issues.
     if os.path.exists(prof_json_path):
         os.remove(prof_json_path)
 
@@ -112,7 +113,7 @@ def simulate_surveys(args: argparse.Namespace) -> None:
             cfg["show_profiling"],
         ):
 
-            # Load the final_population.pkl.gz.
+            # Load the final_population.pkl.gz file.
             final_population_location = pathlib.Path().joinpath(
                 cfg["path_to_software"],
                 final_population_path,
