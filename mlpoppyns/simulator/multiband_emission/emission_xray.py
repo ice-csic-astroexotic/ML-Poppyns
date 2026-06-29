@@ -12,7 +12,7 @@ from typing import Optional, Tuple
 
 import numpy as np
 import scipy.special as scsp
-from scipy.integrate import trapz
+from scipy.integrate import trapezoid
 from scipy.interpolate import RectBivariateSpline
 
 import mlpoppyns.simulator.basics.constants as const
@@ -223,15 +223,15 @@ def resonant_cyclotron_scat_spectrum(
     # add it to the numerical integral of the second term.
     exp_fact = np.exp(-tau_0 / 2.0)
     exp_fact = exp_fact[:, np.newaxis]
-    I_ph_trans = I_ph_source * exp_fact + trapz(
+    I_ph_trans = I_ph_source * exp_fact + trapezoid(
         (I_ph * n_trans_without_delta), E_0, axis=2
     )
     rcs_spectrum = rcs_spectrum + I_ph_trans
 
     for i in range(n_reflections):
-        I_ph_reflect = trapz((I_ph * p_refl), E_0, axis=2)
+        I_ph_reflect = trapezoid((I_ph * p_refl), E_0, axis=2)
         I_ph_reflect_reshape = I_ph_reflect[:, np.newaxis, :]
-        I_ph_trans_refl = I_ph_reflect * exp_fact + trapz(
+        I_ph_trans_refl = I_ph_reflect * exp_fact + trapezoid(
             (I_ph_reflect_reshape * n_trans_without_delta), E_0, axis=2
         )
         rcs_spectrum = rcs_spectrum + I_ph_trans_refl
@@ -349,8 +349,12 @@ def flux_xray_absorbed(
 
     # Compute the total observed fluxes in the energy range [0.01, 10] keV (see eq. (17) in overleaf).
     E_mask = E <= 10000
-    I_bb_absorbed_bolom = trapz(I_bb_absorbed[:, E_mask], E[E_mask], axis=1)
-    I_rcs_absorbed_bolom = trapz(I_rcs_absorbed[:, E_mask], E[E_mask], axis=1)
+    I_bb_absorbed_bolom = trapezoid(
+        I_bb_absorbed[:, E_mask], E[E_mask], axis=1
+    )
+    I_rcs_absorbed_bolom = trapezoid(
+        I_rcs_absorbed[:, E_mask], E[E_mask], axis=1
+    )
 
     flux_bb_absorbed = (R_obs / d) ** 2 * np.pi * I_bb_absorbed_bolom
     flux_rcs_absorbed = (R_obs / d) ** 2 * np.pi * I_rcs_absorbed_bolom

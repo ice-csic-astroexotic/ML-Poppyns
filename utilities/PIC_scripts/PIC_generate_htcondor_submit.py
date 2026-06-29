@@ -101,7 +101,7 @@ def generate_wrapper(
             "source /data/astro/software/centos7/conda/mambaforge_4.14.0/etc/profile.d/conda.sh\n"
         )
         f.write(
-            "conda activate /data/magnesia/scratch_ssd/conda/envs/pop_syn\n"
+            "conda activate /data/magnesia/scratch_ssd/conda/envs/mlpoppyns\n"
         )
         f.write(
             "# We copy the mlpoppyns module in the working node to avoid problems with the path while running the simulations in the server.\n"
