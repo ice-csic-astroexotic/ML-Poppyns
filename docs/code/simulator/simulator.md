@@ -9,3 +9,5 @@
 ::: mlpoppyns.simulator.simulate_population_full
 
 ::: mlpoppyns.simulator.simulate_population_magrot_det
+
+::: mlpoppyns.simulator.simulate_population_survey_only

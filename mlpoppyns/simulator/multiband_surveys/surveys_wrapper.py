@@ -451,6 +451,7 @@ def radio_detection(
             dictionary_radio[f"coverage_radio_{survey_name}"],
             dictionary_radio["l"],
             dictionary_radio["b"],
+            dictionary_radio["dec"],
             dictionary_radio["S_radio_bol"],
             dictionary_radio["spectral_index"],
             dictionary_radio["tau_sc"],

@@ -39,6 +39,67 @@ def test_case_1():
             "DEC_range": [-90.0, 90.0],
             "l_range": [-100.0, 50.0],
             "b_range_abs": [0.0, 5.0],
+            "aperture_config": False,
+            "FFT_search": True,
+        },
+        "w_int": np.array([1.0e-3, 1.0e-4]),
+        "w_int_s": np.array([1.59e-05, 1.59e-07]),
+        "DM": np.array([100, 1000]),
+        "age": np.array([1.0, 1.2]),
+        "tau_sc": np.array([3.472e-03, 1.055e01]),
+        "spectral_index": np.array([-1.6, -1.6]),
+        "f": 1.4e9,
+        "channel_width": 3.0e6,
+        "t_samp": 250e-6,
+        "tau_DM_expected": np.array([0.00090717, 0.00907173]),
+        "w_eff_expected": np.array([0.00137313, 0.01975861]),
+        "l_gal": np.array([-90.0, 0.0]),
+        "b_gal": np.array([0.0, 20.0]),
+        "RA": np.array([30.0, 200.0]),
+        "DEC": np.array([-30.0, 50.0]),
+        "T_sky_expected": np.array([3.00651602, 1.25853108]),
+        "intercepted_radio": np.array([True, True], dtype=bool),
+        "coverage_expected": np.array([True, False], dtype=bool),
+        "offset2": np.array([5, 10]),
+        "S_radio_bol": np.array([5.1e-18, 2.9e-19]),
+        "G_expected": np.array([0.68485507, 0.63813124]),
+        "aa_factor_expected": np.array([0.99862953, 0.22495105]),
+        "S_radio_int": np.array([0.01, 100]),
+        "S_radio_obs_expected": np.array([0.00728263, 0.50610848]),
+        "S_radio_obs_mean_expected": np.array([9.99999989e-5, 0.999999996]),
+        "P": np.array([0.1, 0.01]),
+        "duty_cycle": np.array([0.01, 0.1]),
+        "fft_efficiency_expected": np.array([0.5408595, 0.83306736]),
+        "SNR_expected": np.array([1291.00882657, 0.0]),
+        "detected_expected": np.array([True, False], dtype=bool),
+    }
+
+    return data
+
+
+@pytest.fixture()
+def test_case_2():
+    data = {
+        "dummy_survey_params": {
+            "name": "Parkes multibeam",
+            "ref": "Manchester+2001, Lorimer+2006",
+            "deg_factor": 1.5,
+            "G0": 0.735,
+            "t_obs": 2100.0,
+            "t_samp": 250.0e-6,
+            "T_sys": 21.0,
+            "f_central": 1.374e9,
+            "BW": 288.0e6,
+            "channel_width": 3.0e6,
+            "n_pol": 2,
+            "FWHM": 14.0,
+            "SNR_th": 9.0,
+            "RA_range": [0.0, 360.0],
+            "DEC_range": [-90.0, 90.0],
+            "l_range": [-100.0, 50.0],
+            "b_range_abs": [0.0, 5.0],
+            "aperture_config": False,
+            "FFT_search": True,
         },
         "w_int": np.array([1.0e-3, 1.0e-4]),
         "w_int_s": np.array([1.59e-05, 1.59e-07]),
@@ -73,26 +134,28 @@ def test_case_1():
 
 
 @pytest.fixture()
-def test_case_2():
+def test_case_3():
     data = {
         "dummy_survey_params": {
-            "name": "Parkes multibeam",
-            "ref": "Manchester+2001, Lorimer+2006",
-            "deg_factor": 1.5,
-            "G0": 0.735,
-            "t_obs": 2100.0,
-            "t_samp": 250.0e-6,
-            "T_sys": 21.0,
-            "f_central": 1.374e9,
-            "BW": 288.0e6,
-            "channel_width": 3.0e6,
-            "n_pol": 2,
-            "FWHM": 14.0,
+            "name": "SKA Low AA4",
+            "ref": "Keane et al. (2025)",
+            "deg_factor": 1.0,
+            "G0": 33.4,
+            "t_obs": 600.0,
+            "t_samp": 100e-6,
+            "T_sys": 47.0,
+            "f_central": 190.0e6,
+            "BW": 100.0e6,
+            "channel_width": 0.013e6,
+            "n_pol": 2.0,
+            "FWHM": 121.3,
             "SNR_th": 9.0,
             "RA_range": [0.0, 360.0],
-            "DEC_range": [-90.0, 90.0],
-            "l_range": [-100.0, 50.0],
-            "b_range_abs": [0.0, 5.0],
+            "DEC_range": [-90.0, 36.0],
+            "l_range": [-180.0, 180.0],
+            "b_range_abs": [15.0, 90.0],
+            "aperture_config": True,
+            "FFT_search": True,
         },
         "w_int": np.array([1.0e-3, 1.0e-4]),
         "w_int_s": np.array([1.59e-05, 1.59e-07]),
@@ -115,6 +178,7 @@ def test_case_2():
         "offset2": np.array([5, 10]),
         "S_radio_bol": np.array([5.1e-18, 2.9e-19]),
         "G_expected": np.array([0.68485507, 0.63813124]),
+        "aa_factor_expected": np.array([0.99862953, 0.22495105]),
         "S_radio_int": np.array([0.01, 100]),
         "S_radio_obs_expected": np.array([0.00728263, 0.50610848]),
         "S_radio_obs_mean_expected": np.array([9.99999989e-5, 0.999999996]),
@@ -253,6 +317,48 @@ def test_gain_gaussian_beam(test_case_1):
     ).all()
 
 
+def test_aperture_array_factor(test_case_3):
+    """
+    Verifying that the aperture array factor is computed correctly.
+    """
+
+    # Create a temporary .json file with some survey parameters to initialize a radio survey class object.
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False
+    ) as tmpfile:
+        json.dump(test_case_3["dummy_survey_params"], tmpfile)
+        tmpfile_path = tmpfile.name
+
+    SKA_low_AA4 = sr.SurveyRadio(parameters_path=tmpfile_path)
+
+    aa_factor_out = SKA_low_AA4.aperture_array_factor(test_case_3["DEC"])
+
+    assert np.isclose(
+        test_case_3["aa_factor_expected"], aa_factor_out, rtol=TOL, atol=1.0e-5
+    ).all()
+
+
+def test_fft_search_efficiency(test_case_1):
+    """
+    Verifying that the fft search efficiency factor is computed correctly.
+    """
+
+    # Create a temporary .json file with some survey parameters to initialize a radio survey class object.
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False
+    ) as tmpfile:
+        json.dump(test_case_1["dummy_survey_params"], tmpfile)
+        tmpfile_path = tmpfile.name
+
+    PMPS = sr.SurveyRadio(parameters_path=tmpfile_path)
+
+    epsilon = PMPS.fft_search_efficiency(test_case_1["duty_cycle"])
+
+    assert np.isclose(
+        test_case_1["fft_efficiency_expected"], epsilon, rtol=TOL, atol=1.0e-5
+    ).all()
+
+
 def test_radiometer_equation(test_case_1):
     """
     Verifying that the signal-to-noise values are computed correctly using the radiometer equation.
@@ -301,11 +407,42 @@ def test_simulate_detection(monkeypatch, test_case_1):
         test_case_1["S_radio_obs_expected"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],
+        test_case_1["DEC"],
         test_case_1["w_eff_expected"],
         test_case_1["P"],
     )
 
     assert test_case_1["detected_expected"].all() == detected_out.all()
+
+
+def test_simulate_detection_array(monkeypatch, test_case_3):
+    """
+    Verifying that a pulsar is correctly detected by the survey.
+    """
+    # Mocking the sky temperature.
+    def mock_T_sky(*args, **kwargs):
+        return test_case_3["T_sky_expected"]
+
+    monkeypatch.setattr(sr, "sky_temperature_H81refined", mock_T_sky)
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False
+    ) as tmpfile:
+        json.dump(test_case_3["dummy_survey_params"], tmpfile)
+        tmpfile_path = tmpfile.name
+
+    SKA_low_AA4 = sr.SurveyRadio(parameters_path=tmpfile_path)
+
+    detected_out = SKA_low_AA4.simulate_detection(
+        test_case_3["S_radio_obs_expected"],
+        test_case_3["l_gal"],
+        test_case_3["b_gal"],
+        test_case_3["DEC"],
+        test_case_3["w_eff_expected"],
+        test_case_3["P"],
+    )
+
+    assert test_case_3["detected_expected"].all() == detected_out.all()
 
 
 def test_detected_radio_population(test_case_1):
@@ -334,6 +471,7 @@ def test_detected_radio_population(test_case_1):
         test_case_1["coverage_expected"],
         test_case_1["l_gal"],
         test_case_1["b_gal"],
+        test_case_1["DEC"],
         test_case_1["S_radio_bol"],
         test_case_1["spectral_index"],
         test_case_1["tau_sc"],
@@ -368,6 +506,7 @@ def test_detected_radio_population_full(test_case_2):
         test_case_2["coverage_expected"],
         test_case_2["l_gal"],
         test_case_2["b_gal"],
+        test_case_2["DEC"],
         test_case_2["S_radio_bol"],
         test_case_2["spectral_index"],
         test_case_2["tau_sc"],

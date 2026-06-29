@@ -1,12 +1,13 @@
 """
     Simulating a final population of neutron stars.
 
-    An initial neutron star population of uniformly distributed ages is generated
-    and the respective objects evolved in time according to their age.
-    We simulate both the dynamical evolution in the Galaxy and the magneto-rotational
-    evolution.
-    Finally, we model the radio emission and simulate the detection from two radio surveys,
-    Parkes multibeam (PMPS) and Swinburne (SMPS).
+    An initial neutron star population of uniformly distributed ages is generated and the respective objects
+    evolved in time according to their age. We simulate both the dynamical evolution in the Galaxy and the
+    magneto-rotational evolution.
+
+    Afterward, we model the radio emission and simulate the detection from three radio surveys, namely the Parkes
+    Multibeam Pulsar Survey (PMPS) and Swinburne Intermediate-latitude Pulsar Survey (SMPS) and the low- and mid-
+    latitude High Time Resolution Universe (HTRU) surveys as well as an X-ray survey.
 
     Display help message to run the code:
 
