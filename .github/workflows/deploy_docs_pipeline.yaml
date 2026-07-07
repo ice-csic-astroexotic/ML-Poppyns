@@ -1,7 +1,11 @@
 # Overall name of workflow.
 name: Github Action Deploy MkDocs Pipeline
-# Point of execution: we execute the action at each push.
-on: push
+# Point of execution: we execute the action only when pushing to master.
+on:
+  push:
+    branches:
+      - master
+      - main
 # Individual jobs to run; note multiple jobs will be run in parallel.
 jobs:
   deploy:
