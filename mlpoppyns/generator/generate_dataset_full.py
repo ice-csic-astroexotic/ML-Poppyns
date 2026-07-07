@@ -159,7 +159,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         )
 
         # Create velocity maps of component v_r in the XY plane.
-        # We chose a minimum velocity of 0 km s-1 to assign to the empty bins.
+        # We chose a minimum velocity of 0 [km s-1] to assign to the empty bins.
         wdmap.generate_weighted_density_map(
             dataset_path,
             "velocity_vr_map_xy",
@@ -179,7 +179,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         )
 
         # Create velocity maps of component v_phi in the XY plane.
-        # We chose a minimum velocity of 0 km s-1 to assign to the empty bins.
+        # We chose a minimum velocity of 0 [km s-1] to assign to the empty bins.
         wdmap.generate_weighted_density_map(
             dataset_path,
             "velocity_vphi_map_xy",
@@ -199,7 +199,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         )
 
         # Create velocity maps of component v_z in the XY plane.
-        # We chose a minimum velocity of 0 km s-1 to assign to the empty bins.
+        # We chose a minimum velocity of 0 [km s-1] to assign to the empty bins.
         wdmap.generate_weighted_density_map(
             dataset_path,
             "velocity_vz_map_xy",
@@ -236,7 +236,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         )
 
         # Create velocity maps of component v_RA in the RA DEC plane.
-        # We chose a minimum proper motion of 0 mas yr-1 to assign to the empty bins.
+        # We chose a minimum proper motion of 0 [mas yr-1] to assign to the empty bins.
         wdmap.generate_weighted_density_map(
             dataset_path,
             "velocity_vra_map_radec",
@@ -256,7 +256,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
         )
 
         # Create velocity maps of component pm_DEC in the RA DEC plane.
-        # We chose a minimum proper motion of 0 mas yr-1 to assign to the empty bins.
+        # We chose a minimum proper motion of 0 [mas yr-1] to assign to the empty bins.
         wdmap.generate_weighted_density_map(
             dataset_path,
             "velocity_vdec_map_radec",
