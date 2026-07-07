@@ -1,8 +1,8 @@
 """
     Loader for multichannel 2D image datasets for a multimodal training.
 
-    This loader imports the statistics to perform normalization or standardization on the targets
-    from an already existent statistics.json file.
+    This loader imports the statistics to perform normalization or standardization
+    on the targets from an already existent statistics.json file.
 
     Authors:
 
@@ -54,7 +54,7 @@ class DatasetMultimodalImage:
         # Loop over every input column of the dataset to collect all outputs.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in
-            # the dataset CSV file. Find them and skip them to find the targets names.
+            # the dataset.csv file. Find them and skip them to find the targets names.
             if "input:" not in col:
                 label_name.append(col)
 
@@ -85,7 +85,7 @@ class DatasetMultimodalImage:
         # Loop over every input column of the dataset to collect all outputs.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in
-            # the dataset CSV file. Find them and skip them to find the targets.
+            # the dataset.csv file. Find them and skip them to find the targets.
             if "input:" not in col:
                 self.target_names.append(col)
 
@@ -122,7 +122,7 @@ class DatasetMultimodalImage:
         self.standardize = standardize
         self.transform = transform
 
-        # Load dataset from CSV file.
+        # Load dataset from .csv file.
         self.dataset = pd.read_csv(dataset_path)
 
         # Remove the input columns and labels that are to be ignored.
@@ -168,9 +168,9 @@ class DatasetMultimodalImage:
         # ordered so "input:" columns go first then all the labels.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in
-            # the dataset CSV file. Find them and add them to the list.
-            # If the channel name contains xray add it to the second multichannel input in order to be processed by
-            # the second branch of the neural network.
+            # the dataset.csv file. Find them and add them to the list.
+            # If the channel name contains xray add it to the second multichannel
+            # input in order to be processed by the second branch of the neural network.
             if "input:" in col:
                 channel_filename = self.dataset.iloc[index, i]
                 if "xray" in col:
