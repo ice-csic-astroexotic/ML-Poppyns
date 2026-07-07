@@ -45,8 +45,8 @@ if cfg["server_run"]:
 else:
     # Change the following parameters to your local path, e.g., something like
     # /home/michele/Documents/ML-Poppyns. Otherwise, some notebooks might not work!
-    cfg["path_to_software"]: str = "/Users/vanessa/github/MAGNESIA/ML-Poppyns"
-    cfg["path_to_output"]: str = "/Users/vanessa/github/MAGNESIA/ML-Poppyns"
+    cfg["path_to_software"]: str = ""
+    cfg["path_to_output"]: str = ""
 
 if cfg["path_to_software"] == "":
     log.warning(
