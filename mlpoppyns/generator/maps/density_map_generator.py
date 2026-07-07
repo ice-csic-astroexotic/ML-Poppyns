@@ -16,15 +16,15 @@ import numpy as np
 
 import mlpoppyns.generator.maps.maps2d_generators as mg
 
-# Initialize the multiple options we have to generate the different data
-# inputs which will be later selected at runtime depending on the arguments.
+# Initialize the various options we have to generate the different data inputs,
+# which will later be selected at runtime depending on the arguments.
 map_generators = {
     "array": mg.generate_density_matrix,
     "array_kde": mg.generate_kde_density_matrix,
     "image": mg.generate_density_image,
     "image_kde": mg.generate_kde_density_image,
 }
-# Set the corresponding extensions for the types of position maps.
+# Set the corresponding extensions for the four different types of position maps.
 extensions = {
     "array": "npy",
     "array_kde": "npy",
@@ -51,14 +51,13 @@ def generate_density_map(
     y_limits: typing.Tuple[float, float],
 ) -> None:
     """
-    This method generates a density map with great flexibility, the
-    dimensions of the map can be chosen, whether using kernel density estimation (KDE) or not and
-    the type (image or array) can also be decided, and the limits and resolution for it can be specified.
-    As a result, a map with the specified filename and an extension determined by the chosen
-    type is created as output.
+    This method generates a density map allowing for a lot of flexibility. In particular, we can choose the
+    dimensions of the map and whether a kernel density estimation (KDE) should be applied or not. We can also specify
+    the type (image or array) of the map representation, and its corresponding limits and resolution.
 
-    The specified dictionary of density maps for the dataset is also updated with the
-    newly generated map.
+    The output of this function is a map with the specified filename and an extension determined by the chosen type.
+
+    THe function also updates the given dictionary of density maps with the newly generated map.
 
     Args:
         dataset_path (str): Path to the folder where the map will be created.
