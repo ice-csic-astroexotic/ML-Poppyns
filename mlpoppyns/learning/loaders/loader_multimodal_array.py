@@ -1,8 +1,8 @@
 """
     Loader for multichannel 2D arrays datasets for multimodal training.
 
-    This loader imports the statistics to perform normalization or standardization on the targets
-    from an already existent statistics.json file.
+    This loader imports the statistics to perform normalization or standardization
+    on the targets from an already existent statistics.json file.
 
     Authors:
 
@@ -53,7 +53,7 @@ class DatasetMultimodalArray:
         # Loop over every input column of the dataset to collect all outputs.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in
-            # the dataset CSV file. Find them and skip them to find the targets names.
+            # the dataset.csv file. Find them and skip them to find the targets names.
             if "input:" not in col:
                 label_name.append(col)
 
@@ -84,7 +84,7 @@ class DatasetMultimodalArray:
         # Loop over every input column of the dataset to collect all outputs.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in
-            # the dataset CSV file. Find them and skip them to find the targets.
+            # the dataset.csv file. Find them and skip them to find the targets.
             if "input:" not in col:
                 self.target_names.append(col)
 
@@ -121,7 +121,7 @@ class DatasetMultimodalArray:
         self.standardize = standardize
         self.transform = transform
 
-        # Load dataset from CSV file.
+        # Load dataset from .csv file.
         self.dataset = pd.read_csv(dataset_path)
 
         # Remove the input columns and labels that are to be ignored.
@@ -148,7 +148,7 @@ class DatasetMultimodalArray:
         Read the dataset and extract the arrays and the corresponding labels.
 
         Args:
-            index (int): Index running along the rows of the dataset CSV file.
+            index (int): Index running along the rows of the dataset.csv file.
 
         Returns:
             (Tuple[np.ndarray, np.ndarray, np.ndarray]): Tuple consisting of a two multichannel 2D arrays
@@ -167,9 +167,9 @@ class DatasetMultimodalArray:
         # ordered so "input:" columns go first then all the labels.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in
-            # the dataset CSV file. Find them and add them to the list.
-            # If the channel name contains xray add it to the second multichannel input in order to be processed by
-            # the second branch of the neural network.
+            # the dataset.csv file. Find them and add them to the list.
+            # If the channel name contains xray add it to the second multichannel
+            # input in order to be processed by the second branch of the neural network.
             if "input:" in col:
                 channel_filename = self.dataset.iloc[index, i]
                 if "xray" in col:
@@ -206,8 +206,9 @@ class DatasetMultimodalArray:
             per_channel_min_2 = np.min(matrix_2, axis=(0, 1), keepdims=True)
             per_channel_max_2 = np.max(matrix_2, axis=(0, 1), keepdims=True)
 
-            # Identify channels where per_channel_max equals per_channel_min, indicating that all pixels in the
-            # matrix have the same value. This implies that no stars were detected in these simulations.
+            # Identify channels where per_channel_max equals per_channel_min,
+            # indicating that all pixels in the matrix have the same value.
+            # This implies that no stars were detected in these simulations.
             zero_norm_mask_1 = (
                 per_channel_max_1 == per_channel_min_1
             ).squeeze()
@@ -216,8 +217,8 @@ class DatasetMultimodalArray:
             ).squeeze()
 
             if np.count_nonzero(zero_norm_mask_1) != 0:
-                # Set the entire matrix to 0 for channels where per_channel_max == per_channel_min to avoid dividing
-                # by zero.
+                # Set the entire matrix to 0 for channels where per_channel_max
+                # == per_channel_min to avoid dividing by zero.
                 matrix_1[:, :, zero_norm_mask_1] = 0
             else:
                 matrix_1 = (matrix_1 - per_channel_min_1) / (
@@ -225,8 +226,8 @@ class DatasetMultimodalArray:
                 )
 
             if np.count_nonzero(zero_norm_mask_2) != 0:
-                # Set the entire matrix to 0 for channels where per_channel_max == per_channel_min to avoid dividing
-                # by zero.
+                # Set the entire matrix to 0 for channels where per_channel_max
+                # == per_channel_min to avoid dividing by zero.
                 matrix_2[:, :, zero_norm_mask_2] = 0
             else:
                 matrix_2 = (matrix_2 - per_channel_min_2) / (
@@ -247,19 +248,22 @@ class DatasetMultimodalArray:
             per_channel_std_2 = np.std(matrix_2, axis=(0, 1), keepdims=True)
             per_channel_mean_2 = np.mean(matrix_2, axis=(0, 1), keepdims=True)
 
-            # Check if per_channel_std equal to 0, indicating that all pixels in the matrix have the
-            # same value. This implies that no stars were detected in these simulations.
+            # Check if per_channel_std equal to 0, indicating that all pixels in
+            # the matrix have the same value. This implies that no stars were
+            # detected in these simulations.
             zero_std_mask_1 = (per_channel_std_1 == 0).squeeze()
             zero_std_mask_2 = (per_channel_std_2 == 0).squeeze()
 
             if np.count_nonzero(zero_std_mask_1) != 0:
-                # Set the entire matrix to -1 for channels where per_channel_std = 0, to avoid dividing by zero.
+                # Set the entire matrix to -1 for channels where per_channel_std
+                # = 0, to avoid dividing by zero.
                 matrix_1[:, :, zero_std_mask_1] = -1
             else:
                 matrix_1 = (matrix_1 - per_channel_mean_1) / per_channel_std_1
 
             if np.count_nonzero(zero_std_mask_2) != 0:
-                # Set the entire matrix to -1 for channels where per_channel_std = 0, to avoid dividing by zero.
+                # Set the entire matrix to -1 for channels where per_channel_std
+                # = 0, to avoid dividing by zero.
                 matrix_2[:, :, zero_std_mask_2] = -1
             else:
                 matrix_2 = (matrix_2 - per_channel_mean_2) / per_channel_std_2
@@ -288,9 +292,9 @@ class LoaderMultimodalArray(LoaderBase):
         standardize: bool = False,
     ) -> None:
         """
-        Data loader for a multichannel and multimodal array-based dataset. The dataset is
-        expected to be packed in a dataset.csv file and contain paths to .npy
-        files to be loaded.
+        Data loader for a multichannel and multimodal array-based dataset. The
+        dataset is expected to be packed in a dataset.csv file and contain paths
+        to .npy files to be loaded.
 
         Args:
             dataset_path (string): Path to the dataset.
