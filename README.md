@@ -47,13 +47,6 @@ For this, you need conda to be installed on your machine. The code has been test
    folder and the path to the folder where you would like to save any subsequent simulation output by modifying the 
    variables `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively. Both paths could, for example, read
    `/home/user/Documents/ML-Poppyns`.
-
-6. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will 
-   need to install the [Simulation Based Inference (SBI)](https://sbi-dev.github.io/sbi/) library after activating the 
-   environment by running:
-   ```commandline
-   pip install sbi==0.22.0
-   ```
    
 ## How to use the code?
 

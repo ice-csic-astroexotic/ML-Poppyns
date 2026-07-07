@@ -204,11 +204,11 @@ def test_save_training_statistics(
     # Prepare fake event data.
     fake_event_data = {
         "scalars": {
-            "training_log_probs": {
+            "training_loss": {
                 "step": [1, 2, 3],
                 "value": [2, 4, 5],
             },
-            "validation_log_probs": {
+            "validation_loss": {
                 "step": [1, 2, 3],
                 "value": [2.1, 4.1, 5.1],
             },
@@ -235,8 +235,8 @@ def test_save_training_statistics(
     # Load and check JSON structure.
     with open(json_path, "r") as f:
         data = json.load(f)
-    assert "training_log_probs" in data
-    assert "validation_log_probs" in data
+    assert "training_loss" in data
+    assert "validation_loss" in data
 
     plt.close("all")
 
