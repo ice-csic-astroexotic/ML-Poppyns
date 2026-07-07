@@ -87,7 +87,7 @@ def test_generate_weighted_density_map(temp_dir, test_case_1):
     )
     assert os.path.exists(map_file)
 
-    # Check if the map file is added to the maps dictionary.
+    # Check if the map file is added to the maps' dictionary.
     assert "input:" + test_case_1["map_name"] in test_case_1["maps_dictionary"]
     assert (
         map_file
