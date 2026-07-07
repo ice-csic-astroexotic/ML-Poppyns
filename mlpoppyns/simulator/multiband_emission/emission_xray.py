@@ -567,7 +567,7 @@ def outburst_filter_from_crust_failure_rate(
 
     # Select only those stars that have experienced a crust failure event in the last 30 yrs. This way, we determine an
     # estimate of the number of outbursts that neutron stars will likely have undergone during the period of activity
-    # of X-ray survey missions (since the launch of the Rossi X-ray Timing Explorer (RXTE) mission (Bradt et al. 1993).
+    # of X-ray survey missions (since the launch of the Rossi X-ray Timing Explorer (RXTE) mission, Bradt et al. 1993).
     n_outburst_events = rate_crust_failure * 30
 
     # We consider n_outburst_events to be a probability for having an outburst.
