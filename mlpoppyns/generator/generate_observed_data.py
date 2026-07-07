@@ -59,8 +59,8 @@ def create_survey_maps(
 ) -> None:
     """
     This method reads the observed population from the ATNF Pulsar Catalogue, the MeerKat TPA program (Posselt et
-    al., 2023) and the thermally-emitting neutron star catalogue (Dehman et al. in prep), generates a set of density maps
-    in the specified format (images or arrays) and with a specified resolution.
+    al., 2023) and the thermally-emitting neutron star catalogue (Dehman et al. in prep), and subsequently generates a
+    set of density maps Fin the specified format (images or arrays) and with a specified resolution.
 
     Args:
         dataset_path (str): Path to where the generated dataset will be saved.
@@ -71,10 +71,10 @@ def create_survey_maps(
         survey_meerkat_dict (dict): Dictionary containing the MeerKat survey data (used only if use_meerkat_fluxes is
             True, and survey_type == radio).
         data_type (str): Type of dataset to generate: array, array_kde, image or image_kde.
-        resolution_dyn (int): Resolution (number of bins per axis for the 2d histograms) for the position and
+        resolution_dyn (int): Resolution (number of bins per axis for the 2D histograms) for the position and
             velocity maps to generate. In case of RA DEC maps the DEC axis has half the number of bins
             with respect to the RA axis.
-        resolution_ppdot (int): Resolution (number of bins per axis for the 2d
+        resolution_ppdot (int): Resolution (number of bins per axis for the 2D
             histograms) for the P-Pdot density maps to generate.
         dictionary_density_map_radec (dict): Dictionary containing the path to the position maps in RA, DEC for
             all the observed surveys.
@@ -137,8 +137,8 @@ def create_survey_maps(
 
     if (survey_type == "radio") & use_meerkat_fluxes:
         # Create P-Pdot average flux maps.
-        # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-7 Jy since all
-        # observed radio fluxes are greater than around 10^-5 Jy.
+        # To generate the average flux maps, we choose a minimum flux of 10^-7 [Jy] to assign to the empty bins since
+        # all observed radio fluxes are greater than around 10^-5 [Jy].
         wdmap.generate_weighted_density_map(
             dataset_path,
             f"survey_{survey_name}_flux_map_ppdot",
@@ -159,8 +159,8 @@ def create_survey_maps(
 
     elif (survey_type == "radio") & (use_meerkat_fluxes is False):
         # Create P-Pdot average flux maps.
-        # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-7 Jy since all
-        # observed radio fluxes are greater than around 10^-5 Jy.
+        # To generate the average flux maps, we choose a minimum flux of 10^-7 [Jy] to assign to the empty bins since
+        # all observed radio fluxes are greater than around 10^-5 [Jy].
         wdmap.generate_weighted_density_map(
             dataset_path,
             f"survey_{survey_name}_flux_map_ppdot",
@@ -181,8 +181,8 @@ def create_survey_maps(
 
     elif survey_type == "X-ray":
         # Create P-Pdot average flux maps.
-        # To generate the average flux maps we choose a minimum flux to assign to the empty bins of 10^-17 erg s^-1
-        # cm^-2 since all observed X-ray fluxes are greater than around 10^-15 erg s^-1 cm^-2.
+        # To generate the average flux maps, we choose a minimum flux to assign to the empty bins of 10^-17 [erg s^-1
+        # cm^-2], since all observed X-ray fluxes are greater than around 10^-15 [erg s^-1 cm^-2].
         wdmap.generate_weighted_density_map(
             dataset_path,
             f"survey_{survey_name}_flux_map_ppdot",
@@ -223,14 +223,14 @@ def generate_dataset(args: argparse.Namespace) -> None:
             - path_xray (str): Path to the thermally-emitting neutron star catalogue.
             - save_dir (str): Path to where the generated dataset will be saved.
             - data_type (str): Type of dataset to generate: array, array_kde, image or image_kde.
-            - resolution_ppdot_radio (int): Resolution (number of bins per axis for the 2d
+            - resolution_ppdot_radio (int): Resolution (number of bins per axis for the 2D
                 histograms) for the P-Pdot maps related to the radio surveys.
-            - resolution_dyn_radio (int): Resolution (number of bins per axis for the 2d
+            - resolution_dyn_radio (int): Resolution (number of bins per axis for the 2D
                 histograms) for the dynamical maps related to the radio surveys. In case of RA DEC maps the
                 DEC axis has half the number of bins with respect to the RA axis.
-            - resolution_ppdot_xray (int): Resolution (number of bins per axis for the 2d
+            - resolution_ppdot_xray (int): Resolution (number of bins per axis for the 2D
                 histograms) for the P-Pdot maps related to the X-ray survey.
-            - resolution_dyn_xray (int): Resolution (number of bins per axis for the 2d
+            - resolution_dyn_xray (int): Resolution (number of bins per axis for the 2D
                 histograms) for the dynamical maps related to the X-ray surveys. In case of RA DEC maps the
                 DEC axis has half the number of bins with respect to the RA axis.
             - filter_young_xdins (bool): Whether to filter the X-ray simulated samples to include only young magnetars
