@@ -34,9 +34,8 @@ def generate_density_image(
     """
     Density image generator.
 
-    Creates a density or heat map of a distribution of points given their
-    X/Y coordinates in a 2D space. The resulting image is generated in
-    the specified file path.
+    Creates a density or heat map of a distribution of points given their X/Y coordinates in a 2D space.
+    The resulting image is generated in the specified file path.
 
     Args:
         x (np.ndarray): Horizontal coordinate values for the points.
@@ -65,11 +64,10 @@ def generate_density_image(
         y_log_scale=y_log_scale,
     )
 
-    # Generating a 2D histogram that counts the number of objects contained
-    # in each respective pixel; following the discrete count, we apply a
-    # Gaussian filter to smear out the hard edges of the distribution to
-    # improve the stability of the machine learning framework;
-    # x (y) values are histogrammed along first (second) dimension.
+    # Generating a 2D histogram that counts the number of objects contained in each respective pixel.
+    # Following the discrete count, we apply a Gaussian filter to smear out the hard edges of the distribution
+    # to improve the stability of the machine learning framework. x (y) values are histogrammed along first
+    # (second) dimension.
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     density = scipy.ndimage.gaussian_filter(density, sigma=1)
 
@@ -81,9 +79,9 @@ def generate_density_image(
     fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
     ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
 
-    # Generating a pseudocolor plot of the smeared out density distribution;
-    # we transpose the array as pcolormesh is indexed starting from the lower
-    # left , i.e., the column (row) index corresponds to the x (y) coordinate.
+    # Generating a pseudocolor plot of the smeared out density distribution. We first transpose the array because
+    # pcolormesh is indexed starting from the lower left, i.e., the column (row) index corresponds to the x (y)
+    # coordinate.
     ax.pcolormesh(x_edges, y_edges, density.T, cmap=colormap)
 
     # Apply log limits if log scale is enabled.
@@ -122,8 +120,7 @@ def generate_avg_weight_image(
     """
     Average weighted image generator.
 
-    Creates a map of the average weight w of a distribution of points given their
-    X/Y coordinates in a 2D space.
+    Creates a map of the average weight w of a distribution of points given their X/Y coordinates in a 2D space.
     The resulting map shows the average value of the weights in each bin.
 
     Args:
@@ -155,17 +152,15 @@ def generate_avg_weight_image(
         y_log_scale=y_log_scale,
     )
 
-    # If the quantity desired as the weight can become negative, e.g.,
-    # one of the velocity components, take the absolute value and use that
-    # as the weight to avoid the possibility of summing to zero.
+    # If the quantity chosen for the weighting can become negative, e.g., one of the velocity components,
+    # take the absolute value first and use that as the weight to avoid the possibility of summing to zero.
     total_per_bin, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     total_weight, x_edges, y_edges = np.histogram2d(
         x, y, bins=[x_edges, y_edges], weights=w
     )
 
-    # Dividing the total summed weight per bin by the number of objects to
-    # obtain the average value per pixel; to avoid dividing by 0, we change
-    # the values in total_weight from 0 to 0.0001; doing so does not affect
+    # Dividing the total summed weight per bin by the number of objects to obtain the average value per pixel.
+    # To avoid dividing by 0, we change the values in total_weight from 0 to 0.0001. Doing so does not affect
     # the final result as the original array elements are zero anyway.
     total_per_bin[total_per_bin == 0] = 0.0001
     avg_weight = total_weight / total_per_bin
@@ -185,9 +180,9 @@ def generate_avg_weight_image(
     fig.set_size_inches(n_x_bins / DPI, n_y_bins / DPI)
     ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
 
-    # Generating a pseudocolor plot of the smeared out average distribution;
-    # we transpose the array as pcolormesh is indexed starting from the lower
-    # left , i.e., the column (row) index corresponds to the x (y) coordinate.
+    # Generating a pseudocolor plot of the smeared out density distribution. We first transpose the array because
+    # pcolormesh is indexed starting from the lower left, i.e., the column (row) index corresponds to the x (y)
+    # coordinate.
     ax.pcolormesh(x_edges, y_edges, avg_weight.T, cmap=colormap)
 
     # Apply log limits if log scale is enabled.
@@ -225,7 +220,7 @@ def generate_kde_density_image(
     """
     KDE density image generator.
 
-    Creates a density or heat map of a distribution of points, computing the kernel-density estimation (KDE) given the
+    Creates a density or heat map of a distribution of points, computing the kernel density estimation (KDE) given the
     point's X/Y coordinates in a 2D space. The resulting image is written to disk.
 
     Args:
@@ -255,7 +250,7 @@ def generate_kde_density_image(
         y_log_scale=y_log_scale,
     )
 
-    # Create a meshgrid where to compute the KDE.
+    # Create a meshgrid at which we compute the KDE.
     x_centers = 0.5 * (x_edges[:-1] + x_edges[1:])
     y_centers = 0.5 * (y_edges[:-1] + y_edges[1:])
     xx, yy = np.meshgrid(x_centers, y_centers)
@@ -331,7 +326,7 @@ def generate_kde_weight_image(
     """
     Weighted KDE density map generator.
 
-    Creates a weighted density or heat map of a distribution of points, computing the weighted kernel-density estimation
+    Creates a weighted density or heat map of a distribution of points, computing the weighted kernel density estimation
     (KDE) given the point's X/Y coordinates in a 2D space and some weights. The resulting image is written to disk.
 
     Args:
@@ -366,7 +361,7 @@ def generate_kde_weight_image(
     # Rescale weights to be strictly positive.
     positive_w = w - w_min
 
-    # Create a meshgrid where to compute the KDE.
+    # Create a meshgrid at which we compute the KDE.
     x_centers = 0.5 * (x_edges[:-1] + x_edges[1:])
     y_centers = 0.5 * (y_edges[:-1] + y_edges[1:])
     xx, yy = np.meshgrid(x_centers, y_centers)
@@ -441,8 +436,8 @@ def generate_density_matrix(
     """
     Density matrix generator.
 
-    Creates a density matrix of a distribution of points given their
-    X/Y coordinates in a 2D space. The resulting matrix is saved as .npy file.
+    Creates a density matrix of a distribution of points given their X/Y coordinates in a 2D space.
+    The resulting matrix is saved as .npy file.
 
     Args:
         x (np.ndarray): Horizontal coordinate values for the points.
@@ -470,9 +465,10 @@ def generate_density_matrix(
         y_log_scale=y_log_scale,
     )
 
-    # Generating a 2D histogram that counts the number of objects contained
-    # in each respective bin; x (y) values are histogrammed along first
-    # (second) dimension; to avoid potential sharp edges, we apply a Gaussian filter.
+    # Generating a 2D histogram that counts the number of objects contained in each respective bin.
+    # Following the discrete count, we apply a Gaussian filter to smear out the hard edges of the distribution
+    # to improve the stability of the machine learning framework. x (y) values are histogrammed along first
+    # (second) dimension.
     density, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     density = scipy.ndimage.gaussian_filter(density, sigma=1)
 
@@ -499,8 +495,7 @@ def generate_avg_weight_matrix(
     """
     Average weighted matrix generator.
 
-    Creates a matrix of the average weight w of a distribution of points given their
-    X/Y coordinates in a 2D space.
+    Creates a matrix of the average weight w of a distribution of points given their X/Y coordinates in a 2D space.
     The resulting matrix shows the average value of the weights in each bin.
 
     Args:
@@ -531,17 +526,15 @@ def generate_avg_weight_matrix(
         y_log_scale=y_log_scale,
     )
 
-    # If the quantity desired as the weight can become negative, e.g.,
-    # one of the velocity components, take the absolute value and use that
-    # as the weight to avoid the possibility of summing to zero.
+    # If the quantity chosen for the weighting can become negative, e.g., one of the velocity components,
+    # take the absolute value first and use that as the weight to avoid the possibility of summing to zero.
     total_per_bin, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     total_weight, x_edges, y_edges = np.histogram2d(
         x, y, bins=[x_edges, y_edges], weights=w
     )
 
-    # Dividing the total summed weight per bin by the number of objects to
-    # obtain the average value per bin; to avoid dividing by 0, we change
-    # the values in total_weight from 0 to 0.0001; doing so does not affect
+    # Dividing the total summed weight per bin by the number of objects to obtain the average value per pixel.
+    # To avoid dividing by 0, we change the values in total_weight from 0 to 0.0001. Doing so does not affect
     # the final result as the original array elements are zero anyway.
     total_per_bin[total_per_bin == 0] = 0.0001
     avg_weight = total_weight / total_per_bin
@@ -574,7 +567,7 @@ def generate_kde_density_matrix(
     """
     KDE density matrix generator.
 
-    Creates a density matrix of distribution of points, computing the kernel-density estimation (KDE) given the
+    Creates a density matrix of distribution of points, computing the kernel density estimation (KDE) given the
     point's X/Y coordinates in a 2D space. The resulting matrix is saved as .npy file.
 
     Args:
@@ -603,7 +596,7 @@ def generate_kde_density_matrix(
         y_log_scale=y_log_scale,
     )
 
-    # Create a meshgrid where to compute the KDE.
+    # Create a meshgrid at which we compute the KDE.
     x_centers = 0.5 * (x_edges[:-1] + x_edges[1:])
     y_centers = 0.5 * (y_edges[:-1] + y_edges[1:])
     xx, yy = np.meshgrid(x_centers, y_centers)
@@ -654,7 +647,7 @@ def generate_kde_weight_matrix(
     """
     Weighted KDE density map generator.
 
-    Creates a weighted density matrix of a distribution of points, computing the weighted kernel-density estimation
+    Creates a weighted density matrix of a distribution of points, computing the weighted kernel density estimation
     (KDE) given the point's X/Y coordinates in a 2D space and some weights. The resulting matrix is saved as .npy file.
 
     Args:
@@ -685,10 +678,10 @@ def generate_kde_weight_matrix(
         y_log_scale=y_log_scale,
     )
 
-    # Rescale weights to be strictly positive
+    # Rescale weights to be strictly positive.
     positive_w = w - w_min
 
-    # Create a meshgrid where to compute the KDE.
+    # Create a meshgrid at which we compute the KDE.
     x_centers = 0.5 * (x_edges[:-1] + x_edges[1:])
     y_centers = 0.5 * (y_edges[:-1] + y_edges[1:])
     xx, yy = np.meshgrid(x_centers, y_centers)
