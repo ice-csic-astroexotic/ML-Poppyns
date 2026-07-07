@@ -392,7 +392,7 @@ def load_xray_catalog(
         age_real = df_x["age_real(kyr)"].to_numpy().astype(np.float64)
         age_char = P / (2 * P_dot) / const.YR_TO_S / 1000
 
-        # Filter young sources (with estimated ages less than 2 kyrs).
+        # Filter young sources (with estimated ages less than 2 [kyrs]).
         young_mask = (age_real <= 2) | (age_char <= 2)
         # Filter XDINS sources.
         xdins_mask = df_x["class"] == "XDINS"
