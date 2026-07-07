@@ -1,7 +1,7 @@
 """
-Model for a multimodal convolutional neural network
+    Model for a multimodal convolutional neural network
 
-Authors:
+    Authors:
 
     Michele Ronchi (ronchi@ice.csic.es)
 """
@@ -112,7 +112,6 @@ class ModelConvMultimodalSBI(ModelBase):
         return x
 
     def forward(self, x1, x2):
-
         """
         Forward pass.
 
