@@ -87,7 +87,7 @@ def n_plus_without_delta(
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    Transmission function p+ in eq. (11) in overleaf without the Dirac delta term (see also the function n+ in eq. (35)
+    Transmission function p+ in eq. (A6) in Ronchi et al. (2026) without the Dirac delta term (see also the function n+ in eq. (35)
     in Lyutikov and Gavriil 2006).
     When computing the transmitted flux the Dirac delta term will be added analytically in order to avoid computing
     it numerically.
@@ -147,7 +147,7 @@ def n_minus(
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    Reflection function p- in eq. (12) in overleaf (see also the function n- in eq. (35) in Lyutikov and Gavriil 2006).
+    Reflection function p- in eq. (A7) in Ronchi et al. 2026 (see also the function n- in eq. (35) in Lyutikov and Gavriil 2006).
     Note that in the original paper this equation misses a factor 1/2 and in the exponential term should be tau_0/2
     instead of tau_0 in the prefactor.
 
@@ -195,7 +195,7 @@ def resonant_cyclotron_scat_spectrum(
 ) -> np.ndarray:
     """
     Compute the spectrum resulting from resonant cyclotron scattering (RCS) given a source photon intensity spectrum
-    considering multiple reflections and transmissions (see eq. (15) in overleaf and eq. (42) in Lyutikov and Gavriil 2006).
+    considering multiple reflections and transmissions (see eq. (A11) in Ronchi et al. 2026 and eq. (42) in Lyutikov and Gavriil 2006).
 
     Args:
         E (np.ndarray): Array of energies in [erg] of the transmitted intensity.
@@ -347,7 +347,7 @@ def flux_xray_absorbed(
     I_bb_absorbed = absorb_factor * I_bb
     I_rcs_absorbed = absorb_factor * I_rcs
 
-    # Compute the total observed fluxes in the energy range [0.1, 10] keV (see eq. (17) in overleaf).
+    # Compute the total observed fluxes in the energy range [0.1, 10] keV.
     E_mask = (E >= 100) & (E <= 10000)
     I_bb_absorbed_bolom = trapezoid(
         I_bb_absorbed[:, E_mask], E[E_mask], axis=1
