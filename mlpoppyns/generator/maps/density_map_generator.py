@@ -57,7 +57,7 @@ def generate_density_map(
 
     The output of this function is a map with the specified filename and an extension determined by the chosen type.
 
-    THe function also updates the given dictionary of density maps with the newly generated map.
+    The function also updates the given dictionary of density maps with the newly generated map.
 
     Args:
         dataset_path (str): Path to the folder where the map will be created.
