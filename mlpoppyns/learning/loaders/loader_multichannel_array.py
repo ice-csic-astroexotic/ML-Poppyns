@@ -146,7 +146,7 @@ class DatasetMultichannelArray:
         Read the dataset and extract the arrays and the corresponding labels.
 
         Args:
-            index (int): Index running along the rows of the dataset.scv file.
+            index (int): Index running along the rows of the dataset.csv file.
 
         Returns:
             (Tuple[np.ndarray, np.ndarray]): Tuple consisting of a multichannel 2D array
