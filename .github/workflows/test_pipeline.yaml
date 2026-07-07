@@ -1,11 +1,13 @@
-name: Deploy MkDocs
-
+# Overall name of workflow.
+name: Github Action Test Pipeline
+# Point of execution: we execute the action at each push.
 on: push
-
+# Individual jobs to run; note multiple jobs will be run in parallel.
 jobs:
-  deploy:
+  # Unique job ID.
+  job_test:
     # Name of job
-    name: Deploy documentation
+    name: Run tests
     # Operating system that is being used.
     runs-on: ubuntu-latest
     # Specify defaults: we run commands on a bash shell.
@@ -15,7 +17,7 @@ jobs:
         shell: bash -el {0}
     # Specify permissions to access code in repository.
     permissions:
-      contents: write
+      contents: read
     # Specific steps to be executed for `Run tests` job.
     steps:
       # Free up disk space to avoid action failing.
@@ -52,6 +54,6 @@ jobs:
       # Install our software package in the standard way.
       - name: Install package in development mode
         run: python setup.py develop
-      # Deploy documentation on GitHub pages.
-      - name: Deploy to GitHub Pages
-        run: mkdocs gh-deploy --force
+      # Run all the relevant tests using pytest.
+      - name: Run tests
+        run: pytest
