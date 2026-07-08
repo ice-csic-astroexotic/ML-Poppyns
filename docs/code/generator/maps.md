@@ -1,9 +1,9 @@
 # Maps
 
-::: mlpoppyns.generator.maps.density_map_generator
+::: mlpoppyns.generator.maps.dataset_density_map
+
+::: mlpoppyns.generator.maps.dataset_weighted_density_map
 
 ::: mlpoppyns.generator.maps.maps2d_generators
 
 ::: mlpoppyns.generator.maps.maps_utils
-
-::: mlpoppyns.generator.maps.weighted_density_map_generator

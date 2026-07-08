@@ -8,4 +8,6 @@
 
 ::: utilities.inference_statistics
 
+::: utilities.load_catalogs
+
 ::: utilities.plot_settings
