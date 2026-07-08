@@ -31,8 +31,8 @@ import sys
 import numpy as np
 import pandas as pd
 
-import mlpoppyns.generator.maps.density_map_generator as dmap
-import mlpoppyns.generator.maps.weighted_density_map_generator as wdmap
+import mlpoppyns.generator.maps.dataset_density_map as dmap
+import mlpoppyns.generator.maps.dataset_weighted_density_map as wdmap
 from utilities.load_catalogs import (
     load_atnf_meerkat_catalog,
     load_xray_catalog,

@@ -11,7 +11,7 @@ import os
 import numpy as np
 import pytest
 
-import mlpoppyns.generator.maps.density_map_generator as dmap
+import mlpoppyns.generator.maps.dataset_density_map as dmap
 
 
 @pytest.fixture()

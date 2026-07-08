@@ -1,5 +1,10 @@
 """
-    density map generation routines.
+    Dataset weighted map generation.
+
+    This module provides methods for creating weighted maps as part of dataset generation.
+    It selects the appropriate map generation routine based on the requested output representation (image or array)
+    and density estimation method (average per-bin values or weighted KDE). It saves the resulting map to disk,
+    and records its path in the dataset dictionary.
 
     Authors:
 
@@ -19,10 +24,10 @@ import mlpoppyns.generator.maps.maps2d_generators as mg
 # Initialize the various options we have to generate the different data inputs,
 # which will later be selected at runtime depending on the arguments.
 map_generators = {
-    "array": mg.generate_density_matrix,
-    "array_kde": mg.generate_kde_density_matrix,
-    "image": mg.generate_density_image,
-    "image_kde": mg.generate_kde_density_image,
+    "array": mg.generate_avg_weight_matrix,
+    "array_kde": mg.generate_kde_weight_matrix,
+    "image": mg.generate_avg_weight_image,
+    "image_kde": mg.generate_kde_weight_image,
 }
 # Set the corresponding extensions for the four different types of position maps.
 extensions = {
@@ -35,13 +40,15 @@ extensions = {
 log = logging.getLogger(__name__)
 
 
-def generate_density_map(
+def generate_weighted_density_map(
     dataset_path: str,
     map_name: str,
     sample_number: int,
     map_type: str,
     x: np.array,
     y: np.array,
+    w: np.array,
+    w_min: float,
     x_resolution: int,
     y_resolution: int,
     x_log_scale: bool,
@@ -51,9 +58,13 @@ def generate_density_map(
     y_limits: typing.Tuple[float, float],
 ) -> None:
     """
-    This method generates a density map allowing for a lot of flexibility. In particular, we can choose the
+    This method generates a weighted density map allowing for a lot of flexibility. In particular, we can choose the
     dimensions of the map and whether a kernel density estimation (KDE) should be applied or not. We can also specify
     the type (image or array) of the map representation, and its corresponding limits and resolution.
+
+    If kernel density estimation (KDE) is used to generate the maps, each point is weighted by a weight w when
+    computing the KDE. If KDE is not specified, the average value of the weights of all points falling inside a bin
+    in the map is computed and assigned to that bin.
 
     The output of this function is a map with the specified filename and an extension determined by the chosen type.
 
@@ -63,14 +74,17 @@ def generate_density_map(
         dataset_path (str): Path to the folder where the map will be created.
         map_name (str): Specific name for this map.
         sample_number (int): Number to suffix this map in the dataset.
-        map_type (str): Type of map to generate (array, array_kde, image or image_kde).
+        map_type (str): Type of map to generate (array or image).
         x (np.array): Horizontal coordinate values for the points.
         y (np.array): Vertical coordinate values for the points.
+        w (np.array): Array of weights of the points.
+        w_min (float): Either the minimum average value to assign to the empty bins or, for KDE maps, the minimum weight
+            value to subtract to ensure positivity of the weights passed to the KDE.
         x_resolution (int): Resolution in the horizontal axis.
         y_resolution (int): Resolution in the vertical axis.
         x_log_scale (bool): If True set the x-axis scale to log scale.
         y_log_scale (bool): If True set the y-axis scale to log scale.
-        maps_dictionary (dict): Dictionary of P-flux maps where to append the path of the new generated map.
+        maps_dictionary (dict): Dictionary of the maps where to append the path of the new generated map.
         x_limits (Tuple[float, float]): Limits of the horizontal axis.
         y_limits (Tuple[float, float]): Limits of the vertical axis.
     """
@@ -88,6 +102,8 @@ def generate_density_map(
         x_limits,
         y,
         y_limits,
+        w,
+        w_min,
         map_filename,
         x_log_scale,
         y_log_scale,
@@ -95,7 +111,7 @@ def generate_density_map(
         n_y_bins=y_resolution,
     )
 
-    # Save density map file path into the dataset dictionary.
+    # Save map file name into the dataset dictionary.
     maps_dictionary.setdefault("input:" + map_name, []).append(map_filename)
 
     log.info("{} generated...".format(map_filename))

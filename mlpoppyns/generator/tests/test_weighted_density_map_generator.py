@@ -11,7 +11,7 @@ import os
 import numpy as np
 import pytest
 
-import mlpoppyns.generator.maps.weighted_density_map_generator as wdmap
+import mlpoppyns.generator.maps.dataset_weighted_density_map as wdmap
 
 
 @pytest.fixture()
