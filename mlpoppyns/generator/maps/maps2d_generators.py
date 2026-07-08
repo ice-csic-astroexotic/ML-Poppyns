@@ -56,7 +56,11 @@ def generate_density_image(
         n_y_bins (int): Number of vertical bins for the density map.
         colormap (str): Colormap to use for the image.
     """
-
+    # Remove points with undefined coordinates before constructing the histogram.
+    # Histogramming expects finite coordinate values, so any sample
+    # containing a NaN in either x or y is discarded. The filtering is applied
+    # simultaneously to both arrays to preserve the correspondence between
+    # coordinates.
     x, y = mu.remove_nan_entries(x, y)
 
     x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
@@ -140,6 +144,11 @@ def generate_avg_weight_image(
         colormap (str): Colormap to use for the image.
     """
 
+    # Remove points with undefined coordinates before constructing the histogram.
+    # Histogramming expects finite coordinate values, so any sample
+    # containing a NaN in either x or y is discarded. The filtering is applied
+    # simultaneously to both arrays to preserve the correspondence between
+    # coordinates.
     x, y, w = mu.remove_nan_entries(x, y, w)
 
     x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
@@ -233,6 +242,11 @@ def generate_kde_density_image(
         colormap (str): Colormap to use for the image.
     """
 
+    # Remove points with undefined coordinates before constructing the histogram.
+    # KDE expects finite coordinate values, so any sample
+    # containing a NaN in either x or y is discarded. The filtering is applied
+    # simultaneously to both arrays to preserve the correspondence between
+    # coordinates.
     x, y = mu.remove_nan_entries(x, y)
 
     x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
@@ -336,6 +350,11 @@ def generate_kde_weight_image(
         colormap (str): Colormap to use for the image.
     """
 
+    # Remove points with undefined coordinates before constructing the histogram.
+    # KDE expects finite coordinate values, so any sample
+    # containing a NaN in either x or y is discarded. The filtering is applied
+    # simultaneously to both arrays to preserve the correspondence between
+    # coordinates.
     x, y, w = mu.remove_nan_entries(x, y, w)
 
     x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
@@ -438,6 +457,11 @@ def generate_density_matrix(
         n_y_bins (int): Number of vertical bins for the density matrix.
     """
 
+    # Remove points with undefined coordinates before constructing the histogram.
+    # Histogramming expects finite coordinate values, so any sample
+    # containing a NaN in either x or y is discarded. The filtering is applied
+    # simultaneously to both arrays to preserve the correspondence between
+    # coordinates.
     x, y = mu.remove_nan_entries(x, y)
 
     x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
@@ -494,6 +518,11 @@ def generate_avg_weight_matrix(
         n_y_bins (int): Number of vertical bins for the density matrix.
     """
 
+    # Remove points with undefined coordinates before constructing the histogram.
+    # Histogramming expects finite coordinate values, so any sample
+    # containing a NaN in either x or y is discarded. The filtering is applied
+    # simultaneously to both arrays to preserve the correspondence between
+    # coordinates.
     x, y, w = mu.remove_nan_entries(x, y, w)
 
     x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
@@ -559,6 +588,11 @@ def generate_kde_density_matrix(
         n_y_bins (int): Number of vertical bins for the density matrix.
     """
 
+    # Remove points with undefined coordinates before constructing the histogram.
+    # KDE expects finite coordinate values, so any sample
+    # containing a NaN in either x or y is discarded. The filtering is applied
+    # simultaneously to both arrays to preserve the correspondence between
+    # coordinates.
     x, y = mu.remove_nan_entries(x, y)
 
     x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(
@@ -636,6 +670,11 @@ def generate_kde_weight_matrix(
         n_y_bins (int): Number of vertical bins for the density matrix.
     """
 
+    # Remove points with undefined coordinates before constructing the histogram.
+    # KDE expects finite coordinate values, so any sample
+    # containing a NaN in either x or y is discarded. The filtering is applied
+    # simultaneously to both arrays to preserve the correspondence between
+    # coordinates.
     x, y, w = mu.remove_nan_entries(x, y, w)
 
     x, y, x_edges, y_edges = mu.log_scale_vs_linear_scale(

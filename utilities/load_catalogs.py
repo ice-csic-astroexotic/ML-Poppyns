@@ -174,7 +174,7 @@ def load_atnf_meerkat_catalog(
     df_meerkat_pmps = df_meerkat_pmps.dropna(subset=["ch6flux"])
 
     # Save the properties in the PMPS MeerKat dictionary.
-    # We convert the MeerKat fluxes from [Jy] to [mJy] to compare with simulations.
+    # We convert the MeerKat fluxes from [mJy] to [Jy] to compare with simulations.
     surveys_meerkat["PMPS"]["S1400"] = (
         df_meerkat_pmps["ch6flux"].to_numpy().astype(np.float64) / 1000
     )
@@ -247,7 +247,7 @@ def load_atnf_meerkat_catalog(
     df_meerkat_smps = df_meerkat_smps.dropna(subset=["ch6flux"])
 
     # Save the properties in the PMPS MeerKat dictionary.
-    # We convert the MeerKat fluxes from [Jy] to [mJy] to compare with simulations.
+    # We convert the MeerKat fluxes from [mJy] to [Jy] to compare with simulations.
     surveys_meerkat["SMPS"]["S1400"] = (
         df_meerkat_smps["ch6flux"].to_numpy().astype(np.float64) / 1000
     )

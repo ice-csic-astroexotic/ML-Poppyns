@@ -40,14 +40,19 @@ def remove_nan_entries(*arrays: np.ndarray) -> typing.Tuple[np.ndarray, ...]:
         Tuple[np.ndarray, ...]: A tuple containing cleaned NumPy arrays, where
             all arrays have the same length and NaN-containing positions have been removed.
     """
+    # If no arrays are provided, return an empty tuple.
     if len(arrays) == 0:
         return tuple()
 
+    # Ensure all arrays have same lengths.
     length = len(arrays[0])
     if any(len(arr) != length for arr in arrays):
         raise ValueError("All input arrays must have the same length.")
 
+    # Stack the arrays row-wise so that each column corresponds to the same
+    # index across all arrays.
     stacked = np.vstack(arrays)
+    # Build a mask that keeps only the entries for which every array contains a finite (non-NaN) value.
     mask = ~np.any(np.isnan(stacked), axis=0)
     cleaned_arrays = tuple(arr[mask] for arr in arrays)
 

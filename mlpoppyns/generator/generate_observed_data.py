@@ -136,7 +136,7 @@ def create_survey_maps(
     )
 
     if (survey_type == "radio") & use_meerkat_fluxes:
-        # Create P-Pdot average flux maps.
+        # Create P-Pdot average flux maps using the Meerkat fluxes.
         # To generate the average flux maps, we choose a minimum flux of 10^-7 [Jy] to assign to the empty bins since
         # all observed radio fluxes are greater than around 10^-5 [Jy].
         wdmap.generate_weighted_density_map(
@@ -158,7 +158,7 @@ def create_survey_maps(
         )
 
     elif (survey_type == "radio") & (use_meerkat_fluxes is False):
-        # Create P-Pdot average flux maps.
+        # Create P-Pdot average flux maps using the fluxes reported in the ATNF catalog.
         # To generate the average flux maps, we choose a minimum flux of 10^-7 [Jy] to assign to the empty bins since
         # all observed radio fluxes are greater than around 10^-5 [Jy].
         wdmap.generate_weighted_density_map(
@@ -234,7 +234,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
                 histograms) for the dynamical maps related to the X-ray surveys. In case of RA DEC maps the
                 DEC axis has half the number of bins with respect to the RA axis.
             - filter_young_xdins (bool): Whether to filter the X-ray simulated samples to include only young magnetars
-                and XDINS-like sources.
+                and XDINS-like sources (if omitted is False).
     """
 
     catalog_atnf, catalog_meerkat = load_atnf_meerkat_catalog(
@@ -448,7 +448,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--filter_young_xdins",
         action="store_true",
-        help="Whether to filter the X-ray simulated samples to include only young magnetars and XDINS-like sources.",
+        help="Whether to filter the X-ray simulated samples to include only young magnetars and XDINS-like sources (if omitted is False).",
     )
 
     args = parser.parse_args()

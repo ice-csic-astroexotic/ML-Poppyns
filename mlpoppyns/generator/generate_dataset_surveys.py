@@ -93,7 +93,7 @@ def create_survey_maps(
         dictionary_flux_map_ppdot (dict): Dictionary containing the path to the averaged flux P-Pdot maps for
             the simulated survey.
         filter_young_xdins (bool): If True the X-ray simulated sample is filtered to include only young magnetars and
-            XDINS-like sources.
+            XDINS-like sources. Default is False.
     """
 
     # Check if the simulated survey file exists as a precondition.
@@ -224,9 +224,9 @@ def create_survey_maps(
         age_x_sim = df_survey["age"].to_numpy()
 
         if filter_young_xdins:
-            # Filter X-ray emitting NSs with XDINS-like properties.
+            # Filter X-ray emitting NSs with XDINS-like properties, i.e., with distances from Earth lower than 0.5 kpc and ages greater than 10^5 yrs.
             xdins_mask = (d_x_sim <= 0.5) & (age_x_sim >= 1.0e5)
-            # Filter young sources.
+            # Filter young sources, i.e., with ages lower than 2 kyr.
             young_mask = age_x_sim <= 2.0e3
 
             filter_mask = xdins_mask | young_mask
@@ -349,7 +349,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             - data (str): Path to where the simulated populations are located.
             - save_dir (str): Path to where the generated dataset will be saved.
             - data_type (str): Type of dataset to generate: array or image.
-            - generate_xray (bool): Whether to generate X-ray survey maps or not.
+            - generate_xray (bool): Whether to generate X-ray survey maps or not (if omitted is False).
             - resolution_ppdot_radio (int): Resolution (number of bins per axis for the 2D
                 histograms) for the P-Pdot maps related to the radio surveys.
             - resolution_dyn_radio (int): Resolution (number of bins per axis for the 2D
@@ -361,7 +361,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
                 histograms) for the dynamical maps related to the X-ray surveys. In case of RA DEC maps the
                 DEC axis has half the number of bins with respect to the RA axis.
             - filter_young_xdins (bool): Option specifying if the simulated X-ray samples include only young magnetars
-                and XDINS-like sources or not.
+                and XDINS-like sources or not (if omitted is False).
     """
 
     # Create the dataset directory path.
@@ -668,7 +668,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--generate_xray",
         action="store_true",
-        help="Whether to generate the maps for the X-ray survey or not.",
+        help="Whether to generate the maps for the X-ray survey or not (if omitted is False).",
     )
     parser.add_argument(
         "--resolution_ppdot_radio",
@@ -701,7 +701,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--filter_young_xdins",
         action="store_true",
-        help="Option specifying if the simulated X-ray samples include only young magnetars and XDINS-like sources or not.",
+        help="Option specifying if the simulated X-ray samples include only young magnetars and XDINS-like sources or not (if omitted is False).",
     )
 
     args = parser.parse_args()
