@@ -54,9 +54,6 @@ jobs:
       # Install our software package in the standard way.
       - name: Install package in development mode
         run: python setup.py develop
-      # Install specific version of sbi via pip.
-      - name: Install sbi package from pip
-        run: pip install sbi==0.22.0
       # Run all the relevant tests using pytest.
       - name: Run tests
         run: pytest
