@@ -58,13 +58,6 @@ machine. For this, you need `conda` to be installed on your machine. The code ha
    variables `cfg["path_to_software"]` and `cfg["path_to_output"]`, respectively. Both paths could, for example, read
    `/home/user/Documents/ML-poppyns`.
 
-6. If you also want to use the code to perform machine learning experiments with simulation-based inference, you will
-   need to install the [Simulation Based Inference (sbi)](https://sbi-dev.github.io/sbi/>) library after activating the
-   environment by running:
-   ```commandline
-   pip install sbi==0.22.0
-   ```
-
 !!! tip
 
     Now that you are ready to work with the code, we recommend taking a look at the different tutorials

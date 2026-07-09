@@ -1,118 +1,136 @@
 {
-  "name": "SBI_ConvolutionMDN",
-  "n_gpu": 1,
-  "enable_dask": false,
-  "n_processes": 4,
-  "workers_dask": 4,
-  "set_manual_seed": false,
-  "manual_seed": 42,
-  "profile_log": "profile.log",
-  "profile_json": "profile.json",
-  "show_profiling": true,
+    "name": "SBI_ConvolutionMDN",
+    "n_gpu": 1,
+    "enable_dask": false,
+    "n_processes": 4,
+    "workers_dask": 4,
+    "set_manual_seed": false,
+    "manual_seed": 42,
+    "profile_log": "profile.log",
+    "profile_json": "profile.json",
+    "show_profiling": true,
 
-  "trainer": {
-    "type": "snle",
-    "num_rounds": 3,
-    "save_dir": "toremove/learning_snle",
-    "validation_fraction": 0.1,
-    "batch_size": 8,
-    "lr": 5e-4,
-    "ensemble": true,
-    "size_ensemble": 5,
-    "truncated_prior": false,
-    "retrain_from_scratch": false,
-    "sir": true,
-    "append_simulations": false,
-    "plot_proposal": false
-  },
+    "trainer": {
+        "type": "snpe",
+        "num_rounds": 1,
+        "save_dir": "data/example_learning_sbi/",
+        "validation_fraction": 0.1,
+        "batch_size": 8,
+        "lr": 0.0005,
+        "ensemble": false,
+        "size_ensemble": 5,
+        "truncated_prior": false,
+        "retrain_from_scratch": false,
+        "sir": true,
+        "append_simulations": false,
+        "plot_proposal": false
+    },
 
-  "density_estimator": {
-    "type": "mdn",
-    "classifier_nre": "resnet",
-    "args": {
-      "hidden_features": 16,
-      "num_components": 10,
-      "num_transforms": 5
+    "density_estimator": {
+        "type": "mdn",
+        "classifier_nre": "resnet",
+        "args": {
+            "hidden_features": 32,
+            "num_components": 10,
+            "num_transforms": 5
+        }
+    },
 
-       }
-  },
+    "mcmc_sampler": {
+        "type": "slice_np_vectorized",
+        "num_chains": 20,
+        "thin": 5
+    },
 
-  "mcmc_sampler": {
-    "type": "slice_np_vectorized",
-    "num_chains": 20,
-    "thin": 5
-  },
+    "arch": {
+        "type": "ModelConvSBI",
+        "args": {
+            "input_shape": [
+                3,
+                32,
+                32
+            ],
+            "len_output_layer": 32
+        }
+    },
 
-  "arch": {
-    "type": "ModelConvSBI",
-    "args": {
-        "input_shape": [6, 32, 32],
-        "len_output_layer": 32
+    "weights_initializer": {
+        "type": "InitializerKaiming",
+        "args": {}
+    },
+
+    "compression_input": {
+        "use_compression": false,
+        "compression_type": "cnn",
+        "cnn_model_path": "exp_4/round_9/trained_model_ensemble_0.pickle",
+        "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
+    },
+
+    "prior_ranges": {
+        "labels": [
+            "B_initial_log10_mean",
+            "P_initial_log10_mean"
+        ],
+        "low": [
+            12,
+            -1.5
+        ],
+        "high": [
+            14,
+            -0.3
+        ]
+    },
+
+    "training_data_loader": {
+        "dataset_path_round_0": "data/example_generator_magrot",
+        "dataset_path": "data/example_generator_magrot",
+        "statistic_path": "data/example_generator_magrot/statistics_train.json",
+        "filter_inputs": [
+            9,
+            10,
+            11
+        ],
+        "filter_labels": [
+            15,
+            16
+        ],
+        "normalize": false,
+        "standardize": true,
+        "num_sim": 10
+    },
+
+    "test_data_loader": {
+        "testing": false,
+        "dataset_path_round_0": "data/example_generator_magrot",
+        "dataset_path": "data/example_generator_magrot",
+        "num_sim": 10,
+        "statistic_path": "data/example_generator_magrot/statistics_train.json"
+    },
+
+    "observed_sample": {
+        "dataset_path": "data/example_generator_observed/",
+        "filter_inputs": [
+            9,
+            10,
+            11
+        ]
+    },
+
+    "dyn_data_loader": {
+        "dataset_path": "data/example_simulation_dyn"
+    },
+
+    "resume_training": {
+        "resume": false,
+        "last_round": 7,
+        "save_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828",
+        "log_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828"
+    },
+
+    "infer": {
+        "sim_dataset": false,
+        "compute_coverage": true,
+        "load_dir": "data/example_learning_sbi/models/SBI_ConvolutionMDN/20260622_121604",
+        "save_dir": "data/example_inference_sbi"
     }
-  },
-
-  "weights_initializer": {
-      "type": "InitializerKaiming",
-      "args": {}
-  },
-
-  "compression_input": {
-    "use_compression": true,
-    "compression_type": "cnn",
-    "cnn_model_path": "../../data/paper_results/pardo_etal_2025/experiments/exp_4/round_9/trained_model_ensemble_0.pickle",
-    "pca_model_path": "PCAs/1_PCA_95_new/pca_model_combined.pkl"
-  },
-
-
- "prior_ranges": {
-	  "labels": ["B_initial_log10_mean",
-        "B_initial_log10_sigma",
-        "P_initial_log10_mean",
-        "P_initial_log10_sigma",
-        "L_radio_log10_mean",
-        "epsilon_L"],
-	  "low": [12, 0.1, -1.5, 0.1, 24.6, 0.1],
-	  "high": [14, 1, -0.3, 1, 28.6, 1]
-	  },
-
-  "training_data_loader": {
-    "dataset_path_round_0": "../../data/example_generator_magrot",
-    "dataset_path": "../../data/example_generator_magrot",
-    "statistic_path": "../../data/example_generator_magrot/statistics_train.json",
-    "filter_inputs": [9, 10, 11, 12, 13, 14],
-    "filter_labels": [15, 16],
-    "normalize": false,
-    "standardize": true,
-    "num_sim": 2
-  },
-
-  "test_data_loader": {
-    "testing": false,
-    "dataset_path": "../../data/example_generator_magrot",
-    "dataset_path_round_0": "../../data/example_generator_magrot",
-    "num_sim": 3
-  },
-
-  "observed_sample": {
-      "dataset_path": "data/paper_results/pardo_etal_2025/observed_data_res32_updated_atnf",
-      "filter_inputs": [9, 10, 11, 12, 13, 14]
-  },
-
-  "dyn_data_loader": {
-      "dataset_path": "../../data/example_simulation_dyn"
-  },
-
-  "resume_training": {
-      "resume": false,
-      "last_round": 7,
-      "save_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828",
-      "log_dir": "learning/models/SBI_ConvolutionMDN/20240705_123828"
-  },
-
-  "infer": {
-    "sim_dataset": false,
-    "compute_coverage": true,
-    "load_dir": "learning/models/SBI_ConvolutionMDN/20240719_164759",
-    "save_dir": "inference"
-  }
 }

@@ -6,7 +6,7 @@
     deal with different training experiments. Note that the ensemble method in the sbi package has limitations
     on the types of experiments it can support (e.g., different input shapes).
     Simulation-based Calibration is also performed to check if the ensemble posterior is well behaved.
-    See [https://www.mackelab.org/sbi/](https://www.mackelab.org/sbi/) for more details.
+    See [https://sbi.readthedocs.io/en/latest/](https://sbi.readthedocs.io/en/latest/) for more details.
 
     Display help message to run the code:
 
@@ -333,7 +333,7 @@ def infer(
                         )
 
                         # By default the procedure uses SNPE-C
-                        # (https://www.mackelab.org/sbi/reference/#sbi.inference.snpe.snpe_c.SNPE_C).
+                        # (https://sbi.readthedocs.io/en/latest/api_reference/_autosummary/sbi.inference.NPE_C.html).
                         inference = SNPE()
 
                         # Building the inferred posterior distribution for each experiment.
