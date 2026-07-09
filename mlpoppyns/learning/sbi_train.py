@@ -19,7 +19,7 @@
     file. It is also necessary to specify where the logs and models were saved in the first run and indicate the last
     completed round.
 
-    For further details, visit [https://www.mackelab.org/sbi/](https://www.mackelab.org/sbi/).
+    For further details on sbi, visit [https://sbi.readthedocs.io/en/latest/](https://sbi.readthedocs.io/en/latest/).
 
     Display help message to run the code:
 

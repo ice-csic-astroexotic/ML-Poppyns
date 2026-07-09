@@ -540,20 +540,19 @@ def test_load_Lx_interpolator(test_case_2, tmp_path):
     Test that initialize_Lx_interpolator loads and returns a valid interpolator.
     """
     # Create subdirectory for the pickle file.
-    subdir = tmp_path / "magneto-thermal"
-    subdir.mkdir()
+    interpolator_path = tmp_path / "magneto-thermal"
+    interpolator_path.mkdir()
 
     # Define path to interpolator pickle inside subdir.
-    interpolator_path = subdir / "interpolator_Lx.pkl"
+    interpolator_file = interpolator_path / "interpolator_Lx.pkl"
 
     # Write the dummy interpolator to the file.
-    with open(interpolator_path, "wb") as f:
+    with open(interpolator_file, "wb") as f:
         pickle.dump(test_case_2["dummy_L_x_interpolator"], f)
 
     # Define a fake cfg to point to this location.
     fake_cfg = {
-        "path_to_software": str(tmp_path),  # base dir is tmp_path
-        "magneto-thermal_path": "magneto-thermal",  # subdir
+        "magneto-thermal_path": interpolator_path,  # subdir
     }
 
     # Create patch cfg with this fake_cfg.
@@ -671,20 +670,21 @@ def test_load_crust_failure_rate_interpolator(test_case_5, tmp_path):
     Test that initialize_Lx_interpolator loads and returns a valid interpolator.
     """
     # Create subdirectory for the pickle file.
-    subdir = tmp_path / "magneto-thermal"
-    subdir.mkdir()
+    interpolator_path = tmp_path / "magneto-thermal"
+    interpolator_path.mkdir()
 
-    # Path to interpolator pickle inside subdir.
-    interpolator_path = subdir / "interpolator_crust_failure_rate.pkl"
+    # Define path to interpolator pickle inside subdir.
+    interpolator_file = (
+        interpolator_path / "interpolator_crust_failure_rate.pkl"
+    )
 
     # Write the dummy interpolator to the file.
-    with open(interpolator_path, "wb") as f:
+    with open(interpolator_file, "wb") as f:
         pickle.dump(test_case_5["dummy_failure_rate_interpolator"], f)
 
     # Define a fake cfg to point to this location.
     fake_cfg = {
-        "path_to_software": str(tmp_path),  # base dir is tmp_path
-        "magneto-thermal_path": "magneto-thermal",  # subdir
+        "magneto-thermal_path": interpolator_path,  # subdir
     }
 
     # Patch cfg with this fake_cfg.

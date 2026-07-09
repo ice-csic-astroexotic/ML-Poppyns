@@ -22,14 +22,14 @@ from typing import List, Union
 
 import numpy as np
 import torch
-from sbi import utils
+from sbi import neural_nets, utils
 from sbi.inference import SNLE, SNPE, SNRE
+from sbi.inference.posteriors import EnsemblePosterior
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
-from sbi.inference.snle.snle_a import SNLE_A
-from sbi.inference.snpe.snpe_c import SNPE_C
-from sbi.inference.snre.snre_b import SNRE_B
+from sbi.inference.trainers.nle import SNLE_A
+from sbi.inference.trainers.npe import SNPE_C
+from sbi.inference.trainers.nre import SNRE_B
 from sbi.utils import BoxUniform
-from sbi.utils.posterior_ensemble import NeuralPosteriorEnsemble
 
 import mlpoppyns.learning.configuration_parser as configuration_parser
 import mlpoppyns.learning.initializers.initializers as learning_initializers
@@ -191,7 +191,7 @@ def build_inference_network(
 
         # The default density estimator has three hidden layers with a number of neurons = hidden_features.
         # The weights are initialized with the default initialization provided by PyTorch.
-        neural_posterior = utils.posterior_nn(**posterior_nn_args)
+        neural_posterior = neural_nets.posterior_nn(**posterior_nn_args)
 
         # Setting up the inference procedure.
         inference = SNPE(
@@ -272,7 +272,7 @@ def train_posterior(
     prof_json_path: str,
     retrain_from_scratch: bool = False,
     proposal: DirectPosterior = None,
-) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
+) -> Union[DirectPosterior, EnsemblePosterior]:
     """
     Train the density estimator for a given round.
 
@@ -440,7 +440,7 @@ def train_posterior(
     if ensemble:
         # Giving each network in the ensemble an equal weight.
         weights_ensemble = torch.ones(ensemble_size) / ensemble_size
-        final_posterior = NeuralPosteriorEnsemble(
+        final_posterior = EnsemblePosterior(
             posteriors_list, weights=weights_ensemble.to(device)
         )
     else:
@@ -509,7 +509,7 @@ def load_posterior(
     inference_list: Union[List[SNPE], List[SNLE], List[SNRE]],
     device: torch.device,
     round_current: int,
-) -> Union[DirectPosterior, NeuralPosteriorEnsemble]:
+) -> Union[DirectPosterior, EnsemblePosterior]:
     """
     Load the trained density estimator for a given round.
 
@@ -572,7 +572,7 @@ def load_posterior(
 
     if ensemble:
         weights_ensemble = torch.ones(ensemble_size) / ensemble_size
-        final_posterior = NeuralPosteriorEnsemble(
+        final_posterior = EnsemblePosterior(
             posteriors_list, weights=weights_ensemble.to(device)
         )
     else:
