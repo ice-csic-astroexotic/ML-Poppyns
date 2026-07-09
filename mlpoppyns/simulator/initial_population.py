@@ -14,7 +14,6 @@ from typing import Tuple
 
 import numpy as np
 
-import mlpoppyns.simulator.basics.constants as const
 import mlpoppyns.simulator.magneto_rotational_physics.initial_magnetic_field as imf
 import mlpoppyns.simulator.magneto_rotational_physics.initial_period as ipd
 import mlpoppyns.simulator.stellar_dynamics.coordinate_conversions as coco
