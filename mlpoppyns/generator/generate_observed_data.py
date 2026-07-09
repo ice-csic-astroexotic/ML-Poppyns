@@ -11,6 +11,14 @@
 
     The user can choose to generate either a dataset of images or of 2D arrays.
 
+    More precisely we generate the following maps:
+
+    * Four position density maps in ICRS coordinates: one for each of the three radio surveys and one for the X-ray survey
+    modeled by the simulator.
+    * Four $P-\\dot{P}$ density maps: one for each of the three simulated radio surveys and one for the X-ray survey.
+    * Four $P-\\dot{P}$ density maps weighted by the logarithm of the radio and X-ray fluxes: three for the three simulated
+    radio surveys and one for the X-ray survey.
+
     Display help message to run the code:
 
     python generate_observed_data.py --help

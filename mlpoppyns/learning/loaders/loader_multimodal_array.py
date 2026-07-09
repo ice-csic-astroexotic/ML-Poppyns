@@ -92,8 +92,8 @@ class DatasetMultimodalArray:
         self,
         dataset_path: str,
         statistic_path: str,
-        filter_channels: list = [],
-        filter_labels: list = [],
+        filter_channels: Optional[list] = None,
+        filter_labels: Optional[list] = None,
         normalize: bool = False,
         standardize: bool = False,
         transform: Optional[Callable] = None,
@@ -213,7 +213,7 @@ class DatasetMultimodalArray:
                 per_channel_max_1 == per_channel_min_1
             ).squeeze()
             zero_norm_mask_2 = (
-                per_channel_max_2 == per_channel_min_1
+                per_channel_max_2 == per_channel_min_2
             ).squeeze()
 
             if np.count_nonzero(zero_norm_mask_1) != 0:

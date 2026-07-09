@@ -12,6 +12,15 @@
 
     The user can choose to generate either a dataset of images or of 2D arrays.
 
+    More precisely, we produce the following density maps (one for each of our
+    three radio surveys modeled by the simulator) for each of the simulated populations:
+
+    * 4 maps for stellar positions in ICRS coordinates.
+    * 4 maps in ICRS coordinates weighted by the proper motion component $\\mu_{\rm RA}$.
+    * 4 maps in ICRS coordinates weighted by the proper motion component $\\mu_{\rm DEC}$.
+    * 4 $P-\\dot{P}$ maps.
+    * 4 $P-\\dot{P}$ maps, 3 weighted by the logarithm of the radio flux and 1 weighted by the logarithm of the X-ray flux.
+
     The information on the simulated dataset is also saved in a .csv file where the
     corresponding input files are specified with their paths and labels.
     The statistical information about the labels (average value, standard deviation,

@@ -12,6 +12,20 @@
 
     The user can choose to generate either a dataset of images or of 2D arrays.
 
+    In particular, the output produced by this script contains the spatial density and velocity information
+    for all evolved neutron star populations as well as their distribution in the $P-\\dot{P}$ plane. More precisely,
+    for each simulated population we produce the following density maps:
+
+    * 1 map for stellar positions in galactocentric $x$ and $y$ coordinates.
+    * 1 map for stellar positions in galactocentric $x$ and $z$ coordinates.
+    * 1 map in galactocentric $x$ and $y$ coordinates weighted by the radial velocity component $v_r$.
+    * 1 map in galactocentric $x$ and $y$ coordinates weighted by the azimuthal velocity $v_{\\phi}$.
+    * 1 map in galactocentric $x$ and $y$ coordinates weighted by the velocity component $v_z$.
+    * 1 map for stellar positions in ICRS coordinates.
+    * 1 map in ICRS coordinates weighted by the proper motion component $\\mu_{RA}$.
+    * 1 map in ICRS coordinates weighted by the proper motion component $\\mu_{DEC}$.
+    * 1 $P-\\dot{P}$ map.
+
     The information on the simulated dataset is also saved in a .csv file where the
     corresponding input files are mapped with their paths and labels.
 
