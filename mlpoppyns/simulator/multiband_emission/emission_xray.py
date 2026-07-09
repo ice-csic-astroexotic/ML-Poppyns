@@ -87,7 +87,7 @@ def n_plus_without_delta(
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    Transmission function p+ in eq. (11) in overleaf without the Dirac delta term (see also the function n+ in eq. (35)
+    Transmission function p+ in eq. (A6) in Ronchi et al. (2026) without the Dirac delta term (see also the function n+ in eq. (35)
     in Lyutikov and Gavriil 2006).
     When computing the transmitted flux the Dirac delta term will be added analytically in order to avoid computing
     it numerically.
@@ -147,7 +147,7 @@ def n_minus(
     beta_T: np.ndarray,
 ) -> np.ndarray:
     """
-    Reflection function p- in eq. (12) in overleaf (see also the function n- in eq. (35) in Lyutikov and Gavriil 2006).
+    Reflection function p- in eq. (A7) in Ronchi et al. 2026 (see also the function n- in eq. (35) in Lyutikov and Gavriil 2006).
     Note that in the original paper this equation misses a factor 1/2 and in the exponential term should be tau_0/2
     instead of tau_0 in the prefactor.
 
@@ -195,7 +195,7 @@ def resonant_cyclotron_scat_spectrum(
 ) -> np.ndarray:
     """
     Compute the spectrum resulting from resonant cyclotron scattering (RCS) given a source photon intensity spectrum
-    considering multiple reflections and transmissions (see eq. (15) in overleaf and eq. (42) in Lyutikov and Gavriil 2006).
+    considering multiple reflections and transmissions (see eq. (A11) in Ronchi et al. 2026 and eq. (42) in Lyutikov and Gavriil 2006).
 
     Args:
         E (np.ndarray): Array of energies in [erg] of the transmitted intensity.
@@ -236,7 +236,7 @@ def resonant_cyclotron_scat_spectrum(
         )
         rcs_spectrum = rcs_spectrum + I_ph_trans_refl
 
-        I_ph = I_ph_trans_refl[:, np.newaxis, :]
+        I_ph = I_ph_reflect_reshape
 
     return rcs_spectrum
 
@@ -347,8 +347,8 @@ def flux_xray_absorbed(
     I_bb_absorbed = absorb_factor * I_bb
     I_rcs_absorbed = absorb_factor * I_rcs
 
-    # Compute the total observed fluxes in the energy range [0.01, 10] keV (see eq. (17) in overleaf).
-    E_mask = E <= 10000
+    # Compute the total observed fluxes in the energy range [0.1, 10] keV.
+    E_mask = (E >= 100) & (E <= 10000)
     I_bb_absorbed_bolom = trapezoid(
         I_bb_absorbed[:, E_mask], E[E_mask], axis=1
     )
@@ -562,10 +562,10 @@ def outburst_filter_from_crust_failure_rate(
     # Interpolate the rate of crust failures from the initial magnetic field value and the age.
     rate_crust_failure = crust_failure_rate_interpolator.ev(age, B_initial)
 
-    # Select only those stars that have experienced a crust failure event in the last 50 yrs. This way, we determine an
+    # Select only those stars that have experienced a crust failure event in the last 30 yrs. This way, we determine an
     # estimate of the number of outbursts that neutron stars will likely have undergone during the period of activity
-    # of X-ray survey missions.
-    n_outburst_events = rate_crust_failure * 50
+    # of X-ray survey missions (since the launch of the Rossi X-ray Timing Explorer (RXTE) mission, Bradt et al. 1993).
+    n_outburst_events = rate_crust_failure * 30
 
     # We consider n_outburst_events to be a probability for having an outburst.
     outburst_prob = np.where(n_outburst_events > 1, 1, n_outburst_events)
