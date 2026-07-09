@@ -29,11 +29,12 @@ import pandas as pd
 import torch
 from dask_jobqueue import HTCondorCluster
 from sbi import utils
-from sbi.analysis import check_sbc, run_sbc, sbc_rank_plot
 from sbi.analysis import tensorboard_output as tbo
+from sbi.analysis.plot import sbc_rank_plot
+from sbi.diagnostics import check_sbc, run_sbc
 from sbi.inference.posteriors.direct_posterior import DirectPosterior
-from sbi.inference.snle.snle_a import SNLE_A
-from sbi.inference.snpe.snpe_c import SNPE_C
+from sbi.inference.trainers.nle import SNLE_A
+from sbi.inference.trainers.npe import SNPE_C
 from tqdm import tqdm
 
 import mlpoppyns.learning.configuration_parser as configuration_parser
@@ -378,7 +379,7 @@ def save_training_statistics(
             enabled, effective_round = last_completed_round + actual_round.
     """
     all_event_data = tbo._get_event_data_from_log_dir(
-        inference._summary_writer.log_dir
+        inference._tracker.log_dir
     )
     training_statistics = all_event_data["scalars"]
 
@@ -406,8 +407,8 @@ def save_training_statistics(
     ax.set_xlabel(r"Epoch")
     ax.set_ylabel(r"Accuracy")
     ax.plot(
-        training_statistics["training_log_probs"]["step"],
-        training_statistics["training_log_probs"]["value"],
+        training_statistics["training_loss"]["step"],
+        training_statistics["training_loss"]["value"],
         linestyle="-",
         linewidth=4,
         color="tab:blue",
@@ -415,8 +416,8 @@ def save_training_statistics(
         label="training",
     )
     ax.plot(
-        training_statistics["validation_log_probs"]["step"],
-        training_statistics["validation_log_probs"]["value"],
+        training_statistics["validation_loss"]["step"],
+        training_statistics["validation_loss"]["value"],
         linestyle="-",
         linewidth=4,
         color="tab:orange",
@@ -491,7 +492,7 @@ def compute_rank_coverage(
 
         logger.info("Check the rank statistics...")
         # Check if the rank distributions follow a uniform distribution with three different tests
-        # (see [here](https://www.mackelab.org/sbi/tutorial/13_diagnostics_simulation_based_calibration/)
+        # (see [here](https://sbi.readthedocs.io/en/latest/advanced_tutorials/11_diagnostics_simulation_based_calibration.html)
         # for more details on these tests).
         check_stats = check_sbc(
             ranks,

@@ -257,7 +257,7 @@ if __name__ == "__main__":
         "-c",
         "--configuration",
         type=str,
-        default="mlpoppyns/learning/config_tsnpe.json",
+        default="mlpoppyns/learning/config_sbi.json",
         help="Machine learning configuration file path.",
     )
 

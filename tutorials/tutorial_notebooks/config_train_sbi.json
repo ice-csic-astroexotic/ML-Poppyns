@@ -117,7 +117,7 @@
     "infer": {
         "sim_dataset": false,
         "compute_coverage": true,
-        "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20250821_103802/",
+        "load_dir": "output/learning_sbi/models/SBI_ConvolutionMDN/20260519_153159/",
         "save_dir": "output/inference_sbi"
     }
 }
