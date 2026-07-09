@@ -104,7 +104,7 @@ If you use ML-Poppyns in your research, we kindly ask you to:
 
 ## Contacts
 
-If you encounter any issues or have questions, please feel free to use the Discussion section in the repository main page or to email us at: 
+If you encounter any issues or have questions, please feel free to use the [Discussion](https://github.com/ice-csic-astroexotic/ML-Poppyns/discussions) section in our repository or email us at: 
 * Vanessa Graber (Vanessa.Graber@rhul.ac.uk)
 * Celsa Pardo Araujo (pardo@ices.csic.es)
 * Michele Ronchi (ronchi@astron.nl)
