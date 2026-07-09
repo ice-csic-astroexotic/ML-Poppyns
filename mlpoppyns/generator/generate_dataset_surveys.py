@@ -233,7 +233,8 @@ def create_survey_maps(
         age_x_sim = df_survey["age"].to_numpy()
 
         if filter_young_xdins:
-            # Filter X-ray emitting NSs with XDINS-like properties, i.e., with distances from Earth lower than 0.5 kpc and ages greater than 10^5 yrs.
+            # Filter X-ray emitting NSs with XDINS-like properties, i.e., those with
+            # distances from Earth lower than 0.5 kpc and ages greater than 10^5 yrs.
             xdins_mask = (d_x_sim <= 0.5) & (age_x_sim >= 1.0e5)
             # Filter young sources, i.e., with ages lower than 2 kyr.
             young_mask = age_x_sim <= 2.0e3
