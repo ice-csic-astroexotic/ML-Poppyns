@@ -13,7 +13,9 @@
 
 import numpy as np
 
+import mlpoppyns.simulator.basics.constants as const
 import mlpoppyns.simulator.stellar_dynamics.galactic_model as gm
+import utilities.samplers.random_sampler as rs
 from mlpoppyns.simulator.config_simulator import cfg
 
 
@@ -73,6 +75,7 @@ def pdf_kick_velocity_double_maxwell(v: np.ndarray) -> np.ndarray:
     sigma_2 = cfg["sigma_k_comp2"]
     # Define the fractional contribution of the first Maxwellian.
     w = cfg["kick_weight_comp1"]
+
     if (w < 0) or (w > 1):
         raise ValueError(
             "The relative weight parameter of the km_double_maxwell kick velocity model must be in "
@@ -96,6 +99,97 @@ def pdf_kick_velocity_double_maxwell(v: np.ndarray) -> np.ndarray:
     pdf_vk = w * pdf_maxwell_1 + (1.0 - w) * pdf_maxwell_2
 
     return pdf_vk
+
+
+def kick_velocity_exp(NS_number: int) -> np.ndarray:
+    """
+    Draw random kick velocity values from an exponential distribution as suggested in Faucher-Giguère amd Kaspi (2006).
+
+    Args:
+        NS_number (int): Total number of neutron stars created in the simulation.
+
+    Returns:
+        (np.ndarray): Kick velocities in [kpc/yr].
+    """
+
+    # Drawing a random magnitude of the birth kick velocity in [km/s] for each
+    # neutron star according to the underlying velocity probability density
+    # function.
+    vk_grid = np.linspace(0.0, cfg["vk_extent"], cfg["resolution"])
+    vk_rand = rs.random_from_pdf(vk_grid, pdf_kick_velocity_exp, NS_number)
+    # Convert from [km/s] to [kpc/yr].
+    vk_rand = vk_rand * const.YR_TO_S / const.KPC_TO_KM
+
+    return vk_rand
+
+
+def kick_velocity_maxwell(NS_number: int) -> np.ndarray:
+    """
+    Draw random kick velocity values from a Maxwell distribution as suggested in Hobbs et al. (2005).
+
+    Args:
+        NS_number (int): Total number of neutron stars created in the simulation.
+
+    Returns:
+        (np.ndarray): Kick velocities in [kpc/yr].
+    """
+
+    # Drawing a random magnitude of the birth kick velocity in [km/s] for each
+    # neutron star according to the underlying velocity probability density
+    # function.
+    vk_grid = np.linspace(0.0, cfg["vk_extent"], cfg["resolution"])
+    vk_rand = rs.random_from_pdf(vk_grid, pdf_kick_velocity_maxwell, NS_number)
+    # Convert from [km/s] to [kpc/yr].
+    vk_rand = vk_rand * const.YR_TO_S / const.KPC_TO_KM
+
+    return vk_rand
+
+
+def kick_velocity_double_maxwell(NS_number: int) -> np.ndarray:
+    """
+    Draw random kick velocity values from a double Maxwell distribution as suggested in Igoshev (2020).
+
+    Args:
+        NS_number (int): Total number of neutron stars created in the simulation.
+
+    Returns:
+        (np.ndarray): Kick velocities in [kpc/yr].
+    """
+
+    # Drawing a random magnitude of the birth kick velocity in [km/s] for each
+    # neutron star according to the underlying velocity probability density
+    # function.
+    vk_grid = np.linspace(0.0, cfg["vk_extent"], cfg["resolution"])
+    vk_rand = rs.random_from_pdf(
+        vk_grid, pdf_kick_velocity_double_maxwell, NS_number
+    )
+    # Convert from [km/s] to [kpc/yr].
+    vk_rand = vk_rand * const.YR_TO_S / const.KPC_TO_KM
+
+    return vk_rand
+
+
+def kick_velocity_lognormal(
+    mean: float, sigma: float, NS_number: int
+) -> np.ndarray:
+    """
+    Draw random kick velocity values from a double Maxwell distribution as suggested in Disberg and Mandel (2025).
+
+    Args:
+        mean (float): Mean of the log-normal distribution.
+        sigma (float): Standard deviation of the log-normal distribution, in [s].
+        NS_number (int): Total number of neutron stars created in the simulation.
+
+    Returns:
+        (np.ndarray): Kick velocities in [kpc/yr].
+    """
+
+    vk_rand = np.e ** np.random.normal(mean, sigma, NS_number)
+
+    # Convert from [km/s] to [kpc/yr].
+    vk_rand = vk_rand * const.YR_TO_S / const.KPC_TO_KM
+
+    return vk_rand
 
 
 def circular_velocity(r: float, z: float) -> float:

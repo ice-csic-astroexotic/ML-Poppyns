@@ -14,7 +14,6 @@ from typing import Tuple
 
 import numpy as np
 
-import mlpoppyns.simulator.basics.constants as const
 import mlpoppyns.simulator.magneto_rotational_physics.initial_magnetic_field as imf
 import mlpoppyns.simulator.magneto_rotational_physics.initial_period as ipd
 import mlpoppyns.simulator.stellar_dynamics.coordinate_conversions as coco
@@ -116,24 +115,24 @@ class InitialNeutronStarPopulation:
         """
 
         kick_model = cfg["kick_model"]
-        if kick_model == "km_maxwell":
-            pdf_vkick = iv.pdf_kick_velocity_maxwell
-        elif kick_model == "km_exp":
-            pdf_vkick = iv.pdf_kick_velocity_exp
-        elif kick_model == "km_double_maxwell":
-            pdf_vkick = iv.pdf_kick_velocity_double_maxwell
-        else:
-            raise ValueError(
-                "The kick velocity model pdf does not exist. Choose between km_maxwell, km_exp or km_double_maxwell."
-            )
 
         # Drawing a random magnitude of the birth kick velocity in [km/s] for each
         # neutron star according to the underlying velocity probability density
         # function.
-        vk_grid = np.linspace(0.0, cfg["vk_extent"], cfg["resolution"])
-        vk_rand = rs.random_from_pdf(vk_grid, pdf_vkick, self.NS_number)
-        # Convert from [km/s] to [kpc/yr].
-        vk_rand = vk_rand * const.YR_TO_S / const.KPC_TO_KM
+        if kick_model == "km_maxwell":
+            vk_rand = iv.kick_velocity_maxwell(self.NS_number)
+        elif kick_model == "km_exp":
+            vk_rand = iv.kick_velocity_exp(self.NS_number)
+        elif kick_model == "km_double_maxwell":
+            vk_rand = iv.kick_velocity_double_maxwell(self.NS_number)
+        elif kick_model == "km_log-normal":
+            vk_rand = iv.kick_velocity_lognormal(
+                cfg["vk_ln_mean"], cfg["vk_ln_sigma"], self.NS_number
+            )
+        else:
+            raise ValueError(
+                "The kick velocity model pdf does not exist. Choose between km_maxwell, km_exp, km_double_maxwell or km_log-normal."
+            )
 
         # To draw a random direction for the speed from a uniform distribution,
         # we uniformly sample the azimuthal angle [rad] in the range [0, 2*np.pi];
