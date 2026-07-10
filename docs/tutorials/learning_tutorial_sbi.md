@@ -388,8 +388,9 @@ For the example above and following the recommended folder structure, the `train
      [CNN learning tutorial](learning_tutorial_nn.md), it would load the dataset in a format that is not 
      compatible with sbi.
 
-The available input channels and labels are specified in the `dataset_full.csv` file, where they are identified with 
-an index starting from 0. Let us assume that our `dataset_full.csv` file looks as follows:
+The available input channels and labels are specified in the `dataset_full.csv` file, where we list the path to the different maps and the corresponding label values
+Since in this example we are varying only two parameters we have only two labels (last two columns)
+Let us assume that our `dataset_full.csv` file looks as follows:
 
 ```commandline
 input:survey_PMPS_density_map_radec,input:survey_SMPS_density_map_radec,input:survey_HTRU_density_map_radec,input:survey_xray_density_map_radec,input:survey_PMPS_velocity_vra_map_radec,input:survey_SMPS_velocity_vra_map_radec,input:survey_HTRU_velocity_vra_map_radec,input:survey_xray_velocity_vra_map_radec,input:survey_PMPS_velocity_vdec_map_radec,input:survey_SMPS_velocity_vdec_map_radec,input:survey_HTRU_velocity_vdec_map_radec,input:survey_xray_velocity_vdec_map_radec,input:survey_PMPS_density_map_ppdot,input:survey_SMPS_density_map_ppdot,input:survey_HTRU_density_map_ppdot,input:survey_xray_density_map_ppdot,input:survey_PMPS_flux_map_ppdot,input:survey_SMPS_flux_map_ppdot,input:survey_HTRU_flux_map_ppdot,input:survey_xray_flux_map_ppdot,B_initial_log10_mean,P_initial_log10_mean
@@ -398,40 +399,37 @@ data/example_generator_magrot/survey_PMPS_density_map_radec_1.npy,data/example_g
 data/example_generator_magrot/survey_PMPS_density_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_2.npy,data/example_generator_magrot/survey_xray_density_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_2.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_2.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_2.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_2.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_2.npy,13.666001670349527,-0.945232045269706
 data/example_generator_magrot/survey_PMPS_density_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_3.npy,data/example_generator_magrot/survey_xray_density_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_3.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_3.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_3.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_3.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_3.npy,12.597396839756216,-1.4013555393326107
 ```
+The different channels and labels are identified with an index starting from 0. 
 
-| Index | Filename                                    |
-| ----: | ------------------------------------------- |
-|     0 | `survey_PMPS_density_map_radec_0.npy`       |
-|     1 | `survey_SMPS_density_map_radec_0.npy`       |
-|     2 | `survey_HTRU_density_map_radec_0.npy`       |
-|     3 | `survey_xray_density_map_radec_0.npy`       |
-|     4 | `survey_PMPS_velocity_vra_map_radec_0.npy`  |
-|     5 | `survey_SMPS_velocity_vra_map_radec_0.npy`  |
-|     6 | `survey_HTRU_velocity_vra_map_radec_0.npy`  |
-|     7 | `survey_xray_velocity_vra_map_radec_0.npy`  |
-|     8 | `survey_PMPS_velocity_vdec_map_radec_0.npy` |
-|     9 | `survey_SMPS_velocity_vdec_map_radec_0.npy` |
-|    10 | `survey_HTRU_velocity_vdec_map_radec_0.npy` |
-|    11 | `survey_xray_velocity_vdec_map_radec_0.npy` |
-|    12 | `survey_PMPS_density_map_ppdot_0.npy`       |
-|    13 | `survey_SMPS_density_map_ppdot_0.npy`       |
-|    14 | `survey_HTRU_density_map_ppdot_0.npy`       |
-|    15 | `survey_xray_density_map_ppdot_0.npy`       |
-|    16 | `survey_PMPS_flux_map_ppdot_0.npy`          |
-|    17 | `survey_SMPS_flux_map_ppdot_0.npy`          |
-|    18 | `survey_HTRU_flux_map_ppdot_0.npy`          |
-|    19 | `survey_xray_flux_map_ppdot_0.npy`          |
-
-Since in this example we are varying only two parameters we have only two labels that can be referenced with the following indices:
-
-| Index | Label                  |
-| ----: | ---------------------- |
-|    20 | `B_initial_log10_mean` |
-|    21 | `P_initial_log10_mean` |
+| Index | Filename                                  |
+| ----: |-------------------------------------------|
+|     0 | `survey_PMPS_density_map_radec.npy`       |
+|     1 | `survey_SMPS_density_map_radec.npy`       |
+|     2 | `survey_HTRU_density_map_radec.npy`       |
+|     3 | `survey_xray_density_map_radec.npy`       |
+|     4 | `survey_PMPS_velocity_vra_map_radec.npy`  |
+|     5 | `survey_SMPS_velocity_vra_map_radec.npy`  |
+|     6 | `survey_HTRU_velocity_vra_map_radec.npy`  |
+|     7 | `survey_xray_velocity_vra_map_radec.npy`  |
+|     8 | `survey_PMPS_velocity_vdec_map_radec.npy` |
+|     9 | `survey_SMPS_velocity_vdec_map_radec.npy` |
+|    10 | `survey_HTRU_velocity_vdec_map_radec.npy` |
+|    11 | `survey_xray_velocity_vdec_map_radec.npy` |
+|    12 | `survey_PMPS_density_map_ppdot.npy`       |
+|    13 | `survey_SMPS_density_map_ppdot.npy`       |
+|    14 | `survey_HTRU_density_map_ppdot.npy`       |
+|    15 | `survey_xray_density_map_ppdot.npy`       |
+|    16 | `survey_PMPS_flux_map_ppdot.npy`          |
+|    17 | `survey_SMPS_flux_map_ppdot.npy`          |
+|    18 | `survey_HTRU_flux_map_ppdot.npy`          |
+|    19 | `survey_xray_flux_map_ppdot.npy`          |
+| Index | Label                                     |
+|    20 | `B_initial_log10_mean`                    |
+|    21 | `P_initial_log10_mean`                    |
 
 To select certain input channels, we specify a list containing the indices corresponding to 
 the input channels we would like to consider. In the data loader example above, we opt for the input channels 
-`survey_PMPS_ppdot_map`, `survey_SMPS_ppdot_map`, `survey_HTRU_ppdot_map` (indices 12, 13, 14) and want to predict
+`survey_PMPS_density_map_ppdot`, `survey_SMPS_density_map_ppdot`, `survey_HTRU_density_map_ppdot` (indices 12, 13, 14) and want to predict
 the labels `B_initial_log10_mean` and `P_initial_log10_mean` (indices 20, 21).
 
 !!! warning
