@@ -70,8 +70,8 @@ When running this generator script, we have to specify the following parameters:
    neutron stars detected in X-ray.
 * `resolution_ppdot_xray`: the resolution in bins or pixels of the maps containing the $P-\dot{P}$ information for the 
    neutron stars detected in X-ray.
-* `generate_xray`: option specifying if the maps related to the X-ray surveys are produced (if omitted is False by default).
-* `filter_young_xdins`: option specifying if only young magnetars and XDINSs are considered in the X-ray population (if omitted is False by default).
+* `generate_xray`: option specifying if the maps related to the X-ray surveys are produced (default is False).
+* `filter_young_xdins`: option specifying if only young magnetars and XDINSs are considered in the X-ray population (default is False).
 
 Suppose that we have created a dataset of simulated populations that is stored in `data/example_simulation_helper_magrot` 
 using the `simulate_population_magrot_det.py` script. Let us assume that we want to create a map dataset of 2D arrays 
@@ -204,7 +204,7 @@ In the above example, we then generate the following twelve maps:
 * Four $P-\dot{P}$ density maps weighted by the logarithm of the radio and X-ray fluxes: three for the three simulated 
    radio surveys and one for the X-ray survey.
 
-Moreover, the above command also produces a `dataset_atnf.csv` file containing summary information of the different
+Moreover, the above command also produces a `dataset_observed.csv` file containing summary information of the different
 maps. Note that the underlying ground truths are, of course, unknown here. The corresponding entries in the CSV file,
 required for compatibility purposes, are therefore left empty.
 

@@ -242,7 +242,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
                 histograms) for the dynamical maps related to the X-ray surveys. In case of RA DEC maps the
                 DEC axis has half the number of bins with respect to the RA axis.
             - filter_young_xdins (bool): Whether to filter the X-ray simulated samples to include only young magnetars
-                and XDINS-like sources (if omitted is False).
+                and XDINS-like sources (default is False).
     """
 
     catalog_atnf, catalog_meerkat = load_atnf_meerkat_catalog(
@@ -456,7 +456,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--filter_young_xdins",
         action="store_true",
-        help="Whether to filter the X-ray simulated samples to include only young magnetars and XDINS-like sources (if omitted is False).",
+        help="Whether to filter the X-ray simulated samples to include only young magnetars and XDINS-like sources (default is False).",
     )
 
     args = parser.parse_args()

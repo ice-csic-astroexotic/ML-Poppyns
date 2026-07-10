@@ -102,7 +102,7 @@ def create_survey_maps(
         dictionary_flux_map_ppdot (dict): Dictionary containing the path to the averaged flux P-Pdot maps for
             the simulated survey.
         filter_young_xdins (bool): If True the X-ray simulated sample is filtered to include only young magnetars and
-            XDINS-like sources. Default is False.
+            XDINS-like sources (default is False).
     """
 
     # Check if the simulated survey file exists as a precondition.
@@ -359,7 +359,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
             - data (str): Path to where the simulated populations are located.
             - save_dir (str): Path to where the generated dataset will be saved.
             - data_type (str): Type of dataset to generate: array or image.
-            - generate_xray (bool): Whether to generate X-ray survey maps or not (if omitted is False).
+            - generate_xray (bool): Whether to generate X-ray survey maps or not (default is False).
             - resolution_ppdot_radio (int): Resolution (number of bins per axis for the 2D
                 histograms) for the P-Pdot maps related to the radio surveys.
             - resolution_dyn_radio (int): Resolution (number of bins per axis for the 2D
@@ -371,7 +371,7 @@ def generate_dataset(args: argparse.Namespace) -> None:
                 histograms) for the dynamical maps related to the X-ray surveys. In case of RA DEC maps the
                 DEC axis has half the number of bins with respect to the RA axis.
             - filter_young_xdins (bool): Option specifying if the simulated X-ray samples include only young magnetars
-                and XDINS-like sources or not (if omitted is False).
+                and XDINS-like sources or not (default is False).
     """
 
     # Create the dataset directory path.
@@ -678,7 +678,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--generate_xray",
         action="store_true",
-        help="Whether to generate the maps for the X-ray survey or not (if omitted is False).",
+        help="Whether to generate the maps for the X-ray survey or not (default is False).",
     )
     parser.add_argument(
         "--resolution_ppdot_radio",
@@ -711,7 +711,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--filter_young_xdins",
         action="store_true",
-        help="Option specifying if the simulated X-ray samples include only young magnetars and XDINS-like sources or not (if omitted is False).",
+        help="Option specifying if the simulated X-ray samples include only young magnetars and XDINS-like sources or not (default is False).",
     )
 
     args = parser.parse_args()
