@@ -2,8 +2,8 @@
     Helper functions for density-map and histogram preparation.
 
     This module contains methods to perform preprocessing tasks for constructing 2D density maps and histograms
-    such as checking input ranges, NaN values filtering, and coordinate/bin
-    transformations for linear and logarithmic axes.
+    such as checking input ranges, NaN values filtering, and coordinate/bin transformations for linear and logarithmic
+    axes.
 
     Authors:
 
