@@ -261,7 +261,7 @@ def test_prepare_dataset_sbi(dummy_logger):
         dataset_folder=dataset_folder,
         config=config,
         logger=dummy_logger,
-        atnf=False,
+        observed=False,
     )
 
     assert parameter.shape[0] == matrix.shape[0] == len(dataset)

@@ -1,11 +1,9 @@
 # Maps
 
-::: mlpoppyns.generator.maps.axes_scaling
+::: mlpoppyns.generator.maps.dataset_density_map
 
-::: mlpoppyns.generator.maps.maps2d_generator
+::: mlpoppyns.generator.maps.dataset_weighted_density_map
 
-::: mlpoppyns.generator.maps.position_maps
+::: mlpoppyns.generator.maps.maps2d_generators
 
-::: mlpoppyns.generator.maps.ppdot_maps
-
-::: mlpoppyns.generator.maps.velocity_maps
+::: mlpoppyns.generator.maps.maps_utils

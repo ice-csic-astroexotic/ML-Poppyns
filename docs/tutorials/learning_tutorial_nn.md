@@ -133,8 +133,8 @@ input and the ground truth labels that we want to predict.
             "statistic_path": "data/example_generator_magrot/statistics_train.json",
             "batch_size": 8,
             "num_workers": 1,
-            "filter_inputs": [9, 10, 11],
-            "filter_labels": [15, 16],
+            "filter_inputs": [12, 13, 14],
+            "filter_labels": [20, 21],
             "shuffle": true,
             "normalize": false,
             "standardize": false
@@ -142,19 +142,48 @@ input and the ground truth labels that we want to predict.
     },
 }
 ```
-The available input channels and labels are specified in the `dataset_train.csv` file, where they are identified with 
-an index starting from 0. Let us assume that our `dataset_train.csv` file looks as follows:
+The available input channels and labels are specified in the `dataset_train.csv` file, where we list the path to the different maps and the corresponding label values
+Since in this example we are varying only two parameters we have only two labels (last two columns)
+Let us assume that our `dataset_train.csv` file looks as follows:
 ```commandline
-input:survey_PMPS_position_map_radec,input:survey_SMPS_position_map_radec,input:survey_HTRU_position_map_radec,input:survey_PMPS_velocity_map_vra,input:survey_SMPS_velocity_map_vra,input:survey_HTRU_velocity_map_vra,input:survey_PMPS_velocity_map_vdec,input:survey_SMPS_velocity_map_vdec,input:survey_HTRU_velocity_map_vdec,input:survey_PMPS_ppdot_map,input:survey_SMPS_ppdot_map,input:survey_HTRU_ppdot_map,input:survey_PMPS_ppdot_map_fluxes,input:survey_SMPS_ppdot_map_fluxes,input:survey_HTRU_ppdot_map_fluxes,B_initial_log10_mean,P_initial_log10_mean
-data/example_generator_magrot/survey_PMPS_position_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_0.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_0.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_0.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_0.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_0.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_0.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_0.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_0.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_0.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_0.npy,12.586280501149703,-1.3096012845994798
-data/example_generator_magrot/survey_PMPS_position_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_1.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_1.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_1.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_1.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_1.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_1.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_1.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_1.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_1.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_1.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_1.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_1.npy,12.217080081747753,-0.5284096562094787
-data/example_generator_magrot/survey_PMPS_position_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_2.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_2.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_2.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_2.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_2.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_2.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_2.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_2.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_2.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_2.npy,13.05641491693826,-0.6189372458073498
-data/example_generator_magrot/survey_PMPS_position_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_3.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_3.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_3.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_3.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_3.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_3.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_3.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_3.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_3.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_3.npy,12.299076654328934,-1.4327208843495762
-data/example_generator_magrot/survey_PMPS_position_map_radec_4.npy,data/example_generator_magrot/survey_SMPS_position_map_radec_4.npy,data/example_generator_magrot/survey_HTRU_position_map_radec_4.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vra_4.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vra_4.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vra_4.npy,data/example_generator_magrot/survey_PMPS_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_SMPS_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_HTRU_velocity_map_vdec_4.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_4.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_4.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_4.npy,data/example_generator_magrot/survey_PMPS_ppdot_map_fluxes_4.npy,data/example_generator_magrot/survey_SMPS_ppdot_map_fluxes_4.npy,data/example_generator_magrot/survey_HTRU_ppdot_map_fluxes_4.npy,13.286135700678276,-1.1544136490794008
+input:survey_PMPS_density_map_radec,input:survey_SMPS_density_map_radec,input:survey_HTRU_density_map_radec,input:survey_xray_density_map_radec,input:survey_PMPS_velocity_vra_map_radec,input:survey_SMPS_velocity_vra_map_radec,input:survey_HTRU_velocity_vra_map_radec,input:survey_xray_velocity_vra_map_radec,input:survey_PMPS_velocity_vdec_map_radec,input:survey_SMPS_velocity_vdec_map_radec,input:survey_HTRU_velocity_vdec_map_radec,input:survey_xray_velocity_vdec_map_radec,input:survey_PMPS_density_map_ppdot,input:survey_SMPS_density_map_ppdot,input:survey_HTRU_density_map_ppdot,input:survey_xray_density_map_ppdot,input:survey_PMPS_flux_map_ppdot,input:survey_SMPS_flux_map_ppdot,input:survey_HTRU_flux_map_ppdot,input:survey_xray_flux_map_ppdot,B_initial_log10_mean,P_initial_log10_mean
+data/example_generator_magrot/survey_PMPS_density_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_0.npy,data/example_generator_magrot/survey_xray_density_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_0.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_0.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_0.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_0.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_0.npy,12.760581505895203,-0.7428330891684274
+data/example_generator_magrot/survey_PMPS_density_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_1.npy,data/example_generator_magrot/survey_xray_density_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_1.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_1.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_1.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_1.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_1.npy,12.00901699270494,-0.7370723718542642
+data/example_generator_magrot/survey_PMPS_density_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_2.npy,data/example_generator_magrot/survey_xray_density_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_2.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_2.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_2.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_2.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_2.npy,13.666001670349527,-0.945232045269706
+data/example_generator_magrot/survey_PMPS_density_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_3.npy,data/example_generator_magrot/survey_xray_density_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_3.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_3.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_3.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_3.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_3.npy,12.597396839756216,-1.4013555393326107
 ```
+The different channels and labels are identified with an index starting from 0. 
+
+| Index | Filename                                  |
+| ----: |-------------------------------------------|
+|     0 | `survey_PMPS_density_map_radec.npy`       |
+|     1 | `survey_SMPS_density_map_radec.npy`       |
+|     2 | `survey_HTRU_density_map_radec.npy`       |
+|     3 | `survey_xray_density_map_radec.npy`       |
+|     4 | `survey_PMPS_velocity_vra_map_radec.npy`  |
+|     5 | `survey_SMPS_velocity_vra_map_radec.npy`  |
+|     6 | `survey_HTRU_velocity_vra_map_radec.npy`  |
+|     7 | `survey_xray_velocity_vra_map_radec.npy`  |
+|     8 | `survey_PMPS_velocity_vdec_map_radec.npy` |
+|     9 | `survey_SMPS_velocity_vdec_map_radec.npy` |
+|    10 | `survey_HTRU_velocity_vdec_map_radec.npy` |
+|    11 | `survey_xray_velocity_vdec_map_radec.npy` |
+|    12 | `survey_PMPS_density_map_ppdot.npy`       |
+|    13 | `survey_SMPS_density_map_ppdot.npy`       |
+|    14 | `survey_HTRU_density_map_ppdot.npy`       |
+|    15 | `survey_xray_density_map_ppdot.npy`       |
+|    16 | `survey_PMPS_flux_map_ppdot.npy`          |
+|    17 | `survey_SMPS_flux_map_ppdot.npy`          |
+|    18 | `survey_HTRU_flux_map_ppdot.npy`          |
+|    19 | `survey_xray_flux_map_ppdot.npy`          |
+| Index | Label                                     |
+|    20 | `B_initial_log10_mean`                    |
+|    21 | `P_initial_log10_mean`                    |
+
 To select certain input channels, we specify a list containing the indices corresponding to 
 the input channels we would like to consider. In the data loader example above, we opt for the input channels 
-`survey_PMPS_ppdot_map`, `survey_SMPS_ppdot_map`, `survey_HTRU_ppdot_map` (indices 9, 10, 11) and the labels `B_initial_log10_mean` and `P_initial_log10_mean` (indices 15, 16).
+`survey_PMPS_density_map_ppdot`, `survey_SMPS_density_map_ppdot`, `survey_HTRU_density_map_ppdot` (indices 12, 13, 14) and want to predict
+the labels `B_initial_log10_mean` and `P_initial_log10_mean` (indices 20, 21).
 
 !!! warning
     
@@ -181,8 +210,8 @@ this
             "statistic_path": "data/example_generator_magrot/statistics_train.json",
             "batch_size": 8,
             "num_workers": 1,
-            "filter_inputs": [9, 10, 11],
-            "filter_labels": [15, 16],
+            "filter_inputs": [12, 13, 14],
+            "filter_labels": [20, 21],
             "shuffle": false,
             "normalize": false,
             "standardize": false
@@ -305,7 +334,7 @@ rate value and the path to where the trained model is saved.
 
 For example, we can train a neural network as follows:
 ```commandline
-python mlpoppyns/learning/train_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_validation data/example_generator_magrot/dataset_test.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 9 10 11 --filter_labels 15 16 --input_shape 3 32 32 --num_parameters 2 --batch_size 1 --lr 1e-5 --save_dir learning_results
+python mlpoppyns/learning/train_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_validation data/example_generator_magrot/dataset_test.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 12 13 14 --filter_labels 20 21 --input_shape 3 32 32 --num_parameters 2 --batch_size 1 --lr 1e-5 --save_dir learning_results
 ```
 
 ### Training output
@@ -358,8 +387,8 @@ The test data loader in the `config.json` file could look as follows:
             "statistic_path": "data/example_generator_magrot/statistics_train.json",
             "batch_size": 1,
             "num_workers": 1,
-            "filter_inputs": [9, 10, 11],
-            "filter_labels": [15, 16],
+            "filter_inputs": [12, 13, 14],
+            "filter_labels": [20, 21],
             "shuffle": false,
             "normalize": false,
             "standardize": false

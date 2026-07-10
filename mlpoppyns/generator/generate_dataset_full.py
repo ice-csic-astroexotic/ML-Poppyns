@@ -12,14 +12,22 @@
 
     The user can choose to generate either a dataset of images or of 2D arrays.
 
+    In particular, the output produced by this script contains the spatial density and velocity information
+    for all evolved neutron star populations as well as their distribution in the $P-\\dot{P}$ plane. More precisely,
+    for each simulated population we produce the following density maps:
+
+    * 1 map for stellar positions in galactocentric $x$ and $y$ coordinates.
+    * 1 map for stellar positions in galactocentric $x$ and $z$ coordinates.
+    * 1 map in galactocentric $x$ and $y$ coordinates weighted by the radial velocity component $v_r$.
+    * 1 map in galactocentric $x$ and $y$ coordinates weighted by the azimuthal velocity $v_{\\phi}$.
+    * 1 map in galactocentric $x$ and $y$ coordinates weighted by the velocity component $v_z$.
+    * 1 map for stellar positions in ICRS coordinates.
+    * 1 map in ICRS coordinates weighted by the proper motion component $\\mu_{RA}$.
+    * 1 map in ICRS coordinates weighted by the proper motion component $\\mu_{DEC}$.
+    * 1 $P-\\dot{P}$ map.
+
     The information on the simulated dataset is also saved in a .csv file where the
     corresponding input files are mapped with their paths and labels.
-
-    The total dataset can be also split into a training, validation and test subsets
-    and in this case three additional .csv files will be created
-    specifying the samples in each subset. One can also choose to split only into a
-    training and validation subsets (without test subset) and in this case only the
-    two related .csv files will be created.
 
     Display help message to run the code:
 
@@ -44,9 +52,8 @@ import numpy as np
 import pandas as pd
 
 import mlpoppyns.generator.compute_statistics as cs
-import mlpoppyns.generator.maps.position_maps as pmaps
-import mlpoppyns.generator.maps.ppdot_maps as ppdmaps
-import mlpoppyns.generator.maps.velocity_maps as vmaps
+import mlpoppyns.generator.maps.dataset_density_map as dmap
+import mlpoppyns.generator.maps.dataset_weighted_density_map as wdmap
 import mlpoppyns.simulator.basics.constants as const
 
 log = logging.getLogger(__name__)
@@ -80,15 +87,15 @@ def generate_dataset(args: argparse.Namespace) -> None:
 
     # Initialize dictionaries that will contain the density map files names and
     # the corresponding set of parameters values.
-    position_map_xy_dictionary = {}
-    position_map_xz_dictionary = {}
-    position_map_radec_dictionary = {}
-    velocity_map_xy_vr_dictionary = {}
-    velocity_map_xy_vphi_dictionary = {}
-    velocity_map_xy_vz_dictionary = {}
-    velocity_map_vra_dictionary = {}
-    velocity_map_vdec_dictionary = {}
-    ppdot_map_dictionary = {}
+    density_map_xy_dictionary = {}
+    density_map_xz_dictionary = {}
+    density_map_radec_dictionary = {}
+    velocity_vr_map_xy_dictionary = {}
+    velocity_vphi_map_xy_dictionary = {}
+    velocity_vz_map_xy_dictionary = {}
+    velocity_vra_map_radec_dictionary = {}
+    velocity_vdec_map_radec_dictionary = {}
+    density_map_ppdot_dictionary = {}
     param_dictionary = {}
 
     # Check if the parsed simulated populations' directory exists.
@@ -132,131 +139,171 @@ def generate_dataset(args: argparse.Namespace) -> None:
         y = df_pop["r"] * np.sin(df_pop["phi"])
 
         # Create position density maps projected on XY plane.
-        pmaps.generate_position_map(
+        dmap.generate_density_map(
             dataset_path,
-            "position_map_xy",
+            "density_map_xy",
             s,
             args.data_type,
             x,
             y,
             args.resolution_dyn,
             args.resolution_dyn,
-            position_map_xy_dictionary,
+            x_log_scale=False,
+            y_log_scale=False,
+            maps_dictionary=density_map_xy_dictionary,
+            x_limits=(-20.0, 20.0),
+            y_limits=(-20.0, 20.0),
         )
 
         # Create position density maps projected on XZ plane.
-        pmaps.generate_position_map(
+        dmap.generate_density_map(
             dataset_path,
-            "position_map_xz",
+            "density_map_xz",
             s,
             args.data_type,
             x,
             df_pop["z"],
             args.resolution_dyn,
             args.resolution_dyn,
-            position_map_xz_dictionary,
+            x_log_scale=False,
+            y_log_scale=False,
+            maps_dictionary=density_map_xz_dictionary,
+            x_limits=(-20.0, 20.0),
+            y_limits=(-20.0, 20.0),
         )
 
         # Create velocity maps of component v_r in the XY plane.
-        vmaps.generate_velocity_map(
+        # We chose a minimum velocity of 0 [km s-1] to assign to the empty bins.
+        wdmap.generate_weighted_density_map(
             dataset_path,
-            "velocity_map_xy_vr",
+            "velocity_vr_map_xy",
             s,
             args.data_type,
             x,
             y,
             abs(df_pop["v_r"]),
-            args.resolution_dyn,
-            args.resolution_dyn,
-            velocity_map_xy_vr_dictionary,
+            w_min=0.0,
+            x_resolution=args.resolution_dyn,
+            y_resolution=args.resolution_dyn,
+            x_log_scale=False,
+            y_log_scale=False,
+            maps_dictionary=velocity_vr_map_xy_dictionary,
+            x_limits=(-20.0, 20.0),
+            y_limits=(-20.0, 20.0),
         )
 
         # Create velocity maps of component v_phi in the XY plane.
-        vmaps.generate_velocity_map(
+        # We chose a minimum velocity of 0 [km s-1] to assign to the empty bins.
+        wdmap.generate_weighted_density_map(
             dataset_path,
-            "velocity_map_xy_vphi",
+            "velocity_vphi_map_xy",
             s,
             args.data_type,
             x,
             y,
             abs(df_pop["v_phi"]),
-            args.resolution_dyn,
-            args.resolution_dyn,
-            velocity_map_xy_vphi_dictionary,
+            w_min=0.0,
+            x_resolution=args.resolution_dyn,
+            y_resolution=args.resolution_dyn,
+            x_log_scale=False,
+            y_log_scale=False,
+            maps_dictionary=velocity_vphi_map_xy_dictionary,
+            x_limits=(-20.0, 20.0),
+            y_limits=(-20.0, 20.0),
         )
 
         # Create velocity maps of component v_z in the XY plane.
-        vmaps.generate_velocity_map(
+        # We chose a minimum velocity of 0 [km s-1] to assign to the empty bins.
+        wdmap.generate_weighted_density_map(
             dataset_path,
-            "velocity_map_xy_vz",
+            "velocity_vz_map_xy",
             s,
             args.data_type,
             x,
             y,
             abs(df_pop["v_z"]),
-            args.resolution_dyn,
-            args.resolution_dyn,
-            velocity_map_xy_vz_dictionary,
+            w_min=0.0,
+            x_resolution=args.resolution_dyn,
+            y_resolution=args.resolution_dyn,
+            x_log_scale=False,
+            y_log_scale=False,
+            maps_dictionary=velocity_vz_map_xy_dictionary,
+            x_limits=(-20.0, 20.0),
+            y_limits=(-20.0, 20.0),
         )
 
         # Create position density maps projected on RA DEC plane.
-        pmaps.generate_position_map(
+        dmap.generate_density_map(
             dataset_path,
-            "position_map_radec",
+            "density_map_radec",
             s,
             args.data_type,
             df_pop["ra"],
             df_pop["dec"],
             args.resolution_dyn,
             int(args.resolution_dyn / 2),
-            position_map_radec_dictionary,
+            x_log_scale=False,
+            y_log_scale=False,
+            maps_dictionary=density_map_radec_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
         )
 
         # Create velocity maps of component v_RA in the RA DEC plane.
-        vmaps.generate_velocity_map(
+        # We chose a minimum proper motion of 0 [mas yr-1] to assign to the empty bins.
+        wdmap.generate_weighted_density_map(
             dataset_path,
-            "velocity_map_vra",
+            "velocity_vra_map_radec",
             s,
             args.data_type,
             df_pop["ra"],
             df_pop["dec"],
             abs(df_pop["pm_ra"]),
-            args.resolution_dyn,
-            int(args.resolution_dyn / 2),
-            velocity_map_vra_dictionary,
+            w_min=0.0,
+            x_resolution=args.resolution_dyn,
+            y_resolution=int(args.resolution_dyn / 2),
+            x_log_scale=False,
+            y_log_scale=False,
+            maps_dictionary=velocity_vra_map_radec_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
         )
 
-        # Create velocity maps of component v_DEC in the RA DEC plane.
-        vmaps.generate_velocity_map(
+        # Create velocity maps of component pm_DEC in the RA DEC plane.
+        # We chose a minimum proper motion of 0 [mas yr-1] to assign to the empty bins.
+        wdmap.generate_weighted_density_map(
             dataset_path,
-            "velocity_map_vdec",
+            "velocity_vdec_map_radec",
             s,
             args.data_type,
             df_pop["ra"],
             df_pop["dec"],
             abs(df_pop["pm_dec"]),
-            args.resolution_dyn,
-            int(args.resolution_dyn / 2),
-            velocity_map_vdec_dictionary,
+            w_min=0.0,
+            x_resolution=args.resolution_dyn,
+            y_resolution=int(args.resolution_dyn / 2),
+            x_log_scale=False,
+            y_log_scale=False,
+            maps_dictionary=velocity_vdec_map_radec_dictionary,
             x_limits=(0.0, 360.0),
             y_limits=(-90.0, 90.0),
         )
 
         # Create P-Pdot density maps.
-        ppdmaps.generate_ppdot_map(
+        dmap.generate_density_map(
             dataset_path,
-            "ppdot_map",
+            "density_map_ppdot",
             s,
             args.data_type,
             df_pop["P"],
             df_pop["P_dot"] / const.YR_TO_S,
             args.resolution_ppdot,
             args.resolution_ppdot,
-            ppdot_map_dictionary,
+            x_log_scale=True,
+            y_log_scale=True,
+            maps_dictionary=density_map_ppdot_dictionary,
+            x_limits=(0.01, 100.0),
+            y_limits=(1.0e-20, 1.0e-9),
         )
 
         # Check if files containing labels exists as a precondition.
@@ -274,15 +321,15 @@ def generate_dataset(args: argparse.Namespace) -> None:
 
     # Merge the filename and parameters dictionaries in a single dictionary.
     dataset_dictionary = {
-        **position_map_xy_dictionary,
-        **position_map_xz_dictionary,
-        **position_map_radec_dictionary,
-        **velocity_map_xy_vr_dictionary,
-        **velocity_map_xy_vphi_dictionary,
-        **velocity_map_xy_vz_dictionary,
-        **velocity_map_vra_dictionary,
-        **velocity_map_vdec_dictionary,
-        **ppdot_map_dictionary,
+        **density_map_xy_dictionary,
+        **density_map_xz_dictionary,
+        **density_map_radec_dictionary,
+        **velocity_vr_map_xy_dictionary,
+        **velocity_vphi_map_xy_dictionary,
+        **velocity_vz_map_xy_dictionary,
+        **velocity_vra_map_radec_dictionary,
+        **velocity_vdec_map_radec_dictionary,
+        **density_map_ppdot_dictionary,
         **param_dictionary,
     }
 
@@ -330,7 +377,7 @@ if __name__ == "__main__":
         "--data_type",
         nargs="?",
         type=str,
-        choices=["array", "image"],
+        choices=["array", "image", "array_kde", "image_kde"],
         default="array",
         help="Type of dataset to generate: array or image.",
     )
