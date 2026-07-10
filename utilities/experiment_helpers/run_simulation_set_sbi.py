@@ -396,7 +396,7 @@ def simulator_multiprocess(
         # 'simulator_type', and the path for the JSON override.
         server_path = cfg["path_to_software"]
         cmd: str = (
-            f"python {server_path}/pypopsyn/simulator/{simulator_type}.py"
+            f"python {server_path}/mlpoppyns/simulator/{simulator_type}.py"
         )
         cmd += f" --save_dir {simulation_output_path}"
         cmd += f" --parameter_override {simulation_override_json_path}"

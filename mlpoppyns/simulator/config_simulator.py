@@ -122,8 +122,8 @@ cfg["h_c"]: float = 0.18
 # Total vertical extent of the initial distribution of neutron star progenitors from the galactic plane in [kpc].
 cfg["z_extent"]: float = 5.0
 
-# Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_double_maxwell".
-cfg["kick_model"]: str = "km_maxwell"
+# Model pdf for the kick velocity. Choose between "km_maxwell", "km_exp", "km_double_maxwell" and "km_log-normal.
+cfg["kick_model"]: str = "km_log-normal"
 
 # Maximum kick velocity magnitude in [km/s].
 cfg["vk_extent"]: float = 2500.0
@@ -144,10 +144,15 @@ elif cfg["kick_model"] == "km_double_maxwell":
     cfg["sigma_k_comp2"]: float = 334.0
     cfg["kick_weight_comp1"]: float = 0.19
 
+elif cfg["kick_model"] == "km_log-normal":
+    # Parameters for the log-normal velocity pdf in Disberg and Mandel (2025).
+    cfg["vk_ln_mean"]: float = 5.6
+    cfg["vk_ln_sigma"]: float = 0.68
+
 else:
     log.error(
         "The specified model for the kick velocity distribution is not supported."
-        "Please choose between km_maxwell, km_exp or km_double_maxwell."
+        "Please choose between km_maxwell, km_exp, km_double_maxwell or km_log-normal."
     )
 
 # Time step for the dynamical evolution [yr].

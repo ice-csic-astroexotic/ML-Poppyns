@@ -24,7 +24,7 @@ machine. For this, you need `conda` to be installed on your machine. The code ha
 
         To set up the environment on the PIC servers, we specify the full path where the environment will be saved:
         ```commandline
-        conda env create --prefix /data/magnesia/scratch/conda/env/mlpoppyns --file  /data/magnesia/software/ML-poppyns/environment.yaml
+        conda env create --prefix /data/magnesia/scratch/conda/envs/mlpoppyns --file  /data/magnesia/software/ML-Poppyns/environment.yaml
         ```
 
     On your local machine, the environment can be activated using 
