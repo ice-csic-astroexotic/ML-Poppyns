@@ -1,3 +1,3 @@
-python pypopsyn/learning/train_sbi.py --lr 1e-4
-python pypopsyn/learning/train_sbi.py --lr 1e-3
-python pypopsyn/learning/train_sbi.py --lr 1e-2
+python mlpoppyns/learning/train_nn.py --lr 1e-4
+python mlpoppyns/learning/train_nn.py --lr 1e-3
+python mlpoppyns/learning/train_nn.py --lr 1e-2

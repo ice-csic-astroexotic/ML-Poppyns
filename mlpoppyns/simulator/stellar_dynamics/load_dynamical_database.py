@@ -87,6 +87,9 @@ def load_database_dyn(
         cfg["sigma_k_comp1"] = config_dyn["sigma_k_comp1"]
         cfg["sigma_k_comp2"] = config_dyn["sigma_k_comp2"]
         cfg["kick_weight_comp1"] = config_dyn["kick_weight_comp1"]
+    elif config_dyn["kick_model"] == "km_log-normal":
+        cfg["vk_ln_mean"] = config_dyn["vk_ln_mean"]
+        cfg["vk_ln_sigma"] = config_dyn["vk_ln_sigma"]
     cfg["h_c"] = config_dyn["h_c"]
 
     # Add the path of the dynamical database in the configuration file.

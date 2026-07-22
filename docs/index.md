@@ -138,7 +138,7 @@ The `paper_plots` folder contains the notebooks to generate the plots and figure
 
 * Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
 
-* Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
+* Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo-Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
 
 ### Tutorials
 
@@ -166,18 +166,23 @@ sweep, sampling distributions or dataframes, performing statistical analysis and
 
 ## Citation
 
-If you use ML-Poppyns in your research, please reference the repository [website](https://github.com/ice-csic-astroexotic/ML-Poppyns) and the following publications: 
+If you use ML-Poppyns in your research, we kindly ask you to:
 
-* Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
+* Cite the following publications in the text:
 
-* Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
+  * Analyzing the Galactic Pulsar Distribution with Machine Learning, [Ronchi et al. 2021](https://ui.adsabs.harvard.edu/abs/2021ApJ...916..100R/abstract)
 
-* Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
+  * Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
+
+  * Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo-Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
+
+* Add the following sentence in the acknowledgment section of your publication:
+"ML-Poppyns has been funded by the European Research Council via the ERC Consolidator grant 'MAGNESIA' (No. 817661; PI: N. Rea)."
 
 ## Contacts
 
-If you encounter any issues or have questions, please feel free to email us:
-
+If you encounter any issues or have questions, please feel free to use the [Discussion](https://github.com/ice-csic-astroexotic/ML-Poppyns/discussions) section in our repository or email us at:
 * Vanessa Graber (Vanessa.Graber@rhul.ac.uk)
 * Celsa Pardo Araujo (pardo@ices.csic.es)
 * Michele Ronchi (ronchi@astron.nl)
+

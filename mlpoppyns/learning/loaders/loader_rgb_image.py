@@ -74,7 +74,7 @@ class LoaderRGBImage(LoaderBase):
         self,
         data_path: str,
         batch_size: int,
-        ignored_inputs: list = [],
+        ignored_inputs: Optional[list] = None,
         num_workers: int = 1,
         shuffle: bool = False,
     ) -> None:

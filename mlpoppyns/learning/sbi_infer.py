@@ -122,7 +122,7 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                 config["observed_sample"]["dataset_path"],
                 config,
                 logger,
-                atnf=True,
+                observed=True,
             )
 
         parameter_test = []
@@ -189,7 +189,7 @@ def infer(config: configuration_parser.ConfigurationParser) -> None:
                                 )
                             )
 
-                            test_dataset_path = ut.wrapper_pypopsyn(
+                            test_dataset_path = ut.wrapper_mlpoppyns(
                                 proposal,
                                 config=config,
                                 num_sim=num_sim_test,

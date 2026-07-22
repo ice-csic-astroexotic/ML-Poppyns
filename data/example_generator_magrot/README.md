@@ -5,7 +5,7 @@ This is an example of dataset generation from a set of 20 synthetic pulsar simul
 
 To run this example, we use the following command:
 ```commandline
-python mlpoppyns/generator/generate_dataset_surveys.py --data data/example_simulation_helper_magrot --save_dir data/example_generator_magrot --resolution_dyn 32 --resolution_ppdot 32
+python mlpoppyns/generator/generate_dataset_surveys.py --data data/example_simulation_helper_magrot --save_dir data/example_generator_magrot --resolution_dyn_radio 32 --resolution_ppdot_radio 32 --resolution_dyn_xray 32 --resolution_ppdot_xray 32 --generate_xray --data_type array
 ```
 
 In order to split the dataset and use 80% for training/validation and 20% for testing, we use the following command:

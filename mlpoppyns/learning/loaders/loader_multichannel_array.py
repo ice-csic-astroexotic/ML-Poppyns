@@ -26,7 +26,7 @@ class DatasetMultichannelArray:
     Dataset for a multichannel array input.
 
     This class represents a dataset of populations whose representation for any
-    of the inputs is a numpy array of numerical values stored in NPY format. All
+    of the inputs is a NumPy array of numerical values stored in .npy format. All
     those inputs will be treated as individual channels to generate an input
     tensor for the loader. Labels will be generated as a vector.
     """
@@ -35,7 +35,7 @@ class DatasetMultichannelArray:
         """
         Import dataset statistics for normalization and standardization.
 
-        This routine import the training dataset statistics that might be needed for
+        This routine imports the training dataset statistics that might be needed for
         input/targets normalization and standardization like mean, standard
         deviation, minimum and maximum.
 
@@ -92,8 +92,8 @@ class DatasetMultichannelArray:
         self,
         dataset_path: str,
         statistic_path: str,
-        filter_channels: list = [],
-        filter_labels: list = [],
+        filter_channels: Optional[list] = None,
+        filter_labels: Optional[list] = None,
         normalize: bool = False,
         standardize: bool = False,
         transform: Optional[Callable] = None,
@@ -146,10 +146,10 @@ class DatasetMultichannelArray:
         Read the dataset and extract the arrays and the corresponding labels.
 
         Args:
-            index (int): Index running along the rows of the dataset CSV file.
+            index (int): Index running along the rows of the dataset.csv file.
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray]): Tuple consisting of a multi-channel 2D array
+            (Tuple[np.ndarray, np.ndarray]): Tuple consisting of a multichannel 2D array
                 with shape N x N x channels (where N is the number of entries
                 along a row or column of the array in the .npy file) composed by stacking
                 all input arrays specified in the dataset for the requested sample
@@ -189,11 +189,12 @@ class DatasetMultichannelArray:
             per_channel_min = np.min(matrix, axis=(0, 1), keepdims=True)
             per_channel_max = np.max(matrix, axis=(0, 1), keepdims=True)
 
-            # Identify channels where per_channel_max equals per_channel_min, indicating that all pixels in the matrix have the
-            # same value. This implies that no stars were detected in these simulations.
+            # Identify channels where per_channel_max equals per_channel_min, indicating that all pixels in the matrix
+            # have the same value. This implies that no stars were detected in these simulations.
             zero_norm_mask = (per_channel_max == per_channel_min).squeeze()
             if np.count_nonzero(zero_norm_mask) != 0:
-                # Set the entire matrix to 0 for channels where per_channel_max == per_channel_min to avoid dividing by zero.
+                # Set the entire matrix to 0 for channels where per_channel_max == per_channel_min to avoid dividing
+                # by zero.
                 matrix[:, :, zero_norm_mask] = 0
 
             else:
@@ -243,7 +244,7 @@ class LoaderMultichannelArray(LoaderBase):
         standardize: bool = False,
     ) -> None:
         """
-        Data loader for a multi-channel array-based dataset. The dataset is
+        Data loader for a multichannel array-based dataset. The dataset is
         expected to be packed in a dataset.csv file and contain paths to .npy
         files to be loaded.
 

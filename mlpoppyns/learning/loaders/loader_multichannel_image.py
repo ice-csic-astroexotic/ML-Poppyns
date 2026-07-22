@@ -27,13 +27,18 @@ from .loader_base import LoaderBase
 class DatasetMultichannelImage:
     """
     Dataset for a multichannel image input.
+
+    This class represents a dataset of populations whose representation for any
+    of the inputs is an image stored in .png format. All
+    those inputs will be treated as individual channels to generate an input
+    tensor for the loader. Labels will be generated as a vector.
     """
 
     def __import_statistics(self, statistic_path: str) -> None:
         """
         Import dataset statistics for normalization and standardization.
 
-        This routine import the training dataset statistics that might be needed for
+        This routine imports the training dataset statistics that might be needed for
         targets normalization and standardization like mean, standard
         deviation, minimum and maximum.
 
@@ -90,8 +95,8 @@ class DatasetMultichannelImage:
         self,
         dataset_path: str,
         statistic_path: str,
-        filter_channels: list = [],
-        filter_labels: list = [],
+        filter_channels: Optional[list] = None,
+        filter_labels: Optional[list] = None,
         normalize: bool = False,
         standardize: bool = False,
         transform: Optional[Callable] = None,
@@ -147,7 +152,7 @@ class DatasetMultichannelImage:
             index (int): Index running along the rows of the dataset.csv file.
 
         Returns:
-            (Tuple[np.ndarray, np.ndarray]): Tuple consisting of a multi-channel 2D image
+            (Tuple[np.ndarray, np.ndarray]): Tuple consisting of a multichannel 2D image
                 with shape N x N x channels (where N is the number of entries
                 along a row or column of the array in the .npy file) composed by stacking
                 all input images specified in the dataset for the requested sample
@@ -158,7 +163,7 @@ class DatasetMultichannelImage:
         i = 0
 
         # Loop over every input column of the dataset to collect all input channels
-        # in a list so we can stack them later. We assume that all columns must be
+        # in a list, so we can stack them later. We assume that all columns must be
         # ordered so "input:" columns go first then all the labels.
         for col in self.dataset.columns:
             # All input channel headers are annotated with a prefix "input:" in the
@@ -180,17 +185,13 @@ class DatasetMultichannelImage:
         # Fetch all the labels from the last input channel column.
         labels = np.array(self.dataset.iloc[index, i:], dtype=np.float32)
 
-        # On-the-fly normalization of inputs and labels. Inputs are normalized
-        # on a per-sample basis whilst targets are normalized using dataset-wide
-        # statistics.
+        # Normalization of labels.
         if self.normalize:
             labels = (labels - self.target_min) / (
                 self.target_max - self.target_min
             )
 
-        # On-the-fly standardization of inputs/labels. Inputs are standardized
-        # on a per-sample basis whilst targets are normalized using dataset-wide
-        # statistics.
+        # Standardization of the labels.
         elif self.standardize:
             labels = (labels - self.target_mean) / self.target_std
 

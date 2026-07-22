@@ -78,13 +78,13 @@
         "dataset_path": "../../tutorials/tutorial_notebooks/output/data/training_dataset/generated_dataset",
         "statistic_path": "output/generator/statistics_train.json",
         "filter_inputs": [
-            9,
-            10,
-            11
+            12,
+            13,
+            14
         ],
         "filter_labels": [
-            15,
-            16
+            20,
+            21
         ],
         "normalize": false,
         "standardize": true,
@@ -100,9 +100,9 @@
     "observed_sample": {
         "dataset_path": "output/generator_observed/",
         "filter_inputs": [
-            9,
-            10,
-            11
+            12,
+            13,
+            14
         ]
     },
     "dyn_data_loader": {

@@ -157,7 +157,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                 config["observed_sample"]["dataset_path"],
                 config,
                 logger,
-                atnf=True,
+                observed=True,
             )
 
             # Set the proposal prior to the pior in round 0.
@@ -212,7 +212,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                                 num_sim_train
                             )
                         )
-                        train_dataset_path = ut.wrapper_pypopsyn(
+                        train_dataset_path = ut.wrapper_mlpoppyns(
                             proposal,
                             config=config,
                             num_sim=num_sim_train,
@@ -315,7 +315,7 @@ def train(config: configuration_parser.ConfigurationParser) -> None:
                                     num_sim_test
                                 )
                             )
-                            test_dataset_path = ut.wrapper_pypopsyn(
+                            test_dataset_path = ut.wrapper_mlpoppyns(
                                 proposal,
                                 config=config,
                                 num_sim=num_sim_test,
