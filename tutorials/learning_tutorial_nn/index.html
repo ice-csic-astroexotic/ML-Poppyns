@@ -1,0 +1,2745 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ice-csic-astroexotic.github.io/ML-Poppyns/tutorials/learning_tutorial_nn/">
+      
+      
+        <link rel="prev" href="../generator_tutorial/">
+      
+      
+        <link rel="next" href="../learning_tutorial_sbi/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/mlpoppyns_logo_transparent.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Learning pulsar parameters with NNs - ML-Poppyns documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#learning-pulsar-parameters-with-nns" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML-Poppyns documentation" class="md-header__button md-logo" aria-label="ML-Poppyns documentation" data-md-component="logo">
+      
+  <img src="../../images/mlpoppyns_logo_transparent.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML-Poppyns documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Learning pulsar parameters with NNs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18V6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ice-csic-astroexotic/ML-Poppyns" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ML-Poppyns
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../basics/getting_started/" class="md-tabs__link">
+          
+  
+  
+  Basics
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../simulator_tutorial/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../code/simulator/simulator/" class="md-tabs__link">
+          
+  
+  
+  Code
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML-Poppyns documentation" class="md-nav__button md-logo" aria-label="ML-Poppyns documentation" data-md-component="logo">
+      
+  <img src="../../images/mlpoppyns_logo_transparent.png" alt="logo">
+
+    </a>
+    ML-Poppyns documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ice-csic-astroexotic/ML-Poppyns" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ML-Poppyns
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Basics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/HTCondor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTCondor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/dask/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dask
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulator_tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulating neutron star populations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generator_tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generating density maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning pulsar parameters with NNs
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning pulsar parameters with NNs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#training-a-nn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training a NN
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Training a NN">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General info
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-data-loader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training data loader
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validation-data-loader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation data loader
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optimizer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optimizer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loss-and-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loss and accuracy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#learning-rate-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning rate scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#varying-parameters-via-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Varying parameters via CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inferring-on-a-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inferring on a dataset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inferring on a dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inference-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inference output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../learning_tutorial_sbi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter inference with SBI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experiment_launcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment launcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/simulator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic simulator modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/stellar_dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stellar dynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/magneto_rotational_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Magneto-rotational physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/interstellar_medium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interstellar medium
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/multiband_emission/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiband emission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/multiband_surveys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiband surveys
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/telemetry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telemetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Generator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/generator/generator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic generator modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/generator/maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/learning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic learning modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/initializers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initializers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/loaders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loaders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/losses/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Losses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/trainers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trainers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic utility modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/experiment_helpers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/PIC_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PIC scripts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/samplers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Samplers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#training-a-nn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training a NN
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Training a NN">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General info
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-data-loader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training data loader
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validation-data-loader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation data loader
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optimizer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optimizer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loss-and-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loss and accuracy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#learning-rate-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Learning rate scheduler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#varying-parameters-via-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Varying parameters via CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inferring-on-a-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inferring on a dataset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inferring on a dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inference-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inference output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="learning-pulsar-parameters-with-nns">Learning pulsar parameters with NNs</h1>
+<p>In the following, we describe how neural networks can be used to estimate the characteristic parameters that describe
+the birth properties of a population of neutron stars. Here, we focus on obtaining point estimates of our parameters.
+I.e., we do not derive credible intervals for our estimates. For a presentation of statistical parameter inference 
+with simulation-based inference (SBI) see <a href="../learning_tutorial_sbi/">Parameter inference with SBI</a>.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>An example of the following training and inference scripts is presented in
+<code>tutorials/tutorial_notebooks/07_learning_nn_tutorial.ipynb</code>.</p>
+</div>
+<h2 id="training-a-nn">Training a NN</h2>
+<p>In the following, we discuss a supervised learning approach where training data are suitably labeled and the network 
+learns to predict the ground truths associated with individual data samples.</p>
+<p>The <code>mlpoppyns/learning/train_nn.py</code> script allows us to train a neural network on a dataset of simulated 
+neutron star populations. Once the corresponding heatmaps or 2D arrays have been created (see <a href="../generator_tutorial/">Generating density 
+maps</a> for details), we train the network by running the following command:
+<div class="highlight"><pre><span></span><code>python mlpoppyns/learning/train_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json
+</code></pre></div>
+Here, the <code>config_train_cnn.json</code> file contains all the information required to optimize the neural network. If this <code>CLI</code> 
+argument is left empty, the script will take the default <code>mlpoppyns/learning/config_multiparameter_CNN.json</code>.</p>
+<h3 id="configuration-options">Configuration options</h3>
+<p>We now discuss the various options in the <code>config_train_cnn.json</code> training configuration file, which include the network
+architecture, the input shape of the dataset, or the number of output parameters to predict.</p>
+<h4 id="general-info">General info</h4>
+<p>We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, the number
+of trials performed for each execution of <code>mlpoppyns/learning/train_nn.py</code> in case convergence is not reached, and the 
+specific convergence thresholds for each of the possible output parameters. 
+These thresholds represent limiting values for the losses of the individual parameters below which 
+we consider the network to have reached sufficient performance in predicting our parameters.</p>
+<div class="highlight"><pre><span></span><code>{
+    &quot;name&quot;: &quot;Convolution&quot;,
+    &quot;trials&quot;: 8,
+    &quot;convergence&quot;: {
+        &quot;h_c_threshold&quot;: 0.5,
+        &quot;vk_c_threshold&quot;: 10.0,
+        &quot;sigma_k_threshold&quot;: 10.0,
+        &quot;B_initial_log10_mean_threshold&quot;: 0.5,
+        &quot;B_initial_log10_sigma_threshold&quot;: 0.5,
+        &quot;P_initial_log10_mean_threshold&quot;: 0.5,
+        &quot;P_initial_log10_sigma_threshold&quot;: 0.5,
+        &quot;a_late_threshold&quot;: 0.5,
+        &quot;L_radio_log10_mean_threshold&quot;: 0.5,
+        &quot;epsilon_L&quot;: 0.5
+    },
+    &quot;n_gpu&quot;: 0,
+}
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Trials and convergence thresholds are relevant because random initialization of network weights and biases can lead 
+to different training behaviour across repeated training runs. To mitigate the possibility of getting trapped in a
+local (but not global) minimum during the optimization, we implement individual thresholds for our parameters and
+perform several training trials until all convergence thresholds are met, or the pre-defined number of trials is 
+reached. In the latter case, the best trained model is saved although not all convergence criteria have been met.</p>
+</div>
+<h4 id="model-architecture">Model architecture</h4>
+<p>Next, we specify the network architecture. In the following example, we use a predefined convolutional neural network 
+(CNN) denoted by <code>ModelConv</code> defined in <code>mlpoppyns/learning/models/model_conv.py</code>. This CNN is designed to adapt to 
+any input size specified by the <code>input_shape</code> parameter and produce an output with a length specified by
+<code>num_parameters</code>. However, the individual CNN filters and hidden layers are fixed. Below, we specify an input array 
+of shape <span class="arithmatex"><span class="MathJax_Preview">32 \times 32</span><script type="math/tex">32 \times 32</script></span> with <code>3</code> different input channels (three of our density maps) and an output of <code>2</code> values
+(corresponding to two of our pulsar population parameters).
+<div class="highlight"><pre><span></span><code>{
+    &quot;arch&quot;: {
+        &quot;type&quot;: &quot;ModelConv&quot;,
+        &quot;args&quot;: {
+          &quot;input_shape&quot;: [3, 32, 32],
+          &quot;num_parameters&quot;: 2
+        }
+    },
+}
+</code></pre></div>
+The models that have been predefined are the following ones:</p>
+<ul>
+<li><code>ModelConv</code> based on a CNN.</li>
+<li><code>ModelLinear</code> based on a multi-layer perceptron (MPL) architecture.</li>
+</ul>
+<p>If you would like to design your own network architecture, you need to implement a new model class in <code>mlpoppyns/learning/models</code> and import this model in the file <code>models.py</code>.</p>
+<h4 id="initialization">Initialization</h4>
+<p>We also specify a scheme to initialize the weights and biases of the network. 
+Here, we show an example using the Kaiming initializer denoted by <code>InitializerKaiming</code>.
+<div class="highlight"><pre><span></span><code>{
+    &quot;weights_initializer&quot;: {
+      &quot;type&quot;: &quot;InitializerKaiming&quot;,
+      &quot;args&quot;: {}
+    },
+}
+</code></pre></div>
+Here is a list with the different initialization procedures available:</p>
+<ul>
+<li><code>InitializerKaiming</code> uses the Kaiming initialization approach introduced in <a href="https://arxiv.org/abs/1502.01852">He et al. (2015)</a>.</li>
+<li><code>InitializerNormal</code> samples the weights from a Normal distribution <span class="arithmatex"><span class="MathJax_Preview">N(0, \sigma^2)</span><script type="math/tex">N(0, \sigma^2)</script></span> whilst biases are filled 
+ with a constant zero value. In this case, <span class="arithmatex"><span class="MathJax_Preview">\sigma = 1 / \sqrt{n}</span><script type="math/tex">\sigma = 1 / \sqrt{n}</script></span> where <span class="arithmatex"><span class="MathJax_Preview">n</span><script type="math/tex">n</script></span> is the number of input features.</li>
+<li><code>InitializerUniform</code> samples the weights from a uniform distribution <span class="arithmatex"><span class="MathJax_Preview">U(0,1)</span><script type="math/tex">U(0,1)</script></span> whilst biases are filled with 
+ a constant zero value.</li>
+<li><code>InitializerUniformRule</code> samples the weights from a uniform distribution <span class="arithmatex"><span class="MathJax_Preview">U(-y, y)</span><script type="math/tex">U(-y, y)</script></span>. Here, <span class="arithmatex"><span class="MathJax_Preview">y = 1 / \sqrt{n}</span><script type="math/tex">y = 1 / \sqrt{n}</script></span> 
+ with <span class="arithmatex"><span class="MathJax_Preview">n</span><script type="math/tex">n</script></span> being the number of input features and biases are filled with a constant zero value.</li>
+<li><code>InitializerXavier</code> uses the Xavier initialization approach introduced in <a href="https://proceedings.mlr.press/v9/glorot10a.html">Xavier et al. (2010)</a>.</li>
+</ul>
+<h4 id="training-data-loader">Training data loader</h4>
+<p>Next, we define our training data loader, which is responsible for loading the dataset in a representation readable 
+by the network. Depending on whether our maps were generated as <code>.png</code> images or <code>.npy</code> arrays, we set the type to 
+<code>LoaderMultichannelImage</code> or <code>LoaderMultichannelArray</code>, respectively. We also specify the path to the directory 
+containing the training dataset (specifically the <code>dataset_train.csv</code> file) and the JSON file characterizing the 
+statistics of the training dataset, the batch size, the number of workers, i.e., the number of cores used when 
+loading the dataset in parallel, the input channels used in building our (multichannel) 
+input and the ground truth labels that we want to predict. 
+<div class="highlight"><pre><span></span><code>{
+    &quot;training_data_loader&quot;: {
+        &quot;type&quot;: &quot;LoaderMultichannelArray&quot;,
+        &quot;args&quot;: {
+            &quot;dataset_path&quot;: &quot;data/example_generator_magrot/dataset_train.csv&quot;,
+            &quot;statistic_path&quot;: &quot;data/example_generator_magrot/statistics_train.json&quot;,
+            &quot;batch_size&quot;: 8,
+            &quot;num_workers&quot;: 1,
+            &quot;filter_inputs&quot;: [12, 13, 14],
+            &quot;filter_labels&quot;: [20, 21],
+            &quot;shuffle&quot;: true,
+            &quot;normalize&quot;: false,
+            &quot;standardize&quot;: false
+        }
+    },
+}
+</code></pre></div>
+The available input channels and labels are specified in the <code>dataset_train.csv</code> file, where we list the path to the different maps and the corresponding label values
+Since in this example we are varying only two parameters we have only two labels (last two columns)
+Let us assume that our <code>dataset_train.csv</code> file looks as follows:
+<div class="highlight"><pre><span></span><code>input:survey_PMPS_density_map_radec,input:survey_SMPS_density_map_radec,input:survey_HTRU_density_map_radec,input:survey_xray_density_map_radec,input:survey_PMPS_velocity_vra_map_radec,input:survey_SMPS_velocity_vra_map_radec,input:survey_HTRU_velocity_vra_map_radec,input:survey_xray_velocity_vra_map_radec,input:survey_PMPS_velocity_vdec_map_radec,input:survey_SMPS_velocity_vdec_map_radec,input:survey_HTRU_velocity_vdec_map_radec,input:survey_xray_velocity_vdec_map_radec,input:survey_PMPS_density_map_ppdot,input:survey_SMPS_density_map_ppdot,input:survey_HTRU_density_map_ppdot,input:survey_xray_density_map_ppdot,input:survey_PMPS_flux_map_ppdot,input:survey_SMPS_flux_map_ppdot,input:survey_HTRU_flux_map_ppdot,input:survey_xray_flux_map_ppdot,B_initial_log10_mean,P_initial_log10_mean
+data/example_generator_magrot/survey_PMPS_density_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_0.npy,data/example_generator_magrot/survey_xray_density_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_0.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_0.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_0.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_0.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_0.npy,12.760581505895203,-0.7428330891684274
+data/example_generator_magrot/survey_PMPS_density_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_1.npy,data/example_generator_magrot/survey_xray_density_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_1.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_1.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_1.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_1.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_1.npy,12.00901699270494,-0.7370723718542642
+data/example_generator_magrot/survey_PMPS_density_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_2.npy,data/example_generator_magrot/survey_xray_density_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_2.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_2.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_2.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_2.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_2.npy,13.666001670349527,-0.945232045269706
+data/example_generator_magrot/survey_PMPS_density_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_3.npy,data/example_generator_magrot/survey_xray_density_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_3.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_3.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_3.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_3.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_3.npy,12.597396839756216,-1.4013555393326107
+</code></pre></div>
+The different channels and labels are identified with an index starting from 0. </p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Index</th>
+<th>Filename</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td><code>survey_PMPS_density_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td><code>survey_SMPS_density_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td><code>survey_HTRU_density_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td><code>survey_xray_density_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td><code>survey_PMPS_velocity_vra_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td><code>survey_SMPS_velocity_vra_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td><code>survey_HTRU_velocity_vra_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td><code>survey_xray_velocity_vra_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td><code>survey_PMPS_velocity_vdec_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td><code>survey_SMPS_velocity_vdec_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td><code>survey_HTRU_velocity_vdec_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">11</td>
+<td><code>survey_xray_velocity_vdec_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td><code>survey_PMPS_density_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">13</td>
+<td><code>survey_SMPS_density_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">14</td>
+<td><code>survey_HTRU_density_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">15</td>
+<td><code>survey_xray_density_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">16</td>
+<td><code>survey_PMPS_flux_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">17</td>
+<td><code>survey_SMPS_flux_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">18</td>
+<td><code>survey_HTRU_flux_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">19</td>
+<td><code>survey_xray_flux_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">Index</td>
+<td>Label</td>
+</tr>
+<tr>
+<td style="text-align: right;">20</td>
+<td><code>B_initial_log10_mean</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">21</td>
+<td><code>P_initial_log10_mean</code></td>
+</tr>
+</tbody>
+</table>
+<p>To select certain input channels, we specify a list containing the indices corresponding to 
+the input channels we would like to consider. In the data loader example above, we opt for the input channels 
+<code>survey_PMPS_density_map_ppdot</code>, <code>survey_SMPS_density_map_ppdot</code>, <code>survey_HTRU_density_map_ppdot</code> (indices 12, 13, 14) and want to predict
+the labels <code>B_initial_log10_mean</code> and <code>P_initial_log10_mean</code> (indices 20, 21).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The length of the two lists for <code>filter_inputs</code> and <code>filter_labels</code> in the dataset loader configuration have to 
+match the channel input dimension and number of output dimension of the neural network.
+Otherwise an error is produced.</p>
+</div>
+<p>Finally, our training data loader enables us to specify if we want to shuffle our training data before passing it
+through the neural network and whether we activate on-the-fly normalization or standardization (both are mutually 
+exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information contained 
+in the <code>statistics_train.json</code> file. For normalization, the input channels and labels will have values in the range between 0 and 1.
+If standardized, the input channels and labels have values centred around 0 and range approximately between -1 and 1.</p>
+<h4 id="validation-data-loader">Validation data loader</h4>
+<p>In addition to the training data loader, we also require a loader for the validation set. An example would look like 
+this
+<div class="highlight"><pre><span></span><code>{
+    &quot;validation_data_loader&quot;: {
+        &quot;type&quot;: &quot;LoaderMultichannelArray&quot;,
+        &quot;args&quot;: {
+            &quot;dataset_path&quot;: &quot;data/example_generator_magrot/dataset_train.csv&quot;,
+            &quot;statistic_path&quot;: &quot;data/example_generator_magrot/statistics_train.json&quot;,
+            &quot;batch_size&quot;: 8,
+            &quot;num_workers&quot;: 1,
+            &quot;filter_inputs&quot;: [12, 13, 14],
+            &quot;filter_labels&quot;: [20, 21],
+            &quot;shuffle&quot;: false,
+            &quot;normalize&quot;: false,
+            &quot;standardize&quot;: false
+        }
+    },
+}
+</code></pre></div></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Several of the validation loader fields have to be identical to those in the training data loader. In particular,
+the <code>type</code>, <code>filter_inputs</code>, <code>filter_labels</code>, <code>normalize</code> and <code>standardize</code> options have to be the same, while
+the <code>batch_size</code>, <code>num_workers</code> and <code>shuffle</code> parameters can differ from the training data loader. If the former
+do not match, an error will be raised.</p>
+</div>
+<h4 id="optimizer">Optimizer</h4>
+<p>We can also set the optimization scheme that regulates the neural network training process (see 
+<a href="https://pytorch.org/docs/stable/optim.html">here</a> for the different types of PyTorch optimizers). Each specific 
+optimizer has a set of extra parameters that can be added. For example for the <code>Adam</code> optimizer in the example below,
+we specify the learning rate <code>lr</code> and <code>weight_decay</code> rate.
+<div class="highlight"><pre><span></span><code>{
+    &quot;optimizer&quot;: {
+        &quot;type&quot;: &quot;Adam&quot;,
+        &quot;args&quot;:{
+            &quot;lr&quot;: 1e-5,
+            &quot;weight_decay&quot;: 0.0
+        }
+    },
+}
+</code></pre></div></p>
+<h4 id="loss-and-accuracy">Loss and accuracy</h4>
+<p>The <code>config.json</code> file also allows us to choose the loss function minimized during the optimization process and the 
+metric used to monitor the predictive accuracy of the neural network over the unseen validation set. In the example 
+below, the loss function <code>LossMSE</code> evaluates the mean square error (MSE) between the output of the network and the 
+target labels at every training epoch. To determine the accuracy, a similar metric is implemented through the option 
+<code>MetricAccuracyMSE</code>. An optimal value of the <code>MSE</code> should be around 0 for a well-trained network.
+<div class="highlight"><pre><span></span><code>{
+    &quot;loss&quot;: {
+      &quot;type&quot;: &quot;LossMSE&quot;,
+      &quot;args&quot;: {}
+    },
+
+    &quot;metric&quot;: {
+      &quot;type&quot;: &quot;MetricAccuracyMSE&quot;,
+      &quot;args&quot;: {}
+    },
+}
+</code></pre></div>
+Here is a list with the different losses and accuracy metrics available:</p>
+<ul>
+<li><code>LossMAE</code> and <code>MetricAccuracyMAE</code> use the mean absolute error (MAE).</li>
+<li><code>LossMSE</code> and <code>MetricAccuracyMSE</code> use the mean square error (MSE).</li>
+<li><code>LossNLL</code> uses the negative log-likelihood loss (see <a href="https://pytorch.org/docs/stable/generated/torch.nn.functional.nll_loss.html">here</a> for more details).</li>
+<li><code>LossRMSE</code> and <code>MetricAccuracyRMSE</code> use the root mean square error (RMSE).</li>
+<li><code>MetricAccuracy</code> computes the percentage of correctly predicted labels.</li>
+<li><code>MetricAccuracyCHI2</code> uses a reduced <span class="arithmatex"><span class="MathJax_Preview">\chi^2</span><script type="math/tex">\chi^2</script></span> value.</li>
+</ul>
+<h4 id="learning-rate-scheduler">Learning rate scheduler</h4>
+<p>We can also set up a scheduler for the learning rate. This updates the value of the learning rate after a certain 
+number of epochs specified by the <code>step_size</code> parameter by multiplying the initial learning rate by a factor <code>gamma</code>.</p>
+<p>In this example, the learning rate is multiplied by <code>0.1</code> after <code>128</code> training epochs.
+<div class="highlight"><pre><span></span><code>{
+    &quot;lr_scheduler&quot;: {
+        &quot;type&quot;: &quot;StepLR&quot;,
+        &quot;args&quot;: {
+        &quot;step_size&quot;: 128,
+        &quot;gamma&quot;: 0.1
+        }
+    },
+}
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Scheduling the learning rate has different effects depending on the optimizer used. For example, for an adaptive
+optimizer like <code>Adam</code> the learning rate is automatically adjusted during training based on the values of the loss
+gradients with respect to the network weights. Therefore, the learning scheduler will have little effect in this 
+case. On the other hand, for optimizers with fixed learning rates, rescheduling adjustments can help the 
+network converge faster to a minimum of the loss landscape.</p>
+</div>
+<h4 id="training-parameters">Training parameters</h4>
+<p>Finally, we specify some general options for our machine learning experiment. <code>Epochs</code> controls the total number of 
+epochs we set for our optimization, and <code>save_dir</code> the directory path to where we save the best model and relevant 
+logging information. The <code>verbosity</code> parameter sets the logging level, with <code>0</code> for <code>WARNING</code>, <code>1</code> for <code>INFO</code> and <code>2</code> 
+for <code>DEBUG</code>. Moreover, the <code>save_period</code> parameter sets the number of epochs after which the network status is 
+saved during training even if convergence has not been reached yet. We can also set an <code>early_stop</code>, i.e., the 
+number of epochs after which stop training if the validation loss is not improving, in order to avoid overfitting.
+Finally, the <code>tensorboard</code> option controls if the training info will be saved into a tensorboard log file.
+<div class="highlight"><pre><span></span><code>{
+    &quot;trainer&quot;: {
+        &quot;epochs&quot;: 1024,
+        &quot;save_dir&quot;: &quot;data/example_learning_nn&quot;,
+        &quot;save_period&quot;: 1000,
+        &quot;verbosity&quot;: 1,
+        &quot;early_stop&quot;: 32,
+        &quot;tensorboard&quot;: true
+    }
+}
+</code></pre></div></p>
+<h3 id="varying-parameters-via-cli">Varying parameters via <code>CLI</code></h3>
+<p>Instead of passing a <code>config.json</code> file to the training module, we can also provide some (but not all) of the 
+parameters in the configuration file directly via <code>CLI</code> when launching the training script.</p>
+<p>In particular, we can provide the paths to the training and validation datasets, the statistics JSON file, 
+the input channels and the labels to select, the input shape, the number of parameters to predict, the option to 
+apply normalization or standardization (where <code>0</code> equals <code>false</code> and <code>1</code> equals <code>true</code>), the batch size, the learning 
+rate value and the path to where the trained model is saved.</p>
+<p>For example, we can train a neural network as follows:
+<div class="highlight"><pre><span></span><code>python mlpoppyns/learning/train_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json --dataset_training data/example_generator_magrot/dataset_train.csv --dataset_validation data/example_generator_magrot/dataset_test.csv --dataset_statistics data/example_generator_magrot/statistics_train.json --filter_inputs 12 13 14 --filter_labels 20 21 --input_shape 3 32 32 --num_parameters 2 --batch_size 1 --lr 1e-5 --save_dir learning_results
+</code></pre></div></p>
+<h3 id="training-output">Training output</h3>
+<p>No matter which of the two ways are used to launch a training experiment, the results of the training experiment are 
+saved in the directory specified by the <code>save_dir</code> option (either in the configuration file or via <code>CLI</code>). Specifically, 
+training will create two folders in this directory, namely a <code>logs</code> folder and a <code>models</code> folder. Both contain 
+subfolders for each specific training experiment of the form <code>name/YYYYMMDD_HHMMSS</code>, where <code>YYYYMMDD_HHMMSS</code> denotes 
+the date and time when the experiment was launched.</p>
+<p>Each subfolder in the <code>logs</code> directory contains a <code>log.txt</code> file with the terminal output and the following three <code>.json</code> files:</p>
+<ul>
+<li><code>train_results.json</code> with the training loss evolution as a function of training epochs. 
+    If the labels where normalized or standardized, this training loss is also normalized or standardized
+    and will not have physical units.</li>
+<li><code>train_eval_results.json</code> with the training loss evolution in physical units, i.e., we have corrected for
+     normalization or standardization if they were applied.</li>
+<li><code>valid_results.json</code> with the validation loss evolution in physical units, i.e., we have corrected for
+     normalization or standardization if they were applied.</li>
+</ul>
+<p>In these files, for each training epoch, we report the loss for each parameter that our network learns plus the total 
+loss, simply named <code>loss</code>, which is the sum of the losses of all trainable parameters. In addition, these files also 
+quote an accuracy metric for each epoch, which in the case of <code>MetricAccuracyMAE</code>, <code>MetricAccuracyMSE</code> and 
+<code>MetricAccuracyRMSE</code> is the average of the losses of the individual parameters.</p>
+<p>Finally, each subfolder in the <code>models</code> directory contains the saved best-trained model in <code>.pth</code> format. This model
+will be used when inferring on an unseen dataset as outlined below.</p>
+<h2 id="inferring-on-a-dataset">Inferring on a dataset</h2>
+<p>Once a network has been trained, it can be used to infer on an unseen dataset of generated maps and extract the 
+relevant pulsar population parameters. The script <code>mlpoppyns/learning/infer_nn.py</code> allows us to take an experiment
+configuration file, a pre-trained model, and a dataset, and run inference on selected samples from that dataset.</p>
+<h3 id="configuration-options_1">Configuration options</h3>
+<p>We again set up the loader for the test dataset over which we want to perform inference in the configuration file.
+As noted above for the validation data loader the test data loader must have the same <code>type</code>, <code>filter_inputs</code> and 
+<code>filter_labels</code> as the training data loader. Again, both have to be compatible with the network's input and output 
+shape. Moreover, the test dataset has to be normalized or standardized if normalization or standardization was 
+applied to the training dataset.</p>
+<p>The test data loader in the <code>config.json</code> file could look as follows:
+<div class="highlight"><pre><span></span><code>{
+    &quot;test_data_loader&quot;: {
+        &quot;type&quot;: &quot;LoaderMultichannelArray&quot;,
+        &quot;args&quot;: {
+            &quot;dataset_path&quot;: &quot;data/example_generator_magrot/dataset_test.csv&quot;,
+            &quot;statistic_path&quot;: &quot;data/example_generator_magrot/statistics_train.json&quot;,
+            &quot;batch_size&quot;: 1,
+            &quot;num_workers&quot;: 1,
+            &quot;filter_inputs&quot;: [12, 13, 14],
+            &quot;filter_labels&quot;: [20, 21],
+            &quot;shuffle&quot;: false,
+            &quot;normalize&quot;: false,
+            &quot;standardize&quot;: false
+        }
+    },
+}
+</code></pre></div>
+Note that we set the <code>batch_size</code> to <code>1</code> here as we want to infer on individual samples not batches. As for the 
+validation data, we do not require our samples to be shuffled.</p>
+<p>We specify the directory for saving the inference results in the field <code>infer</code>.
+<div class="highlight"><pre><span></span><code>{
+    &quot;infer&quot;: {
+        &quot;save_dir&quot;: &quot;data/example_inference_nn&quot;
+    }
+ }
+</code></pre></div></p>
+<h3 id="inference-output">Inference output</h3>
+<p>To use the inference script, we need to provide a pretrained model (<code>--trained_model</code>) and the configuration file of 
+the experiment that generated the corresponding model (<code>--configuration</code>). For instance, we could run the following
+command:
+<div class="highlight"><pre><span></span><code>python mlpoppyns/learning/infer_nn.py --configuration tutorials/tutorial_notebooks/config_train_cnn.json --trained_model data/example_learning_nn/models/Convolution/20240926_113426/best_model_trial1.pth
+</code></pre></div></p>
+<p>We can also use the <code>--samples</code> argument to provide a list of specific samples we would like to infer on (their indices 
+in the dataset). Leaving this option blank implies that we are inferring over all test data samples. As for the 
+training script, we can also specify several other parameters directly via <code>CLI</code>. To see relevant options run
+<div class="highlight"><pre><span></span><code>python mlpoppyns/learning/infer_nn.py --help
+</code></pre></div></p>
+<p>As noted above, the dataset used for inference has to have the same configuration as the training dataset used during
+the network optimization process. If the inference dataset does not match, PyTorch automatically raises an error.
+For example, using the wrong resolution for the input maps raises an error similar to:
+<div class="highlight"><pre><span></span><code>RuntimeError: Error(s) in loading state_dict for ModelConv:
+size mismatch for fc1.weight: copying a param with shape torch.Size([64, 26880]) from checkpoint, the shape in current model is torch.Size([64, 12544]).
+</code></pre></div>
+If the input channels do not match, an error like the following is raised:
+<div class="highlight"><pre><span></span><code>ValueError: all the input array dimensions for the concatenation axis must match exactly, but along dimension 1, the array at index 0 has size 128 and the array at index 1 has size 64
+</code></pre></div></p>
+<p>If the inference is successful, the output <code>mlpoppyns/learning/infer_nn.py</code> will be saved in the directory specified in the 
+<code>save_dir</code> option. Specifically, inference will create a <code>logs</code> folder in this directory containing subfolders of the 
+form <code>name/YYYYMMDD_HHMMSS</code>, where <code>YYYYMMDD_HHMMSS</code> denotes the date and time when the inference was launched.</p>
+<p>Each subfolder in the <code>logs</code> directory will contain an <code>inference_results.csv</code> file containing the labels (ground 
+truths) for each sample and the corresponding predictions from the trained model. For example, in case of inference for 
+the two parameters <code>P_initial_log10_mean</code> and <code>B_initial_log10_mean</code> for four test samples, the output file could 
+look like this:
+<div class="highlight"><pre><span></span><code>target:B_initial_log10_mean,target:P_initial_log10_mean,predicted:B_initial_log10_mean,predicted:P_initial_log10_mean
+12.187267303466797,-1.3277602195739746,12.33946418762207,-1.3803331851959229
+12.238884925842285,-1.4647713899612427,12.271954536437988,-1.4287304878234863
+12.566689491271973,-0.331459105014801,12.784342765808105,-0.3929998278617859
+13.581913948059082,-1.2630716562271118,13.486227989196777,-1.055734395980835
+</code></pre></div></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3421 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ice-csic-astroexotic.github.io/ML-Poppyns/tutorials/learning_tutorial_sbi/">
+      
+      
+        <link rel="prev" href="../learning_tutorial_nn/">
+      
+      
+        <link rel="next" href="../experiment_launcher/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/mlpoppyns_logo_transparent.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Parameter inference with SBI - ML-Poppyns documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#parameter-inference-with-sbi" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML-Poppyns documentation" class="md-header__button md-logo" aria-label="ML-Poppyns documentation" data-md-component="logo">
+      
+  <img src="../../images/mlpoppyns_logo_transparent.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML-Poppyns documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Parameter inference with SBI
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18V6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ice-csic-astroexotic/ML-Poppyns" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ML-Poppyns
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../basics/getting_started/" class="md-tabs__link">
+          
+  
+  
+  Basics
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../simulator_tutorial/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../code/simulator/simulator/" class="md-tabs__link">
+          
+  
+  
+  Code
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML-Poppyns documentation" class="md-nav__button md-logo" aria-label="ML-Poppyns documentation" data-md-component="logo">
+      
+  <img src="../../images/mlpoppyns_logo_transparent.png" alt="logo">
+
+    </a>
+    ML-Poppyns documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ice-csic-astroexotic/ML-Poppyns" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ML-Poppyns
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Basics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/HTCondor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTCondor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/dask/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dask
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulator_tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulating neutron star populations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generator_tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generating density maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../learning_tutorial_nn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning pulsar parameters with NNs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter inference with SBI
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter inference with SBI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sbi-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SBI methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#amortized-vs-sequential-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Amortized vs. sequential inference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-a-sbi-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training a SBI pipeline
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Training a SBI pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#folder-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Folder structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#main-training-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main training script
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General info
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#density-estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Density estimator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcmc-sampler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MCMC sampler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#embedding-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedding network
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternative-input-compression-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative input compression options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prior-distribution-for-training-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prior distribution for training data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-data-loader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training data loader
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-data-loader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing data loader
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observed-sample" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observed sample
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamical-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamical database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-round-specific-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-round specific options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multi-round specific options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#training-specific-parameters-for-multi-round-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training specific parameters for multi-round inference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resume-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resume mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-simulation-in-parallel-for-each-round" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running simulation in parallel for each round
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes-on-running-dask-on-the-pic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes on running Dask on the PIC
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Notes on running Dask on the PIC">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#folder-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Folder handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dask-usage-on-the-pic-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dask usage on the PIC server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-main-job-using-htcondor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the main job using HTCondor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitoring-dask-workers-htcondor-gpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitoring Dask workers (HTCondor + GPU)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inferring-on-a-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inferring on a dataset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inferring on a dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inference-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inference output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experiment_launcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment launcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/simulator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic simulator modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/stellar_dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stellar dynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/magneto_rotational_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Magneto-rotational physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/interstellar_medium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interstellar medium
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/multiband_emission/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiband emission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/multiband_surveys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiband surveys
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/telemetry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telemetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Generator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/generator/generator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic generator modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/generator/maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/learning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic learning modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/initializers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initializers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/loaders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loaders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/losses/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Losses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/trainers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trainers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic utility modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/experiment_helpers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/PIC_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PIC scripts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/samplers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Samplers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sbi-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SBI methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#amortized-vs-sequential-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Amortized vs. sequential inference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-a-sbi-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training a SBI pipeline
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Training a SBI pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#folder-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Folder structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#main-training-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main training script
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General info
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#density-estimator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Density estimator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcmc-sampler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MCMC sampler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#embedding-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedding network
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternative-input-compression-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative input compression options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prior-distribution-for-training-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prior distribution for training data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-data-loader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training data loader
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-data-loader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing data loader
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observed-sample" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observed sample
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamical-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamical database
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-round-specific-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-round specific options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multi-round specific options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#training-specific-parameters-for-multi-round-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training specific parameters for multi-round inference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resume-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resume mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-simulation-in-parallel-for-each-round" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running simulation in parallel for each round
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes-on-running-dask-on-the-pic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes on running Dask on the PIC
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Notes on running Dask on the PIC">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#folder-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Folder handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dask-usage-on-the-pic-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dask usage on the PIC server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-main-job-using-htcondor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the main job using HTCondor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitoring-dask-workers-htcondor-gpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitoring Dask workers (HTCondor + GPU)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inferring-on-a-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inferring on a dataset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inferring on a dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inference-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inference output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="parameter-inference-with-sbi">Parameter inference with SBI</h1>
+<p>In the following, we describe several scenarios of simulation-based inference (SBI) with neural networks. This is a 
+supervised learning approach where a network is trained to learn the mapping between simulated data and the posterior 
+distribution of the underlying model parameters. </p>
+<p>The framework thus allows us to perform robust statistical inference and derive credibility intervals for parameter 
+estimation with complex simulators like those developed for pulsar population synthesis. Our implementation builds on 
+the <a href="https://sbi.readthedocs.io/en/latest/">sbi</a> library (<a href="https://arxiv.org/abs/2007.09114">Tejero-Cantero et al., 2020</a>, <a href="https://joss.theoj.org/papers/10.21105/joss.07754">Boelts et al., 2025</a>).</p>
+<p>For a discussion of how neural networks can be used to infer point estimates (without quantifying uncertainties) see
+<a href="../learning_tutorial_nn/">Learning pulsar parameters with NNs</a>.</p>
+<h2 id="sbi-methods">SBI methods</h2>
+<p>Using the <code>mlpoppyns/learning/sbi_train.py</code> script, we support the following approaches for SBI:</p>
+<ol>
+<li>
+<p>Neural Posterior Estimation (<a href="https://proceedings.neurips.cc/paper_files/paper/2016/file/6aca97005c68f1206823815f66102863-Paper.pdf">NPE</a>): A neural network is trained to approximate the posterior distribution 
+    directly, learning a mapping from model parameters <span class="arithmatex"><span class="MathJax_Preview">\theta</span><script type="math/tex">\theta</script></span> to <span class="arithmatex"><span class="MathJax_Preview">P(\theta | x)</span><script type="math/tex">P(\theta | x)</script></span>.</p>
+</li>
+<li>
+<p>Neural Likelihood Estimation (<a href="https://proceedings.mlr.press/v89/papamakarios19a/papamakarios19a.pdf">NLE</a>): A neural network emulates the simulator by approximating the likelihood 
+    <span class="arithmatex"><span class="MathJax_Preview">P(x | \theta)</span><script type="math/tex">P(x | \theta)</script></span>. Once trained, this model can be used with standard sampling algorithms (e.g., MCMC) to compute or 
+    sample from the posterior.</p>
+</li>
+<li>
+<p>Neural Ratio Estimation (<a href="https://proceedings.mlr.press/v119/hermans20a/hermans20a.pdf">NRE</a>): A classifier is trained to approximate the likelihood-to-evidence ratio
+    <span class="arithmatex"><span class="MathJax_Preview">r(\theta, x) = P(x | \theta) / P(x)</span><script type="math/tex">r(\theta, x) = P(x | \theta) / P(x)</script></span>, which can be used to compute or sample from the posterior using methods 
+    like MCMC.</p>
+</li>
+</ol>
+<h2 id="amortized-vs-sequential-inference">Amortized vs. sequential inference</h2>
+<p>SBI can be performed using either amortized or sequential strategies. While amortized inference enables fast posterior 
+estimates for any input after a single large training phase (because inference simply corresponds to a single forward
+pass through the network), sequential methods focus the simulation budget on regions most relevant to explaining a 
+specific observation. This advantage makes sequential methods more efficient for application cases where only a single 
+(or small) observed sample is present and the simulator is expensive, as is the case for our application. </p>
+<p>In the following, we will refer to amortized as <strong>single-round</strong> and sequential as <strong>multi-round</strong> inference, with the 
+former being a limiting case of the multi-round approach. The three methods summarised above have their own sequential 
+variants, which are named by adding an 'S' at the beginning. For example, SNPE stands for Sequential Neural Posterior 
+Estimation. </p>
+<p>For multi-round inference, the workflow is as follows:</p>
+<ol>
+<li>Sample the proposal prior distribution to obtain <span class="arithmatex"><span class="MathJax_Preview">\theta_i \sim P(\theta)</span><script type="math/tex">\theta_i \sim P(\theta)</script></span>.</li>
+<li>Given the parameter samples from step 1, generate synthetic data <span class="arithmatex"><span class="MathJax_Preview">x_i \sim P(x|\theta_i)</span><script type="math/tex">x_i \sim P(x|\theta_i)</script></span> using the simulator.</li>
+<li>Train the neural network on the training dataset consisting of pairs <span class="arithmatex"><span class="MathJax_Preview">(\theta_i, x_i)</span><script type="math/tex">(\theta_i, x_i)</script></span> obtained in the previous 
+   steps.</li>
+<li>Use the trained neural network to compute the approximated posterior distribution <span class="arithmatex"><span class="MathJax_Preview">P(\theta|x_0)</span><script type="math/tex">P(\theta|x_0)</script></span> at the observed 
+   data <span class="arithmatex"><span class="MathJax_Preview">x_0</span><script type="math/tex">x_0</script></span>.</li>
+<li>Compute a new proposal prior using the following options:<ul>
+<li>If we opt for a <strong>truncated approach</strong>, restrict the prior distribution to the support of the approximated 
+  posterior computed in step 4. For more information about truncated proposal priors, see 
+  <a href="https://arxiv.org/abs/2210.04815">Deistler et al. (2022)</a> and 
+  <a href="https://www.aanda.org/articles/aa/pdf/2025/04/aa53314-24.pdf">Pardo-Araujo et al. (2025)</a>.</li>
+<li>Otherwise, use the posterior distribution from step 4 directly as the new proposal prior.</li>
+</ul>
+</li>
+<li>Update the prior distribution with the new proposal prior and return to step 1.</li>
+</ol>
+<p>In the case of single-round inference, only steps 1 to 4 are performed.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>An example of NPE with single-round SBI using the training and inference scripts discussed in detail below
+is presented in <code>tutorials/tutorial_notebooks/08_learning_sbi_tutorial.ipynb</code>.</p>
+</div>
+<h2 id="training-a-sbi-pipeline">Training a SBI pipeline</h2>
+<h3 id="folder-structure">Folder structure</h3>
+<p>Before executing the SBI training, we need to create the required folder structure for storing training and testing 
+datasets for each round. Although this is not strictly necessary for single-round inference, we recommend doing it 
+for consistency. We obtain the relevant folder structure by running the following command:</p>
+<div class="highlight"><pre><span></span><code>python mlpoppyns/learning/utils/data_folder_struct_sbi.py --base_path output/
+</code></pre></div>
+<p>This will generate the following structure under <code>output</code>:</p>
+<div class="highlight"><pre><span></span><code>output/
+└── data/
+    ├── test_dataset/
+    │   ├── generated_dataset/
+    │   │   └── round_0/
+    │   └── simulations/
+    └── training_dataset/
+        ├── generated_dataset/
+        │   └── round_0/
+        └── simulations/
+</code></pre></div>
+<p>We recommend placing all files relevant for training in the same base path. Specifically,</p>
+<ul>
+<li>Store the training statistics file in the <code>data/</code> directory.</li>
+<li>Save the training and testing datasets for the first round in <code>data/training_dataset/generated_dataset/round_0/</code> and 
+  <code>data/test_dataset/generated_dataset/round_0/</code>, respectively. Note that here we only need to save the <code>dataset.csv</code>
+  file containing the paths of each generated simulation, not the simulations themselves.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When running training or inference in the single-round mode, the output is still saved using the multi-round
+structure. That is, results will be stored in a folder named <code>round_0</code>.</p>
+</div>
+<h3 id="main-training-script">Main training script</h3>
+<p>To perform our SBI using a dataset composed of heatmaps or 2D arrays of our synthetic pulsar populations (see 
+the tutorial <a href="../generator_tutorial/">Generating density maps</a> for details), we execute the script <code>mlpoppyns/learning/sbi_train.py</code> as 
+follows:</p>
+<div class="highlight"><pre><span></span><code>python mlpoppyns/learning/sbi_train.py --configuration tutorials/tutorial_notebooks/config_train_sbi.json
+</code></pre></div>
+<p>Here, the <code>config_train_sbi.json</code> file contains all the information required to optimize the neural network.</p>
+<h3 id="configuration-options">Configuration options</h3>
+<p>We now discuss the various options in the <code>config_train_sbi.json</code> SBI configuration file, which include the type 
+of SBI method, the type of compression if needed, the type of density estimator, the input shape of the dataset, 
+and other relevant training hyperparameters used. Note that several of these are equivalent to those outlined in 
+the tutorial <a href="../learning_tutorial_nn/">Learning pulsar parameters with NNs</a>, where we discuss point estimation. In the following, we
+primarily focus on single-round inference as outlined in the tutorial <code>08_learning_sbi_tutorial.ipynb</code>. We explain 
+additional parameters specific to multi-round inference further below in <a href="#multi-round-specific-options">Multi-round specific options</a>.</p>
+<h4 id="general-info">General info</h4>
+<p>We first specify general settings for the experiment such as the experiment's name, the number of GPUs used, whether 
+to fix the random seed (and its value) and some additional profiling options. The latter specify the names of the files
+containing run time information for the code and whether this timing information is displayed in the terminal or not. 
+We discuss the multi-processing options in detail in <a href="#running-simulation-in-parallel-for-each-round">Running simulation in parallel for each round</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SBI_ConvolutionMDN&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;n_gpu&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;enable_dask&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;n_processes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;workers_dask&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;set_manual_seed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;manual_seed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;profile_log&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;profile.log&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;profile_json&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;profile.json&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;show_profiling&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="training-parameters">Training parameters</h4>
+<p>General options for the machine learning experiment are specified in the trainer section. First, we select the SBI 
+method to use by choosing from <code>snpe</code>, <code>snle</code>, or <code>snre</code> (including the s for the sequential approach, even in the case 
+of single-round inference). For single-round inference, we set <code>num_rounds = 1</code>; otherwise, this parameter defines the 
+number of rounds to perform. Note that the training and testing datasets for the first round are supposed to be 
+generated before training, i.e., outside the multi-round inference experiment presented here. Therefore, 
+<code>num_rounds = 2</code> would mean training the neural network twice, but generating the training and testing datasets only 
+once for the second round.</p>
+<p>We must also specify the directory where the trained model will be saved using the <code>save_dir</code> parameter. Additional 
+configuration options include the fraction of the training dataset reserved for validation, the training batch size, 
+and the initial learning rate for the Adam optimizer, which is the default in the <code>sbi</code> library.</p>
+<p>To create an ensemble of posteriors, we can train multiple networks per round by setting <code>ensemble = true</code> and specifying
+the ensemble size using <code>size_ensemble</code>. Note that the networks in the ensemble share the same architecture and differ 
+only due to the random initialization of their weights. See <a href="#multi-round-specific-options">Multi-round specific options</a>
+section below for more information on the last parameters, which are specific to multi-round inference.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;trainer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;snpe&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;num_rounds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;save_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output/learning_sbi&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;validation_fraction&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;batch_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;lr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0005</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;ensemble&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;size_ensemble&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;truncated_prior&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;retrain_from_scratch&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;sir&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;append_simulations&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;plot_proposal&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="density-estimator">Density estimator</h4>
+<p>Next, we decide on the type of density estimator used to approximate the posterior distribution. The 
+preconfigured options in the <code>sbi</code> library include so-called masked autoregressive flows <code>maf</code> or Gaussian mixture 
+density networks <code>mdn</code>. We can set the number of hidden features for the density estimator.
+When using <code>mdn</code> or <code>maf</code>, we can also set the number of components in the mixture or the number of transformations in the 
+flow, respectively, using the <code>num_components</code> and <code>num_transforms</code> parameters. On the other hand, for SNRE, we can 
+specify the type of classifier to use, such as: <code>linear</code>, <code>mlp</code>, or <code>resnet</code>. For more details on these methods and 
+relevant hyperparameters as well as custom density estimators see <a href="https://sbi-dev.github.io/sbi/latest/tutorials/03_density_estimators/">here</a>.</p>
+<p>In the following example, we are setting a mixture density network with <code>10</code> Gaussian components, and the number of 
+neurons in the hidden layers is set to <code>32</code>.</p>
+<p><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;density_estimator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mdn&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;classifier_nre&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resnet&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;hidden_features&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;num_components&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span>
+<span class="w">      </span><span class="nt">&quot;num_transforms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+If the model type selected in the training options is not <code>snre</code>, and the density estimator is not <code>maf</code>, then the classifier and the num_components specified here will be ignored.</p>
+<h4 id="mcmc-sampler">MCMC sampler</h4>
+<p>For cases where NRE or NLE is used, an extra step is required to obtain or sample from the posterior. In the following 
+case, we use the default MCMC-based sampling algorithms provided by the <code>sbi</code> package. For details on the different 
+samplers in <code>sbi</code>, see <a href="https://sbi-dev.github.io/sbi/latest/tutorials/09_sampler_interface/">the official documentation</a>. In the case of NPE, the following options are simply ignored.</p>
+<p>When performing MCMC sampling, we need to specify the number of parallel chains, the thinning factor, and the MCMC 
+sampler type. <code>sbi</code> supports the following MCMC samplers: <code>nuts</code>, <code>slice</code>, <code>hmc</code>, and <code>slice_np_vectorized</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span>
+<span class="w">  </span><span class="nt">&quot;mcmc_sampler&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;slice_np_vectorized&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;num_chains&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;thin&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="embedding-network">Embedding network</h4>
+<p>Next, we specify the architecture for the so-called embedding neural network. This embedding net is used to extract
+features from the input data and compress the input into a latent vector that is then passed to the density estimator.
+This neural network is optimised at the same time as the parameters of the neural density estimator.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This functionality is only supported in SNPE and not available in SNRE or SNLE. The reason is that, unlike in NPE, 
+the neural density estimators in NLE and NRE approximate the likelihood or the likelihood ratio directly. As a 
+result, the output of the neural network must match that of the simulator, which means the compression step would 
+have to occur after the density estimator. If an embedding network were placed after the density estimator, the 
+usual maximum-likelihood loss used in SBI would no longer apply, since the estimator’s output would no longer 
+represent a valid likelihood (or likelihood ratio). For this reason, it is not possible to train an embedding 
+network jointly with the density estimator in SNLE or SNRE.</p>
+</div>
+<p>In the following example, we will be using 2D maps as input and, hence, opt for a convolutional neural network (CNN) 
+as the embedding net. This CNN is designed to adapt to any input size specified by the <code>input_shape</code> parameter and 
+produce an output with a length specified by <code>len_output_layer</code>. </p>
+<p>There are currently three predefined models available for the embedding network:</p>
+<ol>
+<li>
+<p><code>ModelConvSBI</code>: a CNN with three convolutional layers.</p>
+</li>
+<li>
+<p><code>ModelConvSBIdeep</code>: a deeper CNN with four convolutional layers.</p>
+</li>
+<li>
+<p><code>ModelConvSBIshallow</code>: a shallower CNN with two convolutional layers.</p>
+</li>
+</ol>
+<p>Therefore, when using ModelConvSBI, the configuration file looks as follows:</p>
+<p><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;arch&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ModelConvSBI&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;input_shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;len_output_layer&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">32</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+If you would like to design your own network architecture, you need to implement a new model class in 
+<code>mlpoppyns/learning/models</code> and import this model in the file <code>models.py</code>.</p>
+<h4 id="initialization">Initialization</h4>
+<p>We also specify a scheme to initialize the weights and biases of the convolutional neural network. 
+Here, we show an example using the Kaiming initializer denoted by <code>InitializerKaiming</code>.</p>
+<p><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;weights_initializer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;InitializerKaiming&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+Here is a list with the different initialization procedures available:</p>
+<ul>
+<li><code>InitializerKaiming</code> uses the Kaiming initialization approach introduced in <a href="https://arxiv.org/abs/1502.01852">He et al. (2015)</a>.</li>
+<li><code>InitializerNormal</code> samples the weights from a Normal distribution <span class="arithmatex"><span class="MathJax_Preview">N(0, \sigma^2)</span><script type="math/tex">N(0, \sigma^2)</script></span> whilst biases are filled 
+ with a constant zero value. In this case, <span class="arithmatex"><span class="MathJax_Preview">\sigma = 1 / \sqrt{n}</span><script type="math/tex">\sigma = 1 / \sqrt{n}</script></span> where <span class="arithmatex"><span class="MathJax_Preview">n</span><script type="math/tex">n</script></span> is the number of input features.</li>
+<li><code>InitializerUniform</code> samples the weights from a uniform distribution <span class="arithmatex"><span class="MathJax_Preview">U(0,1)</span><script type="math/tex">U(0,1)</script></span> whilst biases are filled with 
+ a constant zero value.</li>
+<li><code>InitializerUniformRule</code> samples the weights from a uniform distribution <span class="arithmatex"><span class="MathJax_Preview">U(-y, y)</span><script type="math/tex">U(-y, y)</script></span>. Here, <span class="arithmatex"><span class="MathJax_Preview">y = 1 / \sqrt{n}</span><script type="math/tex">y = 1 / \sqrt{n}</script></span> 
+ with <span class="arithmatex"><span class="MathJax_Preview">n</span><script type="math/tex">n</script></span> being the number of input features and biases are filled with a constant zero value.</li>
+<li><code>InitializerXavier</code> uses the Xavier initialization approach introduced in <a href="https://proceedings.mlr.press/v9/glorot10a.html">Xavier et al. (2010)</a>.</li>
+</ul>
+<h4 id="alternative-input-compression-options">Alternative input compression options</h4>
+<p>For learning approaches where NRE or NLE are applied, as outlined above we cannot train an embedding network 
+simultaneously with the density estimator but instead apply another step to preprocess the data before passing it 
+to the neural network. For this purpose, we provide two options for separate data compression: a Convolutional Neural 
+Network (CNN) or Principal Component Analysis (PCA). Note that our implementation assumes that the CNN corresponds to 
+a fully optimised (i.e., fixed) embedding network that has been trained as part of a previous NPE experiment. For 
+both PCA and CNN, the code expects a pickle file containing the pretrained model. The PCA model can be trained 
+separately using the <code>tutorials/analysis_notebooks/PCA_image_compressor.ipynb</code> notebook. </p>
+<p><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;compression_input&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;use_compression&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;compression_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cnn&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;cnn_model_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;exp_4/round_9/trained_model_ensemble_0.pickle&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;pca_model_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PCAs/1_PCA_95_new/pca_model_combined.pkl&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+Note that when <code>use_compression</code> is set to False, the training configuration can only be used with NPE. In this case, 
+an embedding network will be trained simultaneously with the density estimator as outlined in the previous section, and 
+this embedding network is responsible for compressing the input data.</p>
+<h4 id="prior-distribution-for-training-data">Prior distribution for training data</h4>
+<p>In order to perform multi-round inference with a truncated approach or visualise cornerplots for our inference results
+across all SBI methods, we need to specify the labels and prior ranges (corresponding to the initial prior ranges which
+are subsequently restricted in the TSNPE algorithm). Note that the order of the list must match the order of parameters 
+in the <code>dataset_full.csv</code> file that contains information on the training data.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;prior_ranges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;labels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;B_initial_log10_mean&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;P_initial_log10_mean&quot;</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;low&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="mf">-1.5</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;high&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">14</span><span class="p">,</span><span class="w"> </span><span class="mf">0.3</span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="training-data-loader">Training data loader</h4>
+<p>We also require a training data loader, which is responsible for loading the dataset in a representation readable 
+by the network. The path to the directory containing the training dataset (in particular the file <code>dataset_full.csv</code>) 
+for round 0 is specified in the <code>dataset_path_round_0</code> field. For multi-round inference, the training
+datasets generated in each of the following rounds will then be saved in the directory specified by <code>dataset_path</code>.
+We also specify the location for the JSON file characterizing the statistics of the training dataset in <code>statistic_path</code>
+and the input channels <code>filter_inputs</code> used in building our (multichannel) input. Additionally, we set the ground truth
+labels <code>filter_labels</code> that we want to predict and provide information on whether our data and labels are normalized or
+standardized. The <code>filter_labels</code> and <code>filter_inputs</code> arguments are explained in more detail below, along with an 
+example.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The file in <code>dataset_path_round_0</code> must be named <code>dataset_full.csv</code>, as this is the expected filename in the code.</p>
+</div>
+<p>For the multi-round case, we must also specify, how many simulations we want to run in each round using the <code>num_sim</code> 
+field for training. In the example below, 1000 simulations are generated per round and then used for training.</p>
+<p>We also note that our workflow for both multi-round and single-round inference assumes that the dataset for the first 
+round already exist. This is possible because the prior distribution in round 0 is fixed, and these datasets
+can be reused across multiple experiments to save computational resources.</p>
+<p>For the example above and following the recommended folder structure, the <code>training_data_loader</code> will look like this:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w"> </span><span class="nt">&quot;training_data_loader&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;dataset_path_round_0&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output/data/training_dataset/generated_dataset/round_0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;dataset_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output/data/training_dataset&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;statistic_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output/data/statistics_train.json&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;filter_inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w"> </span><span class="mi">14</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;filter_labels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">21</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;normalize&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;standardize&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;num_sim&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When loading the data for SBI, we do not need to specify the batch size and the shuffle parameter.
+ This is because the <code>sbi</code> library deals with shuffling the input dataset internally, while the batch size 
+ is specified during the training procedure (see above). If we were to use the data loader as in the 
+ <a href="../learning_tutorial_nn/">CNN learning tutorial</a>, it would load the dataset in a format that is not 
+ compatible with sbi.</p>
+</div>
+<p>The available input channels and labels are specified in the <code>dataset_full.csv</code> file, where we list the path to the different maps and the corresponding label values
+Since in this example we are varying only two parameters we have only two labels (last two columns)
+Let us assume that our <code>dataset_full.csv</code> file looks as follows:</p>
+<p><div class="highlight"><pre><span></span><code>input:survey_PMPS_density_map_radec,input:survey_SMPS_density_map_radec,input:survey_HTRU_density_map_radec,input:survey_xray_density_map_radec,input:survey_PMPS_velocity_vra_map_radec,input:survey_SMPS_velocity_vra_map_radec,input:survey_HTRU_velocity_vra_map_radec,input:survey_xray_velocity_vra_map_radec,input:survey_PMPS_velocity_vdec_map_radec,input:survey_SMPS_velocity_vdec_map_radec,input:survey_HTRU_velocity_vdec_map_radec,input:survey_xray_velocity_vdec_map_radec,input:survey_PMPS_density_map_ppdot,input:survey_SMPS_density_map_ppdot,input:survey_HTRU_density_map_ppdot,input:survey_xray_density_map_ppdot,input:survey_PMPS_flux_map_ppdot,input:survey_SMPS_flux_map_ppdot,input:survey_HTRU_flux_map_ppdot,input:survey_xray_flux_map_ppdot,B_initial_log10_mean,P_initial_log10_mean
+data/example_generator_magrot/survey_PMPS_density_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_0.npy,data/example_generator_magrot/survey_xray_density_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_0.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_0.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_0.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_0.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_0.npy,12.760581505895203,-0.7428330891684274
+data/example_generator_magrot/survey_PMPS_density_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_1.npy,data/example_generator_magrot/survey_xray_density_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_1.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_1.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_1.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_1.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_1.npy,12.00901699270494,-0.7370723718542642
+data/example_generator_magrot/survey_PMPS_density_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_2.npy,data/example_generator_magrot/survey_xray_density_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_2.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_2.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_2.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_2.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_2.npy,13.666001670349527,-0.945232045269706
+data/example_generator_magrot/survey_PMPS_density_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_3.npy,data/example_generator_magrot/survey_xray_density_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_3.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_3.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_3.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_3.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_3.npy,12.597396839756216,-1.4013555393326107
+</code></pre></div>
+The different channels and labels are identified with an index starting from 0. </p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Index</th>
+<th>Filename</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td><code>survey_PMPS_density_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td><code>survey_SMPS_density_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td><code>survey_HTRU_density_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td><code>survey_xray_density_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td><code>survey_PMPS_velocity_vra_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td><code>survey_SMPS_velocity_vra_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td><code>survey_HTRU_velocity_vra_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td><code>survey_xray_velocity_vra_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td><code>survey_PMPS_velocity_vdec_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td><code>survey_SMPS_velocity_vdec_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td><code>survey_HTRU_velocity_vdec_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">11</td>
+<td><code>survey_xray_velocity_vdec_map_radec.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td><code>survey_PMPS_density_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">13</td>
+<td><code>survey_SMPS_density_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">14</td>
+<td><code>survey_HTRU_density_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">15</td>
+<td><code>survey_xray_density_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">16</td>
+<td><code>survey_PMPS_flux_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">17</td>
+<td><code>survey_SMPS_flux_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">18</td>
+<td><code>survey_HTRU_flux_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">19</td>
+<td><code>survey_xray_flux_map_ppdot.npy</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">Index</td>
+<td>Label</td>
+</tr>
+<tr>
+<td style="text-align: right;">20</td>
+<td><code>B_initial_log10_mean</code></td>
+</tr>
+<tr>
+<td style="text-align: right;">21</td>
+<td><code>P_initial_log10_mean</code></td>
+</tr>
+</tbody>
+</table>
+<p>To select certain input channels, we specify a list containing the indices corresponding to 
+the input channels we would like to consider. In the data loader example above, we opt for the input channels 
+<code>survey_PMPS_density_map_ppdot</code>, <code>survey_SMPS_density_map_ppdot</code>, <code>survey_HTRU_density_map_ppdot</code> (indices 12, 13, 14) and want to predict
+the labels <code>B_initial_log10_mean</code> and <code>P_initial_log10_mean</code> (indices 20, 21).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If an embedding network is used to compress the 2D maps, the length of <code>filter_inputs</code> in the dataset loader 
+configuration must match the network’s expected input channel dimension specified in <code>input_shape</code> in the <code>arch</code> 
+section.</p>
+</div>
+<p>Finally, our training data loader enables us to activate on-the-fly normalization or standardization (both are 
+mutually exclusive) for the input maps and ground truths (labels). Both take advantage of the statistical information 
+contained in the <code>statistics_train.json</code> file. For normalization, the input channels and labels will have values in 
+the range between 0 and 1. If standardized, the input channels and labels have values centred around 0 and range 
+approximately between -1 and 1.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The training dataset is also used for validation. This is automatically handled through sbi. We therefore do
+not require a separate validation data loader. We can specify the corresponding validation fraction as outlined 
+below.</p>
+</div>
+<h4 id="testing-data-loader">Testing data loader</h4>
+<p>Inference on a test dataset can be performed either separately using the <code>sbi_infer.py</code> script after training, or 
+simultaneously during training by setting the <code>testing</code> field to true. As with training, testing requires specifying 
+the path to the test dataset for round 0 in the <code>dataset_path_round_0</code> field, which must contain a 
+<code>dataset_full.csv</code> file. In multi-round inference, the test dataset for subsequent rounds is generated on the fly and 
+saved to the path specified in <code>dataset_path</code>, with the number of simulations defined by <code>num_sim</code>.</p>
+<p>Following the recommended folder structure, the <code>test_data_loader</code> configuration for the example above looks as follows
+(although we have opted to not perform testing simultaneously here and set <code>testing</code> to false:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;test_data_loader&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;testing&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;dataset_path_round_0&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output/data/test_dataset/generated_dataset/round_0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;dataset_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output/data/test_dataset/generated_dataset&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;num_sim&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="observed-sample">Observed sample</h4>
+<p>The inference script performs inference on a sample specified in the <code>observed_sample</code> field, assuming that the folder 
+contains a CSV file named <code>dataset_observed.csv</code>. As before, you provide <code>filter_inputs</code>, which must match those used 
+during training. As we do not know the ground truths, <code>filter_labels</code> are not required here.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;observed_sample&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;dataset_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data/example_generator_observed&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;filter_inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w"> </span><span class="mi">14</span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="dynamical-database">Dynamical database</h4>
+<p>To perform the magneto-rotational evolution, we first need to sample stars from a dynamical database and then carry out 
+the magneto-rotational evolution. In the <code>dyn_data_loader</code>, we specify the path to the dynamical database, assuming that 
+it contains a file named <code>final_pop_dyn.csv</code>. This file can be generated using the tutorial notebook located at 
+<code>tutorials/tutorial_notebooks/02_simulator_dyn_tutorial.ipynb</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;dyn_data_loader&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;dataset_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;../../data/example_simulation_dyn&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="training-output">Training output</h4>
+<p>The results of the training experiment are saved in the directory specified by the <code>save_dir</code> option outlined under
+<a href="#training-parameters">Training parameters</a> above. Specifically, training will create two folders in this directory, 
+namely a <code>logs</code> folder and a <code>models</code> folder. Both contain subfolders for each specific training experiment of the
+form <code>name/YYYYMMDD_HHMMSS</code>, where <code>YYYYMMDD_HHMMSS</code> denotes the date and time when the experiment was launched.
+Within these folders, the training experiment will result in the creation of one subfolder for each round of training.
+In the case of single-round inference, we would only obtain one folder named <code>round_0</code>. </p>
+<p>The <code>logs</code> subdirectories contain the files <code>profile.json</code> and <code>profile.log</code>, which provide timing and profiling 
+information for the training script executed across all rounds. This folder also contains a file called <code>log.txt</code>, which 
+captures the terminal <code>stdout</code> output. Additionally, each <code>round_{i}</code> subfolder inside the <code>logs</code> directory contains 
+the following files:</p>
+<ul>
+<li><code>training_statistics_{j}.json</code> with the training and validation loss evolution.</li>
+<li><code>training_stats_{j}.pdf</code> with a plot showing the training and validation loss evolution.</li>
+</ul>
+<p>The <code>j</code> indicates which neural network in the ensemble the file refers to. In the case of using just one neural network
+no subscript is added to these two files. </p>
+<p>The <code>model</code> folder contains a <code>config_sbi.json</code> that is a copy of the configuration file used to run the experiment.
+Finally, each subfolder <code>round_{i}</code> in this directory contains:</p>
+<ul>
+<li><code>corner_plot_observed_sample.pdf</code>: A corner plot visualizing the approximated posterior distribution conditioned on 
+   the observed data. Note that if the ensemble is enabled, a single corner plot will be produced using the ensemble of 
+   posteriors.</li>
+<li><code>coverage_plot.pdf</code> and <code>coverage_probability.npy</code> files with the results of the coverage probability diagnostic
+   test if testing was enabled.</li>
+<li><code>inference.pickle</code>: The trained inference object, which stores the weights of the trained neural network. Knowledge
+   of these are required when resuming training in the multi-round case, where we do not want to start from scratch 
+   but continue from the last trained network.</li>
+<li><code>posterior_samples_test_data.npz</code>: A NumPy array containing the true values and the corresponding posterior samples
+   for each sample in the test dataset if testing is enable .</li>
+<li><code>samples_posterior.pt</code>: A tensor containing samples from the posterior distribution conditioned on the observed data.</li>
+<li><code>trained_model.pickle</code>: The trained model. This object is needed to sample from the approximated posterior 
+   distribution after the neural network has been trained.</li>
+</ul>
+<p>If <code>ensemble</code> is enabled, there will be as many <code>inference.pickle</code> and <code>trained_model.pickle</code> files as there are 
+neural networks in the ensemble.</p>
+<h3 id="multi-round-specific-options">Multi-round specific options</h3>
+<p>This section describes configuration options specific to multi-round inference.</p>
+<h4 id="training-specific-parameters-for-multi-round-inference">Training specific parameters for multi-round inference</h4>
+<p>Several additional parameters control how training behaves across different rounds:</p>
+<ul>
+<li>
+<p><code>truncated_prior</code>: If set to <code>true</code>, the proposal prior is obtained by truncating the initial prior with the
+   posterior from the previous round (evaluated at the observed data, 
+    <a href="https://arxiv.org/abs/2210.04815">Deistler et al. 2022</a>). Otherwise, the proposal prior is simply the 
+   approximated posterior distribution from the previous round.</p>
+</li>
+<li>
+<p><code>retrain_from_scratch</code>: If set to <code>true</code>, the neural network is retrained from scratch in each round, i.e., the 
+   model weights are re-initialized in each round. Otherwise, training continues updating the weights trained in the
+   previous rounds.</p>
+</li>
+<li>
+<p><code>sir</code>: If set to <code>true</code>, Sampling Importance Resampling (SIR) is used for truncated prior sampling. Otherwise, 
+   rejection sampling is used. Note that rejection sampling can be significantly more computationally expensive if the 
+   posterior distribution is very narrow and the rejection region is large. For an explanation of these two methods, 
+   we refer the user to
+   <a href="https://github.com/szcf-weiya/MonteCarlo/blob/master/References/Monte-Carlo-Strategies-in-Scientific-Computing.pdf">Liu, J. S. (2001), Monte Carlo Strategies in Scientific Computing.</a></p>
+</li>
+<li>
+<p><code>append_simulations</code>: If set to <code>true</code>, simulations from previous rounds are included in the current round when testing. 
+   (<a href="https://arxiv.org/abs/2210.04815">Deistler et al. 2022</a>).</p>
+</li>
+<li>
+<p><code>plot_proposal</code>: If set to <code>true</code> and <code>truncated_prior</code> is enabled, a corner plot of the proposal prior will be saved.</p>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For SNPE, we cannot enable both <code>truncated_prior = false</code> and <code>append_simulations = true</code> simultaneously because in 
+this scenario the approximate posterior must be corrected using the proposal prior from the corresponding round,
+which is not straight forward if the prior is not truncated.
+(see Appendix 6.2 of <a href="https://arxiv.org/abs/2210.04815">Deistler et al. 2022</a>).</p>
+</div>
+<p>An example of the multi-round training information could look as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;trainer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;snpe&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;num_rounds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;save_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output/learning_sbi&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;validation_fraction&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;batch_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;lr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0005</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;ensemble&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;size_ensemble&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;truncated_prior&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;retrain_from_scratch&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;sir&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;append_simulations&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;plot_proposal&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="resume-mode">Resume mode</h4>
+<p>Resume mode allows us to continue the SBI training from a previous round, as might be necessary, e.g., if the training
+was interrupted in an earlier run before it was completed. The following set-up will ensure continuity in the output 
+files and prevents the creation of a new directory for resumed runs. However, we recommend making a copy of the 
+existing <code>learning</code> directory to avoid overwriting data from previous rounds and to verify the consistency of 
+resumed runs.</p>
+<p>To use the resume mode we first need to:</p>
+<ul>
+<li>Set <code>config["resume_training"]["resume"] = true</code>.</li>
+<li>Specify the last completed round to resume from, e.g., using <code>config["resume_training"]["last_round"] = 7</code>. Note that
+   the numerical value saved under <code>num_rounds</code> in the general training parameters is the total number of rounds
+   (including <code>round_0</code>) that we want to run and not only the additional ones we add in resume mode. I.e., if we set 
+   <code>config["trainer"]["num_rounds"] = 4</code> and <code>config["resume_training"]["last_round"] = 2</code>, the resume mode will produce
+   training (and potentially test) data for the final round <code>round_3</code> and also perform the corresponding training.</li>
+<li>Provide the paths to the previously saved model and logs using <code>config["resume_training"]["save_dir"]</code> and 
+  <code>config["resume_training"]["log_dir"]</code>, respectively.</li>
+</ul>
+<p>When resuming, the first (new) iteration requires loading the trained model from the previously completed round of an 
+earlier experiment. This is necessary to compute the proposal prior distribution for the next (first new) round. Note 
+that if <code>append_simulations</code> is set to true, simulations from all previous rounds are reused at every round. Therefore, 
+when resuming, it is essential to load the training datasets from all completed rounds.</p>
+<p>An example of the configuration file that enables resuming would look as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;resume_training&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;resume&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;last_round&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;save_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;exp/learning/models/SBI_ConvolutionMDN/20240705_123828&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;log_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;exp/learning/models/SBI_ConvolutionMDN/20240705_123828&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>In this example, we will load the <code>inference.pickle</code> and <code>trained_model.pickle</code> from <code>round_7</code> saved in the <code>save_dir</code>
+folder and compute the approximated posterior distribution at an observed sample, which will then serve as the proposal 
+prior for the next round. From <code>round_8</code> onward, the computation will proceed as usual in our multi-round inference 
+approach. The <code>inference.pickle</code> and the <code>trained_model.pickle</code> files for the <code>last_round</code> and onward will be saved in 
+the same folder specified in <code>save_dir</code> (in this case, the <code>config["trainer"]["save_dir"]</code> argument is simply ignored). 
+The logs and training statistics are saved in the <code>log_dir</code> folder.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The resume option requires the folder structure specified in <a href="#folder-structure">Folder structure</a>. Note that the
+last completed round number should match the folder name containing the last <code>trained_model.pickle</code> file and the 
+checkpoint you want to resume from.</p>
+</div>
+<h4 id="running-simulation-in-parallel-for-each-round">Running simulation in parallel for each round</h4>
+<p>We have implemented two ways to parallelize the simulation process to optimise computation time: using either the 
+<a href="https://www.dask.org/"><code>Dask</code></a> or the <a href="https://docs.python.org/3/library/multiprocessing.html"><code>multiprocessing</code></a> packages.</p>
+<p>The desired parallelization method is specified at the top of the <code>config_train_sbi.json</code> file in the 
+<a href="#general-info">General info</a> section. It, for example, looks as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SBI_ConvolutionMDN&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;n_gpu&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;enable_dask&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;n_processes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;workers_dask&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>To use Dask, we set <code>enable_dask</code> to true and specify the number of workers with <code>n_workers</code>, which corresponds to 
+   the number of HTCondor jobs on the PIC server.</li>
+<li>If Dask is not enabled, the <code>multiprocessing</code> package will be automatically used instead. We can specify the 
+   number of parallel processes via <code>n_processes</code>.</li>
+</ul>
+<h4 id="notes-on-running-dask-on-the-pic">Notes on running Dask on the PIC</h4>
+<p>There are some important considerations for MAGNESIA users when running simulations with Dask on the PIC server:</p>
+<h5 id="folder-handling">Folder handling</h5>
+<ul>
+<li>During training the <code>ML-Poppyns</code> folder is copied to each node to avoid redundant reads and reduce 
+   server load.</li>
+<li>You must update the following in <code>mlpoppyns/simulator/config_simulator.py</code> as each node will have its own copy of 
+   the full code repository and will access files locally:
+    <div class="highlight"><pre><span></span><code>    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;server_run&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">path_to_software</span> <span class="o">=</span> <span class="s2">&quot;ML-Poppyns&quot;</span>
+</code></pre></div></li>
+</ul>
+<h5 id="dask-usage-on-the-pic-server">Dask usage on the PIC server</h5>
+<p>To reduce file system load, the simulation output folder is created and saved locally on each node.  After the 
+simulation completes, the output folder is copied back to the original dataset path, specified in
+<code>config["training_data_loader"]["dataset_path"]</code>.  This logic is implemented in the function <code>simulator_dask</code> 
+located in <code>utilities/experiment_helpers/run_simulation_set_sbi.py</code>.</p>
+<h5 id="running-the-main-job-using-htcondor">Running the main job using HTCondor</h5>
+<p>While we refer to the <a href="../../basics/HTCondor/">HTCondor documentation</a> for general information about HTCondor, we 
+highlight a special aspect of multi-round inference executed with HTCondor in combination with Dask here. In the example 
+below, we assume that the directories <code>htcondor_submit</code> and <code>htcondor_output</code> have already been created. The 
+first is used to store the <code>job.submit</code> and  <code>wrapper.sh</code> files, and the second stores the <code>stdout</code> and <code>stderr</code> from 
+the main job. To run the main job on HTCondor, the submit file (<code>job.submit</code>) has to have the following content:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">RUN_FOLDER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>&lt;experiment_folder_path&gt;
+<span class="nv">LOG_FOLDER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>RUN_FOLDER<span class="k">)</span>/logs
+<span class="nv">initialdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>RUN_FOLDER<span class="k">)</span>
+<span class="nv">remote_initialdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>RUN_FOLDER<span class="k">)</span>
+
+<span class="nv">universe</span><span class="w">        </span><span class="o">=</span><span class="w"> </span>vanilla<span class="w"> </span>
+<span class="nv">executable</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>RUN_FOLDER<span class="k">)</span>/htcondor_submit/wrapper.sh
+<span class="nv">log</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>RUN_FOLDER<span class="k">)</span>/htcondor_output/<span class="k">$(</span>ProcId<span class="k">)</span>-log.txt
+<span class="nv">output</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>RUN_FOLDER<span class="k">)</span>/htcondor_output/<span class="k">$(</span>ProcId<span class="k">)</span>-out.txt<span class="w"> </span>
+<span class="nv">error</span><span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>RUN_FOLDER<span class="k">)</span>/htcondor_output/<span class="k">$(</span>ProcId<span class="k">)</span>-error.txt<span class="w"> </span>
+
+<span class="nv">request_gpus</span><span class="o">=</span><span class="m">1</span>
+
+Queue
+</code></pre></div>
+<p>For an example of the <code>wrapper.sh</code> file go to <a href="../../basics/HTCondor/">HTCondor documentation</a>. With
+<code>experiment_folder_path</code>, we refer to the main folder where the data is saved (see <a href="#folder-structure">Folder structure</a> 
+above for details). In the example above, we assumed that the <code>htcondor_submit</code> and <code>htcondor_output</code> folders are saved 
+within the <code>experiment_folder_path</code> directory.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Before running <code>condor_submit job.submit</code>, remember to run <code>chmod -R +rwx experiment_folder_path</code> to allow the 
+different HTCondor nodes to access the home directory. However, all the details on how to run jobs with HTCondor 
+are in <a href="../../basics/HTCondor/">HTCondor documentation</a>.</p>
+</div>
+<h5 id="monitoring-dask-workers-htcondor-gpu">Monitoring Dask workers (HTCondor + GPU)</h5>
+<p>If this is your first time using Dask on the PIC server, you must manually launch an empty Dask cluster via the Jupyter
+dashboard (located in the left sidebar on the PIC Jupyter interface) to ensure correct functionality. If you are
+running the main SBI training job on HTCondor with GPUs, you can monitor the Dask workers through Jupyter following
+these steps:</p>
+<ol>
+<li>Open the Jupyter interface on a GPU node.</li>
+<li>Access the stdout log of the main job as follows:<ul>
+<li>Run <code>condor_q</code> to find the <code>job_id</code>. This job should <strong>not</strong> have <code>HTCondorCluster</code> as the batch name.</li>
+<li>Use <code>condor_ssh_to_job &lt;job_id&gt;</code> to SSH into the job.</li>
+<li>Navigate to the home directory (<code>cd</code>) and run <code>cat _condor_stdout</code> to view the stdout log.</li>
+</ul>
+</li>
+<li>Look for a line similar to:
+      <div class="highlight"><pre><span></span><code>INFO:distributed.scheduler: dashboard at: http://192.168.100.78:8787/status
+</code></pre></div></li>
+<li>Extract the port number (e.g., <code>8787</code>) and open the Dask dashboard via the Jupyter interface (left sidebar on 
+      the PIC Jupyter interface) by pasting the following URL into your browser (replace <code>&lt;your_username&gt;</code> and
+      <code>&lt;port&gt;</code> accordingly):
+      <div class="highlight"><pre><span></span><code>https://jupyter.pic.es/user/&lt;your_username&gt;/proxy/&lt;port&gt;
+</code></pre></div></li>
+</ol>
+<h2 id="inferring-on-a-dataset">Inferring on a dataset</h2>
+<p>Once our SBI pipeline has been trained (irrespective of the specific algorithm considered), it can be used to infer 
+on an unseen dataset of generated maps and extract posterior distributions of the corresponding pulsar population 
+parameters. The script <code>mlpoppyns/learning/sbi_infer.py</code> allows us to take an experiment configuration file, a
+pretrained model, and a dataset, and run the inference.</p>
+<h3 id="configuration-options_1">Configuration options</h3>
+<p>In addition to the testing data loader specified above, we also need to define the directories for saving and loading
+inference results using the <code>save_dir</code> and <code>load_dir</code> parameters under the <code>infer</code> field in the configuration file. 
+The <code>load_dir</code> parameter should point to the location where the <code>inference.pickle</code> and <code>trained_model.pickle</code> objects
+are stored, as these files are required to perform the inference. We must also specify whether to compute the coverage 
+probability using the <code>compute_coverage</code> flag. If this functionality is disabled, the output will include a corner 
+plot <code>corner_plot_observed_sample.pdf</code> and samples drawn from the posterior distribution conditioned on the observed
+data <code>samples_posterior.pt</code> only. If the coverage calculation is enabled, additional outputs will be saved. These 
+are as follows:</p>
+<ul>
+<li><code>coverage_plot.pdf</code>: A plot visualizing the coverage probability.</li>
+<li><code>coverage_probability.npy</code>: A matrix of the corresponding coverage probabilities.</li>
+<li><code>posterior_samples_test_data.npz</code>: A NumPy array containing the ground truths and posterior samples for each sample 
+   in the test dataset.</li>
+</ul>
+<p>Moreover, if <code>sim_dataset</code> in the configuration file is set to <code>True</code>, the test dataset will be generated in each
+round. Otherwise, it is assumed that the directory specified in the <code>dataset_path</code> field under <code>test_dataset_loader</code> 
+contains a pre-generated test dataset for each round.</p>
+<p>An example of the inference information looks as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;infer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;sim_dataset&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;compute_coverage&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;load_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;exp_1/learning/models/SBI_ConvolutionMDN/20250403_192124&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;save_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;exp_1/inference&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code>sbi_infer.py</code> script requires the folder structure explained above to function correctly and to properly load 
+the test dataset.</p>
+</div>
+<p>Once the inference configuration is set up, we run the inference script by providing the configuration file 
+(<code>--configuration</code>) as follows:</p>
+<div class="highlight"><pre><span></span><code>python mlpoppyns/learning/sbi_infer.py --configuration tutorials/tutorial_notebooks/config_train_sbi.json 
+</code></pre></div>
+<h3 id="inference-output">Inference output</h3>
+<p>If the inference has been performed successfully, the output of <code>mlpoppyns/learning/sbi_infer.py</code> will be saved in the 
+directory specified in the <code>save_dir</code> option. Specifically, inference will create a <code>logs</code> folder in this directory 
+containing subfolders of the form <code>name/YYYYMMDD_HHMMSS</code>, where <code>YYYYMMDD_HHMMSS</code> denotes the date and time when the
+inference was launched.</p>
+<p>The <code>logs</code> subdirectories contain a file <code>log.txt</code> which captures the terminal <code>stdout</code> output and the <code>profile.json</code> 
+and <code>profile.log</code> files, which provide timing and profiling information for the inference script executed across all
+round. Additionally, each <code>round_{i}</code> subfolder inside the logs directory contains the same files as when testing is 
+enabled while running the <code>sbi_train.py</code> script, i.e., we are producing  <code>corner_plot_observed_sample.pdf</code>, 
+<code>coverage_plot.pdf</code>, <code>coverage_probability.npy</code>, <code>posterior_samples_test_data.npz</code>, and <code>samples_posterior.pt</code>. For 
+detailed information about each file, see <a href="#training-output">Training output</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,4540 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ice-csic-astroexotic.github.io/ML-Poppyns/code/simulator/multiband_emission/">
+      
+      
+        <link rel="prev" href="../interstellar_medium/">
+      
+      
+        <link rel="next" href="../multiband_surveys/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../images/mlpoppyns_logo_transparent.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Multiband emission - ML-Poppyns documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#multiband-emission" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="ML-Poppyns documentation" class="md-header__button md-logo" aria-label="ML-Poppyns documentation" data-md-component="logo">
+      
+  <img src="../../../images/mlpoppyns_logo_transparent.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML-Poppyns documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Multiband emission
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18V6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ice-csic-astroexotic/ML-Poppyns" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ML-Poppyns
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../basics/getting_started/" class="md-tabs__link">
+          
+  
+  
+  Basics
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../tutorials/simulator_tutorial/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../simulator/" class="md-tabs__link">
+          
+  
+  
+  Code
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="ML-Poppyns documentation" class="md-nav__button md-logo" aria-label="ML-Poppyns documentation" data-md-component="logo">
+      
+  <img src="../../../images/mlpoppyns_logo_transparent.png" alt="logo">
+
+    </a>
+    ML-Poppyns documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ice-csic-astroexotic/ML-Poppyns" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ML-Poppyns
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Basics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../basics/getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../basics/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../basics/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../basics/HTCondor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTCondor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../basics/dask/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dask
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/simulator_tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulating neutron star populations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/generator_tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generating density maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/learning_tutorial_nn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning pulsar parameters with NNs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/learning_tutorial_sbi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter inference with SBI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/experiment_launcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment launcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic simulator modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stellar_dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stellar dynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../magneto_rotational_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Magneto-rotational physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../interstellar_medium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interstellar medium
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiband emission
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiband emission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;emission_radio
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" emission_radio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.beam_aperture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;beam_aperture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.beam_fraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;beam_fraction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.calculate_radio_emission" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;calculate_radio_emission
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.compute_spectral_index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;compute_spectral_index
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.flux_density_radio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;flux_density_radio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.flux_radio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;flux_radio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.los_intercept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;los_intercept
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.loss_rotational_energy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;loss_rotational_energy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.pdf_luminosity_radio_edot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;pdf_luminosity_radio_edot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.pdf_luminosity_radio_ppdot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;pdf_luminosity_radio_ppdot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.pulse_width" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;pulse_width
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.radio_population_intercepted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;radio_population_intercepted
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.solid_angle_radio_beams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;solid_angle_radio_beams
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multiband_surveys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiband surveys
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../telemetry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telemetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Generator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../generator/generator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic generator modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../generator/maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning/learning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic learning modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning/initializers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initializers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning/loaders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loaders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning/losses/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Losses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning/trainers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trainers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../learning/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utilities/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic utility modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utilities/benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utilities/experiment_helpers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utilities/PIC_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PIC scripts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utilities/samplers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Samplers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;emission_radio
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" emission_radio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.beam_aperture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;beam_aperture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.beam_fraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;beam_fraction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.calculate_radio_emission" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;calculate_radio_emission
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.compute_spectral_index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;compute_spectral_index
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.flux_density_radio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;flux_density_radio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.flux_radio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;flux_radio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.los_intercept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;los_intercept
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.loss_rotational_energy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;loss_rotational_energy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.pdf_luminosity_radio_edot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;pdf_luminosity_radio_edot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.pdf_luminosity_radio_ppdot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;pdf_luminosity_radio_ppdot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.pulse_width" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;pulse_width
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.radio_population_intercepted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;radio_population_intercepted
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mlpoppyns.simulator.multiband_emission.emission_radio.solid_angle_radio_beams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;solid_angle_radio_beams
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="multiband-emission">Multiband emission</h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="mlpoppyns.simulator.multiband_emission.emission_radio" class="doc doc-heading">
+            <code>mlpoppyns.simulator.multiband_emission.emission_radio</code>
+
+
+</h2>
+
+    <div class="doc doc-contents first">
+
+        <p>Models for the pulsars' radio beam geometry and luminosity.</p>
+<p>Authors:</p>
+<pre><code>Michele Ronchi (ronchi@ice.csic.es)
+Celsa Pardo Araujo (pardo@ice.csic.es)
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.beam_aperture" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">beam_aperture</span><span class="p">(</span><span class="n">P</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Half angular aperture in [rad] of the radio beam as a function of the spin period.</p>
+<p>For the "standard_period_cone" model, the aperture is derived by assuming that the radio beam width extends
+into the open field line region around the magnetic poles of the star.
+See eq. (3.29) in Lorimer and Kramer (2005) and eq. (2) in Johnston et al. (2020)
+for a derivation and discussion of this model.
+For the "power-law_period_cone" model, we adopted a generic power-law of the spin period (see Maciesiak et al. 2012).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>P</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of spin periods of the pulsars in [s].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Half angular aperture of the radio beam in [rad].</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">beam_aperture</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Half angular aperture in [rad] of the radio beam as a function of the spin period.</span>
+
+<span class="sd">    For the &quot;standard_period_cone&quot; model, the aperture is derived by assuming that the radio beam width extends</span>
+<span class="sd">    into the open field line region around the magnetic poles of the star.</span>
+<span class="sd">    See eq. (3.29) in Lorimer and Kramer (2005) and eq. (2) in Johnston et al. (2020)</span>
+<span class="sd">    for a derivation and discussion of this model.</span>
+<span class="sd">    For the &quot;power-law_period_cone&quot; model, we adopted a generic power-law of the spin period (see Maciesiak et al. 2012).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        P (np.ndarray): Array of spin periods of the pulsars in [s].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray): Half angular aperture of the radio beam in [rad].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">beam_model</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;radio_beam_model&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">beam_model</span> <span class="o">==</span> <span class="s2">&quot;standard_period_cone&quot;</span><span class="p">:</span>
+        <span class="n">rho_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">9.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;r_em&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">C</span> <span class="o">*</span> <span class="n">P</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">beam_model</span> <span class="o">==</span> <span class="s2">&quot;power-law_period_cone&quot;</span><span class="p">:</span>
+        <span class="n">rho_b</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;rho_b_0&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">P</span> <span class="o">**</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;a_beam&quot;</span><span class="p">]</span>
+        <span class="c1"># Convert the half angular aperture from [deg] to [rad].</span>
+        <span class="n">rho_b</span> <span class="o">=</span> <span class="n">rho_b</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;The radio beam model does not exist. Choose between standard_period_cone or power-law_period_cone.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">rho_b</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.beam_fraction" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">beam_fraction</span><span class="p">(</span><span class="n">chi</span><span class="p">,</span> <span class="n">rho_b</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Fraction of solid angle covered by the radio beam in an entire pulsar rotation
+as a function of the inclination angle chi and the radio beam aperture.
+This is also the probability that the radio beam intercepts our line of sight.
+See Appendix in Emmering and Chevalier (1989).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>chi</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of inclination angles of the magnetic axis
+with respect to the rotation axis of the pulsars in [rad].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>rho_b</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of angular apertures of the radio beam of the pulsars in [rad].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Fraction of solid angle swept by the radio beam.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">beam_fraction</span><span class="p">(</span><span class="n">chi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">rho_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fraction of solid angle covered by the radio beam in an entire pulsar rotation</span>
+<span class="sd">    as a function of the inclination angle chi and the radio beam aperture.</span>
+<span class="sd">    This is also the probability that the radio beam intercepts our line of sight.</span>
+<span class="sd">    See Appendix in Emmering and Chevalier (1989).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        chi (np.ndarray): Array of inclination angles of the magnetic axis</span>
+<span class="sd">            with respect to the rotation axis of the pulsars in [rad].</span>
+<span class="sd">        rho_b (np.ndarray): Array of angular apertures of the radio beam of the pulsars in [rad].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray): Fraction of solid angle swept by the radio beam.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">beam_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">chi</span> <span class="o">-</span> <span class="n">rho_b</span><span class="p">)))</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="p">(</span><span class="n">chi</span> <span class="o">+</span> <span class="n">rho_b</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">beam_frac</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.calculate_radio_emission" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">calculate_radio_emission</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">P_dot</span><span class="p">,</span> <span class="n">chi</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the radio beam geometry, the intrinsic bolometric radio flux and the DM.
+Note that the luminosity and DM are computed only for those pulsars whose beams cross our line of sight.
+This function is used in the simulate_population_magrot_det.py script.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>P</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of spin periods of the pulsars in [s].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>P_dot</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of neutron star spin period derivatives in [s s^-1].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>chi</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of inclination angles of the pulsars in [rad].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>dist</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of distances from the ICRS origin in [kpc].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Tuple">Tuple</span>[<span title="numpy.ndarray">ndarray</span>, <span title="numpy.ndarray">ndarray</span>, <span title="numpy.ndarray">ndarray</span>, <span title="numpy.ndarray">ndarray</span>, <span title="numpy.ndarray">ndarray</span>, <span title="numpy.ndarray">ndarray</span>, <span title="numpy.ndarray">ndarray</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A Tuple</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>containing the following information:</p>
+<ul>
+<li>Boolean mask to select the pulsars whose radio beam crosses our line of sight.</li>
+<li>Intrinsic pulse widths in [s].</li>
+<li>Bolometric radio luminosity [erg s^-1].</li>
+<li>Bolometric radio flux in [erg s^-1 cm^-2].</li>
+<li>Spectral index.</li>
+</ul>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_radio_emission</span><span class="p">(</span>
+    <span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">P_dot</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">chi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">dist</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the radio beam geometry, the intrinsic bolometric radio flux and the DM.</span>
+<span class="sd">    Note that the luminosity and DM are computed only for those pulsars whose beams cross our line of sight.</span>
+<span class="sd">    This function is used in the simulate_population_magrot_det.py script.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        P (np.ndarray): Array of spin periods of the pulsars in [s].</span>
+<span class="sd">        P_dot (np.ndarray): Array of neutron star spin period derivatives in [s s^-1].</span>
+<span class="sd">        chi (np.ndarray): Array of inclination angles of the pulsars in [rad].</span>
+<span class="sd">        dist (np.ndarray): Array of distances from the ICRS origin in [kpc].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]): A Tuple</span>
+<span class="sd">        containing the following information:</span>
+
+<span class="sd">            - Boolean mask to select the pulsars whose radio beam crosses our line of sight.</span>
+<span class="sd">            - Intrinsic pulse widths in [s].</span>
+<span class="sd">            - Bolometric radio luminosity [erg s^-1].</span>
+<span class="sd">            - Bolometric radio flux in [erg s^-1 cm^-2].</span>
+<span class="sd">            - Spectral index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Determining the bolometric radio luminosity.</span>
+    <span class="c1"># Choose one of the two implementations either based on the P and Pdot or the Edot dependence.</span>
+    <span class="c1"># See line 251 in the config_simulator.py file.</span>
+    <span class="n">radio_luminosity_model</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;radio_luminosity_model&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">radio_luminosity_model</span> <span class="o">==</span> <span class="s2">&quot;lum_radio_ppdot&quot;</span><span class="p">:</span>
+        <span class="n">L_radio_bol</span> <span class="o">=</span> <span class="n">pdf_luminosity_radio_ppdot</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">P_dot</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">radio_luminosity_model</span> <span class="o">==</span> <span class="s2">&quot;lum_radio_edot&quot;</span><span class="p">:</span>
+        <span class="n">L_radio_bol</span> <span class="o">=</span> <span class="n">pdf_luminosity_radio_edot</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">P_dot</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;The radio luminosity model does not exist. Choose between lum_radio_ppdot or lum_radio_edot.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Determining the radio beam angular aperture.</span>
+    <span class="n">rho_beam</span> <span class="o">=</span> <span class="n">beam_aperture</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+
+    <span class="c1"># Determining the solid angle covered by the two radio beams.</span>
+    <span class="n">solid_angle_beam</span> <span class="o">=</span> <span class="n">solid_angle_radio_beams</span><span class="p">(</span><span class="n">rho_beam</span><span class="p">)</span>
+
+    <span class="c1"># Drawing a random angular intercept for the line of sight.</span>
+    <span class="c1"># Note that since we assume symmetry between the northern and southern hemisphere of the star</span>
+    <span class="c1"># we only need to consider one hemisphere, e.g., the northern one.</span>
+    <span class="n">los_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;resolution&quot;</span><span class="p">])</span>
+    <span class="n">los_rand</span> <span class="o">=</span> <span class="n">rs</span><span class="o">.</span><span class="n">random_from_pdf</span><span class="p">(</span><span class="n">los_grid</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">P</span><span class="p">))</span>
+
+    <span class="c1"># Determining if the pulsar&#39;s radio beam intercepts our line of sight.</span>
+    <span class="n">intercepted_radio</span> <span class="o">=</span> <span class="n">los_intercept</span><span class="p">(</span>
+        <span class="n">chi</span><span class="p">,</span>
+        <span class="n">rho_beam</span><span class="p">,</span>
+        <span class="n">los_rand</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Computing the intrinsic pulse width of the radio pulse.</span>
+    <span class="n">w_int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">P</span><span class="p">))</span>
+    <span class="n">w_int</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">]</span> <span class="o">=</span> <span class="n">pulse_width</span><span class="p">(</span>
+        <span class="n">chi</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">],</span>
+        <span class="n">rho_beam</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">],</span>
+        <span class="n">los_rand</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Computing the intrinsic bolometric radio flux.</span>
+    <span class="n">S_radio_bol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">P</span><span class="p">))</span>
+    <span class="n">S_radio_bol</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">]</span> <span class="o">=</span> <span class="n">flux_radio</span><span class="p">(</span>
+        <span class="n">L_radio_bol</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">],</span>
+        <span class="n">dist</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">],</span>
+        <span class="n">solid_angle_beam</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Convert pulse width from [rad] to [s].</span>
+    <span class="n">w_int_s</span> <span class="o">=</span> <span class="n">w_int</span> <span class="o">*</span> <span class="n">P</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+    <span class="c1"># Computing the spectral index for the radio power-law spectrum.</span>
+    <span class="n">spectral_index</span> <span class="o">=</span> <span class="n">compute_spectral_index</span><span class="p">(</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;mean_spectral_index&quot;</span><span class="p">],</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;std_spectral_index&quot;</span><span class="p">],</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">P</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">intercepted_radio</span><span class="p">,</span>
+        <span class="n">w_int_s</span><span class="p">,</span>
+        <span class="n">L_radio_bol</span><span class="p">,</span>
+        <span class="n">S_radio_bol</span><span class="p">,</span>
+        <span class="n">spectral_index</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.compute_spectral_index" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">compute_spectral_index</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">NS_number</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Draw a random spectral index from a Gaussian distribution (see Posselt et al. 2023).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>mean</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mean spectral index for the Gaussian distribution.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>sigma</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Standard deviation for the Gaussian distribution.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>NS_number</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of neutron stars for which sampling the spectral index.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of spectral indices.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compute_spectral_index</span><span class="p">(</span>
+    <span class="n">mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">NS_number</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw a random spectral index from a Gaussian distribution (see Posselt et al. 2023).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mean (float): Mean spectral index for the Gaussian distribution.</span>
+<span class="sd">        sigma (float): Standard deviation for the Gaussian distribution.</span>
+<span class="sd">        NS_number (int): Number of neutron stars for which sampling the spectral index.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray): Array of spectral indices.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">spectral_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+        <span class="n">mean</span><span class="p">,</span>
+        <span class="n">sigma</span><span class="p">,</span>
+        <span class="n">NS_number</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">spectral_index</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.flux_density_radio" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">flux_density_radio</span><span class="p">(</span><span class="n">S_radio_bol</span><span class="p">,</span> <span class="n">spectral_index</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">f_min</span><span class="o">=</span><span class="mf">10000000.0</span><span class="p">,</span> <span class="n">f_max</span><span class="o">=</span><span class="mf">100000000000.0</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the radio flux density at a given frequency f assuming a power law spectral shape for the radio emission.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>S_radio_bol</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>spectral_index</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>spectral index of the radio emission,
+assuming a power-law spectrum.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>f</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>frequency in [Hz] at which the radio luminosity has to be computed.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>f_min</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>frequency lower limit of the radio emission spectrum [Hz].</p>
+              </div>
+            </td>
+            <td>
+                  <code>10000000.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>f_max</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>frequency upper limit of the radio emission spectrum [Hz].</p>
+              </div>
+            </td>
+            <td>
+                  <code>100000000000.0</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Intrinsic pulsar radio flux density in [Jy] at the frequency f.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">flux_density_radio</span><span class="p">(</span>
+    <span class="n">S_radio_bol</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">spectral_index</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">f</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">f_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e7</span><span class="p">,</span>
+    <span class="n">f_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0e11</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the radio flux density at a given frequency f assuming a power law spectral shape for the radio emission.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        S_radio_bol (np.ndarray): pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].</span>
+<span class="sd">        spectral_index (float): spectral index of the radio emission,</span>
+<span class="sd">            assuming a power-law spectrum.</span>
+<span class="sd">        f (float): frequency in [Hz] at which the radio luminosity has to be computed.</span>
+<span class="sd">        f_min (float): frequency lower limit of the radio emission spectrum [Hz].</span>
+<span class="sd">        f_max (float): frequency upper limit of the radio emission spectrum [Hz].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray): Intrinsic pulsar radio flux density in [Jy] at the frequency f.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">S_radio_f</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">spectral_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="o">*</span> <span class="n">S_radio_bol</span>
+        <span class="o">/</span> <span class="p">(</span><span class="n">f_max</span> <span class="o">**</span> <span class="p">(</span><span class="n">spectral_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">f_min</span> <span class="o">**</span> <span class="p">(</span><span class="n">spectral_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="o">*</span> <span class="n">f</span><span class="o">**</span><span class="n">spectral_index</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">JY_TO_ERG</span>
+
+    <span class="k">return</span> <span class="n">S_radio_f</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.flux_radio" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">flux_radio</span><span class="p">(</span><span class="n">L_radio</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">solid_angle</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the intrinsic bolometric radio flux for each pulsars in [erg s^(-1) cm^(-2)].</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>L_radio</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Pulsar bolometric radio luminosity in [erg s^(-1)].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>d</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Distance to the pulsar in [kpc].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>solid_angle</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Solid angle covered by the radio beams in [sr].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Intrinsic pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">flux_radio</span><span class="p">(</span>
+    <span class="n">L_radio</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">solid_angle</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the intrinsic bolometric radio flux for each pulsars in [erg s^(-1) cm^(-2)].</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        L_radio (np.ndarray): Pulsar bolometric radio luminosity in [erg s^(-1)].</span>
+<span class="sd">        d (np.ndarray): Distance to the pulsar in [kpc].</span>
+<span class="sd">        solid_angle (np.ndarray): Solid angle covered by the radio beams in [sr].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray): Intrinsic pulsar bolometric radio flux in [erg s^(-1) cm^(-2)].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Convert distance from [kpc] to [cm].</span>
+    <span class="n">d_cm</span> <span class="o">=</span> <span class="n">d</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">KPC_TO_CM</span>
+
+    <span class="n">S_radio</span> <span class="o">=</span> <span class="n">L_radio</span> <span class="o">/</span> <span class="p">(</span><span class="n">solid_angle</span> <span class="o">*</span> <span class="n">d_cm</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">S_radio</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.los_intercept" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">los_intercept</span><span class="p">(</span><span class="n">chi</span><span class="p">,</span> <span class="n">rho_b</span><span class="p">,</span> <span class="n">los</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Evaluate if the radio beam intercepts the line of sight (LOS), assuming random
+orientation of the LOS with respect to the rotation axis.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>chi</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of inclination angles of the pulsars in [rad].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>rho_b</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of angular apertures of the radio beam of the pulsars in [rad].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>los</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Polar angle of the line of sight intercept computed with respect
+to the rotation axis of the star [rad].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of boolean variables: true if the radio beam intercepts the LOS and false if not.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">los_intercept</span><span class="p">(</span>
+    <span class="n">chi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">rho_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">los</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate if the radio beam intercepts the line of sight (LOS), assuming random</span>
+<span class="sd">    orientation of the LOS with respect to the rotation axis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        chi (np.ndarray): Array of inclination angles of the pulsars in [rad].</span>
+<span class="sd">        rho_b (np.ndarray): Array of angular apertures of the radio beam of the pulsars in [rad].</span>
+<span class="sd">        los (np.ndarray): Polar angle of the line of sight intercept computed with respect</span>
+<span class="sd">            to the rotation axis of the star [rad].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray): Array of boolean variables: true if the radio beam intercepts the LOS and false if not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">condition</span> <span class="o">=</span> <span class="p">(</span><span class="n">los</span> <span class="o">&gt;</span> <span class="n">chi</span> <span class="o">-</span> <span class="n">rho_b</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">los</span> <span class="o">&lt;</span> <span class="n">chi</span> <span class="o">+</span> <span class="n">rho_b</span><span class="p">)</span>
+    <span class="n">intercepted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">intercepted</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.loss_rotational_energy" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">loss_rotational_energy</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">P_dot</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the loss of the rotational energy given the period and period derivative
+(see, e.g., eq. (3.5) in Lorimer and Kramer, 2004).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>P</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>array of spin periods of the pulsars in [s].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>P_dot</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>array of spin period derivatives of the pulsars in [s/s].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Loss of the rotational energy [erg s^(-1)].</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">loss_rotational_energy</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">P_dot</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the loss of the rotational energy given the period and period derivative</span>
+<span class="sd">    (see, e.g., eq. (3.5) in Lorimer and Kramer, 2004).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        P (np.ndarray): array of spin periods of the pulsars in [s].</span>
+<span class="sd">        P_dot (np.ndarray): array of spin period derivatives of the pulsars in [s/s].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray): Loss of the rotational energy [erg s^(-1)].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">NS_inertia</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;NS_mass&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;NS_radius&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">Erot_dot</span> <span class="o">=</span> <span class="n">NS_inertia</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">P_dot</span> <span class="o">/</span> <span class="p">(</span><span class="n">P</span><span class="o">**</span><span class="mi">3</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">Erot_dot</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.pdf_luminosity_radio_edot" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">pdf_luminosity_radio_edot</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">P_dot</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Draw random bolometric radio luminosities from a distribution that depends on the loss of the rotational energy.
+We assume a random log-normal spread for the normalization constant L_0.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>P</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>array of spin periods of the pulsars in [s].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>P_dot</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>array of spin period derivatives of the pulsars in [s/s].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pdf_luminosity_radio_edot</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">P_dot</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw random bolometric radio luminosities from a distribution that depends on the loss of the rotational energy.</span>
+<span class="sd">    We assume a random log-normal spread for the normalization constant L_0.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        P (np.ndarray): array of spin periods of the pulsars in [s].</span>
+<span class="sd">        P_dot (np.ndarray): array of spin period derivatives of the pulsars in [s/s].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray): pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">NS_number</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+    <span class="n">L_0</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;L_radio_log10_mean&quot;</span><span class="p">],</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;L_radio_log10_sigma&quot;</span><span class="p">],</span>
+        <span class="n">NS_number</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">Erot_dot</span> <span class="o">=</span> <span class="n">loss_rotational_energy</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">P_dot</span><span class="p">)</span>
+    <span class="n">L_radio</span> <span class="o">=</span> <span class="n">L_0</span> <span class="o">*</span> <span class="p">(</span><span class="n">Erot_dot</span> <span class="o">/</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;Erot_dot_0&quot;</span><span class="p">])</span> <span class="o">**</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;epsilon_L&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">L_radio</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.pdf_luminosity_radio_ppdot" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">pdf_luminosity_radio_ppdot</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">P_dot</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Draw random bolometric radio luminosities from a distribution that depends on the spin period
+and spin period derivative. We assume a random log-normal spread for the normalization constant L_0.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>P</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of spin periods of the pulsars in [s].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>P_dot</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of spin period derivatives of the pulsars in [s/s].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pdf_luminosity_radio_ppdot</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">P_dot</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw random bolometric radio luminosities from a distribution that depends on the spin period</span>
+<span class="sd">    and spin period derivative. We assume a random log-normal spread for the normalization constant L_0.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        P (np.ndarray): Array of spin periods of the pulsars in [s].</span>
+<span class="sd">        P_dot (np.ndarray): Array of spin period derivatives of the pulsars in [s/s].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray): Pulsar radio luminosity [erg s^(-1)] drawn from a log-normal distribution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NS_number</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+
+    <span class="n">L_0</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;L_radio_log10_mean&quot;</span><span class="p">],</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;L_radio_log10_sigma&quot;</span><span class="p">],</span>
+        <span class="n">NS_number</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">L_radio</span> <span class="o">=</span> <span class="n">L_0</span> <span class="o">*</span> <span class="p">(</span><span class="n">P</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">P_dot</span><span class="p">)</span> <span class="o">**</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;epsilon_L&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">L_radio</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.pulse_width" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">pulse_width</span><span class="p">(</span><span class="n">chi</span><span class="p">,</span> <span class="n">rho_b</span><span class="p">,</span> <span class="n">los</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Formula to evaluate the intrinsic pulse width in [rad] from the radio beam angular aperture.
+This assumes that the line of sight intercepts the radio beam with an angle beta with
+respect to the center of the beam, so that -rho_b &lt; beta &lt; rho_b, with rho_b the angular
+aperture of the beam. See eq. (1) in Maciesiak et al. (2011a) and eq. (3.26) in Lorimer and Kramer (2004).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>chi</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of inclination angles between the magnetic axis and the rotation axis [rad].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>rho_b</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of angular apertures of the radio beam of the pulsars in [rad].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>los</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Polar angles of the line of sight intercept computed with respect
+to the rotation axis of the star [rad].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of intrinsic pulse widths in [rad].</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pulse_width</span><span class="p">(</span>
+    <span class="n">chi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">rho_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">los</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Formula to evaluate the intrinsic pulse width in [rad] from the radio beam angular aperture.</span>
+<span class="sd">    This assumes that the line of sight intercepts the radio beam with an angle beta with</span>
+<span class="sd">    respect to the center of the beam, so that -rho_b &lt; beta &lt; rho_b, with rho_b the angular</span>
+<span class="sd">    aperture of the beam. See eq. (1) in Maciesiak et al. (2011a) and eq. (3.26) in Lorimer and Kramer (2004).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        chi (np.ndarray): Array of inclination angles between the magnetic axis and the rotation axis [rad].</span>
+<span class="sd">        rho_b (np.ndarray): Array of angular apertures of the radio beam of the pulsars in [rad].</span>
+<span class="sd">        los (np.ndarray): Polar angles of the line of sight intercept computed with respect</span>
+<span class="sd">            to the rotation axis of the star [rad].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray): Array of intrinsic pulse widths in [rad].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Compute the impact parameter, i.e., the angular distance between the LOS intercept and the center of the beam.</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">los</span> <span class="o">-</span> <span class="n">chi</span>
+
+    <span class="c1"># Compute the quantity sin(w/4) where w is the pulse width.</span>
+    <span class="n">sin_w_4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rho_b</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">beta</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">chi</span> <span class="o">+</span> <span class="n">beta</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">chi</span><span class="p">))</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># If sin(w/4) &gt; 1 set w = 2*np.pi.</span>
+    <span class="n">sin_w_4</span><span class="p">[</span><span class="n">sin_w_4</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">w_int</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">sin_w_4</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">w_int</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.radio_population_intercepted" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">radio_population_intercepted</span><span class="p">(</span><span class="n">dict_pop</span><span class="p">,</span> <span class="n">coverage_radio</span><span class="p">,</span> <span class="n">full_population</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Filter and compute properties of a population of neutron stars whose radio beams intercept our line of sight
+and that fall in the survey sky coverage.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>dict_pop</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dictionary containing the properties of a neutron star population.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>coverage_radio</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A boolean mask to filter only stars in the sky coverage of radio surveys.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>full_population</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If True, return arrays of size <code>cfg["NS_number"]</code> (all stars, filling
+with zeros where not intercepted). If False, return arrays only for intercepted stars.
+Defaults to False.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A dictionary containing properties of the neutron stars whose radio beams intercept our line of sight.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">radio_population_intercepted</span><span class="p">(</span>
+    <span class="n">dict_pop</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">coverage_radio</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">full_population</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter and compute properties of a population of neutron stars whose radio beams intercept our line of sight</span>
+<span class="sd">    and that fall in the survey sky coverage.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dict_pop (dict): Dictionary containing the properties of a neutron star population.</span>
+<span class="sd">        coverage_radio (np.ndarray): A boolean mask to filter only stars in the sky coverage of radio surveys.</span>
+<span class="sd">        full_population (bool, optional): If True, return arrays of size `cfg[&quot;NS_number&quot;]` (all stars, filling</span>
+<span class="sd">            with zeros where not intercepted). If False, return arrays only for intercepted stars.</span>
+<span class="sd">            Defaults to False.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (dict): A dictionary containing properties of the neutron stars whose radio beams intercept our line of sight.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">full_population</span><span class="p">:</span>
+        <span class="c1"># Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties</span>
+        <span class="c1"># of their radio emission.</span>
+        <span class="p">(</span>
+            <span class="n">intercepted_radio</span><span class="p">,</span>
+            <span class="n">w_int_s</span><span class="p">,</span>
+            <span class="n">L_radio_bol</span><span class="p">,</span>
+            <span class="n">S_radio_bol</span><span class="p">,</span>
+            <span class="n">spectral_index</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">calculate_radio_emission</span><span class="p">(</span>
+            <span class="n">dict_pop</span><span class="p">[</span><span class="s2">&quot;P&quot;</span><span class="p">],</span>
+            <span class="n">dict_pop</span><span class="p">[</span><span class="s2">&quot;P_dot&quot;</span><span class="p">],</span>
+            <span class="n">dict_pop</span><span class="p">[</span><span class="s2">&quot;chi&quot;</span><span class="p">],</span>
+            <span class="n">dict_pop</span><span class="p">[</span><span class="s2">&quot;dist&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Determine which stars could in principle be detected.</span>
+        <span class="n">detectable_radio</span> <span class="o">=</span> <span class="n">intercepted_radio</span> <span class="o">&amp;</span> <span class="n">coverage_radio</span>
+
+        <span class="n">dictionary_radio_pop</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dict_pop</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;intercepted_radio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">intercepted_radio</span>
+
+        <span class="c1"># Computing the DM for the stars that fall into the surveys&#39; sky coverage and whose</span>
+        <span class="c1"># radio beam intercepts our line of sight.</span>
+        <span class="n">DM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;NS_number&quot;</span><span class="p">])</span>
+        <span class="n">DM</span><span class="p">[</span><span class="n">detectable_radio</span><span class="p">]</span> <span class="o">=</span> <span class="n">edm</span><span class="o">.</span><span class="n">compute_DM</span><span class="p">(</span>
+            <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;l&quot;</span><span class="p">][</span><span class="n">detectable_radio</span><span class="p">],</span>
+            <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">][</span><span class="n">detectable_radio</span><span class="p">],</span>
+            <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;dist&quot;</span><span class="p">][</span><span class="n">detectable_radio</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;ed_model&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Computing the scattering timescale at 327 MHz of these stars.</span>
+        <span class="n">tau_sc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;NS_number&quot;</span><span class="p">])</span>
+        <span class="n">tau_sc</span><span class="p">[</span><span class="n">DM</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">edm</span><span class="o">.</span><span class="n">compute_tau_sc_327</span><span class="p">(</span><span class="n">DM</span><span class="p">[</span><span class="n">DM</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Select only the stars that can, in principle, be detected in radio, i.e., those that they lie within the</span>
+        <span class="c1"># observed region.</span>
+        <span class="n">dict_pop_filtered</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">coverage_radio</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dict_pop</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Find the pulsars whose radio beam intercepts our line of sight and compute the intrinsic properties</span>
+        <span class="c1"># of their radio emission.</span>
+        <span class="p">(</span>
+            <span class="n">intercepted_radio</span><span class="p">,</span>
+            <span class="n">w_int_s</span><span class="p">,</span>
+            <span class="n">L_radio_bol</span><span class="p">,</span>
+            <span class="n">S_radio_bol</span><span class="p">,</span>
+            <span class="n">spectral_index</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">calculate_radio_emission</span><span class="p">(</span>
+            <span class="n">dict_pop_filtered</span><span class="p">[</span><span class="s2">&quot;P&quot;</span><span class="p">],</span>
+            <span class="n">dict_pop_filtered</span><span class="p">[</span><span class="s2">&quot;P_dot&quot;</span><span class="p">],</span>
+            <span class="n">dict_pop_filtered</span><span class="p">[</span><span class="s2">&quot;chi&quot;</span><span class="p">],</span>
+            <span class="n">dict_pop_filtered</span><span class="p">[</span><span class="s2">&quot;dist&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Select only the stars that can be detected in radio by the considered surveys.</span>
+        <span class="n">dictionary_radio_pop</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dict_pop_filtered</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="n">w_int_s</span> <span class="o">=</span> <span class="n">w_int_s</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">]</span>
+        <span class="n">L_radio_bol</span> <span class="o">=</span> <span class="n">L_radio_bol</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">]</span>
+        <span class="n">S_radio_bol</span> <span class="o">=</span> <span class="n">S_radio_bol</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">]</span>
+        <span class="n">spectral_index</span> <span class="o">=</span> <span class="n">spectral_index</span><span class="p">[</span><span class="n">intercepted_radio</span><span class="p">]</span>
+
+        <span class="c1"># Computing the DM for the stars that fall into the surveys&#39; sky coverage and whose</span>
+        <span class="c1"># radio beam intercepts our line of sight.</span>
+        <span class="n">DM</span> <span class="o">=</span> <span class="n">edm</span><span class="o">.</span><span class="n">compute_DM</span><span class="p">(</span>
+            <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;l&quot;</span><span class="p">],</span>
+            <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">],</span>
+            <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;dist&quot;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;ed_model&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Computing the scattering timescale at 327 MHz of these stars.</span>
+        <span class="n">tau_sc</span> <span class="o">=</span> <span class="n">edm</span><span class="o">.</span><span class="n">compute_tau_sc_327</span><span class="p">(</span><span class="n">DM</span><span class="p">)</span>
+
+    <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;w_int&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">w_int_s</span>
+    <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;L_radio_bol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">L_radio_bol</span>
+    <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;S_radio_bol&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">S_radio_bol</span>
+    <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;spectral_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spectral_index</span>
+    <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;DM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DM</span>
+    <span class="n">dictionary_radio_pop</span><span class="p">[</span><span class="s2">&quot;tau_sc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tau_sc</span>
+
+    <span class="k">return</span> <span class="n">dictionary_radio_pop</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="mlpoppyns.simulator.multiband_emission.emission_radio.solid_angle_radio_beams" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">solid_angle_radio_beams</span><span class="p">(</span><span class="n">rho_b</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Total solid angle covered by the two radio beams as a function of the radio beam aperture.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>rho_b</code>
+            </td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of angular apertures of the radio beam of the pulsars in [rad].</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Total solid angle covered by the radio beams.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>mlpoppyns/simulator/multiband_emission/emission_radio.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">solid_angle_radio_beams</span><span class="p">(</span><span class="n">rho_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Total solid angle covered by the two radio beams as a function of the radio beam aperture.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rho_b (np.ndarray): Array of angular apertures of the radio beam of the pulsars in [rad].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (np.ndarray): Total solid angle covered by the radio beams.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">solid_angle</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rho_b</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">solid_angle</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+    
+  </body>
+</html>

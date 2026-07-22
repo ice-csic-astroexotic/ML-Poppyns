@@ -1,0 +1,2201 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ice-csic-astroexotic.github.io/ML-Poppyns/tutorials/simulator_tutorial/">
+      
+      
+        <link rel="prev" href="../../basics/dask/">
+      
+      
+        <link rel="next" href="../generator_tutorial/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/mlpoppyns_logo_transparent.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Simulating neutron star populations - ML-Poppyns documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#simulating-neutron-star-populations" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML-Poppyns documentation" class="md-header__button md-logo" aria-label="ML-Poppyns documentation" data-md-component="logo">
+      
+  <img src="../../images/mlpoppyns_logo_transparent.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML-Poppyns documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Simulating neutron star populations
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18V6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ice-csic-astroexotic/ML-Poppyns" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ML-Poppyns
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../basics/getting_started/" class="md-tabs__link">
+          
+  
+  
+  Basics
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../code/simulator/simulator/" class="md-tabs__link">
+          
+  
+  
+  Code
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML-Poppyns documentation" class="md-nav__button md-logo" aria-label="ML-Poppyns documentation" data-md-component="logo">
+      
+  <img src="../../images/mlpoppyns_logo_transparent.png" alt="logo">
+
+    </a>
+    ML-Poppyns documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ice-csic-astroexotic/ML-Poppyns" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ML-Poppyns
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Basics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/HTCondor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTCondor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/dask/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dask
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulating neutron star populations
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulating neutron star populations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#end-to-end-evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        End-to-end evolution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dynamical-evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamical evolution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#magneto-rotational-evolution-and-detection-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Magneto-rotational evolution and detection filters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simulations-with-parameter-sweep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulations with parameter sweep
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generator_tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generating density maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../learning_tutorial_nn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning pulsar parameters with NNs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../learning_tutorial_sbi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter inference with SBI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experiment_launcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment launcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/simulator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic simulator modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/stellar_dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stellar dynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/magneto_rotational_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Magneto-rotational physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/interstellar_medium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interstellar medium
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/multiband_emission/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiband emission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/multiband_surveys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiband surveys
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/telemetry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telemetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Generator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/generator/generator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic generator modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/generator/maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/learning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic learning modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/initializers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initializers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/loaders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loaders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/losses/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Losses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/trainers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trainers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic utility modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/experiment_helpers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/PIC_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PIC scripts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/samplers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Samplers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#end-to-end-evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        End-to-end evolution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dynamical-evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamical evolution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#magneto-rotational-evolution-and-detection-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Magneto-rotational evolution and detection filters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simulations-with-parameter-sweep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulations with parameter sweep
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="simulating-neutron-star-populations">Simulating neutron star populations</h1>
+<p>We can perform the simulation of a Galactic population of neutron stars in different ways.</p>
+<p>In the following, we outline four approaches.</p>
+<h2 id="end-to-end-evolution">End-to-end evolution</h2>
+<p>The first approach consists of simulating the full population in one go. This means that we have to 
+initialize the entire population formed of N neutron stars from some initial conditions, evolve it in time 
+and finally apply the survey models to select those neutron stars that are detected.</p>
+<p>For this approach, we run the script <code>mlpoppyns/simulator/simulate_population_full.py</code>.
+Detailed information about the arguments that we can pass to the script is obtained by issuing the <code>--help</code> 
+argument, e.g., running:
+<div class="highlight"><pre><span></span><code>python mlpoppyns/simulator/simulate_population_full.py --help
+</code></pre></div>
+The default input parameters for the simulation are specified in the <code>mlpoppyns/simulator/config_simulator.py</code> file.
+To simulate populations with different initial parameters, the user can directly modify the simulator configuration in 
+<code>mlpoppyns/simulator/config_simulator.py</code>.</p>
+<p>Alternatively, we can provide a JSON dictionary containing configuration overrides for the various simulation
+parameters. An example of such a JSON file could look as follows: 
+<div class="highlight"><pre><span></span><code>{
+  &quot;kick_model&quot;: &quot;km_maxwell&quot;,
+  &quot;sigma_k&quot;: 265,
+  &quot;h_c&quot;: 0.18,
+  &quot;P_initial_mean&quot;: 0.22,
+  &quot;P_initial_sigma&quot;: 0.42,
+  &quot;B_initial_log10_mean&quot;: 13.20,
+  &quot;B_initial_log10_sigma&quot;: 0.62
+}
+</code></pre></div></p>
+<p>We specify this as a command line argument to the simulator script as follows:
+<div class="highlight"><pre><span></span><code>python mlpoppyns/simulator/simulate_population_full.py --save_dir output/sim_full --parameter_override parameter_override.json
+</code></pre></div>
+For example, we can set the number of neutron stars to simulate, the kick-velocity model, the parameters of the initial 
+distributions of spin periods and magnetic fields, and several other parameters.
+The above command will then generate a new directory <code>output/sim_full</code> if it does not exist, in which the simulation 
+results will be saved.</p>
+<p>The output consists of the following files:</p>
+<ul>
+<li><code>initial_population.pkl.gz</code> containing the initial neutron star properties.</li>
+<li><code>final_population.pkl.gz</code> containing the final population properties.</li>
+<li><code>.pkl.gz</code> files for each of the modelled surveys (containing the stars detected by that survey).</li>
+<li><code>.json</code> and <code>.log</code> files containing the timing profiles for the simulation, if enabled.</li>
+<li><code>configuration.json</code> containing the configuration parameters for reproducibility.</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>A single simulation in this simulation mode is usually fast as the simulator is optimized to work with multi-dimensional data thanks to the <code>numpy</code> library. For example, to simulate <span class="arithmatex"><span class="MathJax_Preview">10^5</span><script type="math/tex">10^5</script></span> neutron stars with a maximum age of <span class="arithmatex"><span class="MathJax_Preview">10^7</span><script type="math/tex">10^7</script></span> years, the computational time is around five minutes.</p>
+</div>
+<p>Simulating the full population is useful if you want to compare the simulated detected population with the entire simulated
+"unobserved" population and study the effects of survey biases.
+This is possible as the information on the total simulated population, i.e., its initial conditions and the final evolved 
+state is preserved and saved.
+However, the downside of this approach is that we need to assume a neutron star birth rate a priori, i.e., choose the 
+maximum age and the total number of simulated neutron stars.</p>
+<p>If the user opts to save the full evolutionary output for the dynamical and/or the magneto-rotational evolution by setting 
+<code>cfg["save_dyn_evolution"]</code> or <code>cfg["save_magrot_evolution"]</code> to <code>True</code> in the configuration file, a JSON file with the 
+full time-stamped parameter evolution is also generated.
+Note that since evolving the full population and saving the entire output requires large computational costs and storage 
+space, this feature should be enabled only for testing purposes when running the simulation on a reduced number of stars.
+For example, to evolve and save both the full dynamical and magneto-rotational evolution for <span class="arithmatex"><span class="MathJax_Preview">10^4</span><script type="math/tex">10^4</script></span> stars with a maximum 
+age of <span class="arithmatex"><span class="MathJax_Preview">10^7</span><script type="math/tex">10^7</script></span> years, the computation takes around 20 seconds and the JSON files containing the evolution outputs have a 
+size of around 600 and 400 Mb each.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>An example of this simulation mode is presented in detail in the tutorial <code>tutorials/tutorial_notebooks/01_simulator_full_tutorial.ipynb</code>. </p>
+</div>
+<h2 id="dynamical-evolution">Dynamical evolution</h2>
+<p>If we instead want to perform the dynamical evolution only, we run the following command:
+<div class="highlight"><pre><span></span><code>python mlpoppyns/simulator/simulate_population_dyn.py --save_dir output/sim_dyn
+</code></pre></div>
+As for the case above, to change the initial parameters, the user can directly modify the simulator 
+configuration in <code>mlpoppyns/simulator/config_simulator.py</code> or alternatively parse a JSON file containing 
+custom simulation parameters.</p>
+<p>The above command will create a population of neutron stars according to the initial conditions specified in
+<code>mlpoppyns/simulator/config_simulator.py</code> and evolve it in time dynamically.
+The output is saved in the specified output folder and consists of the following files:</p>
+<ul>
+<li><code>final_pop_dyn.csv</code> containing the information on the final positions and velocities of neutron stars in the Galaxy.</li>
+<li><code>.json</code> and <code>.log</code> files containing the timing profiles for the simulation, if enabled.</li>
+<li><code>configuration.json</code> file containing the configuration parameters for reproducibility.</li>
+</ul>
+<p>This simulation approach is useful if the user wants to create a database of dynamically evolved neutron stars and use 
+it to separately run subsequent simulation steps, i.e., perform the magneto-rotational evolution and apply observational 
+filters (see below). In this case, we need to ensure that the number of neutron stars evolved dynamically is 
+sufficiently large to allow for a proper determination of the birth rate in the subsequent steps. A safe assumption is 
+30 neutron stars are born per century, which is around 10 times the average core-collapse supernova rate in our Galaxy.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>An example of this simulation mode is presented in detail in the tutorial <code>tutorials/tutorial_notebooks/02_simulator_dyn_tutorial.ipynb</code>.</p>
+</div>
+<h2 id="magneto-rotational-evolution-and-detection-filters">Magneto-rotational evolution and detection filters</h2>
+<p>After simulating the dynamical evolution of a large number of neutron stars by using the script 
+<code>mlpoppyns/simulator/simulate_population_dyn.py</code>, the corresponding database can be used as a basis for the subsequent 
+steps of pulsar population synthesis.</p>
+<p>Using the module <code>mlpoppyns/simulator/simulate_population_magrot_det.py</code>, we can select stars from the 
+dynamically evolved database according to the sky coverage of a given survey, evolve their properties in 
+time and finally establish if these sources are detected by a given survey or not.</p>
+<p>To do so, we execute the command
+<div class="highlight"><pre><span></span><code>python mlpoppyns/simulator/simulate_population_magrot_det.py --dyn_data dyn_database --save_dir output/sim_magrot_det
+</code></pre></div>
+As for the cases above, to change the initial parameters, the user can directly modify the simulator 
+configuration in <code>mlpoppyns/simulator/config_simulator.py</code> or alternatively parse a JSON file containing 
+custom parameters for the simulation.</p>
+<p>In this simulation mode, new stars are sampled from the database in batches and evolved until the desired 
+number of detected sources is reached. Note that we can specify the number of pulsars that we want to detect
+for each survey in the configuration file. For example, we might want to match the number of detected 
+pulsars in a given survey in the <a href="https://www.atnf.csiro.au/research/pulsar/psrcat/">ATNF Pulsar Catalogue</a>. 
+To this end, the script performs the following steps in a loop until a certain number of detections for each 
+survey is reached:</p>
+<ol>
+<li>
+<p>We first randomly sample batches of pulsars from our dynamical database. The batch size is set to 100,000 and has 
+    been optimized to match radio pulsar detections with Murriyang, the Parkes Radio Telescope. Note that the dynamical 
+    database should be significantly bigger than this batch size, i.e., it should contain at least 100 times the batch 
+    size. Simulating neutron stars in batches helps to speed up the simulation by evolving an array of pulsars
+    simultaneously.</p>
+</li>
+<li>
+<p>Next, we select pulsars that fall into the sky coverage of the surveys and are not further away than 35 kpc from 
+    the Sun. For those objects, we then evolve the magnetic fields, spin periods and inclination angles. This 
+    pre-selection allows us to not waste computational resources on pulsars that have no chance to be detected.</p>
+</li>
+<li>
+<p>Then, we model the emission geometry and only select those pulsars that are beamed towards the Earth. A luminosity is
+    associated with these pulsars and their flux is computed.</p>
+</li>
+<li>
+<p>Finally, we apply the surveys' sensitivity thresholds to select those pulsars that are detected according to the 
+    limiting flux of each survey.</p>
+</li>
+</ol>
+<p>A posteriori, this simulation mode allows us to determine the birth rate of our synthetic neutron star population by 
+looking at the total number of neutron stars created over a specified evolution time to reach the desired number of 
+detections.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To avoid wasting computational resources on unrealistic parameter regimes, we do not evolve populations 
+whose birth rate exceeds a limiting value of 5 neutron stars per century, which is unrealistic given our current
+understanding of neutron star formation. In these cases, the simulation is stopped and a flag that warns about 
+the excess in the birth rate is saved into the output configuration file.</p>
+</div>
+<p>Overall, in this mode, the output of the simulation consists of separate files containing the properties of the 
+detected pulsars for each survey, a <code>profile.json</code> file and a <code>configuration.json</code> file containing the entire set of 
+parameters used to simulate the magneto-rotational evolution and the detection models.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>An example of this simulation mode is presented in detail in the tutorial <code>tutorials/tutorial_notebooks/03_simulator_magrot_det_tutorial.ipynb</code>.</p>
+</div>
+<h2 id="simulations-with-parameter-sweep">Simulations with parameter sweep</h2>
+<p>If we want to run simulations for a large number of parameter combinations, we can use the helper script 
+<code>run_simulation_set.py</code> in the <code>utilities/experiment_helpers</code> folder. This script allows us to run multiple simulations 
+with different input parameters in an automated manner.</p>
+<p>In this mode, we can choose the type of simulation we want to run (i.e., <code>simulate_population_dyn.py</code>, 
+<code>simulate_population_magrot_det.py</code> or <code>simulate_population_full.py</code>) via the <code>--simulator_type</code> argument. 
+In addition, the number of cores used to run the simulation in parallel is specified through <code>--processes</code>.
+Finally, we can choose between two sampling approaches to determine the relevant simulation parameters through the 
+argument <code>--sampling_type</code>. </p>
+<p>Specifically, if <code>--sampling_type = grid</code>, a regular multi-dimensional grid is created, and we need to 
+provide the parameters in a linear spacing format <code>--parameter [low] [high] [steps]</code>. For example,
+<div class="highlight"><pre><span></span><code>python utilities/experiment_helpers/run_simulation_set.py --simulator_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 20 --sampling_type grid
+</code></pre></div>
+This command will run the dynamical simulation only and generate a sweep of <code>20</code> uniformly spaced samples 
+for the <code>vk_c</code> parameter in the range <code>[100.0, 200.0]</code>. As this parameter is related to the exponential 
+kick model <code>km_exp</code>, the script will first check if this model is properly set in the <code>config_simulator.py</code> 
+file. If not, an error will be thrown.</p>
+<p>On the other hand, if <code>--sampling_type = random</code>, the parameters are sampled uniformly at random within the 
+provided limits. In this case, we need to provide the parameter ranges in the format <code>--parameter 
+[low] [high]</code> and specify the <code>--sampling_size</code> argument, which sets the number of values drawn from a 
+uniform distribution for each parameter. For example,
+<div class="highlight"><pre><span></span><code>python utilities/experiment_helpers/run_simulation_set.py --simulator_type simulate_population_dyn --save_dir output/sim_helper --vk_c 100.0 200.0 --sampling_type random --sampling_size 20
+</code></pre></div>
+This will generate a sweep of <code>20</code> randomly drawn samples for the <code>vk_c</code> parameter in the range <code>[100.0, 200.0]</code>.</p>
+<p>In the following, we list the parameters that can be swept with the <code>run_simulation_set.py</code> script.</p>
+<p>For the dynamical evolution:</p>
+<ul>
+<li><code>vk_c</code> for the exponential kick-velocity model <code>km_exp</code>;</li>
+<li><code>sigma_k</code> for the Maxwell kick-velocity model <code>km_maxwell</code>;</li>
+<li><code>h_c</code> for the Galactic scale height in the exponential model of birthplaces.</li>
+</ul>
+<p>For the magneto-rotational evolution:</p>
+<ul>
+<li><code>P_initial_mean</code> and <code>P_initial_sigma</code> for the birth spin periods in the <code>normal</code> distribution model;</li>
+<li><code>P_initial_log10_mean</code> and <code>P_initial_log10_sigma</code> for the birth spin periods in the <code>log-normal</code> distribution model;</li>
+<li><code>B_initial_log10_mean</code> and <code>B_initial_log10_sigma</code> for the birth magnetic fields in the log-normal distribution model;</li>
+<li><code>a_late</code> for the power-law index describing the late-time decay of the magnetic field.</li>
+</ul>
+<p>For the radio emission:</p>
+<ul>
+<li><code>L_radio_log10_mean</code> and <code>epsilon_L</code> for the power-law model describing the pulsars' radio luminosity.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is important to distinguish between two types of arguments for the <code>run_simulation_set.py</code> script: options 
+and parameters. Options are arguments which specify procedures for the simulation helper, and they cannot be 
+swept across a range, e.g., the dynamical database or the simulator type. By definition, these are not outputs 
+that we want to predict with our subsequent machine-learning framework. On the other hand, parameters are values
+that we expect to use as ground truths for the learning pipeline and want to predict. Hence, these can be swept 
+in a range to generate a set of training simulations.</p>
+<p>The script automatically checks for the compatibility of the given parameters and the selected options, e.g., 
+<code>vk_c</code> cannot be specified if <code>km_maxwell</code> has been chosen as the kick model in the <code>config_simulator.py</code>. 
+The dictionary <code>utilities/config_sweeper.json</code> specifies a list of required parameters for each option.</p>
+</div>
+<p>Finally, we can also sweep over more than one parameter. For example, let us assume that we want to simulate 20 
+populations of neutron stars varying the parameters <code>P_initial_log10_mean</code> in the range -1.5 to -0.3 and the parameter 
+<code>B_initial_log10_mean</code> in the range 12 to 14 using the <code>simulate_population_magrot_det.py</code> script and a previously 
+simulated dynamical database saved in <code>data/example_simulation_dyn</code>. We can then run:
+<div class="highlight"><pre><span></span><code>python utilities/experiment_helpers/run_simulation_set.py --simulator_type simulate_population_magrot_det --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 --B_initial_log10_mean 12 14 --sampling_type random --sampling_size 20
+</code></pre></div>
+In this way, a population is simulated for each of the 20 pairs of random values of <code>P_initial_log10_mean</code> and 
+<code>B_initial_log10_mean</code>. The sweep will generate a directory <code>output/sim_helper</code>, which will contain a folder for each 
+simulation (parameter combination) named with an identifier, i.e., <code>000000</code>, <code>000001</code>, <code>000002</code> and so on.</p>
+<p>If instead <code>--sampling_type grid</code>, we need to specify the command as follows:
+<div class="highlight"><pre><span></span><code>python utilities/experiment_helpers/run_simulation_set.py --simulator_type simulate_population_magrot_det --save_dir output/sim_helper --dyn_data data/example_simulation_dyn --P_initial_log10_mean -1.5 -0.3 10 --B_initial_log10_mean 12 14 10 --sampling_type grid
+</code></pre></div>
+This simulates a population for each combination of values of <code>P_initial_log10_mean</code> and <code>B_initial_log10_mean</code>, i.e., the 
+above case corresponds to <code>10 x 10 = 100</code> simulations. Again, each simulation will be saved in a separate directory 
+<code>000000</code>, <code>000001</code>, <code>000002</code> and so on.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>An example of this simulation mode is presented in detail in the tutorial <code>tutorials/tutorial_notebooks/04_simulation_helper_tutorial.ipynb</code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+    
+  </body>
+</html>

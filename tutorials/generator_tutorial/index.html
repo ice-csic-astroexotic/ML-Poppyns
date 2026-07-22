@@ -1,0 +1,2148 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ice-csic-astroexotic.github.io/ML-Poppyns/tutorials/generator_tutorial/">
+      
+      
+        <link rel="prev" href="../simulator_tutorial/">
+      
+      
+        <link rel="next" href="../learning_tutorial_nn/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/mlpoppyns_logo_transparent.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Generating density maps - ML-Poppyns documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#generating-density-maps" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML-Poppyns documentation" class="md-header__button md-logo" aria-label="ML-Poppyns documentation" data-md-component="logo">
+      
+  <img src="../../images/mlpoppyns_logo_transparent.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML-Poppyns documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Generating density maps
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18V6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ice-csic-astroexotic/ML-Poppyns" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ML-Poppyns
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../basics/getting_started/" class="md-tabs__link">
+          
+  
+  
+  Basics
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../simulator_tutorial/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../code/simulator/simulator/" class="md-tabs__link">
+          
+  
+  
+  Code
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML-Poppyns documentation" class="md-nav__button md-logo" aria-label="ML-Poppyns documentation" data-md-component="logo">
+      
+  <img src="../../images/mlpoppyns_logo_transparent.png" alt="logo">
+
+    </a>
+    ML-Poppyns documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ice-csic-astroexotic/ML-Poppyns" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ML-Poppyns
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Basics
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/HTCondor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTCondor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basics/dask/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dask
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simulator_tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulating neutron star populations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generating density maps
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generating density maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#maps-of-synthetic-populations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maps of synthetic populations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-validation-and-test-splits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training, validation and test splits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maps-of-the-observed-population" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maps of the observed population
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../learning_tutorial_nn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning pulsar parameters with NNs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../learning_tutorial_sbi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter inference with SBI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experiment_launcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment launcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Simulator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/simulator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic simulator modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/stellar_dynamics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stellar dynamics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/magneto_rotational_physics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Magneto-rotational physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/interstellar_medium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interstellar medium
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/multiband_emission/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiband emission
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/multiband_surveys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiband surveys
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/simulator/telemetry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Telemetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Generator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/generator/generator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic generator modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/generator/maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Learning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/learning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic learning modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/initializers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initializers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/loaders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loaders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/logger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/losses/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Losses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/trainers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trainers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/learning/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Learning utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Utilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic utility modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/experiment_helpers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/PIC_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PIC scripts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../code/utilities/samplers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Samplers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#maps-of-synthetic-populations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maps of synthetic populations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-validation-and-test-splits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training, validation and test splits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maps-of-the-observed-population" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Maps of the observed population
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="generating-density-maps">Generating density maps</h1>
+<h2 id="maps-of-synthetic-populations">Maps of synthetic populations</h2>
+<p>Once a set of synthetic populations has been created by running the <code>run_simulation_set.py</code> script with one of the 
+simulator types described in the section <a href="../simulator_tutorial/">Simulating neutron star populations</a>, we can generate a synthetic 
+representation of these simulations that is readable by a machine-learning pipeline. Depending on the type of 
+simulation that has been performed, three types of generator scripts</p>
+<ul>
+<li><code>mlpoppyns/generator/generate_dataset_full.py</code></li>
+<li><code>mlpoppyns/generator/generate_dataset_surveys.py</code></li>
+</ul>
+<p>can be used to produce two-dimensional density maps of our population(s).</p>
+<p>We use the first script <code>mlpoppyns/generator/generate_dataset_full.py</code> for end-to-end simulations that were obtained
+using the <code>simulate_population_full.py</code> module. The script will read the corresponding <code>final_population.pkl.gz</code> 
+output files for each simulated population and generate density maps in the form of either <code>.png</code> images or 2D 
+NumPy arrays. To run this generator script, we have to specify the following parameters:</p>
+<ul>
+<li><code>data</code>: the path where the simulated populations are located.</li>
+<li><code>save_dir</code>: the path to the folder where the dataset of maps is saved.</li>
+<li><code>data_type</code>: the type of maps to produce, i.e., either <code>array</code> or <code>image</code>. 
+    If <code>array</code>, the generator will produce the density maps in the form of 2D <code>.npy</code> arrays; 
+    if <code>image</code>, density maps are produced in the form of <code>.png</code> images;
+    if <code>array_kde</code> or <code>image_kde</code>, the generator will perform a kernel density estimation (KDE) before generating the maps.</li>
+<li><code>resolution_dyn</code>: the resolution in bins or pixels of the maps containing the dynamical information.</li>
+<li><code>resolution_ppdot</code>: the resolution in bins or pixels of the maps containing the <span class="arithmatex"><span class="MathJax_Preview">P-\dot{P}</span><script type="math/tex">P-\dot{P}</script></span> information.</li>
+</ul>
+<p>The output produced by this script contains the spatial density and velocity information for all evolved neutron stars 
+as well as their distribution in the <span class="arithmatex"><span class="MathJax_Preview">P-\dot{P}</span><script type="math/tex">P-\dot{P}</script></span> plane. More precisely, we produce the following density maps:</p>
+<ul>
+<li>1 map for stellar positions in galactocentric <span class="arithmatex"><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span> and <span class="arithmatex"><span class="MathJax_Preview">y</span><script type="math/tex">y</script></span> coordinates.</li>
+<li>1 map for stellar positions in galactocentric <span class="arithmatex"><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span> and <span class="arithmatex"><span class="MathJax_Preview">z</span><script type="math/tex">z</script></span> coordinates.</li>
+<li>1 map in galactocentric <span class="arithmatex"><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span> and <span class="arithmatex"><span class="MathJax_Preview">y</span><script type="math/tex">y</script></span> coordinates weighted by the radial velocity component <span class="arithmatex"><span class="MathJax_Preview">v_r</span><script type="math/tex">v_r</script></span>.</li>
+<li>1 map in galactocentric <span class="arithmatex"><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span> and <span class="arithmatex"><span class="MathJax_Preview">y</span><script type="math/tex">y</script></span> coordinates weighted by the azimuthal velocity <span class="arithmatex"><span class="MathJax_Preview">v_{\phi}</span><script type="math/tex">v_{\phi}</script></span>.</li>
+<li>1 map in galactocentric <span class="arithmatex"><span class="MathJax_Preview">x</span><script type="math/tex">x</script></span> and <span class="arithmatex"><span class="MathJax_Preview">y</span><script type="math/tex">y</script></span> coordinates weighted by the velocity component <span class="arithmatex"><span class="MathJax_Preview">v_z</span><script type="math/tex">v_z</script></span>. </li>
+<li>1 map for stellar positions in ICRS coordinates.</li>
+<li>1 map in ICRS coordinates weighted by the proper motion component <span class="arithmatex"><span class="MathJax_Preview">\mu_{\rm RA}</span><script type="math/tex">\mu_{\rm RA}</script></span>.</li>
+<li>1 map in ICRS coordinates weighted by the proper motion component <span class="arithmatex"><span class="MathJax_Preview">\mu_{\rm DEC}</span><script type="math/tex">\mu_{\rm DEC}</script></span>.</li>
+<li>1 <span class="arithmatex"><span class="MathJax_Preview">P-\dot{P}</span><script type="math/tex">P-\dot{P}</script></span> map.</li>
+</ul>
+<p>The second script <code>mlpoppyns/generator/generate_dataset_surveys.py</code> is used for simulations that have been run using 
+the <code>simulate_population_magrot_det.py</code> module. The script will read the corresponding <code>.pkl.gz</code> output files that are
+produced for each of our simulated surveys for each synthetic population. It then generates a set of density maps in 
+the form of either <code>.png</code> images or 2D NumPy arrays for those simulated neutron stars that are detected by the surveys
+only. The corresponding density maps store their spatial density and proper motion information in the equatorial 
+(ICRS) reference frame and their distribution and corresponding fluxes in the <span class="arithmatex"><span class="MathJax_Preview">P-\dot{P}</span><script type="math/tex">P-\dot{P}</script></span> plane. More precisely, we 
+produce the following density maps (one for each of our three radio surveys modeled by the simulator) for each of the
+simulated populations:</p>
+<ul>
+<li>4 maps for stellar positions in ICRS coordinates.</li>
+<li>4 maps in ICRS coordinates weighted by the proper motion component <span class="arithmatex"><span class="MathJax_Preview">\mu_{\rm RA}</span><script type="math/tex">\mu_{\rm RA}</script></span>.</li>
+<li>4 maps in ICRS coordinates weighted by the proper motion component <span class="arithmatex"><span class="MathJax_Preview">\mu_{\rm DEC}</span><script type="math/tex">\mu_{\rm DEC}</script></span>.</li>
+<li>4 <span class="arithmatex"><span class="MathJax_Preview">P-\dot{P}</span><script type="math/tex">P-\dot{P}</script></span> maps.</li>
+<li>4 <span class="arithmatex"><span class="MathJax_Preview">P-\dot{P}</span><script type="math/tex">P-\dot{P}</script></span> maps, 3 weighted by the logarithm of the radio flux and 1 weighted by the logarithm of the X-ray flux.</li>
+</ul>
+<p>When running this generator script, we have to specify the following parameters:</p>
+<ul>
+<li><code>data</code>: the path where the simulated populations are located.</li>
+<li><code>save_dir</code>: the path to the folder where the dataset of maps is saved.</li>
+<li><code>data_type</code>: the type of maps to produce either <code>array</code>, <code>array_kde</code>, <code>image</code> or <code>image_kde</code>. 
+    If <code>array</code>, the generator will produce the density maps in the form of 2D <code>.npy</code> arrays; 
+    if <code>image</code>, density maps are produced in the form of <code>.png</code> images;
+    if <code>array_kde</code> or <code>image_kde</code>, the generator will perform a kernel density estimation (KDE) before generating the maps.</li>
+<li><code>resolution_dyn_radio</code>: the resolution in bins or pixels of the maps containing the dynamical information for the 
+   neutron stars detected in radio.</li>
+<li><code>resolution_ppdot_radio</code>: the resolution in bins or pixels of the maps containing the <span class="arithmatex"><span class="MathJax_Preview">P-\dot{P}</span><script type="math/tex">P-\dot{P}</script></span> information for 
+   the neutron stars detected in radio.</li>
+<li><code>resolution_dyn_xray</code>: the resolution in bins or pixels of the maps containing the dynamical information for the 
+   neutron stars detected in X-ray.</li>
+<li><code>resolution_ppdot_xray</code>: the resolution in bins or pixels of the maps containing the <span class="arithmatex"><span class="MathJax_Preview">P-\dot{P}</span><script type="math/tex">P-\dot{P}</script></span> information for the 
+   neutron stars detected in X-ray.</li>
+<li><code>generate_xray</code>: option specifying if the maps related to the X-ray surveys are produced (default is False).</li>
+<li><code>filter_young_xdins</code>: option specifying if only young magnetars and XDINSs are considered in the X-ray population (default is False).</li>
+</ul>
+<p>Suppose that we have created a dataset of simulated populations that is stored in <code>data/example_simulation_helper_magrot</code> 
+using the <code>simulate_population_magrot_det.py</code> script. Let us assume that we want to create a map dataset of 2D arrays 
+for the spatial and velocity information with a resolution of <span class="arithmatex"><span class="MathJax_Preview">32 \times 16</span><script type="math/tex">32 \times 16</script></span> and the density and radio flux maps in 
+the <span class="arithmatex"><span class="MathJax_Preview">P-\dot{P}</span><script type="math/tex">P-\dot{P}</script></span> plane with a resolution of <span class="arithmatex"><span class="MathJax_Preview">32 \times 32</span><script type="math/tex">32 \times 32</script></span>. To obtain these maps, we run the following command:
+<div class="highlight"><pre><span></span><code>python mlpoppyns/generator/generate_dataset_surveys.py --data data/example_simulation_helper_magrot --save_dir output/generator --data_type array --resolution_dyn_radio 32 --resolution_ppdot_radio 32 --resolution_dyn_xray 32 --resolution_ppdot_xray 32 --generate_xray
+</code></pre></div>
+By running the script, we create a folder <code>output/generator</code> where a set of 2D arrays is stored for each simulated 
+population (sample). In addition, this produces a single <code>dataset_full.csv</code> and <code>statistics_full.json</code> file containing 
+information about the dataset and statistical information for each label, respectively. </p>
+<p>The CSV file provides one line for each synthetic simulation sample in the dataset indicating the file path for its 
+2D arrays (these are potential input channels for the machine learning pipeline) and the numerical values used to 
+generate the underlying population (these will serve as labels for the machine learning). </p>
+<p>A <code>dataset_full.csv</code> file for a set of five synthetic simulations could, for example, look like this:
+<div class="highlight"><pre><span></span><code>input:survey_PMPS_density_map_radec,input:survey_SMPS_density_map_radec,input:survey_HTRU_density_map_radec,input:survey_xray_density_map_radec,input:survey_PMPS_velocity_vra_map_radec,input:survey_SMPS_velocity_vra_map_radec,input:survey_HTRU_velocity_vra_map_radec,input:survey_xray_velocity_vra_map_radec,input:survey_PMPS_velocity_vdec_map_radec,input:survey_SMPS_velocity_vdec_map_radec,input:survey_HTRU_velocity_vdec_map_radec,input:survey_xray_velocity_vdec_map_radec,input:survey_PMPS_density_map_ppdot,input:survey_SMPS_density_map_ppdot,input:survey_HTRU_density_map_ppdot,input:survey_xray_density_map_ppdot,input:survey_PMPS_flux_map_ppdot,input:survey_SMPS_flux_map_ppdot,input:survey_HTRU_flux_map_ppdot,input:survey_xray_flux_map_ppdot,B_initial_log10_mean,P_initial_log10_mean
+data/example_generator_magrot/survey_PMPS_density_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_0.npy,data/example_generator_magrot/survey_xray_density_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_0.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_0.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_0.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_0.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_0.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_0.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_0.npy,12.760581505895203,-0.7428330891684274
+data/example_generator_magrot/survey_PMPS_density_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_1.npy,data/example_generator_magrot/survey_xray_density_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_1.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_1.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_1.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_1.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_1.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_1.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_1.npy,12.00901699270494,-0.7370723718542642
+data/example_generator_magrot/survey_PMPS_density_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_2.npy,data/example_generator_magrot/survey_xray_density_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_2.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_2.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_2.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_2.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_2.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_2.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_2.npy,13.666001670349527,-0.945232045269706
+data/example_generator_magrot/survey_PMPS_density_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_density_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_density_map_radec_3.npy,data/example_generator_magrot/survey_xray_density_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_xray_velocity_vra_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_SMPS_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_HTRU_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_xray_velocity_vdec_map_radec_3.npy,data/example_generator_magrot/survey_PMPS_density_map_ppdot_3.npy,data/example_generator_magrot/survey_SMPS_density_map_ppdot_3.npy,data/example_generator_magrot/survey_HTRU_density_map_ppdot_3.npy,data/example_generator_magrot/survey_xray_density_map_ppdot_3.npy,data/example_generator_magrot/survey_PMPS_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_SMPS_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_HTRU_flux_map_ppdot_3.npy,data/example_generator_magrot/survey_xray_flux_map_ppdot_3.npy,12.597396839756216,-1.4013555393326107
+...
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The format of the <code>dataset_full.csv</code> file ensures direct compatibility with our machine learning pipeline.</p>
+</div>
+<p>The JSON file contains information about the mean, standard deviation, minimum and maximum values for each of the 
+dataset labels computed across the entire dataset of simulations, and could look like the following:
+<div class="highlight"><pre><span></span><code>{
+    &quot;B_initial_log10_mean&quot;: {
+        &quot;max&quot;: 13.968959556720801,
+        &quot;mean&quot;: 12.766555558229868,
+        &quot;min&quot;: 12.187267435646975,
+        &quot;std&quot;: 0.5176380894348778
+    },
+    &quot;P_initial_log10_mean&quot;: {
+        &quot;max&quot;: -0.331459108143384,
+        &quot;mean&quot;: -0.8783193891550154,
+        &quot;min&quot;: -1.4647713639094808,
+        &quot;std&quot;: 0.3379764548527923
+    }
+}
+</code></pre></div></p>
+<p>We use this statistical information during the training process if one wants to normalize or 
+standardize the label values.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>An example of this generator is presented in detail in the tutorial <code>tutorials/tutorial_notebooks/05_generator_tutorial.ipynb</code>.</p>
+</div>
+<h2 id="training-validation-and-test-splits">Training, validation and test splits</h2>
+<p>We can also split the dataset into training/validation, training/test or into training/validation/test sets. To do this,
+we use the <code>dataset_splitter.py</code> script in the <code>mlpoppyns/generator</code> folder.</p>
+<p>To split a dataset into two subsets, one for training and the other for validation, we specify a fraction of the total 
+dataset that will form the validation subset by passing the argument <code>valid_split</code> in the <code>dataset_splitter.py</code> script. 
+For example:
+<div class="highlight"><pre><span></span><code>python mlpoppyns/generator/dataset_splitter.py --dataset_path output/generator --valid_split 0.2
+</code></pre></div>
+This will create two files <code>dataset_train.csv</code> and <code>dataset_valid.csv</code> in the location of the <code>dataset_full.csv</code> file
+that will specify the specific simulation samples belonging to the train dataset (80% of the total dataset in this case)
+and those belonging to the validation dataset (20% of the total dataset). This split is performed by randomly sampling 
+the validation subset from the total dataset according to the specified split. We also produce a file
+<code>statistics_train.json</code> (saved in the same location) that contains the statistics computed on the training labels only.</p>
+<p>Analogously, if we want to split the dataset into two subsets, one for training and the other for testing, we specify 
+a fraction of the total dataset that will form the test subset by passing the argument <code>test_split</code> in the 
+<code>dataset_splitter.py</code> script. For example:
+<div class="highlight"><pre><span></span><code>python mlpoppyns/generator/dataset_splitter.py --dataset_path output/generator --test_split 0.2
+</code></pre></div>
+The situation is identical to above apart from the fact that we now produce a <code>dataset_test.csv</code> file that contains 
+information on 20% randomly sampled test simulations.</p>
+<p>Finally, to create a test set in addition to the training and validation sets, we specify both split 
+arguments. In this case, the argument <code>test_split</code> sets the fraction of the total dataset to be dedicated for testing 
+purposes. The <code>valid_split</code> argument will then separate the remaining fraction of the dataset into validation and
+training sets. For example
+<div class="highlight"><pre><span></span><code>python mlpoppyns/generator/dataset_splitter.py --dataset_path output/generator --test_split 0.1 --valid_split 0.2
+</code></pre></div>
+generates a 10% test dataset. The remaining 90% will be split into 20% validation and 80% training, which equates to
+a validation dataset size of 18% and training dataset size of 72% of the entire initial dataset. The corresponding 
+simulation samples are saved in the <code>dataset_test.csv</code>, <code>dataset_valid.csv</code> and <code>dataset_train.csv</code>, respectively.
+As above, the splits are performed by randomly sampling the test and validation subsets, while the 
+<code>statistics_train.json</code> file contains the statistics computed on the labels of the training set only.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>An example of this dataset splitter is also presented in detail in the tutorial <code>tutorials/tutorial_notebooks/05_generator_tutorial.ipynb</code>.</p>
+</div>
+<h2 id="maps-of-the-observed-population">Maps of the observed population</h2>
+<p>To perform inference on the observed data in the <a href="https://www.atnf.csiro.au/research/pulsar/psrcat/">ATNF Pulsar Catalogue</a>
+combined with the radio fluxes from the TPA program on MeerKat <a href="https://ui.adsabs.harvard.edu/abs/2023MNRAS.520.4582P/abstract">(Posselt et al., 2023)</a> and the catalogue of 
+thermally-emitting X-ray neutron stars (Dehman et al. in prep.) with an optimized neural network, we need to convert 
+the corresponding data into the same representation that was used to optimize our machine learning pipeline. That is, 
+we need to produce the same kind of density maps as outlined above for the observed pulsar population.</p>
+<p>To do this, we use the <code>mlpoppyns/generator/generate_observed_data.py</code> script. We can, for example, run:
+<div class="highlight"><pre><span></span><code>python mlpoppyns/generator/generate_observed_data.py --path_atnf data/observations/atnf_full_nobinary_24-09-2024_with_errors.csv --path_meerkat data/observations/meerkat_tpa_posselt_2023.csv --path_xray data/observations/thermal_NS_05-11-2024.csv --save_dir output/generator_observed --resolution_dyn_radio 32 --resolution_ppdot_radio 32 --resolution_dyn_xray 32 --resolution_ppdot_xray 32
+</code></pre></div>
+This will read the files <code>atnf_full_nobinary_24-09-2024_with_errors.csv</code>, <code>meerkat_tpa_posselt_2023.csv</code> and <code>thermal_NS_05-11-2024.csv</code> in the directory 
+<code>data/observations</code> and generate the maps.</p>
+<p>As for the scripts above, we can specify the map type (either <code>array</code>, <code>array_kde</code>, <code>image</code> or <code>image_kde</code>) with the argument <code>--data_type</code> and 
+the resolution with the arguments <code>--resolution_dyn_radio</code>, <code>--resolution_ppdot_radio</code>, <code>--resolution_dyn_xray</code> and <code>--resolution_ppdot_xray</code>. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To sucessfully apply a trained model to our observed population, the type and resolution of the maps generated 
+from the observational data have to match the type and resolution of the simulated maps used to train the neural
+network.</p>
+</div>
+<p>In the above example, we then generate the following twelve maps:</p>
+<ul>
+<li>Four position density maps in ICRS coordinates: one for each of the three radio surveys and one for the X-ray survey 
+   modeled by the simulator.</li>
+<li>Four <span class="arithmatex"><span class="MathJax_Preview">P-\dot{P}</span><script type="math/tex">P-\dot{P}</script></span> density maps: one for each of the three simulated radio surveys and one for the X-ray survey.</li>
+<li>Four <span class="arithmatex"><span class="MathJax_Preview">P-\dot{P}</span><script type="math/tex">P-\dot{P}</script></span> density maps weighted by the logarithm of the radio and X-ray fluxes: three for the three simulated 
+   radio surveys and one for the X-ray survey.</li>
+</ul>
+<p>Moreover, the above command also produces a <code>dataset_observed.csv</code> file containing summary information of the different
+maps. Note that the underlying ground truths are, of course, unknown here. The corresponding entries in the CSV file,
+required for compatibility purposes, are therefore left empty.</p>
+<div class="admonition example">
+<p class="admonition-title">Example</p>
+<p>To see a tutorial example for this generator you can look at the notebook in <code>tutorials/tutorial_notebooks/06_generator_observation_tutorial.ipynb</code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+    
+  </body>
+</html>
