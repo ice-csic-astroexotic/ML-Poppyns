@@ -1,6 +1,6 @@
 site_name: ML-Poppyns documentation
-# Comment out the site_url for now as we cannot deploy this yet.
-#site_url: https://mydomain.org/mysite
+# site_url where the docs are deployed.
+site_url: https://ice-csic-astroexotic.github.io/ML-Poppyns
 theme:
   # Load materials theme and adjust some colour settings.
   name: material
