@@ -12,7 +12,9 @@ Our population synthesis framework models the birth properties and evolution of 
 neutron stars. The population synthesis is integrated with a deep learning pipeline to perform parameter 
 inference and constrain the neutron stars' physical properties.
 
-We can simulate a population of neutron stars and model their detection across three different surveys performed with 
+The simulation framework incorporates options to model radio surveys and X-ray surveys.
+
+With the default setup we can simulate a population of neutron stars and model their detection across three different surveys performed with 
 Murriyang, the Parkes Radio Telescope, with just a few steps:
 
 ```python
@@ -140,6 +142,8 @@ The `paper_plots` folder contains the notebooks to generate the plots and figure
 
 * Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo-Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
 
+* Connecting radio pulsars, magnetars and XDINSs in a unified evolutionary framework, using simulation-based inference [Ronchi et al. 2026](...)
+
 ### Tutorials
 
 The directory `tutorials` contains two subfolders with jupyter notebooks with examples to run the simulator, generator 
@@ -175,6 +179,8 @@ If you use ML-Poppyns in your research, we kindly ask you to:
   * Isolated Pulsar Population Synthesis with Simulation-based Inference, [Graber et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...968...16G/abstract)
 
   * Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo-Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
+
+  * Connecting radio pulsars, magnetars and XDINSs in a unified evolutionary framework, using simulation-based inference [Ronchi et al. 2026](...)
 
 * Add the following sentence in the acknowledgment section of your publication:
 "ML-Poppyns has been funded by the European Research Council via the ERC Consolidator grant 'MAGNESIA' (No. 817661; PI: N. Rea)."
