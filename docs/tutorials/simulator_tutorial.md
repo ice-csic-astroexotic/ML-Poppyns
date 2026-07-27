@@ -52,7 +52,7 @@ The output consists of the following files:
 * `configuration.json` containing the configuration parameters for reproducibility.
 
 By default the simulator is setup to simulate only the radio surveys.
-If you would like to include the modelling of X-ray surveys, you need to set the parameter `cfg["simulate_xray"]` to `True` in 
+If you would like to include the modelling of X-ray surveys, you need to set the parameter `cfg["simulation_xray"]` to `True` in 
 `mlpoppyns/simulator/config_simulator.py`.
 
 !!! info
@@ -166,7 +166,7 @@ parameters used to simulate the magneto-rotational evolution and the detection m
 
 Also in this case the default setup only includes the modelling of radio surveys. 
 If you would like to include the simulation of X-ray emission and detection you need to change the parameter 
-`cfg["simulate_xray"]` to `True` in `mlpoppyns/simulator/config_simulator.py`.
+`cfg["simulation_xray"]` to `True` in `mlpoppyns/simulator/config_simulator.py`.
 
 !!! example
 
