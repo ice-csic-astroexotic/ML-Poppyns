@@ -12,10 +12,10 @@ Our population synthesis framework models the birth properties and evolution of 
 neutron stars. The population synthesis is integrated with a deep learning pipeline to perform parameter 
 inference and constrain the neutron stars' physical properties.
 
-The simulation framework incorporates options to model radio surveys and X-ray surveys.
+The simulation framework incorporates options to model radio as well as X-ray surveys.
 
-With the default setup we can simulate a population of neutron stars and model their detection across three different surveys performed with 
-Murriyang, the Parkes Radio Telescope, with just a few steps:
+With the default setup, we simulate a population of neutron stars and model their detection across three different 
+radio surveys performed with Murriyang, the Parkes Radio Telescope, in just a few steps:
 
 ```python
 import argparse
@@ -51,6 +51,9 @@ The distributions of these pulsars in the sky and in the $P-\dot{P}$ plane are a
 
     More details on this simulation can be found in the tutorial 
     `tutorials/tutorial_notebooks/00_getting_started.ipynb`.
+
+X-ray pulsars such as magnetars and X-ray dim isolated neutron stars (XDINSs) can easily be added as outlined in 
+our documentation (see below).
 
 ## Repository structure
 
