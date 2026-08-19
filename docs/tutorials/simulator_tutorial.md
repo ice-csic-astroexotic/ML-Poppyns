@@ -51,9 +51,9 @@ The output consists of the following files:
 * `.json` and `.log` files containing the timing profiles for the simulation, if enabled.
 * `configuration.json` containing the configuration parameters for reproducibility.
 
-By default the simulator is setup to simulate only the radio surveys.
-If you would like to include the modelling of X-ray surveys, you need to set the parameter `cfg["simulation_xray"]` to `True` in 
-`mlpoppyns/simulator/config_simulator.py`.
+By default, the simulator is set up to simulate only the radio surveys.
+If you would like to include the modelling of X-ray surveys, you need to set the parameter 
+`cfg["simulation_xray"]` to `True` in `mlpoppyns/simulator/config_simulator.py`.
 
 !!! info
 
@@ -164,8 +164,8 @@ Overall, in this mode, the output of the simulation consists of separate files c
 detected pulsars for each survey, a `profile.json` file and a `configuration.json` file containing the entire set of 
 parameters used to simulate the magneto-rotational evolution and the detection models.
 
-Also in this case the default setup only includes the modelling of radio surveys. 
-If you would like to include the simulation of X-ray emission and detection you need to change the parameter 
+We note that in this case the default setup only includes the modeling of our radio surveys. 
+To include the simulation of X-ray emission and detection, we need to change the parameter 
 `cfg["simulation_xray"]` to `True` in `mlpoppyns/simulator/config_simulator.py`.
 
 !!! example
