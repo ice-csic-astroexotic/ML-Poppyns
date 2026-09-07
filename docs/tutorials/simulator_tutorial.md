@@ -51,6 +51,10 @@ The output consists of the following files:
 * `.json` and `.log` files containing the timing profiles for the simulation, if enabled.
 * `configuration.json` containing the configuration parameters for reproducibility.
 
+By default, the simulator is set up to simulate only the radio surveys.
+If you would like to include the modelling of X-ray surveys, you need to set the parameter 
+`cfg["simulation_xray"]` to `True` in `mlpoppyns/simulator/config_simulator.py`.
+
 !!! info
 
     A single simulation in this simulation mode is usually fast as the simulator is optimized to work with multi-dimensional data thanks to the `numpy` library. For example, to simulate $10^5$ neutron stars with a maximum age of $10^7$ years, the computational time is around five minutes.
@@ -123,7 +127,7 @@ configuration in `mlpoppyns/simulator/config_simulator.py` or alternatively pars
 custom parameters for the simulation.
 
 In this simulation mode, new stars are sampled from the database in batches and evolved until the desired 
-number of detected sources is reached. Note that we can specify the number of pulsars that we want to detect
+number of detected sources is reached. Note that we can specify the number of neutron stars that we want to detect
 for each survey in the configuration file. For example, we might want to match the number of detected 
 pulsars in a given survey in the [ATNF Pulsar Catalogue](https://www.atnf.csiro.au/research/pulsar/psrcat/). 
 To this end, the script performs the following steps in a loop until a certain number of detections for each 
@@ -159,6 +163,10 @@ detections.
 Overall, in this mode, the output of the simulation consists of separate files containing the properties of the 
 detected pulsars for each survey, a `profile.json` file and a `configuration.json` file containing the entire set of 
 parameters used to simulate the magneto-rotational evolution and the detection models.
+
+We note that in this case the default setup only includes the modeling of our radio surveys. 
+To include the simulation of X-ray emission and detection, we need to change the parameter 
+`cfg["simulation_xray"]` to `True` in `mlpoppyns/simulator/config_simulator.py`.
 
 !!! example
 
@@ -207,7 +215,9 @@ For the magneto-rotational evolution:
 
 * `P_initial_mean` and `P_initial_sigma` for the birth spin periods in the `normal` distribution model;
 * `P_initial_log10_mean` and `P_initial_log10_sigma` for the birth spin periods in the `log-normal` distribution model;
-* `B_initial_log10_mean` and `B_initial_log10_sigma` for the birth magnetic fields in the log-normal distribution model;
+* `B_initial_log10_mean` and `B_initial_log10_sigma` for the birth magnetic fields in the `log-normal` distribution model;
+* `B_initial_log10_mean_comp1`, `B_initial_log10_sigma_comp1`, `B_initial_log10_mean_comp1`, `B_initial_log10_sigma_comp1` and `B_initial_log10_weight_comp1` for the birth magnetic fields in the `double_log-normal` distribution model;
+* `B_initial_log10_mean_rise`, `B_initial_log10_sigma_rise`, `B_initial_log10_mean_decay`, `B_initial_log10_sigma_decay` and `B_initial_log10_slope` for the birth magnetic fields in the `smooth_tophat` distribution model;
 * `a_late` for the power-law index describing the late-time decay of the magnetic field.
 
 For the radio emission:
