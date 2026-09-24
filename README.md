@@ -92,14 +92,11 @@ If you use ML-Poppyns in your research, we kindly ask you to:
 
   * Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo-Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
 
-  * Connecting radio pulsars, magnetars, and XDINSs in a unified evolutionary framework using simulation-based inference [Ronchi et al. 2026](https://ui.adsabs.harvard.edu/abs/2026arXiv260900962R/abstract)
+  * Connecting radio pulsars, magnetars, and XDINSs in a unified evolutionary framework using simulation-based inference [Ronchi et al. 2026](https://ui.adsabs.harvard.edu/abs/2026ApJ..1008..263R/abstract)
 
 * Add the following sentence in the acknowledgment section of your publication:
 "ML-Poppyns has been funded by the European Research Council via the ERC Consolidator grant 'MAGNESIA' (No. 817661; PI: N. Rea)."
 
 ## Contacts
 
-If you encounter any issues or have questions, please feel free to use the [Discussion](https://github.com/ice-csic-astroexotic/ML-Poppyns/discussions) section in our repository or email us at: 
-* Vanessa Graber (Vanessa.Graber@rhul.ac.uk)
-* Celsa Pardo Araujo (pardo@ices.csic.es)
-* Michele Ronchi (ronchi@astron.nl)
+If you encounter any issues or have questions, please feel free to use the [Discussion](https://github.com/ice-csic-astroexotic/ML-Poppyns/discussions) section in our repository or email us at ml-poppyns@ice.csis.es. 
