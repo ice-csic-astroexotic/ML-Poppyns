@@ -12,8 +12,10 @@ Our population synthesis framework models the birth properties and evolution of 
 neutron stars. The population synthesis is integrated with a deep learning pipeline to perform parameter 
 inference and constrain the neutron stars' physical properties.
 
-We can simulate a population of neutron stars and model their detection across three different surveys performed with 
-Murriyang, the Parkes Radio Telescope, with just a few steps:
+The simulation framework incorporates options to model radio as well as X-ray surveys.
+
+With the default setup, we simulate a population of neutron stars and model their detection across three different 
+radio surveys performed with Murriyang, the Parkes Radio Telescope, in just a few steps:
 
 ```python
 import argparse
@@ -49,6 +51,9 @@ The distributions of these pulsars in the sky and in the $P-\dot{P}$ plane are a
 
     More details on this simulation can be found in the tutorial 
     `tutorials/tutorial_notebooks/00_getting_started.ipynb`.
+
+X-ray pulsars such as magnetars and X-ray dim isolated neutron stars (XDINSs) can easily be added as outlined in 
+our documentation (see below).
 
 ## Repository structure
 
@@ -140,6 +145,8 @@ The `paper_plots` folder contains the notebooks to generate the plots and figure
 
 * Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo-Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
 
+* Connecting radio pulsars, magnetars and XDINSs in a unified evolutionary framework, using simulation-based inference [Ronchi et al. 2026](...)
+
 ### Tutorials
 
 The directory `tutorials` contains two subfolders with jupyter notebooks with examples to run the simulator, generator 
@@ -176,13 +183,12 @@ If you use ML-Poppyns in your research, we kindly ask you to:
 
   * Radio pulsar population synthesis with consistent flux measurements using simulation-based inference, [Pardo-Araujo et al. 2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...696A.114P/abstract)
 
+  * Connecting radio pulsars, magnetars, and XDINSs in a unified evolutionary framework using simulation-based inference [Ronchi et al. 2026](https://ui.adsabs.harvard.edu/abs/2026ApJ..1008..263R/abstract)
+
 * Add the following sentence in the acknowledgment section of your publication:
 "ML-Poppyns has been funded by the European Research Council via the ERC Consolidator grant 'MAGNESIA' (No. 817661; PI: N. Rea)."
 
 ## Contacts
 
-If you encounter any issues or have questions, please feel free to use the [Discussion](https://github.com/ice-csic-astroexotic/ML-Poppyns/discussions) section in our repository or email us at:
-* Vanessa Graber (Vanessa.Graber@rhul.ac.uk)
-* Celsa Pardo Araujo (pardo@ices.csic.es)
-* Michele Ronchi (ronchi@astron.nl)
+If you encounter any issues or have questions, please feel free to use the [Discussion](https://github.com/ice-csic-astroexotic/ML-Poppyns/discussions) section in our repository or email us at ml-poppyns@ice.csis.es.
 
