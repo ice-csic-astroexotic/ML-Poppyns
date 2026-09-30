@@ -1,0 +1,20 @@
+{
+  "[TotalTraining]": {
+    "time": 2.1269030570983887
+  },
+  "[Initialization]": {
+    "time": 0.03132200241088867
+  },
+  "[TotalRound0]": {
+    "time": 2.0940940380096436
+  },
+  "[TrainingRound0]": {
+    "time": 1.525824785232544
+  },
+  "[TrainingRound0Ensemble0]": {
+    "time": 1.1738510131835938
+  },
+  "[ComputeRestrictedPriorRound0]": {
+    "time": 0.0005061626434326172
+  }
+}

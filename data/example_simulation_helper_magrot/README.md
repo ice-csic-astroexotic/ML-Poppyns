@@ -2,6 +2,7 @@
 
 This is an example of a set of 20 synthetic pulsar simulations obtained from the `simulate_population_magrot_det.py` 
 script, which we executed using the `run_simulation_set.py` script.
+We include the X-ray emission and detection by setting the parameter `simulation_xray` to `True`.
 
 We varied the parameter `P_initial_log10_mean` in the range -1.5 -0.3 and the parameter `B_initial_log10_mean` in the range 12 14.
 

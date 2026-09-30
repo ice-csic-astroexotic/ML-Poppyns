@@ -1,0 +1,14 @@
+{
+  "[TotalInference]": {
+    "time": 1.0839989185333252
+  },
+  "[Initialization]": {
+    "time": 0.024880170822143555
+  },
+  "[TotalRound0]": {
+    "time": 1.0572280883789062
+  },
+  "[ComputingCoverage0]": {
+    "time": 0.7639389038085938
+  }
+}
