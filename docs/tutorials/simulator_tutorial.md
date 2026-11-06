@@ -24,10 +24,10 @@ Alternatively, we can provide a JSON dictionary containing configuration overrid
 parameters. An example of such a JSON file could look as follows: 
 ```commandline
 {
-  "sigma_k": 265,
+  "vk_ln_mean": 6.0,
   "h_c": 0.18,
-  "P_initial_mean": 0.22,
-  "P_initial_sigma": 0.42,
+  "P_initial_log10_mean": -0.5,
+  "P_initial_log10_sigma": 0.5,
   "B_initial_log10_mean": 13.20,
   "B_initial_log10_sigma": 0.62
 }
@@ -40,7 +40,7 @@ python mlpoppyns/simulator/simulate_population_full.py --save_dir output/sim_ful
 For example, we can set the number of neutron stars to simulate, the kick-velocity parameters, the parameters of the initial 
 distributions of spin periods and magnetic fields, and several other parameters.
 Note that the parameters provided in the `parameter_override.json` file need to be compatible with the models specified in the 
-`config_simulator.py` file. In the example above, providing the `sigma_k` parameter requires us to select the model `km_maxwell` in the configuration file, otherwise an error will occur. The same applies for the other parameters related to the 
+`config_simulator.py` file. In the example above, providing the `vk_ln_mean` parameter requires us to select the model `km_log-normal` in the configuration file, otherwise an error will occur. The same applies for the other parameters related to the 
 spin period and magnetic field distributions.  
 The above command will then generate a new directory `output/sim_full` if it does not exist, in which the simulation 
 results will be saved.
